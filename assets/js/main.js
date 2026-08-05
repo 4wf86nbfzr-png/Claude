@@ -107,8 +107,10 @@
     || !!(navigator.connection && navigator.connection.saveData);
 
   vids.forEach(v=>{
-    /* Videoebene erst einblenden, wenn wirklich etwas zu sehen ist */
-    v.addEventListener('loadeddata', ()=> v.classList.add('ready'));
+    /* Videoebene erst einblenden, wenn wirklich etwas zu sehen ist.
+       scrubVideos() muss hier nachziehen: der Clip lädt erst beim Betreten der
+       Bühne, und wer dann nicht weiterscrollt, bekäme sonst dauerhaft Frame 0. */
+    v.addEventListener('loadeddata', ()=>{ v.classList.add('ready'); scrubVideos(); });
     if(v.getAttribute('poster')){
       const probe = new Image();
       probe.onload = ()=> v.classList.add('ready');
