@@ -262,8 +262,19 @@ body.menu-open #mobileMenu{ transform:none; visibility:visible; }
 .pulse{ animation:pulse 3.4s ease-in-out infinite; transform-origin:center; }
 @keyframes pulse{ 50%{ opacity:.5; transform:scale(1.04) } }
 
-/* Fahrservice door */
-.door{ transform-origin:left center; transform:perspective(900px) rotateY(calc(var(--door,0) * -118deg)); transition:transform .05s linear; }
+/* Video-Szenen — liegen über der SVG-Ebene, die als Fallback erhalten bleibt.
+   Erst wenn Poster oder Videodaten wirklich geladen sind, setzt main.js .ready
+   und blendet die Videoebene ein; fehlt die Datei, bleibt das SVG sichtbar. */
+.stagevid{
+  position:absolute; inset:0; z-index:2;
+  width:100%; height:100%; object-fit:cover; border-radius:18px;
+  opacity:0; transition:opacity .5s var(--ease); pointer-events:none;
+}
+.stagevid.ready{ opacity:1; }
+
+/* Fahrservice door — die SVG-Türgruppe dreht sich; das gescrubbte Video nutzt
+   dieselbe Variable, wird aber über currentTime statt über rotateY gesteuert. */
+svg .door{ transform-origin:left center; transform:perspective(900px) rotateY(calc(var(--door,0) * -118deg)); transition:transform .05s linear; }
 
 /* ============================================================
    TESTIMONIALS

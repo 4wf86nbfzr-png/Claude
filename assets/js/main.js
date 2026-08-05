@@ -96,11 +96,59 @@
     }
   }
 
+  /* ---- Video-Szenen ----
+     Laden und Abspielen nur im Viewport. Auf Mobil, bei Datensparmodus und bei
+     prefers-reduced-motion bleibt es beim Poster — src wird dann gar nicht gesetzt.
+     updateStages() bleibt unverändert; die Videos lesen nur die Variablen mit,
+     die dort ohnehin schon gesetzt werden. */
+  const vids = [...document.querySelectorAll('.stagevid')];
+  const posterOnly = ()=> reduce
+    || window.matchMedia('(max-width:980px)').matches
+    || !!(navigator.connection && navigator.connection.saveData);
+
+  vids.forEach(v=>{
+    /* Videoebene erst einblenden, wenn wirklich etwas zu sehen ist */
+    v.addEventListener('loadeddata', ()=> v.classList.add('ready'));
+    if(v.getAttribute('poster')){
+      const probe = new Image();
+      probe.onload = ()=> v.classList.add('ready');
+      probe.src = v.getAttribute('poster');
+    }
+  });
+
+  if(vids.length){
+    const vio = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{
+        const v = e.target;
+        if(e.isIntersecting){
+          if(!v.src && v.dataset.src && !posterOnly()) v.src = v.dataset.src;
+          /* gescrubbte Clips laufen nicht von selbst — der Scroll führt sie */
+          if(v.hasAttribute('data-scrub') || posterOnly()) return;
+          if(v.src) v.play().catch(()=>{});
+        } else if(!v.paused){
+          v.pause();
+        }
+      });
+    }, { rootMargin:'200px 0px', threshold:0 });
+    vids.forEach(v=> vio.observe(v));
+  }
+
+  /* Scroll-gescrubbte Clips: --door (0→1) wird auf die Laufzeit abgebildet */
+  const scrubbers = vids.filter(v=> v.hasAttribute('data-scrub'));
+  function scrubVideos(){
+    for(const v of scrubbers){
+      if(v.readyState < 2 || !v.duration) continue;
+      const p = parseFloat(v.style.getPropertyValue('--door')) || 0;
+      const t = p * Math.max(0, v.duration - 0.05);
+      if(Math.abs(v.currentTime - t) > 0.03) v.currentTime = t;
+    }
+  }
+
   /* rAF-throttled scroll */
   let ticking = false;
   function onScroll(){
     onScrollTop();
-    if(!reduce && !ticking){ ticking = true; requestAnimationFrame(()=>{ updateStages(); ticking=false; }); }
+    if(!reduce && !ticking){ ticking = true; requestAnimationFrame(()=>{ updateStages(); scrubVideos(); ticking=false; }); }
   }
   window.addEventListener('scroll', onScroll, { passive:true });
   window.addEventListener('resize', ()=>{ onScrollTop(); if(!reduce) updateStages(); });

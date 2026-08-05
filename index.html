@@ -307,6 +307,13 @@
     <div class="scene">
       <div class="scene__glow"></div>
       <div class="scene__frame art" style="width:min(680px,86vmin)">
+        <!-- Weitwinkel: Hand öffnet die Autotür. Der Scroll scrubbt den Clip über --door,
+             genau wie vorher die SVG-Tür. Liegt über der SVG-Ebene, die als Fallback bleibt,
+             solange assets/video/fahrservice.mp4 fehlt. -->
+        <video class="stagevid door" data-scrub muted playsinline loop preload="metadata"
+               poster="assets/img/fahrservice.jpg"
+               data-src="assets/video/fahrservice.mp4"
+               aria-hidden="true" tabindex="-1"></video>
         <!-- Wide: modern car, hand opens door -->
         <svg viewBox="0 0 480 320" id="carWide">
           <defs>
@@ -335,6 +342,11 @@
         <div class="sheen"></div>
         <!-- Detail: interior -->
         <div class="detail">
+          <!-- Nahaufnahme Innenraum: blendet über --detail auf, läuft als Loop. -->
+          <video class="stagevid" muted playsinline loop preload="metadata"
+                 poster="assets/img/fahrservice-innen.jpg"
+                 data-src="assets/video/fahrservice-innen.mp4"
+                 aria-hidden="true" tabindex="-1"></video>
           <svg viewBox="0 0 480 320">
             <defs><linearGradient id="g-cyan2" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#A9EEFF"/><stop offset="1" stop-color="#6FE0FF"/></linearGradient></defs>
             <rect x="20" y="20" width="440" height="280" rx="20" fill="#0E0820"/>
