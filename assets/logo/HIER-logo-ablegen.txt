@@ -1,0 +1,2 @@
+Echtes Logo hier ablegen, z. B. logo-herm.svg (Original: hermserviceteam.com/wp-content/uploads/2020/09/logo_herm.svg).
+Danach in index.html/kontakt/... die .brand-Wortmarke durch <img src="assets/logo/logo-herm.svg"> ersetzen (Kopf + Footer).

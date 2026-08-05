@@ -1,0 +1,2 @@
+Kurze Loop-Videos (mp4/webm, muted, ~5-10s) für die Zoom-Szenen, z. B. fahrservice.mp4 (Tür öffnet -> Innenraum).
+Einbindung: <video class="scene" muted playsinline loop poster="..."> ... </video> — Mechanik in main.js bleibt.
