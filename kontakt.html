@@ -1,27 +1,28 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de" class="kein-js">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Kontakt — HERM Service Team</title>
-<meta name="description" content="Kontaktieren Sie das HERM Service Team in Hamburg für Ihr Event – Telefon, E-Mail oder Anfrageformular." />
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<title>Kontakt &amp; Anfrage &mdash; HERM Service Team</title>
+<meta name="description" content="Personal f&uuml;r Ihr Event anfragen: Telefon +49 (40) 27075100, info@hermserviceteam.com oder &uuml;ber das Formular. HERM Service Team, Gertigstra&szlig;e 12&ndash;14, Hamburg." />
+<link rel="stylesheet" href="assets/css/fonts.css">
 <link rel="icon" href="assets/logo/favicon-32.png" sizes="32x32" type="image/png" />
 <link rel="icon" href="assets/logo/favicon-16.png" sizes="16x16" type="image/png" />
 <link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png" />
 <link rel="icon" href="assets/logo/favicon.ico" sizes="any" />
 <link rel="stylesheet" href="assets/css/styles.css">
+<!-- Inhalte werden beim Scrollen eingeblendet. Ohne JavaScript bliebe die
+     Seite sonst leer — diese Zeile nimmt die Sperre sofort zurück. -->
+<script>document.documentElement.classList.remove("kein-js")</script>
 </head>
 <body>
 <div id="scrollbar"></div>
-<button id="toTop" aria-label="Zurück nach oben">
+<button id="toTop" aria-label="Zur&uuml;ck nach oben">
   <svg viewBox="0 0 24 24" fill="none"><path d="M12 20V6M6 12l6-6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
 </button>
 
 <header class="nav scrolled" id="nav">
-  <a class="brand" href="index.html" aria-label="HERM Service Team – Startseite">
+  <a class="brand" href="index.html" aria-label="HERM Service Team &ndash; Startseite">
     <img class="brand__logo" src="assets/logo/logo-herm.png" alt="HERM Service Team" />
   </a>
   <nav class="nav__links" aria-label="Hauptnavigation">
@@ -33,11 +34,11 @@
     <a href="kontakt.html">Kontakt</a>
   </nav>
   <div class="nav__cta">
-    <span class="nav__phone">+49 (40) 27075100</span>
+    <a class="nav__phone" href="tel:+494027075100">+49 (40) 27075100</a>
     <a class="btn" href="kontakt.html">Anfrage starten
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </a>
-    <button class="burger" id="burger" aria-label="Menü öffnen" aria-expanded="false"><i></i><i></i><i></i></button>
+    <button class="burger" id="burger" aria-label="Men&uuml; &ouml;ffnen" aria-expanded="false"><i></i><i></i><i></i></button>
   </div>
 </header>
 
@@ -49,7 +50,7 @@
   <a href="jobs.html">Jobs</a>
   <a href="kontakt.html">Kontakt</a>
   <div class="menu__aktion">
-    <a class="btn" href="kontakt.html">Anfrage starten <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    <a class="btn" href="kontakt.html">Anfrage starten <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
     <a class="menu__tel" href="tel:+494027075100">+49 (40) 27075100</a>
   </div>
   <div class="menu__socials" aria-label="Soziale Netzwerke">
@@ -68,27 +69,31 @@
   </div>
 </nav>
 
-<main style="--accent:#B57BFF">
-  <section class="subhero" style="--accent:#B57BFF">
-    <div class="subhero__mesh" aria-hidden="true"><div class="orb a"></div><div class="orb b"></div></div>
+<main>
+  <section class="subhero">
+    <div class="subhero__photo" aria-hidden="true">
+      <img src="assets/img/promotion.jpg" alt="Briefing des HERM Service Team vor einer Veranstaltung" fetchpriority="high" />
+    </div>
     <div class="wrap">
       <div class="breadcrumb"><a href="index.html">Home</a> / <span>Kontakt</span></div>
-      <span class="eyebrow">Haben Sie noch Fragen?</span>
-      <h1>Lassen Sie uns Ihr Event tragen.</h1>
-      <span class="tag">Wir erstellen Ihnen ein persönliches Angebot.</span>
+      <span class="eyebrow">Anfrage</span>
+      <h1 class="u-caps">Lassen Sie uns Ihr Event tragen.</h1>
+      <span class="tag">Sagen Sie uns, was ansteht &mdash; wir erstellen Ihnen ein pers&ouml;nliches Angebot.</span>
     </div>
   </section>
 
   <section class="content">
     <div class="wrap content__grid">
       <div class="content__lead">
-        <!-- HINWEIS für Claude Code: Formular an ein Backend / einen Mail-Dienst (z. B. Formspree, Netlify Forms) anbinden.
-             Der mailto-Fallback unten öffnet nur das Mailprogramm des Besuchers. -->
-        <form class="form" action="mailto:info@hermserviceteam.com" method="post" enctype="text/plain">
-          <div><label for="name">Name</label><input id="name" name="Name" type="text" required></div>
-          <div><label for="firma">Firma</label><input id="firma" name="Firma" type="text"></div>
-          <div><label for="email">E-Mail</label><input id="email" name="E-Mail" type="email" required></div>
-          <div><label for="tel">Telefon</label><input id="tel" name="Telefon" type="tel"></div>
+        <!-- Das Formular arbeitet ohne Endpunkt als Mail-Assistent: main.js baut
+             aus den Feldern eine fertige Nachricht und öffnet das Mailprogramm.
+             ANBINDUNG AN EINEN DIENST: data-endpunkt="https://formspree.io/f/xxxx"
+             am <form> ergänzen — dann wird direkt abgeschickt. -->
+        <form class="form" data-anfrage data-empfaenger="info@hermserviceteam.com" novalidate>
+          <div><label for="name">Name *</label><input id="name" name="Name" type="text" required autocomplete="name"></div>
+          <div><label for="firma">Firma</label><input id="firma" name="Firma" type="text" autocomplete="organization"></div>
+          <div><label for="email">E-Mail *</label><input id="email" name="E-Mail" type="email" required autocomplete="email"></div>
+          <div><label for="tel">Telefon</label><input id="tel" name="Telefon" type="tel" autocomplete="tel"></div>
           <div><label for="bereich">Bereich</label>
             <select id="bereich" name="Bereich">
               <option>Gastro-Personal</option><option>Sicherheit</option><option>Promotion / Hostess</option>
@@ -96,26 +101,68 @@
             </select>
           </div>
           <div><label for="datum">Event-Datum</label><input id="datum" name="Datum" type="date"></div>
-          <div class="full"><label for="ort">Veranstaltungsort</label><input id="ort" name="Ort" type="text" placeholder="Hamburg / deutschlandweit"></div>
-          <div class="full"><label for="nachricht">Ihre Nachricht</label><textarea id="nachricht" name="Nachricht" placeholder="Beschreiben Sie kurz Ihr Event, Anzahl Personal, Uhrzeiten …"></textarea></div>
-          <div class="full"><button class="btn" type="submit">Anfrage senden
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button></div>
+          <div><label for="anzahl">Wie viele Personen</label><input id="anzahl" name="Personenzahl" type="text" inputmode="numeric" placeholder="z.&nbsp;B. 8"></div>
+          <div><label for="ort">Veranstaltungsort</label><input id="ort" name="Ort" type="text" placeholder="Hamburg / deutschlandweit"></div>
+          <div class="full"><label for="nachricht">Ihre Nachricht</label><textarea id="nachricht" name="Nachricht" placeholder="Kurz zum Ablauf: Uhrzeiten, Art der Veranstaltung, Besonderheiten &hellip;"></textarea></div>
+          <div class="full">
+            <button class="btn" type="submit">Anfrage senden
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <p class="form__status" role="status"></p>
+            <p style="color:var(--muted);font-size:.86rem;margin-top:14px">Pflichtfelder sind mit * gekennzeichnet.
+              Ihre Angaben nutzen wir ausschlie&szlig;lich zur Bearbeitung der Anfrage.</p>
+          </div>
         </form>
       </div>
       <aside class="side">
         <h4>Direkt erreichbar</h4>
         <ul class="ticklist" style="gap:16px">
           <li><a href="tel:+494027075100">+49 (40) 27075100</a></li>
-          <li>Fax +49 (40) 6011769</li>
           <li><a href="mailto:info@hermserviceteam.com">info@hermserviceteam.com</a></li>
+          <li>Fax +49 (40) 6011769</li>
           <li>HERM Service Team e.K.<br>Maik Herm<br>Gertigstra&szlig;e 12&ndash;14<br>22303 Hamburg</li>
         </ul>
         <a class="btn" href="tel:+494027075100">Jetzt anrufen</a>
+        <p class="side__hinweis">Am schnellsten geht es telefonisch.</p>
       </aside>
     </div>
   </section>
+
+  <section class="content" style="padding-top:0">
+    <div class="wrap">
+      <div class="ansprech">
+        <div class="ansprech__bild">
+          <img src="assets/img/team/shayan-wahedi.jpg" alt="Shayan Wahedi, Recruiting und Disposition beim HERM Service Team" loading="lazy" />
+        </div>
+        <div class="ansprech__txt">
+          <small>Ihre Anfrage landet hier</small>
+          <b>Shayan Wahedi</b>
+          <a href="tel:+494027075100">Recruiting &amp; Disposition &middot; +49 (40) 27075100</a>
+        </div>
+      </div>
+
+      <div class="kontakt-fakten">
+        <div>
+          <small>Anschrift</small>
+          <address>HERM Service Team e.K.<br>Gertigstra&szlig;e 12&ndash;14<br>22303 Hamburg-Winterhude</address>
+        </div>
+        <div>
+          <small>Anfahrt</small>
+          <p>U-Bahn Sierichstra&szlig;e (U3), wenige Minuten zu Fu&szlig;. Parkpl&auml;tze in den Nebenstra&szlig;en.</p>
+        </div>
+        <div>
+          <small>Termine</small>
+          <p>Pers&ouml;nliche Gespr&auml;che gerne nach vorheriger Absprache &mdash; rufen Sie kurz an.</p>
+        </div>
+        <div>
+          <small>Bewerbungen</small>
+          <p>Sie suchen einen Job bei uns? Dann geht es <a href="jobs.html" style="color:var(--paper)">hier entlang</a>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 </main>
+
 <footer>
   <div class="wrap">
     <div class="foot__grid">
@@ -123,13 +170,8 @@
         <a class="brand" href="index.html">
           <img class="brand__logo" src="assets/logo/logo-herm.png" alt="HERM Service Team" />
         </a>
-        <p>Ihr Partner für Sicherheit, Promotion und Gastro-Personal. Personaldienstleistung aus Hamburg – mit über 20 Jahren Erfahrung.</p>
-        <div class="socials">
-          <a href="https://www.facebook.com/HermServiceTeam/" aria-label="Facebook">f</a>
-          <a href="https://www.instagram.com/HermServiceTeam/" aria-label="Instagram">&#9678;</a>
-          <a href="https://de.linkedin.com/company/herm-service-team" aria-label="LinkedIn">in</a>
-          <a href="https://www.xing.com/companies/hermserviceteame.k." aria-label="Xing">X</a>
-        </div>
+        <p>Ihr Partner f&uuml;r Sicherheit, Promotion und Gastro-Personal. Personaldienstleistung aus Hamburg &ndash; mit &uuml;ber 20 Jahren Erfahrung.</p>
+        <div class="socials"><a href="https://www.facebook.com/HermServiceTeam/" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.6 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.25-1.45 1.55-1.45h1.65V3.68c-.29-.04-1.27-.13-2.4-.13-2.38 0-4 1.45-4 4.12v2.23H7.7V13h2.7v8h3.2z"/></svg></a><a href="https://www.instagram.com/HermServiceTeam/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.15" fill="currentColor" stroke="none"/></svg></a><a href="https://de.linkedin.com/company/herm-service-team" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.9 8.6H4V20h2.9V8.6zM5.45 4a1.7 1.7 0 100 3.4 1.7 1.7 0 000-3.4zM20 13.8c0-3.1-1.66-4.55-3.87-4.55-1.78 0-2.58.98-3.02 1.67V8.6H10.2c.04.83 0 11.4 0 11.4h2.9v-6.36c0-.26.02-.52.1-.7.2-.52.68-1.06 1.48-1.06 1.05 0 1.47.8 1.47 1.96V20H20v-6.2z"/></svg></a><a href="https://www.xing.com/companies/hermserviceteame.k." target="_blank" rel="noopener" aria-label="Xing"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.3 7.5h3.1l2.15 3.85-3.45 6.05H5l3.45-6.05L6.3 7.5zM19.05 3l-6.3 11.15L16.8 21h-3.1l-4.05-6.85L15.95 3h3.1z"/></svg></a></div>
       </div>
       <div>
         <h4>Sitemap</h4>
@@ -153,17 +195,19 @@
         </ul>
       </div>
       <div>
-        <h4>About</h4>
+        <h4>Kontakt</h4>
         <ul>
-          <li><a href="kontakt.html">Kontakt</a></li>
+          <li><a href="kontakt.html">Anfrage &amp; Kontakt</a></li>
+          <li><a href="tel:+494027075100">+49 (40) 27075100</a></li>
+          <li><a href="mailto:info@hermserviceteam.com">info@hermserviceteam.com</a></li>
           <li><a href="https://hermserviceteam.com/impressum/" target="_blank" rel="noopener">Impressum</a></li>
           <li><a href="https://hermserviceteam.com/datenschutz/" target="_blank" rel="noopener">Datenschutz</a></li>
         </ul>
       </div>
     </div>
     <div class="foot__bottom">
-      <span>&copy; <span id="year"></span> HERM Service Team e.K. &middot; Im Besitz der Arbeitnehmer&uuml;berlassung (A&Uuml;G)</span>
-      <span>Relaunch 2026 &middot; Maik Herm &middot; Gertigstra&szlig;e 12&ndash;14, 22303 Hamburg</span>
+      <span>&copy; <span id="year"></span> HERM Service Team e.K. &middot; Erlaubnis zur Arbeitnehmer&uuml;berlassung (A&Uuml;G)</span>
+      <span>Maik Herm &middot; Gertigstra&szlig;e 12&ndash;14 &middot; 22303 Hamburg</span>
     </div>
   </div>
 </footer>

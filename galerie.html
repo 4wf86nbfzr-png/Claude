@@ -1,18 +1,19 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de" class="kein-js">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Galerie — HERM Service Team</title>
-<meta name="description" content="Eindrücke von Events und Einsätzen des HERM Service Teams." />
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<meta name="description" content="Aufnahmen von Einsätzen des HERM Service Team: Service, Sicherheit, Hostessen, Logistik und Fahrservice bei Veranstaltungen in Hamburg." />
+<link rel="stylesheet" href="assets/css/fonts.css">
 <link rel="icon" href="assets/logo/favicon-32.png" sizes="32x32" type="image/png" />
 <link rel="icon" href="assets/logo/favicon-16.png" sizes="16x16" type="image/png" />
 <link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png" />
 <link rel="icon" href="assets/logo/favicon.ico" sizes="any" />
 <link rel="stylesheet" href="assets/css/styles.css">
+<!-- Inhalte werden beim Scrollen eingeblendet. Ohne JavaScript bliebe die
+     Seite sonst leer — diese Zeile nimmt die Sperre sofort zurück. -->
+<script>document.documentElement.classList.remove("kein-js")</script>
 </head>
 <body>
 <div id="scrollbar"></div>
@@ -33,7 +34,7 @@
     <a href="kontakt.html">Kontakt</a>
   </nav>
   <div class="nav__cta">
-    <span class="nav__phone">+49 (40) 27075100</span>
+    <a class="nav__phone" href="tel:+494027075100">+49 (40) 27075100</a>
     <a class="btn" href="kontakt.html">Anfrage starten
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </a>
@@ -68,25 +69,102 @@
   </div>
 </nav>
 
-<main style="--accent:#B57BFF">
-  <section class="subhero" style="--accent:#B57BFF">
-    <div class="subhero__mesh" aria-hidden="true"><div class="orb a"></div><div class="orb b"></div></div>
+<main>
+  <section class="subhero subhero--band">
+    <div class="subhero__photo" aria-hidden="true">
+      <img src="assets/img/logistik-detail.jpg" alt="" fetchpriority="high" />
+    </div>
     <div class="wrap">
       <div class="breadcrumb"><a href="index.html">Home</a> / <span>Galerie</span></div>
       <span class="eyebrow">Einblicke</span>
-      <h1>Galerie</h1>
-      <span class="tag">Momente von Events und Eins&auml;tzen.</span>
+      <h1 class="u-caps">Galerie</h1>
+      <span class="tag">Aufnahmen von Einsätzen — Service, Sicherheit, Messe, Aufbau.</span>
     </div>
   </section>
+
   <section class="content">
     <div class="wrap">
-      <!-- HINWEIS für Claude Code: Kacheln durch echte Bilder aus assets/img/ ersetzen (lazy-loading + Lightbox möglich). -->
-      <div class="gal"><div class="tile">Foto folgt</div><div class="tile">Foto folgt</div><div class="tile">Foto folgt</div><div class="tile">Foto folgt</div><div class="tile">Foto folgt</div><div class="tile">Foto folgt</div><div class="tile">Foto folgt</div><div class="tile">Foto folgt</div><div class="tile">Foto folgt</div></div>
-      <p style="margin-top:28px;color:var(--muted)">Bis der neue Auftritt live ist, finden Sie die aktuelle Galerie
-        <a href="https://hermserviceteam.com/galerie/" target="_blank" rel="noopener" style="color:var(--orchid)">hier</a>.</p>
+      <!-- Echte Aufnahmen statt Platzhalter. Neue Bilder: <a class="gal__item">
+           kopieren, Datei nach assets/img/ legen, Bildunterschrift anpassen.
+           Liegt eine größere Fassung vor, kann sie über data-gross="…" ergänzt
+           werden — die Lightbox zeigt dann diese. -->
+      <div class="gal">
+        <a class="gal__item" href="assets/img/gastro.jpg">
+          <img src="assets/img/gastro.jpg" alt="Gedeckte Tafeln in einer Hamburger Eventlocation vor dem Empfang" loading="lazy" />
+          <figcaption>Gedeckt und bereit — kurz vor dem Empfang</figcaption>
+        </a>
+        <a class="gal__item" href="assets/img/sicherheit.jpg">
+          <img src="assets/img/sicherheit.jpg" alt="Ordnungsdienst am Einlass einer Open-Air-Veranstaltung" loading="lazy" />
+          <figcaption>Einlass und Ordnungsdienst, Open Air</figcaption>
+        </a>
+        <a class="gal__item" href="assets/img/promotion-team.jpg">
+          <img src="assets/img/promotion-team.jpg" alt="Hostessen-Team bei einer Preisverleihung in Hamburg" loading="lazy" />
+          <figcaption>Hostessen-Team bei einer Preisverleihung</figcaption>
+        </a>
+        <a class="gal__item" href="assets/img/logistik.jpg">
+          <img src="assets/img/logistik.jpg" alt="Blick durch das geöffnete Hallentor in einen bestuhlten Veranstaltungssaal" loading="lazy" />
+          <figcaption>Tor auf, Saal fertig — Halle 45</figcaption>
+        </a>
+        <a class="gal__item" href="assets/img/gastro-detail.jpg">
+          <img src="assets/img/gastro-detail.jpg" alt="Zwei Barkeeper des HERM Service Team an der Bar" loading="lazy" />
+          <figcaption>An der Bar</figcaption>
+        </a>
+        <a class="gal__item" href="assets/img/promotion-messe.jpg">
+          <img src="assets/img/promotion-messe.jpg" alt="Betreuung eines Messestands durch zwei Hostessen" loading="lazy" />
+          <figcaption>Messestand-Betreuung</figcaption>
+        </a>
+        <a class="gal__item" href="assets/img/sicherheit-detail.jpg">
+          <img src="assets/img/sicherheit-detail.jpg" alt="Ordner am Absperrgitter vor dem Publikum" loading="lazy" />
+          <figcaption>Am Absperrgitter</figcaption>
+        </a>
+        <a class="gal__item" href="assets/img/logistik-detail.jpg">
+          <img src="assets/img/logistik-detail.jpg" alt="Bestuhlter Veranstaltungssaal im Abendlicht nach dem Aufbau" loading="lazy" />
+          <figcaption>Nach dem Aufbau</figcaption>
+        </a>
+        <a class="gal__item" href="assets/img/promotion.jpg">
+          <img src="assets/img/promotion.jpg" alt="Briefing mit Funkgeräten vor Beginn einer Veranstaltung" loading="lazy" />
+          <figcaption>Briefing, bevor es losgeht</figcaption>
+        </a>
+        <a class="gal__item" href="assets/img/fahrservice-door.jpg">
+          <img src="assets/img/fahrservice-door.jpg" alt="Fahrer öffnet die Tür einer Limousine" loading="lazy" />
+          <figcaption>Fahrservice: Abholung</figcaption>
+        </a>
+        <a class="gal__item" href="assets/img/logistik-tor.jpg">
+          <img src="assets/img/logistik-tor.jpg" alt="Geschlossenes Stahltor der Veranstaltungshalle" loading="lazy" />
+          <figcaption>Vor dem Aufbau</figcaption>
+        </a>
+        <a class="gal__item" href="assets/img/team-herm.jpg">
+          <img src="assets/img/team-herm.jpg" alt="Drei Mitarbeiter des HERM Service Team mit Firmenschild" loading="lazy" />
+          <figcaption>Das Team</figcaption>
+        </a>
+      </div>
+
+      <p style="margin-top:var(--gap-l);color:var(--muted);max-width:56ch">Sie haben mit uns
+        gearbeitet und dürfen Aufnahmen weitergeben? Über neue Bilder freuen wir uns —
+        <a href="mailto:info@hermserviceteam.com" style="color:var(--paper)">info@hermserviceteam.com</a>.</p>
     </div>
   </section>
 </main>
+
+<!-- Lightbox: wird von main.js bespielt -->
+<dialog class="lightbox" id="lightbox" aria-label="Bildansicht">
+  <button class="lightbox__knopf lightbox__zu" type="button" aria-label="Schließen">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+  </button>
+  <button class="lightbox__knopf lightbox__zurueck" type="button" aria-label="Vorheriges Bild">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+  <button class="lightbox__knopf lightbox__vor" type="button" aria-label="Nächstes Bild">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+  <div>
+    <!-- kein src="": ein leeres src lässt den Browser die Seite selbst noch
+         einmal anfordern. Die Quelle setzt main.js beim Öffnen. -->
+    <img class="lightbox__bild" alt="" />
+    <p class="lightbox__bu"><span class="lightbox__bu-text"></span><span class="lightbox__zaehler"></span></p>
+  </div>
+</dialog>
+
 <footer>
   <div class="wrap">
     <div class="foot__grid">
@@ -96,10 +174,10 @@
         </a>
         <p>Ihr Partner für Sicherheit, Promotion und Gastro-Personal. Personaldienstleistung aus Hamburg – mit über 20 Jahren Erfahrung.</p>
         <div class="socials">
-          <a href="https://www.facebook.com/HermServiceTeam/" aria-label="Facebook">f</a>
-          <a href="https://www.instagram.com/HermServiceTeam/" aria-label="Instagram">&#9678;</a>
-          <a href="https://de.linkedin.com/company/herm-service-team" aria-label="LinkedIn">in</a>
-          <a href="https://www.xing.com/companies/hermserviceteame.k." aria-label="Xing">X</a>
+          <a href="https://www.facebook.com/HermServiceTeam/" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.6 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.25-1.45 1.55-1.45h1.65V3.68c-.29-.04-1.27-.13-2.4-.13-2.38 0-4 1.45-4 4.12v2.23H7.7V13h2.7v8h3.2z"/></svg></a>
+          <a href="https://www.instagram.com/HermServiceTeam/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.15" fill="currentColor" stroke="none"/></svg></a>
+          <a href="https://de.linkedin.com/company/herm-service-team" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.9 8.6H4V20h2.9V8.6zM5.45 4a1.7 1.7 0 100 3.4 1.7 1.7 0 000-3.4zM20 13.8c0-3.1-1.66-4.55-3.87-4.55-1.78 0-2.58.98-3.02 1.67V8.6H10.2c.04.83 0 11.4 0 11.4h2.9v-6.36c0-.26.02-.52.1-.7.2-.52.68-1.06 1.48-1.06 1.05 0 1.47.8 1.47 1.96V20H20v-6.2z"/></svg></a>
+          <a href="https://www.xing.com/companies/hermserviceteame.k." target="_blank" rel="noopener" aria-label="Xing"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.3 7.5h3.1l2.15 3.85-3.45 6.05H5l3.45-6.05L6.3 7.5zM19.05 3l-6.3 11.15L16.8 21h-3.1l-4.05-6.85L15.95 3h3.1z"/></svg></a>
         </div>
       </div>
       <div>
@@ -124,17 +202,19 @@
         </ul>
       </div>
       <div>
-        <h4>About</h4>
+        <h4>Kontakt</h4>
         <ul>
-          <li><a href="kontakt.html">Kontakt</a></li>
+          <li><a href="kontakt.html">Anfrage &amp; Kontakt</a></li>
+          <li><a href="tel:+494027075100">+49 (40) 27075100</a></li>
+          <li><a href="mailto:info@hermserviceteam.com">info@hermserviceteam.com</a></li>
           <li><a href="https://hermserviceteam.com/impressum/" target="_blank" rel="noopener">Impressum</a></li>
           <li><a href="https://hermserviceteam.com/datenschutz/" target="_blank" rel="noopener">Datenschutz</a></li>
         </ul>
       </div>
     </div>
     <div class="foot__bottom">
-      <span>&copy; <span id="year"></span> HERM Service Team e.K. &middot; Im Besitz der Arbeitnehmer&uuml;berlassung (A&Uuml;G)</span>
-      <span>Relaunch 2026 &middot; Maik Herm &middot; Gertigstra&szlig;e 12&ndash;14, 22303 Hamburg</span>
+      <span>&copy; <span id="year"></span> HERM Service Team e.K. &middot; Erlaubnis zur Arbeitnehmer&uuml;berlassung (A&Uuml;G)</span>
+      <span>Maik Herm &middot; Gertigstra&szlig;e 12&ndash;14 &middot; 22303 Hamburg</span>
     </div>
   </div>
 </footer>

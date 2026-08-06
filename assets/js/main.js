@@ -15,12 +15,13 @@
     if(gesehen || reduce){ pre.classList.add('instant','done'); return; }
     try { sessionStorage.setItem('hst-intro','1'); } catch(e){}
     const fertig = ()=> pre.classList.add('done');
-    setTimeout(fertig, 2050);          // Ende der Aufbau-Animation
-    setTimeout(fertig, 3600);          // Notausstieg, falls etwas hängt
+    setTimeout(fertig, 1180);          // Ende der Aufbau-Animation
+    setTimeout(fertig, 2400);          // Notausstieg, falls etwas hängt
   })();
 
   /* Year */
-  document.getElementById('year').textContent = new Date().getFullYear();
+  const jahr = document.getElementById('year');
+  if(jahr) jahr.textContent = new Date().getFullYear();
 
   /* Nav scroll state + progress bar */
   const nav = document.getElementById('nav');
@@ -65,26 +66,9 @@
   }, { threshold:.16, rootMargin:'0px 0px -8% 0px' });
   document.querySelectorAll('.reveal-up, [data-stagger]').forEach(el=> io.observe(el));
 
-  /* Stat counters */
-  const cio = new IntersectionObserver((entries)=>{
-    entries.forEach(e=>{
-      if(!e.isIntersecting) return;
-      const el = e.target, target = +el.dataset.count, suffix = el.dataset.suffix||'';
-      let n=0; const step = Math.max(1, Math.round(target/40));
-      const t = setInterval(()=>{ n+=step; if(n>=target){ n=target; clearInterval(t); } el.textContent = n+suffix; }, 26);
-      cio.unobserve(el);
-    });
-  }, { threshold:.6 });
-  document.querySelectorAll('[data-count]').forEach(el=> cio.observe(el));
-
-  /* Hero parallax (mouse) */
-  const orbs = [...document.querySelectorAll('.orb')];
-  if(!reduce){
-    window.addEventListener('mousemove', (ev)=>{
-      const cx = (ev.clientX/window.innerWidth - .5), cy = (ev.clientY/window.innerHeight - .5);
-      orbs.forEach(o=>{ const d = +o.dataset.depth*90; o.style.transform = `translate(${cx*d}px,${cy*d}px)`; });
-    }, { passive:true });
-  }
+  /* Hochzählende Kennzahlen und die violetten Leuchtkugeln im Hero sind
+     entfallen — mit ihnen der mousemove-Listener, der bei jeder Mausbewegung
+     transform auf drei großflächig weichgezeichnete Elemente schrieb. */
 
   /* ---- Cinematic scroll-zoom for each stage ---- */
   const clamp = (v,a,b)=> Math.max(a, Math.min(b,v));
@@ -314,6 +298,101 @@
       }, 900);
     });
   });
+
+  /* ---- Galerie-Lightbox ----
+     <dialog> statt eigenem Overlay: Fokusfalle, Escape und der Rückweg zum
+     auslösenden Element kommen damit vom Browser. Weiterblättern mit den
+     Pfeiltasten, weil man in einer Galerie genau das versucht. */
+  (function(){
+    const dlg = document.getElementById('lightbox');
+    const kacheln = [...document.querySelectorAll('.gal__item')];
+    if(!dlg || !kacheln.length || typeof dlg.showModal !== 'function') return;
+
+    const bild    = dlg.querySelector('.lightbox__bild');
+    const bu      = dlg.querySelector('.lightbox__bu-text');
+    const zaehler = dlg.querySelector('.lightbox__zaehler');
+    let index = 0;
+
+    function zeigen(i){
+      index = (i + kacheln.length) % kacheln.length;
+      const quelle = kacheln[index].querySelector('img');
+      const text   = kacheln[index].querySelector('figcaption');
+      /* Die Kachel zeigt eine verkleinerte Fassung; in der Lightbox soll die
+         volle Auflösung stehen, falls eine hinterlegt ist. */
+      bild.src = kacheln[index].dataset.gross || quelle.src;
+      bild.alt = quelle.alt || '';
+      bu.textContent = text ? text.textContent.trim() : '';
+      zaehler.textContent = (index+1) + ' / ' + kacheln.length;
+    }
+
+    kacheln.forEach((k, i)=>{
+      k.addEventListener('click', (ev)=>{ ev.preventDefault(); zeigen(i); dlg.showModal(); });
+    });
+    dlg.querySelector('.lightbox__zu').addEventListener('click', ()=> dlg.close());
+    dlg.querySelector('.lightbox__vor').addEventListener('click', ()=> zeigen(index+1));
+    dlg.querySelector('.lightbox__zurueck').addEventListener('click', ()=> zeigen(index-1));
+    dlg.addEventListener('keydown', (ev)=>{
+      if(ev.key === 'ArrowRight') zeigen(index+1);
+      if(ev.key === 'ArrowLeft')  zeigen(index-1);
+    });
+    /* Klick auf den dunklen Grund schließt — aber nur dort, nicht auf dem Bild. */
+    dlg.addEventListener('click', (ev)=>{ if(ev.target === dlg) dlg.close(); });
+  })();
+
+  /* ---- Anfrageformular ----
+     Vorher stand am <form> action="mailto:… " method="post". Das ist kein
+     unterstützter Weg: Chrome und Edge tun daraufhin schlicht nichts, die
+     Anfrage war weg. Bis ein echter Dienst (Formspree, Netlify Forms, eigenes
+     Backend) angebunden ist, setzen wir hier eine ordentlich formatierte
+     mailto-Nachricht zusammen und öffnen das Mailprogramm — mit einer
+     sichtbaren Rückmeldung, damit niemand im Unklaren bleibt.
+
+     UMSTELLUNG AUF EINEN DIENST: am <form> data-endpunkt="https://…" setzen.
+     Dann wird abgeschickt statt eine Mail zu öffnen. */
+  (function(){
+    const form = document.querySelector('form[data-anfrage]');
+    if(!form) return;
+    const status = form.querySelector('.form__status');
+    const empfaenger = form.dataset.empfaenger || 'info@hermserviceteam.com';
+
+    function melden(text, stand){
+      if(!status) return;
+      status.textContent = text;
+      status.dataset.stand = stand || 'ok';
+    }
+
+    form.addEventListener('submit', async (ev)=>{
+      ev.preventDefault();
+      if(!form.reportValidity()) return;
+      const daten = new FormData(form);
+
+      const endpunkt = form.dataset.endpunkt;
+      if(endpunkt){
+        melden('Wird gesendet …');
+        try{
+          const antwort = await fetch(endpunkt, { method:'POST', body:daten, headers:{ 'Accept':'application/json' } });
+          if(!antwort.ok) throw new Error(antwort.status);
+          form.reset();
+          melden('Danke — Ihre Anfrage ist bei uns. Wir melden uns.');
+        }catch(e){
+          melden('Das hat nicht geklappt. Bitte rufen Sie uns an: +49 (40) 27075100', 'fehler');
+        }
+        return;
+      }
+
+      /* Ohne Endpunkt: Mailprogramm mit fertigem Text öffnen. */
+      const zeilen = [];
+      for(const [feld, wert] of daten.entries()){
+        if(String(wert).trim()) zeilen.push(feld + ': ' + wert);
+      }
+      const betreff = 'Anfrage über die Website' + (daten.get('Bereich') ? ' — ' + daten.get('Bereich') : '');
+      const link = 'mailto:' + empfaenger
+        + '?subject=' + encodeURIComponent(betreff)
+        + '&body=' + encodeURIComponent(zeilen.join('\n'));
+      window.location.href = link;
+      melden('Ihr E-Mail-Programm öffnet sich mit der fertigen Anfrage. Klappt das nicht, schreiben Sie an ' + empfaenger + '.');
+    });
+  })();
 
   /* rAF-throttled scroll */
   let ticking = false;

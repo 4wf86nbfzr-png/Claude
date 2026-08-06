@@ -1,27 +1,28 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de" class="kein-js">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Jobs — HERM Service Team</title>
-<meta name="description" content="Werde Teil des HERM Service Teams in Hamburg – Servicekräfte, Security, Hostessen, Fahrer und mehr." />
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<title>Jobs &amp; Karriere &mdash; HERM Service Team</title>
+<meta name="description" content="Nebenjob, Werkstudium oder Festanstellung beim HERM Service Team in Hamburg: Servicekr&auml;fte, Security, Hostessen, Fahrer, Logistik und Reinigung." />
+<link rel="stylesheet" href="assets/css/fonts.css">
 <link rel="icon" href="assets/logo/favicon-32.png" sizes="32x32" type="image/png" />
 <link rel="icon" href="assets/logo/favicon-16.png" sizes="16x16" type="image/png" />
 <link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png" />
 <link rel="icon" href="assets/logo/favicon.ico" sizes="any" />
 <link rel="stylesheet" href="assets/css/styles.css">
+<!-- Inhalte werden beim Scrollen eingeblendet. Ohne JavaScript bliebe die
+     Seite sonst leer — diese Zeile nimmt die Sperre sofort zurück. -->
+<script>document.documentElement.classList.remove("kein-js")</script>
 </head>
 <body>
 <div id="scrollbar"></div>
-<button id="toTop" aria-label="Zurück nach oben">
+<button id="toTop" aria-label="Zur&uuml;ck nach oben">
   <svg viewBox="0 0 24 24" fill="none"><path d="M12 20V6M6 12l6-6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
 </button>
 
 <header class="nav scrolled" id="nav">
-  <a class="brand" href="index.html" aria-label="HERM Service Team – Startseite">
+  <a class="brand" href="index.html" aria-label="HERM Service Team &ndash; Startseite">
     <img class="brand__logo" src="assets/logo/logo-herm.png" alt="HERM Service Team" />
   </a>
   <nav class="nav__links" aria-label="Hauptnavigation">
@@ -33,11 +34,11 @@
     <a href="kontakt.html">Kontakt</a>
   </nav>
   <div class="nav__cta">
-    <span class="nav__phone">+49 (40) 27075100</span>
+    <a class="nav__phone" href="tel:+494027075100">+49 (40) 27075100</a>
     <a class="btn" href="kontakt.html">Anfrage starten
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </a>
-    <button class="burger" id="burger" aria-label="Menü öffnen" aria-expanded="false"><i></i><i></i><i></i></button>
+    <button class="burger" id="burger" aria-label="Men&uuml; &ouml;ffnen" aria-expanded="false"><i></i><i></i><i></i></button>
   </div>
 </header>
 
@@ -49,7 +50,7 @@
   <a href="jobs.html">Jobs</a>
   <a href="kontakt.html">Kontakt</a>
   <div class="menu__aktion">
-    <a class="btn" href="kontakt.html">Anfrage starten <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    <a class="btn" href="kontakt.html">Anfrage starten <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
     <a class="menu__tel" href="tel:+494027075100">+49 (40) 27075100</a>
   </div>
   <div class="menu__socials" aria-label="Soziale Netzwerke">
@@ -68,38 +69,162 @@
   </div>
 </nav>
 
-<main style="--accent:#B57BFF">
-  <section class="subhero" style="--accent:#B57BFF">
-    <div class="subhero__mesh" aria-hidden="true"><div class="orb a"></div><div class="orb b"></div></div>
+<main>
+  <section class="subhero">
+    <div class="subhero__photo" aria-hidden="true">
+      <img src="assets/img/gastro-detail.jpg" alt="Zwei Mitarbeiter des HERM Service Team an der Bar" fetchpriority="high" />
+    </div>
     <div class="wrap">
       <div class="breadcrumb"><a href="index.html">Home</a> / <span>Jobs</span></div>
       <span class="eyebrow">Karriere</span>
-      <h1>Werde Teil des Teams.</h1>
-      <span class="tag">Flexible Eins&auml;tze rund um Hamburg &amp; deutschlandweit.</span>
+      <h1 class="u-caps">Werd Teil des Teams.</h1>
+      <span class="tag">Flexible Eins&auml;tze rund um Hamburg &mdash; und deutschlandweit, wenn du magst.</span>
     </div>
   </section>
+
   <section class="content">
     <div class="wrap content__grid">
       <div class="content__lead">
-        <p>Wir suchen motivierte Menschen f&uuml;r unsere Bereiche Gastro-Personal, Sicherheit, Promotion &amp; Hostess, Logistik, Fahrservice und Reinigung. Ob als Nebenjob, Werkstudent oder in Festanstellung &ndash; bei uns z&auml;hlen Zuverl&auml;ssigkeit und Teamgeist.</p>
-        <p>Schick uns deine Bewerbung &uuml;ber unser Formular oder per E-Mail &ndash; wir melden uns schnell zur&uuml;ck.</p>
+        <p>Wir suchen Leute, auf die man sich verlassen kann &mdash; f&uuml;r Service, Sicherheit,
+          Promotion, Logistik, Fahrservice und Reinigung. Ob als Nebenjob neben dem Studium,
+          als Werkstudent oder in Festanstellung: bei uns z&auml;hlen Zuverl&auml;ssigkeit und
+          Teamgeist mehr als ein l&uuml;ckenloser Lebenslauf.</p>
+        <p>Du sagst uns, wann du kannst. Wir melden uns, wenn ein Einsatz dazu passt.
+          Keine Schichtpl&auml;ne, in die du dich hineinzw&auml;ngen musst.</p>
         <div class="chips">
-          <span class="chip">Servicekr&auml;fte</span><span class="chip">Security</span><span class="chip">Hostessen</span>
-          <span class="chip">Fahrer</span><span class="chip">Logistik</span><span class="chip">Reinigung</span>
+          <span class="chip">Nebenjob</span><span class="chip">Werkstudium</span>
+          <span class="chip">Festanstellung</span><span class="chip">Ausbildung</span>
         </div>
       </div>
       <aside class="side">
-        <h4>Jetzt bewerben</h4>
+        <h4>Kurz bewerben</h4>
         <ul class="ticklist" style="gap:16px">
-          <li><a href="mailto:info@hermserviceteam.com">info@hermserviceteam.com</a></li>
-          <li><a href="tel:+494027075100">+49 (40) 27075100</a></li>
+          <li>Name, Alter, welcher Bereich</li>
+          <li>Wann du Zeit hast</li>
+          <li>Erfahrung, falls vorhanden &mdash; ist kein Muss</li>
         </ul>
-        <!-- HINWEIS für Claude Code: hier native Bewerbungsseite/FAQ aufbauen (aktuell verlinkt auf Bestandsseite). -->
-        <a class="btn" href="https://hermserviceteam.com/jobs/bewerbung/" target="_blank" rel="noopener">Zur Bewerbung</a>
+        <a class="btn" href="mailto:info@hermserviceteam.com?subject=Bewerbung">Bewerbung schreiben
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <p class="side__hinweis">oder anrufen: <a href="tel:+494027075100" style="color:var(--paper)">+49 (40) 27075100</a></p>
       </aside>
     </div>
   </section>
+
+  <section class="section-soft">
+    <div class="wrap">
+      <span class="eyebrow reveal-up">Offene Bereiche</span>
+      <h2 class="block-title reveal-up u-caps" data-d="1">Wen wir suchen</h2>
+      <div class="stellen">
+        <article class="stelle reveal-up">
+          <div class="stelle__txt">
+            <span class="stelle__meta">Gastronomie &middot; Hamburg</span>
+            <h3>Servicekr&auml;fte, Barkeeper, K&uuml;chenhilfe</h3>
+            <p>Men&uuml;-Service, Bankett, Bar und Zuarbeit in der K&uuml;che. Erfahrung ist willkommen,
+              Einarbeitung gibt es auch ohne.</p>
+          </div>
+          <a class="btn btn--ghost" href="mailto:info@hermserviceteam.com?subject=Bewerbung%20Gastronomie">Bewerben</a>
+        </article>
+        <article class="stelle reveal-up">
+          <div class="stelle__txt">
+            <span class="stelle__meta">Sicherheit &middot; Hamburg</span>
+            <h3>Sicherheitsmitarbeiter &amp; Ordnungsdienst</h3>
+            <p>Einlass, Crowdmanagement und Veranstaltungsschutz. Sachkunde oder Unterrichtung
+              nach &sect;&nbsp;34a bringst du mit oder holst sie mit uns nach.</p>
+          </div>
+          <a class="btn btn--ghost" href="mailto:info@hermserviceteam.com?subject=Bewerbung%20Sicherheit">Bewerben</a>
+        </article>
+        <article class="stelle reveal-up">
+          <div class="stelle__txt">
+            <span class="stelle__meta">Promotion &middot; Messe &amp; Event</span>
+            <h3>Hostessen &amp; Promoter</h3>
+            <p>Standbetreuung, Empfang und G&auml;stebegleitung. Fremdsprachen sind ein Plus,
+              Freude am Umgang mit Menschen Voraussetzung.</p>
+          </div>
+          <a class="btn btn--ghost" href="mailto:info@hermserviceteam.com?subject=Bewerbung%20Promotion">Bewerben</a>
+        </article>
+        <article class="stelle reveal-up">
+          <div class="stelle__txt">
+            <span class="stelle__meta">Logistik &middot; Auf- &amp; Abbau</span>
+            <h3>Logistikhelfer</h3>
+            <p>Bestuhlung, Transport, Messebau-Zuarbeit. K&ouml;rperlich fordernd, daf&uuml;r
+              &uuml;berschaubare Eins&auml;tze mit klarem Anfang und Ende.</p>
+          </div>
+          <a class="btn btn--ghost" href="mailto:info@hermserviceteam.com?subject=Bewerbung%20Logistik">Bewerben</a>
+        </article>
+        <article class="stelle reveal-up">
+          <div class="stelle__txt">
+            <span class="stelle__meta">Fahrservice &middot; deutschlandweit</span>
+            <h3>Fahrer &amp; Chauffeure</h3>
+            <p>Transfer, Shuttle und Chauffeurdienste. F&uuml;hrerschein Klasse&nbsp;B, ruhige
+              Fahrweise und ein gepflegtes Auftreten.</p>
+          </div>
+          <a class="btn btn--ghost" href="mailto:info@hermserviceteam.com?subject=Bewerbung%20Fahrservice">Bewerben</a>
+        </article>
+        <article class="stelle reveal-up">
+          <div class="stelle__txt">
+            <span class="stelle__meta">Reinigung &middot; Hamburg</span>
+            <h3>Reinigungskr&auml;fte</h3>
+            <p>Geb&auml;ude, B&uuml;ro und Praxis sowie Nachbereitung von Veranstaltungen.
+              Feste Zeiten m&ouml;glich.</p>
+          </div>
+          <a class="btn btn--ghost" href="mailto:info@hermserviceteam.com?subject=Bewerbung%20Reinigung">Bewerben</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-soft">
+    <div class="wrap">
+      <span class="eyebrow reveal-up">H&auml;ufige Fragen</span>
+      <h2 class="block-title reveal-up u-caps" data-d="1">Bevor du fragst</h2>
+      <div class="faq">
+        <details>
+          <summary>Brauche ich Erfahrung?</summary>
+          <p>F&uuml;r viele Eins&auml;tze nicht. Wichtiger sind P&uuml;nktlichkeit, ein gepflegtes
+            Auftreten und die Bereitschaft, dich einzuarbeiten. Wo Erfahrung n&ouml;tig ist &mdash;
+            etwa hinter der Bar oder im Sicherheitsbereich &mdash; sagen wir das vorher.</p>
+        </details>
+        <details>
+          <summary>Wie viel muss ich arbeiten?</summary>
+          <p>Das entscheidest du. Manche sind einmal im Monat dabei, andere jede Woche.
+            Du sagst uns deine Verf&uuml;gbarkeit, wir fragen passende Eins&auml;tze an.</p>
+        </details>
+        <details>
+          <summary>Wie werde ich bezahlt?</summary>
+          <p>Nach Stunden, auf Basis eines Arbeitsvertrags &mdash; wir haben die Erlaubnis zur
+            Arbeitnehmer&uuml;berlassung. Die Konditionen besprechen wir im Gespr&auml;ch,
+            bevor du den ersten Einsatz &uuml;bernimmst.</p>
+        </details>
+        <details>
+          <summary>Muss ich aus Hamburg kommen?</summary>
+          <p>Die meisten Eins&auml;tze sind in Hamburg und Umgebung. F&uuml;r Fahrservice und
+            Logistik geht es nach Absprache auch dar&uuml;ber hinaus.</p>
+        </details>
+        <details>
+          <summary>Wie l&auml;uft die Bewerbung ab?</summary>
+          <p>Kurze Mail oder Anruf gen&uuml;gt. Danach lernen wir uns kennen &mdash; pers&ouml;nlich
+            im B&uuml;ro in der Gertigstra&szlig;e oder am Telefon. Ein aufwendiges Anschreiben
+            brauchst du nicht.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta">
+    <div class="wrap cta__inner">
+      <span class="eyebrow reveal-up" style="justify-content:center">Klingt gut?</span>
+      <h2 class="reveal-up u-caps" data-d="1">Dann melde dich.</h2>
+      <p class="reveal-up" data-d="2">Eine kurze Mail reicht: Name, Bereich, wann du kannst.
+        Wir melden uns zur&uuml;ck.</p>
+      <div class="cta__actions reveal-up" data-d="3">
+        <a class="btn" href="mailto:info@hermserviceteam.com?subject=Bewerbung">Bewerbung schreiben <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <a class="btn btn--ghost" href="tel:+494027075100">+49 (40) 27075100</a>
+      </div>
+    </div>
+  </section>
 </main>
+
 <footer>
   <div class="wrap">
     <div class="foot__grid">
@@ -107,13 +232,8 @@
         <a class="brand" href="index.html">
           <img class="brand__logo" src="assets/logo/logo-herm.png" alt="HERM Service Team" />
         </a>
-        <p>Ihr Partner für Sicherheit, Promotion und Gastro-Personal. Personaldienstleistung aus Hamburg – mit über 20 Jahren Erfahrung.</p>
-        <div class="socials">
-          <a href="https://www.facebook.com/HermServiceTeam/" aria-label="Facebook">f</a>
-          <a href="https://www.instagram.com/HermServiceTeam/" aria-label="Instagram">&#9678;</a>
-          <a href="https://de.linkedin.com/company/herm-service-team" aria-label="LinkedIn">in</a>
-          <a href="https://www.xing.com/companies/hermserviceteame.k." aria-label="Xing">X</a>
-        </div>
+        <p>Ihr Partner f&uuml;r Sicherheit, Promotion und Gastro-Personal. Personaldienstleistung aus Hamburg &ndash; mit &uuml;ber 20 Jahren Erfahrung.</p>
+        <div class="socials"><a href="https://www.facebook.com/HermServiceTeam/" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.6 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.25-1.45 1.55-1.45h1.65V3.68c-.29-.04-1.27-.13-2.4-.13-2.38 0-4 1.45-4 4.12v2.23H7.7V13h2.7v8h3.2z"/></svg></a><a href="https://www.instagram.com/HermServiceTeam/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.15" fill="currentColor" stroke="none"/></svg></a><a href="https://de.linkedin.com/company/herm-service-team" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.9 8.6H4V20h2.9V8.6zM5.45 4a1.7 1.7 0 100 3.4 1.7 1.7 0 000-3.4zM20 13.8c0-3.1-1.66-4.55-3.87-4.55-1.78 0-2.58.98-3.02 1.67V8.6H10.2c.04.83 0 11.4 0 11.4h2.9v-6.36c0-.26.02-.52.1-.7.2-.52.68-1.06 1.48-1.06 1.05 0 1.47.8 1.47 1.96V20H20v-6.2z"/></svg></a><a href="https://www.xing.com/companies/hermserviceteame.k." target="_blank" rel="noopener" aria-label="Xing"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.3 7.5h3.1l2.15 3.85-3.45 6.05H5l3.45-6.05L6.3 7.5zM19.05 3l-6.3 11.15L16.8 21h-3.1l-4.05-6.85L15.95 3h3.1z"/></svg></a></div>
       </div>
       <div>
         <h4>Sitemap</h4>
@@ -137,17 +257,19 @@
         </ul>
       </div>
       <div>
-        <h4>About</h4>
+        <h4>Kontakt</h4>
         <ul>
-          <li><a href="kontakt.html">Kontakt</a></li>
+          <li><a href="kontakt.html">Anfrage &amp; Kontakt</a></li>
+          <li><a href="tel:+494027075100">+49 (40) 27075100</a></li>
+          <li><a href="mailto:info@hermserviceteam.com">info@hermserviceteam.com</a></li>
           <li><a href="https://hermserviceteam.com/impressum/" target="_blank" rel="noopener">Impressum</a></li>
           <li><a href="https://hermserviceteam.com/datenschutz/" target="_blank" rel="noopener">Datenschutz</a></li>
         </ul>
       </div>
     </div>
     <div class="foot__bottom">
-      <span>&copy; <span id="year"></span> HERM Service Team e.K. &middot; Im Besitz der Arbeitnehmer&uuml;berlassung (A&Uuml;G)</span>
-      <span>Relaunch 2026 &middot; Maik Herm &middot; Gertigstra&szlig;e 12&ndash;14, 22303 Hamburg</span>
+      <span>&copy; <span id="year"></span> HERM Service Team e.K. &middot; Erlaubnis zur Arbeitnehmer&uuml;berlassung (A&Uuml;G)</span>
+      <span>Maik Herm &middot; Gertigstra&szlig;e 12&ndash;14 &middot; 22303 Hamburg</span>
     </div>
   </div>
 </footer>
