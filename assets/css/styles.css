@@ -685,7 +685,9 @@ footer ul a:hover{ color:var(--paper); }
   grid-template-columns:repeat(auto-fill,minmax(min(100%,258px),1fr));
   margin-top:clamp(22px,2.6vw,34px);
 }
-.member{ display:grid; gap:2px; }
+/* align-content:start — sonst zieht das Raster die Zeilen der kürzeren Kachel
+   auseinander und Name, Bereich und Notiz stehen nicht mehr auf einer Linie. */
+.member{ display:grid; gap:2px; align-content:start; }
 .member__img{
   border-radius:16px; overflow:hidden; border:1px solid var(--line);
   background:var(--ink-2); aspect-ratio:4/5; margin-bottom:16px;
