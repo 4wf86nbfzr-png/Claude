@@ -573,6 +573,9 @@ body.menu-open #mobileMenu{ transform:none; visibility:visible; }
   z-index:0; transform:scale(1.02);
   transition:transform 1.1s var(--ease-soft), filter var(--t-base) var(--ease-swift);
 }
+/* Reinigung: stehende Person im 2:1-Format. Der Anschnitt nimmt oben nur
+   wenig weg, damit der Kopf im Bild bleibt; unten liegt ohnehin der Textblock. */
+.svc[data-bereich="reinigung"] .svc__img{ object-position:50% 12%; }
 /* Abdunklung nur unten, wo der Textblock liegt — oben bleibt das Bild frei */
 .svc::before{
   content:""; position:absolute; inset:0; z-index:2; pointer-events:none;
@@ -754,6 +757,10 @@ body.menu-open #mobileMenu{ transform:none; visibility:visible; }
    die Hand am Türgriff im Zoom-Zentrum landet. Logistik ist bereits passend
    zugeschnitten und braucht keine Korrektur. */
 [data-stage="fahrservice"] .scene__photo{ object-position:32% 52%; }
+/* Reinigung ebenso: Querformat in einem quadratischen Rahmen. Bei mittigem
+   Anschnitt stünde die Mitarbeiterin links am Rand — sie soll dort liegen,
+   wohin die Kamera fährt (Zoom-Zentrum 50 % / 46 %). */
+[data-stage="reinigung"] .scene__photo{ object-position:66% 50%; }
 
 .stagevid{
   position:absolute; inset:0; z-index:2;
@@ -1063,6 +1070,9 @@ footer ul a:hover{ color:var(--paper); }
     linear-gradient(180deg, rgba(0,0,0,.66) 0%, rgba(0,0,0,.24) 12%, rgba(0,0,0,0) 30%, rgba(4,4,7,.72) 82%, var(--ink) 100%),
     linear-gradient(90deg, rgba(0,0,0,.62) 0%, rgba(0,0,0,.16) 52%, rgba(0,0,0,0) 80%);
 }
+/* Reinigung: stehende Person im Querformat, in einem breiten Kopfband. Der
+   mittige Anschnitt nähme oben so viel weg, dass der Kopf fehlt. */
+.subhero[data-bereich="reinigung"] .subhero__photo img{ object-position:50% 18%; }
 .subhero .wrap{ position:relative; z-index:3; }
 .breadcrumb{ font-family:var(--font-mono); font-size:.7rem; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); margin-bottom:22px; display:flex; gap:.6em; flex-wrap:wrap; }
 .breadcrumb a{ color:var(--muted); } .breadcrumb a:hover{ color:#FFF; }

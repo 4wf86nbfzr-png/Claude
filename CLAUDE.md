@@ -110,9 +110,12 @@ Keine Zahlen ohne Aussage — „100 % Fokus auf Ihr Event" stand mal im Hero un
 genau deshalb weg. Bestehende Formulierungen von hermserviceteam.com sind die Referenz.
 
 ## Was noch nicht stimmt / offene Aufgaben
-1. **Fotos fehlen** für Maik Herm und Alexander Krapp (Team-Seite zeigt dort
-   Initialen-Platzhalter) sowie für Fahrservice und Reinigung. Die Reinigungsbilder
-   sind derzeit Ausschnitte aus `gastro.jpg` — echte Aufnahmen wären besser.
+1. **Fotos fehlen** für Maik Herm und Alexander Krapp — die Team-Seite zeigt dort
+   Initialen-Platzhalter. Alle sechs Leistungsbereiche haben inzwischen eigene
+   Aufnahmen. Reinigung kommt aus einem Motiv (Eingangsbereich, Arbeitsjacke mit
+   Logo): `reinigung.jpg` (unbeschnitten, Ausschnitt kommt aus `object-position`),
+   `reinigung-detail.jpg` (Jacke, Zoomziel der Bühne), `reinigung-boden.jpg`
+   (Mopp, Bildband der Detailseite).
 2. **Kontaktformular** an einen echten Dienst anbinden: `data-endpunkt="…"` am
    `<form data-anfrage>` in `kontakt.html` setzen (Formspree, Netlify Forms, eigenes
    Backend). Ohne Endpunkt baut `main.js` eine fertige Mail und öffnet das
