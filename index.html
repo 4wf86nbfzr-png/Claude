@@ -14,6 +14,7 @@
 <link rel="icon" href="assets/logo/favicon-32.png" sizes="32x32" type="image/png" />
 <link rel="icon" href="assets/logo/favicon-16.png" sizes="16x16" type="image/png" />
 <link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png" />
+<link rel="icon" href="assets/logo/favicon.ico" sizes="any" />
 <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body>
@@ -21,7 +22,7 @@
 <!-- ============ PRELOADER ============ -->
 <div id="preloader" aria-hidden="true">
   <div class="pre-logo">
-    <img class="pre-logo__img" src="assets/logo/logo-herm.svg" alt="HERM Service Team" />
+    <img class="pre-logo__img" src="assets/logo/logo-herm.png" alt="HERM Service Team" />
     <div class="pre-sub">Service Team · Hamburg</div>
     <div class="pre-bar"><i></i></div>
   </div>
@@ -37,7 +38,7 @@
 <!-- ============ NAV ============ -->
 <header class="nav" id="nav">
   <a class="brand" href="#top" aria-label="HERM Service Team – Startseite">
-    <img class="brand__logo" src="assets/logo/logo-herm.svg" alt="HERM Service Team" />
+    <img class="brand__logo" src="assets/logo/logo-herm.png" alt="HERM Service Team" />
   </a>
   <nav class="nav__links" aria-label="Hauptnavigation">
     <a href="#leistungen">Dienstleistungen</a>
@@ -67,6 +68,12 @@
 
 <!-- ============ HERO ============ -->
 <section class="hero" id="hero">
+  <!-- Markenbild als Bühne der Startseite. Der eingebrannte Textbalken ist
+       weggeschnitten — die Aussage trägt die Überschrift darunter als echter
+       Text, damit sie skaliert und lesbar bleibt. -->
+  <div class="hero__photo" aria-hidden="true">
+    <img src="assets/img/hero.jpg" alt="" fetchpriority="high" />
+  </div>
   <div class="hero__mesh" aria-hidden="true">
     <div class="orb o1" data-depth="0.06"></div>
     <div class="orb o2" data-depth="0.09"></div>
@@ -292,8 +299,15 @@
     <div class="scene">
       <div class="scene__glow"></div>
       <div class="scene__frame art">
-        <!-- Weitwinkel: echtes Foto, deckt die gezeichnete SVG darunter ab. -->
+        <!-- Grundebene: der Saal hinter dem Tor. -->
         <img class="scene__photo" src="assets/img/logistik.jpg" alt="" />
+        <!-- Das geschlossene Tor, in zwei Flügel geteilt. Beide Aufnahmen haben
+             denselben Ausschnitt, deshalb sitzt der Saal beim Aufschieben exakt
+             an der Stelle, an der das Tor war. --door schiebt die Flügel auf. -->
+        <div class="gate door" aria-hidden="true">
+          <span class="gate__leaf gate__leaf--l"></span>
+          <span class="gate__leaf gate__leaf--r"></span>
+        </div>
         <!-- Anschluss fuer bewegtes Material: poster/data-src setzen, dann
              uebernimmt der Clip diese Ebene. Ohne Quelle bleibt sie unsichtbar. -->
         <video class="stagevid" muted playsinline loop preload="metadata"
@@ -543,7 +557,7 @@
     <div class="foot__grid">
       <div class="foot__brand">
         <a class="brand" href="#top">
-          <img class="brand__logo" src="assets/logo/logo-herm.svg" alt="HERM Service Team" />
+          <img class="brand__logo" src="assets/logo/logo-herm.png" alt="HERM Service Team" />
         </a>
         <p>Ihr Partner für Sicherheit, Promotion und Gastro-Personal. Personaldienstleistung aus Hamburg – mit über 20 Jahren Erfahrung.</p>
         <div class="socials">

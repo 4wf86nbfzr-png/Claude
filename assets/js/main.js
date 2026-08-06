@@ -105,8 +105,9 @@
       set(st, st.detail, 'detail', smooth(0.34, 0.62, p).toFixed(3));
       // panel reveals last
       set(st, st.panel,  'panel',  smooth(0.5, 0.82, p).toFixed(3));
-      // fahrservice door opens early
-      set(st, st.door,   'door',   smooth(0.06, 0.34, p).toFixed(3));
+      // Tür/Tor zuerst: der Spalt ist offen, bevor die Kamera ernsthaft
+      // hineinfährt — sonst liest der Wechsel als Schnitt statt als Öffnen.
+      set(st, st.door,   'door',   smooth(0.02, 0.24, p).toFixed(3));
     }
   }
 
