@@ -110,30 +110,46 @@ Keine Zahlen ohne Aussage — „100 % Fokus auf Ihr Event" stand mal im Hero un
 genau deshalb weg. Bestehende Formulierungen von hermserviceteam.com sind die Referenz.
 
 ## Was noch nicht stimmt / offene Aufgaben
-1. **Fotos fehlen** für Maik Herm und Alexander Krapp — die Team-Seite zeigt dort
-   Initialen-Platzhalter. Alle sechs Leistungsbereiche haben inzwischen eigene
-   Aufnahmen. Reinigung kommt aus einem Motiv (Eingangsbereich, Arbeitsjacke mit
-   Logo): `reinigung.jpg` (unbeschnitten, Ausschnitt kommt aus `object-position`),
-   `reinigung-detail.jpg` (Jacke, Zoomziel der Bühne), `reinigung-boden.jpg`
-   (Mopp, Bildband der Detailseite).
-2. **Kontaktformular** an einen echten Dienst anbinden: `data-endpunkt="…"` am
-   `<form data-anfrage>` in `kontakt.html` setzen (Formspree, Netlify Forms, eigenes
-   Backend). Ohne Endpunkt baut `main.js` eine fertige Mail und öffnet das
-   Mailprogramm — als Übergang, nicht als Dauerlösung.
-3. **Imagefilm** ist ein Platzhalter aus vorhandenen Fotos und hat keine Tonspur.
-   Sobald der echte Film vorliegt: Datei unter `assets/video/` ersetzen, `data-ohne-ton`
-   am `<video>` entfernen (dann erscheint der Tonschalter), Zeiten in
-   `imagefilm-de.vtt` nachziehen. Musik braucht eine Lizenz.
-4. **Rechtstexte** (Impressum, Datenschutz) als eigene Seiten übernehmen — verlinken
-   aktuell noch auf die Bestandsseite.
-5. **Bewerbungen laufen weiter über `info@`** (Jobs-Seite, alle „Bewerben"-Knöpfe).
-   Kundenanfragen gehen an `dispo@hermserviceteam.com`: Formular, Kontaktkarten,
-   Fußzeile und der Block `.ansprech` auf Start- und Kontaktseite. Sollen auch
-   Bewerbungen an `dispo@` gehen, ist das ein Suchen-und-Ersetzen in `jobs.html`.
-   Die persönlichen Adressen des Büroteams stehen auf der Team-Seite
-   (Schema `vorname-initial.nachname@`); Maik Herm und Alexander Krapp bewusst ohne.
-6. **SEO/OG:** Open-Graph-Bild, sitemap.xml, robots.txt fehlen noch.
-7. **Deploy** (Netlify/Vercel) und Domain hermserviceteam.com per DNS verbinden.
+Die Seite steht im **Testbetrieb**: gegen Suchmaschinen gesperrt, noch nicht
+auf der Live-Domain. Was vor dem Start passieren muss, steht in `README.md`
+unter „Vor dem Live-Gang". Kurzfassung:
+
+1. **Rechtstexte vervollständigen.** Impressum und Datenschutz sind angelegt;
+   Handelsregisternummer, USt-IdNr., AÜG-Behörde und der Hoster fehlen und sind
+   im Text als `bitte ergänzen` markiert. Beide Texte gehören vor dem Start
+   anwaltlich geprüft.
+2. **Fotos fehlen** für Maik Herm und Alexander Krapp — die Team-Seite zeigt
+   dort Initialen-Platzhalter. Alle sechs Leistungsbereiche haben eigene
+   Aufnahmen. Reinigung kommt aus einem Motiv (Eingangsbereich, Arbeitsjacke
+   mit Logo): `reinigung.jpg` (unbeschnitten, Ausschnitt kommt aus
+   `object-position`), `reinigung-detail.jpg` (Jacke, Zoomziel der Bühne),
+   `reinigung-boden.jpg` (Mopp, Bildband der Detailseite).
+3. **Imagefilm** ist ein Platzhalter aus vorhandenen Fotos und hat keine
+   Tonspur. Sobald der echte Film vorliegt: Datei unter `assets/video/`
+   ersetzen, `data-ohne-ton` am `<video>` entfernen (dann erscheint der
+   Tonschalter), Zeiten in `imagefilm-de.vtt` nachziehen. Musik braucht
+   eine Lizenz.
+4. **Formularempfänger:** Anfragen gehen an `dispo@hermserviceteam.com`,
+   Bewerbungen an `info@hermserviceteam.com`. Auf Netlify wird das unter
+   Forms → Form notifications eingestellt, im Markup steht es als
+   `data-empfaenger`. Die persönlichen Adressen des Büroteams stehen auf der
+   Team-Seite (Schema `vorname-initial.nachname@`); Maik Herm und Alexander
+   Krapp bewusst ohne.
+5. **Bilder liegen doppelt** als `.jpg` und `.webp`. Wer ein Foto austauscht,
+   muss beide erzeugen — sonst greift die WebP-Fassung auf den alten Stand zu.
+
+## Technik, die man kennen sollte
+- **Formulare** (`main.js`): drei Versandwege, gesteuert über Attribute am
+  `<form>` — `data-endpunkt` > `data-netlify` > mailto. Details in `README.md`.
+- **Spam-Schutz** ohne Captcha: unsichtbares Honigtopf-Feld plus Zeitprüfung.
+  Die Zeitprüfung ist bewusst *weich* — bei zu schnellem Absenden wird
+  nachgefragt statt verworfen, sonst gingen per Autovervollständigung
+  ausgefüllte Anfragen verloren.
+- **Ohne JavaScript** bliebe die Seite leer (Einblendungen beim Scrollen).
+  Deshalb trägt `<html>` die Klasse `kein-js`, die eine Zeile im `<head>`
+  sofort entfernt. Bitte beim Anlegen neuer Seiten mitkopieren.
+- **Lange deutsche Wörter**: Überschriften haben `hyphens:auto`.
+  „Datenschutzerklärung" schob die Seite auf 320 px sonst seitlich raus.
 
 ## Preview & Deploy
 - Lokale Vorschau: `npx serve` oder `python3 -m http.server` im Projektordner starten.

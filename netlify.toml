@@ -1,0 +1,106 @@
+# ============================================================
+# HERM Service Team — Konfiguration für Netlify
+# ------------------------------------------------------------
+# Diese Datei genügt für einen Deploy: Repository in Netlify
+# verbinden, kein Build-Befehl, Veröffentlichungsordner ist die
+# Wurzel. Alles Weitere steht hier.
+#
+# Der Abschnitt "TESTBETRIEB" hält Suchmaschinen fern. Vor dem
+# Live-Gang die drei markierten Stellen anfassen — sonst bleibt
+# die Seite unsichtbar.
+# ============================================================
+
+[build]
+  publish = "."
+  # Kein Build-Schritt: reines HTML/CSS/JS.
+  command = ""
+
+# ---- Netlify Forms ----
+# Die Formulare in kontakt.html und jobs.html tragen data-netlify="true"
+# und einen Namen. Netlify erkennt sie beim Deploy automatisch; die
+# Eingänge stehen danach unter "Forms" im Netlify-Dashboard.
+# Weiterleitung per Mail: Netlify → Forms → Settings → Form notifications
+#   Anfragen    -> dispo@hermserviceteam.com
+#   Bewerbungen -> info@hermserviceteam.com
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # ---- TESTBETRIEB: VOR DEM LIVE-GANG ENTFERNEN (1 von 3) ----
+    # Sperrt die Vorschau für Suchmaschinen, auch wenn jemand die
+    # Meta-Angabe in einer Seite übersieht.
+    X-Robots-Tag = "noindex, nofollow, noarchive, nosnippet"
+
+    # ---- Sicherheit ----
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "SAMEORIGIN"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=(), payment=(), interest-cohort=()"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+    # Die Seite lädt nichts von fremden Servern — Schriften, Bilder und
+    # der Film liegen im Projekt. Deshalb darf die Richtlinie eng sein.
+    # 'unsafe-inline' ist nötig für die wenigen Inline-Stile im Markup
+    # und die eine Zeile im <head>, die die JS-Sperre aufhebt.
+    Content-Security-Policy = "default-src 'self'; img-src 'self' data:; media-src 'self'; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; form-action 'self'; frame-ancestors 'self'; base-uri 'self'; object-src 'none'"
+
+# ---- Zwischenspeicher ----
+# Bilder, Schriften und Video ändern sich selten und tragen einen
+# festen Namen: lange speichern. HTML dagegen immer frisch holen,
+# sonst sehen Kollegen im Test noch die Fassung von gestern.
+[[headers]]
+  for = "/assets/img/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/assets/fonts/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/assets/video/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# ---- Adressen ohne .html ----
+# /kontakt statt /kontakt.html — schöner und nach dem Live-Gang
+# die Adressen, die man weitergibt.
+[[redirects]]
+  from = "/kontakt"
+  to = "/kontakt.html"
+  status = 200
+[[redirects]]
+  from = "/jobs"
+  to = "/jobs.html"
+  status = 200
+[[redirects]]
+  from = "/team"
+  to = "/team.html"
+  status = 200
+[[redirects]]
+  from = "/galerie"
+  to = "/galerie.html"
+  status = 200
+[[redirects]]
+  from = "/impressum"
+  to = "/impressum.html"
+  status = 200
+[[redirects]]
+  from = "/datenschutz"
+  to = "/datenschutz.html"
+  status = 200
+[[redirects]]
+  from = "/dienstleistungen/:name"
+  to = "/dienstleistungen/:name.html"
+  status = 200
+
+# Alles Unbekannte auf die Fehlerseite, mit korrektem Statuscode.
+[[redirects]]
+  from = "/*"
+  to = "/404.html"
+  status = 404

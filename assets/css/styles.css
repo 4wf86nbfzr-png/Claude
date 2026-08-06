@@ -115,7 +115,12 @@ body::after{
    line-height 1.0 ließ zweizeilige Überschriften zusammenkleben; 1.06 gibt der
    Display-Schrift gerade so viel Luft, dass Ober- und Unterlängen frei stehen. */
 h1,h2,h3,h4{ font-family:var(--font-display); font-weight:800; line-height:1.06;
-  letter-spacing:-.02em; text-wrap:balance; }
+  letter-spacing:-.02em; text-wrap:balance;
+  /* Deutsche Komposita werden lang: „Datenschutzerklärung" ist auf einem
+     320-px-Gerät in Display-Größe 393 px breit und schob die ganze Seite
+     seitlich raus. hyphens:auto trennt sinnvoll (html lang="de" liefert die
+     Trennregeln), break-word ist der Notnagel für Wörter ohne Trennstelle. */
+  overflow-wrap:break-word; hyphens:auto; }
 h1{ letter-spacing:-.03em; }
 .u-caps{ text-transform:uppercase; letter-spacing:-.005em; }
 h1.u-caps{ letter-spacing:-.012em; }
@@ -1224,6 +1229,49 @@ footer ul a:hover{ color:var(--paper); }
   text-transform:uppercase; color:var(--muted); margin-top:12px;
 }
 
+/* ---- Rechtstexte (Impressum, Datenschutz) ----
+   Lange Fließtexte in einer eigenen, schmalen Spalte. Sie sollen nüchtern und
+   lesbar sein, nicht gestaltet. */
+.rechtstext{ max-width:74ch; }
+.rechtstext h2{ font-size:var(--fs-h3); margin:var(--gap-l) 0 var(--gap-s); }
+.rechtstext h2:first-child{ margin-top:0; }
+.rechtstext h3{ font-size:var(--fs-h4); margin:var(--gap-m) 0 var(--gap-xs); }
+.rechtstext p, .rechtstext li{ color:var(--chrome); }
+.rechtstext p + p{ margin-top:.9em; }
+.rechtstext ul{ margin:.7em 0 0 1.1em; display:flex; flex-direction:column; gap:.45em; }
+.rechtstext address{ font-style:normal; color:var(--chrome); }
+.rechtstext a{ color:var(--paper); text-decoration:underline; text-underline-offset:2px; }
+.rechtstext dl{ display:grid; grid-template-columns:auto 1fr; gap:.5em 1.4em; margin-top:.8em; }
+.rechtstext dt{ color:var(--muted); font-family:var(--font-mono); font-size:.72rem;
+  letter-spacing:.1em; text-transform:uppercase; padding-top:.28em; }
+.rechtstext dd{ color:var(--chrome); }
+@media (max-width:560px){ .rechtstext dl{ grid-template-columns:1fr; gap:.2em; } }
+
+/* Sichtbar offene Angabe. Rechtliche Pflichtangaben darf niemand raten —
+   solche Stellen müssen auffallen, bis sie ausgefüllt sind. Vor dem
+   Live-Gang darf keine davon mehr in den Seiten stehen. */
+.offen{
+  display:inline-block; padding:.15em .6em; border-radius:var(--r-s);
+  background:rgba(240,161,157,.12); box-shadow:inset 0 0 0 1px rgba(240,161,157,.45);
+  color:#F0A19D; font-family:var(--font-mono); font-size:.78rem; letter-spacing:.04em;
+}
+.offen-kasten{
+  border:1px solid rgba(240,161,157,.45); background:rgba(240,161,157,.07);
+  border-radius:var(--r-m); padding:clamp(18px,2vw,24px); margin-bottom:var(--gap-l);
+}
+.offen-kasten b{ color:#F0A19D; display:block; margin-bottom:6px; }
+.offen-kasten p{ color:var(--chrome); font-size:.95rem; }
+
+/* ---- 404 ---- */
+.fehlseite{ min-height:70svh; display:grid; place-items:center; text-align:center; padding:var(--sec) 0; }
+.fehlseite .nummer{
+  font-family:var(--font-display); font-weight:800; font-size:clamp(5rem,16vw,11rem);
+  line-height:.9; letter-spacing:-.04em; color:var(--ink-3);
+}
+.fehlseite h1{ font-size:var(--fs-h2); margin-top:var(--gap-s); }
+.fehlseite p{ color:var(--chrome); max-width:44ch; margin:var(--gap-s) auto var(--gap-m); }
+.fehlseite .cta__actions{ justify-content:center; }
+
 .block-title{ font-size:var(--fs-h2); margin:var(--gap-s) 0 var(--gap-s); }
 .section-soft{ border-top:1px solid var(--line); padding:clamp(56px,8vw,100px) 0; }
 
@@ -1314,13 +1362,83 @@ footer ul a:hover{ color:var(--paper); }
 .pagenav a small{ font-family:var(--font-mono); font-weight:400; color:var(--muted); font-size:.62rem; letter-spacing:.2em; text-transform:uppercase; }
 .pagenav a.next{ text-align:right; margin-left:auto; align-items:flex-end; }
 
-/* Contact form */
-.form{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+/* ---- Formulare ----
+   Ein Formular ist auf dieser Seite das Ziel der ganzen Nutzerführung. Es muss
+   deshalb sagen, was es will (Pflichtfelder), was schiefging (Fehler am Feld,
+   nicht als Sammelmeldung oben) und dass es geklappt hat. */
+.form{ display:grid; grid-template-columns:1fr 1fr; gap:18px 16px; }
 .form .full{ grid-column:1 / -1; }
 .form label{ font-family:var(--font-mono); font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); display:block; margin-bottom:8px; }
-.form input,.form select,.form textarea{ width:100%; background:var(--ink-2); border:1px solid var(--line); border-radius:var(--r-s); padding:14px 16px; color:var(--paper); font-family:var(--font-body); font-size:1rem; }
+.form input,.form select,.form textarea{
+  width:100%; background:var(--ink-2); border:1px solid var(--line); border-radius:var(--r-s);
+  padding:14px 16px; color:var(--paper); font-family:var(--font-body);
+  /* 16px verhindert, dass iOS beim Antippen in das Feld hineinzoomt. */
+  font-size:1rem;
+  transition:border-color var(--t-fast) var(--ease-swift), box-shadow var(--t-fast) var(--ease-swift);
+}
+.form input::placeholder,.form textarea::placeholder{ color:var(--muted); }
+.form input:hover,.form select:hover,.form textarea:hover{ border-color:rgba(255,255,255,.3); }
 .form input:focus,.form select:focus,.form textarea:focus{ outline:none; border-color:#FFF; box-shadow:0 0 0 3px rgba(255,255,255,.14); }
-.form textarea{ min-height:130px; resize:vertical; }
+.form textarea{ min-height:140px; resize:vertical; }
+/* Eigene Pfeilspitze: das Standard-Select ist auf dunklem Grund je nach System
+   ein weißer Kasten. */
+.form select{
+  appearance:none; -webkit-appearance:none; padding-right:42px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238B8B93' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 14px center; background-size:18px;
+}
+.form select option{ background:var(--ink-2); color:var(--paper); }
+
+/* Fehlerzustand: Rahmen plus Text unter dem Feld. Farbe allein reicht nicht —
+   wer Rot nicht sieht, braucht die Meldung. */
+.form .feld--fehler input,
+.form .feld--fehler select,
+.form .feld--fehler textarea{ border-color:#E4736F; box-shadow:0 0 0 3px rgba(228,115,111,.16); }
+.feld__fehler{ display:none; color:#F0A19D; font-size:.86rem; margin-top:7px; }
+.feld--fehler .feld__fehler{ display:block; }
+
+/* Einwilligung */
+.form .zustimmung{ display:flex; align-items:flex-start; gap:12px; }
+.form .zustimmung input[type="checkbox"]{
+  width:20px; height:20px; flex:none; margin-top:2px; accent-color:#FFF;
+  border-radius:4px; padding:0;
+}
+.form .zustimmung label{
+  font-family:var(--font-body); font-size:.92rem; letter-spacing:0;
+  text-transform:none; color:var(--chrome); margin:0; line-height:1.5;
+}
+.form .zustimmung a{ color:var(--paper); text-decoration:underline; text-underline-offset:2px; }
+
+/* Honigtopf: für Menschen unsichtbar, für einfache Bots ein Pflichtfeld, das
+   sie ausfüllen. Bewusst nicht display:none — das erkennen viele Bots. */
+.honigtopf{
+  position:absolute !important; width:1px; height:1px; overflow:hidden;
+  clip:rect(0 0 0 0); clip-path:inset(50%); white-space:nowrap;
+}
+
+.form__hinweis{ color:var(--muted); font-size:.86rem; margin-top:14px; }
+.form__hinweis a{ color:var(--chrome); text-decoration:underline; text-underline-offset:2px; }
+.form__fuss{ display:flex; flex-wrap:wrap; align-items:center; gap:16px; }
+
+/* Rückmeldung nach dem Absenden */
+.form__status{ font-size:.95rem; color:var(--chrome); }
+.form__status:empty{ display:none; }
+.form__status[data-stand="fehler"]{ color:#F0A19D; }
+.form__status[data-stand="laeuft"]{ color:var(--muted); }
+.btn[aria-busy="true"]{ opacity:.6; pointer-events:none; }
+
+/* Bestätigung: ersetzt das Formular, damit niemand zweimal abschickt. */
+.danke{
+  border:1px solid var(--line); border-radius:var(--r-m); background:var(--ink-2);
+  padding:clamp(28px,3.4vw,44px); display:grid; gap:12px; justify-items:start;
+}
+.danke__haken{
+  width:46px; height:46px; border-radius:50%; display:grid; place-items:center;
+  background:#FFF; color:#08080A; margin-bottom:6px;
+}
+.danke h2{ font-size:var(--fs-h3); }
+.danke p{ color:var(--chrome); max-width:46ch; }
+.danke .btn{ margin-top:10px; }
 
 /* ---- Galerie ----
    Vorher neun Kacheln mit der Aufschrift „Foto folgt" und ein Link auf die alte

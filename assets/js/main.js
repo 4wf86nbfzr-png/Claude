@@ -339,60 +339,194 @@
     dlg.addEventListener('click', (ev)=>{ if(ev.target === dlg) dlg.close(); });
   })();
 
-  /* ---- Anfrageformular ----
-     Vorher stand am <form> action="mailto:… " method="post". Das ist kein
-     unterstützter Weg: Chrome und Edge tun daraufhin schlicht nichts, die
-     Anfrage war weg. Bis ein echter Dienst (Formspree, Netlify Forms, eigenes
-     Backend) angebunden ist, setzen wir hier eine ordentlich formatierte
-     mailto-Nachricht zusammen und öffnen das Mailprogramm — mit einer
-     sichtbaren Rückmeldung, damit niemand im Unklaren bleibt.
+  /* ---- Formulare ----
+     Ein Formular ist das Ziel der ganzen Seite. Es muss deshalb vier Dinge
+     können: prüfen, verständlich meckern, absenden und bestätigen.
 
-     UMSTELLUNG AUF EINEN DIENST: am <form> data-endpunkt="https://…" setzen.
-     Dann wird abgeschickt statt eine Mail zu öffnen. */
-  (function(){
-    const form = document.querySelector('form[data-anfrage]');
-    if(!form) return;
-    const status = form.querySelector('.form__status');
-    const empfaenger = form.dataset.empfaenger || 'info@hermserviceteam.com';
+     Übermittlung, in dieser Reihenfolge:
+       1. data-endpunkt="https://…"  -> dorthin (Formspree, eigenes Backend)
+       2. data-netlify="true"        -> POST auf "/" (Netlify Forms, ohne Konto-
+                                        schlüssel; Netlify liest das Formular
+                                        beim Deploy aus dem HTML)
+       3. sonst                      -> fertige Mail im Mailprogramm öffnen
+     Schlägt 1 oder 2 fehl, wird nicht stillschweigend verschluckt: es erscheint
+     eine Fehlermeldung mit Telefonnummer und ein Mail-Ersatzweg.
 
+     Spam-Schutz ohne Captcha: ein unsichtbares Feld (Honigtopf), das nur
+     Maschinen ausfüllen, plus eine Mindestzeit zwischen Laden und Absenden.
+     Beides kostet echte Besucher nichts. */
+  /* „Bewerben" an einer Stelle springt nicht nur zum Formular, sondern trägt
+     den Bereich gleich ein — sonst muss man ihn zwei Zeilen später noch einmal
+     auswählen. */
+  document.querySelectorAll('[data-bereich-waehlen]').forEach(knopf => {
+    knopf.addEventListener('click', () => {
+      const wahl = knopf.dataset.bereichWaehlen;
+      const feld = document.querySelector('#bewerbung select[name="Bereich"]');
+      if(!feld) return;
+      const treffer = [...feld.options].find(o => o.value === wahl || o.text === wahl);
+      if(treffer){
+        feld.value = treffer.value || treffer.text;
+        feld.dispatchEvent(new Event('change', { bubbles:true }));
+      }
+    });
+  });
+
+  document.querySelectorAll('form[data-formular]').forEach(form => {
+    const status     = form.querySelector('.form__status');
+    const knopf      = form.querySelector('button[type="submit"]');
+    const empfaenger = form.dataset.empfaenger || 'dispo@hermserviceteam.com';
+    const honigtopf  = form.querySelector('.honigtopf input');
+    const geladen    = Date.now();
+    /* Zeitsperre gegen Bots, aber bewusst weich: wer per Autovervollständigung
+       ausfüllt, ist realistisch in zwei Sekunden fertig. Eine harte Sperre
+       würde solche Anfragen stillschweigend wegwerfen — das wäre schlimmer als
+       eine Spam-Mail. Deshalb wird beim ersten Mal nur nachgefragt. */
+    const MINDESTZEIT = 2500;   // ms
+    let schnellBestaetigt = false;
+
+    /* --- Meldungen --- */
     function melden(text, stand){
       if(!status) return;
-      status.textContent = text;
-      status.dataset.stand = stand || 'ok';
+      status.textContent = text || '';
+      if(stand) status.dataset.stand = stand; else delete status.dataset.stand;
     }
 
-    form.addEventListener('submit', async (ev)=>{
-      ev.preventDefault();
-      if(!form.reportValidity()) return;
-      const daten = new FormData(form);
+    /* --- Prüfung eines einzelnen Feldes --- */
+    function textZu(feld){
+      const v = feld.validity;
+      if(v.valueMissing){
+        if(feld.type === 'checkbox') return 'Bitte bestätigen, damit wir Ihre Anfrage bearbeiten dürfen.';
+        if(feld.tagName === 'SELECT') return 'Bitte einen Eintrag wählen.';
+        return 'Bitte ausfüllen.';
+      }
+      if(v.typeMismatch && feld.type === 'email') return 'Bitte eine gültige E-Mail-Adresse angeben, z. B. name@firma.de';
+      if(v.typeMismatch && feld.type === 'tel')   return 'Bitte eine gültige Telefonnummer angeben.';
+      if(v.tooShort)  return 'Bitte etwas ausführlicher — mindestens ' + feld.minLength + ' Zeichen.';
+      if(v.tooLong)   return 'Das ist zu lang — höchstens ' + feld.maxLength + ' Zeichen.';
+      if(v.patternMismatch) return feld.dataset.fehler || 'Diese Eingabe passt nicht ins Format.';
+      if(v.rangeUnderflow || v.badInput) return 'Diese Eingabe können wir nicht lesen.';
+      return 'Bitte prüfen Sie diese Eingabe.';
+    }
 
-      const endpunkt = form.dataset.endpunkt;
-      if(endpunkt){
-        melden('Wird gesendet …');
-        try{
-          const antwort = await fetch(endpunkt, { method:'POST', body:daten, headers:{ 'Accept':'application/json' } });
-          if(!antwort.ok) throw new Error(antwort.status);
-          form.reset();
-          melden('Danke — Ihre Anfrage ist bei uns. Wir melden uns.');
-        }catch(e){
-          melden('Das hat nicht geklappt. Bitte rufen Sie uns an: +49 (40) 27075100', 'fehler');
-        }
+    function pruefen(feld){
+      const huelle = feld.closest('.feld') || feld.parentElement;
+      const meldung = huelle && huelle.querySelector('.feld__fehler');
+      const ok = feld.checkValidity();
+      if(huelle) huelle.classList.toggle('feld--fehler', !ok);
+      feld.setAttribute('aria-invalid', ok ? 'false' : 'true');
+      if(meldung) meldung.textContent = ok ? '' : textZu(feld);
+      return ok;
+    }
+
+    /* Beim Verlassen prüfen, danach bei jeder Eingabe nachziehen — sonst
+       stehen Fehler noch da, während man sie gerade behebt. */
+    form.querySelectorAll('input, select, textarea').forEach(feld => {
+      if(feld.closest('.honigtopf')) return;
+      feld.addEventListener('blur',  ()=> pruefen(feld));
+      feld.addEventListener('input', ()=>{
+        const huelle = feld.closest('.feld');
+        if(huelle && huelle.classList.contains('feld--fehler')) pruefen(feld);
+      });
+    });
+
+    /* --- Bestätigung --- */
+    function danken(){
+      const danke = document.createElement('div');
+      danke.className = 'danke';
+      danke.setAttribute('role', 'status');
+      danke.setAttribute('tabindex', '-1');
+      danke.innerHTML =
+        '<span class="danke__haken" aria-hidden="true">' +
+        '<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5 9-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+        '</span>' +
+        '<h2 class="u-caps">' + (form.dataset.dankeTitel || 'Danke!') + '</h2>' +
+        '<p>' + (form.dataset.dankeText || 'Ihre Nachricht ist bei uns. Wir melden uns zeitnah zurück.') + '</p>' +
+        '<a class="btn" href="tel:+494027075100">Oder direkt anrufen: +49 (40) 27075100</a>';
+      form.replaceWith(danke);
+      danke.focus();
+      danke.scrollIntoView({ block:'center' });
+    }
+
+    /* --- Absenden --- */
+    form.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+
+      /* Honigtopf gefüllt: eindeutig eine Maschine. Kein Mensch sieht dieses
+         Feld. Wir tun so, als sei alles gut — der Bot bekommt keine Auskunft,
+         an der er etwas lernen könnte. */
+      if(honigtopf && honigtopf.value){ danken(); return; }
+
+      const felder = [...form.querySelectorAll('input, select, textarea')]
+        .filter(f => !f.closest('.honigtopf'));
+      let ersterFehler = null;
+      felder.forEach(f => { if(!pruefen(f) && !ersterFehler) ersterFehler = f; });
+      if(ersterFehler){
+        melden('Bitte prüfen Sie die markierten Felder.', 'fehler');
+        ersterFehler.focus();
+        ersterFehler.scrollIntoView({ block:'center', behavior:'smooth' });
         return;
       }
+      /* Auffällig schnell: einmal nachfragen statt wegwerfen. Ein Mensch klickt
+         dann einfach noch einmal, ein einfacher Bot verschwindet nach dem
+         ersten Versuch. */
+      if(!schnellBestaetigt && (Date.now() - geladen) < MINDESTZEIT){
+        schnellBestaetigt = true;
+        melden('Das ging schnell — bitte noch einmal auf Senden klicken, dann geht es raus.');
+        return;
+      }
+      melden('');
 
-      /* Ohne Endpunkt: Mailprogramm mit fertigem Text öffnen. */
+      const daten = new FormData(form);
+      daten.delete(honigtopf ? honigtopf.name : '__kein_feld__');
+
+      const endpunkt = form.dataset.endpunkt;
+      const ueberNetlify = form.dataset.netlify === 'true' && location.protocol.startsWith('http');
+
+      if(endpunkt || ueberNetlify){
+        if(knopf) knopf.setAttribute('aria-busy', 'true');
+        melden('Wird gesendet …', 'laeuft');
+        try{
+          const antwort = endpunkt
+            ? await fetch(endpunkt, { method:'POST', body:daten, headers:{ Accept:'application/json' } })
+            : await fetch('/', { method:'POST',
+                headers:{ 'Content-Type':'application/x-www-form-urlencoded' },
+                body:new URLSearchParams(daten).toString() });
+          if(!antwort.ok) throw new Error('HTTP ' + antwort.status);
+          danken();
+          return;
+        }catch(e){
+          if(knopf) knopf.removeAttribute('aria-busy');
+          melden('Das Absenden hat nicht geklappt. Bitte rufen Sie uns an unter '
+               + '+49 (40) 27075100 — oder schicken Sie die Anfrage per E-Mail.', 'fehler');
+          mailWeg(daten);
+          return;
+        }
+      }
+
+      /* Kein Dienst hinterlegt: fertige Mail öffnen. */
+      mailWeg(daten, true);
+    });
+
+    /* Baut aus den Feldern eine lesbare Mail und öffnet das Mailprogramm. */
+    function mailWeg(daten, auchDanken){
       const zeilen = [];
       for(const [feld, wert] of daten.entries()){
-        if(String(wert).trim()) zeilen.push(feld + ': ' + wert);
+        if(feld === 'form-name') continue;
+        const t = String(wert).trim();
+        if(t) zeilen.push(feld + ': ' + t);
       }
-      const betreff = 'Anfrage über die Website' + (daten.get('Bereich') ? ' — ' + daten.get('Bereich') : '');
+      const betreff = (form.dataset.betreff || 'Nachricht über die Website')
+        + (daten.get('Bereich') ? ' — ' + daten.get('Bereich') : '');
       const link = 'mailto:' + empfaenger
         + '?subject=' + encodeURIComponent(betreff)
-        + '&body=' + encodeURIComponent(zeilen.join('\n'));
+        + '&body='    + encodeURIComponent(zeilen.join('\n'));
       window.location.href = link;
-      melden('Ihr E-Mail-Programm öffnet sich mit der fertigen Anfrage. Klappt das nicht, schreiben Sie an ' + empfaenger + '.');
-    });
-  })();
+      if(auchDanken){
+        melden('Ihr E-Mail-Programm öffnet sich mit der fertigen Nachricht. '
+             + 'Klappt das nicht, schreiben Sie bitte an ' + empfaenger + '.');
+      }
+    }
+  });
 
   /* rAF-throttled scroll */
   let ticking = false;

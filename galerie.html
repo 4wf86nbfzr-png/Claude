@@ -5,7 +5,35 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Galerie — HERM Service Team</title>
 <meta name="description" content="Aufnahmen von Einsätzen des HERM Service Team: Service, Sicherheit, Hostessen, Logistik und Fahrservice bei Veranstaltungen in Hamburg." />
+<!-- Die beiden Schnitte, die auf jeder Seite sofort gebraucht werden.
+     crossorigin ist auch bei eigenen Dateien Pflicht, sonst laedt der
+     Browser die Schrift ein zweites Mal. -->
+<link rel="preload" as="font" type="font/woff2" crossorigin
+      href="assets/fonts/bricolage-grotesque-var-latin.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin
+      href="assets/fonts/instrument-sans-var-latin.woff2" />
 <link rel="stylesheet" href="assets/css/fonts.css">
+<!-- ============================================================
+     TESTBETRIEB — VOR DEM LIVE-GANG ENTFERNEN
+     Diese Zeile haelt Suchmaschinen von der internen Vorschau fern.
+     Solange sie hier steht, wird die Seite nicht indexiert.
+     Zusaetzlich sperrt robots.txt und der Header X-Robots-Tag.
+     ============================================================ -->
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
+<link rel="canonical" href="https://hermserviceteam.com/galerie.html" />
+<meta name="theme-color" content="#08080A" />
+<!-- Vorschau beim Teilen in Messengern und sozialen Netzwerken -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="HERM Service Team" />
+<meta property="og:locale" content="de_DE" />
+<meta property="og:title" content="Galerie — HERM Service Team" />
+<meta property="og:description" content="Aufnahmen von Einsätzen des HERM Service Team: Service, Sicherheit, Hostessen, Logistik und Fahrservice bei Veranstaltungen in Hamburg." />
+<meta property="og:url" content="https://hermserviceteam.com/galerie.html" />
+<meta property="og:image" content="https://hermserviceteam.com/assets/img/og-bild.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="HERM Service Team — Personaldienstleistung aus Hamburg" />
+<meta name="twitter:card" content="summary_large_image" />
 <link rel="icon" href="assets/logo/favicon-32.png" sizes="32x32" type="image/png" />
 <link rel="icon" href="assets/logo/favicon-16.png" sizes="16x16" type="image/png" />
 <link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png" />
@@ -23,7 +51,7 @@
 
 <header class="nav scrolled" id="nav">
   <a class="brand" href="index.html" aria-label="HERM Service Team – Startseite">
-    <img class="brand__logo" src="assets/logo/logo-herm.png" alt="HERM Service Team" />
+    <img class="brand__logo" src="assets/logo/logo-herm.png" alt="HERM Service Team" width="1416" height="540" />
   </a>
   <nav class="nav__links" aria-label="Hauptnavigation">
     <a href="index.html#leistungen">Dienstleistungen</a>
@@ -72,7 +100,7 @@
 <main>
   <section class="subhero subhero--band">
     <div class="subhero__photo" aria-hidden="true">
-      <img src="assets/img/logistik-detail.jpg" alt="" fetchpriority="high" />
+      <picture><source type="image/webp" srcset="assets/img/logistik-detail.webp" /><img src="assets/img/logistik-detail.jpg" alt="" fetchpriority="high" width="1400" height="1400" /></picture>
     </div>
     <div class="wrap">
       <div class="breadcrumb"><a href="index.html">Home</a> / <span>Galerie</span></div>
@@ -90,55 +118,55 @@
            werden — die Lightbox zeigt dann diese. -->
       <div class="gal">
         <a class="gal__item" href="assets/img/gastro.jpg">
-          <img src="assets/img/gastro.jpg" alt="Gedeckte Tafeln in einer Hamburger Eventlocation vor dem Empfang" loading="lazy" />
+          <picture><source type="image/webp" srcset="assets/img/gastro.webp" /><img src="assets/img/gastro.jpg" alt="Gedeckte Tafeln in einer Hamburger Eventlocation vor dem Empfang" loading="lazy" width="1600" height="1600" /></picture>
           <figcaption>Gedeckt und bereit — kurz vor dem Empfang</figcaption>
         </a>
         <a class="gal__item" href="assets/img/sicherheit.jpg">
-          <img src="assets/img/sicherheit.jpg" alt="Ordnungsdienst am Einlass einer Open-Air-Veranstaltung" loading="lazy" />
+          <picture><source type="image/webp" srcset="assets/img/sicherheit.webp" /><img src="assets/img/sicherheit.jpg" alt="Ordnungsdienst am Einlass einer Open-Air-Veranstaltung" loading="lazy" width="1600" height="1600" /></picture>
           <figcaption>Einlass und Ordnungsdienst, Open Air</figcaption>
         </a>
         <a class="gal__item" href="assets/img/promotion-team.jpg">
-          <img src="assets/img/promotion-team.jpg" alt="Hostessen-Team bei einer Preisverleihung in Hamburg" loading="lazy" />
+          <picture><source type="image/webp" srcset="assets/img/promotion-team.webp" /><img src="assets/img/promotion-team.jpg" alt="Hostessen-Team bei einer Preisverleihung in Hamburg" loading="lazy" width="1216" height="663" /></picture>
           <figcaption>Hostessen-Team bei einer Preisverleihung</figcaption>
         </a>
         <a class="gal__item" href="assets/img/logistik.jpg">
-          <img src="assets/img/logistik.jpg" alt="Blick durch das geöffnete Hallentor in einen bestuhlten Veranstaltungssaal" loading="lazy" />
+          <picture><source type="image/webp" srcset="assets/img/logistik.webp" /><img src="assets/img/logistik.jpg" alt="Blick durch das geöffnete Hallentor in einen bestuhlten Veranstaltungssaal" loading="lazy" width="1600" height="1600" /></picture>
           <figcaption>Tor auf, Saal fertig — Halle 45</figcaption>
         </a>
         <a class="gal__item" href="assets/img/gastro-detail.jpg">
-          <img src="assets/img/gastro-detail.jpg" alt="Zwei Barkeeper des HERM Service Team an der Bar" loading="lazy" />
+          <picture><source type="image/webp" srcset="assets/img/gastro-detail.webp" /><img src="assets/img/gastro-detail.jpg" alt="Zwei Barkeeper des HERM Service Team an der Bar" loading="lazy" width="1600" height="1600" /></picture>
           <figcaption>An der Bar</figcaption>
         </a>
         <a class="gal__item" href="assets/img/promotion-messe.jpg">
-          <img src="assets/img/promotion-messe.jpg" alt="Betreuung eines Messestands durch zwei Hostessen" loading="lazy" />
+          <picture><source type="image/webp" srcset="assets/img/promotion-messe.webp" /><img src="assets/img/promotion-messe.jpg" alt="Betreuung eines Messestands durch zwei Hostessen" loading="lazy" width="1129" height="1591" /></picture>
           <figcaption>Messestand-Betreuung</figcaption>
         </a>
         <a class="gal__item" href="assets/img/sicherheit-detail.jpg">
-          <img src="assets/img/sicherheit-detail.jpg" alt="Ordner am Absperrgitter vor dem Publikum" loading="lazy" />
+          <picture><source type="image/webp" srcset="assets/img/sicherheit-detail.webp" /><img src="assets/img/sicherheit-detail.jpg" alt="Ordner am Absperrgitter vor dem Publikum" loading="lazy" width="1400" height="1400" /></picture>
           <figcaption>Am Absperrgitter</figcaption>
         </a>
         <a class="gal__item" href="assets/img/logistik-detail.jpg">
-          <img src="assets/img/logistik-detail.jpg" alt="Bestuhlter Veranstaltungssaal im Abendlicht nach dem Aufbau" loading="lazy" />
+          <picture><source type="image/webp" srcset="assets/img/logistik-detail.webp" /><img src="assets/img/logistik-detail.jpg" alt="Bestuhlter Veranstaltungssaal im Abendlicht nach dem Aufbau" loading="lazy" width="1400" height="1400" /></picture>
           <figcaption>Nach dem Aufbau</figcaption>
         </a>
         <a class="gal__item" href="assets/img/promotion.jpg">
-          <img src="assets/img/promotion.jpg" alt="Briefing mit Funkgeräten vor Beginn einer Veranstaltung" loading="lazy" />
+          <picture><source type="image/webp" srcset="assets/img/promotion.webp" /><img src="assets/img/promotion.jpg" alt="Briefing mit Funkgeräten vor Beginn einer Veranstaltung" loading="lazy" width="1600" height="1600" /></picture>
           <figcaption>Briefing, bevor es losgeht</figcaption>
         </a>
         <a class="gal__item" href="assets/img/fahrservice-door.jpg">
-          <img src="assets/img/fahrservice-door.jpg" alt="Fahrer öffnet die Tür einer Limousine" loading="lazy" />
+          <picture><source type="image/webp" srcset="assets/img/fahrservice-door.webp" /><img src="assets/img/fahrservice-door.jpg" alt="Fahrer öffnet die Tür einer Limousine" loading="lazy" width="1536" height="1024" /></picture>
           <figcaption>Fahrservice: Abholung</figcaption>
         </a>
         <a class="gal__item" href="assets/img/reinigung.jpg">
-          <img src="assets/img/reinigung.jpg" alt="Reinigungskraft des HERM Service Team beim Wischen im Eingangsbereich eines Bürogebäudes" loading="lazy" />
+          <picture><source type="image/webp" srcset="assets/img/reinigung.webp" /><img src="assets/img/reinigung.jpg" alt="Reinigungskraft des HERM Service Team beim Wischen im Eingangsbereich eines Bürogebäudes" loading="lazy" width="1536" height="1024" /></picture>
           <figcaption>Unterhaltsreinigung im Eingangsbereich</figcaption>
         </a>
         <a class="gal__item" href="assets/img/logistik-tor.jpg">
-          <img src="assets/img/logistik-tor.jpg" alt="Geschlossenes Stahltor der Veranstaltungshalle" loading="lazy" />
+          <picture><source type="image/webp" srcset="assets/img/logistik-tor.webp" /><img src="assets/img/logistik-tor.jpg" alt="Geschlossenes Stahltor der Veranstaltungshalle" loading="lazy" width="1600" height="1600" /></picture>
           <figcaption>Vor dem Aufbau</figcaption>
         </a>
         <a class="gal__item" href="assets/img/team-herm.jpg">
-          <img src="assets/img/team-herm.jpg" alt="Drei Mitarbeiter des HERM Service Team mit Firmenschild" loading="lazy" />
+          <picture><source type="image/webp" srcset="assets/img/team-herm.webp" /><img src="assets/img/team-herm.jpg" alt="Drei Mitarbeiter des HERM Service Team mit Firmenschild" loading="lazy" width="1600" height="880" /></picture>
           <figcaption>Das Team</figcaption>
         </a>
       </div>
@@ -174,7 +202,7 @@
     <div class="foot__grid">
       <div class="foot__brand">
         <a class="brand" href="index.html">
-          <img class="brand__logo" src="assets/logo/logo-herm.png" alt="HERM Service Team" />
+          <img class="brand__logo" src="assets/logo/logo-herm.png" alt="HERM Service Team" width="1416" height="540" />
         </a>
         <p>Ihr Partner für Sicherheit, Promotion und Gastro-Personal. Personaldienstleistung aus Hamburg – mit über 20 Jahren Erfahrung.</p>
         <div class="socials">
@@ -211,8 +239,8 @@
           <li><a href="kontakt.html">Anfrage &amp; Kontakt</a></li>
           <li><a href="tel:+494027075100">+49 (40) 27075100</a></li>
           <li><a href="mailto:dispo@hermserviceteam.com">dispo@hermserviceteam.com</a></li>
-          <li><a href="https://hermserviceteam.com/impressum/" target="_blank" rel="noopener">Impressum</a></li>
-          <li><a href="https://hermserviceteam.com/datenschutz/" target="_blank" rel="noopener">Datenschutz</a></li>
+          <li><a href="impressum.html">Impressum</a></li>
+          <li><a href="datenschutz.html">Datenschutz</a></li>
         </ul>
       </div>
     </div>

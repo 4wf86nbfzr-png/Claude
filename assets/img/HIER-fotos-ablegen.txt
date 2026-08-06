@@ -1,2 +1,0 @@
-Event-/Team-Fotos hier ablegen (webp/jpg). Werden für Galerie und als Szenen-Bilder verwendet.
-Empfehlung: pro Bereich ein Hero-Foto: gastro.jpg, sicherheit.jpg, promotion.jpg, logistik.jpg, fahrservice.jpg, reinigung.jpg
