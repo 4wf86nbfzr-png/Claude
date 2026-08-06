@@ -927,15 +927,31 @@ body.menu-open #mobileMenu{ transform:none; visibility:visible; }
 
 /* Ansprechpartner mit Gesicht und Durchwahl. Wer Personal einkauft, will
    wissen, wer ans Telefon geht — das ist im B2B das wirksamste
-   Vertrauenselement und kostet hier nur eine Zeile mehr. */
+   Vertrauenselement und kostet hier nur eine Zeile mehr.
+   Gezeigt wird die Disposition als Team, nicht eine einzelne Person: Anfragen
+   landen bei mehreren, und wer hier ein Gesicht sieht, das dann nicht antwortet,
+   ist schlechter dran als mit gar keinem. */
 .ansprech{
   display:flex; align-items:center; gap:clamp(16px,2vw,24px);
-  max-width:520px; margin:var(--gap-l) auto 0; text-align:left;
+  max-width:560px; margin:var(--gap-l) auto 0; text-align:left;
   padding:clamp(18px,2vw,24px);
   border:1px solid var(--line); border-radius:var(--r-m); background:var(--ink-2);
 }
-.ansprech__bild{ width:76px; height:76px; flex:none; border-radius:50%; overflow:hidden; border:1px solid var(--line); }
-.ansprech__bild img{ width:100%; height:100%; object-fit:cover; object-position:50% 20%; }
+/* Die Porträts liegen leicht übereinander; der Ring in der Kartenfarbe trennt
+   sie, ohne dass jedes eine eigene Kontur braucht. */
+.ansprech__leute{ display:flex; flex:none; }
+.ansprech__kopf{
+  width:58px; height:58px; flex:none; border-radius:50%; overflow:hidden;
+  border:2px solid var(--ink-2); background:var(--ink-3);
+  display:grid; place-items:center;
+}
+.ansprech__kopf + .ansprech__kopf{ margin-left:-15px; }
+.ansprech__kopf img{ width:100%; height:100%; object-fit:cover; object-position:50% 18%; }
+/* Solange ein Porträt fehlt: Initialen wie auf der Team-Seite. */
+.ansprech__kopf--leer{
+  font-family:var(--font-display); font-weight:800; font-size:.86rem;
+  color:rgba(255,255,255,.42); letter-spacing:.02em;
+}
 .ansprech__txt{ display:grid; gap:3px; min-width:0; }
 .ansprech__txt small{ font-family:var(--font-mono); font-size:.62rem; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); }
 .ansprech__txt b{ font-family:var(--font-display); font-weight:800; font-size:1.1rem; letter-spacing:-.02em; }
@@ -1174,6 +1190,14 @@ footer ul a:hover{ color:var(--paper); }
   font-family:var(--font-mono); font-size:.66rem; letter-spacing:.2em;
   text-transform:uppercase; color:var(--muted); margin-top:6px;
 }
+/* Direkte Mailadresse. Steht bewusst über der persönlichen Notiz: das ist die
+   Information, wegen der jemand hier landet. */
+.member__mail{
+  font-size:.9rem; color:var(--chrome); margin-top:8px;
+  overflow-wrap:anywhere;
+  transition:color var(--t-fast) var(--ease-swift);
+}
+.member__mail:hover{ color:var(--paper); }
 .member__note{
   color:var(--chrome); font-size:.95rem; font-style:italic;
   margin-top:12px; padding-top:12px; border-top:1px solid var(--line);

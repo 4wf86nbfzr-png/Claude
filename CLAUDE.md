@@ -126,9 +126,12 @@ genau deshalb weg. Bestehende Formulierungen von hermserviceteam.com sind die Re
    `imagefilm-de.vtt` nachziehen. Musik braucht eine Lizenz.
 4. **Rechtstexte** (Impressum, Datenschutz) als eigene Seiten übernehmen — verlinken
    aktuell noch auf die Bestandsseite.
-5. **Ansprechpartner prüfen:** Startseite und Kontaktseite nennen Shayan Wahedi als
-   Ansprechpartner für Anfragen. Falls das jemand anderes sein soll, an beiden Stellen
-   ändern (`.ansprech`).
+5. **Bewerbungen laufen weiter über `info@`** (Jobs-Seite, alle „Bewerben"-Knöpfe).
+   Kundenanfragen gehen an `dispo@hermserviceteam.com`: Formular, Kontaktkarten,
+   Fußzeile und der Block `.ansprech` auf Start- und Kontaktseite. Sollen auch
+   Bewerbungen an `dispo@` gehen, ist das ein Suchen-und-Ersetzen in `jobs.html`.
+   Die persönlichen Adressen des Büroteams stehen auf der Team-Seite
+   (Schema `vorname-initial.nachname@`); Maik Herm und Alexander Krapp bewusst ohne.
 6. **SEO/OG:** Open-Graph-Bild, sitemap.xml, robots.txt fehlen noch.
 7. **Deploy** (Netlify/Vercel) und Domain hermserviceteam.com per DNS verbinden.
 
