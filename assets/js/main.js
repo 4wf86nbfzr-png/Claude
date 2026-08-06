@@ -54,11 +54,16 @@
     burger.setAttribute('aria-expanded', false);
   }));
 
-  /* Reveal on scroll */
+  /* Eintritte beim Scrollen. Gruppen mit data-stagger bekommen pro Kind einen
+     Index, damit sie nacheinander statt gleichzeitig erscheinen — das gibt dem
+     Abschnitt einen Takt, statt alles auf einen Schlag zu zeigen. */
+  document.querySelectorAll('[data-stagger]').forEach(gruppe=>{
+    [...gruppe.children].forEach((kind, i)=> kind.style.setProperty('--i', i));
+  });
   const io = new IntersectionObserver((entries)=>{
     entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
   }, { threshold:.16, rootMargin:'0px 0px -8% 0px' });
-  document.querySelectorAll('.reveal-up').forEach(el=> io.observe(el));
+  document.querySelectorAll('.reveal-up, [data-stagger]').forEach(el=> io.observe(el));
 
   /* Stat counters */
   const cio = new IntersectionObserver((entries)=>{
