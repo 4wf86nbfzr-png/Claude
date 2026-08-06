@@ -1299,6 +1299,29 @@ footer ul a:hover{ color:var(--paper); }
 .einsaetze li::before{ content:""; width:5px; height:5px; flex:none; border-radius:50%; background:var(--paper); opacity:.5; translate:0 -3px; }
 @media (max-width:640px){ .einsaetze{ grid-template-columns:1fr; } }
 
+/* ---- Was Sie von unserem Personal erwarten können ----
+   Die Merkmalsliste aus dem Bestandsauftritt, mit der Marke als
+   Aufzählungszeichen. Das Zeichen liegt als eigene Datei vor
+   (assets/logo/logo-herm-zeichen.png, aus dem großen Logo freigestellt) und
+   wird über den Hintergrund gesetzt — so lädt es einmal und nicht elfmal.
+   Die 1-px-Linie unter jedem Eintrag hält die Spalten auf einer Höhe, ohne
+   dass daraus wieder eine Kachelwand wird. */
+.erwartungen{
+  list-style:none; display:grid; grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:0 clamp(24px,3.4vw,56px); margin-top:var(--gap-l);
+}
+.erwartungen li{
+  display:flex; align-items:center; gap:14px;
+  padding:15px 0; border-bottom:1px solid var(--line);
+  color:var(--chrome); font-size:1rem; line-height:1.35;
+}
+.erwartungen li::before{
+  content:""; flex:none; width:21px; height:21px;
+  background:url("../logo/logo-herm-zeichen.png") no-repeat center / contain;
+}
+@media (max-width:1000px){ .erwartungen{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media (max-width:620px){ .erwartungen{ grid-template-columns:1fr; } }
+
 /* Zitat mitten auf einer Detailseite — ein einzelner Satz, groß gesetzt. */
 /* Keine eigene Maximalbreite: das Zitat steht in der Textspalte und wird von
    ihr begrenzt. Mit 34ch in der Auszeichnungsschrift lief es über sechs
