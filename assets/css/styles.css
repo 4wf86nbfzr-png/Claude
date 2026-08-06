@@ -1,0 +1,1532 @@
+/* ============================================================
+   HERM SERVICE TEAM — Relaunch Demo 2026
+   Design tokens
+   ============================================================ */
+:root{
+  /* Abschnittsrhythmus, bewusst asymmetrisch */
+  --sec:     clamp(72px, 9vw, 132px);
+  --sec-end: clamp(48px, 6vw, 88px);
+  /* Abstände innerhalb eines Abschnitts. Vorher stand an jeder Stelle ein
+     eigener clamp(); dadurch lag der Abstand zwischen Überschrift und Text mal
+     bei 14, mal bei 22 px. Vier Stufen reichen für die ganze Seite. */
+  --gap-xs: 8px;
+  --gap-s:  16px;
+  --gap-m:  clamp(22px, 2.4vw, 34px);
+  --gap-l:  clamp(36px, 4.4vw, 64px);
+  /* Lesebreiten: Fließtext bricht sonst je nach Abschnitt anders um */
+  --measure:      64ch;   /* Fließtext */
+  --measure-lead: 52ch;   /* Vorspann, größer gesetzt */
+  /* Grundton neutral statt violett — das Lila trägt jetzt nur noch die Marke
+     (Logo, Haupt-Button), nicht mehr die ganze Fläche. */
+  --ink:        #08080A;   /* fast schwarz, neutral */
+  --ink-2:      #121216;   /* abgesetzte Flächen */
+  --ink-3:      #1A1A20;   /* tiefere Kante */
+  /* Markenviolett bleibt dokumentiert, wird im Design aber nicht mehr
+     eingesetzt: die Seite ist schwarzweiß. Farbe kommt ausschließlich aus
+     den Fotos — und aus dem Neon-H im Hero, das im Bild steckt. */
+  --violet:     #7C3AED;
+  --orchid:     #B57BFF;
+  --glow:       #E4B0FF;
+  --chrome:     #C7C7CD;   /* Sekundärtext, neutralgrau */
+  --paper:      #F6F6F8;   /* Text */
+  --muted:      #8B8B93;   /* gedämpft */
+  --line:       rgba(255,255,255,.13);
+
+  /* Standardakzent weiß; Farbe kommt nur noch pro Dienstleistungsbereich */
+  --accent:     #FFFFFF;
+
+  --font-display:'Bricolage Grotesque', 'Arial Black', system-ui, sans-serif;
+  --font-body:   'Instrument Sans', system-ui, -apple-system, sans-serif;
+  --font-mono:   'Space Mono', ui-monospace, 'Courier New', monospace;
+
+  --maxw: 1280px;
+  --ease: cubic-bezier(.2,.7,.2,1);
+
+  /* Bewegung. Vorher trug eine einzige Kurve alles — Eintritte, Hover und
+     Raumbewegung. Drei Kurven mit klaren Aufgaben, abgestimmt auf den Ton:
+     ruhig und ausbremsend, nicht spielerisch-schnell. */
+  --ease-out:   cubic-bezier(.16,.84,.34,1);   /* Eintritt: kommt an und bremst */
+  --ease-swift: cubic-bezier(.4,0,.2,1);       /* Bedienelemente: knapp, sachlich */
+  --ease-soft:  cubic-bezier(.65,0,.35,1);     /* Bewegung im Raum: beide Enden weich */
+
+  --t-fast: .22s;   /* Hover, Fokus */
+  --t-base: .42s;   /* Zustandswechsel */
+  --t-slow: .9s;    /* Eintritte beim Scrollen */
+
+  /* Typo-Skala. Vorher hatte jede Sektion ihre eigene clamp-Formel, wodurch
+     h2 in drei Groessen auftrat und die Hero-Ueberschrift als kleinste
+     Ueberschrift der Seite endete. Jetzt vier Stufen, konsequent benutzt. */
+  --fs-display: clamp(2.9rem, 6.4vw, 5.4rem);   /* Hero, Schluss-CTA */
+  --fs-h2:      clamp(1.9rem, 3.4vw, 3.05rem);  /* Abschnittsueberschrift */
+  --fs-h3:      clamp(1.35rem, 2.1vw, 1.85rem); /* Karten, Bloecke */
+  --fs-h4:      clamp(1.05rem, 1.4vw, 1.2rem);  /* Listen, kleine Bloecke */
+  --fs-lead:    clamp(1.08rem, 1.35vw, 1.24rem);/* Vorspann */
+
+  /* Radien: vorher sechs verschiedene Werte nebeneinander */
+  --r-s: 10px;
+  --r-m: 16px;
+  --r-pill: 100px;
+}
+
+*{ box-sizing:border-box; margin:0; padding:0; }
+html{ scroll-behavior:smooth; -webkit-text-size-adjust:100%; }
+body{
+  background:var(--ink);
+  color:var(--paper);
+  font-family:var(--font-body);
+  font-size:clamp(16px,1.05vw,18px);
+  /* 1.55 war für die kurzen Zeilen der ersten Fassung gedacht. Über eine volle
+     Textspalte liest sich 1.62 spürbar ruhiger — und darum geht es hier. */
+  line-height:1.62;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+body.locked{ overflow:hidden; }
+img{ max-width:100%; display:block; }
+a{ color:inherit; text-decoration:none; }
+::selection{ background:#FFF; color:#08080A; }
+
+/* Ambient grain overlay */
+body::after{
+  content:"";
+  position:fixed; inset:0; z-index:9998; pointer-events:none;
+  opacity:.05; mix-blend-mode:screen;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ============================================================
+   Utilities
+   ============================================================ */
+.wrap{ width:100%; max-width:var(--maxw); margin-inline:auto; padding-inline:clamp(20px,5vw,64px); }
+.eyebrow{
+  font-family:var(--font-mono); font-size:.72rem; letter-spacing:.28em;
+  text-transform:uppercase; color:var(--accent);
+  display:inline-flex; align-items:center; gap:.7em;
+}
+.eyebrow::before{ content:""; width:26px; height:1px; background:var(--accent); opacity:.7; }
+
+/* Überschriften.
+   Vorher stand `text-transform:uppercase` global auf h1/h2/h3 — jede Überschrift
+   der Seite war versal. Bei kurzen Zeilen ("Unser Team") trägt das; bei ganzen
+   Sätzen ("Vertrauen aus Hamburgs Spitzengastronomie und Event-Branche.") wird
+   daraus ein Etikett, das man buchstabiert statt liest. Versal ist deshalb jetzt
+   eine bewusste Auszeichnung (.u-caps) statt der Grundzustand — gesetzt auf
+   Marke, Seitentitel und kurze Labels.
+   line-height 1.0 ließ zweizeilige Überschriften zusammenkleben; 1.06 gibt der
+   Display-Schrift gerade so viel Luft, dass Ober- und Unterlängen frei stehen. */
+h1,h2,h3,h4{ font-family:var(--font-display); font-weight:800; line-height:1.06;
+  letter-spacing:-.02em; text-wrap:balance;
+  /* Deutsche Komposita werden lang: „Datenschutzerklärung" ist auf einem
+     320-px-Gerät in Display-Größe 393 px breit und schob die ganze Seite
+     seitlich raus. hyphens:auto trennt sinnvoll (html lang="de" liefert die
+     Trennregeln), break-word ist der Notnagel für Wörter ohne Trennstelle. */
+  overflow-wrap:break-word; hyphens:auto; }
+h1{ letter-spacing:-.03em; }
+.u-caps{ text-transform:uppercase; letter-spacing:-.005em; }
+h1.u-caps{ letter-spacing:-.012em; }
+.display{ font-size:clamp(2.6rem,7vw,6.4rem); font-weight:800; }
+/* Vorspann: eine Stufe über dem Fließtext, aber mit ruhigerem Durchschuss als
+   die Überschrift — der Übergang von Titel zu Text soll nicht springen. */
+.lead{ font-size:var(--fs-lead); color:var(--chrome); line-height:1.58; max-width:var(--measure-lead); }
+.prose{ max-width:var(--measure); color:var(--chrome); }
+.prose p + p{ margin-top:1.05em; }
+.prose strong{ color:var(--paper); font-weight:600; }
+.reveal-up{
+  opacity:0; transform:translateY(28px);
+  transition:opacity var(--t-slow) var(--ease-out),
+             transform var(--t-slow) var(--ease-out);
+}
+.reveal-up.in{ opacity:1; transform:none; }
+/* Ohne JavaScript bekommt nichts die Klasse .in — ohne diese Regel bliebe die
+   Seite dann leer. Der Inhalt steht dann sofort da, nur ohne Einfahrt. */
+.kein-js .reveal-up,
+.kein-js [data-stagger] > *,
+.kein-js .panel,
+.kein-js .panel > *{ opacity:1 !important; transform:none !important; }
+.reveal-up[data-d="1"]{ transition-delay:.08s } .reveal-up[data-d="2"]{ transition-delay:.16s }
+.reveal-up[data-d="3"]{ transition-delay:.24s } .reveal-up[data-d="4"]{ transition-delay:.32s }
+
+/* Gruppen, deren Kinder nacheinander eintreten. --i setzt main.js. */
+[data-stagger] > *{
+  opacity:0; transform:translateY(16px);
+  transition:opacity .7s var(--ease-out), transform .7s var(--ease-out);
+  transition-delay:calc(var(--i,0) * 55ms);
+}
+[data-stagger].in > *{ opacity:1; transform:none; }
+
+/* Beschriftung in der Grundschrift statt in versaler Schreibmaschinenschrift.
+   Space Mono in .82rem mit .08em Sperrung war auf dem Handy grenzwertig lesbar
+   und ist das deutlichste Erkennungszeichen fertiger Dark-Templates. Ein Knopf
+   soll gelesen, nicht entziffert werden. */
+.btn{
+  display:inline-flex; align-items:center; gap:.55em;
+  font-family:var(--font-body); font-weight:600; font-size:.98rem; letter-spacing:-.005em;
+  padding:.86em 1.55em; border-radius:var(--r-pill); position:relative; overflow:hidden;
+  background:#FFF; color:#08080A; border:0; cursor:pointer;
+  box-shadow:0 10px 34px -18px rgba(0,0,0,.9);
+  transition:background var(--t-base) var(--ease-swift),
+             color var(--t-base) var(--ease-swift),
+             box-shadow var(--t-base) var(--ease-swift);
+}
+/* Der Rahmen wandert beim Ansteuern nach innen: die Fläche zieht sich zurück,
+   die Kontur bleibt. Ruhiger als Anheben plus Leuchten. */
+.btn:hover{
+  background:transparent; color:#FFF;
+  box-shadow:inset 0 0 0 1px #FFF, 0 14px 40px -22px rgba(0,0,0,.9);
+}
+.btn svg{ transition:transform .4s var(--ease); }
+.btn:hover svg{ transform:translateX(4px); }
+.btn--ghost{
+  background:transparent; color:var(--paper);
+  box-shadow:inset 0 0 0 1px var(--line);
+}
+.btn--ghost:hover{ box-shadow:inset 0 0 0 1px rgba(255,255,255,.6); }
+:focus-visible{ outline:2px solid #FFF; outline-offset:3px; border-radius:var(--r-s); }
+
+/* ============================================================
+   Preloader
+   ============================================================ */
+#preloader{
+  position:fixed; inset:0; z-index:10000; background:var(--ink);
+  display:grid; place-items:center; transition:opacity .5s ease, visibility .5s;
+}
+#preloader.done{ opacity:0; visibility:hidden; }
+#preloader.instant{ transition:none; }
+#preloader.instant .pre-line,
+#preloader.instant .pre-logo__img{ animation:none; }
+.pre-logo{ position:relative; display:grid; place-items:center; }
+
+/* Die Einblendung ist auf gut die Hälfte gekürzt: vorher standen 2,05 Sekunden
+   zwischen Klick und Inhalt. Auf einer Seite, die Anfragen einsammeln soll, ist
+   das die teuerste Sekunde des ganzen Auftritts. Die Geste bleibt, die Wartezeit
+   nicht. */
+/* 1. Die Linie zieht sich aus der Mitte auf … */
+.pre-line{
+  position:absolute; top:50%; left:50%; translate:-50% -50%;
+  width:min(340px,64vw); height:2px; transform-origin:center;
+  background:linear-gradient(90deg,transparent,#FFF 18%,#FFF 82%,transparent);
+  scale:0 1; opacity:0;
+  animation:preLine .5s var(--ease-out) .08s forwards, preLineOut .34s ease .62s forwards;
+}
+@keyframes preLine{ from{ scale:0 1; opacity:0 } 30%{ opacity:1 } to{ scale:1 1; opacity:1 } }
+@keyframes preLineOut{ to{ opacity:0 } }
+
+/* 2. … und gibt von der Mittellinie aus das Logo frei. */
+.pre-logo__img{
+  width:min(340px,64vw); height:auto;
+  clip-path:inset(50% 0 50% 0);
+  opacity:0;
+  animation:preReveal .5s var(--ease-out) .56s forwards;
+}
+@keyframes preReveal{
+  from{ clip-path:inset(50% 0 50% 0); opacity:0 }
+  20%{ opacity:1 }
+  to{ clip-path:inset(0 0 0 0); opacity:1 }
+}
+@keyframes fadeIn{ to{ opacity:1 } }
+
+/* ============================================================
+   Scroll progress + Nav
+   ============================================================ */
+#scrollbar{ position:fixed; top:0; left:0; height:2px; width:0; z-index:9999; background:linear-gradient(90deg,#8A8A93,#FFF); box-shadow:0 0 12px rgba(255,255,255,.45); }
+
+header.nav{
+  position:fixed; top:0; left:0; right:0; z-index:900;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:18px clamp(20px,5vw,64px);
+  transition:background .5s var(--ease), padding .5s var(--ease), backdrop-filter .5s;
+}
+/* 72 % reichten über den dunklen Abschnitten, nicht über den hellen Bühnenfotos
+   der Startseite — dort standen die Menüpunkte auf einer aufgehellten Fläche
+   und waren kaum zu lesen. 88 % plus stärkerer Weichzeichner lassen die
+   Bewegung dahinter erkennbar, ohne die Schrift zu opfern. */
+header.nav.scrolled{
+  background:rgba(8,8,10,.88); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+  padding:12px clamp(20px,5vw,64px); border-bottom:1px solid var(--line);
+}
+.brand{ display:flex; align-items:center; gap:12px; line-height:1; }
+/* Echtes Logo (assets/logo/logo-herm.svg) — Höhe steuert, Breite folgt dem Seitenverhältnis */
+.brand__logo{ height:38px; width:auto; display:block; }
+header.nav.scrolled .brand__logo{ height:34px; transition:height .5s var(--ease); }
+footer .brand__logo{ height:40px; }
+.nav__links{ display:flex; align-items:center; gap:34px; }
+.nav__links a{ font-size:.9rem; color:var(--chrome); position:relative; transition:color .3s; }
+.nav__links a::after{
+  content:""; position:absolute; left:0; right:0; bottom:-6px; height:1px;
+  background:#FFF; transform:scaleX(0); transform-origin:right;
+  transition:transform var(--t-base) var(--ease-swift);
+}
+.nav__links a:hover{ color:var(--paper); }
+.nav__links a:hover::after{ transform:scaleX(1); transform-origin:left; }
+.nav__cta{ display:flex; align-items:center; gap:16px; }
+/* Die Telefonnummer war reiner Text und damit auf dem Handy nicht wählbar. */
+.nav__phone{ font-family:var(--font-mono); font-size:.82rem; color:var(--chrome); transition:color var(--t-fast) var(--ease-swift); }
+.nav__phone:hover{ color:var(--paper); }
+.burger{ display:none; width:44px; height:44px; border:1px solid var(--line); border-radius:var(--r-s); background:transparent; cursor:pointer; position:relative; }
+.burger i{ position:absolute; left:11px; right:11px; height:2px; background:var(--paper); border-radius:2px; transition:.35s var(--ease); }
+.burger i:nth-child(1){ top:15px } .burger i:nth-child(2){ top:21px } .burger i:nth-child(3){ top:27px }
+body.menu-open .burger i{ background:#FFF; }
+body.menu-open .burger i:nth-child(1){ transform:translateY(6px) rotate(45deg) }
+body.menu-open .burger i:nth-child(2){ opacity:0 }
+body.menu-open .burger i:nth-child(3){ transform:translateY(-6px) rotate(-45deg) }
+
+/* Dunkel durchscheinend wie auf der bestehenden Seite — das Geschehen dahinter
+   bleibt erkennbar. Der leichte Weichzeichner ist nötig, weil hier anders als
+   dort auch große weiße Überschriften hinter dem Menü liegen können: 4 px
+   machen fremden Text unlesbar, lassen Szene, Farben und Aufbau aber stehen.
+   Gegen 86/90/93 % ohne Weichzeichner getestet — dort kollidierte die
+   Hero-Überschrift weiter mit den Menüpunkten. */
+#mobileMenu{
+  position:fixed; inset:0; z-index:850;
+  background:rgba(6,6,8,.82);
+  backdrop-filter:blur(4px);
+  display:flex; flex-direction:column; justify-content:center; align-items:center;
+  text-align:center; gap:2px; padding:0 8vw;
+  transform:translateY(-100%); transition:transform .6s var(--ease); visibility:hidden;
+}
+body.menu-open #mobileMenu{ transform:none; visibility:visible; }
+/* Schlicht statt wuchtig — Größe und Gewicht wie auf der bestehenden Seite:
+   zentriert, versal, mittleres Gewicht in der Grundschrift statt der fetten
+   Display-Schrift. */
+#mobileMenu a{
+  font-family:var(--font-body); font-weight:600;
+  font-size:clamp(1.05rem,4.6vw,1.4rem); letter-spacing:.14em;
+  text-transform:uppercase; color:var(--paper);
+  padding:15px 0; transition:opacity .3s var(--ease);
+  text-shadow:0 2px 18px rgba(0,0,0,.9);
+}
+#mobileMenu a:hover{ opacity:.62; }
+
+/* Anfrage und Telefon im Menü. Auf sehr schmalen Geräten passen Logo, Knopf
+   und Burger nicht nebeneinander in die Kopfzeile — der Knopf lief über das
+   Logo. Er wandert dann hierher, statt zu verschwinden. */
+.menu__aktion{ display:none; }
+/* Die Textfarbe muss hier ausdrücklich stehen: `#mobileMenu a` weiter oben hat
+   als ID-Selektor Vorrang vor `.btn` und färbte die Beschriftung in --paper —
+   also nahezu weiße Schrift auf dem weißen Knopf, Kontrast 1,05:1. Der Pfeil
+   erbt die Farbe über currentColor und war ebenso verschwunden. */
+#mobileMenu .menu__aktion a.btn{
+  font-family:var(--font-body); font-size:.92rem; letter-spacing:.02em;
+  text-transform:none; padding:.85em 1.6em; text-shadow:none;
+  color:#08080A;
+}
+#mobileMenu .menu__aktion a.btn:hover{ color:#FFF; }
+#mobileMenu .menu__tel{
+  font-family:var(--font-mono); font-size:.86rem; letter-spacing:.04em;
+  text-transform:none; color:var(--chrome); padding:0;
+}
+
+/* Soziale Netzwerke unter den Menüpunkten */
+.menu__socials{ display:flex; justify-content:center; gap:20px; margin-top:34px; }
+.menu__socials a{
+  width:46px; height:46px; padding:0; flex:none;
+  display:grid; place-items:center; border-radius:var(--r-s);
+  border:1px solid var(--line); color:var(--paper);
+  transition:border-color .3s var(--ease), background .3s var(--ease), transform .3s var(--ease);
+}
+.menu__socials a svg{ width:22px; height:22px; }
+.menu__socials a:hover{
+  opacity:1; border-color:rgba(255,255,255,.55);
+  background:rgba(255,255,255,.08); transform:translateY(-2px);
+}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+/* Der erste Bildschirm entscheidet, ob jemand bleibt. Vorher stand hier das
+   Neon-H aus dem Büroflur: ein schönes Markendetail, aber es zeigt weder
+   Menschen noch Anlass noch Niveau — und weil das Motiv nie beschnitten werden
+   durfte, lief es auf breiten Schirmen als Briefmarke mit unscharfem Rand.
+   Jetzt: ein echtes Foto vom Einsatzort, randlos, angeschnitten wie in einem
+   Magazin. Das Neon-H hat weiter unten seinen eigenen Platz bekommen. */
+.hero{ position:relative; min-height:100svh; display:flex; align-items:flex-end; overflow:hidden; }
+.hero__photo{ position:absolute; inset:0; z-index:0; overflow:hidden; background:var(--ink); }
+.hero__photo img{
+  position:absolute; inset:0; width:100%; height:100%;
+  /* 58 % statt Bildmitte: die gedeckten Tafeln liegen in der unteren Bildhälfte
+     und sind das, was die Aufnahme erzählt — bei mittigem Anschnitt sieht man
+     vor allem Decke und Vorhang. */
+  object-fit:cover; object-position:50% 60%;
+}
+
+/* Einfahrt beim Öffnen der Seite: die Kamera fährt langsam aus dem Bild heraus. */
+.hero__photo img{ animation:heroZoom 2.8s var(--ease-soft) both; }
+@keyframes heroZoom{ from{ transform:scale(1.09) } to{ transform:none } }
+
+/* Der Text sitzt unten links, wie ein Bildtitel. Der Verlauf trägt ihn und
+   läuft nach unten in den Seitengrund aus — dadurch gibt es keine sichtbare
+   Kante zwischen Hero und erstem Abschnitt. */
+.hero__photo::after{
+  content:""; position:absolute; inset:0;
+  background:
+    /* oben: trägt die Navigation, die sonst über der hellen Hallendecke steht */
+    linear-gradient(180deg, rgba(0,0,0,.70) 0%, rgba(0,0,0,.34) 9%, rgba(0,0,0,0) 26%),
+    /* unten: trägt Überschrift und Knöpfe und läuft in den Seitengrund aus */
+    linear-gradient(180deg, rgba(0,0,0,0) 34%, rgba(6,6,9,.66) 64%, rgba(7,7,10,.92) 86%, var(--ink) 100%),
+    /* links: die Textspalte */
+    linear-gradient(90deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,.18) 42%, rgba(0,0,0,0) 70%);
+}
+
+.hero__inner{
+  position:relative; z-index:3;
+  padding-top:clamp(120px,20vh,180px);
+  padding-bottom:clamp(52px,8vh,92px);
+  max-width:min(var(--maxw), 100%);
+}
+/* Gesperrte Versalien in 0,72 rem brauchen über einem unruhigen Foto Hilfe. */
+.hero .eyebrow{ text-shadow:0 1px 12px rgba(0,0,0,.9); }
+.hero h1{
+  font-size:var(--fs-display); margin:.2em 0 .46em; max-width:16ch;
+  /* Etwas mehr Durchschuss als die übrigen Überschriften: die Zeilen laufen
+     hier durch eine Maske (overflow:hidden für die Auffahrt), und bei 1.06
+     schnitt sie die Umlautpunkte von „TRÄGT" oben ab. */
+  line-height:1.12;
+  text-shadow:0 2px 30px rgba(0,0,0,.55);
+}
+.hero h1 .line{ display:block; overflow:hidden; }
+.hero h1 .line span{ display:block; transform:translateY(105%); animation:heroRise .95s var(--ease-out) forwards; }
+.hero h1 .line:nth-child(2) span{ animation-delay:.10s } .hero h1 .line:nth-child(3) span{ animation-delay:.20s }
+@keyframes heroRise{ to{ transform:none } }
+.hero__sub{
+  max-width:50ch; color:var(--chrome); font-size:var(--fs-lead); line-height:1.55;
+  text-shadow:0 1px 18px rgba(0,0,0,.7);
+  opacity:0; animation:fadeIn .9s ease .45s forwards;
+}
+.hero__actions{ display:flex; flex-wrap:wrap; gap:12px; margin-top:clamp(24px,3.6vh,38px); opacity:0; animation:fadeIn .9s ease .62s forwards; }
+.hero .btn--ghost{ background:rgba(0,0,0,.32); backdrop-filter:blur(6px); }
+
+/* Vertrauensleiste direkt unter dem Hero: vier nachprüfbare Angaben, ruhig
+   gesetzt. Vorher standen an dieser Stelle vier Kennzahlen im Hero, darunter
+   „100 % Fokus auf Ihr Event" — eine Zahl ohne Aussage. Was hier steht, muss
+   stimmen und einen Unterschied machen. */
+.trust{ border-top:1px solid var(--line); border-bottom:1px solid var(--line); background:rgba(255,255,255,.015); }
+.trust__grid{
+  display:grid; grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:clamp(18px,2.6vw,40px);
+  padding:clamp(24px,3.2vw,40px) 0;
+}
+.trust__item{ display:grid; gap:5px; align-content:start; }
+.trust__item b{
+  font-family:var(--font-display); font-weight:800; line-height:1.05;
+  font-size:clamp(1.32rem,2vw,1.8rem); letter-spacing:-.02em;
+}
+.trust__item span{ color:var(--muted); font-size:.9rem; line-height:1.4; }
+@media (max-width:760px){
+  .trust__grid{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:22px 20px; }
+}
+
+.scrollcue{
+  position:absolute; right:clamp(20px,5vw,64px); bottom:clamp(52px,8vh,92px); z-index:4;
+  font-family:var(--font-mono); font-size:.6rem; letter-spacing:.3em; color:var(--chrome);
+  text-transform:uppercase; display:flex; align-items:center; gap:10px;
+  opacity:0; animation:fadeIn 1s ease 1s forwards;
+}
+.scrollcue i{ width:1px; height:36px; background:linear-gradient(#FFF,transparent); animation:cue 2.2s ease-in-out infinite; transform-origin:top; }
+@keyframes cue{ 50%{ transform:scaleY(.45) } }
+@media (max-width:900px){ .scrollcue{ display:none; } }
+
+/* ============================================================
+   INTRO — Moin moin
+   ============================================================ */
+.intro{ position:relative; padding:var(--sec) 0 var(--sec-end); }
+/* Drei Spalten: Text links, Bild rechts. Das Bild ist kein Schmuck — es zeigt
+   das Neon-H am Büro in der Gertigstraße und beantwortet nebenbei die Frage,
+   ob es die Firma wirklich gibt. */
+.intro__grid{ display:grid; grid-template-columns:1fr 1.12fr; gap:clamp(40px,6vw,90px); align-items:start; }
+.intro h2{ font-size:var(--fs-h2); max-width:16ch; margin-top:var(--gap-s); }
+.intro__lead{ color:var(--chrome); font-size:var(--fs-lead); max-width:var(--measure); }
+.intro__lead p+p{ margin-top:1.05em; }
+.intro__lead strong{ color:var(--paper); font-weight:600; }
+.intro__bild{ margin-top:var(--gap-m); border-radius:var(--r-m); overflow:hidden; border:1px solid var(--line); }
+.intro__bild img{ width:100%; height:auto; display:block; }
+.intro__bild figcaption{
+  font-family:var(--font-mono); font-size:.66rem; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--muted); padding:12px 16px; border-top:1px solid var(--line); background:var(--ink-2);
+}
+.badge-row{ display:flex; flex-wrap:wrap; gap:9px; margin-top:var(--gap-m); }
+.badge{
+  font-family:var(--font-body); font-size:.88rem; padding:.48em 1em;
+  border-radius:var(--r-pill); border:1px solid var(--line); color:var(--chrome);
+}
+
+/* ============================================================
+   IMAGEFILM — 45 Sekunden, Endlosschleife, stumm
+   ============================================================ */
+.film{ padding:var(--sec) 0 0; }
+.film__kopf h2{ font-size:var(--fs-h2); max-width:14ch; }
+
+/* Die Bühne ist breiter als der Textsatz, aber nicht randlos: ein Film, der
+   bis an die Fensterkante läuft, verliert im Fließtext seinen Rahmen. */
+.film__buehne{
+  position:relative;
+  width:min(1560px, 100% - clamp(20px,5vw,64px)*2);
+  margin:clamp(28px,4vw,54px) auto 0;
+  aspect-ratio:16/9;
+  border-radius:var(--r-m);
+  overflow:hidden;
+  background:var(--ink-2);
+  border:1px solid var(--line);
+  isolation:isolate;
+}
+.film__video{
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  object-fit:cover;
+  /* passt zum schwarzweißen Rest; die Fotos in den Bühnen bleiben farbig */
+  filter:grayscale(1) contrast(1.06);
+}
+
+/* Verlauf nach unten, damit der Untertitel auf jedem Bild steht — ohne ihn
+   liegt weiße Schrift irgendwann auf einer hellen Fläche. */
+.film__buehne::after{
+  content:"";
+  position:absolute; inset:auto 0 0; height:52%;
+  background:linear-gradient(to top, rgba(4,4,6,.88) 0%, rgba(4,4,6,.55) 38%, transparent 100%);
+  pointer-events:none;
+}
+
+.film__untertitel{
+  position:absolute; z-index:2;
+  left:50%; transform:translateX(-50%);
+  bottom:clamp(46px,6.5%,86px);
+  width:min(90%, 62ch);
+  margin:0;
+  text-align:center;
+  text-wrap:balance;
+  font-size:clamp(1.02rem, 1.9vw, 1.6rem);
+  line-height:1.35;
+  font-weight:600;
+  color:#FFF;
+  /* doppelte Absicherung der Lesbarkeit: Schatten trägt auch dort, wo der
+     Verlauf durch ein sehr helles Bild durchscheint */
+  text-shadow:0 2px 14px rgba(0,0,0,.9), 0 1px 3px rgba(0,0,0,.8);
+  opacity:0;
+  transition:opacity var(--t-fast) var(--ease-swift);
+}
+.film__untertitel.an{ opacity:1; }
+
+.film__leiste{
+  position:absolute; z-index:3;
+  right:clamp(12px,1.6vw,20px); bottom:clamp(12px,1.6vw,20px);
+  display:flex; gap:8px;
+}
+.film__knopf{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:.55em .95em;
+  border-radius:var(--r-pill);
+  border:1px solid rgba(255,255,255,.28);
+  background:rgba(8,8,10,.55);
+  backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+  color:var(--paper);
+  font-family:var(--font-mono); font-size:.68rem;
+  letter-spacing:.06em; text-transform:uppercase;
+  cursor:pointer;
+  transition:background var(--t-fast) var(--ease-swift),
+             border-color var(--t-fast) var(--ease-swift),
+             color var(--t-fast) var(--ease-swift);
+}
+.film__knopf:hover{ background:rgba(255,255,255,.92); color:#08080A; border-color:transparent; }
+.film__knopf:focus-visible{ outline:2px solid #FFF; outline-offset:3px; }
+.film__knopf svg{ flex:none; }
+
+@media (max-width:640px){
+  /* Hochformat: 16/9 wird zum Briefschlitz, und der Untertitel bräuchte
+     mehr Platz als das Bild hergibt. */
+  .film__buehne{ aspect-ratio:4/3; }
+  .film__untertitel{ bottom:64px; width:92%; }
+  .film__knopf span{ display:none; }
+  .film__knopf{ padding:.6em; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .film__untertitel{ transition:none; }
+}
+
+/* ============================================================
+   SERVICES — cinematic scroll-zoom stages
+   ============================================================ */
+.services-head{ padding:var(--sec) 0 0; }
+.services-head h2{ font-size:var(--fs-h2); max-width:16ch; margin-top:var(--gap-s); }
+/* Ein ganzer Satz gehört nicht in die Auszeichnungsschrift — versal und
+   gesperrt lief er über drei Zeilen und las sich wie ein Etikett. */
+.services-head p{ color:var(--chrome); font-size:1.02rem; margin-top:var(--gap-s); max-width:52ch; }
+
+/* ---- Übersicht der Dienstleistungen ----
+   Bildgeführt: das Foto trägt die Kachel, der Text sitzt als kompakter Block
+   darauf. Die Kacheln haben bewusst unterschiedliche Formate — ein gleichmäßiges
+   3x2-Raster wirkt wie ein Baukasten, der Wechsel gibt der Seite Rhythmus. */
+.services-grid{ padding:clamp(24px,3vw,44px) 0 clamp(48px,7vw,96px); }
+.svc-grid{
+  display:grid; grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:clamp(12px,1.3vw,18px);
+  grid-auto-flow:dense;
+}
+.svc--gross{ grid-column:span 4; aspect-ratio:16/9; }
+.svc--hoch { grid-column:span 2; aspect-ratio:3/4; }
+.svc--breit{ grid-column:span 3; aspect-ratio:2/1; }
+
+.svc{
+  --accent:#FFFFFF;
+  position:relative; display:block; overflow:hidden;
+  border-radius:var(--r-m); border:1px solid var(--line);
+  background:var(--ink-2); isolation:isolate;
+  transition:transform var(--t-base) var(--ease-swift),
+             border-color var(--t-base) var(--ease-swift),
+             box-shadow var(--t-base) var(--ease-swift);
+}
+.svc[data-accent="gold"]{ --accent:#FFFFFF } .svc[data-accent="blue"]{ --accent:#FFFFFF }
+.svc[data-accent="magenta"]{ --accent:#FFFFFF } .svc[data-accent="amber"]{ --accent:#FFFFFF }
+.svc[data-accent="cyan"]{ --accent:#FFFFFF } .svc[data-accent="mint"]{ --accent:#FFFFFF }
+
+/* Bild voll sichtbar statt als blasser Hintergrund */
+.svc__img{
+  position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+  z-index:0; transform:scale(1.02);
+  transition:transform 1.1s var(--ease-soft), filter var(--t-base) var(--ease-swift);
+}
+/* Reinigung: stehende Person im 2:1-Format. Der Anschnitt nimmt oben nur
+   wenig weg, damit der Kopf im Bild bleibt; unten liegt ohnehin der Textblock. */
+.svc[data-bereich="reinigung"] .svc__img{ object-position:50% 12%; }
+/* Abdunklung nur unten, wo der Textblock liegt — oben bleibt das Bild frei */
+.svc::before{
+  content:""; position:absolute; inset:0; z-index:2; pointer-events:none;
+  background:linear-gradient(180deg,
+    rgba(6,6,8,0) 34%, rgba(6,6,8,.58) 62%, rgba(6,6,8,.92) 100%);
+}
+/* Tor auf der Kachel — dieselbe Mechanik wie auf der Bühne, hier vom Klick
+   ausgelöst statt vom Scroll. */
+.svc__gate{ position:absolute; inset:0; z-index:1; overflow:hidden; }
+.svc__leaf{
+  position:absolute; top:0; bottom:0; width:50%;
+  background-image:url("../img/logistik-tor.jpg");
+  background-repeat:no-repeat; background-size:200% 100%;
+  transition:transform .75s var(--ease);
+}
+.svc__leaf--l{ left:0;  background-position:left center; }
+.svc__leaf--r{ right:0; background-position:right center; }
+
+.svc__num{
+  position:absolute; z-index:3; top:14px; left:16px;
+  font-family:var(--font-mono); font-size:.64rem; letter-spacing:.24em;
+  color:var(--accent); text-shadow:0 1px 10px rgba(0,0,0,.9);
+}
+.svc__body{
+  position:absolute; z-index:3; left:0; right:0; bottom:0;
+  display:grid; gap:4px; padding:clamp(16px,1.6vw,24px);
+}
+.svc__name{
+  font-family:var(--font-display); font-weight:800; text-transform:uppercase;
+  letter-spacing:-.012em; line-height:1.04;
+  font-size:clamp(1.12rem,1.9vw,1.6rem);
+  text-shadow:0 2px 16px rgba(0,0,0,.8);
+}
+.svc__txt{
+  color:var(--chrome); font-size:.92rem; line-height:1.45;
+  max-height:0; opacity:0; overflow:hidden;
+  text-shadow:0 1px 12px rgba(0,0,0,.85);
+  transition:max-height .5s var(--ease-soft), opacity .4s var(--ease-swift), margin .5s var(--ease-soft);
+}
+.svc__go{
+  display:inline-flex; align-items:center; gap:.45em; margin-top:10px;
+  font-family:var(--font-body); font-weight:600; font-size:.88rem;
+  color:var(--paper);
+}
+.svc__go svg{ transition:transform .35s var(--ease); }
+
+/* Der Text fährt erst beim Ansteuern auf — so bleibt im Ruhezustand
+   möglichst viel vom Bild zu sehen. */
+.svc:hover, .svc:focus-visible{
+  transform:translateY(-5px); border-color:var(--accent);
+  box-shadow:0 30px 70px -34px #000, 0 0 0 1px color-mix(in srgb,var(--accent) 55%,transparent);
+}
+.svc:hover .svc__img, .svc:focus-visible .svc__img{ transform:scale(1.08); }
+.svc:hover .svc__txt, .svc:focus-visible .svc__txt{ max-height:6em; opacity:1; margin-top:2px; }
+.svc:hover .svc__go svg, .svc:focus-visible .svc__go svg{ transform:translateX(5px); }
+
+/* Touch-Geräte kennen kein Hover — dort steht der Text dauerhaft. */
+@media (hover:none){
+  .svc__txt{ max-height:6em; opacity:1; }
+}
+@media (max-width:900px){
+  .svc-grid{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .svc--gross,.svc--hoch,.svc--breit{ grid-column:span 1; aspect-ratio:4/3; }
+}
+@media (max-width:520px){
+  .svc-grid{ grid-template-columns:1fr; }
+  .svc--gross,.svc--hoch,.svc--breit{ aspect-ratio:16/10; }
+}
+
+.stage{ position:relative; height:230vh; }
+.stage__sticky{
+  position:sticky; top:0; height:100svh; overflow:hidden;
+  display:grid; place-items:center;
+}
+/* per-section accent */
+.stage[data-accent="gold"]     { --accent:#FFFFFF; }
+.stage[data-accent="blue"]     { --accent:#FFFFFF; }
+.stage[data-accent="magenta"]  { --accent:#FFFFFF; }
+.stage[data-accent="amber"]    { --accent:#FFFFFF; }
+.stage[data-accent="cyan"]     { --accent:#FFFFFF; }
+.stage[data-accent="mint"]     { --accent:#FFFFFF; }
+
+.scene{
+  position:absolute; inset:0; display:grid; place-items:center;
+  transform:scale(var(--zoom,1)); transform-origin:50% 46%;
+  will-change:transform;
+}
+/* .scene__glow ist entfallen: ein farbiger Lichtkreis hinter jedem Foto ist
+   genau der beliebige Leuchteffekt, den man auf jeder zweiten generierten Seite
+   sieht. Das Foto trägt sich selbst. */
+.scene__frame{ position:relative; width:min(560px,74vmin); aspect-ratio:1; }
+
+/* Detail-Ebene (Zoomziel). Sie blendet nicht nur auf, sondern läuft aus einer
+   leichten Übergröße auf 1 zu — dadurch liest der Wechsel Weit -> Nah als eine
+   durchgehende Kamerafahrt statt als harte Überblendung. */
+.detail{
+  position:absolute; inset:0; display:grid; place-items:center;
+  z-index:3;                       /* muss über der Weitwinkel-Ebene (.stagevid, z-index 2) liegen */
+  opacity:var(--detail,0);
+  transform:scale(calc(1.16 - var(--detail,0) * .16));
+  /* kein transition: der Wert kommt pro Frame aus dem Scroll. Die frühere
+     .1s-Überblendung lief dem Scroll hinterher und wirkte als Nachziehen. */
+  will-change:opacity, transform;
+}
+
+/* Panel that reveals with the zoom */
+/* Der Text steht frei im Bild — keine Karte, kein Rahmen. Lesbarkeit kommt aus
+   einem weichen Lichtabfall (::before), der als Teil der Szene liest, nicht als
+   Kasten. Das spart zugleich den backdrop-filter, der beim Scrollen jedes Bild
+   neu durch den Weichzeichner schickte und die Bühnen spürbar ruckeln ließ. */
+.panel{
+  position:relative; z-index:5; width:min(560px,90vw);
+  padding:clamp(26px,3.4vw,44px);
+  margin-inline:auto;
+  opacity:var(--panel,0);
+}
+.panel::before{
+  content:""; position:absolute; inset:-14% -18%; z-index:-1; pointer-events:none;
+  background:radial-gradient(62% 58% at 50% 50%,
+              rgba(5,3,11,.88), rgba(5,3,11,.62) 52%, rgba(5,3,11,0) 78%);
+}
+/* Die Kinder tragen die Einblendung: jedes startet bei einem eigenen Punkt von
+   --panel, dadurch läuft der Text gestaffelt ein statt als Block zu erscheinen. */
+.panel > *{
+  --t:clamp(0, calc((var(--panel,0) - var(--d,0)) / .34), 1);
+  opacity:var(--t);
+  transform:translateY(calc((1 - var(--t)) * 22px));
+  will-change:opacity, transform;
+}
+.panel > *:nth-child(1){ --d:0 }    .panel > *:nth-child(2){ --d:.05 }
+.panel > *:nth-child(3){ --d:.10 }  .panel > *:nth-child(4){ --d:.15 }
+.panel > *:nth-child(5){ --d:.20 }  .panel > *:nth-child(6){ --d:.25 }
+.panel .num{ font-family:var(--font-mono); font-size:.72rem; letter-spacing:.24em; color:var(--accent); }
+/* ohne Karte trägt der Schatten die Lesbarkeit über unruhigen Bildstellen */
+.panel h3{ font-size:var(--fs-h3); margin:.4em 0 .2em;
+  text-shadow:0 2px 24px rgba(0,0,0,.75), 0 1px 3px rgba(0,0,0,.6); }
+.panel .num, .panel .tag, .panel p{ text-shadow:0 1px 14px rgba(0,0,0,.8); }
+/* Der Leitsatz ist ein Satz, keine Signatur — in der Grundschrift gesetzt liest
+   er sich wie gesprochen, in Schreibmaschinenschrift wie ein Aktenzeichen. */
+.panel .tag{ color:var(--paper); font-family:var(--font-body); font-size:1.02rem; opacity:.9; margin-bottom:.9em; display:block; }
+.panel p{ color:var(--chrome); font-size:1.02rem; max-width:46ch; }
+.chips{ display:flex; flex-wrap:wrap; gap:8px; margin:var(--gap-m) 0; }
+.chip{
+  font-family:var(--font-body); font-size:.88rem; padding:.4em .9em;
+  border-radius:var(--r-pill); border:1px solid rgba(255,255,255,.22);
+  color:var(--paper); background:rgba(255,255,255,.05);
+}
+/* Aus dem Textlink ist ein echter Knopf geworden: die Bühne ist der Moment, in
+   dem jemand überzeugt ist — dort darf die Handlungsaufforderung nicht als
+   Kleingedrucktes enden. */
+.panel .go{ margin-top:var(--gap-xs); }
+.panel .go svg{ transition:transform .35s var(--ease); }
+.panel .go:hover svg{ transform:translateX(4px); }
+.stage__index{ position:absolute; top:96px; left:clamp(20px,5vw,64px); z-index:6; font-family:var(--font-mono); font-size:.7rem; letter-spacing:.2em; color:var(--muted); text-transform:uppercase; }
+
+/* inset:0 zusammen mit der festen Breite aus .scene__frame verankert die Box
+   links statt mittig (right:0 wird dabei verworfen). Deshalb hier explizit
+   zentrieren und das Seitenverhältnis aus .scene__frame greifen lassen. */
+.art{ position:absolute; left:50%; top:50%; translate:-50% -50%; }
+/* Die gezeichneten Neon-SVG-Szenen sind entfallen — sie lagen ohnehin
+   unsichtbar unter den Fotos und widersprachen mit ihren Farbverläufen der
+   schwarzweißen Anlage. Mit ihnen sind .sheen (wandernder Lichtstreifen) und
+   .pulse (dauerhaft atmende Formen) weggefallen. */
+
+/* Video-Szenen — liegen über der SVG-Ebene, die als Fallback erhalten bleibt.
+   Erst wenn Poster oder Videodaten wirklich geladen sind, setzt main.js .ready
+   und blendet die Videoebene ein; fehlt die Datei, bleibt das SVG sichtbar. */
+/* Foto-Ebene einer Szene. Liegt auf derselben Höhe wie die Video-Ebene und über
+   der gezeichneten SVG; die Detail-Ebene (z-index 3) blendet weiterhin darüber auf.
+   object-position rückt den Bildausschnitt so, dass das Motiv im Zoom-Zentrum
+   (50% / 46%) liegt — hier die Hand am Türgriff. */
+.scene__photo{
+  position:absolute; inset:0; z-index:2;
+  width:100%; height:100%;
+  object-fit:cover; object-position:50% 50%;
+  border-radius:var(--r-m);
+}
+/* Fahrservice liegt unbeschnitten vor: der Ausschnitt wird hier gesetzt, damit
+   die Hand am Türgriff im Zoom-Zentrum landet. Logistik ist bereits passend
+   zugeschnitten und braucht keine Korrektur. */
+[data-stage="fahrservice"] .scene__photo{ object-position:32% 52%; }
+/* Reinigung ebenso: Querformat in einem quadratischen Rahmen. Bei mittigem
+   Anschnitt stünde die Mitarbeiterin links am Rand — sie soll dort liegen,
+   wohin die Kamera fährt (Zoom-Zentrum 50 % / 46 %). */
+[data-stage="reinigung"] .scene__photo{ object-position:66% 50%; }
+
+.stagevid{
+  position:absolute; inset:0; z-index:2;
+  width:100%; height:100%; object-fit:cover; border-radius:var(--r-m);
+  opacity:0; transition:opacity .5s var(--ease); pointer-events:none;
+}
+.stagevid.ready{ opacity:1; }
+
+/* Tor aus zwei Flügeln: das geschlossene Tor liegt als Bild über der Szene und
+   wird in der Mitte geteilt. --door schiebt die Hälften auseinander, dahinter
+   kommt die Grundebene zum Vorschein. Beide Aufnahmen haben denselben
+   Ausschnitt, deshalb sitzt alles beim Aufschieben passgenau. */
+.gate{ position:absolute; inset:0; z-index:2; overflow:hidden; border-radius:var(--r-m); pointer-events:none; }
+.gate__leaf{
+  position:absolute; top:0; bottom:0; width:50%;
+  background-image:url("../img/logistik-tor.jpg");
+  background-repeat:no-repeat; background-size:200% 100%;
+  will-change:transform;
+}
+.gate__leaf--l{ left:0;  background-position:left center;
+  transform:translateX(calc(var(--door,0) * -84%)); }
+.gate__leaf--r{ right:0; background-position:right center;
+  transform:translateX(calc(var(--door,0) *  84%)); }
+/* Lichtspalt an der Trennkante, sobald sich das Tor löst */
+.gate::after{
+  content:""; position:absolute; left:50%; top:0; bottom:0; width:2px;
+  transform:translateX(-50%);
+  background:linear-gradient(180deg,transparent,rgba(255,214,170,.85),transparent);
+  opacity:calc(var(--door,0) * 1.6); filter:blur(2px);
+}
+
+/* Die gezeichnete SVG-Tür ist mit den übrigen SVG-Szenen entfallen. --door
+   steuert weiterhin das Logistik-Tor (.gate__leaf) und, sobald bewegtes
+   Material vorliegt, die Laufzeit des gescrubbten Clips (.stagevid[data-scrub]). */
+
+/* ============================================================
+   TESTIMONIALS
+   ============================================================ */
+/* Referenzen.
+   Vorher liefen die Stimmen in zwei gegenläufigen Endlosbändern durch — Tim
+   Mälzer und Steffen Henssler, die stärksten Namen der ganzen Seite, zogen in
+   60 Sekunden am Auge vorbei und waren nur duplizierbar, weil jede Karte
+   zweimal im Markup stand. Wer eine Referenz lesen will, soll sie lesen können.
+   Jetzt: ein großes Zitat als Anker, die übrigen darunter als ruhiges Raster. */
+.testi{ position:relative; padding:var(--sec) 0 var(--sec-end); }
+.testi__head h2{ font-size:var(--fs-h2); max-width:20ch; margin-top:var(--gap-s); }
+
+.tlead{
+  display:grid; grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);
+  gap:clamp(28px,4vw,60px); align-items:center;
+  margin-top:var(--gap-l);
+  padding-top:var(--gap-l); border-top:1px solid var(--line);
+}
+.tlead blockquote{
+  font-family:var(--font-display); font-weight:700;
+  font-size:clamp(1.5rem,2.7vw,2.3rem); line-height:1.18; letter-spacing:-.02em;
+  text-wrap:balance;
+}
+.tlead blockquote footer{ margin-top:22px; display:grid; gap:2px; }
+.tlead blockquote footer b{ font-family:var(--font-body); font-weight:600; font-size:1rem; letter-spacing:0; }
+.tlead blockquote footer small{
+  font-family:var(--font-mono); font-size:.62rem; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--muted);
+}
+.tlead__bild{ border-radius:var(--r-m); overflow:hidden; border:1px solid var(--line); }
+.tlead__bild img{ width:100%; height:100%; object-fit:cover; aspect-ratio:16/10; }
+.tlead__bild figcaption{
+  font-family:var(--font-mono); font-size:.64rem; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--muted); padding:12px 16px; border-top:1px solid var(--line); background:var(--ink-2);
+}
+
+.tgrid{
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));
+  gap:clamp(14px,1.6vw,22px); margin-top:var(--gap-l);
+}
+.tcard{
+  background:var(--ink-2); border:1px solid var(--line); border-radius:var(--r-m);
+  padding:clamp(22px,2.2vw,28px);
+  /* Flex-Spalte, damit die Zeile mit Name und Haus über margin-top:auto immer
+     am Kartenfuß sitzt — sonst steht sie je nach Zitatlänge auf anderer Höhe. */
+  display:flex; flex-direction:column;
+  transition:border-color var(--t-base) var(--ease-swift), background var(--t-base) var(--ease-swift);
+}
+.tcard:hover{ border-color:rgba(255,255,255,.28); background:var(--ink-3); }
+.tcard p{ color:var(--paper); font-size:1rem; line-height:1.55; }
+.tcard .who{ margin-top:auto; padding-top:20px; display:grid; gap:2px; }
+.tcard .who b{ font-weight:600; font-size:.95rem; }
+.tcard .who small{ font-family:var(--font-mono); font-size:.62rem; letter-spacing:.16em; color:var(--muted); text-transform:uppercase; display:block; }
+@media (max-width:820px){
+  .tlead{ grid-template-columns:1fr; }
+}
+
+/* ============================================================
+   EXPECT / qualities strip
+   ============================================================ */
+/* ============================================================
+   ABLAUF — wie eine Anfrage läuft
+   ============================================================ */
+/* Die häufigste offene Frage vor einer Anfrage ist nicht „was kostet das",
+   sondern „was passiert, wenn ich jetzt schreibe". Vier Schritte, nummeriert,
+   ohne Icons — Zahlen sind ehrlicher als austauschbare Piktogramme. */
+.ablauf{ padding:var(--sec) 0 var(--sec-end); border-top:1px solid var(--line); }
+.ablauf__kopf h2{ font-size:var(--fs-h2); max-width:18ch; margin-top:var(--gap-s); }
+.ablauf__kopf p{ color:var(--chrome); margin-top:var(--gap-s); max-width:54ch; }
+.ablauf__schritte{
+  display:grid; grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:clamp(20px,2.6vw,36px); margin-top:var(--gap-l);
+  counter-reset:schritt;
+}
+.schritt{ display:grid; gap:10px; align-content:start; padding-top:22px; border-top:1px solid var(--line); position:relative; }
+.schritt::before{
+  counter-increment:schritt; content:counter(schritt,decimal-leading-zero);
+  font-family:var(--font-mono); font-size:.68rem; letter-spacing:.22em; color:var(--muted);
+}
+/* Der Strich über dem aktiven Schritt läuft beim Ansteuern durch — eine Geste,
+   kein Effekt. */
+.schritt::after{
+  content:""; position:absolute; top:-1px; left:0; right:0; height:1px; background:#FFF;
+  transform:scaleX(0); transform-origin:left;
+  transition:transform .55s var(--ease-out);
+}
+.schritt:hover::after{ transform:scaleX(1); }
+.schritt h3{ font-size:var(--fs-h4); }
+.schritt p{ color:var(--chrome); font-size:.95rem; }
+@media (max-width:900px){ .ablauf__schritte{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media (max-width:520px){ .ablauf__schritte{ grid-template-columns:1fr; } }
+
+/* ============================================================
+   ANSPRUCH — was Sie von unserem Personal erwarten können
+   ============================================================ */
+/* Vorher: elf Einwort-Kacheln („Motivation", „Belastbarkeit", „Teamfähigkeit").
+   Elf Tugenden nebeneinander sagen weniger als vier Sätze, die etwas versprechen,
+   das man einfordern kann. */
+.expect{ padding:var(--sec) 0 var(--sec-end); border-top:1px solid var(--line); }
+.expect__grid{ display:grid; grid-template-columns:.85fr 1.35fr; gap:clamp(30px,5vw,70px); align-items:start; }
+.expect h2{ font-size:var(--fs-h2); margin-top:var(--gap-s); }
+.expect__grid > div > p{ color:var(--chrome); margin-top:var(--gap-s); max-width:36ch; }
+.versprechen{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:clamp(22px,2.6vw,38px); }
+.versprechen > div{ display:grid; gap:8px; align-content:start; }
+.versprechen h3{ font-size:var(--fs-h4); }
+.versprechen p{ color:var(--chrome); font-size:.95rem; }
+@media (max-width:620px){ .versprechen{ grid-template-columns:1fr; } }
+
+/* Die Merkmalsliste lebt weiter — aber nur einmal, als ruhige Aufzählung am
+   Fuß des Abschnitts statt als Kachelwand auf jeder zweiten Seite. */
+.qgrid{ display:flex; flex-wrap:wrap; gap:8px 10px; }
+.q{
+  font-family:var(--font-body); font-size:.88rem; padding:.42em .9em;
+  border-radius:var(--r-pill); border:1px solid var(--line); color:var(--chrome);
+  transition:color var(--t-fast) var(--ease-swift), border-color var(--t-fast) var(--ease-swift);
+}
+.q:hover{ color:var(--paper); border-color:rgba(255,255,255,.42); }
+
+/* ============================================================
+   CONTACT / CTA
+   ============================================================ */
+/* Kein zentrierter Lichtkegel mehr hinter dem Schluss-CTA — die Aufmerksamkeit
+   kommt aus Größe und Weißraum, nicht aus einem Leuchten. */
+.cta{ position:relative; padding:calc(var(--sec) * 1.15) 0 var(--sec); border-top:1px solid var(--line); }
+.cta__inner{ position:relative; z-index:2; text-align:center; }
+.cta h2{ font-size:var(--fs-display); max-width:16ch; margin:var(--gap-s) auto 0; }
+.cta p{ color:var(--chrome); max-width:50ch; margin:var(--gap-m) auto var(--gap-m); font-size:var(--fs-lead); }
+.cta__actions{ display:flex; flex-wrap:wrap; gap:12px; justify-content:center; }
+
+/* Ansprechpartner mit Gesicht und Durchwahl. Wer Personal einkauft, will
+   wissen, wer ans Telefon geht — das ist im B2B das wirksamste
+   Vertrauenselement und kostet hier nur eine Zeile mehr.
+   Gezeigt wird die Disposition als Team, nicht eine einzelne Person: Anfragen
+   landen bei mehreren, und wer hier ein Gesicht sieht, das dann nicht antwortet,
+   ist schlechter dran als mit gar keinem. */
+.ansprech{
+  display:flex; align-items:center; gap:clamp(16px,2vw,24px);
+  max-width:560px; margin:var(--gap-l) auto 0; text-align:left;
+  padding:clamp(18px,2vw,24px);
+  border:1px solid var(--line); border-radius:var(--r-m); background:var(--ink-2);
+}
+/* Die Porträts liegen leicht übereinander; der Ring in der Kartenfarbe trennt
+   sie, ohne dass jedes eine eigene Kontur braucht. */
+.ansprech__leute{ display:flex; flex:none; }
+.ansprech__kopf{
+  width:58px; height:58px; flex:none; border-radius:50%; overflow:hidden;
+  border:2px solid var(--ink-2); background:var(--ink-3);
+  display:grid; place-items:center;
+}
+.ansprech__kopf + .ansprech__kopf{ margin-left:-15px; }
+.ansprech__kopf img{ width:100%; height:100%; object-fit:cover; object-position:50% 18%; }
+/* Solange ein Porträt fehlt: Initialen wie auf der Team-Seite. */
+.ansprech__kopf--leer{
+  font-family:var(--font-display); font-weight:800; font-size:.86rem;
+  color:rgba(255,255,255,.42); letter-spacing:.02em;
+}
+.ansprech__txt{ display:grid; gap:3px; min-width:0; }
+.ansprech__txt small{ font-family:var(--font-mono); font-size:.62rem; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); }
+.ansprech__txt b{ font-family:var(--font-display); font-weight:800; font-size:1.1rem; letter-spacing:-.02em; }
+.ansprech__txt a{ color:var(--chrome); font-size:.95rem; }
+.ansprech__txt a:hover{ color:#FFF; }
+
+.contact-cards{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; max-width:960px; margin:var(--gap-l) auto 0; text-align:left; }
+.ccard{ background:var(--ink-2); border:1px solid var(--line); border-radius:var(--r-m); padding:clamp(20px,2vw,26px); }
+.ccard small{ font-family:var(--font-mono); font-size:.62rem; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); display:block; margin-bottom:10px; }
+.ccard a,.ccard address{ font-style:normal; font-size:1rem; color:var(--paper); line-height:1.5; }
+.ccard a:hover{ color:#FFF; }
+@media (max-width:560px){
+  .ansprech{ flex-direction:column; align-items:flex-start; text-align:left; }
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+footer{ border-top:1px solid var(--line); padding:70px 0 40px; }
+.foot__grid{ display:grid; grid-template-columns:1.5fr 1fr 1fr 1fr; gap:40px; }
+footer h4{ font-family:var(--font-mono); font-size:.68rem; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); margin-bottom:18px; }
+footer ul{ list-style:none; display:flex; flex-direction:column; gap:10px; }
+footer ul a{ color:var(--chrome); font-size:.92rem; }
+footer ul a:hover{ color:var(--paper); }
+.foot__brand p{ color:var(--muted); font-size:.9rem; max-width:34ch; margin-top:16px; }
+/* Vorher standen hier die Buchstaben f, ◎, in und X als Ersatz für Icons —
+   auf jeder Seite der Fußzeile, gut sichtbar. Jetzt dieselben SVG, die das
+   mobile Menü schon benutzt. */
+.socials{ display:flex; gap:9px; margin-top:22px; }
+.socials a{
+  width:38px; height:38px; border:1px solid var(--line); border-radius:var(--r-s);
+  display:grid; place-items:center; color:var(--chrome);
+  transition:color var(--t-fast) var(--ease-swift), border-color var(--t-fast) var(--ease-swift), background var(--t-fast) var(--ease-swift);
+}
+.socials a svg{ width:18px; height:18px; }
+.socials a:hover{ color:#fff; border-color:rgba(255,255,255,.5); background:rgba(255,255,255,.07); }
+.foot__bottom{ display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-top:56px; padding-top:24px; border-top:1px solid var(--line); font-family:var(--font-mono); font-size:.7rem; letter-spacing:.08em; color:var(--muted); }
+
+/* ============================================================
+   Back-to-top (instant jump — skips replaying the effects)
+   ============================================================ */
+#toTop{
+  position:fixed; right:clamp(16px,3vw,28px); bottom:clamp(16px,3vw,28px); z-index:940;
+  width:54px; height:54px; border-radius:50%; border:1px solid var(--line);
+  background:rgba(18,18,22,.72); backdrop-filter:blur(10px); color:var(--paper);
+  display:grid; place-items:center; cursor:pointer;
+  opacity:0; transform:translateY(20px) scale(.9); pointer-events:none;
+  transition:opacity .4s var(--ease), transform .4s var(--ease), box-shadow .4s, border-color .4s;
+  box-shadow:0 12px 34px -14px #000;
+}
+#toTop.show{ opacity:1; transform:none; pointer-events:auto; }
+#toTop:hover{ border-color:rgba(255,255,255,.6); box-shadow:0 0 0 1px rgba(255,255,255,.35),0 14px 40px -12px #000; transform:translateY(-3px); }
+#toTop svg{ width:20px; height:20px; }
+#toTop::after{ content:"Top"; position:absolute; font-family:var(--font-mono); font-size:.5rem; letter-spacing:.14em; bottom:8px; color:var(--muted); }
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+@media (max-width:980px){
+  /* Das Hero-Foto ist quadratisch angelegt und verträgt den Hochkant-Anschnitt.
+     Die Höhe wird gedeckelt, damit auf dem Handy nicht der ganze erste
+     Bildschirm nur aus Bild besteht — Überschrift und Knöpfe müssen mit ins
+     Sichtfeld. */
+  .hero{ min-height:min(88svh,760px); }
+  .hero__photo img{ object-position:50% 46%; }
+  .hero__inner{ padding-top:clamp(96px,16vh,140px); }
+  .nav__links,.nav__phone{ display:none; }
+  .burger{ display:block; }
+  .intro__grid{ grid-template-columns:1fr; }
+  .expect__grid{ grid-template-columns:1fr; }
+  .contact-cards{ grid-template-columns:1fr; }
+  .foot__grid{ grid-template-columns:1fr 1fr; }
+  .stage{ height:190vh; }
+}
+@media (max-width:560px){
+  /* Kopfzeile: nur Logo und Burger. Anfrage und Telefon stehen im Menü. */
+  .nav__cta .btn{ display:none; }
+  .menu__aktion{ display:flex; flex-direction:column; align-items:center; gap:16px; margin-top:28px; }
+  .foot__grid{ grid-template-columns:1fr; }
+  .panel{ padding:22px; }
+  /* Auf schmalen Geräten sollen beide Knöpfe gleich breit über die volle Zeile
+     laufen — nebeneinander werden sie sonst zu Schaltflächen von Daumennagel-
+     größe. */
+  .hero__actions{ display:grid; grid-template-columns:1fr; gap:10px; }
+  .hero__actions .btn{ justify-content:center; }
+  .cta__actions{ display:grid; grid-template-columns:1fr; }
+  .cta__actions .btn{ justify-content:center; }
+}
+
+@media (prefers-reduced-motion:reduce){
+  *{ animation:none !important; transition:none !important; }
+  .reveal-up{ opacity:1; transform:none; }
+  /* Die gestaffelten Gruppen fehlten hier: ihre Kinder starten auf opacity 0
+     und wurden erst vom Scroll-Beobachter sichtbar. Bei reduzierter Bewegung
+     soll nichts erst erscheinen müssen. */
+  [data-stagger] > *{ opacity:1; transform:none; }
+  .scene{ transform:scale(1.15); }
+  .detail{ opacity:1; transform:none; }
+  .panel{ opacity:1; }
+  .panel > *{ --t:1; opacity:1; transform:none; }
+  /* Tor offen statt gedreht: --door ist die Variable, an der die Flügel hängen.
+     Vorher drehte hier eine rotateY-Regel den ganzen Tor-Container hochkant —
+     das versteckte ihn zwar auch, aber als Nebenwirkung statt als Absicht. */
+  .gate{ --door:1; }
+  .hero h1 .line span{ transform:none; }
+  /* ohne Animation bliebe das Preloader-Logo sonst auf opacity:0 stehen */
+  .pre-logo__img{ opacity:1; transform:none; }
+}
+
+
+/* ============================================================
+   Inner pages (Dienstleistungen, Kontakt, Galerie, Jobs)
+   ============================================================ */
+/* Kopf der Unterseiten. Vorher lag ein Verlauf mit 72 % Schwarz über dem
+   unteren Bilddrittel — vom Foto blieb ein schmaler Streifen oben übrig, der
+   Rest war schwarze Fläche. Jetzt höher, heller abgedunkelt und mit einem
+   Titelgrad, der unter dem der Startseite liegt: eine Unterseite soll nicht
+   lauter auftreten als die Startseite. */
+.subhero{ position:relative; min-height:min(72svh,660px); display:flex; align-items:flex-end; overflow:hidden; padding:clamp(140px,18vh,190px) 0 clamp(40px,6vh,64px); }
+/* Bild der Dienstleistung als Kopf der Detailseite. Es startet leicht
+   vergrößert und läuft in seine Endlage — so setzt sich die Fahrt fort, mit
+   der man von der Übersicht hierher gekommen ist. */
+.subhero__photo{ position:absolute; inset:0; z-index:0; overflow:hidden; background:var(--ink); }
+.subhero__photo img{
+  width:100%; height:100%; object-fit:cover; object-position:50% 50%;
+  animation:subheroIn 1.4s var(--ease) both;
+}
+@keyframes subheroIn{ from{ transform:scale(1.12) } to{ transform:none } }
+.subhero__photo::after{
+  content:""; position:absolute; inset:0;
+  background:
+    linear-gradient(180deg, rgba(0,0,0,.66) 0%, rgba(0,0,0,.24) 12%, rgba(0,0,0,0) 30%, rgba(4,4,7,.72) 82%, var(--ink) 100%),
+    linear-gradient(90deg, rgba(0,0,0,.62) 0%, rgba(0,0,0,.16) 52%, rgba(0,0,0,0) 80%);
+}
+/* Reinigung: stehende Person im Querformat, in einem breiten Kopfband. Der
+   mittige Anschnitt nähme oben so viel weg, dass der Kopf fehlt. */
+.subhero[data-bereich="reinigung"] .subhero__photo img{ object-position:50% 18%; }
+.subhero .wrap{ position:relative; z-index:3; }
+.breadcrumb{ font-family:var(--font-mono); font-size:.7rem; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); margin-bottom:22px; display:flex; gap:.6em; flex-wrap:wrap; }
+.breadcrumb a{ color:var(--muted); } .breadcrumb a:hover{ color:#FFF; }
+/* Eine Stufe unter dem Hero der Startseite — sonst wirkt jede Unterseite wie
+   ein zweiter Auftakt. */
+.subhero h1{ text-shadow:0 2px 26px rgba(0,0,0,.75); font-size:clamp(2.3rem,4.8vw,4.1rem); font-weight:800; max-width:17ch; }
+.subhero .tag{
+  display:block; color:var(--chrome); font-family:var(--font-body);
+  font-size:var(--fs-lead); margin-top:var(--gap-s); max-width:48ch;
+  text-shadow:0 1px 16px rgba(0,0,0,.7);
+}
+/* .bignum ist entfallen: eine konturierte Riesenzahl über dem Kopfbild ist
+   Dekoration, die mit der Überschrift um dieselbe Ecke konkurriert. Die
+   Nummer steht ohnehin schon im Brotkrumenpfad und in der Auszeichnungszeile. */
+
+/* Kopfbild als vollständiges Band statt als beschnittener Hintergrund.
+   Die Überschrift steht darunter — bei einem Motiv wie dem Firmenschild
+   überdeckt Text sonst genau das, was man sehen soll. Das Seitenverhältnis
+   entspricht der Bilddatei, dadurch wird nichts angeschnitten. */
+.subhero--band{
+  display:block; min-height:0; padding:0 0 clamp(10px,1.5vw,22px);
+}
+.subhero--band .subhero__photo{
+  position:relative; inset:auto;
+  margin-top:74px; aspect-ratio:1600/880;
+}
+.subhero--band .subhero__photo::after{
+  background:linear-gradient(180deg, rgba(0,0,0,.30) 0%, rgba(0,0,0,0) 22%,
+    rgba(0,0,0,0) 74%, rgba(8,8,10,.70) 94%, var(--ink) 100%);
+}
+.subhero--band .wrap{ padding-top:clamp(26px,3.2vw,46px); }
+.subhero--band h1{ text-shadow:none; }
+@media (max-width:700px){
+  .subhero--band .subhero__photo{ margin-top:66px; }
+}
+
+.content{ padding:var(--sec) 0 var(--sec-end); }
+.content__grid{ display:grid; grid-template-columns:1.15fr .85fr; gap:clamp(40px,6vw,80px); align-items:start; }
+.content__lead p{ color:var(--chrome); font-size:var(--fs-lead); max-width:var(--measure); }
+.content__lead p+p{ margin-top:1.05em; }
+.side{ background:var(--ink-2); border:1px solid var(--line); border-radius:var(--r-m); padding:clamp(24px,2.4vw,32px); position:sticky; top:100px; }
+.side h4{ font-family:var(--font-mono); font-size:.66rem; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); margin-bottom:18px; }
+.side .btn{ width:100%; justify-content:center; margin-top:24px; }
+.side__hinweis{ color:var(--muted); font-size:.84rem; margin-top:14px; text-align:center; }
+.ticklist{ list-style:none; display:flex; flex-direction:column; gap:12px; }
+.ticklist li{ display:flex; gap:12px; align-items:flex-start; color:var(--chrome); font-size:.98rem; }
+.ticklist li::before{ content:""; width:18px; height:18px; flex:none; margin-top:2px; border-radius:var(--r-s); background:color-mix(in srgb,var(--accent) 22%,transparent); box-shadow:inset 0 0 0 1px var(--accent); background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M5 12l5 5 9-10' stroke='%23fff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-size:14px; background-repeat:no-repeat; background-position:center; }
+
+/* ---- Team ----
+   Porträt trägt die Kachel, darunter Name, Bereich und der persönliche Satz.
+   Das Raster füllt sich von links auf; neue Personen brauchen nur einen
+   weiteren <article class="member">. */
+.team-lead{ color:var(--chrome); font-size:1.14rem; max-width:56ch; }
+.team-sub{ color:var(--chrome); max-width:52ch; margin-top:14px; }
+.team-grid{
+  display:grid; gap:clamp(16px,2vw,28px);
+  grid-template-columns:repeat(auto-fill,minmax(min(100%,258px),1fr));
+  margin-top:clamp(22px,2.6vw,34px);
+}
+/* align-content:start — sonst zieht das Raster die Zeilen der kürzeren Kachel
+   auseinander und Name, Bereich und Notiz stehen nicht mehr auf einer Linie. */
+.member{ display:grid; gap:2px; align-content:start; }
+.member__img{
+  border-radius:var(--r-m); overflow:hidden; border:1px solid var(--line);
+  background:var(--ink-2); aspect-ratio:4/5; margin-bottom:16px;
+}
+/* Platzhalter, solange kein Foto vorliegt — bewusst gesetzt statt leer:
+   Initialen plus Hinweis, gleiche Kachelform wie die Porträts. */
+.member__img--leer{
+  display:grid; place-items:center; align-content:center; gap:12px;
+  background:linear-gradient(160deg,var(--ink-3),var(--ink-2));
+}
+.member__initialen{
+  font-family:var(--font-display); font-weight:800; font-size:2.8rem;
+  letter-spacing:.02em; color:rgba(255,255,255,.20); line-height:1;
+}
+.member__wartet{
+  font-family:var(--font-mono); font-size:.6rem; letter-spacing:.22em;
+  text-transform:uppercase; color:var(--muted);
+}
+
+.member__img img{
+  width:100%; height:100%; object-fit:cover; object-position:50% 22%;
+  transition:transform 1.1s var(--ease-soft);
+}
+/* Hier war die Regel zerschossen: ein Kommentar stand mitten im Selektor
+   `.member:hover … .member__img--leer`, wodurch der Platzhalter-Block doppelt
+   im Stylesheet stand und `.member__img img{ transform:scale(1.04) }` ohne
+   :hover galt — jedes Porträt war dauerhaft um 4 % vergrößert und die
+   Heranfahrt fand nie statt. */
+.member:hover .member__img img,
+.member:focus-within .member__img img{ transform:scale(1.045); }
+.member__name{
+  font-family:var(--font-display); font-weight:800; text-transform:uppercase;
+  letter-spacing:-.01em; font-size:clamp(1.05rem,1.5vw,1.3rem); line-height:1.05;
+}
+.member__role{ color:var(--paper); font-size:.95rem; margin-top:4px; }
+.member__meta{
+  font-family:var(--font-mono); font-size:.66rem; letter-spacing:.2em;
+  text-transform:uppercase; color:var(--muted); margin-top:6px;
+}
+/* Direkte Mailadresse. Steht bewusst über der persönlichen Notiz: das ist die
+   Information, wegen der jemand hier landet. */
+.member__mail{
+  font-size:.9rem; color:var(--chrome); margin-top:8px;
+  overflow-wrap:anywhere;
+  transition:color var(--t-fast) var(--ease-swift);
+}
+.member__mail:hover{ color:var(--paper); }
+.member__note{
+  color:var(--chrome); font-size:.95rem; font-style:italic;
+  margin-top:12px; padding-top:12px; border-top:1px solid var(--line);
+}
+
+/* Bildband in voller Textbreite auf den Detailseiten */
+.wide-shot{ margin-top:clamp(40px,5vw,72px); }
+/* Als Band, nicht in Originalhöhe: die meisten Aufnahmen liegen quadratisch
+   vor und wurden über die volle Textbreite zu einem bildschirmhohen Block,
+   der den Lesefluss zerreißt. */
+.wide-shot img{
+  width:100%; aspect-ratio:16/9; object-fit:cover; object-position:50% 42%;
+  border-radius:var(--r-m); border:1px solid var(--line); display:block;
+}
+@media (max-width:640px){ .wide-shot img{ aspect-ratio:4/3; } }
+.wide-shot figcaption{
+  font-family:var(--font-mono); font-size:.68rem; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--muted); margin-top:12px;
+}
+
+/* ---- Rechtstexte (Impressum, Datenschutz) ----
+   Lange Fließtexte in einer eigenen, schmalen Spalte. Sie sollen nüchtern und
+   lesbar sein, nicht gestaltet. */
+.rechtstext{ max-width:74ch; }
+.rechtstext h2{ font-size:var(--fs-h3); margin:var(--gap-l) 0 var(--gap-s); }
+.rechtstext h2:first-child{ margin-top:0; }
+.rechtstext h3{ font-size:var(--fs-h4); margin:var(--gap-m) 0 var(--gap-xs); }
+.rechtstext p, .rechtstext li{ color:var(--chrome); }
+.rechtstext p + p{ margin-top:.9em; }
+.rechtstext ul{ margin:.7em 0 0 1.1em; display:flex; flex-direction:column; gap:.45em; }
+.rechtstext address{ font-style:normal; color:var(--chrome); }
+.rechtstext a{ color:var(--paper); text-decoration:underline; text-underline-offset:2px; }
+.rechtstext dl{ display:grid; grid-template-columns:auto 1fr; gap:.5em 1.4em; margin-top:.8em; }
+.rechtstext dt{ color:var(--muted); font-family:var(--font-mono); font-size:.72rem;
+  letter-spacing:.1em; text-transform:uppercase; padding-top:.28em; }
+.rechtstext dd{ color:var(--chrome); }
+@media (max-width:560px){ .rechtstext dl{ grid-template-columns:1fr; gap:.2em; } }
+
+/* Sichtbar offene Angabe. Rechtliche Pflichtangaben darf niemand raten —
+   solche Stellen müssen auffallen, bis sie ausgefüllt sind. Vor dem
+   Live-Gang darf keine davon mehr in den Seiten stehen. */
+.offen{
+  display:inline-block; padding:.15em .6em; border-radius:var(--r-s);
+  background:rgba(240,161,157,.12); box-shadow:inset 0 0 0 1px rgba(240,161,157,.45);
+  color:#F0A19D; font-family:var(--font-mono); font-size:.78rem; letter-spacing:.04em;
+}
+.offen-kasten{
+  border:1px solid rgba(240,161,157,.45); background:rgba(240,161,157,.07);
+  border-radius:var(--r-m); padding:clamp(18px,2vw,24px); margin-bottom:var(--gap-l);
+}
+.offen-kasten b{ color:#F0A19D; display:block; margin-bottom:6px; }
+.offen-kasten p{ color:var(--chrome); font-size:.95rem; }
+
+/* ---- 404 ---- */
+.fehlseite{ min-height:70svh; display:grid; place-items:center; text-align:center; padding:var(--sec) 0; }
+.fehlseite .nummer{
+  font-family:var(--font-display); font-weight:800; font-size:clamp(5rem,16vw,11rem);
+  line-height:.9; letter-spacing:-.04em; color:var(--ink-3);
+}
+.fehlseite h1{ font-size:var(--fs-h2); margin-top:var(--gap-s); }
+.fehlseite p{ color:var(--chrome); max-width:44ch; margin:var(--gap-s) auto var(--gap-m); }
+.fehlseite .cta__actions{ justify-content:center; }
+
+.block-title{ font-size:var(--fs-h2); margin:var(--gap-s) 0 var(--gap-s); }
+.section-soft{ border-top:1px solid var(--line); padding:clamp(56px,8vw,100px) 0; }
+
+/* ---- Bausteine der Detailseiten ----
+   Die sechs Leistungsseiten waren bis auf Bild und zwei Absätze identisch und
+   endeten alle mit derselben Merkmalsliste — sechsmal derselbe Text. Diese
+   Bausteine geben jeder Seite eigenen Inhalt: was genau wir stellen, wo wir
+   typischerweise im Einsatz sind, und wie es weitergeht. */
+/* Vier Spalten wie die Ablauf-Schritte auf der Startseite — mit auto-fit
+   ergaben sich je nach Fensterbreite drei Karten plus eine allein stehende
+   vierte. Ein festes Raster hält beide Abschnitte auf derselben Linie. */
+.leistungen{
+  display:grid; grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:clamp(20px,2.4vw,34px); margin-top:var(--gap-l);
+}
+@media (max-width:900px){ .leistungen{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media (max-width:520px){ .leistungen{ grid-template-columns:1fr; } }
+.leistung{ display:grid; gap:8px; align-content:start; padding-top:20px; border-top:1px solid var(--line); }
+.leistung h3{ font-size:var(--fs-h4); }
+.leistung p{ color:var(--chrome); font-size:.95rem; }
+
+/* Einsatzfelder als schlichte, zweispaltige Aufzählung */
+.einsaetze{ list-style:none; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 clamp(24px,3vw,48px); margin-top:var(--gap-m); }
+.einsaetze li{ padding:14px 0; border-bottom:1px solid var(--line); color:var(--chrome); display:flex; gap:12px; align-items:baseline; }
+.einsaetze li::before{ content:""; width:5px; height:5px; flex:none; border-radius:50%; background:var(--paper); opacity:.5; translate:0 -3px; }
+@media (max-width:640px){ .einsaetze{ grid-template-columns:1fr; } }
+
+/* Zitat mitten auf einer Detailseite — ein einzelner Satz, groß gesetzt. */
+/* Keine eigene Maximalbreite: das Zitat steht in der Textspalte und wird von
+   ihr begrenzt. Mit 34ch in der Auszeichnungsschrift lief es über sechs
+   Zeilen und las sich wie ein Gedicht. */
+.pullquote{ margin:var(--gap-l) 0 0; padding-left:clamp(18px,2.4vw,28px); border-left:2px solid rgba(255,255,255,.35); }
+.pullquote blockquote{ font-family:var(--font-display); font-weight:700; font-size:clamp(1.25rem,2vw,1.7rem); line-height:1.22; letter-spacing:-.02em; }
+.pullquote figcaption{ font-family:var(--font-mono); font-size:.64rem; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); margin-top:14px; }
+
+/* ---- Jobs ---- */
+.stellen{ display:grid; gap:0; margin-top:var(--gap-l); border-top:1px solid var(--line); }
+.stelle{
+  display:grid; grid-template-columns:minmax(0,1fr) auto; gap:8px clamp(20px,3vw,44px);
+  align-items:center; padding:clamp(20px,2.4vw,28px) 0; border-bottom:1px solid var(--line);
+}
+.stelle__txt{ display:grid; gap:6px; }
+.stelle h3{ font-size:var(--fs-h4); }
+.stelle p{ color:var(--chrome); font-size:.95rem; max-width:52ch; }
+.stelle__meta{ font-family:var(--font-mono); font-size:.64rem; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); }
+@media (max-width:640px){
+  .stelle{ grid-template-columns:1fr; align-items:start; }
+  .stelle .btn{ justify-self:start; }
+}
+
+/* ---- FAQ ---- */
+.faq{ margin-top:var(--gap-l); border-top:1px solid var(--line); }
+.faq details{ border-bottom:1px solid var(--line); }
+.faq summary{
+  list-style:none; cursor:pointer; padding:clamp(18px,2vw,24px) 44px clamp(18px,2vw,24px) 0;
+  position:relative; font-family:var(--font-display); font-weight:800;
+  font-size:var(--fs-h4); letter-spacing:-.02em;
+  transition:color var(--t-fast) var(--ease-swift);
+}
+.faq summary::-webkit-details-marker{ display:none; }
+.faq summary:hover{ color:#FFF; }
+.faq summary::after{
+  content:""; position:absolute; right:6px; top:50%; width:12px; height:12px;
+  border-right:1.5px solid currentColor; border-bottom:1.5px solid currentColor;
+  translate:0 -70%; rotate:45deg;
+  transition:rotate var(--t-base) var(--ease-swift), translate var(--t-base) var(--ease-swift);
+}
+.faq details[open] summary::after{ rotate:225deg; translate:0 -25%; }
+.faq details p{ color:var(--chrome); padding:0 0 clamp(18px,2vw,24px); max-width:var(--measure); }
+
+/* ---- Kontakt: Erreichbarkeit und Anfahrt ---- */
+.kontakt-fakten{ display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr)); gap:clamp(20px,2.4vw,34px); margin-top:var(--gap-l); padding-top:var(--gap-l); border-top:1px solid var(--line); }
+.kontakt-fakten div{ display:grid; gap:6px; align-content:start; }
+.kontakt-fakten small{ font-family:var(--font-mono); font-size:.62rem; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); }
+.kontakt-fakten p, .kontakt-fakten address{ font-style:normal; color:var(--chrome); font-size:.95rem; }
+
+/* Rückmeldung nach dem Absenden des Formulars */
+.form__status{ margin-top:var(--gap-s); font-size:.95rem; color:var(--chrome); }
+.form__status[data-stand="fehler"]{ color:#FFB4B4; }
+
+.pagenav{ display:flex; justify-content:space-between; gap:16px; border-top:1px solid var(--line); padding:clamp(28px,3.4vw,44px) 0; flex-wrap:wrap; }
+.pagenav a{
+  font-family:var(--font-display); font-weight:800; font-size:var(--fs-h4); letter-spacing:-.02em;
+  color:var(--chrome); display:flex; flex-direction:column; gap:6px;
+  transition:color var(--t-fast) var(--ease-swift);
+}
+.pagenav a:hover{ color:var(--paper); }
+.pagenav a small{ font-family:var(--font-mono); font-weight:400; color:var(--muted); font-size:.62rem; letter-spacing:.2em; text-transform:uppercase; }
+.pagenav a.next{ text-align:right; margin-left:auto; align-items:flex-end; }
+
+/* ---- Formulare ----
+   Ein Formular ist auf dieser Seite das Ziel der ganzen Nutzerführung. Es muss
+   deshalb sagen, was es will (Pflichtfelder), was schiefging (Fehler am Feld,
+   nicht als Sammelmeldung oben) und dass es geklappt hat. */
+.form{ display:grid; grid-template-columns:1fr 1fr; gap:18px 16px; }
+.form .full{ grid-column:1 / -1; }
+.form label{ font-family:var(--font-mono); font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); display:block; margin-bottom:8px; }
+.form input,.form select,.form textarea{
+  width:100%; background:var(--ink-2); border:1px solid var(--line); border-radius:var(--r-s);
+  padding:14px 16px; color:var(--paper); font-family:var(--font-body);
+  /* 16px verhindert, dass iOS beim Antippen in das Feld hineinzoomt. */
+  font-size:1rem;
+  transition:border-color var(--t-fast) var(--ease-swift), box-shadow var(--t-fast) var(--ease-swift);
+}
+.form input::placeholder,.form textarea::placeholder{ color:var(--muted); }
+.form input:hover,.form select:hover,.form textarea:hover{ border-color:rgba(255,255,255,.3); }
+.form input:focus,.form select:focus,.form textarea:focus{ outline:none; border-color:#FFF; box-shadow:0 0 0 3px rgba(255,255,255,.14); }
+.form textarea{ min-height:140px; resize:vertical; }
+/* Eigene Pfeilspitze: das Standard-Select ist auf dunklem Grund je nach System
+   ein weißer Kasten. */
+.form select{
+  appearance:none; -webkit-appearance:none; padding-right:42px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238B8B93' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 14px center; background-size:18px;
+}
+.form select option{ background:var(--ink-2); color:var(--paper); }
+
+/* Fehlerzustand: Rahmen plus Text unter dem Feld. Farbe allein reicht nicht —
+   wer Rot nicht sieht, braucht die Meldung. */
+.form .feld--fehler input,
+.form .feld--fehler select,
+.form .feld--fehler textarea{ border-color:#E4736F; box-shadow:0 0 0 3px rgba(228,115,111,.16); }
+.feld__fehler{ display:none; color:#F0A19D; font-size:.86rem; margin-top:7px; }
+.feld--fehler .feld__fehler{ display:block; }
+
+/* Einwilligung */
+.form .zustimmung{ display:flex; align-items:flex-start; gap:12px; }
+.form .zustimmung input[type="checkbox"]{
+  width:20px; height:20px; flex:none; margin-top:2px; accent-color:#FFF;
+  border-radius:4px; padding:0;
+}
+.form .zustimmung label{
+  font-family:var(--font-body); font-size:.92rem; letter-spacing:0;
+  text-transform:none; color:var(--chrome); margin:0; line-height:1.5;
+}
+.form .zustimmung a{ color:var(--paper); text-decoration:underline; text-underline-offset:2px; }
+
+/* Honigtopf: für Menschen unsichtbar, für einfache Bots ein Pflichtfeld, das
+   sie ausfüllen. Bewusst nicht display:none — das erkennen viele Bots. */
+.honigtopf{
+  position:absolute !important; width:1px; height:1px; overflow:hidden;
+  clip:rect(0 0 0 0); clip-path:inset(50%); white-space:nowrap;
+}
+
+.form__hinweis{ color:var(--muted); font-size:.86rem; margin-top:14px; }
+.form__hinweis a{ color:var(--chrome); text-decoration:underline; text-underline-offset:2px; }
+.form__fuss{ display:flex; flex-wrap:wrap; align-items:center; gap:16px; }
+
+/* Rückmeldung nach dem Absenden */
+.form__status{ font-size:.95rem; color:var(--chrome); }
+.form__status:empty{ display:none; }
+.form__status[data-stand="fehler"]{ color:#F0A19D; }
+.form__status[data-stand="laeuft"]{ color:var(--muted); }
+.btn[aria-busy="true"]{ opacity:.6; pointer-events:none; }
+
+/* Bestätigung: ersetzt das Formular, damit niemand zweimal abschickt. */
+.danke{
+  border:1px solid var(--line); border-radius:var(--r-m); background:var(--ink-2);
+  padding:clamp(28px,3.4vw,44px); display:grid; gap:12px; justify-items:start;
+}
+.danke__haken{
+  width:46px; height:46px; border-radius:50%; display:grid; place-items:center;
+  background:#FFF; color:#08080A; margin-bottom:6px;
+}
+.danke h2{ font-size:var(--fs-h3); }
+.danke p{ color:var(--chrome); max-width:46ch; }
+.danke .btn{ margin-top:10px; }
+
+/* ---- Galerie ----
+   Vorher neun Kacheln mit der Aufschrift „Foto folgt" und ein Link auf die alte
+   Seite. Eine leere Galerie schadet mehr als gar keine. Jetzt echte Aufnahmen
+   in einem Mauerwerk-Raster: unterschiedliche Höhen, keine Beschneidung auf ein
+   Einheitsformat — die Bilder behalten ihr Seitenverhältnis. */
+.gal{
+  columns:3; column-gap:clamp(12px,1.4vw,18px);
+}
+.gal__item{
+  display:block; width:100%; break-inside:avoid; margin-bottom:clamp(12px,1.4vw,18px);
+  position:relative; overflow:hidden; border-radius:var(--r-m); border:1px solid var(--line);
+  background:var(--ink-2); cursor:zoom-in;
+  transition:border-color var(--t-base) var(--ease-swift);
+}
+.gal__item img{ width:100%; height:auto; display:block; transition:transform 1s var(--ease-soft); }
+.gal__item figcaption{
+  position:absolute; inset:auto 0 0; z-index:2; padding:14px 16px;
+  font-size:.86rem; color:var(--paper);
+  background:linear-gradient(to top, rgba(5,5,8,.88), rgba(5,5,8,0));
+  opacity:0; transform:translateY(6px);
+  transition:opacity var(--t-base) var(--ease-swift), transform var(--t-base) var(--ease-swift);
+}
+.gal__item:hover, .gal__item:focus-visible{ border-color:rgba(255,255,255,.4); }
+.gal__item:hover img, .gal__item:focus-visible img{ transform:scale(1.04); }
+.gal__item:hover figcaption, .gal__item:focus-visible figcaption{ opacity:1; transform:none; }
+/* Ohne Hover (Touch) steht die Bildunterschrift dauerhaft */
+@media (hover:none){ .gal__item figcaption{ opacity:1; transform:none; } }
+@media (max-width:900px){ .gal{ columns:2; } }
+@media (max-width:560px){ .gal{ columns:1; } }
+
+/* Lightbox: eigenes Fenster über der Seite, mit Tastatur bedienbar. */
+.lightbox{
+  position:fixed; inset:0; z-index:9600; border:0; padding:0; margin:0;
+  width:100%; height:100%; max-width:none; max-height:none;
+  background:rgba(5,5,8,.94); color:var(--paper);
+  display:none; place-items:center;
+}
+.lightbox[open]{ display:grid; }
+.lightbox::backdrop{ background:rgba(5,5,8,.94); }
+.lightbox__bild{ max-width:min(1400px,94vw); max-height:82vh; width:auto; height:auto; object-fit:contain; border-radius:var(--r-s); }
+.lightbox__bu{ text-align:center; margin-top:16px; color:var(--chrome); font-size:.95rem; }
+.lightbox__zaehler{ font-family:var(--font-mono); font-size:.66rem; letter-spacing:.2em; color:var(--muted); display:block; margin-top:6px; }
+.lightbox__knopf{
+  position:absolute; z-index:2; width:52px; height:52px; border-radius:50%;
+  border:1px solid var(--line); background:rgba(18,18,22,.8); color:var(--paper);
+  display:grid; place-items:center; cursor:pointer;
+  transition:border-color var(--t-fast) var(--ease-swift), background var(--t-fast) var(--ease-swift);
+}
+.lightbox__knopf:hover{ border-color:rgba(255,255,255,.55); background:rgba(32,32,38,.9); }
+.lightbox__knopf svg{ width:20px; height:20px; }
+.lightbox__zu{ top:clamp(14px,2.4vw,26px); right:clamp(14px,2.4vw,26px); }
+.lightbox__vor{ right:clamp(14px,2.4vw,26px); top:50%; translate:0 -50%; }
+.lightbox__zurueck{ left:clamp(14px,2.4vw,26px); top:50%; translate:0 -50%; }
+@media (max-width:640px){
+  .lightbox__vor{ right:14px; top:auto; bottom:20px; translate:none; }
+  .lightbox__zurueck{ left:14px; top:auto; bottom:20px; translate:none; }
+}
+
+@media (max-width:980px){
+  .content__grid{ grid-template-columns:1fr; }
+  .side{ position:static; }
+  .gal{ grid-template-columns:1fr 1fr; }
+  .form{ grid-template-columns:1fr; }
+}
+
+
+/* ---- Übergang beim Klick auf eine Kachel ----
+   Die Szene öffnet sich, die Kachel wächst über den Bildschirm und fährt ins
+   Bild hinein; danach übernimmt die Detailseite, deren Kopfbild leicht
+   vergrößert startet. So liest der Wechsel als eine durchgehende Fahrt. */
+body.svc-transit{ overflow:hidden; }
+body.svc-transit::after{
+  content:""; position:fixed; inset:0; z-index:9500; background:#000;
+  opacity:0; pointer-events:none; animation:svcVeil .9s ease forwards;
+}
+@keyframes svcVeil{ 0%,60%{ opacity:0 } 100%{ opacity:1 } }
+
+.svc--going{
+  position:fixed; z-index:9400; margin:0; pointer-events:none;
+  aspect-ratio:auto; border-color:transparent;
+  animation:svcDive .9s var(--ease) forwards;
+}
+@keyframes svcDive{ to{ top:0; left:0; width:100vw; height:100vh; border-radius:0 } }
+.svc--going .svc__img{ animation:svcZoomIn .9s var(--ease) forwards; }
+@keyframes svcZoomIn{ to{ transform:scale(1.5) } }
+.svc--going .svc__leaf--l{ transform:translateX(-100%); }
+.svc--going .svc__leaf--r{ transform:translateX(100%); }
+.svc--going .svc__body,
+.svc--going .svc__num{ animation:svcFade .3s ease forwards; }
+@keyframes svcFade{ to{ opacity:0 } }

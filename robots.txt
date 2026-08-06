@@ -1,0 +1,16 @@
+# ============================================================
+# TESTBETRIEB — VOR DEM LIVE-GANG ERSETZEN
+# Solange diese Datei so aussieht, darf keine Suchmaschine
+# irgendetwas von dieser Seite aufnehmen.
+#
+# Beim Live-Gang durch den unten auskommentierten Block ersetzen.
+# ============================================================
+User-agent: *
+Disallow: /
+
+# ---- Fassung für den Live-Betrieb (dann einkommentieren) ----
+# User-agent: *
+# Allow: /
+# Disallow: /404.html
+#
+# Sitemap: https://hermserviceteam.com/sitemap.xml
