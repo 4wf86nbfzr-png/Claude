@@ -296,10 +296,16 @@ body.menu-open #mobileMenu{ transform:none; visibility:visible; }
    und Burger nicht nebeneinander in die Kopfzeile — der Knopf lief über das
    Logo. Er wandert dann hierher, statt zu verschwinden. */
 .menu__aktion{ display:none; }
+/* Die Textfarbe muss hier ausdrücklich stehen: `#mobileMenu a` weiter oben hat
+   als ID-Selektor Vorrang vor `.btn` und färbte die Beschriftung in --paper —
+   also nahezu weiße Schrift auf dem weißen Knopf, Kontrast 1,05:1. Der Pfeil
+   erbt die Farbe über currentColor und war ebenso verschwunden. */
 #mobileMenu .menu__aktion a.btn{
   font-family:var(--font-body); font-size:.92rem; letter-spacing:.02em;
   text-transform:none; padding:.85em 1.6em; text-shadow:none;
+  color:#08080A;
 }
+#mobileMenu .menu__aktion a.btn:hover{ color:#FFF; }
 #mobileMenu .menu__tel{
   font-family:var(--font-mono); font-size:.86rem; letter-spacing:.04em;
   text-transform:none; color:var(--chrome); padding:0;
