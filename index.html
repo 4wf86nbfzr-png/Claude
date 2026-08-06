@@ -300,10 +300,11 @@
 </section>
 
 <!-- ============ IMAGEFILM ============ -->
-<!-- Der Clip ist ein Platzhalter aus vorhandenen Fotos und hat keine Tonspur.
-     Sobald der echte Film vorliegt: Datei unter assets/video/ ersetzen, das
-     Attribut data-ohne-ton am <video> entfernen (dann erscheint der
-     Tonschalter) und die Zeiten in imagefilm-de.vtt nachziehen. -->
+<!-- Bild: Platzhalter aus vorhandenen Fotos. Ton: eigene Musik, 45 s, als
+     Opus-Spur im selben WebM. Der Film startet mit Ton, sofern der Browser
+     das zulaesst — die Regeln dazu stehen in main.js beim Tonschalter.
+     Sobald bewegtes Material vorliegt: Datei unter assets/video/ ersetzen und
+     die Zeiten in imagefilm-de.vtt nachziehen. -->
 <section class="film" id="film" aria-labelledby="film-titel">
   <div class="wrap film__kopf">
     <span class="eyebrow reveal-up">In 45 Sekunden</span>
@@ -313,8 +314,7 @@
   <div class="film__buehne reveal-up" data-d="2">
     <video class="film__video" muted playsinline loop preload="none"
            poster="assets/img/imagefilm-poster.jpg"
-           data-src="assets/video/imagefilm.webm"
-           data-ohne-ton>
+           data-src="assets/video/imagefilm.webm">
       <track kind="subtitles" srclang="de" label="Deutsch" default
              src="assets/video/imagefilm-de.vtt" />
     </video>

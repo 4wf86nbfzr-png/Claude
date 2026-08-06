@@ -526,6 +526,15 @@ body.menu-open #mobileMenu{ transform:none; visibility:visible; }
              color var(--t-fast) var(--ease-swift);
 }
 .film__knopf:hover{ background:rgba(255,255,255,.92); color:#08080A; border-color:transparent; }
+/* Der Film soll mit Ton laufen. Verweigert der Browser das Selbststarten mit
+   Ton — was er in den meisten Fällen tut —, muss der Schalter auffallen,
+   sonst bleibt der Film für die Besucher einfach stumm. Weiße Fläche,
+   dunkle Schrift: derselbe Zustand wie ein Hauptknopf. */
+.film__knopf--wartet{
+  background:#FFF; color:#08080A; border-color:transparent;
+  box-shadow:0 6px 24px -10px rgba(0,0,0,.8);
+}
+.film__knopf--wartet:hover{ background:rgba(255,255,255,.86); }
 .film__knopf:focus-visible{ outline:2px solid #FFF; outline-offset:3px; }
 .film__knopf svg{ flex:none; }
 

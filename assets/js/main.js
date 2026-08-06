@@ -215,14 +215,72 @@
       setTimeout(spurUebernehmen, 1200);
     }
 
+    /* ---- Ton ----
+       Der Film soll mit Ton starten. Genau das erlauben Browser aber nicht:
+       ein Video, das von selbst anläuft, muss stumm sein — sonst wird es gar
+       nicht erst abgespielt (Chrome, Safari, Firefox gleichermaßen; auf dem
+       iPhone ausnahmslos). Deshalb dieser Ablauf:
+
+         1. Erst unstumm versuchen. Erlaubt der Browser es, läuft der Film
+            sofort mit Ton — der Wunschzustand.
+         2. Wird es abgelehnt, läuft er stumm weiter und der Tonschalter tritt
+            sichtbar hervor. Ein Antippen genügt.
+         3. Sobald der Besucher irgendwo auf der Seite klickt oder tippt, gilt
+            das als Zustimmung: dann wird der Ton noch einmal versucht.
+         4. Wer den Ton bewusst ausschaltet, bekommt ihn nicht wieder
+            aufgedrängt — auch nicht auf der nächsten Seite. */
+    const TON_SCHLUESSEL = 'hst-ton';
+    let tonGewollt = true;                       // Vorgabe: Ton an
+    try {
+      if(sessionStorage.getItem(TON_SCHLUESSEL) === 'aus') tonGewollt = false;
+    } catch(e){}
+
+    function tonStand(){
+      if(!btnTon) return;
+      const an = !film.muted;
+      btnTon.querySelector('span').textContent = an ? 'Ton aus' : 'Ton an';
+      btnTon.setAttribute('aria-label', an ? 'Ton ausschalten' : 'Ton einschalten');
+      btnTon.setAttribute('aria-pressed', String(an));
+      /* Ist Ton gewollt, aber vom Browser noch nicht erlaubt, hebt sich der
+         Schalter hervor — sonst übersieht man ihn. */
+      btnTon.classList.toggle('film__knopf--wartet', !an && tonGewollt);
+    }
+
+    /* Versucht abzuspielen; erst mit Ton, bei Ablehnung stumm. */
+    async function abspielen(){
+      quelleSetzen();
+      if(tonGewollt && film.muted){
+        film.muted = false;
+        try {
+          await film.play();
+          knopfStand(); tonStand();
+          return;
+        } catch(e){
+          film.muted = true;               // Browser hat abgelehnt
+        }
+      }
+      try { await film.play(); } catch(e){}
+      knopfStand(); tonStand();
+    }
+
+    /* Erste Berührung mit der Seite zählt als Zustimmung — danach lassen
+       Browser den Ton zu. */
+    if(btnTon){
+      const nachfassen = ()=>{
+        if(tonGewollt && film.muted && !film.paused){
+          film.muted = false;
+          film.play().catch(()=>{ film.muted = true; }).finally(tonStand);
+        }
+      };
+      ['pointerdown','keydown','touchstart'].forEach(art =>
+        window.addEventListener(art, nachfassen, { once:true, passive:true }));
+    }
+
     /* Nur im Viewport laufen lassen */
     const fio = new IntersectionObserver((entries)=>{
       entries.forEach(e=>{
         if(e.isIntersecting){
-          if(vonSelbst){
-            quelleSetzen();
-            if(!vomNutzerPausiert) film.play().then(knopfStand).catch(()=>{});
-          }
+          if(vonSelbst && !vomNutzerPausiert) abspielen();
         } else if(!film.paused){
           film.pause();
           knopfStand();
@@ -235,8 +293,7 @@
       btnPlay.addEventListener('click', ()=>{
         if(film.paused){
           vomNutzerPausiert = false;
-          quelleSetzen();
-          film.play().then(knopfStand).catch(knopfStand);
+          abspielen();
         } else {
           vomNutzerPausiert = true;
           film.pause();
@@ -246,19 +303,23 @@
     }
     film.addEventListener('play', knopfStand);
     film.addEventListener('pause', knopfStand);
+    film.addEventListener('volumechange', tonStand);
 
-    /* Tonschalter erscheint nur, wenn der Film überhaupt eine Tonspur hat.
-       Der Platzhalterfilm hat keine — dann wäre der Knopf eine Lüge. */
+    /* Tonschalter. Er erscheint nur, wenn der Film wirklich eine Tonspur hat —
+       sonst wäre der Knopf eine Lüge. */
     if(btnTon){
       if(film.hasAttribute('data-ohne-ton')){
         btnTon.remove();
       } else {
         btnTon.hidden = false;
         btnTon.addEventListener('click', ()=>{
+          tonGewollt = film.muted;                 // umschalten
           film.muted = !film.muted;
-          btnTon.querySelector('span').textContent = film.muted ? 'Ton an' : 'Ton aus';
-          btnTon.setAttribute('aria-label', film.muted ? 'Ton einschalten' : 'Ton ausschalten');
+          try { sessionStorage.setItem(TON_SCHLUESSEL, tonGewollt ? 'an' : 'aus'); } catch(e){}
+          if(tonGewollt && film.paused) abspielen();
+          tonStand();
         });
+        tonStand();
       }
     }
 
