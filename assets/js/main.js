@@ -4,9 +4,20 @@
 (function(){
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* Preloader */
-  window.addEventListener('load', ()=> setTimeout(()=> document.getElementById('preloader').classList.add('done'), 900));
-  setTimeout(()=> document.getElementById('preloader').classList.add('done'), 3000); // failsafe
+  /* Preloader: Linie zieht auf, Logo baut sich auf, dann sofort die Seite.
+     Nur beim ersten Öffnen — wer im selben Besuch zurück auf die Startseite
+     kommt, soll nicht jedes Mal warten. */
+  (function(){
+    const pre = document.getElementById('preloader');
+    if(!pre) return;
+    let gesehen = false;
+    try { gesehen = sessionStorage.getItem('hst-intro') === '1'; } catch(e){}
+    if(gesehen || reduce){ pre.classList.add('instant','done'); return; }
+    try { sessionStorage.setItem('hst-intro','1'); } catch(e){}
+    const fertig = ()=> pre.classList.add('done');
+    setTimeout(fertig, 2050);          // Ende der Aufbau-Animation
+    setTimeout(fertig, 3600);          // Notausstieg, falls etwas hängt
+  })();
 
   /* Year */
   document.getElementById('year').textContent = new Date().getFullYear();

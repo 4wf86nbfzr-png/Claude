@@ -22,9 +22,12 @@
 <!-- ============ PRELOADER ============ -->
 <div id="preloader" aria-hidden="true">
   <div class="pre-logo">
+    <!-- Eine Linie zieht sich auf und gibt danach das Logo frei. Das Logo liegt
+         als Rasterbild vor, lässt sich also nicht als Pfad "zeichnen"; der
+         Aufbau entsteht deshalb aus wachsender Linie plus Freigabe von der
+         Mitte nach außen. -->
+    <span class="pre-line" aria-hidden="true"></span>
     <img class="pre-logo__img" src="assets/logo/logo-herm.png" alt="HERM Service Team" />
-    <div class="pre-sub">Service Team · Hamburg</div>
-    <div class="pre-bar"><i></i></div>
   </div>
 </div>
 
@@ -244,7 +247,7 @@
       <div class="scene__glow"></div>
       <div class="scene__frame art">
         <!-- Weitwinkel: echtes Foto, deckt die gezeichnete SVG darunter ab. -->
-        <img class="scene__photo" src="assets/img/gastro.jpg" alt="" />
+        <img class="scene__photo" src="assets/img/gastro.jpg" alt="" loading="lazy" decoding="async" />
         <!-- Anschluss für bewegtes Material: poster/data-src setzen. -->
         <video class="stagevid" muted playsinline loop preload="metadata"
                aria-hidden="true" tabindex="-1"></video>
@@ -263,7 +266,7 @@
         <!-- Detail: champagne coupe closeup -->
         <div class="detail">
           <!-- Nahaufnahme: blendet über --detail auf. -->
-          <img class="scene__photo" src="assets/img/gastro-detail.jpg" alt="" />
+          <img class="scene__photo" src="assets/img/gastro-detail.jpg" alt="" loading="lazy" decoding="async" />
           <video class="stagevid" muted playsinline loop preload="metadata"
                  aria-hidden="true" tabindex="-1"></video>
           <svg viewBox="0 0 400 400">
@@ -343,7 +346,7 @@
       <div class="scene__glow"></div>
       <div class="scene__frame art">
         <!-- Weitwinkel: echtes Foto, deckt die gezeichnete SVG darunter ab. -->
-        <img class="scene__photo" src="assets/img/promotion.jpg" alt="" />
+        <img class="scene__photo" src="assets/img/promotion.jpg" alt="" loading="lazy" decoding="async" />
         <!-- Anschluss für bewegtes Material: poster/data-src setzen. -->
         <video class="stagevid" muted playsinline loop preload="metadata"
                aria-hidden="true" tabindex="-1"></video>
@@ -359,7 +362,7 @@
         <div class="sheen"></div>
         <div class="detail">
           <!-- Nahaufnahme: blendet über --detail auf. -->
-          <img class="scene__photo" src="assets/img/promotion-detail.jpg" alt="" />
+          <img class="scene__photo" src="assets/img/promotion-detail.jpg" alt="" loading="lazy" decoding="async" />
           <video class="stagevid" muted playsinline loop preload="metadata"
                  aria-hidden="true" tabindex="-1"></video>
           <svg viewBox="0 0 400 400">
@@ -394,7 +397,7 @@
       <div class="scene__glow"></div>
       <div class="scene__frame art">
         <!-- Grundebene: der Saal hinter dem Tor. -->
-        <img class="scene__photo" src="assets/img/logistik.jpg" alt="" />
+        <img class="scene__photo" src="assets/img/logistik.jpg" alt="" loading="lazy" decoding="async" />
         <!-- Das geschlossene Tor, in zwei Flügel geteilt. Beide Aufnahmen haben
              denselben Ausschnitt, deshalb sitzt der Saal beim Aufschieben exakt
              an der Stelle, an der das Tor war. --door schiebt die Flügel auf. -->
@@ -418,7 +421,7 @@
         <div class="sheen"></div>
         <div class="detail">
           <!-- Nahaufnahme: blendet über --detail auf. -->
-          <img class="scene__photo" src="assets/img/logistik-detail.jpg" alt="" />
+          <img class="scene__photo" src="assets/img/logistik-detail.jpg" alt="" loading="lazy" decoding="async" />
           <video class="stagevid" muted playsinline loop preload="metadata"
                  aria-hidden="true" tabindex="-1"></video>
           <svg viewBox="0 0 400 400">
@@ -452,7 +455,7 @@
         <!-- Weitwinkel: echtes Foto, deckt die gezeichnete Auto-SVG darunter ab.
              Bildausschnitt wird per object-position gesteuert (siehe styles.css),
              damit die Hand am Türgriff im Zoom-Zentrum liegt. -->
-        <img class="scene__photo" src="assets/img/fahrservice-door.jpg" alt="" />
+        <img class="scene__photo" src="assets/img/fahrservice-door.jpg" alt="" loading="lazy" decoding="async" />
         <!-- Bleibt als Anschluss für bewegtes Material: poster/data-src setzen, dann
              übernimmt der Clip diese Ebene und wird über --door vom Scroll gescrubbt.
              Ohne Quelle setzt main.js kein .ready, das Element ist also unsichtbar. -->
@@ -487,7 +490,7 @@
         <!-- Detail: interior -->
         <div class="detail">
           <!-- Nahaufnahme Innenraum: blendet über --detail auf, läuft als Loop. -->
-          <img class="scene__photo" src="assets/img/fahrservice-detail.jpg" alt="" />
+          <img class="scene__photo" src="assets/img/fahrservice-detail.jpg" alt="" loading="lazy" decoding="async" />
           <video class="stagevid" muted playsinline loop preload="metadata"
                  aria-hidden="true" tabindex="-1"></video>
           <svg viewBox="0 0 480 320">

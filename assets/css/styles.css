@@ -100,17 +100,34 @@ h1,h2,h3{ font-family:var(--font-display); font-weight:800; line-height:1.0;
   display:grid; place-items:center; transition:opacity .8s ease, visibility .8s;
 }
 #preloader.done{ opacity:0; visibility:hidden; }
-.pre-logo{ text-align:center; }
-.pre-logo__img{
-  width:min(320px,60vw); height:auto; margin-inline:auto;
-  opacity:0; transform:translateY(16px);
-  animation:preRise .8s var(--ease) forwards;
+#preloader.instant{ transition:none; }
+#preloader.instant .pre-line,
+#preloader.instant .pre-logo__img{ animation:none; }
+.pre-logo{ position:relative; display:grid; place-items:center; }
+
+/* 1. Die Linie zieht sich aus der Mitte auf … */
+.pre-line{
+  position:absolute; top:50%; left:50%; translate:-50% -50%;
+  width:min(340px,64vw); height:2px; transform-origin:center;
+  background:linear-gradient(90deg,transparent,#FFF 18%,#FFF 82%,transparent);
+  scale:0 1; opacity:0;
+  animation:preLine .85s var(--ease) .15s forwards, preLineOut .5s ease 1.15s forwards;
 }
-@keyframes preRise{ to{ opacity:1; transform:none } }
-.pre-sub{ font-family:var(--font-mono); font-size:.7rem; letter-spacing:.4em; color:var(--muted); text-transform:uppercase; margin-top:14px; opacity:0; animation:fadeIn .6s ease .5s forwards; }
-.pre-bar{ width:min(220px,50vw); height:2px; background:var(--line); margin:26px auto 0; border-radius:2px; overflow:hidden; }
-.pre-bar i{ display:block; height:100%; width:0; background:linear-gradient(90deg,#55555C,#FFF); animation:preLoad 1.4s var(--ease) .2s forwards; }
-@keyframes preLoad{ to{ width:100% } }
+@keyframes preLine{ from{ scale:0 1; opacity:0 } 30%{ opacity:1 } to{ scale:1 1; opacity:1 } }
+@keyframes preLineOut{ to{ opacity:0 } }
+
+/* 2. … und gibt von der Mittellinie aus das Logo frei. */
+.pre-logo__img{
+  width:min(340px,64vw); height:auto;
+  clip-path:inset(50% 0 50% 0);
+  opacity:0;
+  animation:preReveal .75s var(--ease) 1s forwards;
+}
+@keyframes preReveal{
+  from{ clip-path:inset(50% 0 50% 0); opacity:0 }
+  20%{ opacity:1 }
+  to{ clip-path:inset(0 0 0 0); opacity:1 }
+}
 @keyframes fadeIn{ to{ opacity:1 } }
 
 /* ============================================================
@@ -684,6 +701,7 @@ footer ul a:hover{ color:var(--paper); }
    Das Raster füllt sich von links auf; neue Personen brauchen nur einen
    weiteren <article class="member">. */
 .team-lead{ color:var(--chrome); font-size:1.14rem; max-width:56ch; }
+.team-sub{ color:var(--chrome); max-width:52ch; margin-top:14px; }
 .team-grid{
   display:grid; gap:clamp(16px,2vw,28px);
   grid-template-columns:repeat(auto-fill,minmax(min(100%,258px),1fr));
