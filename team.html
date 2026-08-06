@@ -3,11 +3,14 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Galerie — HERM Service Team</title>
-<meta name="description" content="Eindrücke von Events und Einsätzen des HERM Service Teams." />
+<title>Team — HERM Service Team</title>
+<meta name="description" content="Die Menschen hinter dem HERM Service Team – Büro, Recruiting und Disposition in Hamburg." />
+
+<!-- Fonts: Display = Bricolage Grotesque · Body = Instrument Sans · Utility = Space Mono -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
 <link rel="icon" href="assets/logo/favicon-32.png" sizes="32x32" type="image/png" />
 <link rel="icon" href="assets/logo/favicon-16.png" sizes="16x16" type="image/png" />
 <link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png" />
@@ -15,7 +18,9 @@
 <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body>
+
 <div id="scrollbar"></div>
+
 <button id="toTop" aria-label="Zurück nach oben">
   <svg viewBox="0 0 24 24" fill="none"><path d="M12 20V6M6 12l6-6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
 </button>
@@ -28,8 +33,7 @@
     <a href="index.html#leistungen">Dienstleistungen</a>
     <a href="index.html#referenzen">Referenzen</a>
     <a href="team.html">Team</a>
-    <a href="team.html">Team</a>
-  <a href="galerie.html">Galerie</a>
+    <a href="galerie.html">Galerie</a>
     <a href="jobs.html">Jobs</a>
     <a href="kontakt.html">Kontakt</a>
   </nav>
@@ -45,6 +49,7 @@
 <nav id="mobileMenu" aria-label="Mobile Navigation">
   <a href="index.html#leistungen">Dienstleistungen</a>
   <a href="index.html#referenzen">Referenzen</a>
+  <a href="team.html">Team</a>
   <a href="galerie.html">Galerie</a>
   <a href="jobs.html">Jobs</a>
   <a href="kontakt.html">Kontakt</a>
@@ -64,25 +69,59 @@
   </div>
 </nav>
 
-<main style="--accent:#B57BFF">
-  <section class="subhero" style="--accent:#B57BFF">
-    <div class="subhero__mesh" aria-hidden="true"><div class="orb a"></div><div class="orb b"></div></div>
+<main>
+  <section class="subhero">
+    <!-- Teamfoto als Kopf — es zeigt genau das, worum es auf dieser Seite geht -->
+    <div class="subhero__photo" aria-hidden="true">
+      <img src="assets/img/promotion-team.jpg" alt="" fetchpriority="high" />
+    </div>
     <div class="wrap">
-      <div class="breadcrumb"><a href="index.html">Home</a> / <span>Galerie</span></div>
-      <span class="eyebrow">Einblicke</span>
-      <h1>Galerie</h1>
-      <span class="tag">Momente von Events und Eins&auml;tzen.</span>
+      <div class="breadcrumb"><a href="index.html">Home</a> / <span>Team</span></div>
+      <span class="eyebrow">Die Menschen dahinter</span>
+      <h1>Unser Team</h1>
+      <span class="tag">Wer bei uns ans Telefon geht und wer Ihr Event plant.</span>
     </div>
   </section>
+
   <section class="content">
     <div class="wrap">
-      <!-- HINWEIS für Claude Code: Kacheln durch echte Bilder aus assets/img/ ersetzen (lazy-loading + Lightbox möglich). -->
-      <div class="gal"><div class="tile">Foto folgt</div><div class="tile">Foto folgt</div><div class="tile">Foto folgt</div><div class="tile">Foto folgt</div><div class="tile">Foto folgt</div><div class="tile">Foto folgt</div><div class="tile">Foto folgt</div><div class="tile">Foto folgt</div><div class="tile">Foto folgt</div></div>
-      <p style="margin-top:28px;color:var(--muted)">Bis der neue Auftritt live ist, finden Sie die aktuelle Galerie
-        <a href="https://hermserviceteam.com/galerie/" target="_blank" rel="noopener" style="color:var(--orchid)">hier</a>.</p>
+      <p class="team-lead reveal-up">Hinter jedem Einsatz stehen Menschen, die ihn möglich machen — im Büro,
+        in der Disposition und draußen bei Ihnen vor Ort. Hier stellen wir sie vor.</p>
+
+      <h2 class="block-title reveal-up" data-d="1" style="margin-top:clamp(40px,5vw,64px)">Büro &amp; Disposition</h2>
+
+      <!-- Weitere Mitarbeiter: einfach diesen <article>-Block kopieren, Foto nach
+           assets/img/team/ legen und die vier Angaben austauschen. -->
+      <div class="team-grid">
+        <article class="member reveal-up">
+          <div class="member__img">
+            <img src="assets/img/team/shayan-wahedi.jpg" alt="Shayan Wahedi" loading="lazy" />
+          </div>
+          <h3 class="member__name">Shayan Wahedi</h3>
+          <span class="member__role">Recruiting &amp; Disposition</span>
+          <span class="member__meta">Vollzeit · Büro</span>
+          <p class="member__note">„Shayan ohne ein Lächeln gibt es einfach nicht.“</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-soft">
+    <div class="wrap" style="text-align:center">
+      <span class="eyebrow reveal-up" style="justify-content:center">Lust, dabei zu sein?</span>
+      <h2 class="block-title reveal-up" data-d="1">Wir suchen Verstärkung.</h2>
+      <p class="reveal-up" data-d="2" style="color:var(--chrome);max-width:52ch;margin:16px auto 30px">
+        Ob als Nebenjob, Werkstudent oder in Festanstellung — schauen Sie sich unsere
+        offenen Stellen an.</p>
+      <div class="reveal-up" data-d="3">
+        <a class="btn" href="jobs.html">Zu den Jobs
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
     </div>
   </section>
 </main>
+
 <footer>
   <div class="wrap">
     <div class="foot__grid">
@@ -93,7 +132,7 @@
         <p>Ihr Partner für Sicherheit, Promotion und Gastro-Personal. Personaldienstleistung aus Hamburg – mit über 20 Jahren Erfahrung.</p>
         <div class="socials">
           <a href="https://www.facebook.com/HermServiceTeam/" aria-label="Facebook">f</a>
-          <a href="https://www.instagram.com/HermServiceTeam/" aria-label="Instagram">&#9678;</a>
+          <a href="https://www.instagram.com/HermServiceTeam/" aria-label="Instagram">◎</a>
           <a href="https://de.linkedin.com/company/herm-service-team" aria-label="LinkedIn">in</a>
           <a href="https://www.xing.com/companies/hermserviceteame.k." aria-label="Xing">X</a>
         </div>
@@ -129,11 +168,12 @@
       </div>
     </div>
     <div class="foot__bottom">
-      <span>&copy; <span id="year"></span> HERM Service Team e.K. &middot; Im Besitz der Arbeitnehmer&uuml;berlassung (A&Uuml;G)</span>
-      <span>Relaunch 2026 &middot; Maik Herm &middot; Gertigstra&szlig;e 12&ndash;14, 22303 Hamburg</span>
+      <span>© <span id="year"></span> HERM Service Team e.K. · Im Besitz der Arbeitnehmerüberlassung (AÜG)</span>
+      <span>Relaunch 2026 · Maik Herm · Gertigstraße 12–14, 22303 Hamburg</span>
     </div>
   </div>
 </footer>
+
 <script src="assets/js/main.js"></script>
 </body>
 </html>
