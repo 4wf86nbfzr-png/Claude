@@ -177,6 +177,110 @@
     }
   }
 
+  /* ---- Imagefilm ----
+     Läuft in Schleife, stumm, und lädt erst, wenn der Abschnitt in Sicht kommt.
+     Die Untertitel zeichnen wir selbst: die Browser-Darstellung von <track> ist
+     je nach Gerät unterschiedlich groß, sitzt mal im, mal unter dem Bild und
+     ist auf hellen Szenen schlecht lesbar. Die Spur bleibt trotzdem eine echte
+     WebVTT-Datei — Vorlesewerkzeuge und der Austausch des Films hängen daran. */
+  (function(){
+    const film  = document.querySelector('.film__video');
+    if(!film) return;
+    const buehne = film.closest('.film__buehne');
+    const zeile  = buehne && buehne.querySelector('.film__untertitel');
+    const btnPlay = buehne && buehne.querySelector('[data-film-abspielen]');
+    const btnTon  = buehne && buehne.querySelector('[data-film-ton]');
+    const sparsam = !!(navigator.connection && navigator.connection.saveData);
+    /* Bei reduzierter Bewegung und im Datensparmodus bleibt es beim Poster,
+       bis jemand selbst auf Abspielen drückt. */
+    const vonSelbst = !reduce && !sparsam;
+    let vomNutzerPausiert = !vonSelbst;
+
+    function knopfStand(){
+      if(!btnPlay) return;
+      const laeuft = !film.paused;
+      btnPlay.querySelector('span').textContent = laeuft ? 'Pause' : 'Abspielen';
+      btnPlay.setAttribute('aria-label', laeuft ? 'Film pausieren' : 'Film abspielen');
+      btnPlay.classList.toggle('film__knopf--laeuft', laeuft);
+    }
+
+    function quelleSetzen(){
+      if(!film.src && film.dataset.src) film.src = film.dataset.src;
+    }
+
+    /* Untertitel */
+    const spurEl = film.querySelector('track');
+    function spurUebernehmen(){
+      const spur = spurEl && spurEl.track;
+      if(!spur || !zeile) return false;
+      spur.mode = 'hidden';               // wir zeichnen selbst
+      if(!spur.cues || !spur.cues.length) return false;
+      spur.addEventListener('cuechange', ()=>{
+        const aktiv = spur.activeCues;
+        const text = aktiv && aktiv.length
+          ? [...aktiv].map(c=> c.text).join(' ').replace(/<[^>]+>/g,'')
+          : '';
+        zeile.textContent = text;
+        zeile.classList.toggle('an', !!text);
+      });
+      return true;
+    }
+    if(!spurUebernehmen() && spurEl){
+      spurEl.addEventListener('load', spurUebernehmen, { once:true });
+      /* Safari meldet den Ladevorgang nicht immer über load — einmal nachfassen */
+      setTimeout(spurUebernehmen, 1200);
+    }
+
+    /* Nur im Viewport laufen lassen */
+    const fio = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting){
+          if(vonSelbst){
+            quelleSetzen();
+            if(!vomNutzerPausiert) film.play().then(knopfStand).catch(()=>{});
+          }
+        } else if(!film.paused){
+          film.pause();
+          knopfStand();
+        }
+      });
+    }, { threshold:.25 });
+    fio.observe(film);
+
+    if(btnPlay){
+      btnPlay.addEventListener('click', ()=>{
+        if(film.paused){
+          vomNutzerPausiert = false;
+          quelleSetzen();
+          film.play().then(knopfStand).catch(knopfStand);
+        } else {
+          vomNutzerPausiert = true;
+          film.pause();
+        }
+        knopfStand();
+      });
+    }
+    film.addEventListener('play', knopfStand);
+    film.addEventListener('pause', knopfStand);
+
+    /* Tonschalter erscheint nur, wenn der Film überhaupt eine Tonspur hat.
+       Der Platzhalterfilm hat keine — dann wäre der Knopf eine Lüge. */
+    if(btnTon){
+      if(film.hasAttribute('data-ohne-ton')){
+        btnTon.remove();
+      } else {
+        btnTon.hidden = false;
+        btnTon.addEventListener('click', ()=>{
+          film.muted = !film.muted;
+          btnTon.querySelector('span').textContent = film.muted ? 'Ton an' : 'Ton aus';
+          btnTon.setAttribute('aria-label', film.muted ? 'Ton einschalten' : 'Ton ausschalten');
+        });
+      }
+    }
+
+    knopfStand();
+  })();
+
   /* ---- Übergang von der Übersicht auf die Detailseite ----
      Beim Klick öffnet sich die Szene (bei Logistik das Tor), die Kachel wächst
      über den Bildschirm und fährt ins Bild hinein; erst danach wird gewechselt.

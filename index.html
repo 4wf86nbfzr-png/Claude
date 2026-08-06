@@ -67,6 +67,10 @@
   <a href="galerie.html">Galerie</a>
   <a href="jobs.html">Jobs</a>
   <a href="#kontakt">Kontakt</a>
+  <div class="menu__aktion">
+    <a class="btn" href="#kontakt">Anfrage starten <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    <a class="menu__tel" href="tel:+494027075100">+49 (40) 27075100</a>
+  </div>
   <div class="menu__socials" aria-label="Soziale Netzwerke">
     <a href="https://www.instagram.com/HermServiceTeam/" target="_blank" rel="noopener" aria-label="Instagram">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.15" fill="currentColor" stroke="none"/></svg>
@@ -147,6 +151,44 @@
         <span class="badge">Kurzfristig verfügbar</span>
         <span class="badge">Arbeitnehmerüberlassung (AÜG)</span>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ IMAGEFILM ============ -->
+<!-- Der Clip ist ein Platzhalter aus vorhandenen Fotos und hat keine Tonspur.
+     Sobald der echte Film vorliegt: Datei unter assets/video/ ersetzen, das
+     Attribut data-ohne-ton am <video> entfernen (dann erscheint der
+     Tonschalter) und die Zeiten in imagefilm-de.vtt nachziehen. -->
+<section class="film" id="film" aria-labelledby="film-titel">
+  <div class="wrap film__kopf">
+    <span class="eyebrow reveal-up">In 45 Sekunden</span>
+    <h2 class="reveal-up" data-d="1" id="film-titel">Wer wir sind</h2>
+  </div>
+
+  <div class="film__buehne reveal-up" data-d="2">
+    <video class="film__video" muted playsinline loop preload="none"
+           poster="assets/img/imagefilm-poster.jpg"
+           data-src="assets/video/imagefilm.webm"
+           data-ohne-ton>
+      <track kind="subtitles" srclang="de" label="Deutsch" default
+             src="assets/video/imagefilm-de.vtt" />
+    </video>
+
+    <!-- Untertitel werden aus der Spur selbst gesetzt statt vom Browser
+         gezeichnet: dessen Darstellung ist je nach Gerät unterschiedlich groß
+         und teils schlecht lesbar. -->
+    <p class="film__untertitel" aria-live="polite"></p>
+
+    <div class="film__leiste">
+      <button class="film__knopf" type="button" data-film-abspielen aria-label="Film pausieren">
+        <svg viewBox="0 0 24 24" aria-hidden="true" width="16" height="16"><rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor"/></svg>
+        <span>Pause</span>
+      </button>
+      <button class="film__knopf" type="button" data-film-ton aria-label="Ton einschalten" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 9.5a4 4 0 010 5"/></svg>
+        <span>Ton an</span>
+      </button>
     </div>
   </div>
 </section>
