@@ -147,12 +147,16 @@ body.menu-open .burger i:nth-child(1){ transform:translateY(6px) rotate(45deg) }
 body.menu-open .burger i:nth-child(2){ opacity:0 }
 body.menu-open .burger i:nth-child(3){ transform:translateY(-6px) rotate(-45deg) }
 
-/* Wie auf der bestehenden Seite: dunkel durchscheinend, aber OHNE
-   Weichzeichner — das Geschehen dahinter bleibt erkennbar, nicht nur erahnbar.
-   Lesbarkeit trägt die Abdunklung plus Textschatten. */
+/* Dunkel durchscheinend wie auf der bestehenden Seite — das Geschehen dahinter
+   bleibt erkennbar. Der leichte Weichzeichner ist nötig, weil hier anders als
+   dort auch große weiße Überschriften hinter dem Menü liegen können: 4 px
+   machen fremden Text unlesbar, lassen Szene, Farben und Aufbau aber stehen.
+   Gegen 86/90/93 % ohne Weichzeichner getestet — dort kollidierte die
+   Hero-Überschrift weiter mit den Menüpunkten. */
 #mobileMenu{
   position:fixed; inset:0; z-index:850;
-  background:rgba(6,6,8,.80);
+  background:rgba(6,6,8,.82);
+  backdrop-filter:blur(4px);
   display:flex; flex-direction:column; justify-content:center; align-items:center;
   text-align:center; gap:2px; padding:0 8vw;
   transform:translateY(-100%); transition:transform .6s var(--ease); visibility:hidden;
