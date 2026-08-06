@@ -480,7 +480,13 @@
       daten.delete(honigtopf ? honigtopf.name : '__kein_feld__');
 
       const endpunkt = form.dataset.endpunkt;
-      const ueberNetlify = form.dataset.netlify === 'true' && location.protocol.startsWith('http');
+      /* Netlify nimmt den POST nur auf einem Netlify-Deploy entgegen. Auf
+         Testhosts ohne Formularannahme (GitHub Pages, lokaler Server) käme ein
+         404 oder 501 zurück und der Absender sähe eine Fehlermeldung, obwohl
+         alles richtig ausgefüllt war. Dort deshalb gleich den Mail-Weg nehmen. */
+      const testhost = /(^|\.)github\.io$|^localhost$|^127\.|^0\.0\.0\.0$|^192\.168\./.test(location.hostname);
+      const ueberNetlify = form.dataset.netlify === 'true'
+        && location.protocol.startsWith('http') && !testhost;
 
       if(endpunkt || ueberNetlify){
         if(knopf) knopf.setAttribute('aria-busy', 'true');
@@ -488,7 +494,10 @@
         try{
           const antwort = endpunkt
             ? await fetch(endpunkt, { method:'POST', body:daten, headers:{ Accept:'application/json' } })
-            : await fetch('/', { method:'POST',
+            /* An die eigene Adresse statt an "/": Netlify nimmt den Eintrag
+               auf jedem Pfad der Site an, und so funktioniert es auch, wenn
+               die Seite einmal in einem Unterordner liegt. */
+            : await fetch(location.pathname, { method:'POST',
                 headers:{ 'Content-Type':'application/x-www-form-urlencoded' },
                 body:new URLSearchParams(daten).toString() });
           if(!antwort.ok) throw new Error('HTTP ' + antwort.status);

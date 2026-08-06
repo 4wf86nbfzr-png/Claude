@@ -1,0 +1,68 @@
+# ============================================================
+# Interne Vorschau auf GitHub Pages
+# ------------------------------------------------------------
+# Veröffentlicht den Stand dieses Branches unter
+#   https://4wf86nbfzr-png.github.io/Claude/
+# damit Kolleginnen und Kollegen die Seite im Browser testen
+# können — ohne Konto, ohne Installation.
+#
+# Das ist NICHT der Live-Auftritt. Die Seiten tragen weiterhin
+# noindex, Suchmaschinen nehmen sie also nicht auf. Wer die
+# Adresse kennt, kann sie allerdings öffnen — für echten
+# Zugriffsschutz siehe README.md.
+#
+# Läuft bei jedem Push auf den Branch und lässt sich unter
+# "Actions" auch von Hand starten.
+# ============================================================
+name: Interne Vorschau
+
+on:
+  push:
+    branches: [claude/entpacken-demo-oeffnen-29f7th]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Läuft eine Veröffentlichung noch, wird sie nicht abgebrochen,
+# sondern die neue reiht sich dahinter ein.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  veroeffentlichen:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Quellstand holen
+        uses: actions/checkout@v4
+
+      - name: Pages einrichten
+        # enablement schaltet Pages beim ersten Lauf selbst frei,
+        # damit niemand es in den Einstellungen suchen muss.
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Jekyll abschalten
+        # Ohne diese Datei würde GitHub Ordner mit Unterstrich
+        # verschlucken. Das Projekt hat keine, aber die Datei
+        # kostet nichts und verhindert Überraschungen.
+        run: touch .nojekyll
+
+      - name: Seite packen
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: Veröffentlichen
+        id: deploy
+        uses: actions/deploy-pages@v4
+
+      - name: Adresse ausgeben
+        run: echo "Vorschau liegt unter ${{ steps.deploy.outputs.page_url }}"

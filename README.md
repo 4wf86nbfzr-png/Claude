@@ -76,6 +76,32 @@ nicht schön: der Absender muss die Mail selbst abschicken.
 
 ---
 
+## Interne Vorschau (läuft bereits)
+
+Bei jedem Push auf den Branch veröffentlicht der Workflow
+`.github/workflows/vorschau.yml` den aktuellen Stand auf GitHub Pages:
+
+**https://4wf86nbfzr-png.github.io/Claude/**
+
+Diese Adresse kann jeder im Büro im Browser öffnen — ohne Konto, ohne
+Installation, auf Rechner und Handy. Fortschritt und Ergebnis stehen im
+Reiter *Actions*.
+
+Was das ist und was nicht:
+
+- **Nicht** in Suchmaschinen: jede Seite trägt `noindex`.
+  (`robots.txt` greift hier nicht — GitHub Pages liefert sie unter
+  `/Claude/robots.txt` aus, Suchmaschinen lesen aber nur die im Wurzelpfad
+  der Domain. Die Angabe in den Seiten selbst wirkt.)
+- **Kein Zugriffsschutz.** Wer die Adresse kennt, kommt hinein. Das
+  Repository ist ohnehin öffentlich, ein Passwortfeld im Browser würde daran
+  nichts ändern. Wer echten Schutz braucht: Netlify Pro oder Cloudflare
+  Access, siehe unten.
+- **Formulare nehmen dort den Mail-Weg.** GitHub Pages nimmt keine
+  Formulareinträge entgegen; `main.js` erkennt das an der Adresse und öffnet
+  stattdessen das Mailprogramm mit der fertigen Nachricht. Prüfung,
+  Fehlermeldungen und Bestätigung lassen sich trotzdem vollständig testen.
+
 ## Auf Netlify veröffentlichen (empfohlen)
 
 1. netlify.com → **Add new site → Import an existing project** → GitHub →
