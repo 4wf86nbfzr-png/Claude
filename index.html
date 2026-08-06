@@ -339,11 +339,14 @@
     <div class="scene">
       <div class="scene__glow"></div>
       <div class="scene__frame art" style="width:min(680px,86vmin)">
-        <!-- Weitwinkel: Hand öffnet die Autotür. Der Scroll scrubbt den Clip über --door,
-             genau wie vorher die SVG-Tür. Liegt über der SVG-Ebene, die als Fallback bleibt,
-             solange assets/video/fahrservice.mp4 fehlt. -->
+        <!-- Weitwinkel: echtes Foto, deckt die gezeichnete Auto-SVG darunter ab.
+             Bildausschnitt wird per object-position gesteuert (siehe styles.css),
+             damit die Hand am Türgriff im Zoom-Zentrum liegt. -->
+        <img class="scene__photo" src="assets/img/fahrservice-door.jpg" alt="" />
+        <!-- Bleibt als Anschluss für bewegtes Material: poster/data-src setzen, dann
+             übernimmt der Clip diese Ebene und wird über --door vom Scroll gescrubbt.
+             Ohne Quelle setzt main.js kein .ready, das Element ist also unsichtbar. -->
         <video class="stagevid door" data-scrub muted playsinline loop preload="metadata"
-               poster="assets/img/fahrservice.jpg"
                aria-hidden="true" tabindex="-1"></video>
         <!-- Wide: modern car, hand opens door -->
         <svg viewBox="0 0 480 320" id="carWide">

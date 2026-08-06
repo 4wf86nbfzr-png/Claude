@@ -278,6 +278,17 @@ body.menu-open #mobileMenu{ transform:none; visibility:visible; }
 /* Video-Szenen — liegen über der SVG-Ebene, die als Fallback erhalten bleibt.
    Erst wenn Poster oder Videodaten wirklich geladen sind, setzt main.js .ready
    und blendet die Videoebene ein; fehlt die Datei, bleibt das SVG sichtbar. */
+/* Foto-Ebene einer Szene. Liegt auf derselben Höhe wie die Video-Ebene und über
+   der gezeichneten SVG; die Detail-Ebene (z-index 3) blendet weiterhin darüber auf.
+   object-position rückt den Bildausschnitt so, dass das Motiv im Zoom-Zentrum
+   (50% / 46%) liegt — hier die Hand am Türgriff. */
+.scene__photo{
+  position:absolute; inset:0; z-index:2;
+  width:100%; height:100%;
+  object-fit:cover; object-position:32% 52%;
+  border-radius:18px;
+}
+
 .stagevid{
   position:absolute; inset:0; z-index:2;
   width:100%; height:100%; object-fit:cover; border-radius:18px;
