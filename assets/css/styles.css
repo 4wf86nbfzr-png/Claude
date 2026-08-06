@@ -237,24 +237,43 @@ body.menu-open #mobileMenu{ transform:none; visibility:visible; }
   z-index:3;                       /* muss über der Weitwinkel-Ebene (.stagevid, z-index 2) liegen */
   opacity:var(--detail,0);
   transform:scale(calc(1.16 - var(--detail,0) * .16));
-  transition:opacity .1s linear;
+  /* kein transition: der Wert kommt pro Frame aus dem Scroll. Die frühere
+     .1s-Überblendung lief dem Scroll hinterher und wirkte als Nachziehen. */
+  will-change:opacity, transform;
 }
 
 /* Panel that reveals with the zoom */
+/* Der Text steht frei im Bild — keine Karte, kein Rahmen. Lesbarkeit kommt aus
+   einem weichen Lichtabfall (::before), der als Teil der Szene liest, nicht als
+   Kasten. Das spart zugleich den backdrop-filter, der beim Scrollen jedes Bild
+   neu durch den Weichzeichner schickte und die Bühnen spürbar ruckeln ließ. */
 .panel{
   position:relative; z-index:5; width:min(560px,90vw);
-  /* deckender als zuvor: hinter der Karte liegt jetzt ein vollflächiges
-     Szenenbild, bei .86 sank der Textkontrast sichtbar unter die Grenze */
-  background:linear-gradient(160deg,rgba(25,14,45,.95),rgba(9,6,16,.95));
-  border:1px solid var(--line); border-radius:22px; padding:clamp(26px,3.4vw,44px);
-  backdrop-filter:blur(18px) saturate(.85);
-  box-shadow:0 40px 120px -40px #000, inset 0 0 0 1px rgba(255,255,255,.03);
-  transform:translateY(calc((1 - var(--panel,0)) * 40px)) scale(calc(.97 + var(--panel,0)*.03));
-  opacity:var(--panel,0);
+  padding:clamp(26px,3.4vw,44px);
   margin-inline:auto;
+  opacity:var(--panel,0);
 }
+.panel::before{
+  content:""; position:absolute; inset:-14% -18%; z-index:-1; pointer-events:none;
+  background:radial-gradient(62% 58% at 50% 50%,
+              rgba(5,3,11,.88), rgba(5,3,11,.62) 52%, rgba(5,3,11,0) 78%);
+}
+/* Die Kinder tragen die Einblendung: jedes startet bei einem eigenen Punkt von
+   --panel, dadurch läuft der Text gestaffelt ein statt als Block zu erscheinen. */
+.panel > *{
+  --t:clamp(0, calc((var(--panel,0) - var(--d,0)) / .34), 1);
+  opacity:var(--t);
+  transform:translateY(calc((1 - var(--t)) * 22px));
+  will-change:opacity, transform;
+}
+.panel > *:nth-child(1){ --d:0 }    .panel > *:nth-child(2){ --d:.05 }
+.panel > *:nth-child(3){ --d:.10 }  .panel > *:nth-child(4){ --d:.15 }
+.panel > *:nth-child(5){ --d:.20 }  .panel > *:nth-child(6){ --d:.25 }
 .panel .num{ font-family:var(--font-mono); font-size:.72rem; letter-spacing:.24em; color:var(--accent); }
-.panel h3{ font-size:clamp(1.8rem,3.6vw,2.9rem); margin:.35em 0 .15em; }
+/* ohne Karte trägt der Schatten die Lesbarkeit über unruhigen Bildstellen */
+.panel h3{ font-size:clamp(1.8rem,3.6vw,2.9rem); margin:.35em 0 .15em;
+  text-shadow:0 2px 24px rgba(0,0,0,.75), 0 1px 3px rgba(0,0,0,.6); }
+.panel .num, .panel .tag, .panel p{ text-shadow:0 1px 14px rgba(0,0,0,.8); }
 .panel .tag{ color:var(--accent); font-family:var(--font-mono); font-size:.78rem; letter-spacing:.08em; margin-bottom:1em; display:block; }
 .panel p{ color:var(--chrome); font-size:1.02rem; }
 .chips{ display:flex; flex-wrap:wrap; gap:8px; margin:20px 0 26px; }
@@ -285,9 +304,13 @@ body.menu-open #mobileMenu{ transform:none; visibility:visible; }
 .scene__photo{
   position:absolute; inset:0; z-index:2;
   width:100%; height:100%;
-  object-fit:cover; object-position:32% 52%;
+  object-fit:cover; object-position:50% 50%;
   border-radius:18px;
 }
+/* Fahrservice liegt unbeschnitten vor: der Ausschnitt wird hier gesetzt, damit
+   die Hand am Türgriff im Zoom-Zentrum landet. Logistik ist bereits passend
+   zugeschnitten und braucht keine Korrektur. */
+[data-stage="fahrservice"] .scene__photo{ object-position:32% 52%; }
 
 .stagevid{
   position:absolute; inset:0; z-index:2;
@@ -397,7 +420,8 @@ footer ul a:hover{ color:var(--paper); }
   .reveal-up{ opacity:1; transform:none; }
   .scene{ transform:scale(1.15); }
   .detail{ opacity:1; transform:none; }
-  .panel{ opacity:1; transform:none; }
+  .panel{ opacity:1; }
+  .panel > *{ --t:1; opacity:1; transform:none; }
   .door{ transform:perspective(900px) rotateY(-90deg); }
   .hero h1 .line span{ transform:none; }
   /* ohne Animation bliebe das Preloader-Logo sonst auf opacity:0 stehen */

@@ -292,9 +292,11 @@
     <div class="scene">
       <div class="scene__glow"></div>
       <div class="scene__frame art">
-        <!-- Weitwinkel-Clip; liegt über der SVG-Ebene, die als Fallback bleibt. -->
+        <!-- Weitwinkel: echtes Foto, deckt die gezeichnete SVG darunter ab. -->
+        <img class="scene__photo" src="assets/img/logistik.jpg" alt="" />
+        <!-- Anschluss fuer bewegtes Material: poster/data-src setzen, dann
+             uebernimmt der Clip diese Ebene. Ohne Quelle bleibt sie unsichtbar. -->
         <video class="stagevid" muted playsinline loop preload="metadata"
-               poster="assets/img/logistik.jpg"
                aria-hidden="true" tabindex="-1"></video>
         <svg viewBox="0 0 400 400">
           <defs><linearGradient id="g-amb" x1="0" x2="1"><stop offset="0" stop-color="#FF9E5E"/><stop offset="1" stop-color="#B57BFF"/></linearGradient></defs>
@@ -308,8 +310,8 @@
         <div class="sheen"></div>
         <div class="detail">
           <!-- Nahaufnahme: blendet über --detail auf. -->
+          <img class="scene__photo" src="assets/img/logistik-detail.jpg" alt="" />
           <video class="stagevid" muted playsinline loop preload="metadata"
-                 poster="assets/img/logistik-detail.jpg"
                  aria-hidden="true" tabindex="-1"></video>
           <svg viewBox="0 0 400 400">
             <defs><linearGradient id="g-amb2" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#FFC79A"/><stop offset="1" stop-color="#FF9E5E"/></linearGradient></defs>
@@ -377,8 +379,8 @@
         <!-- Detail: interior -->
         <div class="detail">
           <!-- Nahaufnahme Innenraum: blendet über --detail auf, läuft als Loop. -->
+          <img class="scene__photo" src="assets/img/fahrservice-detail.jpg" alt="" />
           <video class="stagevid" muted playsinline loop preload="metadata"
-                 poster="assets/img/fahrservice-detail.jpg"
                  aria-hidden="true" tabindex="-1"></video>
           <svg viewBox="0 0 480 320">
             <defs><linearGradient id="g-cyan2" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#A9EEFF"/><stop offset="1" stop-color="#6FE0FF"/></linearGradient></defs>

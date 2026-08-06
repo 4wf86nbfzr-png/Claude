@@ -73,26 +73,40 @@
   /* ---- Cinematic scroll-zoom for each stage ---- */
   const clamp = (v,a,b)=> Math.max(a, Math.min(b,v));
   const smooth = (a,b,x)=>{ const t = clamp((x-a)/(b-a),0,1); return t*t*(3-2*t); };
-  const stages = [...document.querySelectorAll('.stage')];
+  /* Elemente einmal auflösen statt in jedem Frame. Vorher liefen pro Bild vier
+     querySelector je Bühne — bei sechs Bühnen 24 DOM-Abfragen pro Frame, was
+     beim Scrollen sichtbar geruckelt hat. */
+  const stages = [...document.querySelectorAll('.stage')].map(st => ({
+    el:     st,
+    scene:  st.querySelector('.scene'),
+    detail: st.querySelector('.detail'),
+    panel:  st.querySelector('.panel'),
+    door:   st.querySelector('.door'),
+    last:   { zoom:null, detail:null, panel:null, door:null },
+  }));
+
+  /* Nur schreiben, wenn sich der Wert wirklich geändert hat — jedes
+     setProperty stößt sonst unnötig Style- und Compositing-Arbeit an. */
+  function set(st, el, key, value){
+    if(!el || st.last[key] === value) return;
+    st.last[key] = value;
+    el.style.setProperty('--' + key, value);
+  }
 
   function updateStages(){
     const vh = window.innerHeight;
     for(const st of stages){
-      const rect = st.getBoundingClientRect();
-      const total = st.offsetHeight - vh;
+      const rect = st.el.getBoundingClientRect();
+      const total = st.el.offsetHeight - vh;
       const p = clamp((-rect.top) / total, 0, 1);
-      const scene  = st.querySelector('.scene');
-      const detail = st.querySelector('.detail');
-      const panel  = st.querySelector('.panel');
-      const door   = st.querySelector('.door');
       // zoom in as we scroll through
-      scene.style.setProperty('--zoom', (1 + p*1.7).toFixed(3));
+      set(st, st.scene,  'zoom',   (1 + p*1.7).toFixed(3));
       // detail (interior/closeup) cross-fades in
-      if(detail) detail.style.setProperty('--detail', smooth(0.34, 0.62, p).toFixed(3));
+      set(st, st.detail, 'detail', smooth(0.34, 0.62, p).toFixed(3));
       // panel reveals last
-      panel.style.setProperty('--panel', smooth(0.5, 0.82, p).toFixed(3));
+      set(st, st.panel,  'panel',  smooth(0.5, 0.82, p).toFixed(3));
       // fahrservice door opens early
-      if(door) door.style.setProperty('--door', smooth(0.06, 0.34, p).toFixed(3));
+      set(st, st.door,   'door',   smooth(0.06, 0.34, p).toFixed(3));
     }
   }
 
