@@ -3,6 +3,9 @@
    Design tokens
    ============================================================ */
 :root{
+  /* Abschnittsrhythmus, bewusst asymmetrisch */
+  --sec:     clamp(72px, 9vw, 132px);
+  --sec-end: clamp(48px, 6vw, 88px);
   /* Grundton neutral statt violett — das Lila trägt jetzt nur noch die Marke
      (Logo, Haupt-Button), nicht mehr die ganze Fläche. */
   --ink:        #08080A;   /* fast schwarz, neutral */
@@ -25,6 +28,18 @@
 
   --maxw: 1280px;
   --ease: cubic-bezier(.2,.7,.2,1);
+
+  /* Typo-Skala. Vorher hatte jede Sektion ihre eigene clamp-Formel, wodurch
+     h2 in drei Groessen auftrat und die Hero-Ueberschrift als kleinste
+     Ueberschrift der Seite endete. Jetzt drei Stufen, konsequent benutzt. */
+  --fs-display: clamp(2.9rem, 6.4vw, 5.4rem);   /* Hero, Schluss-CTA */
+  --fs-h2:      clamp(1.9rem, 3.4vw, 3.05rem);  /* Abschnittsueberschrift */
+  --fs-h3:      clamp(1.35rem, 2.1vw, 1.85rem); /* Karten, Bloecke */
+
+  /* Radien: vorher sechs verschiedene Werte nebeneinander */
+  --r-s: 10px;
+  --r-m: 16px;
+  --r-pill: 100px;
 }
 
 *{ box-sizing:border-box; margin:0; padding:0; }
@@ -76,7 +91,7 @@ h1,h2,h3{ font-family:var(--font-display); font-weight:800; line-height:1.0;
   --bg:var(--violet);
   display:inline-flex; align-items:center; gap:.6em;
   font-family:var(--font-mono); font-size:.82rem; letter-spacing:.08em; text-transform:uppercase;
-  padding:1.05em 1.7em; border-radius:100px; position:relative; overflow:hidden;
+  padding:1.05em 1.7em; border-radius:var(--r-pill); position:relative; overflow:hidden;
   background:linear-gradient(120deg,var(--violet),var(--orchid));
   color:#fff; border:0; cursor:pointer;
   box-shadow:0 8px 40px -10px var(--violet), inset 0 0 0 1px rgba(255,255,255,.12);
@@ -90,7 +105,7 @@ h1,h2,h3{ font-family:var(--font-display); font-weight:800; line-height:1.0;
   box-shadow:inset 0 0 0 1px var(--line);
 }
 .btn--ghost:hover{ box-shadow:inset 0 0 0 1px rgba(255,255,255,.6); }
-:focus-visible{ outline:2px solid #FFF; outline-offset:3px; border-radius:6px; }
+:focus-visible{ outline:2px solid #FFF; outline-offset:3px; border-radius:var(--r-s); }
 
 /* ============================================================
    Preloader
@@ -156,7 +171,7 @@ footer .brand__logo{ height:40px; }
 .nav__links a:hover{ color:var(--paper); } .nav__links a:hover::after{ width:100%; }
 .nav__cta{ display:flex; align-items:center; gap:16px; }
 .nav__phone{ font-family:var(--font-mono); font-size:.82rem; color:var(--chrome); }
-.burger{ display:none; width:44px; height:44px; border:1px solid var(--line); border-radius:10px; background:transparent; cursor:pointer; position:relative; }
+.burger{ display:none; width:44px; height:44px; border:1px solid var(--line); border-radius:var(--r-s); background:transparent; cursor:pointer; position:relative; }
 .burger i{ position:absolute; left:11px; right:11px; height:2px; background:var(--paper); border-radius:2px; transition:.35s var(--ease); }
 .burger i:nth-child(1){ top:15px } .burger i:nth-child(2){ top:21px } .burger i:nth-child(3){ top:27px }
 body.menu-open .burger i{ background:var(--orchid); }
@@ -195,7 +210,7 @@ body.menu-open #mobileMenu{ transform:none; visibility:visible; }
 .menu__socials{ display:flex; justify-content:center; gap:20px; margin-top:34px; }
 .menu__socials a{
   width:46px; height:46px; padding:0; flex:none;
-  display:grid; place-items:center; border-radius:12px;
+  display:grid; place-items:center; border-radius:var(--r-s);
   border:1px solid var(--line); color:var(--paper);
   transition:border-color .3s var(--ease), background .3s var(--ease), transform .3s var(--ease);
 }
@@ -248,26 +263,31 @@ body.menu-open #mobileMenu{ transform:none; visibility:visible; }
 /* Textspalte rechts: das Neon-H sitzt links im Bild und bliebe unter dem Text
    sonst unlesbar. So steht die Marke frei und der Text auf ruhigem Grund. */
 .hero__inner{
-  position:relative; z-index:3; padding-top:120px; padding-bottom:60px;
+  position:relative; z-index:3;
+  /* Der Hero rechnete nur in festen Pixeln und ignorierte die Fensterhöhe:
+     bei 900 px blieben 9 px Luft zum Laufband, bei 760 px änderte sich nichts.
+     Mit vh-Anteilen rückt auf flachen Notebooks alles zusammen. */
+  padding-top:clamp(92px,13vh,132px); padding-bottom:clamp(88px,12vh,124px);
   display:grid; grid-template-columns:1fr minmax(0,600px); column-gap:clamp(24px,5vw,72px);
 }
 .hero__inner > *{ grid-column:2; }
 .hero h1, .hero__sub{ text-shadow:0 2px 26px rgba(0,0,0,.7); }
 .hero .btn--ghost{ background:rgba(0,0,0,.42); }
-.hero h1{ margin:.28em 0 .5em; max-width:16ch; }
+.hero h1{ font-size:var(--fs-display); margin:.16em 0 .34em; max-width:14ch; }
 .hero h1 .line{ display:block; overflow:hidden; }
 .hero h1 .line span{ display:block; transform:translateY(105%); animation:heroRise 1s var(--ease) forwards; }
 .hero h1 .line:nth-child(2) span{ animation-delay:.12s } .hero h1 .line:nth-child(3) span{ animation-delay:.24s }
 @keyframes heroRise{ to{ transform:none } }
 .hero h1 em{ font-style:normal; color:#FFF; }
 .hero__sub{ max-width:52ch; color:var(--chrome); font-size:1.12rem; opacity:0; animation:fadeIn 1s ease .5s forwards; }
-.hero__actions{ display:flex; flex-wrap:wrap; gap:16px; margin-top:38px; opacity:0; animation:fadeIn 1s ease .7s forwards; }
+.hero__actions{ display:flex; flex-wrap:wrap; gap:14px; margin-top:clamp(22px,3.4vh,36px); opacity:0; animation:fadeIn 1s ease .7s forwards; }
 /* In der schmaleren Textspalte riss die Reihe unschön auf (drei oben, eins
    unten). Als 2x2-Block liest es als gesetzt statt als Umbruch. */
 .hero__stats{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:26px clamp(24px,3vw,48px); margin-top:52px; max-width:440px;
+  gap:clamp(16px,2.4vh,26px) clamp(24px,3vw,48px);
+  margin-top:clamp(26px,4.4vh,50px); max-width:440px;
   opacity:0; animation:fadeIn 1s ease .9s forwards; }
-.hero__stats .s b{ font-family:var(--font-display); font-weight:800; font-size:2.1rem; display:block; }
+.hero__stats .s b{ font-family:var(--font-display); font-weight:800; font-size:clamp(1.5rem,2.2vh,2rem); display:block; line-height:1.05; }
 .hero__stats .s span{ font-family:var(--font-mono); font-size:.68rem; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); }
 
 /* marquee tagline */
@@ -284,21 +304,23 @@ body.menu-open #mobileMenu{ transform:none; visibility:visible; }
 /* ============================================================
    INTRO — Moin moin
    ============================================================ */
-.intro{ position:relative; padding:clamp(90px,12vw,160px) 0; }
+.intro{ position:relative; padding:var(--sec) 0 var(--sec-end); }
 .intro__grid{ display:grid; grid-template-columns:1fr 1.15fr; gap:clamp(40px,6vw,90px); align-items:start; }
-.intro h2{ font-size:clamp(2rem,4.4vw,3.6rem); max-width:14ch; }
+.intro h2{ font-size:var(--fs-h2); max-width:15ch; }
 .intro__lead{ color:var(--chrome); font-size:1.14rem; }
 .intro__lead p+p{ margin-top:1.1em; }
 .intro__lead strong{ color:var(--paper); font-weight:600; }
 .badge-row{ display:flex; flex-wrap:wrap; gap:10px; margin-top:30px; }
-.badge{ font-family:var(--font-mono); font-size:.72rem; letter-spacing:.06em; padding:.6em 1em; border-radius:100px; border:1px solid var(--line); color:var(--chrome); }
+.badge{ font-family:var(--font-mono); font-size:.72rem; letter-spacing:.06em; padding:.6em 1em; border-radius:var(--r-pill); border:1px solid var(--line); color:var(--chrome); }
 
 /* ============================================================
    SERVICES — cinematic scroll-zoom stages
    ============================================================ */
-.services-head{ padding:clamp(60px,8vw,110px) 0 10px; text-align:center; }
-.services-head h2{ font-size:clamp(2.2rem,6vw,5rem); }
-.services-head p{ color:var(--muted); font-family:var(--font-mono); font-size:.8rem; letter-spacing:.2em; text-transform:uppercase; margin-top:16px; }
+.services-head{ padding:var(--sec) 0 0; }
+.services-head h2{ font-size:var(--fs-h2); max-width:16ch; }
+/* Ein ganzer Satz gehört nicht in die Auszeichnungsschrift — versal und
+   gesperrt lief er über drei Zeilen und las sich wie ein Etikett. */
+.services-head p{ color:var(--chrome); font-size:1.02rem; margin-top:14px; max-width:46ch; }
 
 /* ---- Übersicht der Dienstleistungen ----
    Bildgeführt: das Foto trägt die Kachel, der Text sitzt als kompakter Block
@@ -317,7 +339,7 @@ body.menu-open #mobileMenu{ transform:none; visibility:visible; }
 .svc{
   --accent:var(--orchid);
   position:relative; display:block; overflow:hidden;
-  border-radius:16px; border:1px solid var(--line);
+  border-radius:var(--r-m); border:1px solid var(--line);
   background:var(--ink-2); isolation:isolate;
   transition:transform .5s var(--ease), border-color .45s var(--ease), box-shadow .5s var(--ease);
 }
@@ -464,13 +486,13 @@ body.menu-open #mobileMenu{ transform:none; visibility:visible; }
 .panel > *:nth-child(5){ --d:.20 }  .panel > *:nth-child(6){ --d:.25 }
 .panel .num{ font-family:var(--font-mono); font-size:.72rem; letter-spacing:.24em; color:var(--accent); }
 /* ohne Karte trägt der Schatten die Lesbarkeit über unruhigen Bildstellen */
-.panel h3{ font-size:clamp(1.8rem,3.6vw,2.9rem); margin:.35em 0 .15em;
+.panel h3{ font-size:var(--fs-h3); margin:.4em 0 .2em;
   text-shadow:0 2px 24px rgba(0,0,0,.75), 0 1px 3px rgba(0,0,0,.6); }
 .panel .num, .panel .tag, .panel p{ text-shadow:0 1px 14px rgba(0,0,0,.8); }
 .panel .tag{ color:var(--accent); font-family:var(--font-mono); font-size:.78rem; letter-spacing:.08em; margin-bottom:1em; display:block; }
 .panel p{ color:var(--chrome); font-size:1.02rem; }
 .chips{ display:flex; flex-wrap:wrap; gap:8px; margin:20px 0 26px; }
-.chip{ font-family:var(--font-mono); font-size:.7rem; letter-spacing:.04em; padding:.5em .9em; border-radius:100px; border:1px solid color-mix(in srgb,var(--accent) 40%,var(--line)); color:var(--paper); background:color-mix(in srgb,var(--accent) 8%,transparent); }
+.chip{ font-family:var(--font-mono); font-size:.7rem; letter-spacing:.04em; padding:.5em .9em; border-radius:var(--r-pill); border:1px solid color-mix(in srgb,var(--accent) 40%,var(--line)); color:var(--paper); background:color-mix(in srgb,var(--accent) 8%,transparent); }
 .panel .go{ display:inline-flex; align-items:center; gap:.5em; font-family:var(--font-mono); font-size:.8rem; letter-spacing:.08em; text-transform:uppercase; color:var(--paper); }
 .panel .go svg{ transition:transform .35s var(--ease); }
 .panel .go:hover svg{ transform:translateX(5px); }
@@ -498,7 +520,7 @@ body.menu-open #mobileMenu{ transform:none; visibility:visible; }
   position:absolute; inset:0; z-index:2;
   width:100%; height:100%;
   object-fit:cover; object-position:50% 50%;
-  border-radius:18px;
+  border-radius:var(--r-m);
 }
 /* Fahrservice liegt unbeschnitten vor: der Ausschnitt wird hier gesetzt, damit
    die Hand am Türgriff im Zoom-Zentrum landet. Logistik ist bereits passend
@@ -507,7 +529,7 @@ body.menu-open #mobileMenu{ transform:none; visibility:visible; }
 
 .stagevid{
   position:absolute; inset:0; z-index:2;
-  width:100%; height:100%; object-fit:cover; border-radius:18px;
+  width:100%; height:100%; object-fit:cover; border-radius:var(--r-m);
   opacity:0; transition:opacity .5s var(--ease); pointer-events:none;
 }
 .stagevid.ready{ opacity:1; }
@@ -516,7 +538,7 @@ body.menu-open #mobileMenu{ transform:none; visibility:visible; }
    wird in der Mitte geteilt. --door schiebt die Hälften auseinander, dahinter
    kommt die Grundebene zum Vorschein. Beide Aufnahmen haben denselben
    Ausschnitt, deshalb sitzt alles beim Aufschieben passgenau. */
-.gate{ position:absolute; inset:0; z-index:2; overflow:hidden; border-radius:18px; pointer-events:none; }
+.gate{ position:absolute; inset:0; z-index:2; overflow:hidden; border-radius:var(--r-m); pointer-events:none; }
 .gate__leaf{
   position:absolute; top:0; bottom:0; width:50%;
   background-image:url("../img/logistik-tor.jpg");
@@ -542,41 +564,41 @@ svg .door{ transform-origin:left center; transform:perspective(900px) rotateY(ca
 /* ============================================================
    TESTIMONIALS
    ============================================================ */
-.testi{ position:relative; padding:clamp(90px,12vw,150px) 0; overflow:hidden; }
+.testi{ position:relative; padding:var(--sec) 0 var(--sec-end); overflow:hidden; }
 .testi__head{ display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap; gap:20px; margin-bottom:48px; }
-.testi__head h2{ font-size:clamp(2rem,5vw,4rem); max-width:16ch; }
+.testi__head h2{ font-size:var(--fs-h2); max-width:18ch; }
 .testi__rows{ display:flex; flex-direction:column; gap:20px; mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent); }
 .trow{ display:flex; gap:20px; width:max-content; }
 .trow.a{ animation:scrollX 60s linear infinite; }
 .trow.b{ animation:scrollX 74s linear infinite reverse; }
 .testi:hover .trow{ animation-play-state:paused; }
-.tcard{ width:min(420px,84vw); flex:none; background:linear-gradient(160deg,var(--ink-2),var(--ink)); border:1px solid var(--line); border-radius:18px; padding:26px; }
+.tcard{ width:min(420px,84vw); flex:none; background:linear-gradient(160deg,var(--ink-2),var(--ink)); border:1px solid var(--line); border-radius:var(--r-m); padding:26px; }
 .tcard p{ color:var(--paper); font-size:1.02rem; }
 .tcard .who{ margin-top:18px; display:flex; align-items:center; gap:12px; }
 .tcard .who b{ font-family:var(--font-display); font-weight:700; font-size:.98rem; }
 .tcard .who small{ font-family:var(--font-mono); font-size:.64rem; letter-spacing:.14em; color:var(--muted); text-transform:uppercase; display:block; }
-.tcard .dot{ width:34px; height:34px; border-radius:9px; flex:none; background:linear-gradient(150deg,#2A2A31,#0E0E12); box-shadow:inset 0 0 0 1px rgba(255,255,255,.14); display:grid; place-items:center; font-family:var(--font-display); font-weight:800; font-size:.9rem; color:#fff; }
+.tcard .dot{ width:34px; height:34px; border-radius:var(--r-s); flex:none; background:linear-gradient(150deg,#2A2A31,#0E0E12); box-shadow:inset 0 0 0 1px rgba(255,255,255,.14); display:grid; place-items:center; font-family:var(--font-display); font-weight:800; font-size:.9rem; color:#fff; }
 
 /* ============================================================
    EXPECT / qualities strip
    ============================================================ */
-.expect{ padding:clamp(60px,9vw,120px) 0; border-top:1px solid var(--line); }
+.expect{ padding:var(--sec) 0 var(--sec-end); border-top:1px solid var(--line); }
 .expect__grid{ display:grid; grid-template-columns:.9fr 1.4fr; gap:clamp(30px,5vw,70px); align-items:center; }
-.expect h2{ font-size:clamp(1.8rem,4vw,3rem); }
+.expect h2{ font-size:var(--fs-h2); }
 .qgrid{ display:flex; flex-wrap:wrap; gap:12px; }
-.q{ font-family:var(--font-mono); font-size:.78rem; letter-spacing:.04em; padding:.85em 1.15em; border-radius:12px; border:1px solid var(--line); color:var(--chrome); transition:.4s var(--ease); }
+.q{ font-family:var(--font-mono); font-size:.78rem; letter-spacing:.04em; padding:.85em 1.15em; border-radius:var(--r-s); border:1px solid var(--line); color:var(--chrome); transition:.4s var(--ease); }
 .q:hover{ color:var(--paper); border-color:rgba(255,255,255,.55); background:rgba(255,255,255,.06); transform:translateY(-3px); }
 
 /* ============================================================
    CONTACT / CTA
    ============================================================ */
-.cta{ position:relative; padding:clamp(100px,14vw,190px) 0; overflow:hidden; text-align:center; }
+.cta{ position:relative; padding:calc(var(--sec) * 1.25) 0 var(--sec); overflow:hidden; text-align:center; }
 .cta__glow{ position:absolute; width:80vmax; height:80vmax; left:50%; top:60%; transform:translate(-50%,-50%); background:radial-gradient(circle,rgba(255,255,255,.10),transparent 62%); filter:blur(40px); z-index:0; }
 .cta__inner{ position:relative; z-index:2; }
-.cta h2{ font-size:clamp(2.6rem,8vw,6.5rem); }
+.cta h2{ font-size:var(--fs-display); }
 .cta p{ color:var(--chrome); max-width:46ch; margin:22px auto 40px; font-size:1.14rem; }
 .contact-cards{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; max-width:900px; margin:56px auto 0; text-align:left; }
-.ccard{ background:var(--ink-2); border:1px solid var(--line); border-radius:16px; padding:24px; }
+.ccard{ background:var(--ink-2); border:1px solid var(--line); border-radius:var(--r-m); padding:24px; }
 .ccard small{ font-family:var(--font-mono); font-size:.64rem; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); display:block; margin-bottom:8px; }
 .ccard a,.ccard address{ font-style:normal; font-size:1rem; color:var(--paper); }
 .ccard a:hover{ color:#FFF; }
@@ -592,7 +614,7 @@ footer ul a{ color:var(--chrome); font-size:.92rem; }
 footer ul a:hover{ color:var(--paper); }
 .foot__brand p{ color:var(--muted); font-size:.9rem; max-width:34ch; margin-top:16px; }
 .socials{ display:flex; gap:10px; margin-top:20px; }
-.socials a{ width:38px; height:38px; border:1px solid var(--line); border-radius:10px; display:grid; place-items:center; color:var(--chrome); transition:.3s; }
+.socials a{ width:38px; height:38px; border:1px solid var(--line); border-radius:var(--r-s); display:grid; place-items:center; color:var(--chrome); transition:.3s; }
 .socials a:hover{ color:#fff; border-color:rgba(255,255,255,.55); background:rgba(255,255,255,.08); }
 .foot__bottom{ display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-top:56px; padding-top:24px; border-top:1px solid var(--line); font-family:var(--font-mono); font-size:.7rem; letter-spacing:.08em; color:var(--muted); }
 
@@ -681,7 +703,7 @@ footer ul a:hover{ color:var(--paper); }
 .subhero .wrap{ position:relative; z-index:3; }
 .breadcrumb{ font-family:var(--font-mono); font-size:.7rem; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); margin-bottom:22px; display:flex; gap:.6em; flex-wrap:wrap; }
 .breadcrumb a{ color:var(--muted); } .breadcrumb a:hover{ color:#FFF; }
-.subhero h1{ text-shadow:0 2px 26px rgba(0,0,0,.75);  font-size:clamp(2.6rem,7vw,5.6rem); font-weight:800; max-width:16ch; }
+.subhero h1{ text-shadow:0 2px 26px rgba(0,0,0,.75); font-size:var(--fs-display); font-weight:800; max-width:15ch; }
 .subhero .tag{ display:block; color:var(--accent); font-family:var(--font-mono); font-size:.86rem; letter-spacing:.08em; margin-top:18px; }
 .subhero .bignum{ position:absolute; right:clamp(20px,5vw,64px); top:120px; z-index:2; font-family:var(--font-display); font-weight:800; font-size:clamp(6rem,20vw,16rem); line-height:.8; color:transparent; -webkit-text-stroke:1px var(--line); opacity:.5; pointer-events:none; }
 
@@ -707,7 +729,7 @@ footer ul a:hover{ color:var(--paper); }
   .subhero--band .subhero__photo{ margin-top:66px; }
 }
 
-.content{ padding:clamp(60px,9vw,120px) 0; }
+.content{ padding:var(--sec) 0 var(--sec-end); }
 .content__grid{ display:grid; grid-template-columns:1.1fr .9fr; gap:clamp(40px,6vw,90px); align-items:start; }
 .content__lead p{ color:var(--chrome); font-size:1.14rem; }
 .content__lead p+p{ margin-top:1.1em; }
@@ -716,7 +738,7 @@ footer ul a:hover{ color:var(--paper); }
 .side .btn{ width:100%; justify-content:center; margin-top:22px; }
 .ticklist{ list-style:none; display:flex; flex-direction:column; gap:12px; }
 .ticklist li{ display:flex; gap:12px; align-items:flex-start; color:var(--chrome); font-size:.98rem; }
-.ticklist li::before{ content:""; width:18px; height:18px; flex:none; margin-top:2px; border-radius:6px; background:color-mix(in srgb,var(--accent) 22%,transparent); box-shadow:inset 0 0 0 1px var(--accent); background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M5 12l5 5 9-10' stroke='%23fff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-size:14px; background-repeat:no-repeat; background-position:center; }
+.ticklist li::before{ content:""; width:18px; height:18px; flex:none; margin-top:2px; border-radius:var(--r-s); background:color-mix(in srgb,var(--accent) 22%,transparent); box-shadow:inset 0 0 0 1px var(--accent); background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M5 12l5 5 9-10' stroke='%23fff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-size:14px; background-repeat:no-repeat; background-position:center; }
 
 /* ---- Team ----
    Porträt trägt die Kachel, darunter Name, Bereich und der persönliche Satz.
@@ -733,7 +755,7 @@ footer ul a:hover{ color:var(--paper); }
    auseinander und Name, Bereich und Notiz stehen nicht mehr auf einer Linie. */
 .member{ display:grid; gap:2px; align-content:start; }
 .member__img{
-  border-radius:16px; overflow:hidden; border:1px solid var(--line);
+  border-radius:var(--r-m); overflow:hidden; border:1px solid var(--line);
   background:var(--ink-2); aspect-ratio:4/5; margin-bottom:16px;
 }
 /* Platzhalter, solange kein Foto vorliegt — bewusst gesetzt statt leer:
@@ -788,7 +810,7 @@ footer ul a:hover{ color:var(--paper); }
 /* Bildband in voller Textbreite auf den Detailseiten */
 .wide-shot{ margin-top:clamp(40px,5vw,72px); }
 .wide-shot img{
-  width:100%; height:auto; border-radius:18px; border:1px solid var(--line);
+  width:100%; height:auto; border-radius:var(--r-m); border:1px solid var(--line);
   display:block;
 }
 .wide-shot figcaption{
@@ -796,7 +818,7 @@ footer ul a:hover{ color:var(--paper); }
   text-transform:uppercase; color:var(--muted); margin-top:12px;
 }
 
-.block-title{ font-size:clamp(1.4rem,3vw,2rem); margin:0 0 20px; }
+.block-title{ font-size:var(--fs-h2); margin:0 0 20px; }
 .section-soft{ border-top:1px solid var(--line); padding:clamp(56px,8vw,100px) 0; }
 
 .pagenav{ display:flex; justify-content:space-between; gap:16px; border-top:1px solid var(--line); padding:40px 0; flex-wrap:wrap; }
@@ -809,13 +831,13 @@ footer ul a:hover{ color:var(--paper); }
 .form{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
 .form .full{ grid-column:1 / -1; }
 .form label{ font-family:var(--font-mono); font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); display:block; margin-bottom:8px; }
-.form input,.form select,.form textarea{ width:100%; background:var(--ink-2); border:1px solid var(--line); border-radius:12px; padding:14px 16px; color:var(--paper); font-family:var(--font-body); font-size:1rem; }
+.form input,.form select,.form textarea{ width:100%; background:var(--ink-2); border:1px solid var(--line); border-radius:var(--r-s); padding:14px 16px; color:var(--paper); font-family:var(--font-body); font-size:1rem; }
 .form input:focus,.form select:focus,.form textarea:focus{ outline:none; border-color:#FFF; box-shadow:0 0 0 3px rgba(255,255,255,.14); }
 .form textarea{ min-height:130px; resize:vertical; }
 
 /* Gallery */
 .gal{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
-.gal .tile{ aspect-ratio:4/3; border-radius:16px; border:1px solid var(--line); background:linear-gradient(160deg,var(--ink-2),var(--ink)); display:grid; place-items:center; color:var(--muted); font-family:var(--font-mono); font-size:.72rem; letter-spacing:.1em; position:relative; overflow:hidden; }
+.gal .tile{ aspect-ratio:4/3; border-radius:var(--r-m); border:1px solid var(--line); background:linear-gradient(160deg,var(--ink-2),var(--ink)); display:grid; place-items:center; color:var(--muted); font-family:var(--font-mono); font-size:.72rem; letter-spacing:.1em; position:relative; overflow:hidden; }
 .gal .tile::after{ content:""; position:absolute; inset:0; background:radial-gradient(circle at 30% 20%,color-mix(in srgb,var(--violet) 30%,transparent),transparent 60%); opacity:.5; }
 
 @media (max-width:980px){
