@@ -78,8 +78,35 @@ nicht schön: der Absender muss die Mail selbst abschicken.
 
 ## Interne Vorschau — Link für die Kollegen
 
-Die Seite lässt sich ohne Hosting-Konto über GitHub Pages bereitstellen.
-Ergebnis ist die Adresse
+Drei Wege. Der erste ist der schnellste und der einzige, bei dem der
+Passwortschutz nichts kostet.
+
+### Weg 1 — eigener Webspace (empfohlen)
+
+Für hermserviceteam.com besteht bereits ein Hosting-Vertrag. Dort einen
+Unterordner anlegen und den Inhalt des Projekts hineinladen:
+
+1. Per FTP oder Datei-Manager des Hosters einen Ordner `vorschau` anlegen.
+2. Den **Inhalt** dieses Projekts hineinladen (nicht den Ordner selbst) —
+   `index.html` muss direkt in `/vorschau/` liegen.
+3. Fertig: **https://hermserviceteam.com/vorschau/**
+
+Die bestehende Website wird dabei nicht angefasst — der Unterordner liegt
+daneben.
+
+**Passwortschutz:** die meisten deutschen Hoster (Strato, IONOS, All-Inkl,
+Hetzner, Mittwald) haben im Kundenmenü einen Punkt „Verzeichnisschutz“ oder
+„Passwortschutz“. Dort den Ordner `vorschau` auswählen, Benutzername und
+Passwort vergeben. Alternativ die zwei auskommentierten Zeilen in `.htaccess`
+aktivieren.
+
+Die mitgelieferte `.htaccess` bringt außerdem gleich mit: Sperre gegen
+Suchmaschinen, Komprimierung, Zwischenspeicher, richtige Dateitypen für
+Schriften und Video, Fehlerseite und Adressen ohne `.html`.
+
+### Weg 2 — GitHub Pages (kostenlos, ohne Passwort)
+
+Ohne eigenen Webspace geht es auch über GitHub Pages. Ergebnis ist die Adresse
 
 **https://4wf86nbfzr-png.github.io/Claude/**
 

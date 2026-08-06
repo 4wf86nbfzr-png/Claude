@@ -1,0 +1,73 @@
+# ============================================================
+# HERM Service Team — Konfiguration für Apache-Webspace
+# ------------------------------------------------------------
+# Wird gebraucht, wenn die Seite auf einem klassischen Webhosting
+# liegt (Strato, IONOS, All-Inkl, Hetzner, Mittwald …).
+# Auf Netlify und GitHub Pages hat die Datei keine Wirkung und
+# stört auch nicht.
+#
+# Für die interne Vorschau: Ordner z. B. /vorschau/ anlegen,
+# Inhalt hochladen, fertig.
+# ============================================================
+
+# ---- TESTBETRIEB: Passwortschutz ----
+# Die zwei Zeilen einkommentieren und den Pfad anpassen. Wo die
+# .htpasswd liegen muss, steht in der Hilfe Ihres Hosters; die
+# meisten legen sie auch per Klick im Kundenmenü an.
+#
+# AuthType Basic
+# AuthName "Interne Vorschau — HERM Service Team"
+# AuthUserFile /pfad/zu/.htpasswd
+# Require valid-user
+
+# ---- TESTBETRIEB: VOR DEM LIVE-GANG ENTFERNEN ----
+<IfModule mod_headers.c>
+  Header set X-Robots-Tag "noindex, nofollow, noarchive, nosnippet"
+</IfModule>
+
+# ---- Sicherheit ----
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+  Header set Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=()"
+</IfModule>
+
+# ---- Dateitypen, die ältere Apache-Konfigurationen nicht kennen ----
+<IfModule mod_mime.c>
+  AddType font/woff2 .woff2
+  AddType video/webm .webm
+  AddType image/webp .webp
+  AddType text/vtt   .vtt
+</IfModule>
+
+# ---- Komprimierung ----
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css application/javascript
+  AddOutputFilterByType DEFLATE image/svg+xml text/xml text/plain
+</IfModule>
+
+# ---- Zwischenspeicher ----
+# Bilder, Schriften und Video ändern sich selten; HTML immer frisch
+# holen, sonst sieht das Büro im Test noch den Stand von gestern.
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/jpeg              "access plus 1 year"
+  ExpiresByType image/webp              "access plus 1 year"
+  ExpiresByType image/png               "access plus 1 year"
+  ExpiresByType font/woff2              "access plus 1 year"
+  ExpiresByType video/webm              "access plus 1 year"
+  ExpiresByType text/css                "access plus 1 week"
+  ExpiresByType application/javascript  "access plus 1 week"
+  ExpiresByType text/html               "access plus 0 seconds"
+</IfModule>
+
+# ---- Fehlerseite ----
+ErrorDocument 404 /404.html
+
+# ---- Adressen ohne .html ----
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_FILENAME}\.html -f
+  RewriteRule ^(.*)$ $1.html [L]
+</IfModule>
