@@ -72,7 +72,10 @@
        weggeschnitten — die Aussage trägt die Überschrift darunter als echter
        Text, damit sie skaliert und lesbar bleibt. -->
   <div class="hero__photo" aria-hidden="true">
-    <img src="assets/img/hero.jpg" alt="" fetchpriority="high" />
+    <!-- unscharfe Kopie füllt die Ränder, damit das Bild nie beschnitten werden
+         muss und der Rahmen trotzdem nicht leer wirkt -->
+    <img class="hero__photo-fill" src="assets/img/hero.jpg" alt="" />
+    <img class="hero__photo-main" src="assets/img/hero.jpg" alt="" fetchpriority="high" />
   </div>
 
   <div class="wrap hero__inner">
@@ -134,7 +137,68 @@
   <div class="wrap">
     <span class="eyebrow reveal-up" style="justify-content:center">Sechs Bereiche · ein Team</span>
     <h2 class="reveal-up" data-d="1">Unsere Dienstleistungen</h2>
-    <p class="reveal-up" data-d="2">Scrollen Sie hinein — jeder Bereich öffnet sich</p>
+    <p class="reveal-up" data-d="2">Direkt zum Bereich — oder weiterscrollen, jeder öffnet sich einzeln</p>
+  </div>
+</section>
+
+<!-- Übersicht: führt direkt zur Detailseite, ohne dass man die ganze
+     Startseite durchscrollen muss. -->
+<section class="services-grid">
+  <div class="wrap svc-grid reveal-up">
+      <a class="svc" data-accent="gold" href="dienstleistungen/gastro-personal.html">
+        <span class="svc__img"><img src="assets/img/gastro.jpg" alt="" loading="lazy" /></span>
+        <span class="svc__num">01</span>
+        <span class="svc__name">Gastro-Personal</span>
+        <span class="svc__txt">Servicekräfte für Menü, Catering, Bankett und Bar.</span>
+        <span class="svc__go">Ansehen
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+      </a>
+      <a class="svc" data-accent="blue" href="dienstleistungen/sicherheit.html">
+        <span class="svc__img"><img src="assets/img/sicherheit.jpg" alt="" loading="lazy" /></span>
+        <span class="svc__num">02</span>
+        <span class="svc__name">Sicherheit</span>
+        <span class="svc__txt">Veranstaltungsschutz, Crowdmanagement, Personenschutz.</span>
+        <span class="svc__go">Ansehen
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+      </a>
+      <a class="svc" data-accent="magenta" href="dienstleistungen/promotion-hostess.html">
+        <span class="svc__img"><img src="assets/img/promotion.jpg" alt="" loading="lazy" /></span>
+        <span class="svc__num">03</span>
+        <span class="svc__name">Promotion &amp; Hostess</span>
+        <span class="svc__txt">Mehrsprachige Hostessen und Promoter für Messe und Empfang.</span>
+        <span class="svc__go">Ansehen
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+      </a>
+      <a class="svc" data-accent="amber" href="dienstleistungen/logistik.html">
+        <span class="svc__img"><img src="assets/img/logistik.jpg" alt="" loading="lazy" /></span>
+        <span class="svc__num">04</span>
+        <span class="svc__name">Logistik</span>
+        <span class="svc__txt">Auf- und Abbau, Transport, Bühnen- und Messelogistik.</span>
+        <span class="svc__go">Ansehen
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+      </a>
+      <a class="svc" data-accent="cyan" href="dienstleistungen/fahrservice.html">
+        <span class="svc__img"><img src="assets/img/fahrservice-door.jpg" alt="" loading="lazy" /></span>
+        <span class="svc__num">05</span>
+        <span class="svc__name">Fahrservice</span>
+        <span class="svc__txt">Flughafentransfer, Shuttle und Chauffeur — deutschlandweit.</span>
+        <span class="svc__go">Ansehen
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+      </a>
+      <a class="svc" data-accent="mint" href="dienstleistungen/reinigung.html">
+        <span class="svc__img"><img src="assets/img/reinigung.jpg" alt="" loading="lazy" /></span>
+        <span class="svc__num">06</span>
+        <span class="svc__name">Reinigung</span>
+        <span class="svc__txt">Gebäude-, Büro- und Praxisreinigung, auf Wunsch Desinfektion.</span>
+        <span class="svc__go">Ansehen
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+      </a>
   </div>
 </section>
 

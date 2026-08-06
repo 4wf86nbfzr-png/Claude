@@ -166,8 +166,18 @@ body.menu-open #mobileMenu{ transform:none; visibility:visible; }
    Raster darüber: das Bild soll für sich stehen. Lesbar bleibt der Text durch
    einen neutral schwarzen Verlauf, der nur dort liegt, wo die Schrift steht,
    und der die Farben im übrigen Bild unangetastet lässt. */
-.hero__photo{ position:absolute; inset:0; z-index:0; }
-.hero__photo img{ width:100%; height:100%; object-fit:cover; object-position:50% 45%; }
+.hero__photo{ position:absolute; inset:0; z-index:0; overflow:hidden; background:var(--ink); }
+.hero__photo img{ position:absolute; inset:0; width:100%; height:100%; }
+/* Das Motiv wird nie beschnitten — es ist immer vollständig zu sehen. */
+.hero__photo-main{ object-fit:contain; object-position:50% 50%; }
+/* Die Ränder füllt eine unscharfe, vergrößerte Kopie desselben Bildes. */
+.hero__photo-fill{ object-fit:cover; transform:scale(1.15); filter:blur(46px) brightness(.42) saturate(1.1); }
+
+/* Einfahrt beim Öffnen der Seite: die Kamera fährt langsam aus dem Bild heraus. */
+.hero__photo img{ animation:heroZoom 2.6s var(--ease) both; }
+@keyframes heroZoom{ from{ transform:scale(1.14) } to{ transform:none } }
+.hero__photo-fill{ animation-name:heroZoomFill; }
+@keyframes heroZoomFill{ from{ transform:scale(1.30) } to{ transform:scale(1.15) } }
 .hero__photo::after{
   content:""; position:absolute; inset:0;
   background:
@@ -242,6 +252,51 @@ body.menu-open #mobileMenu{ transform:none; visibility:visible; }
 .services-head{ padding:clamp(60px,8vw,110px) 0 10px; text-align:center; }
 .services-head h2{ font-size:clamp(2.2rem,6vw,5rem); }
 .services-head p{ color:var(--muted); font-family:var(--font-mono); font-size:.8rem; letter-spacing:.2em; text-transform:uppercase; margin-top:16px; }
+
+/* ---- Übersicht der Dienstleistungen ----
+   Einstieg für alle, die nicht die ganze Startseite durchscrollen wollen:
+   jede Karte führt direkt auf die Detailseite des Bereichs. */
+.services-grid{ padding:clamp(28px,4vw,52px) 0 clamp(40px,6vw,80px); }
+.svc-grid{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:clamp(14px,1.6vw,22px); }
+.svc{
+  --accent:var(--orchid);
+  position:relative; display:grid; gap:6px; overflow:hidden;
+  padding:clamp(18px,1.8vw,26px);
+  border:1px solid var(--line); border-radius:18px;
+  background:linear-gradient(160deg,var(--ink-2),var(--ink));
+  transition:transform .45s var(--ease), border-color .45s var(--ease), box-shadow .45s var(--ease);
+}
+.svc[data-accent="gold"]{ --accent:#F0B454 } .svc[data-accent="blue"]{ --accent:#6EA8FF }
+.svc[data-accent="magenta"]{ --accent:#FF6EC7 } .svc[data-accent="amber"]{ --accent:#FF9E5E }
+.svc[data-accent="cyan"]{ --accent:#6FE0FF } .svc[data-accent="mint"]{ --accent:#6FF0C4 }
+
+/* Szenenbild als ruhiger Grund der Karte, nicht als Blickfang */
+.svc__img{ position:absolute; inset:0; z-index:0; }
+.svc__img img{ width:100%; height:100%; object-fit:cover; opacity:.26;
+  transition:opacity .5s var(--ease), transform .7s var(--ease); }
+.svc::after{
+  content:""; position:absolute; inset:0; z-index:1; pointer-events:none;
+  background:linear-gradient(165deg,rgba(11,7,19,.55),rgba(11,7,19,.93));
+}
+.svc > :not(.svc__img){ position:relative; z-index:2; }
+
+.svc__num{ font-family:var(--font-mono); font-size:.68rem; letter-spacing:.24em; color:var(--accent); }
+.svc__name{ font-family:var(--font-display); font-weight:800; text-transform:uppercase;
+  letter-spacing:-.01em; font-size:clamp(1.15rem,1.7vw,1.5rem); line-height:1.05; }
+.svc__txt{ color:var(--chrome); font-size:.92rem; margin-top:2px; }
+.svc__go{ display:inline-flex; align-items:center; gap:.5em; margin-top:14px;
+  font-family:var(--font-mono); font-size:.72rem; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--accent); }
+.svc__go svg{ transition:transform .35s var(--ease); }
+
+.svc:hover{ transform:translateY(-4px); border-color:var(--accent);
+  box-shadow:0 24px 60px -28px #000, 0 0 0 1px color-mix(in srgb,var(--accent) 45%,transparent); }
+.svc:hover .svc__img img{ opacity:.42; transform:scale(1.06); }
+.svc:hover .svc__go svg{ transform:translateX(5px); }
+.svc:focus-visible{ border-color:var(--accent); }
+
+@media (max-width:860px){ .svc-grid{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media (max-width:520px){ .svc-grid{ grid-template-columns:1fr; } }
 
 .stage{ position:relative; height:230vh; }
 .stage__sticky{
@@ -461,15 +516,20 @@ footer ul a:hover{ color:var(--paper); }
    Responsive
    ============================================================ */
 @media (max-width:980px){
-  /* schmal ist kein Platz zum Ausweichen: Text volle Breite, Abdunklung
-     stattdessen von unten, damit das Bild oben in Originalfarben steht */
-  .hero__inner{ grid-template-columns:1fr; }
-  .hero__inner > *{ grid-column:1; }
+  /* Schmal wird das Bild nicht überlagert, sondern als eigenes Band gezeigt —
+     im selben Ausschnitt wie auf dem Desktop, also vollständig. Der Text steht
+     darunter auf ruhigem Grund statt über der hellen Glaswand. */
+  .hero{ display:block; min-height:0; }
+  .hero__photo{ position:relative; inset:auto; aspect-ratio:1086/655; margin-top:74px; }
+  .hero__photo-fill{ display:none; }
   .hero__photo::after{
-    background:linear-gradient(180deg,
-      rgba(0,0,0,.50) 0%, rgba(0,0,0,.20) 20%, rgba(0,0,0,.62) 52%,
-      rgba(0,0,0,.86) 78%, var(--ink) 100%);
+    background:linear-gradient(180deg, rgba(0,0,0,.34) 0%, rgba(0,0,0,0) 26%,
+      rgba(0,0,0,0) 72%, rgba(11,7,19,.55) 92%, var(--ink) 100%);
   }
+  .hero__inner{ grid-template-columns:1fr; padding-top:28px; }
+  .hero__inner > *{ grid-column:1; }
+  .hero h1, .hero__sub{ text-shadow:none; }
+  .hero__stats{ max-width:none; }
   .nav__links,.nav__phone{ display:none; }
   .burger{ display:block; }
   .intro__grid{ grid-template-columns:1fr; }
