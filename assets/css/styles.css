@@ -3,18 +3,21 @@
    Design tokens
    ============================================================ */
 :root{
-  --ink:        #0B0713;   /* near-black violet — base canvas */
-  --ink-2:      #130A22;   /* raised panels */
-  --ink-3:      #1B0F30;   /* deeper panel edge */
-  --violet:     #7C3AED;   /* primary brand (das "lila") */
-  --orchid:     #B57BFF;   /* light brand */
-  --glow:       #E4B0FF;   /* luminous edge */
-  --chrome:     #C9C6DA;   /* cool silver text */
-  --paper:      #F4F0FB;   /* light text */
-  --muted:      #8E86A6;   /* secondary text */
-  --line:       rgba(181,123,255,.16);
+  /* Grundton neutral statt violett — das Lila trägt jetzt nur noch die Marke
+     (Logo, Haupt-Button), nicht mehr die ganze Fläche. */
+  --ink:        #08080A;   /* fast schwarz, neutral */
+  --ink-2:      #121216;   /* abgesetzte Flächen */
+  --ink-3:      #1A1A20;   /* tiefere Kante */
+  --violet:     #7C3AED;   /* Marke — sparsam einsetzen */
+  --orchid:     #B57BFF;   /* Marke hell */
+  --glow:       #E4B0FF;   /* Leuchtkante */
+  --chrome:     #C7C7CD;   /* Sekundärtext, neutralgrau */
+  --paper:      #F6F6F8;   /* Text */
+  --muted:      #8B8B93;   /* gedämpft */
+  --line:       rgba(255,255,255,.13);
 
-  --accent:     var(--orchid);   /* per-section override */
+  /* Standardakzent weiß; Farbe kommt nur noch pro Dienstleistungsbereich */
+  --accent:     #E9E9EE;
 
   --font-display:'Bricolage Grotesque', 'Arial Black', system-ui, sans-serif;
   --font-body:   'Instrument Sans', system-ui, -apple-system, sans-serif;
@@ -38,7 +41,7 @@ body{
 body.locked{ overflow:hidden; }
 img{ max-width:100%; display:block; }
 a{ color:inherit; text-decoration:none; }
-::selection{ background:var(--violet); color:#fff; }
+::selection{ background:#FFF; color:#08080A; }
 
 /* Ambient grain overlay */
 body::after{
@@ -86,8 +89,8 @@ h1,h2,h3{ font-family:var(--font-display); font-weight:800; line-height:1.0;
   background:transparent; color:var(--paper);
   box-shadow:inset 0 0 0 1px var(--line);
 }
-.btn--ghost:hover{ box-shadow:inset 0 0 0 1px var(--orchid); }
-:focus-visible{ outline:2px solid var(--glow); outline-offset:3px; border-radius:6px; }
+.btn--ghost:hover{ box-shadow:inset 0 0 0 1px rgba(255,255,255,.6); }
+:focus-visible{ outline:2px solid #FFF; outline-offset:3px; border-radius:6px; }
 
 /* ============================================================
    Preloader
@@ -106,14 +109,14 @@ h1,h2,h3{ font-family:var(--font-display); font-weight:800; line-height:1.0;
 @keyframes preRise{ to{ opacity:1; transform:none } }
 .pre-sub{ font-family:var(--font-mono); font-size:.7rem; letter-spacing:.4em; color:var(--muted); text-transform:uppercase; margin-top:14px; opacity:0; animation:fadeIn .6s ease .5s forwards; }
 .pre-bar{ width:min(220px,50vw); height:2px; background:var(--line); margin:26px auto 0; border-radius:2px; overflow:hidden; }
-.pre-bar i{ display:block; height:100%; width:0; background:linear-gradient(90deg,var(--violet),var(--glow)); animation:preLoad 1.4s var(--ease) .2s forwards; }
+.pre-bar i{ display:block; height:100%; width:0; background:linear-gradient(90deg,#55555C,#FFF); animation:preLoad 1.4s var(--ease) .2s forwards; }
 @keyframes preLoad{ to{ width:100% } }
 @keyframes fadeIn{ to{ opacity:1 } }
 
 /* ============================================================
    Scroll progress + Nav
    ============================================================ */
-#scrollbar{ position:fixed; top:0; left:0; height:2px; width:0; z-index:9999; background:linear-gradient(90deg,var(--violet),var(--glow)); box-shadow:0 0 14px var(--orchid); }
+#scrollbar{ position:fixed; top:0; left:0; height:2px; width:0; z-index:9999; background:linear-gradient(90deg,#8A8A93,#FFF); box-shadow:0 0 12px rgba(255,255,255,.45); }
 
 header.nav{
   position:fixed; top:0; left:0; right:0; z-index:900;
@@ -122,7 +125,7 @@ header.nav{
   transition:background .5s var(--ease), padding .5s var(--ease), backdrop-filter .5s;
 }
 header.nav.scrolled{
-  background:rgba(11,7,19,.72); backdrop-filter:blur(14px);
+  background:rgba(8,8,10,.72); backdrop-filter:blur(14px);
   padding:12px clamp(20px,5vw,64px); border-bottom:1px solid var(--line);
 }
 .brand{ display:flex; align-items:center; gap:12px; line-height:1; }
@@ -132,7 +135,7 @@ header.nav.scrolled .brand__logo{ height:34px; transition:height .5s var(--ease)
 footer .brand__logo{ height:40px; }
 .nav__links{ display:flex; align-items:center; gap:34px; }
 .nav__links a{ font-size:.9rem; color:var(--chrome); position:relative; transition:color .3s; }
-.nav__links a::after{ content:""; position:absolute; left:0; bottom:-6px; height:1px; width:0; background:var(--orchid); transition:width .35s var(--ease); }
+.nav__links a::after{ content:""; position:absolute; left:0; bottom:-6px; height:1px; width:0; background:#FFF; transition:width .35s var(--ease); }
 .nav__links a:hover{ color:var(--paper); } .nav__links a:hover::after{ width:100%; }
 .nav__cta{ display:flex; align-items:center; gap:16px; }
 .nav__phone{ font-family:var(--font-mono); font-size:.82rem; color:var(--chrome); }
@@ -147,7 +150,7 @@ body.menu-open .burger i:nth-child(3){ transform:translateY(-6px) rotate(-45deg)
    Weichzeichner und Textschatten statt aus einer deckenden Fläche. */
 #mobileMenu{
   position:fixed; inset:0; z-index:850;
-  background:linear-gradient(180deg, rgba(11,7,19,.42), rgba(11,7,19,.62));
+  background:linear-gradient(180deg, rgba(8,8,10,.42), rgba(8,8,10,.62));
   backdrop-filter:blur(26px) saturate(1.1);
   display:flex; flex-direction:column; justify-content:center; gap:8px; padding:0 8vw;
   transform:translateY(-100%); transition:transform .6s var(--ease); visibility:hidden;
@@ -186,7 +189,7 @@ body.menu-open #mobileMenu{ transform:none; visibility:visible; }
     /* schmaler Streifen oben, damit die Navigation über hellen Stellen steht */
     linear-gradient(180deg, rgba(0,0,0,.52) 0%, rgba(0,0,0,0) 15%),
     /* unten in den Seitengrund auslaufen */
-    linear-gradient(180deg, rgba(0,0,0,0) 62%, rgba(11,7,19,.74) 90%, var(--ink) 100%);
+    linear-gradient(180deg, rgba(0,0,0,0) 62%, rgba(8,8,10,.74) 90%, var(--ink) 100%);
 }
 .orb{ position:absolute; border-radius:50%; filter:blur(60px); opacity:.7; will-change:transform; }
 .orb.o1{ width:52vw; height:52vw; left:-8vw; top:-12vw; background:radial-gradient(circle,#7C3AED,transparent 68%); animation:drift1 18s ease-in-out infinite; }
@@ -212,7 +215,7 @@ body.menu-open #mobileMenu{ transform:none; visibility:visible; }
 .hero h1 .line span{ display:block; transform:translateY(105%); animation:heroRise 1s var(--ease) forwards; }
 .hero h1 .line:nth-child(2) span{ animation-delay:.12s } .hero h1 .line:nth-child(3) span{ animation-delay:.24s }
 @keyframes heroRise{ to{ transform:none } }
-.hero h1 em{ font-style:normal; background:linear-gradient(110deg,var(--orchid),var(--glow)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.hero h1 em{ font-style:normal; color:#FFF; }
 .hero__sub{ max-width:52ch; color:var(--chrome); font-size:1.12rem; opacity:0; animation:fadeIn 1s ease .5s forwards; }
 .hero__actions{ display:flex; flex-wrap:wrap; gap:16px; margin-top:38px; opacity:0; animation:fadeIn 1s ease .7s forwards; }
 /* In der schmaleren Textspalte riss die Reihe unschön auf (drei oben, eins
@@ -224,10 +227,10 @@ body.menu-open #mobileMenu{ transform:none; visibility:visible; }
 .hero__stats .s span{ font-family:var(--font-mono); font-size:.68rem; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); }
 
 /* marquee tagline */
-.marquee{ position:absolute; bottom:0; left:0; right:0; z-index:3; border-top:1px solid var(--line); border-bottom:1px solid var(--line); background:rgba(11,7,19,.4); overflow:hidden; padding:14px 0; }
+.marquee{ position:absolute; bottom:0; left:0; right:0; z-index:3; border-top:1px solid var(--line); border-bottom:1px solid var(--line); background:rgba(8,8,10,.4); overflow:hidden; padding:14px 0; }
 .marquee__track{ display:flex; gap:48px; white-space:nowrap; width:max-content; animation:scrollX 34s linear infinite; }
 .marquee__track span{ font-family:var(--font-mono); font-size:.86rem; letter-spacing:.14em; color:var(--chrome); display:inline-flex; align-items:center; gap:48px; }
-.marquee__track span::after{ content:"✦"; color:var(--orchid); }
+.marquee__track span::after{ content:"✦"; color:var(--muted); }
 @keyframes scrollX{ to{ transform:translateX(-50%) } }
 
 .scrollcue{ position:absolute; right:clamp(20px,5vw,64px); bottom:74px; z-index:4; font-family:var(--font-mono); font-size:.6rem; letter-spacing:.3em; color:var(--muted); text-transform:uppercase; display:flex; align-items:center; gap:10px; opacity:0; animation:fadeIn 1s ease 1.1s forwards; }
@@ -286,17 +289,29 @@ body.menu-open #mobileMenu{ transform:none; visibility:visible; }
 }
 /* Abdunklung nur unten, wo der Textblock liegt — oben bleibt das Bild frei */
 .svc::before{
-  content:""; position:absolute; inset:0; z-index:1; pointer-events:none;
+  content:""; position:absolute; inset:0; z-index:2; pointer-events:none;
   background:linear-gradient(180deg,
-    rgba(8,5,16,0) 34%, rgba(8,5,16,.58) 62%, rgba(8,5,16,.92) 100%);
+    rgba(6,6,8,0) 34%, rgba(6,6,8,.58) 62%, rgba(6,6,8,.92) 100%);
 }
+/* Tor auf der Kachel — dieselbe Mechanik wie auf der Bühne, hier vom Klick
+   ausgelöst statt vom Scroll. */
+.svc__gate{ position:absolute; inset:0; z-index:1; overflow:hidden; }
+.svc__leaf{
+  position:absolute; top:0; bottom:0; width:50%;
+  background-image:url("../img/logistik-tor.jpg");
+  background-repeat:no-repeat; background-size:200% 100%;
+  transition:transform .75s var(--ease);
+}
+.svc__leaf--l{ left:0;  background-position:left center; }
+.svc__leaf--r{ right:0; background-position:right center; }
+
 .svc__num{
-  position:absolute; z-index:2; top:14px; left:16px;
+  position:absolute; z-index:3; top:14px; left:16px;
   font-family:var(--font-mono); font-size:.64rem; letter-spacing:.24em;
   color:var(--accent); text-shadow:0 1px 10px rgba(0,0,0,.9);
 }
 .svc__body{
-  position:absolute; z-index:2; left:0; right:0; bottom:0;
+  position:absolute; z-index:3; left:0; right:0; bottom:0;
   display:grid; gap:4px; padding:clamp(16px,1.6vw,22px);
 }
 .svc__name{
@@ -496,7 +511,7 @@ svg .door{ transform-origin:left center; transform:perspective(900px) rotateY(ca
 .tcard .who{ margin-top:18px; display:flex; align-items:center; gap:12px; }
 .tcard .who b{ font-family:var(--font-display); font-weight:700; font-size:.98rem; }
 .tcard .who small{ font-family:var(--font-mono); font-size:.64rem; letter-spacing:.14em; color:var(--muted); text-transform:uppercase; display:block; }
-.tcard .dot{ width:34px; height:34px; border-radius:9px; flex:none; background:conic-gradient(from 160deg,var(--violet),var(--orchid),var(--glow)); display:grid; place-items:center; font-family:var(--font-display); font-weight:800; font-size:.9rem; color:#fff; }
+.tcard .dot{ width:34px; height:34px; border-radius:9px; flex:none; background:linear-gradient(150deg,#2A2A31,#0E0E12); box-shadow:inset 0 0 0 1px rgba(255,255,255,.14); display:grid; place-items:center; font-family:var(--font-display); font-weight:800; font-size:.9rem; color:#fff; }
 
 /* ============================================================
    EXPECT / qualities strip
@@ -506,13 +521,13 @@ svg .door{ transform-origin:left center; transform:perspective(900px) rotateY(ca
 .expect h2{ font-size:clamp(1.8rem,4vw,3rem); }
 .qgrid{ display:flex; flex-wrap:wrap; gap:12px; }
 .q{ font-family:var(--font-mono); font-size:.78rem; letter-spacing:.04em; padding:.85em 1.15em; border-radius:12px; border:1px solid var(--line); color:var(--chrome); transition:.4s var(--ease); }
-.q:hover{ color:var(--paper); border-color:var(--orchid); background:rgba(124,58,237,.1); transform:translateY(-3px); }
+.q:hover{ color:var(--paper); border-color:rgba(255,255,255,.55); background:rgba(255,255,255,.06); transform:translateY(-3px); }
 
 /* ============================================================
    CONTACT / CTA
    ============================================================ */
 .cta{ position:relative; padding:clamp(100px,14vw,190px) 0; overflow:hidden; text-align:center; }
-.cta__glow{ position:absolute; width:80vmax; height:80vmax; left:50%; top:60%; transform:translate(-50%,-50%); background:radial-gradient(circle,rgba(124,58,237,.4),transparent 60%); filter:blur(40px); z-index:0; }
+.cta__glow{ position:absolute; width:80vmax; height:80vmax; left:50%; top:60%; transform:translate(-50%,-50%); background:radial-gradient(circle,rgba(255,255,255,.10),transparent 62%); filter:blur(40px); z-index:0; }
 .cta__inner{ position:relative; z-index:2; }
 .cta h2{ font-size:clamp(2.6rem,8vw,6.5rem); }
 .cta p{ color:var(--chrome); max-width:46ch; margin:22px auto 40px; font-size:1.14rem; }
@@ -520,7 +535,7 @@ svg .door{ transform-origin:left center; transform:perspective(900px) rotateY(ca
 .ccard{ background:var(--ink-2); border:1px solid var(--line); border-radius:16px; padding:24px; }
 .ccard small{ font-family:var(--font-mono); font-size:.64rem; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); display:block; margin-bottom:8px; }
 .ccard a,.ccard address{ font-style:normal; font-size:1rem; color:var(--paper); }
-.ccard a:hover{ color:var(--orchid); }
+.ccard a:hover{ color:#FFF; }
 
 /* ============================================================
    FOOTER
@@ -534,7 +549,7 @@ footer ul a:hover{ color:var(--paper); }
 .foot__brand p{ color:var(--muted); font-size:.9rem; max-width:34ch; margin-top:16px; }
 .socials{ display:flex; gap:10px; margin-top:20px; }
 .socials a{ width:38px; height:38px; border:1px solid var(--line); border-radius:10px; display:grid; place-items:center; color:var(--chrome); transition:.3s; }
-.socials a:hover{ color:#fff; border-color:var(--orchid); background:rgba(124,58,237,.12); }
+.socials a:hover{ color:#fff; border-color:rgba(255,255,255,.55); background:rgba(255,255,255,.08); }
 .foot__bottom{ display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-top:56px; padding-top:24px; border-top:1px solid var(--line); font-family:var(--font-mono); font-size:.7rem; letter-spacing:.08em; color:var(--muted); }
 
 /* ============================================================
@@ -543,14 +558,14 @@ footer ul a:hover{ color:var(--paper); }
 #toTop{
   position:fixed; right:clamp(16px,3vw,28px); bottom:clamp(16px,3vw,28px); z-index:940;
   width:54px; height:54px; border-radius:50%; border:1px solid var(--line);
-  background:rgba(19,10,34,.72); backdrop-filter:blur(10px); color:var(--paper);
+  background:rgba(18,18,22,.72); backdrop-filter:blur(10px); color:var(--paper);
   display:grid; place-items:center; cursor:pointer;
   opacity:0; transform:translateY(20px) scale(.9); pointer-events:none;
   transition:opacity .4s var(--ease), transform .4s var(--ease), box-shadow .4s, border-color .4s;
   box-shadow:0 12px 34px -14px #000;
 }
 #toTop.show{ opacity:1; transform:none; pointer-events:auto; }
-#toTop:hover{ border-color:var(--orchid); box-shadow:0 0 0 1px var(--orchid),0 14px 40px -12px var(--violet); transform:translateY(-3px); }
+#toTop:hover{ border-color:rgba(255,255,255,.6); box-shadow:0 0 0 1px rgba(255,255,255,.35),0 14px 40px -12px #000; transform:translateY(-3px); }
 #toTop svg{ width:20px; height:20px; }
 #toTop::after{ content:"Top"; position:absolute; font-family:var(--font-mono); font-size:.5rem; letter-spacing:.14em; bottom:8px; color:var(--muted); }
 
@@ -566,7 +581,7 @@ footer ul a:hover{ color:var(--paper); }
   .hero__photo-fill{ display:none; }
   .hero__photo::after{
     background:linear-gradient(180deg, rgba(0,0,0,.34) 0%, rgba(0,0,0,0) 26%,
-      rgba(0,0,0,0) 72%, rgba(11,7,19,.55) 92%, var(--ink) 100%);
+      rgba(0,0,0,0) 72%, rgba(8,8,10,.55) 92%, var(--ink) 100%);
   }
   .hero__inner{ grid-template-columns:1fr; padding-top:28px; }
   .hero__inner > *{ grid-column:1; }
@@ -604,13 +619,25 @@ footer ul a:hover{ color:var(--paper); }
    Inner pages (Dienstleistungen, Kontakt, Galerie, Jobs)
    ============================================================ */
 .subhero{ position:relative; min-height:62svh; display:flex; align-items:flex-end; overflow:hidden; padding:150px 0 64px; }
-.subhero__mesh{ position:absolute; inset:-20%; z-index:0; filter:blur(10px); }
-.subhero__mesh .orb.a{ width:48vw; height:48vw; left:-6vw; top:-10vw; background:radial-gradient(circle,color-mix(in srgb,var(--accent) 70%,transparent),transparent 68%); animation:drift1 20s ease-in-out infinite; }
-.subhero__mesh .orb.b{ width:40vw; height:40vw; right:-6vw; bottom:-16vw; background:radial-gradient(circle,var(--violet),transparent 68%); animation:drift2 24s ease-in-out infinite; }
+/* Bild der Dienstleistung als Kopf der Detailseite. Es startet leicht
+   vergrößert und läuft in seine Endlage — so setzt sich die Fahrt fort, mit
+   der man von der Übersicht hierher gekommen ist. */
+.subhero__photo{ position:absolute; inset:0; z-index:0; overflow:hidden; background:var(--ink); }
+.subhero__photo img{
+  width:100%; height:100%; object-fit:cover; object-position:50% 50%;
+  animation:subheroIn 1.4s var(--ease) both;
+}
+@keyframes subheroIn{ from{ transform:scale(1.12) } to{ transform:none } }
+.subhero__photo::after{
+  content:""; position:absolute; inset:0;
+  background:
+    linear-gradient(180deg, rgba(0,0,0,.60) 0%, rgba(0,0,0,.20) 30%, rgba(0,0,0,.72) 78%, var(--ink) 100%),
+    linear-gradient(90deg, rgba(0,0,0,.72) 0%, rgba(0,0,0,.18) 55%, rgba(0,0,0,0) 82%);
+}
 .subhero .wrap{ position:relative; z-index:3; }
 .breadcrumb{ font-family:var(--font-mono); font-size:.7rem; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); margin-bottom:22px; display:flex; gap:.6em; flex-wrap:wrap; }
-.breadcrumb a{ color:var(--muted); } .breadcrumb a:hover{ color:var(--orchid); }
-.subhero h1{ font-size:clamp(2.6rem,7vw,5.6rem); font-weight:800; max-width:16ch; }
+.breadcrumb a{ color:var(--muted); } .breadcrumb a:hover{ color:#FFF; }
+.subhero h1{ text-shadow:0 2px 26px rgba(0,0,0,.75);  font-size:clamp(2.6rem,7vw,5.6rem); font-weight:800; max-width:16ch; }
 .subhero .tag{ display:block; color:var(--accent); font-family:var(--font-mono); font-size:.86rem; letter-spacing:.08em; margin-top:18px; }
 .subhero .bignum{ position:absolute; right:clamp(20px,5vw,64px); top:120px; z-index:2; font-family:var(--font-display); font-weight:800; font-size:clamp(6rem,20vw,16rem); line-height:.8; color:transparent; -webkit-text-stroke:1px var(--line); opacity:.5; pointer-events:none; }
 
@@ -639,7 +666,7 @@ footer ul a:hover{ color:var(--paper); }
 .form .full{ grid-column:1 / -1; }
 .form label{ font-family:var(--font-mono); font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); display:block; margin-bottom:8px; }
 .form input,.form select,.form textarea{ width:100%; background:var(--ink-2); border:1px solid var(--line); border-radius:12px; padding:14px 16px; color:var(--paper); font-family:var(--font-body); font-size:1rem; }
-.form input:focus,.form select:focus,.form textarea:focus{ outline:none; border-color:var(--orchid); box-shadow:0 0 0 3px rgba(124,58,237,.18); }
+.form input:focus,.form select:focus,.form textarea:focus{ outline:none; border-color:#FFF; box-shadow:0 0 0 3px rgba(255,255,255,.14); }
 .form textarea{ min-height:130px; resize:vertical; }
 
 /* Gallery */
@@ -653,3 +680,29 @@ footer ul a:hover{ color:var(--paper); }
   .gal{ grid-template-columns:1fr 1fr; }
   .form{ grid-template-columns:1fr; }
 }
+
+
+/* ---- Übergang beim Klick auf eine Kachel ----
+   Die Szene öffnet sich, die Kachel wächst über den Bildschirm und fährt ins
+   Bild hinein; danach übernimmt die Detailseite, deren Kopfbild leicht
+   vergrößert startet. So liest der Wechsel als eine durchgehende Fahrt. */
+body.svc-transit{ overflow:hidden; }
+body.svc-transit::after{
+  content:""; position:fixed; inset:0; z-index:9500; background:#000;
+  opacity:0; pointer-events:none; animation:svcVeil .9s ease forwards;
+}
+@keyframes svcVeil{ 0%,60%{ opacity:0 } 100%{ opacity:1 } }
+
+.svc--going{
+  position:fixed; z-index:9400; margin:0; pointer-events:none;
+  aspect-ratio:auto; border-color:transparent;
+  animation:svcDive .9s var(--ease) forwards;
+}
+@keyframes svcDive{ to{ top:0; left:0; width:100vw; height:100vh; border-radius:0 } }
+.svc--going .svc__img{ animation:svcZoomIn .9s var(--ease) forwards; }
+@keyframes svcZoomIn{ to{ transform:scale(1.5) } }
+.svc--going .svc__leaf--l{ transform:translateX(-100%); }
+.svc--going .svc__leaf--r{ transform:translateX(100%); }
+.svc--going .svc__body,
+.svc--going .svc__num{ animation:svcFade .3s ease forwards; }
+@keyframes svcFade{ to{ opacity:0 } }

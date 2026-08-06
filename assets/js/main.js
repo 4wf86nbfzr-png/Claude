@@ -161,6 +161,40 @@
     }
   }
 
+  /* ---- Übergang von der Übersicht auf die Detailseite ----
+     Beim Klick öffnet sich die Szene (bei Logistik das Tor), die Kachel wächst
+     über den Bildschirm und fährt ins Bild hinein; erst danach wird gewechselt.
+     Animiert wird eine Kopie, damit das Raster darunter nicht umbricht. */
+  document.querySelectorAll('.svc').forEach(karte=>{
+    karte.addEventListener('click', (ev)=>{
+      /* Modifiertasten, mittlere Maustaste und reduzierte Bewegung: normal folgen */
+      if(reduce || ev.button !== 0 || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey) return;
+      const ziel = karte.getAttribute('href');
+      if(!ziel) return;
+      ev.preventDefault();
+
+      const r = karte.getBoundingClientRect();
+      const klon = karte.cloneNode(true);
+      klon.classList.add('svc--going');
+      klon.style.top = r.top + 'px';
+      klon.style.left = r.left + 'px';
+      klon.style.width = r.width + 'px';
+      klon.style.height = r.height + 'px';
+      document.body.appendChild(klon);
+      document.body.classList.add('svc-transit');
+
+      setTimeout(()=>{
+        window.location.href = ziel;
+        /* Nur für die Einzeldatei-Vorschau nötig; im echten Mehrseiten-Aufbau
+           ist das Dokument hier bereits ersetzt. */
+        setTimeout(()=>{
+          klon.remove();
+          document.body.classList.remove('svc-transit');
+        }, 300);
+      }, 900);
+    });
+  });
+
   /* rAF-throttled scroll */
   let ticking = false;
   function onScroll(){
