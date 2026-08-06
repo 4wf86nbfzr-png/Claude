@@ -76,18 +76,37 @@ nicht schön: der Absender muss die Mail selbst abschicken.
 
 ---
 
-## Interne Vorschau (läuft bereits)
+## Interne Vorschau — Link für die Kollegen
 
-Bei jedem Push auf den Branch veröffentlicht der Workflow
-`.github/workflows/vorschau.yml` den aktuellen Stand auf GitHub Pages:
+Die Seite lässt sich ohne Hosting-Konto über GitHub Pages bereitstellen.
+Ergebnis ist die Adresse
 
 **https://4wf86nbfzr-png.github.io/Claude/**
 
-Diese Adresse kann jeder im Büro im Browser öffnen — ohne Konto, ohne
-Installation, auf Rechner und Handy. Fortschritt und Ergebnis stehen im
-Reiter *Actions*.
+die jeder im Büro im Browser öffnen kann — ohne Konto, ohne Installation,
+auf Rechner und Handy.
 
-Was das ist und was nicht:
+### Einmalig einschalten (etwa 30 Sekunden)
+
+1. github.com/4wf86nbfzr-png/Claude → **Settings** → links **Pages**
+2. *Source*: **Deploy from a branch**
+3. *Branch*: **`claude/entpacken-demo-oeffnen-29f7th`**, Ordner **`/ (root)`**
+4. **Save**
+
+Nach ein bis zwei Minuten steht die Adresse oben auf derselben Seite.
+Jeder weitere Push aktualisiert sie automatisch.
+
+`.nojekyll` liegt im Projekt, damit GitHub die Dateien unverändert ausliefert.
+
+### Alternativ über GitHub Actions
+
+`.github/workflows/vorschau.yml` erledigt dasselbe automatisch und schaltet
+Pages selbst frei. Dafür müssen Actions im Repository erlaubt sein:
+**Settings → Actions → General → *Allow all actions and reusable workflows*
+→ Save**, danach **Actions → Interne Vorschau → Run workflow**. Wer Weg 1
+genommen hat, braucht das nicht.
+
+### Was diese Vorschau ist und was nicht
 
 - **Nicht** in Suchmaschinen: jede Seite trägt `noindex`.
   (`robots.txt` greift hier nicht — GitHub Pages liefert sie unter
@@ -96,10 +115,11 @@ Was das ist und was nicht:
 - **Kein Zugriffsschutz.** Wer die Adresse kennt, kommt hinein. Das
   Repository ist ohnehin öffentlich, ein Passwortfeld im Browser würde daran
   nichts ändern. Wer echten Schutz braucht: Netlify Pro oder Cloudflare
-  Access, siehe unten.
+  Access (siehe unten) — oder das Repository vorher auf privat stellen,
+  dann braucht GitHub Pages allerdings einen bezahlten Tarif.
 - **Formulare nehmen dort den Mail-Weg.** GitHub Pages nimmt keine
   Formulareinträge entgegen; `main.js` erkennt das an der Adresse und öffnet
-  stattdessen das Mailprogramm mit der fertigen Nachricht. Prüfung,
+  stattdessen das Mailprogramm mit der fertigen Nachricht. Pflichtfeldprüfung,
   Fehlermeldungen und Bestätigung lassen sich trotzdem vollständig testen.
 
 ## Auf Netlify veröffentlichen (empfohlen)
