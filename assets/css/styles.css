@@ -685,6 +685,28 @@ footer ul a:hover{ color:var(--paper); }
 .subhero .tag{ display:block; color:var(--accent); font-family:var(--font-mono); font-size:.86rem; letter-spacing:.08em; margin-top:18px; }
 .subhero .bignum{ position:absolute; right:clamp(20px,5vw,64px); top:120px; z-index:2; font-family:var(--font-display); font-weight:800; font-size:clamp(6rem,20vw,16rem); line-height:.8; color:transparent; -webkit-text-stroke:1px var(--line); opacity:.5; pointer-events:none; }
 
+/* Kopfbild als vollständiges Band statt als beschnittener Hintergrund.
+   Die Überschrift steht darunter — bei einem Motiv wie dem Firmenschild
+   überdeckt Text sonst genau das, was man sehen soll. Das Seitenverhältnis
+   entspricht der Bilddatei, dadurch wird nichts angeschnitten. */
+.subhero--band{
+  display:block; min-height:0; padding:0 0 clamp(10px,1.5vw,22px);
+}
+.subhero--band .subhero__photo{
+  position:relative; inset:auto;
+  margin-top:74px; aspect-ratio:1600/880;
+}
+.subhero--band .subhero__photo::after{
+  background:linear-gradient(180deg, rgba(0,0,0,.30) 0%, rgba(0,0,0,0) 22%,
+    rgba(0,0,0,0) 74%, rgba(8,8,10,.70) 94%, var(--ink) 100%);
+}
+.subhero--band .wrap{ padding-top:clamp(26px,3.2vw,46px); }
+.subhero--band h1{ text-shadow:none; }
+.subhero--band .bignum{ display:none; }
+@media (max-width:700px){
+  .subhero--band .subhero__photo{ margin-top:66px; }
+}
+
 .content{ padding:clamp(60px,9vw,120px) 0; }
 .content__grid{ display:grid; grid-template-columns:1.1fr .9fr; gap:clamp(40px,6vw,90px); align-items:start; }
 .content__lead p{ color:var(--chrome); font-size:1.14rem; }
