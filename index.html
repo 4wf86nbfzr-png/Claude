@@ -325,9 +325,10 @@
     <div class="scene">
       <div class="scene__glow"></div>
       <div class="scene__frame art">
-        <!-- Weitwinkel-Clip; liegt über der SVG-Ebene, die als Fallback bleibt. -->
+        <!-- Weitwinkel: echtes Foto, deckt die gezeichnete SVG darunter ab. -->
+        <img class="scene__photo" src="assets/img/promotion.jpg" alt="" />
+        <!-- Anschluss für bewegtes Material: poster/data-src setzen. -->
         <video class="stagevid" muted playsinline loop preload="metadata"
-               poster="assets/img/promotion.jpg"
                aria-hidden="true" tabindex="-1"></video>
         <svg viewBox="0 0 400 400">
           <defs><linearGradient id="g-mag" x1="0" x2="1"><stop offset="0" stop-color="#FF6EC7"/><stop offset="1" stop-color="#B57BFF"/></linearGradient></defs>
@@ -341,8 +342,8 @@
         <div class="sheen"></div>
         <div class="detail">
           <!-- Nahaufnahme: blendet über --detail auf. -->
+          <img class="scene__photo" src="assets/img/promotion-detail.jpg" alt="" />
           <video class="stagevid" muted playsinline loop preload="metadata"
-                 poster="assets/img/promotion-detail.jpg"
                  aria-hidden="true" tabindex="-1"></video>
           <svg viewBox="0 0 400 400">
             <defs><linearGradient id="g-mag2" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#FFB0E4"/><stop offset="1" stop-color="#FF6EC7"/></linearGradient></defs>
