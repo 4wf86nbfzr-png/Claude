@@ -146,12 +146,12 @@ body.menu-open .burger i:nth-child(1){ transform:translateY(6px) rotate(45deg) }
 body.menu-open .burger i:nth-child(2){ opacity:0 }
 body.menu-open .burger i:nth-child(3){ transform:translateY(-6px) rotate(-45deg) }
 
-/* Durchsichtig: das Bild dahinter bleibt sichtbar. Lesbarkeit kommt aus
-   Weichzeichner und Textschatten statt aus einer deckenden Fläche. */
+/* Wie auf der bestehenden Seite: dunkel durchscheinend, aber OHNE
+   Weichzeichner — das Geschehen dahinter bleibt erkennbar, nicht nur erahnbar.
+   Lesbarkeit trägt die Abdunklung plus Textschatten. */
 #mobileMenu{
   position:fixed; inset:0; z-index:850;
-  background:linear-gradient(180deg, rgba(8,8,10,.42), rgba(8,8,10,.62));
-  backdrop-filter:blur(26px) saturate(1.1);
+  background:rgba(6,6,8,.80);
   display:flex; flex-direction:column; justify-content:center; gap:8px; padding:0 8vw;
   transform:translateY(-100%); transition:transform .6s var(--ease); visibility:hidden;
 }

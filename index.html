@@ -227,9 +227,10 @@
     <div class="scene">
       <div class="scene__glow"></div>
       <div class="scene__frame art">
-        <!-- Weitwinkel-Clip; liegt über der SVG-Ebene, die als Fallback bleibt. -->
+        <!-- Weitwinkel: echtes Foto, deckt die gezeichnete SVG darunter ab. -->
+        <img class="scene__photo" src="assets/img/gastro.jpg" alt="" />
+        <!-- Anschluss für bewegtes Material: poster/data-src setzen. -->
         <video class="stagevid" muted playsinline loop preload="metadata"
-               poster="assets/img/gastro.jpg"
                aria-hidden="true" tabindex="-1"></video>
         <!-- Wide: bar & plate -->
         <svg viewBox="0 0 400 400">
@@ -246,8 +247,8 @@
         <!-- Detail: champagne coupe closeup -->
         <div class="detail">
           <!-- Nahaufnahme: blendet über --detail auf. -->
+          <img class="scene__photo" src="assets/img/gastro-detail.jpg" alt="" />
           <video class="stagevid" muted playsinline loop preload="metadata"
-                 poster="assets/img/gastro-detail.jpg"
                  aria-hidden="true" tabindex="-1"></video>
           <svg viewBox="0 0 400 400">
             <defs><linearGradient id="g-gold2" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#FCE9C0"/><stop offset="1" stop-color="#F0B454"/></linearGradient></defs>
