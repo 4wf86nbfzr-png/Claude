@@ -270,17 +270,70 @@ const RAHMEN_RUNDUM = { top: duenn, bottom: duenn, left: duenn, right: duenn,
 const NUR_UNTEN = { top: { style: BorderStyle.NONE }, left: { style: BorderStyle.NONE },
                     right: { style: BorderStyle.NONE }, bottom: duenn };
 
-/* Breiten in Twips, nicht in Prozent.
+/* Rahmen je Zelle statt je Tabelle.
+   ---------------------------------------------------------------------------
+   In OOXML gewinnt der Zellenrand gegen den Tabellenrand. Wer einer Tabelle
+   rundum einen Rahmen gibt und den Zellen „keinen", bekommt keinen — die
+   Kästen um Positionstabelle und Summen fehlten deshalb an drei Seiten.
+   `rand()` setzt deshalb an jeder Zelle genau die Kanten, die zu sehen sein
+   sollen.                                                                  */
+const NICHTS = { style: BorderStyle.NONE };
+const rand = ({ oben, unten, links, rechts }) => ({
+  top:    oben   ? duenn : NICHTS,
+  bottom: unten  ? duenn : NICHTS,
+  left:   links  ? duenn : NICHTS,
+  right:  rechts ? duenn : NICHTS
+});
+
+/* Alle Maße in Twips, am Vorbild abgemessen.
    ---------------------------------------------------------------------------
    Word und LibreOffice verteilen prozentuale Spaltenbreiten nach Inhalt neu,
    sobald die Tabelle auf „autofit" steht. Der erste Entwurf sah deshalb im
    Code richtig aus und im Dokument falsch: die Beschreibungsspalte schrumpfte
    auf ein Viertel, „ANGEBOTSBETRAG" brach mitten im Wort um.
 
-   Mit festen Breiten (DXA) plus TableLayoutType.FIXED steht jede Spalte da,
-   wo sie stehen soll. A4 ist 11906 Twips breit, abzüglich 2 × 1000 Rand
-   bleiben 9906 für den Satzspiegel — die Summe jeder Spaltenliste unten. */
-const SATZBREITE = 9906;
+   Deshalb steht hier jede Spalte in Twips, dazu TableLayoutType.FIXED.
+   Die Zahlen sind keine Schätzung: der vorhandene Bogen wurde ausgemessen
+   (Seite 1273 px breit = 210 mm, also 9,35 Twips je Pixel) und die Abstände
+   umgerechnet. A4 ist 11906 Twips breit, abzüglich 2 × 800 Rand bleiben
+   10306 für den Satzspiegel — die Summe jeder Spaltenliste unten.        */
+const RAND_SEITE = 800;
+const SATZBREITE = 11906 - 2 * RAND_SEITE;   // 10306
+
+/* Spaltenbreiten, aus dem Vorbild übernommen */
+const SPALTEN = {
+  kopf:   [5800, 4506],                       // „ANGEBOT" | Wortzeichen
+  adresse:[7113, 3193],                       // Anschrift | Kennzahlenblock
+  kennzahl:[1930, 1263],                      // Beschriftung | Angabe
+  positionen:[4786, 1206, 1345, 1438, 1531],  // Beschreibung … Betrag
+  unten:  [4741, 196, 5369],                  // Bedingungen | Luft | Summen
+  summen: [3400, 1969]                        // Beschriftung | Betrag
+};
+
+/* Schriftgrade in halben Punkten, ebenfalls am Vorbild gemessen */
+const GRAD = {
+  titel: 34,   // ANGEBOT
+  absender: 16, anschrift: 19, kennzahl: 17,
+  einleitung: 16, tabellenkopf: 16,
+  position: 17, positionDetail: 15,
+  bedingung: 16, summe: 17, fuss: 15
+};
+
+/* Senkrechte Abstände, gemessen */
+const LUFT = {
+  /* Gemessen ab der Unterkante der Kopfzeile — und die ist so hoch wie das
+     Wortzeichen, nicht wie das Wort „ANGEBOT". Aus dem Irrtum wurden im
+     ersten Anlauf 12 mm Luft statt einem. */
+  vorAbsender: 90, nachAbsender: 300,
+  nachAnschrift: 560, nachEinleitung: 180, nachTabelle: 140,
+  kopfzelle: 160, positionszelle: 190, summenzelle: 110,
+  /* Das Wortzeichen sitzt im Vorbild tiefer als das Wort „ANGEBOT" —
+     rund 6 mm. Ohne diesen Versatz endet die Kopfzeile zu früh und alles
+     darunter rutscht mit nach oben. */
+  logoTiefer: 325,
+  /* Innenabstand in der Positionstabelle, links und rechts */
+  zellenrand: 140
+};
 
 function zelle(inhalt, o = {}){
   return new TableCell({
@@ -314,115 +367,152 @@ async function baueAngebotDocx(angebot){
   const teile = [];
 
   /* Kopf: „ANGEBOT" links, Wortzeichen rechts ----------------------------- */
-  const KOPF_SP = [5400, 4506];
   teile.push(tabelle([ new TableRow({ children: [
-    zelle(absatz('ANGEBOT', { groesse: 40, nach: 0 }), { dxa: KOPF_SP[0], luft: 0, seite: 0 }),
-    zelle(new Paragraph({ alignment: AlignmentType.RIGHT, spacing: { after: 0 },
+    zelle(absatz('ANGEBOT', { groesse: GRAD.titel, nach: 0 }),
+          { dxa: SPALTEN.kopf[0], luft: 0, seite: 0, mitte: false }),
+    /* 171 × 65 px bei 96 dpi entsprechen 45 × 17 mm — so groß steht das
+       Wortzeichen auf dem vorhandenen Bogen. */
+    zelle(new Paragraph({ alignment: AlignmentType.RIGHT,
+                          spacing: { after: 0, before: LUFT.logoTiefer },
       children: [ new ImageRun({ data: LOGO, type: 'png',
-                                 transformation: { width: 190, height: 72 } }) ] }),
-          { dxa: KOPF_SP[1], luft: 0, seite: 0 })
-  ]})], KOPF_SP));
+                                 transformation: { width: 171, height: 65 } }) ] }),
+          { dxa: SPALTEN.kopf[1], luft: 0, seite: 0, mitte: false })
+  ]})], SPALTEN.kopf));
 
   /* Absenderzeile --------------------------------------------------------- */
   teile.push(absatz([
-    lauf(BOGEN.absenderzeile.firma, { groesse: 16, fett: true }),
-    lauf(BOGEN.absenderzeile.rest,  { groesse: 16, farbe: FARBE.leise })
-  ], { vor: 560, nach: 180 }));
+    lauf(BOGEN.absenderzeile.firma, { groesse: GRAD.absender, fett: true }),
+    lauf(BOGEN.absenderzeile.rest,  { groesse: GRAD.absender, farbe: FARBE.leise })
+  ], { vor: LUFT.vorAbsender, nach: LUFT.nachAbsender }));
 
   /* Anschrift links, Kennzahlen rechts ------------------------------------ */
+  /* Firma und Anschrift, sonst nichts: im Vorbild steht im Anschriftenfeld
+     keine Ansprechperson. Sie steht im PDF-Beleg, der in derselben Mail
+     liegt. */
   const anschrift = [k.company, ...(k.address ? k.address.split('\n') : [])]
     .map(text).filter(Boolean);
-  if(!anschrift.length) anschrift.push('');
-  if(k.contact && !anschrift.includes(k.contact)) anschrift.splice(1, 0, k.contact);
+  if(!anschrift.length) anschrift.push(k.contact || '');
 
-  const KENN_SP = [2700, 1806];
   const kennzahl = (b, w) => new TableRow({ children: [
-    zelle(absatz(b, { groesse: 18, nach: 0 }), { dxa: KENN_SP[0], luft: 30, seite: 0 }),
-    zelle(absatz(w, { groesse: 18, fett: true, nach: 0, align: AlignmentType.RIGHT }),
-          { dxa: KENN_SP[1], luft: 30, seite: 0 })
+    zelle(absatz(b, { groesse: GRAD.kennzahl, nach: 0 }),
+          { dxa: SPALTEN.kennzahl[0], luft: 38, seite: 0 }),
+    zelle(absatz(w, { groesse: GRAD.kennzahl, fett: true, nach: 0,
+                      align: AlignmentType.RIGHT }),
+          { dxa: SPALTEN.kennzahl[1], luft: 38, seite: 0 })
   ]});
 
-  const ADR_SP = [5400, 4506];
   teile.push(tabelle([ new TableRow({ children: [
-    zelle(anschrift.map(z => absatz(z, { groesse: 19, nach: 30 })),
-          { dxa: ADR_SP[0], luft: 0, seite: 0, mitte: false }),
+    zelle(anschrift.map(z => absatz(z, { groesse: GRAD.anschrift, nach: 0 })),
+          { dxa: SPALTEN.adresse[0], luft: 0, seite: 0, mitte: false }),
     zelle(tabelle([
-      kennzahl('Angebotsnr.',      ''),
-      kennzahl('Kundennummer',     text(k.customerNumber)),
+      kennzahl('Angebotsnr.',       ''),
+      kennzahl('Kundennummer',      text(k.customerNumber)),
       kennzahl('Ausstellungsdatum', datumHuebsch(angebot.createdAt.slice(0, 10))),
       kennzahl('Gültig bis',        datumHuebsch(angebot.validUntil.slice(0, 10)))
-    ], KENN_SP), { dxa: ADR_SP[1], luft: 0, seite: 0, mitte: false })
-  ]})], ADR_SP));
+    ], SPALTEN.kennzahl), { dxa: SPALTEN.adresse[1], luft: 0, seite: 0, mitte: false })
+  ]})], SPALTEN.adresse));
 
   /* Einleitung ------------------------------------------------------------ */
-  teile.push(absatz(BOGEN.einleitung, { kursiv: true, vor: 520, nach: 160 }));
+  teile.push(absatz(BOGEN.einleitung, { kursiv: true, groesse: GRAD.einleitung,
+                                        vor: LUFT.nachAnschrift, nach: LUFT.nachEinleitung }));
 
   /* Positionstabelle ------------------------------------------------------ */
-  const POS_SP = [4306, 1400, 1400, 1400, 1400];
-  const kopf = (t, dxa, rechts) => zelle(
-    absatz(t, { groesse: 17, fett: true, nach: 0,
+  const POS_SP = SPALTEN.positionen;
+  const letzte = POS_SP.length - 1;
+  const kopf = (t, i, rechts) => zelle(
+    absatz(t, { groesse: GRAD.tabellenkopf, fett: true, nach: 0,
                 align: rechts ? AlignmentType.RIGHT : undefined }),
-    { dxa, grund: FARBE.kopf, luft: 130 });
+    { dxa: POS_SP[i], grund: FARBE.kopf, luft: LUFT.kopfzelle, seite: LUFT.zellenrand,
+      rahmen: rand({ oben: true, links: i === 0, rechts: i === letzte }) });
 
   teile.push(tabelle([
     new TableRow({ children: [
-      kopf('BESCHREIBUNG', POS_SP[0]), kopf('MENGE', POS_SP[1], true),
-      kopf('PREIS (€)', POS_SP[2], true), kopf('RABATT %', POS_SP[3], true),
-      kopf('BETRAG (€)', POS_SP[4], true)
+      kopf('BESCHREIBUNG', 0), kopf('MENGE', 1, true), kopf('PREIS (€)', 2, true),
+      kopf('RABATT %', 3, true), kopf('BETRAG (€)', 4, true)
     ]}),
     new TableRow({ children: [
-      zelle([ absatz(p.description, { groesse: 19, nach: p.detail.length ? 60 : 0 }),
-              ...p.detail.map((d, i) => absatz(d, { groesse: 17, farbe: FARBE.leise,
-                                                    nach: i === p.detail.length - 1 ? 0 : 30 })) ],
-            { dxa: POS_SP[0], luft: 150, mitte: false }),
-      ...POS_SP.slice(1).map(w =>
-        zelle(absatz('', { nach: 0, align: AlignmentType.RIGHT }), { dxa: w, luft: 150 }))
+      zelle([ absatz(p.description, { groesse: GRAD.position, nach: p.detail.length ? 110 : 0 }),
+              ...p.detail.map((d, i) => absatz(d, { groesse: GRAD.positionDetail,
+                                                    farbe: FARBE.leise,
+                                                    nach: i === p.detail.length - 1 ? 0 : 25 })) ],
+            { dxa: POS_SP[0], luft: LUFT.positionszelle, seite: LUFT.zellenrand, mitte: false,
+              rahmen: rand({ unten: true, links: true }) }),
+      ...POS_SP.slice(1).map((w, i) =>
+        zelle(absatz('', { nach: 0, align: AlignmentType.RIGHT }),
+              { dxa: w, luft: LUFT.positionszelle, seite: LUFT.zellenrand,
+                rahmen: rand({ unten: true, rechts: i + 1 === letzte }) }))
     ]})
-  ], POS_SP, RAHMEN_RUNDUM));
+  ], POS_SP));
 
-  /* Bedingungen links, Summen rechts -------------------------------------- */
-  const bedingungen = [];
-  BOGEN.bedingungen.forEach(([titel, saetze], i) => {
-    bedingungen.push(absatz(titel, { groesse: 18, kursiv: true, vor: i ? 200 : 0, nach: 0 }));
-    saetze.forEach(s => bedingungen.push(absatz(s, { groesse: 18, kursiv: true, nach: 0 })));
-  });
+  /* Bedingungen und Summen ------------------------------------------------
+     Im Vorbild steht der Summenkasten rechts **neben** den ersten drei
+     Bedingungen; sobald er zu Ende ist, läuft der Text darunter über die
+     ganze Breite weiter — „Bei Stornierungen, die später als 72 Stunden …"
+     reicht dort bis zum rechten Satzrand.
 
-  const SUM_SP = [2600, 1606];
-  const summe = (b, w) => new TableRow({ children: [
-    zelle(absatz(b, { groesse: 18, fett: true, nach: 0 }),
-          { dxa: SUM_SP[0], rahmen: NUR_UNTEN, luft: 120 }),
-    zelle(absatz(w, { groesse: 18, fett: true, nach: 0, align: AlignmentType.RIGHT }),
-          { dxa: SUM_SP[1], rahmen: NUR_UNTEN, luft: 120 })
+     Word kann Text um eine schwebende Tabelle fließen lassen, aber das
+     Ergebnis hängt davon ab, wie hoch der Kasten beim Empfänger gerät. Hier
+     wird deshalb geteilt: die ersten drei Bedingungen stehen in einer Zelle
+     neben dem Kasten, die letzten drei als gewöhnliche Absätze darunter.
+     Das sieht gleich aus und steht bei jedem gleich.                       */
+  const NEBEN_KASTEN = 3;
+
+  function bedingungsAbsaetze(von, bis){
+    const raus = [];
+    BOGEN.bedingungen.slice(von, bis).forEach(([titel, saetze], i) => {
+      raus.push(absatz(titel, { groesse: GRAD.bedingung, kursiv: true,
+                                vor: (von === 0 && i === 0) ? 0 : 190, nach: 0 }));
+      saetze.forEach(z => raus.push(absatz(z, { groesse: GRAD.bedingung,
+                                                kursiv: true, nach: 0 })));
+    });
+    return raus;
+  }
+  const bedingungen = bedingungsAbsaetze(0, NEBEN_KASTEN);
+
+  const SUM_SP = SPALTEN.summen;
+  /* oben nur in der ersten Zeile, unten in jeder — das ergibt den Kasten mit
+     zwei Trennlinien darin. */
+  const summenZeile = (links, rechts, erste) => new TableRow({ children: [
+    zelle(links,  { dxa: SUM_SP[0], luft: LUFT.summenzelle, seite: LUFT.zellenrand,
+                    rahmen: rand({ oben: erste, unten: true, links: true }) }),
+    zelle(rechts, { dxa: SUM_SP[1], luft: LUFT.summenzelle, seite: LUFT.zellenrand,
+                    rahmen: rand({ oben: erste, unten: true, rechts: true }) })
   ]});
+  const summe = (b, w, erste) => summenZeile(
+    absatz(b, { groesse: GRAD.summe, fett: true, nach: 0 }),
+    absatz(w, { groesse: GRAD.summe, fett: true, nach: 0, align: AlignmentType.RIGHT }),
+    erste);
 
   const summenBlock = new Table({
     width: { size: SUM_SP[0] + SUM_SP[1], type: WidthType.DXA },
     columnWidths: SUM_SP,
     layout: TableLayoutType.FIXED,
-    borders: { top: duenn, bottom: duenn, left: duenn, right: duenn,
-               insideHorizontal: { style: BorderStyle.NONE },
-               insideVertical: { style: BorderStyle.NONE } },
+    borders: KEIN_RAHMEN,
     rows: [
-      summe('NETTOBETRAG', ''),
-      new TableRow({ children: [
-        zelle(absatz([ lauf(`UST. ${BOGEN.ust}% `, { groesse: 18, fett: true }),
-                       lauf('von', { groesse: 18, kursiv: true }) ], { nach: 0 }),
-              { dxa: SUM_SP[0], rahmen: NUR_UNTEN, luft: 120 }),
-        zelle(absatz('', { nach: 0 }), { dxa: SUM_SP[1], rahmen: NUR_UNTEN, luft: 120 })
-      ]}),
+      summe('NETTOBETRAG', '', true),
+      summenZeile(
+        absatz([ lauf(`UST. ${BOGEN.ust}% `, { groesse: GRAD.summe, fett: true }),
+                 lauf('von', { groesse: GRAD.summe, kursiv: true }) ], { nach: 0 }),
+        absatz('', { nach: 0 })),
       summe('ANGEBOTSBETRAG', '')
     ]
   });
 
   /* Die schmale Zelle in der Mitte ist der Abstand zwischen beiden Blöcken —
      im Vorbild stehen sie nicht bündig aneinander. */
-  const UNTEN_SP = [5400, 300, 4206];
-  teile.push(absatz('', { nach: 0, groesse: 12 }));   // Luft unter der Tabelle
+  const UNTEN_SP = SPALTEN.unten;
+  /* Ein leerer Absatz von 7 Punkt — im Vorbild stehen zwischen Tabellenkante
+     und den Bedingungen nur rund 1,5 mm. */
+  teile.push(new Paragraph({ spacing: { after: 0, line: LUFT.nachTabelle,
+                                        lineRule: 'exact' }, children: [] }));
   teile.push(tabelle([ new TableRow({ children: [
     zelle(bedingungen, { dxa: UNTEN_SP[0], luft: 0, seite: 0, mitte: false }),
     zelle([absatz('', { nach: 0 })], { dxa: UNTEN_SP[1], luft: 0, seite: 0, mitte: false }),
     zelle(summenBlock, { dxa: UNTEN_SP[2], luft: 0, seite: 0, mitte: false })
   ]})], UNTEN_SP));
+
+  /* Der Rest über die ganze Breite, unterhalb des Kastens. */
+  teile.push(...bedingungsAbsaetze(NEBEN_KASTEN, BOGEN.bedingungen.length));
 
   /* Fußzeile — auf jeder Seite ------------------------------------------- */
   const fusszeile = new Footer({ children: BOGEN.fuss.map((zeile, i) =>
@@ -431,8 +521,8 @@ async function baueAngebotDocx(angebot){
       border: i ? undefined : { top: { style: BorderStyle.SINGLE, size: 2, color: FARBE.linie,
                                        space: 8 } },
       children: zeile.flatMap(([fett, normal]) => [
-        ...(fett   ? [lauf(fett,   { groesse: 14, fett: true })] : []),
-        ...(normal ? [lauf(normal, { groesse: 14 })] : [])
+        ...(fett   ? [lauf(fett,   { groesse: GRAD.fuss, fett: true })] : []),
+        ...(normal ? [lauf(normal, { groesse: GRAD.fuss })] : [])
       ])
     })
   )});
@@ -444,7 +534,9 @@ async function baueAngebotDocx(angebot){
                + 'Preise und Nummern trägt die Disposition ein.',
     styles: { default: { document: { run: { font: SCHRIFT, size: 19, color: FARBE.text } } } },
     sections: [{
-      properties: { page: { margin: { top: 900, bottom: 900, left: 1000, right: 1000 } } },
+      properties: { page: { margin: { top: 620, bottom: 900,
+                                      left: RAND_SEITE, right: RAND_SEITE,
+                                      footer: 420 } } },
       footers: { default: fusszeile },
       children: teile
     }]

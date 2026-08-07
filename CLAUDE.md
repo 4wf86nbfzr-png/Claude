@@ -284,6 +284,41 @@ abzüglich zweimal 1000 Rand bleiben 9906 — die Summe jeder Spaltenliste.
 Gilt auch für verschachtelte Tabellen: eine Tabelle in einer Tabellenzelle
 bezieht Prozentangaben nicht auf die Zelle.
 
+### Die zweite Falle: der Zellenrand schlägt den Tabellenrand
+
+Ein Rahmen, der der **Tabelle** gegeben wird, ist nur eine Vorgabe. Setzt die
+**Zelle** an derselben Kante `BorderStyle.NONE`, gewinnt die Zelle. Die Kästen
+um Positionstabelle und Summen hatten deshalb nur die waagerechten Linien —
+oben, links und rechts fehlten sie, obwohl sie an der Tabelle standen.
+
+Deshalb setzt `rand({oben, unten, links, rechts})` die Kanten an jeder Zelle
+einzeln: Außenkante nur bei der ersten und letzten Spalte, Oberkante nur in
+der ersten Zeile.
+
+### Die dritte Falle: die Zeile ist so hoch wie ihre höchste Zelle
+
+Der senkrechte Abstand unter dem Kopf wurde zunächst vom Wort „ANGEBOT"
+gemessen. Die Kopfzeile ist aber so hoch wie das Wortzeichen daneben — und
+das reicht deutlich tiefer. Aus einem Millimeter Luft wurden dadurch zwölf,
+und alles darunter rutschte mit.
+
+Wer Abstände am Vorbild abmisst, misst deshalb ab der **Unterkante der
+Zeile**, nicht ab der Unterkante des Textes darin.
+
+### Wie nachgemessen wird
+
+Die Maße im Kopf von `_angebot.js` sind keine Schätzung. Der vorhandene Bogen
+ist 1273 px breit bei 210 mm, also 9,35 Twips je Pixel. Zum Vergleichen:
+
+```bash
+# Bogen bauen, nach PDF wandeln, auf Vorbildbreite rendern
+soffice --headless --convert-to pdf Angebot.docx
+# dann beide Bilder nebeneinanderlegen und die Zeilenkanten messen
+```
+
+Die Kontrolle ist ein Streifenbild aus beiden Blättern: was gleich hoch und
+gleich breit steht, stimmt.
+
 ---
 
 ## Das Formular
