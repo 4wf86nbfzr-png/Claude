@@ -157,6 +157,14 @@
   </div>
 </div>
 
+<!-- Kinofassung: zwei duenne Balken und ein Lichtabfall zum Rand. Sie
+     liegen nur ueber den sechs Buehnen; main.js faehrt sie ueber --kino
+     ein und wieder aus. Rein dekorativ, deshalb aria-hidden. -->
+<div class="kino" aria-hidden="true">
+  <span class="kino__balken kino__balken--oben"></span>
+  <span class="kino__balken kino__balken--unten"></span>
+</div>
+
 <div id="scrollbar"></div>
 
 <!-- Sofort nach oben, ohne die Scroll-Effekte rückwärts abzuspielen -->
@@ -218,7 +226,7 @@
 <!-- ============ HERO ============ -->
 <!-- Randlose Aufnahme vom Einsatzort statt des Markendetails aus dem Büroflur:
      der erste Bildschirm soll zeigen, auf welchem Niveau gearbeitet wird. -->
-<section class="hero" id="hero">
+<section class="hero" id="hero" data-weg>
   <div class="hero__photo" aria-hidden="true">
     <picture><source type="image/webp" srcset="assets/img/gastro.webp" /><img src="assets/img/gastro.jpg" alt="" fetchpriority="high" width="1600" height="1600" /></picture>
   </div>
@@ -436,8 +444,14 @@
      Kamera in die Szene, die Nahaufnahme blendet auf, dann läuft der Text ein.
      Gesteuert über --zoom / --detail / --panel aus main.js (updateStages). -->
 <section class="stage" data-stage="gastro" id="gastro-personal">
-  <div class="stage__index">01 / 06 — Gastronomie</div>
   <div class="stage__sticky">
+    <!-- Kapitelmarke: liegt im festen Rahmen, damit sie die ganze
+         Buehne ueber stehen bleibt. Die Linie darunter fuellt sich
+         aus --kapitel, das main.js beim Scrollen schreibt. -->
+    <div class="stage__index">
+      <span class="stage__zeile"><span class="stage__nr">01 / 06</span><span class="stage__titel">Gastronomie</span></span>
+      <span class="stage__linie" aria-hidden="true"></span>
+    </div>
     <div class="scene">
       <div class="scene__frame art">
         <!-- Weitwinkel -->
@@ -468,8 +482,14 @@
 
 <!-- ============ STAGE 02 · SICHERHEIT ============ -->
 <section class="stage" data-stage="sicherheit" id="sicherheit">
-  <div class="stage__index">02 / 06 — Sicherheit</div>
   <div class="stage__sticky">
+    <!-- Kapitelmarke: liegt im festen Rahmen, damit sie die ganze
+         Buehne ueber stehen bleibt. Die Linie darunter fuellt sich
+         aus --kapitel, das main.js beim Scrollen schreibt. -->
+    <div class="stage__index">
+      <span class="stage__zeile"><span class="stage__nr">02 / 06</span><span class="stage__titel">Sicherheit</span></span>
+      <span class="stage__linie" aria-hidden="true"></span>
+    </div>
     <div class="scene">
       <div class="scene__frame art">
         <picture><source type="image/webp" srcset="assets/img/sicherheit.webp" /><img class="scene__photo" src="assets/img/sicherheit.jpg" alt="" loading="lazy" decoding="async" width="1600" height="1600" /></picture>
@@ -497,8 +517,14 @@
 
 <!-- ============ STAGE 03 · PROMOTION ============ -->
 <section class="stage" data-stage="promotion" id="promotion-hostess">
-  <div class="stage__index">03 / 06 — Promotion &amp; Hostess</div>
   <div class="stage__sticky">
+    <!-- Kapitelmarke: liegt im festen Rahmen, damit sie die ganze
+         Buehne ueber stehen bleibt. Die Linie darunter fuellt sich
+         aus --kapitel, das main.js beim Scrollen schreibt. -->
+    <div class="stage__index">
+      <span class="stage__zeile"><span class="stage__nr">03 / 06</span><span class="stage__titel">Promotion &amp; Hostess</span></span>
+      <span class="stage__linie" aria-hidden="true"></span>
+    </div>
     <div class="scene">
       <div class="scene__frame art">
         <picture><source type="image/webp" srcset="assets/img/promotion-messe.webp" /><img class="scene__photo" src="assets/img/promotion-messe.jpg" alt="" loading="lazy" decoding="async" width="1129" height="1591" /></picture>
@@ -526,8 +552,14 @@
 
 <!-- ============ STAGE 04 · LOGISTIK ============ -->
 <section class="stage" data-stage="logistik" id="logistik">
-  <div class="stage__index">04 / 06 — Logistik</div>
   <div class="stage__sticky">
+    <!-- Kapitelmarke: liegt im festen Rahmen, damit sie die ganze
+         Buehne ueber stehen bleibt. Die Linie darunter fuellt sich
+         aus --kapitel, das main.js beim Scrollen schreibt. -->
+    <div class="stage__index">
+      <span class="stage__zeile"><span class="stage__nr">04 / 06</span><span class="stage__titel">Logistik</span></span>
+      <span class="stage__linie" aria-hidden="true"></span>
+    </div>
     <div class="scene">
       <div class="scene__frame art">
         <!-- Grundebene: der Saal hinter dem Tor. -->
@@ -563,8 +595,14 @@
 
 <!-- ============ STAGE 05 · FAHRSERVICE ============ -->
 <section class="stage" data-stage="fahrservice" id="fahrservice">
-  <div class="stage__index">05 / 06 — Fahrservice</div>
   <div class="stage__sticky">
+    <!-- Kapitelmarke: liegt im festen Rahmen, damit sie die ganze
+         Buehne ueber stehen bleibt. Die Linie darunter fuellt sich
+         aus --kapitel, das main.js beim Scrollen schreibt. -->
+    <div class="stage__index">
+      <span class="stage__zeile"><span class="stage__nr">05 / 06</span><span class="stage__titel">Fahrservice</span></span>
+      <span class="stage__linie" aria-hidden="true"></span>
+    </div>
     <div class="scene">
       <div class="scene__frame art" style="width:min(680px,86vmin)">
         <!-- Bildausschnitt wird per object-position gesteuert (siehe styles.css),
@@ -596,8 +634,14 @@
 
 <!-- ============ STAGE 06 · REINIGUNG ============ -->
 <section class="stage" data-stage="reinigung" id="reinigung">
-  <div class="stage__index">06 / 06 — Reinigung</div>
   <div class="stage__sticky">
+    <!-- Kapitelmarke: liegt im festen Rahmen, damit sie die ganze
+         Buehne ueber stehen bleibt. Die Linie darunter fuellt sich
+         aus --kapitel, das main.js beim Scrollen schreibt. -->
+    <div class="stage__index">
+      <span class="stage__zeile"><span class="stage__nr">06 / 06</span><span class="stage__titel">Reinigung</span></span>
+      <span class="stage__linie" aria-hidden="true"></span>
+    </div>
     <div class="scene">
       <div class="scene__frame art">
         <picture><source type="image/webp" srcset="assets/img/reinigung.webp" /><img class="scene__photo" src="assets/img/reinigung.jpg" alt="" loading="lazy" decoding="async" width="1536" height="1024" /></picture>

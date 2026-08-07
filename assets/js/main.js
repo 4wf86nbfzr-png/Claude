@@ -62,9 +62,44 @@
     [...gruppe.children].forEach((kind, i)=> kind.style.setProperty('--i', i));
   });
   const io = new IntersectionObserver((entries)=>{
-    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+    entries.forEach(e=>{
+      /* Zwei Fälle decken alles ab: das Element kommt herein — oder es liegt
+         beim ersten Bescheid bereits vollständig oberhalb des Fensters. Der
+         zweite Fall tritt auf, wenn jemand über einen Sprunganker einsteigt,
+         tief in der Seite neu lädt oder sehr schnell scrollt. Ohne ihn bliebe
+         der übersprungene Abschnitt dauerhaft unsichtbar, weil er nie wieder
+         von unten hereinkommt. */
+      if(e.isIntersecting || e.boundingClientRect.bottom < 0){
+        aufdecken(e.target);
+      }
+    });
   }, { threshold:.16, rootMargin:'0px 0px -8% 0px' });
-  document.querySelectorAll('.reveal-up, [data-stagger]').forEach(el=> io.observe(el));
+
+  /* Wer noch wartet. Wird gebraucht, weil ein Element, das der Browser beim
+     schnellen Ziehen am Rollbalken komplett überspringt, gar keinen Bescheid
+     auslöst — der Beobachter meldet nur Übergänge, und ein Übergang, der
+     zwischen zwei Bildern stattfindet, kann verloren gehen. */
+  const wartend = new Set();
+  function aufdecken(el){
+    el.classList.add('in');
+    io.unobserve(el);
+    wartend.delete(el);
+  }
+  document.querySelectorAll('.reveal-up, [data-stagger]').forEach(el=>{
+    wartend.add(el);
+    io.observe(el);
+  });
+
+  /* Nachlese, sobald das Scrollen zur Ruhe kommt: alles, was inzwischen
+     oberhalb des Fensters liegt, wurde übersprungen und wird aufgedeckt.
+     Läuft nur beim Stillstand, kostet also im Betrieb nichts. */
+  let nachleseZeit;
+  function nachlese(){
+    if(!wartend.size) return;
+    for(const el of [...wartend]){
+      if(el.getBoundingClientRect().bottom < 0) aufdecken(el);
+    }
+  }
 
   /* Hochzählende Kennzahlen und die violetten Leuchtkugeln im Hero sind
      entfallen — mit ihnen der mousemove-Listener, der bei jeder Mausbewegung
@@ -82,7 +117,8 @@
     detail: st.querySelector('.detail'),
     panel:  st.querySelector('.panel'),
     door:   st.querySelector('.door'),
-    last:   { zoom:null, detail:null, panel:null, door:null },
+    last:   { zoom:null, detail:null, panel:null, door:null, kapitel:null },
+    oben:   undefined, unten: undefined,
   }));
 
   /* Nur schreiben, wenn sich der Wert wirklich geändert hat — jedes
@@ -97,6 +133,10 @@
     const vh = window.innerHeight;
     for(const st of stages){
       const rect = st.el.getBoundingClientRect();
+      /* Fuer Kinobalken und Kapitelrail merken statt gleich noch einmal zu
+         messen — jedes getBoundingClientRect kostet, und pro Bild wuerden
+         sonst acht weitere anfallen. */
+      st.oben = rect.top; st.unten = rect.bottom;
       const total = st.el.offsetHeight - vh;
       const p = clamp((-rect.top) / total, 0, 1);
       // zoom in as we scroll through
@@ -108,6 +148,119 @@
       // Tür/Tor zuerst: der Spalt ist offen, bevor die Kamera ernsthaft
       // hineinfährt — sonst liest der Wechsel als Schnitt statt als Öffnen.
       set(st, st.door,   'door',   smooth(0.02, 0.24, p).toFixed(3));
+      /* Der Fortschritt der Bühne selbst — Kapitelmarke, Fortschrittslinie
+         und die Blende am Bühnenrand hängen daran. Eigenschaften erben,
+         deshalb genügt es, ihn einmal oben an der Bühne zu setzen. */
+      set(st, st.el,     'kapitel', p.toFixed(3));
+    }
+  }
+
+  /* ============================================================
+     Motion-Motor
+     ------------------------------------------------------------
+     Bewegung soll vom Scrollen geführt werden, nicht von Zeit. Statt
+     jedem Effekt einen eigenen Beobachter zu geben, schreibt eine
+     einzige Schleife zwei Zahlen an angemeldete Elemente:
+
+       --weg   wie weit der Abschnitt nach oben hinausgelaufen ist
+       --lauf  wie weit das Element durch das Fenster gewandert ist
+
+     Was daraus wird, entscheidet allein das Stylesheet. Gerechnet wird
+     nur mit getBoundingClientRect (kein Layout-Zwang beim Lesen im
+     rAF), geschrieben nur bei echter Änderung — sonst stößt jedes
+     setProperty Style-Arbeit für nichts an.
+     ============================================================ */
+  const spuren = [];
+  if(!reduce){
+    document.querySelectorAll('[data-weg]').forEach(el => spuren.push({ el, art:'weg',  wert:null }));
+    document.querySelectorAll('[data-lauf]').forEach(el => spuren.push({ el, art:'lauf', wert:null }));
+  }
+
+  function updateMotion(){
+    if(!spuren.length) return;
+    const vh = window.innerHeight;
+    for(const s of spuren){
+      const r = s.el.getBoundingClientRect();
+      const h = Math.max(1, r.height);
+      const p = s.art === 'weg'
+        ? clamp(-r.top / h, 0, 1)              // 0 = steht noch, 1 = ganz oben raus
+        : clamp((vh - r.top) / (vh + h), 0, 1); // 0 = kommt unten herein, 1 = oben hinaus
+      const w = p.toFixed(3);
+      if(s.wert !== w){ s.wert = w; s.el.style.setProperty('--' + s.art, w); }
+    }
+  }
+
+  /* ---- Kinofassung und Kapitelrail ----
+     Beide gehören zum Bühnenblock als Ganzem, nicht zu einer einzelnen
+     Bühne. Würde jede Bühne ihre eigenen Balken einfahren, klappten sie
+     bei jedem Übergang zu und wieder auf. Deshalb ein Wert über den
+     ganzen Block: Anfang der ersten bis Ende der letzten Bühne. */
+  const kino = document.querySelector('.kino');
+  let rail = null, railLinks = [], railAktiv = -1, railAn = null, kinoWert = null;
+
+  /* Der obere Kinobalken muss die feste Navigationsleiste überbrücken,
+     sonst liegt er unsichtbar dahinter, und die Kapitelmarke muss unter
+     ihm anfangen. Ihre Höhe hängt an der Breite, deshalb wird sie gemessen
+     und global hinterlegt statt geraten. */
+  function navHoehe(){
+    if(!nav) return;
+    document.documentElement.style.setProperty(
+      '--nav-h', Math.round(nav.getBoundingClientRect().height) + 'px');
+  }
+
+  if(!reduce && stages.length > 1){
+    /* In der Einzeldatei-Vorschau laeuft dieser Code bei jedem Seitenwechsel
+       erneut. Ohne das Aufraeumen stapelten sich die Rails uebereinander. */
+    const alteRail = document.querySelector('body > .kapitel');
+    if(alteRail) alteRail.remove();
+    rail = document.createElement('nav');
+    rail.className = 'kapitel';
+    rail.setAttribute('aria-label', 'Dienstleistungen auf dieser Seite');
+    stages.forEach((st, i)=>{
+      const marke = st.el.querySelector('.stage__index');
+      const name = marke ? (marke.querySelector('.stage__titel') || marke).textContent.trim()
+                         : (st.el.dataset.stage || '');
+      const a = document.createElement('a');
+      a.href = '#' + st.el.id;
+      a.innerHTML = '<span></span>' + String(i + 1).padStart(2, '0');
+      a.querySelector('span').textContent = name;
+      rail.appendChild(a);
+    });
+    document.body.appendChild(rail);
+    railLinks = [...rail.querySelectorAll('a')];
+  }
+
+  function updateKino(){
+    if(!stages.length || (!kino && !rail)) return;
+    const vh = window.innerHeight;
+    const oben  = stages[0].oben;
+    const unten = stages[stages.length - 1].unten;
+    if(oben === undefined) return;   // updateStages() laeuft immer zuerst
+    /* auf, sobald die erste Bühne das Fenster füllt; zu, sobald die letzte
+       es verlässt. Dazwischen liegt der Wert konstant auf 1. */
+    const k = Math.min(smooth(0.18, 0.9, (vh - oben) / vh),
+                       smooth(0.18, 0.9, unten / vh));
+    const w = k.toFixed(3);
+    if(kino && kinoWert !== w){ kinoWert = w; kino.style.setProperty('--kino', w); }
+
+    if(rail){
+      const an = k > 0.5;
+      if(railAn !== an){ railAn = an; rail.classList.toggle('sichtbar', an); }
+      if(an){
+        /* aktiv ist die Bühne, deren Mitte dem Fenstermittelpunkt am
+           nächsten liegt — robuster als „erste sichtbare", weil sich bei
+           230vh hohen Bühnen fast immer zwei überlappen. */
+        let beste = 0, dist = Infinity;
+        stages.forEach((st, i)=>{
+          const d = Math.abs((st.oben + st.unten) / 2 - vh / 2);
+          if(d < dist){ dist = d; beste = i; }
+        });
+        if(railAktiv !== beste){
+          if(railLinks[railAktiv]) railLinks[railAktiv].classList.remove('ist');
+          railLinks[beste].classList.add('ist');
+          railAktiv = beste;
+        }
+      }
     }
   }
 
@@ -602,9 +755,18 @@
   let ticking = false;
   function onScroll(){
     onScrollTop();
-    if(!reduce && !ticking){ ticking = true; requestAnimationFrame(()=>{ updateStages(); scrubVideos(); ticking=false; }); }
+    clearTimeout(nachleseZeit);
+    nachleseZeit = setTimeout(nachlese, 160);
+    if(!reduce && !ticking){
+      ticking = true;
+      requestAnimationFrame(()=>{
+        updateStages(); updateMotion(); updateKino(); scrubVideos();
+        ticking = false;
+      });
+    }
   }
+  function alles(){ navHoehe(); updateStages(); updateMotion(); updateKino(); }
   window.addEventListener('scroll', onScroll, { passive:true });
-  window.addEventListener('resize', ()=>{ onScrollTop(); if(!reduce) updateStages(); });
-  onScrollTop(); if(!reduce) updateStages();
+  window.addEventListener('resize', ()=>{ onScrollTop(); if(!reduce) alles(); });
+  onScrollTop(); if(!reduce) alles();
 })();

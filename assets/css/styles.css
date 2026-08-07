@@ -1562,3 +1562,246 @@ body.svc-transit::after{
 .svc--going .svc__body,
 .svc--going .svc__num{ animation:svcFade .3s ease forwards; }
 @keyframes svcFade{ to{ opacity:0 } }
+
+
+/* ============================================================
+   BEWEGUNG — Scrollytelling, Kamerafahrten, Kinofassung
+   ------------------------------------------------------------
+   Grundsatz: Bewegung, die vom Scrollen geführt wird, liest als
+   Handwerk. Bewegung, die von allein läuft, liest als Deko.
+   Deshalb hängt hier fast alles an zwei Zahlen, die main.js pro
+   Bild schreibt:
+
+     --weg   0 → 1   wie weit ein Abschnitt nach oben hinausgelaufen ist
+     --lauf  0 → 1   wie weit ein Element durch das Fenster gewandert ist
+                     (0 = Oberkante am unteren Rand, 1 = unten raus)
+
+   Bühnen haben zusätzlich --kapitel (Fortschritt innerhalb der Bühne),
+   das der Motor ohnehin schon berechnet.
+
+   Es gibt keine Dauerschleifen, kein Wackeln, kein Federn. Alles
+   endet dort, wo das Scrollen endet. Bei prefers-reduced-motion
+   meldet main.js gar nichts erst an — die Vorgabewerte in var()
+   ergeben dann exakt die ruhige Fassung.
+   ============================================================ */
+
+/* ---- 1. Auszug aus dem Hero ----
+   Die Kamera bleibt im Bild hängen, während der Text vorauszieht: das
+   Foto läuft langsamer mit als die Seite, die Schrift schneller. Genau
+   dieser Geschwindigkeitsunterschied macht Tiefe. */
+.hero[data-weg] .hero__photo{
+  transform:translate3d(0, calc(var(--weg,0) * 6vh), 0) scale(calc(1 + var(--weg,0) * .16));
+  will-change:transform;
+}
+/* Die Schrift bleibt lesbar, solange der Hero noch die halbe Fläche hat,
+   und geht erst auf dem letzten Drittel weg. Ein früher einsetzendes
+   Ausblenden liest nicht als Fahrt, sondern als schlechter Kontrast. */
+.hero[data-weg] .hero__inner{
+  transform:translate3d(0, calc(var(--weg,0) * -5vh), 0);
+  opacity:clamp(0, calc((.88 - var(--weg,0)) / .42), 1);
+  will-change:transform, opacity;
+}
+
+/* Gleiches Prinzip auf den Unterseiten, eine Spur zurückhaltender —
+   der Kopf einer Detailseite ist ein Auftakt, kein Auftritt.
+   Die Bandfassung (.subhero--band) bleibt außen vor: dort steht das
+   Bild im Textfluss, ein Verschieben würde eine Lücke aufreißen. */
+.subhero[data-weg]:not(.subhero--band) .subhero__photo{
+  transform:translate3d(0, calc(var(--weg,0) * 5vh), 0) scale(calc(1 + var(--weg,0) * .13));
+  will-change:transform;
+}
+.subhero[data-weg]:not(.subhero--band) .wrap{
+  transform:translate3d(0, calc(var(--weg,0) * -3vh), 0);
+  opacity:clamp(0, calc((.92 - var(--weg,0)) / .38), 1);
+}
+
+/* ---- 2. Kapitelmarke auf den Bühnen ----
+   Aus der stummen Zeile „01 / 06" wird eine mitlaufende Marke: sie
+   blendet mit der Bühne auf und darunter zieht eine Linie den
+   Fortschritt nach. Damit wird sichtbar, dass man sich durch ein
+   Kapitel bewegt und nicht durch eine zufällige Bildfolge. */
+.stage__index{
+  /* unter den Kinobalken, der seinerseits die Navigationsleiste überbrückt */
+  top:calc(var(--nav-h, 78px) + clamp(34px,6vh,72px));
+  display:flex; flex-direction:column; align-items:flex-start; gap:9px;
+  opacity:clamp(0, calc((var(--kapitel,1) - .015) / .07), 1);
+  /* Sie steht frei über dem Foto — auf hellen Motiven trägt sie sonst nicht */
+  text-shadow:0 1px 14px rgba(0,0,0,.9), 0 0 3px rgba(0,0,0,.7);
+}
+.stage__zeile{ display:flex; align-items:baseline; gap:.65em; }
+.stage__nr{ color:var(--paper); }
+.stage__titel::before{ content:"·"; margin-right:.65em; color:var(--muted); }
+.stage__linie{
+  display:block; width:clamp(84px,11vw,148px); height:1px;
+  background:
+    linear-gradient(#FFF,#FFF) left center / calc(var(--kapitel,0) * 100%) 100% no-repeat,
+    rgba(255,255,255,.2);
+}
+
+/* ---- 3. Kapitelrail ----
+   Rechts am Rand, nur solange die sechs Bühnen laufen. Sie ist eine
+   echte Sprungnavigation, kein Zierbalken — deshalb Links und keine
+   Punkte. Auf schmalen Geräten fällt sie weg: dort ist der Daumen die
+   Navigation. */
+.kapitel{
+  position:fixed; z-index:880;
+  right:clamp(18px,2.4vw,34px); top:50%; translate:0 -50%;
+  display:flex; flex-direction:column; gap:2px;
+  opacity:0; pointer-events:none;
+  transition:opacity .45s var(--ease-out);
+}
+.kapitel.sichtbar{ opacity:1; pointer-events:auto; }
+.kapitel a{
+  display:flex; align-items:center; justify-content:flex-end; gap:10px;
+  padding:7px 0; color:var(--muted);
+  font-family:var(--font-mono); font-size:.62rem; letter-spacing:.18em;
+  transition:color var(--t-base) var(--ease-swift);
+}
+.kapitel a::after{
+  content:""; width:20px; height:1px; background:currentColor;
+  transition:width var(--t-base) var(--ease-out), background-color var(--t-base) var(--ease-swift);
+}
+.kapitel a:hover{ color:var(--chrome); }
+.kapitel a:hover::after{ width:30px; }
+.kapitel a.ist{ color:#FFF; }
+.kapitel a.ist::after{ width:40px; }
+/* Die Beschriftung erscheint erst bei Bedarf — im Ruhezustand soll die
+   Rail eine Randnotiz sein, kein zweites Menü. */
+.kapitel span{
+  opacity:0; translate:8px 0;
+  transition:opacity var(--t-base) var(--ease-out), translate var(--t-base) var(--ease-out);
+}
+.kapitel:hover span, .kapitel a:focus-visible span{ opacity:1; translate:0 0; }
+@media (max-width:900px){ .kapitel{ display:none; } }
+
+/* ---- 4. Kinofassung ----
+   Zwei Balken und ein Lichtabfall zum Rand, die nur über den Bühnen
+   liegen und mit dem Scroll ein- und wieder ausfahren. Sie machen aus
+   dem Bühnenteil einen abgesetzten Block — man merkt, dass man den
+   Fließtext verlassen hat und wieder hineinkommt.
+   Bewusst dünn: 4 vh, nicht die 12 vh echter Cinemascope-Balken. Es
+   soll nach Film aussehen, nicht so tun, als wäre es einer. */
+.kino{ position:fixed; inset:0; z-index:860; pointer-events:none; contain:strict; }
+.kino__balken{
+  position:absolute; left:0; right:0;
+  height:clamp(18px,4vh,46px); background:#040406;
+  transform:scaleY(var(--kino,0));
+  will-change:transform;
+}
+/* Der obere Balken läuft unter der Navigationsleiste durch: die Leiste ist
+   fest und deckend, ein Balken hinter ihr wäre unsichtbar. Er wächst also
+   um ihre Höhe herum weiter — sichtbar wird genau das Stück darunter.
+   --nav-h schreibt main.js, weil die Leiste auf dem Handy niedriger ist. */
+.kino__balken--oben { top:0; transform-origin:50% 0%;
+  height:calc(var(--nav-h, 78px) + clamp(18px,4vh,46px)); }
+.kino__balken--unten{ bottom:0; transform-origin:50% 100%; }
+.kino::after{
+  content:""; position:absolute; inset:0;
+  opacity:calc(var(--kino,0) * .85);
+  background:radial-gradient(126% 92% at 50% 48%,
+              rgba(0,0,0,0) 40%, rgba(0,0,0,.34) 74%, rgba(0,0,0,.62) 100%);
+}
+
+/* ---- 5. Überschriften als Aufblende ----
+   Statt von unten einzuschweben werden Überschriften aufgedeckt: eine
+   Kante läuft nach unten durch, die Zeile steht danach ruhig. Das ist
+   der Unterschied zwischen einer Schnittfolge und einem Baukasten mit
+   Einflug-Effekt. Die Maske reicht großzügig über den Satzspiegel
+   hinaus, damit weder Unterlängen noch Schattenränder abgeschnitten
+   werden. */
+/* Technisch eine Maske und ausdruecklich kein clip-path: ein
+   beschnittenes Element hat fuer den IntersectionObserver eine leere
+   Schnittflaeche — es meldet sich nie, bekommt nie .in und bleibt
+   dauerhaft unsichtbar. Die Maske beschneidet nur die Darstellung.
+   Aus demselben Grund liegt der Effekt bei Bildern immer auf einem
+   Kind (<picture>), nie auf dem beobachteten Element selbst. */
+h1.reveal-up, h2.reveal-up, h3.reveal-up{
+  /* die Aufblende ersetzt die Einfahrt — zwei Bewegungen auf derselben
+     Zeile lesen als Effekt, eine liest als Schnitt */
+  opacity:1; transform:none;
+  -webkit-mask-image:linear-gradient(#000,#000); mask-image:linear-gradient(#000,#000);
+  -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
+  -webkit-mask-size:100% 0%; mask-size:100% 0%;
+  transition:-webkit-mask-size 1.05s var(--ease-out), mask-size 1.05s var(--ease-out);
+}
+h1.reveal-up.in, h2.reveal-up.in, h3.reveal-up.in{
+  -webkit-mask-size:100% 100%; mask-size:100% 100%;
+}
+.kein-js h1.reveal-up, .kein-js h2.reveal-up, .kein-js h3.reveal-up{
+  -webkit-mask-image:none; mask-image:none;
+}
+
+/* ---- 6. Bilder werden aufgedeckt, nicht eingeblendet ----
+   Ein Foto, das von 0 auf 1 faded, wirkt wie ein Ladevorgang. Ein Foto,
+   das von unten nach oben freigegeben wird, während die Kamera minimal
+   zurückfährt, wirkt wie ein Schnitt. Gleiche Dauer, anderer Eindruck. */
+.wide-shot picture{
+  display:block; overflow:hidden;
+  border-radius:var(--r-m); border:1px solid var(--line);
+  clip-path:inset(0 0 100% 0);
+  transition:clip-path 1.1s var(--ease-soft);
+}
+.wide-shot.in picture{ clip-path:inset(0 0 0 0); }
+.wide-shot img{ border:0; border-radius:0; }
+.kein-js .wide-shot picture{ clip-path:none; }
+
+/* Und darin die Gegenbewegung: das Motiv wandert langsamer als das
+   Band, in dem es steht. Die 1.12 sind der Vorrat, aus dem die
+   Verschiebung bezahlt wird — ohne ihn entstünde am Rand eine Lücke. */
+.wide-shot[data-lauf] img{
+  transform:translate3d(0, calc((var(--lauf,.5) - .5) * -52px), 0) scale(1.12);
+  will-change:transform;
+}
+
+/* ---- 7. Abblende am Bühnenende ----
+   Zwischen zwei Bühnen lag eine harte Kante. Die auslaufende Bühne
+   dunkelt jetzt auf dem letzten Zehntel ab, die nächste kommt klar
+   herein — das liest als Schnitt mit Blende statt als Sprung.
+   Bewusst nur am Ende: eine Aufblende am Anfang würde die neue Bühne
+   während ihres gesamten Anlaufs schwärzen, weil der Fortschritt erst
+   zu zählen beginnt, wenn sie das Fenster füllt. */
+.stage__sticky::before{
+  content:""; position:absolute; inset:0; z-index:8; pointer-events:none;
+  background:#040406;
+  opacity:calc(clamp(0, calc((var(--kapitel,0) - .9) / .1), 1) * .55);
+}
+
+@media (prefers-reduced-motion:reduce){
+  .kino, .kapitel{ display:none; }
+  .stage__sticky::before{ display:none; }
+  .stage__index{ opacity:1; }
+  .stage__linie{ background:rgba(255,255,255,.2); }
+  h1.reveal-up, h2.reveal-up, h3.reveal-up{
+    -webkit-mask-image:none; mask-image:none; }
+  .wide-shot picture{ clip-path:none; }
+  .wide-shot[data-lauf] img{ transform:none; }
+}
+
+/* ---- 8. Bandkopf mit Gegenbewegung ----
+   Auf Team und Galerie steht das Kopfbild als Band im Textfluss. Es
+   bekommt dieselbe Gegenbewegung wie die Bildbaender der Detailseiten.
+   Verschoben wird <picture>, nicht <img>: auf dem Bild liegt bereits
+   die Einfahrt beim Seitenaufruf, und eine laufende Animation setzt
+   jede gesetzte transform ausser Kraft. */
+.subhero__photo[data-lauf] picture{
+  display:block; height:100%;
+  transform:translate3d(0, calc((var(--lauf,.5) - .5) * -44px), 0) scale(1.1);
+  will-change:transform;
+}
+
+/* ---- 9. Galerie ----
+   Jedes Bild wird einzeln aufgedeckt, sobald es hereinkommt — bei einem
+   Mauerwerk-Raster ist das der Unterschied zwischen einer Wand, die
+   erscheint, und einer, die sich aufbaut. */
+.gal__item.reveal-up picture{
+  display:block;
+  clip-path:inset(0 0 100% 0);
+  transition:clip-path 1s var(--ease-soft);
+}
+.gal__item.reveal-up.in picture{ clip-path:inset(0 0 0 0); }
+.kein-js .gal__item.reveal-up picture{ clip-path:none; }
+
+@media (prefers-reduced-motion:reduce){
+  .subhero__photo[data-lauf] picture{ transform:none; }
+  .gal__item.reveal-up picture{ clip-path:none; }
+}
