@@ -2,11 +2,12 @@ WEBVTT
 
 NOTE
 Untertitel zum Imagefilm. Zeiten passen zum 45-Sekunden-Schnitt: neun Szenen
-à fünf Sekunden. Wird der Film ersetzt, müssen nur die Zeiten hier nachgezogen
-werden — der Text bleibt.
+à fünf Sekunden. Die ersten 0,8 Sekunden gehören dem Logo-Vorspann, deshalb
+setzt der erste Untertitel erst danach ein. Wird der Film ersetzt, müssen nur
+die Zeiten hier nachgezogen werden — der Text bleibt.
 
 1
-00:00:00.400 --> 00:00:04.600
+00:00:01.000 --> 00:00:04.600
 Moin. Wir sind das HERM Service Team aus Hamburg.
 
 2
