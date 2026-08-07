@@ -169,7 +169,7 @@
 
 <!-- ============ NAV ============ -->
 <header class="nav" id="nav">
-  <a class="brand" href="#top" aria-label="HERM Service Team – Startseite">
+  <a class="brand" href="#top" aria-label="HERM Service Team – Startseite" aria-current="page">
     <img class="brand__logo" src="assets/logo/logo-herm.png" alt="HERM Service Team" width="800" height="305" />
   </a>
   <nav class="nav__links" aria-label="Hauptnavigation">
@@ -227,6 +227,10 @@
   </div>
 
   <div class="wrap hero__inner">
+    <!-- Ortsangabe. Jede Unterseite trägt an dieser Stelle ihren Pfad
+         („Home / Team"); auf der Startseite stand dort bisher nichts.
+         Jetzt sagt jede Seite der Website an derselben Stelle, wo man ist. -->
+    <div class="breadcrumb"><span aria-current="page">Startseite</span></div>
     <span class="eyebrow">Personaldienstleistung · Hamburg · seit über 20 Jahren</span>
     <h1 class="u-caps">
       <span class="line"><span>Personal, das</span></span>

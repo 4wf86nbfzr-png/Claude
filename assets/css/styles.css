@@ -371,6 +371,12 @@ body.menu-open #mobileMenu{ transform:none; visibility:visible; }
 }
 /* Gesperrte Versalien in 0,72 rem brauchen über einem unruhigen Foto Hilfe. */
 .hero .eyebrow{ text-shadow:0 1px 12px rgba(0,0,0,.9); }
+/* Die Ortsangabe im Hero. Auf den Unterseiten steht der Brotkrumenpfad auf
+   ruhigem Grund und darf gedämpft bleiben; hier liegt er über einem Foto und
+   bekommt deshalb den helleren Ton und denselben Schatten wie die Eyebrow.
+   Etwas enger als auf den Unterseiten (16 statt 22 px), weil im Hero direkt
+   darunter schon die nächste gesperrte Zeile folgt. */
+.hero .breadcrumb{ color:var(--chrome); margin-bottom:16px; text-shadow:0 1px 12px rgba(0,0,0,.9); }
 .hero h1{
   font-size:var(--fs-display); margin:.2em 0 .46em; max-width:16ch;
   /* Etwas mehr Durchschuss als die übrigen Überschriften: die Zeilen laufen

@@ -42,12 +42,8 @@ function json(res, code, rumpf){
   res.end(JSON.stringify(rumpf));
 }
 
-/* Vercel legt den geparsten Rumpf unter req.body ab — bei JSON als Objekt,
-   bei einem Formular ebenfalls. Kommt beides nicht, lesen wir selbst. */
-async function rumpfLesen(req){
-  if(req.body && typeof req.body === 'object' && !Buffer.isBuffer(req.body)) return req.body;
-
-  const roh = await new Promise((los, nix) => {
+function stromLesen(req){
+  return new Promise((los, nix) => {
     let text = '', zuviel = false;
     req.setEncoding('utf8');
     req.on('data', s => {
@@ -58,11 +54,26 @@ async function rumpfLesen(req){
     req.on('end', () => los(zuviel ? null : text));
     req.on('error', nix);
   });
+}
+
+/* Vercel liest den Rumpf selbst und legt ihn unter req.body ab — je nach
+   Content-Type als Objekt, als Zeichenkette oder als Buffer. Der Stream ist
+   dann bereits leer, ein zweites Lesen ergäbe nichts. Andere Umgebungen
+   (und der lokale Probelauf) setzen req.body gar nicht; dort wird gelesen. */
+async function rumpfLesen(req){
+  let roh = req.body;
+
+  if(roh && typeof roh === 'object' && !Buffer.isBuffer(roh)) return roh;
+  if(Buffer.isBuffer(roh)) roh = roh.toString('utf8');
+  if(typeof roh !== 'string') roh = await stromLesen(req);
+
   if(roh === null) throw new Error('zu gross');
   if(!roh) return {};
 
   const typ = String(req.headers['content-type'] || '');
-  if(typ.includes('application/json')) return JSON.parse(roh);
+  if(typ.includes('application/json') || /^\s*\{/.test(roh)){
+    try { return JSON.parse(roh); } catch(e){ return {}; }
+  }
 
   const daten = {};
   for(const [k, v] of new URLSearchParams(roh)) daten[k] = v;
