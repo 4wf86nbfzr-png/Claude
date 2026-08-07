@@ -47,6 +47,14 @@
 <!-- Erstes Element im Tabulator-Lauf: wer mit der Tastatur arbeitet,
      muss sonst auf jeder Seite durch die ganze Navigation. -->
 <a class="sprunglink" href="#inhalt">Zum Inhalt springen</a>
+<!-- Kinofassung: zwei duenne Balken und ein Lichtabfall zum Rand. Sie
+     liegen nur ueber den sechs Buehnen; main.js faehrt sie ueber --kino
+     ein und wieder aus. Rein dekorativ, deshalb aria-hidden. -->
+<div class="kino" aria-hidden="true">
+  <span class="kino__balken kino__balken--oben"></span>
+  <span class="kino__balken kino__balken--unten"></span>
+</div>
+
 <div id="scrollbar"></div>
 <button id="toTop" aria-label="Zur&uuml;ck nach oben">
   <svg viewBox="0 0 24 24" fill="none"><path d="M12 20V6M6 12l6-6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -116,89 +124,239 @@
 
   <section class="content" style="padding-bottom:0">
     <div class="wrap">
-      <p class="team-lead reveal-up">W&auml;hlen Sie einen Bereich f&uuml;r die Details: Was wir dort genau
+      <p class="team-lead reveal-up">Sechs Bereiche, einer nach dem anderen. Zu jedem finden Sie
+        unten den &Uuml;berblick &ndash; und dahinter eine eigene Seite mit allem, was wir dort genau
         stellen, welche Einsatzarten wir kennen und was Sie von unserem Personal erwarten k&ouml;nnen.</p>
     </div>
   </section>
 
-  <section class="services-grid">
-    <div class="wrap svc-grid reveal-up" data-stagger>
-      <a class="svc svc--gross" href="dienstleistungen/gastro-personal.html">
-        <picture><source type="image/webp" srcset="assets/img/gastro.webp" /><img class="svc__img" src="assets/img/gastro.jpg" alt="" loading="lazy" width="1600" height="1600" /></picture>
-        <span class="svc__num">01</span>
-        <span class="svc__body">
-          <span class="svc__name">Gastro-Personal</span>
-          <span class="svc__txt">Servicekräfte für Menü, Catering, Bankett und Bar.</span>
-          <span class="svc__go">Ansehen
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </span>
-        </span>
-      </a>
-      <a class="svc svc--hoch" href="dienstleistungen/sicherheit.html">
-        <picture><source type="image/webp" srcset="assets/img/sicherheit.webp" /><img class="svc__img" src="assets/img/sicherheit.jpg" alt="" loading="lazy" width="1600" height="1600" /></picture>
-        <span class="svc__num">02</span>
-        <span class="svc__body">
-          <span class="svc__name">Sicherheit</span>
-          <span class="svc__txt">Veranstaltungsschutz, Crowdmanagement, Personenschutz.</span>
-          <span class="svc__go">Ansehen
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </span>
-        </span>
-      </a>
-      <a class="svc svc--hoch" href="dienstleistungen/promotion-hostess.html">
-        <picture><source type="image/webp" srcset="assets/img/promotion-messe.webp" /><img class="svc__img" src="assets/img/promotion-messe.jpg" alt="" loading="lazy" width="1129" height="1591" /></picture>
-        <span class="svc__num">03</span>
-        <span class="svc__body">
-          <span class="svc__name">Promotion &amp; Hostess</span>
-          <span class="svc__txt">Hostessen und Promoter für Messe und Empfang.</span>
-          <span class="svc__go">Ansehen
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </span>
-        </span>
-      </a>
-      <a class="svc svc--gross" href="dienstleistungen/logistik.html">
-        <picture><source type="image/webp" srcset="assets/img/logistik.webp" /><img class="svc__img" src="assets/img/logistik.jpg" alt="" loading="lazy" width="1600" height="1600" /></picture>
-        <!-- geschlossenes Tor über dem Saal: beim Klick fahren die Flügel
-             auseinander, danach zoomt die Kachel weiter hinein -->
-        <span class="svc__gate" aria-hidden="true">
-          <span class="svc__leaf svc__leaf--l"></span>
-          <span class="svc__leaf svc__leaf--r"></span>
-        </span>
-        <span class="svc__num">04</span>
-        <span class="svc__body">
-          <span class="svc__name">Logistik</span>
-          <span class="svc__txt">Auf- und Abbau, Transport, Bühnen- und Messelogistik.</span>
-          <span class="svc__go">Ansehen
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </span>
-        </span>
-      </a>
-      <a class="svc svc--breit" href="dienstleistungen/fahrservice.html">
-        <picture><source type="image/webp" srcset="assets/img/fahrservice-door.webp" /><img class="svc__img" src="assets/img/fahrservice-door.jpg" alt="" loading="lazy" width="1536" height="1024" /></picture>
-        <span class="svc__num">05</span>
-        <span class="svc__body">
-          <span class="svc__name">Fahrservice</span>
-          <span class="svc__txt">Flughafentransfer, Shuttle und Chauffeur — deutschlandweit.</span>
-          <span class="svc__go">Ansehen
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </span>
-        </span>
-      </a>
-      <!-- data-bereich ist der Haken für eine Ausschnittskorrektur in styles.css:
-           die Kachel ist 2:1, die Aufnahme 3:2 — ohne Korrektur schneidet der
-           mittige Anschnitt den Kopf ab. -->
-      <a class="svc svc--breit" data-bereich="reinigung" href="dienstleistungen/reinigung.html">
-        <picture><source type="image/webp" srcset="assets/img/reinigung.webp" /><img class="svc__img" src="assets/img/reinigung.jpg" alt="" loading="lazy" width="1536" height="1024" /></picture>
-        <span class="svc__num">06</span>
-        <span class="svc__body">
-          <span class="svc__name">Reinigung</span>
-          <span class="svc__txt">Gebäude-, Büro- und Praxisreinigung, auf Wunsch Desinfektion.</span>
-          <span class="svc__go">Ansehen
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </span>
-        </span>
-      </a>
-  </div>
+
+  <!-- ============ STAGE 01 · GASTRO ============ -->
+  <!-- Die Bühnen sind der Signature-Effekt der Seite: beim Scrollen fährt die
+       Kamera in die Szene, die Nahaufnahme blendet auf, dann läuft der Text ein.
+       Gesteuert über --zoom / --detail / --panel aus main.js (updateStages). -->
+  <section class="stage" data-stage="gastro" id="gastro-personal">
+    <div class="stage__sticky">
+      <!-- Kapitelmarke: liegt im festen Rahmen, damit sie die ganze
+           Buehne ueber stehen bleibt. Die Linie darunter fuellt sich
+           aus --kapitel, das main.js beim Scrollen schreibt. -->
+      <div class="stage__index">
+        <span class="stage__zeile"><span class="stage__nr">01 / 06</span><span class="stage__titel">Gastronomie</span></span>
+        <span class="stage__linie" aria-hidden="true"></span>
+      </div>
+      <div class="scene">
+        <div class="scene__frame art">
+          <!-- Weitwinkel -->
+          <picture><source type="image/webp" srcset="assets/img/gastro.webp" /><img class="scene__photo" src="assets/img/gastro.jpg" alt="" loading="lazy" decoding="async" width="1600" height="1600" /></picture>
+          <!-- Anschluss für bewegtes Material: poster/data-src setzen. -->
+          <video class="stagevid" muted playsinline loop preload="metadata"
+                 aria-hidden="true" tabindex="-1"></video>
+          <div class="detail">
+            <!-- Nahaufnahme: blendet über --detail auf. -->
+            <picture><source type="image/webp" srcset="assets/img/gastro-detail.webp" /><img class="scene__photo" src="assets/img/gastro-detail.jpg" alt="" loading="lazy" decoding="async" width="1600" height="1600" /></picture>
+            <video class="stagevid" muted playsinline loop preload="metadata"
+                   aria-hidden="true" tabindex="-1"></video>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <span class="num">01 — Gastronomie</span>
+        <h3 class="u-caps">Servicekräfte mieten</h3>
+        <span class="tag">Wir lieben und leben guten Service.</span>
+        <p>Geschultes, dynamisches Gastro- und Hotellerie-Personal — vom Menü-Service über
+          Catering und Bankett bis zur Bar. Dank großer Datenbank decken wir jeden Bereich
+          rund um Hamburg ab.</p>
+        <div class="chips"><span class="chip">Kellner</span><span class="chip">Barkeeper</span><span class="chip">Partyhilfe</span><span class="chip">Runner</span><span class="chip">Küchenhilfe</span></div>
+        <a class="btn go" href="dienstleistungen/gastro-personal.html">Zum Bereich <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STAGE 02 · SICHERHEIT ============ -->
+  <section class="stage" data-stage="sicherheit" id="sicherheit">
+    <div class="stage__sticky">
+      <!-- Kapitelmarke: liegt im festen Rahmen, damit sie die ganze
+           Buehne ueber stehen bleibt. Die Linie darunter fuellt sich
+           aus --kapitel, das main.js beim Scrollen schreibt. -->
+      <div class="stage__index">
+        <span class="stage__zeile"><span class="stage__nr">02 / 06</span><span class="stage__titel">Sicherheit</span></span>
+        <span class="stage__linie" aria-hidden="true"></span>
+      </div>
+      <div class="scene">
+        <div class="scene__frame art">
+          <picture><source type="image/webp" srcset="assets/img/sicherheit.webp" /><img class="scene__photo" src="assets/img/sicherheit.jpg" alt="" loading="lazy" decoding="async" width="1600" height="1600" /></picture>
+          <video class="stagevid" muted playsinline loop preload="metadata"
+                 aria-hidden="true" tabindex="-1"></video>
+          <div class="detail">
+            <picture><source type="image/webp" srcset="assets/img/sicherheit-detail.webp" /><img class="scene__photo" src="assets/img/sicherheit-detail.jpg" alt="" loading="lazy" decoding="async" width="1400" height="1400" /></picture>
+            <video class="stagevid" muted playsinline loop preload="metadata"
+                   aria-hidden="true" tabindex="-1"></video>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <span class="num">02 — Sicherheit</span>
+        <h3 class="u-caps">Veranstaltungsschutz</h3>
+        <span class="tag">Wir schützen Sie und Ihre Veranstaltung.</span>
+        <p>Ob TV-Show, Gala oder Sportevent — nach einer Sicherheitsanalyse sorgen wir mit
+          fachkundigem Personal für einen geordneten Ablauf. Crowdmanagement, Personenschutz
+          und Veranstaltungsschutz behandeln wir getrennt, damit jeder Bereich abgedeckt ist.</p>
+        <div class="chips"><span class="chip">Event Security</span><span class="chip">Crowdmanager</span><span class="chip">Personenschutz</span><span class="chip">Einlass</span></div>
+        <a class="btn go" href="dienstleistungen/sicherheit.html">Zum Bereich <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STAGE 03 · PROMOTION ============ -->
+  <section class="stage" data-stage="promotion" id="promotion-hostess">
+    <div class="stage__sticky">
+      <!-- Kapitelmarke: liegt im festen Rahmen, damit sie die ganze
+           Buehne ueber stehen bleibt. Die Linie darunter fuellt sich
+           aus --kapitel, das main.js beim Scrollen schreibt. -->
+      <div class="stage__index">
+        <span class="stage__zeile"><span class="stage__nr">03 / 06</span><span class="stage__titel">Promotion &amp; Hostess</span></span>
+        <span class="stage__linie" aria-hidden="true"></span>
+      </div>
+      <div class="scene">
+        <div class="scene__frame art">
+          <picture><source type="image/webp" srcset="assets/img/promotion-messe.webp" /><img class="scene__photo" src="assets/img/promotion-messe.jpg" alt="" loading="lazy" decoding="async" width="1129" height="1591" /></picture>
+          <video class="stagevid" muted playsinline loop preload="metadata"
+                 aria-hidden="true" tabindex="-1"></video>
+          <div class="detail">
+            <picture><source type="image/webp" srcset="assets/img/promotion.webp" /><img class="scene__photo" src="assets/img/promotion.jpg" alt="" loading="lazy" decoding="async" width="1600" height="1600" /></picture>
+            <video class="stagevid" muted playsinline loop preload="metadata"
+                   aria-hidden="true" tabindex="-1"></video>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <span class="num">03 — Promotion &amp; Hostess</span>
+        <h3 class="u-caps">Hostessen &amp; Promoter</h3>
+        <span class="tag">Der erste Eindruck zählt.</span>
+        <p>Mehrsprachige Hostessen und Promoter für Messen, Empfänge und Kampagnen — von der
+          Standbetreuung über Akkreditierung bis zur Gästebegleitung. Ihr Auftritt, unser
+          Personal.</p>
+        <div class="chips"><span class="chip">Messehostess</span><span class="chip">Empfang</span><span class="chip">VIP / Info</span><span class="chip">Promotion</span></div>
+        <a class="btn go" href="dienstleistungen/promotion-hostess.html">Zum Bereich <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STAGE 04 · LOGISTIK ============ -->
+  <section class="stage" data-stage="logistik" id="logistik">
+    <div class="stage__sticky">
+      <!-- Kapitelmarke: liegt im festen Rahmen, damit sie die ganze
+           Buehne ueber stehen bleibt. Die Linie darunter fuellt sich
+           aus --kapitel, das main.js beim Scrollen schreibt. -->
+      <div class="stage__index">
+        <span class="stage__zeile"><span class="stage__nr">04 / 06</span><span class="stage__titel">Logistik</span></span>
+        <span class="stage__linie" aria-hidden="true"></span>
+      </div>
+      <div class="scene">
+        <div class="scene__frame art">
+          <!-- Grundebene: der Saal hinter dem Tor. -->
+          <picture><source type="image/webp" srcset="assets/img/logistik.webp" /><img class="scene__photo" src="assets/img/logistik.jpg" alt="" loading="lazy" decoding="async" width="1600" height="1600" /></picture>
+          <!-- Das geschlossene Tor, in zwei Flügel geteilt. Beide Aufnahmen haben
+               denselben Ausschnitt, deshalb sitzt der Saal beim Aufschieben exakt
+               an der Stelle, an der das Tor war. --door schiebt die Flügel auf. -->
+          <div class="gate door" aria-hidden="true">
+            <span class="gate__leaf gate__leaf--l"></span>
+            <span class="gate__leaf gate__leaf--r"></span>
+          </div>
+          <video class="stagevid" muted playsinline loop preload="metadata"
+                 aria-hidden="true" tabindex="-1"></video>
+          <div class="detail">
+            <picture><source type="image/webp" srcset="assets/img/logistik-detail.webp" /><img class="scene__photo" src="assets/img/logistik-detail.jpg" alt="" loading="lazy" decoding="async" width="1400" height="1400" /></picture>
+            <video class="stagevid" muted playsinline loop preload="metadata"
+                   aria-hidden="true" tabindex="-1"></video>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <span class="num">04 — Logistik</span>
+        <h3 class="u-caps">Eventlogistik</h3>
+        <span class="tag">Wir sorgen dafür, dass alles an seinem Platz ist.</span>
+        <p>Auf- und Abbau, Transport von Event-Equipment sowie Bühnen- und Messelogistik —
+          vor, während und nach Ihrer Veranstaltung. Auf Wunsch deutschlandweit, nach
+          rechtzeitiger Absprache.</p>
+        <div class="chips"><span class="chip">Auf- &amp; Abbau</span><span class="chip">Transport</span><span class="chip">Messe-Logistik</span><span class="chip">Lager</span></div>
+        <a class="btn go" href="dienstleistungen/logistik.html">Zum Bereich <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STAGE 05 · FAHRSERVICE ============ -->
+  <section class="stage" data-stage="fahrservice" id="fahrservice">
+    <div class="stage__sticky">
+      <!-- Kapitelmarke: liegt im festen Rahmen, damit sie die ganze
+           Buehne ueber stehen bleibt. Die Linie darunter fuellt sich
+           aus --kapitel, das main.js beim Scrollen schreibt. -->
+      <div class="stage__index">
+        <span class="stage__zeile"><span class="stage__nr">05 / 06</span><span class="stage__titel">Fahrservice</span></span>
+        <span class="stage__linie" aria-hidden="true"></span>
+      </div>
+      <div class="scene">
+        <div class="scene__frame art" style="width:min(680px,86vmin)">
+          <!-- Bildausschnitt wird per object-position gesteuert (siehe styles.css),
+               damit die Hand am Türgriff im Zoom-Zentrum liegt. -->
+          <picture><source type="image/webp" srcset="assets/img/fahrservice-door.webp" /><img class="scene__photo" src="assets/img/fahrservice-door.jpg" alt="" loading="lazy" decoding="async" width="1536" height="1024" /></picture>
+          <!-- Anschluss für bewegtes Material: poster/data-src setzen, dann
+               übernimmt der Clip diese Ebene und wird über --door vom Scroll gescrubbt. -->
+          <video class="stagevid door" data-scrub muted playsinline loop preload="metadata"
+                 aria-hidden="true" tabindex="-1"></video>
+          <div class="detail">
+            <picture><source type="image/webp" srcset="assets/img/fahrservice-detail.webp" /><img class="scene__photo" src="assets/img/fahrservice-detail.jpg" alt="" loading="lazy" decoding="async" width="1400" height="1400" /></picture>
+            <video class="stagevid" muted playsinline loop preload="metadata"
+                   aria-hidden="true" tabindex="-1"></video>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <span class="num">05 — Fahrservice</span>
+        <h3 class="u-caps">Sicher ans Ziel</h3>
+        <span class="tag">Sicher, diskret, pünktlich.</span>
+        <p>Erfahrene Fahrer für Flughafentransfer, Shuttle-Service, Geschäftsreisen oder als
+          Chauffeur für Ihre Gäste. Auf Wunsch begleitet Sie Ihr Fahrer anschließend auch als
+          Personenschutz — deutschlandweit.</p>
+        <div class="chips"><span class="chip">Flughafentransfer</span><span class="chip">Shuttle</span><span class="chip">Chauffeur</span><span class="chip">Personenschutz</span></div>
+        <a class="btn go" href="dienstleistungen/fahrservice.html">Zum Bereich <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STAGE 06 · REINIGUNG ============ -->
+  <section class="stage" data-stage="reinigung" id="reinigung">
+    <div class="stage__sticky">
+      <!-- Kapitelmarke: liegt im festen Rahmen, damit sie die ganze
+           Buehne ueber stehen bleibt. Die Linie darunter fuellt sich
+           aus --kapitel, das main.js beim Scrollen schreibt. -->
+      <div class="stage__index">
+        <span class="stage__zeile"><span class="stage__nr">06 / 06</span><span class="stage__titel">Reinigung</span></span>
+        <span class="stage__linie" aria-hidden="true"></span>
+      </div>
+      <div class="scene">
+        <div class="scene__frame art">
+          <picture><source type="image/webp" srcset="assets/img/reinigung.webp" /><img class="scene__photo" src="assets/img/reinigung.jpg" alt="" loading="lazy" decoding="async" width="1536" height="1024" /></picture>
+          <video class="stagevid" muted playsinline loop preload="metadata"
+                 aria-hidden="true" tabindex="-1"></video>
+          <div class="detail">
+            <picture><source type="image/webp" srcset="assets/img/reinigung-detail.webp" /><img class="scene__photo" src="assets/img/reinigung-detail.jpg" alt="" loading="lazy" decoding="async" width="1200" height="1200" /></picture>
+            <video class="stagevid" muted playsinline loop preload="metadata"
+                   aria-hidden="true" tabindex="-1"></video>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <span class="num">06 — Reinigung</span>
+        <h3 class="u-caps">Reinigung</h3>
+        <span class="tag">Wenn wir da waren, ist es sauber.</span>
+        <p>Gebäude-, Büro- und Praxisreinigung — mit Blick auf Sauberkeit, Qualität und
+          nachhaltige Produkte. Auf Wunsch unterstützen wir mit Desinfektionshilfen, damit
+          nach dem Event alles wieder stimmt.</p>
+        <div class="chips"><span class="chip">Gebäude</span><span class="chip">Büro</span><span class="chip">Praxis</span><span class="chip">Desinfektion</span></div>
+        <a class="btn go" href="dienstleistungen/reinigung.html">Zum Bereich <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      </div>
+    </div>
   </section>
 
   <section class="cta">

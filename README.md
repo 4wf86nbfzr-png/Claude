@@ -20,8 +20,8 @@ Ein Build ist nicht nötig. Was im Ordner liegt, ist die Website.
 ## Aufbau
 
 ```
-index.html              Startseite
-dienstleistungen.html   Uebersicht der sechs Bereiche
+index.html              Startseite, zehn abgegrenzte Bloecke
+dienstleistungen.html   die sechs Bereiche als Kamerafahrt (Buehnen)
 kontakt.html            Anfrageformular
 jobs.html               Stellen, FAQ, Bewerbungsformular
 team.html               Büroteam

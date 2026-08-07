@@ -152,10 +152,29 @@ Abschnitt der Startseite. Das ist der Unterschied zwischen einer
 mehrseitigen Website und einer One-Page — und er entsteht in der
 Navigation, nicht im Aussehen.
 
-Die Übersichtsseite verwendet ausschließlich vorhandene Bausteine
-(`.subhero`, `.svc-grid`, `.cta`); es gibt dafür keine eigene Gestaltung.
 Der Brotkrumenpfad hat dadurch drei Ebenen: `Home / Dienstleistungen /
 Sicherheit`.
+
+### Wo welche Tiefe hingehört
+
+Die sechs Bühnen mit der Kamerafahrt standen zuerst auf der Startseite und
+machten dort allein knapp 12.500 der 21.000 Pixel aus — sechzig Prozent.
+Genau daran las das Team die Seite als One-Page, und zu Recht: eine
+Startseite, die den ganzen Betrieb in einem Zug erzählt, *ist* eine.
+
+Deshalb liegen die Ebenen jetzt so:
+
+| Seite | Aufgabe | Länge |
+|---|---|---|
+| Startseite | zehn abgegrenzte Blöcke, jeder mit einer Aussage | rund 10 Bildschirmhöhen |
+| Dienstleistungen | die sechs Bühnen als Kamerafahrt, jede führt weiter | rund 16 |
+| Sechs Detailseiten | alles im Einzelnen | je 6 bis 8 |
+
+**Die Bühnen gehören nicht zurück auf die Startseite.** Sie sind dort nicht
+zu lang gewesen, sondern am falschen Ort: eine Startseite ordnet und
+verweist, die Tiefe steht dahinter. Auf der Startseite vertritt sie das
+Kachelraster (`.svc-grid`) — dieselben sechs Bereiche, sechs Klicks, ein
+Bildschirm.
 
 **Achtung bei Adressen:** `dienstleistungen.html` liegt neben dem Ordner
 `dienstleistungen/`. Die Adresse `/dienstleistungen` ohne Endung ist
