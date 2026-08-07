@@ -182,7 +182,7 @@ Diese Punkte müssen erledigt sein. Erst danach die Sperren lösen.
 - [ ] Datenschutzerklärung: Hoster mit Name und Anschrift eintragen,
       Auftragsverarbeitungsvertrag abschließen.
 - [ ] Beide Rechtstexte anwaltlich prüfen lassen.
-- [ ] Porträts von Maik Herm und Alexander Krapp ergänzen
+- [ ] Porträts von Maik Herm und Valeria Occhipinto ergänzen
       (`assets/img/team/`, Format wie die vorhandenen: 1000 × 1250).
 - [ ] Bewegtes Material für den Imagefilm (Bild ist noch ein Platzhalter
       aus Fotos; die Musik liegt vor und ist freigegeben).
