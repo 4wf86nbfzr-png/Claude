@@ -1901,7 +1901,14 @@ main:focus{ outline:none; }
   margin-top:var(--gap-l);
 }
 .fuehrung__bild{
-  position:relative; overflow:hidden;
+  /* Spalte statt Ueberlagerung: die Beschriftung lag ueber dem Foto und
+     verdeckte auf schmalen Fenstern bis zu 60 % davon — auf dem Handy also
+     genau die Person und das Logo. Beschnitten wurde nie etwas, verdeckt
+     aber schon. Jetzt steht der Text unter dem Foto, im selben Rahmen und
+     auf demselben Grund: er gehoert weiter sichtbar zum Bild, nimmt ihm
+     aber nichts weg. */
+  display:flex; flex-direction:column;
+  overflow:hidden; background:var(--ink-2);
   border-radius:var(--r-m); border:1px solid var(--line);
 }
 .fuehrung__bild picture{
@@ -1917,10 +1924,11 @@ main:focus{ outline:none; }
 }
 .fuehrung__bild:hover img{ transform:scale(1.03); }
 .fuehrung__bild figcaption{
-  position:absolute; inset:auto 0 0; z-index:2;
-  padding:clamp(18px,2.2vw,28px);
+  padding:clamp(16px,2vw,24px) clamp(18px,2.2vw,28px) clamp(18px,2.2vw,28px);
   display:grid; gap:5px;
-  background:linear-gradient(to top, rgba(5,5,8,.92) 0%, rgba(5,5,8,.55) 55%, rgba(5,5,8,0) 100%);
+  /* Haarlinie statt Kante: das Bild soll nicht abgeschnitten wirken,
+     sondern in die Zeile darunter uebergehen. */
+  border-top:1px solid var(--line);
 }
 .fuehrung__marke{
   font-family:var(--font-mono); font-size:.64rem; letter-spacing:.2em;
@@ -1930,7 +1938,6 @@ main:focus{ outline:none; }
   font-family:var(--font-display); font-weight:800;
   font-size:clamp(1.05rem,1.7vw,1.45rem); letter-spacing:-.01em;
   color:var(--paper); text-wrap:balance;
-  text-shadow:0 2px 18px rgba(0,0,0,.7);
 }
 .fuehrung__text{ max-width:62ch; margin-top:var(--gap-l); color:var(--chrome); }
 .fuehrung__text p + p{ margin-top:1.05em; }

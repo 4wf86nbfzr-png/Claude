@@ -122,7 +122,7 @@ Prüfen lässt sich das in einer Zeile:
 | Bühnenende | Abblende auf dem letzten Zehntel |
 | Überschriften | Aufblende von oben nach unten (`mask-size`) |
 | Bildbänder, Galerie | Aufdecken von unten plus Gegenbewegung des Motivs |
-| Einsatzleitung (Sicherheit) | Aufdecken von unten, Beschriftung liegt im Bild |
+| Einsatzleitung (Sicherheit) | Aufdecken von unten, Beschriftung im selben Rahmen unter dem Foto |
 
 Die Kinobalken überbrücken die feste Navigationsleiste — ihre Höhe misst
 `main.js` und legt sie als `--nav-h` ab. Wer an der Navigation etwas ändert,
