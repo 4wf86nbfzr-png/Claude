@@ -79,16 +79,14 @@ function dispositionsMail(daten, beleg, angebot){
     zeilen.push('', 'ANGEBOTSENTWURF',
       `Nummer:          ${angebot.offerNumber}`,
       `Status:          ${angebot.status}`,
-      angebot.subtotal
-        ? `Gerechnet:       ${angebot.subtotal.toFixed(2)} € netto · `
-          + `${angebot.total.toFixed(2)} € brutto`
-        : 'Gerechnet:       noch nicht — es fehlen Angaben',
       '',
-      'Vor dem Versand prüfen:',
+      'Der Bogen liegt als Word-Datei im Anhang. Anschrift, Datum, Uhrzeit',
+      'und Anzahl stehen drin — Preise bewusst nicht.',
+      '',
+      'Vor dem Versand:',
       ...angebot.review.reasons.map(g => '  · ' + g),
       '',
-      'Der Entwurf liegt als Word-Datei im Anhang und geht NICHT von allein',
-      'an den Kunden. Erst prüfen, dann versenden.');
+      'Er geht NICHT von allein an den Kunden.');
   }
 
   zeilen.push('', 'Ein „Antworten" auf diese Mail geht direkt an den Absender.');

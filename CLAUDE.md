@@ -247,24 +247,42 @@ steht, und so fort. Vor der Schleife über die Seiten deshalb
 
 ## Das Angebot
 
-Das Word-Angebot (`api/_angebot.js`) ist die zweite Stelle, an der die Marke
-außerhalb des Browsers auftritt. Es folgt demselben Aufbau wie der PDF-Beleg —
-dunkles Band mit dem Wortzeichen oben, sonst Weiß, Beschriftung links leise,
-Angabe rechts fett. Wer eins von beiden ändert, schaut ins andere.
+Der Angebotsbogen (`api/_angebot.js`) ist dem vorhandenen Angebotsformular des
+Betriebs nachgebaut — nicht dem Aussehen der Website. Das ist Absicht: ein
+Angebot ist ein Geschäftsdokument, kein Werbemittel. Es soll aussehen wie das,
+was der Kunde vom selben Absender schon kennt.
 
-Zwei Abweichungen, beide aus einem Grund:
+Deshalb gelten hier andere Regeln als sonst im Projekt:
 
+- **Weisses Blatt, schwarzes Wortzeichen oben rechts.** Kein dunkles Band wie
+  im PDF-Beleg — das Vorbild hat keins. Dafür liegt das Zeichen ein zweites
+  Mal in Schwarz bei (`api/_logo_dunkel.js`); die helle Fassung wäre auf
+  Weiss unsichtbar.
 - **Arial, nicht Helvetica.** In Word ist Arial auf jedem System vorhanden und
   metrisch dasselbe. Helvetica fiele auf Windows still auf etwas anderes
-  zurück — dann sähe das Angebot bei jedem Empfänger anders aus.
-- **Kein Lila.** Die Vorlage, an der sich das Blatt orientiert, hatte
-  geschwungene lila Flächen. Die Website ist schwarzweiß; eine Farbe, die nur
-  auf dem Angebot vorkommt, liest als Versehen — siehe „Grundhaltung".
+  zurück — dann sähe der Bogen bei jedem Empfänger anders aus.
+- **Keine Preise.** Menge, Preis, Rabatt, Betrag und die drei Summen bleiben
+  leere Felder, ebenso Angebots- und Kundennummer. Eine gerechnete Zahl sieht
+  verbindlich aus, auch wenn sie nur geschätzt war — und der Bogen entsteht,
+  ohne dass ein Mensch ihn gesehen hat. Was leer ist, kann nicht falsch sein.
 
-Der Entwurf trägt oben in Versalien, dass er ein Entwurf ist, und darunter,
-was noch zu prüfen ist. Das ist keine Höflichkeitsformel: das Blatt rechnet
-Preise, und eine gerechnete Zahl sieht verbindlich aus, auch wenn sie es nicht
-ist.
+Der stehende Text — Einleitung, die sechs Bedingungen, die Fußzeile mit
+Steuer-, Register- und Bankangaben — steht wörtlich in der Konstante `BOGEN`
+ganz oben. Eine Änderung dort wirkt auf jedem künftigen Bogen.
+
+### Die Falle: Prozentbreiten in Word
+
+Word und LibreOffice verteilen prozentuale Spaltenbreiten nach Inhalt neu,
+sobald die Tabelle auf „autofit" steht. Der erste Entwurf sah im Code richtig
+aus und im Dokument falsch: die Beschreibungsspalte schrumpfte auf ein
+Viertel, „ANGEBOTSBETRAG" brach mitten im Wort um.
+
+Jede Tabelle braucht deshalb **feste Breiten in Twips** plus
+`layout: TableLayoutType.FIXED` und `columnWidths`. A4 ist 11906 Twips breit;
+abzüglich zweimal 1000 Rand bleiben 9906 — die Summe jeder Spaltenliste.
+
+Gilt auch für verschachtelte Tabellen: eine Tabelle in einer Tabellenzelle
+bezieht Prozentangaben nicht auf die Zelle.
 
 ---
 

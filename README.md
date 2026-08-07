@@ -40,10 +40,10 @@ assets/video/           Imagefilm + Untertitel
 
 api/formular.js         nimmt die Formulare an und führt den Vorgang aus
 api/_beleg.js           Aussehen des PDF-Belegs
-api/_angebot.js         Angebotsentwurf: Datensatz und Word-Datei
-api/_preise.js          die Preisliste — einzige Stelle mit Zahlen
+api/_angebot.js         Angebotsbogen: Datensatz und Word-Datei
 api/_mails.js           Wortlaut aller drei Mails
-api/_logo.js            Wortzeichen für PDF und Word, eingebettet
+api/_logo.js            Wortzeichen hell — für das dunkle Band im PDF
+api/_logo_dunkel.js     Wortzeichen schwarz — für den weissen Angebotsbogen
 package.json            die drei Pakete, die nur die Funktion braucht
 
 netlify.toml            Hosting-Konfiguration Netlify
@@ -152,50 +152,52 @@ direkt an die Person, die das Formular ausgefüllt hat (`Reply-To`).
 ## Der Angebotsentwurf
 
 Bei einer **Personalanfrage** liegt neben dem PDF-Beleg eine zweite Datei in
-derselben Mail: `Angebot-Entwurf-A-260807-1432.docx`. Ein Word-Dokument, das
-die Disposition öffnet, fertig schreibt und verschickt.
+derselben Mail: `Angebot-Entwurf-A-260807-1432.docx`. Der Bogen ist dem
+vorhandenen Angebotsformular nachgebaut — Kopf, Absenderzeile,
+Anschriftenfeld, Kennzahlenblock, Positionstabelle, die sechs Bedingungen und
+die Fußzeile mit Firmen- und Bankangaben.
 
 Was schon drinsteht:
 
 * Anschrift und Ansprechpartner des Kunden, aus dem Formular
-* Einsatz: Dienstleistung, Datum, Uhrzeit, Ort, Personen, Beschreibung
-* Rechnungsdaten, wenn angegeben (USt-IdNr., Bestellnummer, Kostenstelle)
-* die Positionstabelle mit **allen** Sätzen aus `api/_preise.js`
-* die zum Bereich passende Position, gerechnet: Personen × Stunden × Satz
-* Nachtzuschlag, wenn der Einsatz ins Fenster 22:00–06:00 reicht
-* Sonntagszuschlag, wenn das Datum auf einen Sonntag fällt
-* Zwischensumme, Umsatzsteuer, Gesamt
+* Ausstellungsdatum und „Gültig bis"
+* die Position als `12x Gastro-Personal`
+* darunter `13.09.26 in der Zeit von 16.00-02.00 Uhr`
+* die Standardzeile `+ 1 Stunde für An- und Abfahrt je Mitarbeiter`
+* alle sechs Bedingungen und die vollständige Fußzeile
 
-### Was der Entwurf bewusst nicht tut
+### Was bewusst leer bleibt
 
-**Er geht nie von allein an den Kunden.** Er liegt ausschließlich in der Mail
-an die Disposition, trägt oben in Großbuchstaben „ENTWURF — NICHT VERSENDEN,
-BEVOR DIE DISPOSITION GEPRÜFT HAT" und darunter die Liste dessen, was noch zu
-prüfen ist. Im Datensatz steht `status: "DRAFT"` oder `"REVIEW_REQUIRED"` —
-nie `APPROVED` oder `SENT`. Für die Freigabe gibt es hier absichtlich keinen
-Weg; sie macht ein Mensch.
+**Alle Preise.** Menge, Preis, Rabatt, Betrag, Nettobetrag, Umsatzsteuer und
+Angebotsbetrag sind leere Felder. Ebenso Angebotsnummer und Kundennummer —
+die vergibt der Betrieb aus seiner eigenen Zählung.
 
-Und er rechnet nur, was sich aus den Angaben ergibt:
+Damit kann der Bogen gar nicht versehentlich als fertiges Angebot rausgehen:
+ohne Zahlen ist er sichtbar unfertig. Die Prüfliste dazu steht im Text der
+Mail an die Disposition.
 
-| Fehlt | Folge |
+Im Datensatz heißt das `status: "DRAFT"` und `pricing[0].unitPrice === null`.
+Die Schlüssel `pricing`, `subtotal`, `vat` und `total` bleiben trotzdem
+erhalten — ein späterer Schritt kann sie füllen, ohne dass sich die Form
+ändert.
+
+### Den Bogen pflegen
+
+Alles, was auf jedem Angebot gleich steht, liegt in **einer** Konstante:
+`BOGEN` oben in `api/_angebot.js`.
+
+| Feld | Was |
 |---|---|
-| Uhrzeit von/bis | keine Stunden, keine Summe — Status bleibt `DRAFT` |
-| Personenzahl | Mengen bleiben offen |
-| Satz für den Bereich | Fahrservice und Reinigung: „Preis auf Anfrage" |
-| gesetzlicher Feiertag | wird **nicht** erkannt — steht als Prüfpunkt drin |
+| `absenderzeile` | die Zeile über dem Anschriftenfeld |
+| `einleitung` | „Wir erlauben uns Ihnen dieses Angebot zu unterbreiten:" |
+| `anfahrt` | die Zeile unter der Position |
+| `bedingungen` | die sechs Absätze: Schichtzeiten bis Zuschlagspflicht |
+| `ust` | der Steuersatz in der Summenzeile |
+| `gueltigTage` | Abstand zwischen Ausstellung und „Gültig bis" (7) |
+| `fuss` | die vier Fußzeilen mit Steuer-, Register- und Bankangaben |
 
-### Die Preisliste pflegen
-
-`api/_preise.js`. Dort und nur dort stehen Sätze, Zuschläge und der
-Steuersatz. Eine Änderung wirkt sofort in Tabelle, Rechnung und Hinweistext.
-
-> **Bitte einmal prüfen:** Die Sätze stammen aus der vorhandenen
-> Angebotsvorlage — also aus einem Angebot an einen bestimmten Kunden. Falls
-> das Verhandlungspreise waren und nicht Ihre Listenpreise, gehören dort die
-> Listenpreise hin.
-
-Der Absenderblock (Firma, Bearbeiterin, Anschrift) steht als `ABSENDER` oben
-in `api/_angebot.js`.
+Es gibt **keine Preisliste** im Projekt. Das ist Absicht: Sätze, die
+irgendwo im Code stehen, veralten unbemerkt.
 
 ### Der Datensatz dahinter
 
@@ -206,23 +208,25 @@ umbenannt werden muss:
 
 ```js
 {
-  offerNumber: 'A-260807-1432',
+  offerNumber: 'A-260807-1432',   // interne Kennung; auf dem Bogen leer
   createdAt:   '2026-08-07T12:32:00.000Z',
-  status:      'REVIEW_REQUIRED',
+  validUntil:  '2026-08-14T12:32:00.000Z',
+  status:      'DRAFT',
   currency:    'EUR',
-  customer:    { company, contact, email, phone, address,
-                 billingAddress, vatId, orderNumber, costCenter },
-  assignment:  { service, date, timeFrom, timeTo, hours, nightHours,
-                 isSunday, location, headcount, description },
-  pricing:     [ { position, unit, quantity, unitPrice, amount, note } ],
-  subtotal: 5088, vat: 966.72, total: 6054.72,
+  customer:    { company, contact, email, phone, address, billingAddress,
+                 vatId, orderNumber, costCenter, customerNumber },
+  assignment:  { service, date, timeFrom, timeTo, hours, isSunday,
+                 location, headcount, description },
+  pricing:     [ { description, detail, quantity, unitPrice,
+                   discount, amount } ],   // alle Geldfelder null
+  subtotal: null, vat: null, total: null,
   review:      { required: true, reasons: [ … ] }
 }
 ```
 
 Vorbereitete Zustände: `DRAFT` · `REVIEW_REQUIRED` · `APPROVED` · `SENT` ·
-`ACCEPTED` · `REJECTED`. Die ersten beiden vergibt die Funktion, die übrigen
-sind für den späteren Freigabeschritt da.
+`ACCEPTED` · `REJECTED`. Solange keine Preise gerechnet werden, vergibt die
+Funktion nur `DRAFT`; die übrigen sind für den späteren Freigabeschritt da.
 
 ### Was noch fehlt, damit daraus ein Kreislauf wird
 
@@ -231,11 +235,12 @@ sind für den späteren Freigabeschritt da.
 | Anfrage entgegennehmen | fertig |
 | Anfrage **ablegen** | Haken `speichern()` in `api/formular.js` — es gibt keine Datenbank |
 | interne Benachrichtigung | fertig |
-| Entwurf erzeugen, Preise ergänzen | fertig, regelbasiert |
-| **KI** statt Regeln | offen — `generateOfferDraft()` ist die Stelle |
+| Entwurf erzeugen, Kundendaten einsetzen | fertig |
+| Preise ergänzen | **bewusst offen** — trägt die Disposition ein |
+| **KI** statt fester Regeln | offen — `generateOfferDraft()` ist die Stelle |
 | Word-Datei | fertig |
 | PDF zusätzlich | offen — `api/_beleg.js` zeigt, wie es ginge |
-| Freigabe durch die Disposition | offen — bewusst; braucht eine Oberfläche und eine Ablage |
+| Freigabe durch die Disposition | offen — bewusst; braucht Oberfläche und Ablage |
 | Versand nach Freigabe | offen — setzt die Freigabe voraus |
 
 Die beiden offenen Kernpunkte hängen am selben Fehlteil: einer **Ablage**.
