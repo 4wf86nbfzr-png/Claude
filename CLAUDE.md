@@ -79,6 +79,37 @@ Wer eine neue Aufblende baut, prüft mit einem Blick in die Konsole:
 
 Nach einmal Durchscrollen muss diese Liste leer sein.
 
+### Die zweite Falle: `aspect-ratio` und das `height`-Attribut
+
+Jedes `<img>` trägt `width`/`height` im Markup — richtig so, das verhindert
+Springen beim Laden. Der Browser setzt diese Attribute aber als
+Präsentationshinweis in echte `width`/`height`-Werte um, und **ein gesetzter
+Wert schlägt `aspect-ratio`.**
+
+Wer im Stylesheet ein Seitenverhältnis vorgibt, muss deshalb `height:auto`
+dazuschreiben:
+
+```css
+.wide-shot img{ width:100%; height:auto; aspect-ratio:16/9; object-fit:cover; }
+```
+
+Ohne die eine Zeile stand das Bildband auf allen sechs Leistungsseiten in
+Originalhöhe da — also genau als der bildschirmhohe Block, den die Regel
+verhindern sollte. Aufgefallen ist es erst beim Nachmessen im Browser, weil
+die Regel im Stylesheet völlig richtig aussah.
+
+Prüfen lässt sich das in einer Zeile:
+
+```js
+[...document.images].filter(i => {
+  const cs = getComputedStyle(i);
+  if (cs.aspectRatio === 'auto') return false;
+  const [a, b] = cs.aspectRatio.split('/').map(Number);
+  const r = i.getBoundingClientRect();
+  return Math.abs(r.width / r.height - a / b) > 0.02;
+})
+```
+
 ### Was wo passiert
 
 | Ort | Bewegung |
@@ -91,6 +122,7 @@ Nach einmal Durchscrollen muss diese Liste leer sein.
 | Bühnenende | Abblende auf dem letzten Zehntel |
 | Überschriften | Aufblende von oben nach unten (`mask-size`) |
 | Bildbänder, Galerie | Aufdecken von unten plus Gegenbewegung des Motivs |
+| Einsatzleitung (Sicherheit) | Aufdecken von unten, Beschriftung liegt im Bild |
 
 Die Kinobalken überbrücken die feste Navigationsleiste — ihre Höhe misst
 `main.js` und legt sie als `--nav-h` ab. Wer an der Navigation etwas ändert,

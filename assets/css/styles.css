@@ -1256,7 +1256,12 @@ footer ul a:hover{ color:var(--paper); }
    vor und wurden über die volle Textbreite zu einem bildschirmhohen Block,
    der den Lesefluss zerreißt. */
 .wide-shot img{
-  width:100%; aspect-ratio:16/9; object-fit:cover; object-position:50% 42%;
+  /* height:auto ist hier kein Beiwerk: die Bilder tragen im Markup ein
+     height-Attribut (1400), und das setzt der Browser als Praesentationshinweis
+     um. Ein gesetzter Wert schlaegt aspect-ratio — ohne diese Zeile stand das
+     Band jahrelang in Originalhoehe da, also genau als der bildschirmhohe
+     Block, den die Regel darueber verhindern sollte. */
+  width:100%; height:auto; aspect-ratio:16/9; object-fit:cover; object-position:50% 42%;
   border-radius:var(--r-m); border:1px solid var(--line); display:block;
 }
 @media (max-width:640px){ .wide-shot img{ aspect-ratio:4/3; } }
@@ -1879,4 +1884,62 @@ main:focus{ outline:none; }
   .kontakt-fakten a::after{
     content:""; position:absolute; inset:-4px -3px;
   }
+}
+
+/* ---- Einsatzleitung (Sicherheit) ----
+   Zwei Aufnahmen mit der Beschriftung IM Bild statt darunter. Beide haben
+   unten eine ruhige, dunkle Zone; ein Verlauf verstaerkt sie noch, damit
+   die weisse Schrift ohne Kasten traegt — ein Kasten waere hier genau die
+   Baukasten-Anmutung, die die Seite vermeidet.
+
+   Der Beschnitt liegt auf <picture>, nicht auf der Figur: die Figur wird
+   vom IntersectionObserver beobachtet, und ein beschnittenes Element hat
+   fuer ihn eine leere Schnittflaeche (siehe CLAUDE.md). */
+.fuehrung{
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:clamp(14px,1.6vw,22px);
+  margin-top:var(--gap-l);
+}
+.fuehrung__bild{
+  position:relative; overflow:hidden;
+  border-radius:var(--r-m); border:1px solid var(--line);
+}
+.fuehrung__bild picture{
+  display:block;
+  clip-path:inset(0 0 100% 0);
+  transition:clip-path 1.1s var(--ease-soft);
+}
+.fuehrung.in .fuehrung__bild picture{ clip-path:inset(0 0 0 0); }
+.kein-js .fuehrung__bild picture{ clip-path:none; }
+.fuehrung__bild img{
+  width:100%; height:auto; aspect-ratio:3/2; object-fit:cover; display:block;
+  transition:transform 1.1s var(--ease-soft);
+}
+.fuehrung__bild:hover img{ transform:scale(1.03); }
+.fuehrung__bild figcaption{
+  position:absolute; inset:auto 0 0; z-index:2;
+  padding:clamp(18px,2.2vw,28px);
+  display:grid; gap:5px;
+  background:linear-gradient(to top, rgba(5,5,8,.92) 0%, rgba(5,5,8,.55) 55%, rgba(5,5,8,0) 100%);
+}
+.fuehrung__marke{
+  font-family:var(--font-mono); font-size:.64rem; letter-spacing:.2em;
+  text-transform:uppercase; color:var(--muted);
+}
+.fuehrung__zeile{
+  font-family:var(--font-display); font-weight:800;
+  font-size:clamp(1.05rem,1.7vw,1.45rem); letter-spacing:-.01em;
+  color:var(--paper); text-wrap:balance;
+  text-shadow:0 2px 18px rgba(0,0,0,.7);
+}
+.fuehrung__text{ max-width:62ch; margin-top:var(--gap-l); color:var(--chrome); }
+.fuehrung__text p + p{ margin-top:1.05em; }
+.fuehrung__text strong{ color:var(--paper); font-weight:600; }
+
+@media (max-width:720px){
+  .fuehrung{ grid-template-columns:1fr; }
+}
+@media (prefers-reduced-motion:reduce){
+  .fuehrung__bild picture{ clip-path:none; }
+  .fuehrung__bild:hover img{ transform:none; }
 }
