@@ -588,7 +588,7 @@
   document.querySelectorAll('form[data-formular]').forEach(form => {
     const status     = form.querySelector('.form__status');
     const knopf      = form.querySelector('button[type="submit"]');
-    const empfaenger = form.dataset.empfaenger || 'dispo@hermserviceteam.com';
+    const empfaenger = form.dataset.empfaenger || 'info@hermserviceteam.com';
     const honigtopf  = form.querySelector('.honigtopf input');
     const geladen    = Date.now();
     /* Zeitsperre gegen Bots, aber bewusst weich: wer per Autovervollständigung

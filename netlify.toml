@@ -20,7 +20,7 @@
 # und einen Namen. Netlify erkennt sie beim Deploy automatisch; die
 # Eingänge stehen danach unter "Forms" im Netlify-Dashboard.
 # Weiterleitung per Mail: Netlify → Forms → Settings → Form notifications
-#   Anfragen    -> dispo@hermserviceteam.com
+#   Anfragen    -> info@hermserviceteam.com
 #   Bewerbungen -> info@hermserviceteam.com
 
 [[headers]]

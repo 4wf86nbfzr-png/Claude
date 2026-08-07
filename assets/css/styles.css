@@ -1210,14 +1210,9 @@ footer ul a:hover{ color:var(--paper); }
   font-family:var(--font-mono); font-size:.66rem; letter-spacing:.2em;
   text-transform:uppercase; color:var(--muted); margin-top:6px;
 }
-/* Direkte Mailadresse. Steht bewusst über der persönlichen Notiz: das ist die
-   Information, wegen der jemand hier landet. */
-.member__mail{
-  font-size:.9rem; color:var(--chrome); margin-top:8px;
-  overflow-wrap:anywhere;
-  transition:color var(--t-fast) var(--ease-swift);
-}
-.member__mail:hover{ color:var(--paper); }
+/* Persönliche Mailadressen unter den Porträts sind entfallen — es gibt nur
+   noch info@hermserviceteam.com, und die steht dort, wo jemand sie sucht:
+   in der Kopfzeile, im Kontakt und im Fußbereich jeder Seite. */
 .member__note{
   color:var(--chrome); font-size:.95rem; font-style:italic;
   margin-top:12px; padding-top:12px; border-top:1px solid var(--line);

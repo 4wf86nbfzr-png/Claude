@@ -65,7 +65,7 @@ Formulare damit sofort**, ohne dass irgendwo ein Schlüssel hinterlegt werden
 muss. Nach dem ersten Deploy einmalig einstellen:
 
 > Netlify → Site → **Forms** → *Form notifications* → *Email notification*
-> * `anfrage` → **dispo@hermserviceteam.com**
+> * `anfrage` → **info@hermserviceteam.com**
 > * `bewerbung` → **info@hermserviceteam.com**
 
 Auf einem anderen Host: `data-netlify="true"` entfernen und stattdessen
