@@ -1435,6 +1435,11 @@ footer ul a:hover{ color:var(--paper); }
 .form .feld--fehler input,
 .form .feld--fehler select,
 .form .feld--fehler textarea{ border-color:#E4736F; box-shadow:0 0 0 3px rgba(228,115,111,.16); }
+/* Der Browser blendet [hidden] von sich aus aus — allerdings mit sehr
+   schwacher Gewichtung. Eine einzige display-Regel auf .feld wuerde das
+   still aushebeln und ein ausgeblendetes Feld wieder sichtbar machen. */
+[hidden]{ display:none !important; }
+
 .feld__fehler{ display:none; color:#F0A19D; font-size:.86rem; margin-top:7px; }
 .feld--fehler .feld__fehler{ display:block; }
 

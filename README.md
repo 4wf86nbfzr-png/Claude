@@ -55,6 +55,13 @@ Zwei Formulare: **Anfrage** (`kontakt.html`) und **Bewerbung** (`jobs.html`).
 Beide prüfen Pflichtfelder, melden Fehler am jeweiligen Feld, bestätigen den
 Versand und wehren Bots ab (unsichtbares Zusatzfeld + Zeitprüfung).
 
+Im Anfrageformular gibt es neben den sechs Bereichen die Auswahl **„Anderer
+Bereich"**. Sie blendet ein Textfeld ein, in das das Unternehmen selbst
+schreiben kann, worum es geht — das steht dann auch im Betreff der Mail.
+Gesteuert wird das über `data-wenn` / `data-wenn-wert` am umgebenden `.feld`;
+weitere solche Felder brauchen nur diese zwei Attribute, keine Zeile
+JavaScript.
+
 Der Versandweg wird in dieser Reihenfolge gewählt (`assets/js/main.js`):
 
 | Bedingung am `<form>` | Weg |

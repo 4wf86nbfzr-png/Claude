@@ -686,6 +686,37 @@
       return ok;
     }
 
+    /* ---- Felder, die nur zu einer bestimmten Auswahl gehören ----
+       „Anderer Bereich" im Auswahlfeld blendet ein Textfeld ein, in das
+       das Unternehmen selbst schreiben kann, worum es geht. Solange es
+       nicht gebraucht wird, ist es nicht nur unsichtbar, sondern über
+       disabled auch aus Prüfung und Übermittlung genommen — sonst stünde
+       in jeder Mail eine leere Zeile.
+
+       Ohne JavaScript bleibt das Feld sichtbar und freiwillig: eine Zeile
+       mehr im Formular ist verkraftbar, ein fehlendes Feld nicht. */
+    form.querySelectorAll('[data-wenn]').forEach(huelle => {
+      const quelle = form.querySelector('#' + huelle.dataset.wenn);
+      const feld   = huelle.querySelector('input, select, textarea');
+      const wert   = huelle.dataset.wennWert;
+      if(!quelle || !feld) return;
+
+      function stand(){
+        const an = quelle.value === wert;
+        huelle.hidden   = !an;
+        feld.disabled   = !an;
+        feld.required   = an;
+        if(an) return;
+        feld.value = '';
+        huelle.classList.remove('feld--fehler');
+        feld.setAttribute('aria-invalid', 'false');
+        const meldung = huelle.querySelector('.feld__fehler');
+        if(meldung) meldung.textContent = '';
+      }
+      quelle.addEventListener('change', stand);
+      stand();
+    });
+
     /* Beim Verlassen prüfen, danach bei jeder Eingabe nachziehen — sonst
        stehen Fehler noch da, während man sie gerade behebt. */
     form.querySelectorAll('input, select, textarea').forEach(feld => {
@@ -739,7 +770,7 @@
       if(honigtopf && honigtopf.value){ danken(); return; }
 
       const felder = [...form.querySelectorAll('input, select, textarea')]
-        .filter(f => !f.closest('.honigtopf'));
+        .filter(f => !f.closest('.honigtopf') && !f.disabled);
       let ersterFehler = null;
       felder.forEach(f => { if(!pruefen(f) && !ersterFehler) ersterFehler = f; });
       if(ersterFehler){
@@ -808,8 +839,11 @@
         const t = String(wert).trim();
         if(t) zeilen.push(feld + ': ' + t);
       }
+      /* Steht eine eigene Angabe drin, gehört sie in den Betreff — „Anderer
+         Bereich" hilft in der Disposition niemandem weiter. */
+      const bereich = daten.get('Bereich (eigene Angabe)') || daten.get('Bereich');
       const betreff = (form.dataset.betreff || 'Nachricht über die Website')
-        + (daten.get('Bereich') ? ' — ' + daten.get('Bereich') : '');
+        + (bereich ? ' — ' + bereich : '');
       const link = 'mailto:' + empfaenger
         + '?subject=' + encodeURIComponent(betreff)
         + '&body='    + encodeURIComponent(zeilen.join('\n'));

@@ -171,8 +171,20 @@
               <option>Fahrservice</option>
               <option>Reinigung</option>
               <option>Mehrere Bereiche</option>
+              <option>Anderer Bereich</option>
             </select>
             <p class="feld__fehler" id="fehler-bereich"></p>
+          </div>
+          <!-- Erscheint nur bei „Anderer Bereich“ und wird dann zum Pflichtfeld;
+               data-wenn/-wert steuert das in main.js. Ohne JavaScript steht das
+               Feld dauerhaft da — dann ist es eine Zeile mehr, nicht eine
+               fehlende. -->
+          <div class="feld" data-wenn="bereich" data-wenn-wert="Anderer Bereich">
+            <label for="bereich-frei">Welcher Bereich? *</label>
+            <input id="bereich-frei" name="Bereich (eigene Angabe)" type="text"
+                   placeholder="z.&nbsp;B. Garderobe, Kassenpersonal, Auf- und Abbau"
+                   aria-describedby="fehler-bereich-frei" />
+            <p class="feld__fehler" id="fehler-bereich-frei"></p>
           </div>
           <div class="feld">
             <label for="datum">Einsatzdatum</label>
