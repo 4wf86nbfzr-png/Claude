@@ -43,6 +43,34 @@
     requestAnimationFrame(()=>{ html.style.scrollBehavior = prev; });
   });
 
+  /* ---- Weite Sprungmarken ----
+     scroll-behavior:smooth ist auf kurzen Wegen angenehm. Der Referenzen-
+     Block liegt aber zwanzig Bildschirmhöhen unter dem Hero, und dazwischen
+     stehen sechs Bühnen: jedes Zwischenbild dieser Reise rechnet die
+     komplette Kamerafahrt neu. Das dauert spürbar lange und sieht aus, als
+     würde gar nichts passieren.
+
+     Ab vier Bildschirmhöhen wird deshalb direkt gesprungen — das ist
+     genau die Grenze, an der der Bühnenblock beginnt. „Was wir stellen“
+     liegt knapp davor und fährt weiterhin weich hinunter. Umgeschaltet
+     wird nur die Eigenschaft, den Sprung selbst macht weiter der Browser —
+     so bleiben Fokus, Adresszeile und Verlauf unangetastet. Dieselbe
+     Mechanik nutzt der Knopf „Zurück nach oben“. */
+  document.addEventListener('click', (ev)=>{
+    const a = ev.target.closest && ev.target.closest('a[href^="#"]');
+    if(!a) return;
+    const marke = a.getAttribute('href');
+    if(marke.length < 2) return;
+    let ziel = null;
+    try { ziel = document.querySelector(marke); } catch(e){ return; }
+    if(!ziel) return;
+    if(Math.abs(ziel.getBoundingClientRect().top) < window.innerHeight * 4) return;
+    const html = document.documentElement;
+    const vorher = html.style.scrollBehavior;
+    html.style.scrollBehavior = 'auto';
+    requestAnimationFrame(()=>{ html.style.scrollBehavior = vorher; });
+  }, true);
+
   /* ---- Mobiles Menü ----
      Es liegt als Vollbild über der Seite und verhält sich damit wie ein
      Dialog. Also muss es sich auch so bedienen lassen: Escape schließt,
