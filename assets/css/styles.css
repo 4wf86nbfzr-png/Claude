@@ -875,6 +875,25 @@ body.menu-open #mobileMenu{ transform:none; visibility:visible; }
 .tcard:hover{ border-color:rgba(255,255,255,.28); background:var(--ink-3); }
 .tcard p{ color:var(--paper); font-size:1rem; line-height:1.55; }
 .tcard .who{ margin-top:auto; padding-top:20px; display:grid; gap:2px; }
+/* Kundenlogo über dem Namen. Alle fünf liegen einfarbig weiß vor: fünf
+   Hausfarben nebeneinander würden die schwarzweiße Anlage sprengen, und
+   auf dem dunklen Grund wäre die Hälfte davon ohnehin nicht lesbar.
+   Im Ruhezustand zurückgenommen — das Zitat ist die Aussage, das Logo
+   nur die Bestätigung, wer es gesagt hat. Der Name steht als Text
+   darunter, deshalb trägt das Bild ein leeres alt: sonst läse ein
+   Vorlesewerkzeug jede Firma zweimal vor. */
+.tcard .who__logo{ display:block; margin-bottom:14px; }
+.tcard .who__logo img{
+  /* Alle Dateien haben denselben Kasten (200 px hoch); die Zeichnung sitzt
+     darin optisch ausgeglichen. Deshalb genuegt hier eine Hoehe fuer alle. */
+  height:clamp(38px,4vw,52px); width:auto; max-width:min(78%,210px);
+  object-fit:contain; object-position:left center;
+  opacity:.66;
+  transition:opacity var(--t-base) var(--ease-swift);
+}
+.tcard:hover .who__logo img,
+.tcard:focus-within .who__logo img{ opacity:1; }
+
 .tcard .who b{ font-weight:600; font-size:.95rem; }
 .tcard .who small{ font-family:var(--font-mono); font-size:.62rem; letter-spacing:.16em; color:var(--muted); text-transform:uppercase; display:block; }
 @media (max-width:820px){
