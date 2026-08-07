@@ -124,13 +124,9 @@ h1,h2,h3,h4{ font-family:var(--font-display); font-weight:800; line-height:1.06;
 h1{ letter-spacing:-.03em; }
 .u-caps{ text-transform:uppercase; letter-spacing:-.005em; }
 h1.u-caps{ letter-spacing:-.012em; }
-.display{ font-size:clamp(2.6rem,7vw,6.4rem); font-weight:800; }
 /* Vorspann: eine Stufe über dem Fließtext, aber mit ruhigerem Durchschuss als
    die Überschrift — der Übergang von Titel zu Text soll nicht springen. */
 .lead{ font-size:var(--fs-lead); color:var(--chrome); line-height:1.58; max-width:var(--measure-lead); }
-.prose{ max-width:var(--measure); color:var(--chrome); }
-.prose p + p{ margin-top:1.05em; }
-.prose strong{ color:var(--paper); font-weight:600; }
 .reveal-up{
   opacity:0; transform:translateY(28px);
   transition:opacity var(--t-slow) var(--ease-out),
@@ -938,7 +934,6 @@ body.menu-open #mobileMenu{ transform:none; visibility:visible; }
 
 /* Die Merkmalsliste lebt weiter — aber nur einmal, als ruhige Aufzählung am
    Fuß des Abschnitts statt als Kachelwand auf jeder zweiten Seite. */
-.qgrid{ display:flex; flex-wrap:wrap; gap:8px 10px; }
 .q{
   font-family:var(--font-body); font-size:.88rem; padding:.42em .9em;
   border-radius:var(--r-pill); border:1px solid var(--line); color:var(--chrome);
@@ -1840,3 +1835,24 @@ h1.reveal-up.in, h2.reveal-up.in, h3.reveal-up.in{
    ankommt. Ohne diese Regel zeichnet der Browser dann einen Rahmen um die
    ganze Seite. */
 main:focus{ outline:none; }
+
+/* ---- Tippziele auf dem Handy ----
+   Einzeln stehende Links — Fußbereich, Brotkrumenpfad, Telefonnummer im
+   Menü — sind nur 18 bis 22 Pixel hoch. Zum Lesen reicht das, zum Treffen
+   mit dem Daumen nicht (WCAG 2.5.8 verlangt 24 Pixel).
+
+   Vergrößert wird die Trefferfläche, nicht die Schrift: ein unsichtbares
+   Feld über dem Link. Dadurch bleibt die Gestaltung exakt wie sie ist —
+   nichts rückt, nichts wird größer, es lässt sich nur zuverlässig treffen.
+   Die Werte sind so gewählt, dass sich benachbarte Felder nicht
+   überlappen: die Listen haben 10 Pixel Abstand, hier kommen beidseitig
+   4 dazu. */
+@media (max-width:640px){
+  footer ul a, .breadcrumb a, .menu__tel, .kontakt-fakten a{
+    position:relative;
+  }
+  footer ul a::after, .breadcrumb a::after, .menu__tel::after,
+  .kontakt-fakten a::after{
+    content:""; position:absolute; inset:-4px -3px;
+  }
+}

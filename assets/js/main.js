@@ -43,17 +43,43 @@
     requestAnimationFrame(()=>{ html.style.scrollBehavior = prev; });
   });
 
-  /* Mobile menu */
+  /* ---- Mobiles Menü ----
+     Es liegt als Vollbild über der Seite und verhält sich damit wie ein
+     Dialog. Also muss es sich auch so bedienen lassen: Escape schließt,
+     der Fokus bleibt drin, und danach steht er wieder auf dem Knopf, der
+     es geöffnet hat. Ohne das lief der Tabulator hinter der Überlagerung
+     weiter durch die Seite — sichtbar war dort nichts. */
   const burger = document.getElementById('burger');
-  burger.addEventListener('click', ()=>{
-    const open = document.body.classList.toggle('menu-open');
-    burger.setAttribute('aria-expanded', open);
-    document.body.classList.toggle('locked', open);
-  });
+  const menue  = document.getElementById('mobileMenu');
+  /* inert nimmt einen ganzen Bereich aus Tabulator und Vorlesewerkzeug.
+     Browser, die es nicht kennen, ignorieren das Attribut — dann bleibt es
+     beim bisherigen Verhalten, kaputt geht nichts. */
+  const dahinter = ['main', 'footer', '#toTop'].map(w => document.querySelector(w));
+
+  function menueSetzen(offen){
+    document.body.classList.toggle('menu-open', offen);
+    document.body.classList.toggle('locked', offen);
+    burger.setAttribute('aria-expanded', offen);
+    dahinter.forEach(el => { if(el) el.toggleAttribute('inert', offen); });
+    if(offen){
+      const erster = menue && menue.querySelector('a, button');
+      if(erster) erster.focus();
+    } else {
+      burger.focus();
+    }
+  }
+
+  burger.addEventListener('click', ()=> menueSetzen(!document.body.classList.contains('menu-open')));
   document.querySelectorAll('#mobileMenu a').forEach(a=> a.addEventListener('click', ()=>{
+    /* Beim Wechsel auf eine andere Seite den Fokus nicht zurückholen — das
+       Dokument wird ohnehin ersetzt. */
     document.body.classList.remove('menu-open','locked');
     burger.setAttribute('aria-expanded', false);
+    dahinter.forEach(el => { if(el) el.removeAttribute('inert'); });
   }));
+  document.addEventListener('keydown', (ev)=>{
+    if(ev.key === 'Escape' && document.body.classList.contains('menu-open')) menueSetzen(false);
+  });
 
   /* Eintritte beim Scrollen. Gruppen mit data-stagger bekommen pro Kind einen
      Index, damit sie nacheinander statt gleichzeitig erscheinen — das gibt dem
@@ -662,8 +688,22 @@
     }
 
     /* --- Absenden --- */
+    /* Solange eine Übermittlung läuft, nimmt das Formular keine zweite an.
+       Sonst erzeugt ein zweiter Klick auf „Senden" — und den macht man,
+       wenn nicht sofort etwas passiert — eine doppelte Anfrage in der
+       Disposition. */
+    let sendetGerade = false;
+    function sperren(an){
+      sendetGerade = an;
+      if(!knopf) return;
+      knopf.disabled = an;
+      if(an) knopf.setAttribute('aria-busy', 'true');
+      else   knopf.removeAttribute('aria-busy');
+    }
+
     form.addEventListener('submit', async (ev) => {
       ev.preventDefault();
+      if(sendetGerade) return;
 
       /* Honigtopf gefüllt: eindeutig eine Maschine. Kein Mensch sieht dieses
          Feld. Wir tun so, als sei alles gut — der Bot bekommt keine Auskunft,
@@ -703,7 +743,7 @@
         && location.protocol.startsWith('http') && !testhost;
 
       if(endpunkt || ueberNetlify){
-        if(knopf) knopf.setAttribute('aria-busy', 'true');
+        sperren(true);
         melden('Wird gesendet …', 'laeuft');
         try{
           const antwort = endpunkt
@@ -718,7 +758,7 @@
           danken();
           return;
         }catch(e){
-          if(knopf) knopf.removeAttribute('aria-busy');
+          sperren(false);
           melden('Das Absenden hat nicht geklappt. Bitte rufen Sie uns an unter '
                + '+49 (40) 27075100 — oder schicken Sie die Anfrage per E-Mail.', 'fehler');
           mailWeg(daten);
