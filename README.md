@@ -37,7 +37,9 @@ assets/fonts/           Schriftdateien (woff2)
 assets/img/             Fotos, je einmal als .jpg und .webp
 assets/video/           Imagefilm + Untertitel
 
-netlify.toml            Hosting-Konfiguration (Header, Adressen, Zwischenspeicher)
+netlify.toml            Hosting-Konfiguration Netlify
+vercel.json             Hosting-Konfiguration Vercel
+.vercelignore           was Vercel nicht ausliefern soll
 robots.txt              sperrt derzeit alles
 sitemap.xml             für später
 ```
@@ -149,7 +151,65 @@ genommen hat, braucht das nicht.
   stattdessen das Mailprogramm mit der fertigen Nachricht. Pflichtfeldprüfung,
   Fehlermeldungen und Bestätigung lassen sich trotzdem vollständig testen.
 
-## Auf Netlify veröffentlichen (empfohlen)
+## Auf Vercel veröffentlichen
+
+`vercel.json` liegt im Projekt und regelt alles: Kopfzeilen, Zwischenspeicher,
+Adressen ohne `.html`. Ein Build-Schritt entfällt — das Projekt ist reines
+HTML/CSS/JS.
+
+### Achtung: der Produktionsbranch
+
+Vercel veröffentlicht standardmäßig den Branch **`main`**. Auf `main` liegt
+aber nur die erste Fassung mit einer README — die fertige Website steht auf
+`claude/entpacken-demo-oeffnen-29f7th`. Ohne Umstellung würde Vercel eine
+leere Seite bauen.
+
+Zwei Wege:
+
+* **Ohne Änderung am Repository:** Vercel → Project → *Settings* → *Git* →
+  **Production Branch** auf `claude/entpacken-demo-oeffnen-29f7th` setzen,
+  dann *Deployments* → **Redeploy**.
+* **Oder** den Branch nach `main` zusammenführen. Dann bleibt die Vercel-
+  Voreinstellung, und jeder weitere Stand geht wieder über einen Branch.
+
+Solange nichts umgestellt ist, entsteht bei jedem Push auf den Arbeitsbranch
+ohnehin automatisch eine **Preview-Adresse** — für den internen Test genügt
+die.
+
+### Einstellungen beim Import
+
+| Feld | Wert |
+|---|---|
+| Framework Preset | **Other** |
+| Build Command | leer lassen |
+| Output Directory | leer lassen (Projektwurzel) |
+| Install Command | leer lassen |
+| Root Directory | `./` |
+
+### Zugriffsschutz
+
+Vercel → *Settings* → **Deployment Protection** → *Vercel Authentication*.
+Damit kommt nur hinein, wer im Vercel-Team angemeldet ist. Ob das im
+gebuchten Tarif enthalten ist, steht dort direkt am Schalter.
+
+### Formulare auf Vercel
+
+Netlify Forms gibt es dort nicht. Auf Vercel nehmen die Formulare deshalb
+den Mail-Weg: `main.js` merkt, dass keine Annahme hinterlegt ist, und öffnet
+das Mailprogramm mit der fertigen Nachricht. Pflichtfeldprüfung,
+Fehlermeldungen und Bestätigung lassen sich vollständig testen.
+
+Für echten Versand später eine der beiden Zeilen setzen:
+
+* `data-endpunkt="https://formspree.io/f/xxxxxxx"` an beiden `<form>` — oder
+* eine eigene Funktion unter `api/` anlegen und dorthin zeigen lassen.
+
+`data-netlify="true"` kann dabei stehen bleiben; außerhalb von Netlify wird
+es nicht ausgewertet.
+
+---
+
+## Auf Netlify veröffentlichen
 
 1. netlify.com → **Add new site → Import an existing project** → GitHub →
    dieses Repository, Branch `claude/entpacken-demo-oeffnen-29f7th`.
@@ -197,7 +257,7 @@ Diese Punkte müssen erledigt sein. Erst danach die Sperren lösen.
 - [ ] `robots.txt`: oberen Block löschen, unteren einkommentieren.
 - [ ] In allen 14 Seiten den Block `TESTBETRIEB` samt
       `<meta name="robots" content="noindex, …">` entfernen.
-- [ ] In `netlify.toml` die Zeile `X-Robots-Tag` entfernen.
+- [ ] In `netlify.toml` **und** `vercel.json` die Zeile `X-Robots-Tag` entfernen.
 - [ ] Domain verbinden, HTTPS-Zertifikat erzeugen lassen.
 - [ ] `sitemap.xml` in der Google Search Console einreichen.
 - [ ] Passwortschutz aufheben.
@@ -205,7 +265,8 @@ Diese Punkte müssen erledigt sein. Erst danach die Sperren lösen.
 Suchbefehl für alle drei Sperren auf einmal:
 
 ```bash
-grep -rn "TESTBETRIEB" . --include="*.html" --include="*.toml" --include="*.txt"
+grep -rn "TESTBETRIEB\|X-Robots-Tag" . --include="*.html" --include="*.toml" \
+  --include="*.txt" --include="*.json" --include=".htaccess"
 ```
 
 ---

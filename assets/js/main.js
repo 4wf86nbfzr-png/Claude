@@ -762,11 +762,13 @@
       daten.delete(honigtopf ? honigtopf.name : '__kein_feld__');
 
       const endpunkt = form.dataset.endpunkt;
-      /* Netlify nimmt den POST nur auf einem Netlify-Deploy entgegen. Auf
-         Testhosts ohne Formularannahme (GitHub Pages, lokaler Server) käme ein
-         404 oder 501 zurück und der Absender sähe eine Fehlermeldung, obwohl
-         alles richtig ausgefüllt war. Dort deshalb gleich den Mail-Weg nehmen. */
-      const testhost = /(^|\.)github\.io$|^localhost$|^127\.|^0\.0\.0\.0$|^192\.168\./.test(location.hostname);
+      /* Netlify nimmt den POST nur auf einem Netlify-Deploy entgegen. Überall
+         sonst — GitHub Pages, Vercel, lokaler Server — käme ein 404, 405 oder
+         501 zurück, und der Absender sähe „Das Absenden hat nicht geklappt“,
+         obwohl er alles richtig ausgefüllt hat. Auf diesen Adressen deshalb
+         gleich den Mail-Weg nehmen, ohne den Umweg über eine Fehlermeldung. */
+      const testhost = /(^|\.)github\.io$|(^|\.)vercel\.app$|(^|\.)pages\.dev$|^localhost$|^127\.|^0\.0\.0\.0$|^192\.168\./
+        .test(location.hostname);
       const ueberNetlify = form.dataset.netlify === 'true'
         && location.protocol.startsWith('http') && !testhost;
 

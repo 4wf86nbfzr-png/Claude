@@ -1,0 +1,23 @@
+# Was nicht auf den Webserver gehört.
+#
+# Vercel liefert bei einer statischen Seite jede hochgeladene Datei aus.
+# Ohne diese Liste wären die Arbeitsdateien unter ihrer Adresse abrufbar —
+# etwa /tools/make-favicons.py oder /README.md. Sie gehören ins Repository,
+# aber nicht ins Netz.
+#
+# Auf den Betrieb der Website hat das keine Auswirkung: keine dieser Dateien
+# wird von einer Seite geladen.
+
+tools/
+docs/
+.github/
+
+# Konfiguration anderer Anbieter — auf Vercel wirkungslos
+netlify.toml
+.htaccess
+.nojekyll
+
+# Projektunterlagen
+README.md
+CLAUDE.md
+.vorschau-stand
