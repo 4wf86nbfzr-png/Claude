@@ -117,18 +117,24 @@
     <div class="wrap content__grid">
       <div class="content__lead">
         <!-- Uebermittlung, in dieser Reihenfolge (siehe main.js):
+             0. /api/formular             -> eigene Funktion: PDF-Beleg und
+                                             Angebotsentwurf per Mail
              1. data-endpunkt="https://…"  -> eigener Dienst (Formspree o. ae.)
              2. data-netlify="true"        -> Netlify Forms, ohne Kontoschluessel
              3. sonst                      -> fertige Mail im Mailprogramm
-             Der Honigtopf und die Mindestzeit halten einfache Bots ab. -->
-        <form class="form" novalidate
+             Der Honigtopf und die Mindestzeit halten einfache Bots ab.
+
+             Fuenf Gruppen statt einer langen Spalte. Wer eine Anfrage stellt,
+             fuellt nicht 16 Felder aus, sondern beantwortet vier Fragen:
+             wer sind Sie, was brauchen Sie, wohin die Rechnung, was noch. -->
+        <form class="form form--gruppen" novalidate
               data-formular="anfrage"
               name="anfrage" method="POST"
               data-netlify="true" netlify-honeypot="firmenname"
               data-empfaenger="info@hermserviceteam.com"
               data-betreff="Personalanfrage &uuml;ber die Website"
-              data-danke-titel="Danke f&uuml;r Ihre Anfrage"
-              data-danke-text="Ihre Anfrage liegt bei unserer Disposition. Wir melden uns zeitnah mit einem Angebot &ndash; in der Regel noch am n&auml;chsten Werktag.">
+              data-danke-titel="Vielen Dank f&uuml;r Ihre Anfrage"
+              data-danke-text="Ihre Anfrage wurde erfolgreich &uuml;bermittelt und wird nun von unserer Disposition gepr&uuml;ft. Sie erhalten Ihr individuelles Angebot schnellstm&ouml;glich per E-Mail.">
           <!-- Netlify erwartet den Formularnamen auch im Rumpf -->
           <input type="hidden" name="form-name" value="anfrage" />
           <!-- Honigtopf: unsichtbar, nur Maschinen tragen hier etwas ein -->
@@ -138,97 +144,179 @@
             </label>
           </p>
 
-          <div class="feld">
-            <label for="name">Name *</label>
-            <input id="name" name="Name" type="text" required autocomplete="name"
-                   aria-describedby="fehler-name" />
-            <p class="feld__fehler" id="fehler-name"></p>
-          </div>
-          <div class="feld">
-            <label for="firma">Firma</label>
-            <input id="firma" name="Firma" type="text" autocomplete="organization" />
-            <p class="feld__fehler"></p>
-          </div>
-          <div class="feld">
-            <label for="email">E-Mail *</label>
-            <input id="email" name="E-Mail" type="email" required autocomplete="email"
-                   inputmode="email" aria-describedby="fehler-email" />
-            <p class="feld__fehler" id="fehler-email"></p>
-          </div>
-          <div class="feld">
-            <label for="tel">Telefon</label>
-            <input id="tel" name="Telefon" type="tel" autocomplete="tel" inputmode="tel" />
-            <p class="feld__fehler"></p>
-          </div>
-          <div class="feld">
-            <label for="bereich">Bereich *</label>
-            <select id="bereich" name="Bereich" required aria-describedby="fehler-bereich">
-              <option value="">Bitte w&auml;hlen</option>
-              <option>Gastro-Personal</option>
-              <option>Sicherheit</option>
-              <option>Promotion / Hostess</option>
-              <option>Logistik</option>
-              <option>Fahrservice</option>
-              <option>Reinigung</option>
-              <option>Mehrere Bereiche</option>
-              <option>Anderer Bereich</option>
-            </select>
-            <p class="feld__fehler" id="fehler-bereich"></p>
-          </div>
-          <!-- Erscheint nur bei „Anderer Bereich“ und wird dann zum Pflichtfeld;
-               data-wenn/-wert steuert das in main.js. Ohne JavaScript steht das
-               Feld dauerhaft da — dann ist es eine Zeile mehr, nicht eine
-               fehlende. -->
-          <div class="feld" data-wenn="bereich" data-wenn-wert="Anderer Bereich">
-            <label for="bereich-frei">Welcher Bereich? *</label>
-            <input id="bereich-frei" name="Bereich (eigene Angabe)" type="text"
-                   placeholder="z.&nbsp;B. Garderobe, Kassenpersonal, Auf- und Abbau"
-                   aria-describedby="fehler-bereich-frei" />
-            <p class="feld__fehler" id="fehler-bereich-frei"></p>
-          </div>
-          <div class="feld">
-            <label for="datum">Einsatzdatum</label>
-            <input id="datum" name="Datum" type="date" />
-            <p class="feld__fehler"></p>
-          </div>
-          <div class="feld">
-            <label for="anzahl">Wie viele Personen</label>
-            <input id="anzahl" name="Personenzahl" type="text" inputmode="numeric" placeholder="z.&nbsp;B. 8" />
-            <p class="feld__fehler"></p>
-          </div>
-          <div class="feld">
-            <label for="ort">Einsatzort</label>
-            <input id="ort" name="Ort" type="text" placeholder="Hamburg / deutschlandweit" />
-            <p class="feld__fehler"></p>
-          </div>
-          <div class="feld full">
-            <label for="nachricht">Ihre Nachricht *</label>
-            <textarea id="nachricht" name="Nachricht" required minlength="15"
-                      aria-describedby="fehler-nachricht"
-                      placeholder="Kurz zum Ablauf: Uhrzeiten, Art der Veranstaltung, Besonderheiten &hellip;"></textarea>
-            <p class="feld__fehler" id="fehler-nachricht"></p>
-          </div>
-
-          <div class="feld full zustimmung">
-            <input id="dsgvo" name="Einwilligung" type="checkbox" required value="ja"
-                   aria-describedby="fehler-dsgvo" />
-            <label for="dsgvo">Ich bin damit einverstanden, dass meine Angaben zur Bearbeitung
-              der Anfrage gespeichert und verarbeitet werden. Mehr dazu in der
-              <a href="datenschutz.html">Datenschutzerkl&auml;rung</a>. *</label>
-            <p class="feld__fehler full" id="fehler-dsgvo"></p>
-          </div>
-
-          <div class="full">
-            <div class="form__fuss">
-              <button class="btn" type="submit">Anfrage senden
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-              <p class="form__status" role="status" aria-live="polite"></p>
+          <!-- ============ 01 Unternehmen ============ -->
+          <fieldset class="fgruppe">
+            <legend class="fgruppe__titel"><span class="fgruppe__nr">01</span> Unternehmen</legend>
+            <div class="fgruppe__felder">
+              <div class="feld">
+                <label for="firma">Firma</label>
+                <input id="firma" name="Firma" type="text" autocomplete="organization"
+                       placeholder="Firmenname" />
+                <p class="feld__fehler"></p>
+              </div>
+              <div class="feld">
+                <label for="name">Ansprechpartner *</label>
+                <input id="name" name="Name" type="text" required autocomplete="name"
+                       aria-describedby="fehler-name" />
+                <p class="feld__fehler" id="fehler-name"></p>
+              </div>
+              <div class="feld">
+                <label for="email">E-Mail *</label>
+                <input id="email" name="E-Mail" type="email" required autocomplete="email"
+                       inputmode="email" aria-describedby="fehler-email" />
+                <p class="feld__fehler" id="fehler-email"></p>
+              </div>
+              <div class="feld">
+                <label for="tel">Telefon</label>
+                <input id="tel" name="Telefon" type="tel" autocomplete="tel" inputmode="tel" />
+                <p class="feld__fehler"></p>
+              </div>
+              <div class="feld full">
+                <label for="anschrift">Firmenanschrift</label>
+                <textarea id="anschrift" name="Firmenanschrift" rows="2"
+                          autocomplete="street-address"
+                          placeholder="Stra&szlig;e und Hausnummer, PLZ und Ort"></textarea>
+                <p class="feld__fehler"></p>
+              </div>
             </div>
-            <p class="form__hinweis">Mit * gekennzeichnete Felder brauchen wir.
-              Ihre Angaben nutzen wir ausschlie&szlig;lich zur Bearbeitung dieser Anfrage
-              und geben sie nicht weiter.</p>
-          </div>
+          </fieldset>
+
+          <!-- ============ 02 Einsatz ============ -->
+          <fieldset class="fgruppe">
+            <legend class="fgruppe__titel"><span class="fgruppe__nr">02</span> Einsatz</legend>
+            <div class="fgruppe__felder">
+              <div class="feld">
+                <label for="bereich">Dienstleistung *</label>
+                <select id="bereich" name="Bereich" required aria-describedby="fehler-bereich">
+                  <option value="">Bitte w&auml;hlen</option>
+                  <option>Gastro-Personal</option>
+                  <option>Sicherheit</option>
+                  <option>Promotion / Hostess</option>
+                  <option>Logistik</option>
+                  <option>Fahrservice</option>
+                  <option>Reinigung</option>
+                  <option>Mehrere Bereiche</option>
+                  <option>Anderer Bereich</option>
+                </select>
+                <p class="feld__fehler" id="fehler-bereich"></p>
+              </div>
+              <!-- Erscheint nur bei „Anderer Bereich“ und wird dann zum Pflichtfeld;
+                   data-wenn/-wert steuert das in main.js. Ohne JavaScript steht das
+                   Feld dauerhaft da — dann ist es eine Zeile mehr, nicht eine
+                   fehlende. -->
+              <div class="feld" data-wenn="bereich" data-wenn-wert="Anderer Bereich" data-wenn-pflicht>
+                <label for="bereich-frei">Welcher Bereich? *</label>
+                <input id="bereich-frei" name="Bereich (eigene Angabe)" type="text"
+                       placeholder="z.&nbsp;B. Garderobe, Kassenpersonal, Auf- und Abbau"
+                       aria-describedby="fehler-bereich-frei" />
+                <p class="feld__fehler" id="fehler-bereich-frei"></p>
+              </div>
+              <div class="feld">
+                <label for="datum">Einsatzdatum</label>
+                <input id="datum" name="Datum" type="date" />
+                <p class="feld__fehler"></p>
+              </div>
+              <!-- Von/bis ergeben die Stunden, aus denen der Angebotsentwurf
+                   rechnet. Ohne sie bleibt das Angebot offen — es ist deshalb
+                   ein eigenes Feldpaar und keine Zeile im Freitext. -->
+              <div class="feld">
+                <label for="zeit-von">Uhrzeit von</label>
+                <input id="zeit-von" name="Uhrzeit von" type="time" />
+                <p class="feld__fehler"></p>
+              </div>
+              <div class="feld">
+                <label for="zeit-bis">Uhrzeit bis</label>
+                <input id="zeit-bis" name="Uhrzeit bis" type="time" />
+                <p class="feld__fehler"></p>
+              </div>
+              <div class="feld">
+                <label for="anzahl">Wie viele Personen</label>
+                <input id="anzahl" name="Personenzahl" type="text" inputmode="numeric" placeholder="z.&nbsp;B. 8" />
+                <p class="feld__fehler"></p>
+              </div>
+              <div class="feld">
+                <label for="ort">Einsatzort</label>
+                <input id="ort" name="Ort" type="text" placeholder="Veranstaltungsort, Stadt" />
+                <p class="feld__fehler"></p>
+              </div>
+              <div class="feld full">
+                <label for="nachricht">Beschreibung *</label>
+                <textarea id="nachricht" name="Nachricht" required minlength="15"
+                          aria-describedby="fehler-nachricht"
+                          placeholder="Kurz zum Ablauf: Art der Veranstaltung, Aufgaben, Kleidung, Besonderheiten &hellip;"></textarea>
+                <p class="feld__fehler" id="fehler-nachricht"></p>
+              </div>
+            </div>
+          </fieldset>
+
+          <!-- ============ 03 Rechnungsdaten ============ -->
+          <fieldset class="fgruppe">
+            <legend class="fgruppe__titel"><span class="fgruppe__nr">03</span> Rechnungsdaten</legend>
+            <p class="fgruppe__hinweis">Freiwillig &mdash; beschleunigt aber die Rechnung sp&auml;ter.</p>
+            <div class="fgruppe__felder">
+              <div class="feld full zustimmung">
+                <input id="rg-abweichend" name="Rechnungsanschrift abweichend"
+                       type="checkbox" value="ja" />
+                <label for="rg-abweichend">Die Rechnungsanschrift weicht von der
+                  Firmenanschrift ab</label>
+              </div>
+              <div class="feld full" data-wenn="rg-abweichend" data-wenn-wert="ja">
+                <label for="rg-anschrift">Rechnungsanschrift</label>
+                <textarea id="rg-anschrift" name="Rechnungsanschrift" rows="2"
+                          placeholder="Abteilung, Stra&szlig;e, PLZ und Ort"></textarea>
+                <p class="feld__fehler"></p>
+              </div>
+            </div>
+          </fieldset>
+
+          <!-- ============ 04 Zusaetzliche Informationen ============ -->
+          <fieldset class="fgruppe">
+            <legend class="fgruppe__titel"><span class="fgruppe__nr">04</span> Zus&auml;tzliche Informationen</legend>
+            <div class="fgruppe__felder">
+              <div class="feld">
+                <label for="ustid">USt-IdNr.</label>
+                <input id="ustid" name="USt-IdNr." type="text" placeholder="DE&hellip;" />
+                <p class="feld__fehler"></p>
+              </div>
+              <div class="feld">
+                <label for="bestellnr">Bestellnummer</label>
+                <input id="bestellnr" name="Bestellnummer" type="text" />
+                <p class="feld__fehler"></p>
+              </div>
+              <div class="feld">
+                <label for="kostenstelle">Kostenstelle</label>
+                <input id="kostenstelle" name="Kostenstelle" type="text" />
+                <p class="feld__fehler"></p>
+              </div>
+            </div>
+          </fieldset>
+
+          <!-- ============ 05 Datenschutz & Absenden ============ -->
+          <fieldset class="fgruppe fgruppe--abschluss">
+            <legend class="fgruppe__titel"><span class="fgruppe__nr">05</span> Datenschutz &amp; Absenden</legend>
+            <div class="fgruppe__felder">
+              <div class="feld full zustimmung">
+                <input id="dsgvo" name="Einwilligung" type="checkbox" required value="ja"
+                       aria-describedby="fehler-dsgvo" />
+                <label for="dsgvo">Ich bin damit einverstanden, dass meine Angaben zur Bearbeitung
+                  der Anfrage gespeichert und verarbeitet werden. Mehr dazu in der
+                  <a href="datenschutz.html">Datenschutzerkl&auml;rung</a>. *</label>
+                <p class="feld__fehler full" id="fehler-dsgvo"></p>
+              </div>
+
+              <div class="full">
+                <div class="form__fuss">
+                  <button class="btn" type="submit">Anfrage senden
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </button>
+                  <p class="form__status" role="status" aria-live="polite"></p>
+                </div>
+                <p class="form__hinweis">Mit * gekennzeichnete Felder brauchen wir.
+                  Ihre Angaben nutzen wir ausschlie&szlig;lich zur Bearbeitung dieser Anfrage
+                  und geben sie nicht weiter.</p>
+              </div>
+            </div>
+          </fieldset>
         </form>
       </div>
       <aside class="side">

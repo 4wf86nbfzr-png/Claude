@@ -245,6 +245,65 @@ steht, und so fort. Vor der Schleife über die Seiten deshalb
 
 ---
 
+## Das Angebot
+
+Das Word-Angebot (`api/_angebot.js`) ist die zweite Stelle, an der die Marke
+außerhalb des Browsers auftritt. Es folgt demselben Aufbau wie der PDF-Beleg —
+dunkles Band mit dem Wortzeichen oben, sonst Weiß, Beschriftung links leise,
+Angabe rechts fett. Wer eins von beiden ändert, schaut ins andere.
+
+Zwei Abweichungen, beide aus einem Grund:
+
+- **Arial, nicht Helvetica.** In Word ist Arial auf jedem System vorhanden und
+  metrisch dasselbe. Helvetica fiele auf Windows still auf etwas anderes
+  zurück — dann sähe das Angebot bei jedem Empfänger anders aus.
+- **Kein Lila.** Die Vorlage, an der sich das Blatt orientiert, hatte
+  geschwungene lila Flächen. Die Website ist schwarzweiß; eine Farbe, die nur
+  auf dem Angebot vorkommt, liest als Versehen — siehe „Grundhaltung".
+
+Der Entwurf trägt oben in Versalien, dass er ein Entwurf ist, und darunter,
+was noch zu prüfen ist. Das ist keine Höflichkeitsformel: das Blatt rechnet
+Preise, und eine gerechnete Zahl sieht verbindlich aus, auch wenn sie es nicht
+ist.
+
+---
+
+## Das Formular
+
+Auf `kontakt.html` stehen sechzehn Felder. Sechzehn Felder in einer Spalte
+lesen sich wie ein Antrag; dieselben sechzehn in fünf benannten Gruppen lesen
+sich wie vier Fragen — wer sind Sie, was brauchen Sie, wohin die Rechnung, was
+noch.
+
+- **Echte `<fieldset>` mit `<legend>`**, keine Überschriften, die nur so
+  aussehen. Für einen Screenreader ist das der Unterschied zwischen „Textfeld"
+  und „Textfeld, Gruppe Einsatz".
+- **Getrennt durch eine Linie, nicht durch Kästen.** Ein Kasten um jede Gruppe
+  wäre genau die Baukasten-Anmutung, die die Seite vermeidet.
+- **Zwei Spalten am Schreibtisch, eine unterwegs** — dieselbe Grenze wie beim
+  übrigen Inhalt (980 px), damit die Spalte neben dem Formular und das
+  Formular gleichzeitig umbrechen.
+- **Die Paare stehen bewusst nebeneinander:** Dienstleistung/Datum,
+  Uhrzeit von/bis, Personen/Ort. Wer die Reihenfolge im Markup ändert, bricht
+  diese Paare — das Raster füllt stur von links nach rechts.
+
+Felder, die nur manchmal gebraucht werden, hängen an `data-wenn` /
+`data-wenn-wert` am umgebenden `.feld`. Das funktioniert mit Auswahlfeldern
+(Wert) und mit Häkchen (Zustand). Ob so ein Feld beim Erscheinen zur
+Pflichtangabe wird, entscheidet `data-wenn-pflicht` — nicht das JavaScript.
+
+### Die Falle: `.full` gilt im Raster, nicht im Flex
+
+Die Einwilligungszeile ist ein Flex-Kasten (`.zustimmung`). Eine
+Fehlermeldung mit `class="full"` stellt sich dort **neben** das Häkchen statt
+darunter und quetscht die Zeile auf drei Wörter Breite. Sie braucht
+`width:100%` und der Kasten `flex-wrap:wrap`. Und weil der lange
+Einwilligungstext als Ganzes nicht neben das Kästchen passt, braucht das
+Label zusätzlich `flex:1 1 0; min-width:0` — sonst springt es unter das
+Kästchen, sobald umbrochen werden darf.
+
+---
+
 ## Barrierefreiheit
 
 Das ist keine Kür, sondern Teil der Abnahme:

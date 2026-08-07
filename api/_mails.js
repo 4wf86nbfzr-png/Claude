@@ -1,0 +1,163 @@
+'use strict';
+
+/* ---------------------------------------------------------------------------
+   Die Mails
+   ---------------------------------------------------------------------------
+   Drei Nachrichten entstehen aus einer Anfrage:
+
+   1. an die Disposition — mit PDF-Beleg und Angebotsentwurf im Anhang
+   2. an die Kundin oder den Kunden — eine kurze Eingangsbestätigung
+   3. bei einer Bewerbung: an die Disposition, ohne Angebot
+
+   Der Wortlaut steht hier und nirgends sonst. Wer ihn ändert, ändert ihn an
+   einer Stelle — und er ist dann in jeder Mail derselbe.
+--------------------------------------------------------------------------- */
+
+const t = w => (w === undefined || w === null) ? '' : String(w).trim();
+const oder = (w, ersatz) => t(w) || ersatz || '—';
+
+function datumHuebsch(wert){
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(t(wert));
+  return m ? `${m[3]}.${m[2]}.${m[1]}` : t(wert);
+}
+
+/* Kopfzeilen dürfen keinen Zeilenumbruch enthalten — sonst ließen sich über
+   ein Formularfeld eigene Empfänger einschleusen. */
+function kopfsicher(wert){
+  return t(wert).replace(/[\r\n]+/g, ' ').slice(0, 160);
+}
+
+/* --- 1. Interne Dispositionsmail ----------------------------------------- */
+
+/**
+ * @param {object} daten   Formularangaben
+ * @param {object} beleg   Rückgabe von baueBeleg()
+ * @param {object} angebot Rückgabe von generateOfferDraft() — oder null
+ */
+function dispositionsMail(daten, beleg, angebot){
+  const firma  = oder(daten['Firma'], oder(daten['Name']));
+  const datum  = datumHuebsch(daten['Datum']);
+  const zeitVon = t(daten['Uhrzeit von']), zeitBis = t(daten['Uhrzeit bis']);
+  const uhrzeit = zeitVon && zeitBis ? `${zeitVon} – ${zeitBis} Uhr` : oder(zeitVon || zeitBis);
+
+  const bereich = t(daten['Bereich (eigene Angabe)']) || t(daten['Bereich']);
+
+  const zeilen = [
+    'Neue Anfrage über die Website',
+    '',
+    `Eingang ${beleg.eingang}   ·   Referenz ${beleg.referenz}`,
+    '',
+    'KUNDE',
+    `Firmenname:      ${oder(daten['Firma'])}`,
+    `Ansprechpartner: ${oder(daten['Name'])}`,
+    `Telefon:         ${oder(daten['Telefon'])}`,
+    `E-Mail:          ${oder(daten['E-Mail'])}`,
+    '',
+    'EINSATZ',
+    `Dienstleistung:  ${oder(bereich)}`,
+    `Datum:           ${oder(datum)}`,
+    `Uhrzeit:         ${uhrzeit}`,
+    `Einsatzort:      ${oder(daten['Ort'])}`,
+    `Personalanzahl:  ${oder(daten['Personenzahl'])}`,
+    '',
+    'BESCHREIBUNG',
+    oder(daten['Nachricht']),
+    '',
+    'FIRMENANSCHRIFT',
+    oder(daten['Firmenanschrift']),
+    '',
+    'RECHNUNGSANSCHRIFT',
+    t(daten['Rechnungsanschrift']) || 'wie Firmenanschrift',
+    '',
+    'ZUSÄTZLICHE ANGABEN',
+    `USt-ID:          ${oder(daten['USt-IdNr.'])}`,
+    `Bestellnummer:   ${oder(daten['Bestellnummer'])}`,
+    `Kostenstelle:    ${oder(daten['Kostenstelle'])}`
+  ];
+
+  if(angebot){
+    zeilen.push('', 'ANGEBOTSENTWURF',
+      `Nummer:          ${angebot.offerNumber}`,
+      `Status:          ${angebot.status}`,
+      angebot.subtotal
+        ? `Gerechnet:       ${angebot.subtotal.toFixed(2)} € netto · `
+          + `${angebot.total.toFixed(2)} € brutto`
+        : 'Gerechnet:       noch nicht — es fehlen Angaben',
+      '',
+      'Vor dem Versand prüfen:',
+      ...angebot.review.reasons.map(g => '  · ' + g),
+      '',
+      'Der Entwurf liegt als Word-Datei im Anhang und geht NICHT von allein',
+      'an den Kunden. Erst prüfen, dann versenden.');
+  }
+
+  zeilen.push('', 'Ein „Antworten" auf diese Mail geht direkt an den Absender.');
+
+  return {
+    betreff: `Neue Personalanfrage – ${kopfsicher(firma)} – ${kopfsicher(datum || 'ohne Datum')}`,
+    text:    zeilen.join('\n')
+  };
+}
+
+/* --- 2. Bestätigung an den Kunden ---------------------------------------- */
+
+/* Wortlaut wie abgestimmt. Bitte nur hier ändern. */
+const BESTAETIGUNG = [
+  'Vielen Dank für Ihre Anfrage.',
+  '',
+  'Ihre Anfrage wurde erfolgreich an unsere Disposition übermittelt.',
+  '',
+  'Auf Grundlage Ihrer Angaben wird derzeit ein individuelles Angebot',
+  'vorbereitet. Nach interner Prüfung erhalten Sie dieses per E-Mail.',
+  '',
+  'Bei kurzfristigen Änderungen oder Ergänzungen können Sie uns',
+  'selbstverständlich jederzeit kontaktieren.',
+  '',
+  'Mit freundlichen Grüßen',
+  '',
+  'Herm Service Team'
+].join('\n');
+
+function bestaetigungsMail(daten, beleg){
+  return {
+    betreff: `Ihre Anfrage bei HERM Service Team [${beleg.referenz}]`,
+    text: BESTAETIGUNG + '\n\n'
+        + '— — —\n'
+        + `Referenz: ${beleg.referenz}\n`
+        + 'HERM Service Team e.K.  ·  Gertigstraße 12–14  ·  22303 Hamburg\n'
+        + 'Telefon +49 (40) 27075100  ·  info@hermserviceteam.com\n\n'
+        + 'Diese Nachricht wurde automatisch versendet, weil über\n'
+        + 'hermserviceteam.com eine Anfrage mit dieser Adresse abgeschickt wurde.'
+  };
+}
+
+/* --- 3. Bewerbung -------------------------------------------------------- */
+
+function bewerbungsMail(daten, beleg){
+  return {
+    betreff: `Bewerbung: ${kopfsicher(beleg.name)}`
+             + (beleg.bereich ? ` — ${kopfsicher(beleg.bereich)}` : '')
+             + ` [${beleg.referenz}]`,
+    text: [
+      'Neue Bewerbung über die Website',
+      '',
+      `Eingang ${beleg.eingang}   ·   Referenz ${beleg.referenz}`,
+      '',
+      `Name:          ${oder(daten['Name'])}`,
+      `Alter:         ${oder(daten['Alter'])}`,
+      `E-Mail:        ${oder(daten['E-Mail'])}`,
+      `Telefon:       ${oder(daten['Telefon'])}`,
+      `Bereich:       ${oder(beleg.bereich)}`,
+      `Umfang:        ${oder(daten['Umfang'])}`,
+      `Verfügbarkeit: ${oder(daten['Verfügbarkeit'])}`,
+      '',
+      'Alle Angaben stehen vollständig im angehängten PDF.',
+      '',
+      'Ein „Antworten" auf diese Mail geht direkt an die Bewerberin',
+      'oder den Bewerber.'
+    ].join('\n')
+  };
+}
+
+module.exports = { dispositionsMail, bestaetigungsMail, bewerbungsMail,
+                   BESTAETIGUNG, kopfsicher };

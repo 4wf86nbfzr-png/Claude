@@ -38,10 +38,13 @@ assets/fonts/           Schriftdateien (woff2)
 assets/img/             Fotos, je einmal als .jpg und .webp
 assets/video/           Imagefilm + Untertitel
 
-api/formular.js         nimmt die Formulare an und verschickt den PDF-Beleg
-api/_beleg.js           Aussehen des PDF
-api/_logo.js            Wortzeichen für das PDF, eingebettet
-package.json            die zwei Pakete, die nur die Funktion braucht
+api/formular.js         nimmt die Formulare an und führt den Vorgang aus
+api/_beleg.js           Aussehen des PDF-Belegs
+api/_angebot.js         Angebotsentwurf: Datensatz und Word-Datei
+api/_preise.js          die Preisliste — einzige Stelle mit Zahlen
+api/_mails.js           Wortlaut aller drei Mails
+api/_logo.js            Wortzeichen für PDF und Word, eingebettet
+package.json            die drei Pakete, die nur die Funktion braucht
 
 netlify.toml            Hosting-Konfiguration Netlify
 vercel.json             Hosting-Konfiguration Vercel
@@ -143,6 +146,120 @@ abgeschaltet werden, während die Zugangsdaten noch nicht da sind.
 über einen fremden Dienst. Deshalb passt der Absender zum SPF-Eintrag der
 Domain und die Mail landet nicht im Spam. Ein „Antworten" auf die Mail geht
 direkt an die Person, die das Formular ausgefüllt hat (`Reply-To`).
+
+---
+
+## Der Angebotsentwurf
+
+Bei einer **Personalanfrage** liegt neben dem PDF-Beleg eine zweite Datei in
+derselben Mail: `Angebot-Entwurf-A-260807-1432.docx`. Ein Word-Dokument, das
+die Disposition öffnet, fertig schreibt und verschickt.
+
+Was schon drinsteht:
+
+* Anschrift und Ansprechpartner des Kunden, aus dem Formular
+* Einsatz: Dienstleistung, Datum, Uhrzeit, Ort, Personen, Beschreibung
+* Rechnungsdaten, wenn angegeben (USt-IdNr., Bestellnummer, Kostenstelle)
+* die Positionstabelle mit **allen** Sätzen aus `api/_preise.js`
+* die zum Bereich passende Position, gerechnet: Personen × Stunden × Satz
+* Nachtzuschlag, wenn der Einsatz ins Fenster 22:00–06:00 reicht
+* Sonntagszuschlag, wenn das Datum auf einen Sonntag fällt
+* Zwischensumme, Umsatzsteuer, Gesamt
+
+### Was der Entwurf bewusst nicht tut
+
+**Er geht nie von allein an den Kunden.** Er liegt ausschließlich in der Mail
+an die Disposition, trägt oben in Großbuchstaben „ENTWURF — NICHT VERSENDEN,
+BEVOR DIE DISPOSITION GEPRÜFT HAT" und darunter die Liste dessen, was noch zu
+prüfen ist. Im Datensatz steht `status: "DRAFT"` oder `"REVIEW_REQUIRED"` —
+nie `APPROVED` oder `SENT`. Für die Freigabe gibt es hier absichtlich keinen
+Weg; sie macht ein Mensch.
+
+Und er rechnet nur, was sich aus den Angaben ergibt:
+
+| Fehlt | Folge |
+|---|---|
+| Uhrzeit von/bis | keine Stunden, keine Summe — Status bleibt `DRAFT` |
+| Personenzahl | Mengen bleiben offen |
+| Satz für den Bereich | Fahrservice und Reinigung: „Preis auf Anfrage" |
+| gesetzlicher Feiertag | wird **nicht** erkannt — steht als Prüfpunkt drin |
+
+### Die Preisliste pflegen
+
+`api/_preise.js`. Dort und nur dort stehen Sätze, Zuschläge und der
+Steuersatz. Eine Änderung wirkt sofort in Tabelle, Rechnung und Hinweistext.
+
+> **Bitte einmal prüfen:** Die Sätze stammen aus der vorhandenen
+> Angebotsvorlage — also aus einem Angebot an einen bestimmten Kunden. Falls
+> das Verhandlungspreise waren und nicht Ihre Listenpreise, gehören dort die
+> Listenpreise hin.
+
+Der Absenderblock (Firma, Bearbeiterin, Anschrift) steht als `ABSENDER` oben
+in `api/_angebot.js`.
+
+### Der Datensatz dahinter
+
+`generateOfferDraft()` in `api/_angebot.js` liefert das Angebot zuerst als
+Datensatz — englische Schlüssel, damit später eine KI, eine Datenbank oder
+ein Warenwirtschaftssystem daran andocken kann, ohne dass hier etwas
+umbenannt werden muss:
+
+```js
+{
+  offerNumber: 'A-260807-1432',
+  createdAt:   '2026-08-07T12:32:00.000Z',
+  status:      'REVIEW_REQUIRED',
+  currency:    'EUR',
+  customer:    { company, contact, email, phone, address,
+                 billingAddress, vatId, orderNumber, costCenter },
+  assignment:  { service, date, timeFrom, timeTo, hours, nightHours,
+                 isSunday, location, headcount, description },
+  pricing:     [ { position, unit, quantity, unitPrice, amount, note } ],
+  subtotal: 5088, vat: 966.72, total: 6054.72,
+  review:      { required: true, reasons: [ … ] }
+}
+```
+
+Vorbereitete Zustände: `DRAFT` · `REVIEW_REQUIRED` · `APPROVED` · `SENT` ·
+`ACCEPTED` · `REJECTED`. Die ersten beiden vergibt die Funktion, die übrigen
+sind für den späteren Freigabeschritt da.
+
+### Was noch fehlt, damit daraus ein Kreislauf wird
+
+| Schritt | Stand |
+|---|---|
+| Anfrage entgegennehmen | fertig |
+| Anfrage **ablegen** | Haken `speichern()` in `api/formular.js` — es gibt keine Datenbank |
+| interne Benachrichtigung | fertig |
+| Entwurf erzeugen, Preise ergänzen | fertig, regelbasiert |
+| **KI** statt Regeln | offen — `generateOfferDraft()` ist die Stelle |
+| Word-Datei | fertig |
+| PDF zusätzlich | offen — `api/_beleg.js` zeigt, wie es ginge |
+| Freigabe durch die Disposition | offen — bewusst; braucht eine Oberfläche und eine Ablage |
+| Versand nach Freigabe | offen — setzt die Freigabe voraus |
+
+Die beiden offenen Kernpunkte hängen am selben Fehlteil: einer **Ablage**.
+Ohne einen Ort, an dem ein Angebot zwischen „erzeugt" und „freigegeben"
+liegen kann, gibt es keine Freigabe. `speichern()` ist dafür vorbereitet.
+
+---
+
+## Die drei Mails
+
+| An | Wann | Inhalt |
+|---|---|---|
+| Disposition | jede Anfrage | strukturierter Text, PDF-Beleg, Angebotsentwurf |
+| Kundin/Kunde | jede Anfrage | Eingangsbestätigung, kein Anhang |
+| Disposition | jede Bewerbung | strukturierter Text, PDF-Beleg |
+
+Der Wortlaut steht in `api/_mails.js` — an einer Stelle, nicht verteilt.
+
+Die Kundenbestätigung lässt sich mit `MAIL_BESTAETIGUNG=aus` abschalten. Sie
+wird **nach** der Dispositionsmail verschickt und bricht nichts ab: Wenn sie
+scheitert, liegt die Anfrage trotzdem schon im Haus, und der Absender bekommt
+keine Fehlermeldung, die ihn ein zweites Mal schicken ließe.
+
+---
 
 ### Was die Funktion abweist
 

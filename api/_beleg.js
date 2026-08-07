@@ -42,17 +42,25 @@ const BAUPLAN = {
     titel: 'Personalanfrage über die Website',
     lauf:  'ANFRAGE',
     gruppen: [
-      { name: 'Ansprechpartner', felder: [
-        ['Name',    'Name'],
-        ['Firma',   'Firma'],
-        ['E-Mail',  'E-Mail'],
-        ['Telefon', 'Telefon']
+      { name: 'Unternehmen', felder: [
+        ['Firma',           'Firma'],
+        ['Name',            'Ansprechpartner'],
+        ['E-Mail',          'E-Mail'],
+        ['Telefon',         'Telefon'],
+        ['Firmenanschrift', 'Firmenanschrift']
       ]},
       { name: 'Einsatz', felder: [
-        ['Bereich',      'Bereich'],
+        ['Bereich',      'Dienstleistung'],
         ['Datum',        'Einsatzdatum'],
-        ['Personenzahl', 'Personen'],
-        ['Ort',          'Einsatzort']
+        ['Uhrzeit von',  'Uhrzeit'],
+        ['Ort',          'Einsatzort'],
+        ['Personenzahl', 'Personen']
+      ]},
+      { name: 'Rechnung', freiwillig: true, felder: [
+        ['Rechnungsanschrift', 'Rechnungsanschrift'],
+        ['USt-IdNr.',          'USt-IdNr.'],
+        ['Bestellnummer',      'Bestellnummer'],
+        ['Kostenstelle',       'Kostenstelle']
       ]}
     ],
     text: ['Nachricht', 'Nachricht'],
@@ -86,8 +94,23 @@ const BAUPLAN = {
    „firmenname“ und „webseite“ sind die beiden Honigtöpfe.                  */
 const VERSTECKT = new Set([
   'form-name', 'firmenname', 'webseite', 'art', 'zeit', 'Einwilligung',
-  'Bereich (eigene Angabe)'
+  // gehen in einer anderen Zeile auf, siehe ZUSAMMEN
+  'Bereich (eigene Angabe)', 'Uhrzeit bis',
+  // steuert nur die Anzeige des Rechnungsfeldes
+  'Rechnungsanschrift abweichend'
 ]);
+
+/* Felder, die im Beleg nicht so stehen, wie sie im Formular heißen.
+   „Uhrzeit von" und „Uhrzeit bis" ergeben eine Zeile, nicht zwei; „Anderer
+   Bereich" plus Freitext ebenso. */
+const ZUSAMMEN = {
+  'Bereich': daten => bereichZusammen(daten),
+  'Uhrzeit von': daten => {
+    const von = sauber(daten['Uhrzeit von']), bis = sauber(daten['Uhrzeit bis']);
+    if(von && bis) return `${von} – ${bis} Uhr`;
+    return von || bis ? `${von || bis} Uhr` : '';
+  }
+};
 
 /* --- Kleinkram ----------------------------------------------------------- */
 
@@ -311,12 +334,18 @@ function baueBeleg(art, daten, eingang){
 
   for(const gruppe of plan.gruppen){
     const zeilen = [];
+    let etwasDrin = false;
     for(const [feld, beschriftung] of gruppe.felder){
       gezeigt.add(feld);
-      let wert = feld === 'Bereich' ? bereichZusammen(daten) : sauber(daten[feld]);
+      let wert = ZUSAMMEN[feld] ? ZUSAMMEN[feld](daten) : sauber(daten[feld]);
       if(feld === 'Datum') wert = datumHuebsch(wert);
+      if(wert) etwasDrin = true;
       zeilen.push([beschriftung, wert || '—']);
     }
+    /* Eine Gruppe, in der nichts steht, ist eine Überschrift mit vier
+       Gedankenstrichen darunter. Die Rechnungsdaten sind freiwillig —
+       ohne sie soll der Beleg kürzer werden, nicht leerer. */
+    if(!etwasDrin && gruppe.freiwillig) continue;
     seitenwechselWennNoetig(doc, 74);
     gruppentitel(doc, gruppe.name, breite);
     for(const [b, w] of zeilen) zeile(doc, b, w, breite);
@@ -383,7 +412,8 @@ function baueBeleg(art, daten, eingang){
     name:      sauber(daten['Name']),
     absender:  sauber(daten['E-Mail']),
     bereich:   bereichZusammen(daten),
-    eingang:   zeitstempel(zeit)
+    eingang:   zeitstempel(zeit),
+    eingangISO: zeit.toISOString()
   }));
 }
 

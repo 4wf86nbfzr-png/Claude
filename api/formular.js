@@ -3,8 +3,23 @@
 /* ---------------------------------------------------------------------------
    Die Formularfunktion
    ---------------------------------------------------------------------------
-   Nimmt entgegen, was auf kontakt.html oder jobs.html abgeschickt wurde, baut
-   daraus den PDF-Beleg und schickt ihn per Mail weiter.
+   Nimmt entgegen, was auf kontakt.html oder jobs.html abgeschickt wurde, und
+   führt daraus den ganzen Vorgang aus:
+
+     Anfrage kommt an
+       → Pflichtangaben serverseitig prüfen
+       → ablegen (Haken `speichern()` — heute nur Protokoll, siehe unten)
+       → PDF-Beleg bauen                          (_beleg.js)
+       → Angebotsentwurf bauen, nur bei Anfragen  (_angebot.js)
+       → Word-Datei daraus                        (_angebot.js)
+       → eine Mail an die Disposition, beides im Anhang
+       → eine Eingangsbestätigung an den Kunden
+       → Erfolgsmeldung an die Website
+
+   **Das Angebot geht nie von allein an den Kunden.** Es liegt ausschließlich
+   in der Mail an die Disposition, trägt den Status DRAFT oder
+   REVIEW_REQUIRED und ist im Dokument selbst als Entwurf ausgewiesen. Die
+   Freigabe macht ein Mensch — dafür ist hier bewusst kein Weg vorgesehen.
 
    Die Website selbst bleibt, was sie ist: statische Dateien ohne Aufbauschritt.
    Diese eine Datei läuft auf dem Server — nur sie kennt die Zugangsdaten des
@@ -19,15 +34,20 @@
      SMTP_PASS     dessen Kennwort
      MAIL_AN       Empfänger der Belege, mehrere durch Komma getrennt
      MAIL_VON      optional; sonst wird SMTP_USER genommen
+     MAIL_BESTAETIGUNG   optional; "aus" schaltet die Kundenbestätigung ab
 
-   Fehlt eine davon, antwortet die Funktion mit 503 — die Website fällt dann
-   von selbst auf ihren bisherigen Weg zurück (Netlify-Formular bzw. das
-   Mailprogramm des Absenders). Es geht also nie eine Anfrage verloren, nur
-   weil die Zugangsdaten noch nicht hinterlegt sind.
+   Fehlt eine der ersten vier, antwortet die Funktion mit 503 — die Website
+   fällt dann von selbst auf ihren bisherigen Weg zurück (Netlify-Formular
+   bzw. das Mailprogramm des Absenders). Es geht also nie eine Anfrage
+   verloren, nur weil die Zugangsdaten noch nicht hinterlegt sind.
 --------------------------------------------------------------------------- */
 
 const nodemailer = require('nodemailer');
 const { baueBeleg, BAUPLAN, sauber } = require('./_beleg.js');
+const { generateOfferDraft, baueAngebotDocx } = require('./_angebot.js');
+const MAILS = require('./_mails.js');
+
+const DOCX_TYP = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
 
 const GRENZE = 64 * 1024;   // mehr als 64 KB tippt niemand in ein Formular
 
@@ -80,35 +100,33 @@ async function rumpfLesen(req){
   return daten;
 }
 
-/* Kopfzeilen einer Mail dürfen keinen Zeilenumbruch enthalten — sonst könnte
-   jemand über das Namensfeld eigene Empfänger einschleusen. */
-function kopfsicher(wert){
-  return sauber(wert).replace(/[\r\n]+/g, ' ').slice(0, 160);
-}
-
 function istMail(wert){
   return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(wert || '').trim());
 }
 
-/* Der Text der Mail. Das PDF hängt daran; wer nur die Vorschau im Postfach
-   sieht, soll trotzdem schon wissen, worum es geht. */
-function mailtext(beleg, daten){
-  const zeilen = [
-    `${beleg.titel}`,
-    `Eingang ${beleg.eingang}   ·   Referenz ${beleg.referenz}`,
-    '',
-    `Name:    ${beleg.name || '—'}`,
-    `E-Mail:  ${beleg.absender || '—'}`,
-    `Telefon: ${sauber(daten['Telefon']) || '—'}`,
-    `Bereich: ${beleg.bereich || '—'}`,
-    '',
-    'Alle Angaben stehen vollständig im angehängten PDF.',
-    '',
-    beleg.absender
-      ? 'Ein „Antworten“ auf diese Mail geht direkt an die Absenderin oder den Absender.'
-      : 'Es wurde keine Antwortadresse angegeben.'
-  ];
-  return zeilen.join('\n');
+/* Der Haken für eine spätere Ablage.
+   ---------------------------------------------------------------------------
+   Im Ablauf steht „Anfrage wird gespeichert". Gespeichert wird heute nichts:
+   die Website hat keine Datenbank, und eine Funktion auf Vercel hat kein
+   Dateisystem, das den Aufruf überlebt. Bewusst so — ohne Datenbank gibt es
+   auch keinen Ort, an dem personenbezogene Daten liegen bleiben.
+
+   Wenn eine Ablage dazukommt (Postgres, Airtable, ein Warenwirtschafts-
+   system), gehört sie genau hierher. Der Rest der Funktion muss dafür nicht
+   angefasst werden: sie bekommt den fertigen Vorgang und meldet nur, ob es
+   geklappt hat. Ein Fehler beim Ablegen darf die Mail nicht verhindern —
+   deshalb wird hier nie geworfen.
+
+   @param {object} vorgang  { art, daten, beleg, angebot }
+   @returns {Promise<{abgelegt:boolean, id:string|null}>}                     */
+async function speichern(vorgang){
+  console.log('[Vorgang]', JSON.stringify({
+    art:      vorgang.art,
+    referenz: vorgang.beleg.referenz,
+    angebot:  vorgang.angebot ? vorgang.angebot.offerNumber : null,
+    status:   vorgang.angebot ? vorgang.angebot.status : null
+  }));
+  return { abgelegt: false, id: null };
 }
 
 module.exports = async function (req, res){
@@ -146,13 +164,31 @@ module.exports = async function (req, res){
     return json(res, 503, { ok: false, grund: 'Versand noch nicht eingerichtet' });
   }
 
-  let beleg;
+  /* --- Beleg, Entwurf, Word-Datei ---------------------------------------- */
+  let beleg, angebot = null, docx = null;
   try { beleg = await baueBeleg(art, daten, new Date()); }
   catch(e){
     console.error('Beleg konnte nicht gebaut werden:', e);
     return json(res, 500, { ok: false, grund: 'Beleg fehlgeschlagen' });
   }
 
+  if(art === 'anfrage'){
+    /* Der Entwurf darf den Vorgang nicht zu Fall bringen. Kommt er nicht
+       zustande, geht die Anfrage trotzdem raus — nur eben ohne Word-Datei.
+       Eine Anfrage zu verlieren wäre der teurere Fehler. */
+    try {
+      angebot = generateOfferDraft(daten, new Date(beleg.eingangISO));
+      docx    = await baueAngebotDocx(angebot);
+    } catch(e){
+      console.error('Angebotsentwurf fehlgeschlagen:', e && e.message);
+      angebot = null; docx = null;
+    }
+  }
+
+  try { await speichern({ art, daten, beleg, angebot }); }
+  catch(e){ console.error('Ablage fehlgeschlagen:', e && e.message); }
+
+  /* --- Postausgang -------------------------------------------------------- */
   const port  = Number(process.env.SMTP_PORT || 465);
   const kanal = nodemailer.createTransport({
     host, port,
@@ -171,25 +207,65 @@ module.exports = async function (req, res){
 
   const von = process.env.MAIL_VON || user;
 
+  const post = art === 'bewerbung'
+    ? MAILS.bewerbungsMail(daten, beleg)
+    : MAILS.dispositionsMail(daten, beleg, angebot);
+
+  const anhaenge = [{
+    filename: beleg.dateiname, content: beleg.pdf, contentType: 'application/pdf'
+  }];
+  if(docx && angebot){
+    anhaenge.push({
+      filename:    `Angebot-Entwurf-${angebot.offerNumber}.docx`,
+      content:     docx,
+      contentType: DOCX_TYP
+    });
+  }
+
+  /* 1. an die Disposition. Klappt das nicht, ist der Vorgang gescheitert —
+        die Website meldet es und bietet den Mail-Ersatzweg an. */
   try {
     await kanal.sendMail({
-      from:     `"HERM Service Team — Website" <${von}>`,
-      to:       an.split(',').map(s => s.trim()).filter(Boolean),
-      replyTo:  beleg.absender ? `"${kopfsicher(beleg.name)}" <${beleg.absender}>` : undefined,
-      subject:  `${beleg.art}: ${kopfsicher(beleg.name)}`
-                + (beleg.bereich ? ` — ${kopfsicher(beleg.bereich)}` : '')
-                + ` [${beleg.referenz}]`,
-      text:     mailtext(beleg, daten),
-      attachments: [{
-        filename:    beleg.dateiname,
-        content:     beleg.pdf,
-        contentType: 'application/pdf'
-      }]
+      from:    `"HERM Service Team — Website" <${von}>`,
+      to:      an.split(',').map(s => s.trim()).filter(Boolean),
+      replyTo: beleg.absender
+        ? `"${MAILS.kopfsicher(beleg.name)}" <${beleg.absender}>` : undefined,
+      subject: post.betreff,
+      text:    post.text,
+      attachments: anhaenge
     });
   } catch(e){
-    console.error('Versand fehlgeschlagen:', e && e.message);
+    console.error('Versand an die Disposition fehlgeschlagen:', e && e.message);
     return json(res, 502, { ok: false, grund: 'Versand fehlgeschlagen' });
   }
 
-  return json(res, 200, { ok: true, referenz: beleg.referenz });
+  /* 2. Eingangsbestätigung an den Kunden. Absichtlich danach und absichtlich
+        ohne Abbruch: die Anfrage liegt zu diesem Zeitpunkt bereits in der
+        Disposition. Wenn die Bestätigung scheitert, ist das ärgerlich, aber
+        kein Grund, dem Absender „hat nicht geklappt" zu melden und ihn die
+        Anfrage ein zweites Mal schicken zu lassen. */
+  let bestaetigt = false;
+  if(art === 'anfrage' && beleg.absender && process.env.MAIL_BESTAETIGUNG !== 'aus'){
+    const b = MAILS.bestaetigungsMail(daten, beleg);
+    try {
+      await kanal.sendMail({
+        from:    `"HERM Service Team" <${von}>`,
+        to:      beleg.absender,
+        replyTo: an.split(',')[0].trim(),
+        subject: b.betreff,
+        text:    b.text
+      });
+      bestaetigt = true;
+    } catch(e){
+      console.error('Eingangsbestätigung fehlgeschlagen:', e && e.message);
+    }
+  }
+
+  return json(res, 200, {
+    ok: true,
+    referenz:  beleg.referenz,
+    angebot:   angebot ? angebot.offerNumber : null,
+    status:    angebot ? angebot.status : null,
+    bestaetigt
+  });
 };

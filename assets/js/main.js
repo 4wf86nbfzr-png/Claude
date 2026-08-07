@@ -705,11 +705,21 @@
       const wert   = huelle.dataset.wennWert;
       if(!quelle || !feld) return;
 
+      /* Ein Häkchen schaltet über seinen Zustand, ein Auswahlfeld über
+         seinen Wert. Beides landet hier, damit im Markup dieselben zwei
+         Attribute reichen — data-wenn und data-wenn-wert. */
+      const haken = quelle.type === 'checkbox';
+      /* Freiwillige Felder bleiben freiwillig, auch wenn sie erscheinen.
+         „Welcher Bereich?" ist eine Pflichtangabe, die Rechnungsanschrift
+         nicht. Das entscheidet data-wenn-pflicht am umgebenden Feld — und
+         nicht diese Funktion. */
+      const pflicht = huelle.hasAttribute('data-wenn-pflicht');
+
       function stand(){
-        const an = quelle.value === wert;
+        const an = haken ? quelle.checked : quelle.value === wert;
         huelle.hidden   = !an;
         feld.disabled   = !an;
-        feld.required   = an;
+        feld.required   = an && pflicht;
         if(an) return;
         feld.value = '';
         huelle.classList.remove('feld--fehler');

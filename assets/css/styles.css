@@ -1439,6 +1439,44 @@ footer ul a:hover{ color:var(--paper); }
    nicht als Sammelmeldung oben) und dass es geklappt hat. */
 .form{ display:grid; grid-template-columns:1fr 1fr; gap:18px 16px; }
 .form .full{ grid-column:1 / -1; }
+
+/* ---- Gruppen im Formular ----
+   Sechzehn Felder in einer Spalte liest sich wie ein Antrag. Dieselben
+   sechzehn in fünf benannten Gruppen liest sich wie vier Fragen: wer sind
+   Sie, was brauchen Sie, wohin die Rechnung, was noch.
+
+   Die Gruppen sind echte <fieldset> mit <legend> — nicht Überschriften, die
+   nur so aussehen. Für einen Screenreader ist das der Unterschied zwischen
+   „Textfeld" und „Textfeld, Gruppe Einsatz".
+
+   Getrennt werden sie durch eine Linie, nicht durch Kästen. Ein Kasten um
+   jede Gruppe wäre genau die Baukasten-Anmutung, die die Seite vermeidet. */
+.form--gruppen{ display:block; }
+.fgruppe{ border:0; padding:0; margin:0; min-width:0; }
+.fgruppe + .fgruppe{
+  margin-top:clamp(28px,3.4vw,40px);
+  padding-top:clamp(24px,3vw,34px);
+  border-top:1px solid var(--line);
+}
+.fgruppe__titel{
+  display:flex; align-items:baseline; gap:.85em;
+  font-family:var(--font-display); font-weight:800; font-size:1.06rem;
+  letter-spacing:-.01em; color:var(--paper);
+  padding:0; margin-bottom:18px;
+}
+.fgruppe__nr{
+  font-family:var(--font-mono); font-weight:400; font-size:.66rem;
+  letter-spacing:.2em; color:var(--muted);
+}
+.fgruppe__hinweis{
+  color:var(--muted); font-size:.86rem; margin:-10px 0 18px;
+}
+/* Innen wieder das Raster, das die Seite überall verwendet. */
+.fgruppe__felder{ display:grid; grid-template-columns:1fr 1fr; gap:18px 16px; }
+.fgruppe__felder > *{ min-width:0; }
+/* Der Abschluss steht ruhiger — dort wird nichts mehr ausgefüllt, dort wird
+   entschieden. */
+.fgruppe--abschluss .fgruppe__felder{ gap:20px 16px; }
 .form label{ font-family:var(--font-mono); font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); display:block; margin-bottom:8px; }
 .form input,.form select,.form textarea{
   width:100%; background:var(--ink-2); border:1px solid var(--line); border-radius:var(--r-s);
@@ -1474,7 +1512,12 @@ footer ul a:hover{ color:var(--paper); }
 .feld--fehler .feld__fehler{ display:block; }
 
 /* Einwilligung */
-.form .zustimmung{ display:flex; align-items:flex-start; gap:12px; }
+/* flex-wrap plus volle Breite für die Meldung: ohne beides stellt sich die
+   Fehlermeldung als dritter Flex-Kasten neben das Häkchen und quetscht die
+   Zeile auf drei Wörter Breite. `.full` allein reicht hier nicht — das gilt
+   im Raster, nicht im Flex. */
+.form .zustimmung{ display:flex; align-items:flex-start; gap:12px; flex-wrap:wrap; }
+.form .zustimmung .feld__fehler{ width:100%; margin-top:2px; }
 .form .zustimmung input[type="checkbox"]{
   width:20px; height:20px; flex:none; margin-top:2px; accent-color:#FFF;
   border-radius:4px; padding:0;
@@ -1482,6 +1525,10 @@ footer ul a:hover{ color:var(--paper); }
 .form .zustimmung label{
   font-family:var(--font-body); font-size:.92rem; letter-spacing:0;
   text-transform:none; color:var(--chrome); margin:0; line-height:1.5;
+  /* Ohne flex/min-width springt der lange Einwilligungstext unter das
+     Kästchen, sobald flex-wrap erlaubt ist — er passt als Ganzes nicht
+     daneben und darf deshalb schrumpfen dürfen. */
+  flex:1 1 0; min-width:0;
 }
 .form .zustimmung a{ color:var(--paper); text-decoration:underline; text-underline-offset:2px; }
 
@@ -1578,7 +1625,10 @@ footer ul a:hover{ color:var(--paper); }
   .content__grid{ grid-template-columns:1fr; }
   .side{ position:static; }
   .gal{ grid-template-columns:1fr 1fr; }
+  /* Ab hier steht die Spalte neben dem Formular nicht mehr daneben, sondern
+     darunter — dann ist für zwei Feldspalten kein Platz mehr. */
   .form{ grid-template-columns:1fr; }
+  .fgruppe__felder{ grid-template-columns:1fr; }
 }
 
 

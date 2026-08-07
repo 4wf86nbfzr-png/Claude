@@ -8,6 +8,7 @@
     "node": ">=20"
   },
   "dependencies": {
+    "docx": "^9.7.1",
     "nodemailer": "^9.0.5",
     "pdfkit": "^0.19.1"
   }
