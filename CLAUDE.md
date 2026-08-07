@@ -98,6 +98,41 @@ muss dort nichts nachziehen.
 
 ---
 
+## Seitenaufbau
+
+Die Website ist bewusst **mehrseitig**, auch wenn die Startseite lang ist:
+
+```
+Start
+├── Dienstleistungen (Übersicht)
+│   ├── Gastro-Personal
+│   ├── Sicherheit
+│   ├── Promotion & Hostess
+│   ├── Logistik
+│   ├── Fahrservice
+│   └── Reinigung
+├── Team · Galerie · Jobs · Kontakt
+└── Impressum · Datenschutz
+```
+
+Jeder Punkt der Hauptnavigation führt auf eine **Seite**, nicht auf einen
+Abschnitt der Startseite. Das ist der Unterschied zwischen einer
+mehrseitigen Website und einer One-Page — und er entsteht in der
+Navigation, nicht im Aussehen.
+
+Die Übersichtsseite verwendet ausschließlich vorhandene Bausteine
+(`.subhero`, `.svc-grid`, `.cta`); es gibt dafür keine eigene Gestaltung.
+Der Brotkrumenpfad hat dadurch drei Ebenen: `Home / Dienstleistungen /
+Sicherheit`.
+
+**Achtung bei Adressen:** `dienstleistungen.html` liegt neben dem Ordner
+`dienstleistungen/`. Die Adresse `/dienstleistungen` ohne Endung ist
+deshalb auf jedem Host eine Sonderregel — sie steht in `vercel.json`,
+`netlify.toml` und `.htaccess` jeweils **vor** der Regel für die
+Unterseiten.
+
+---
+
 ## Typografie
 
 - Auszeichnung: Bricolage Grotesque · Fließtext: Instrument Sans ·

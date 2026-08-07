@@ -64,9 +64,19 @@
 # ---- Fehlerseite ----
 ErrorDocument 404 /404.html
 
+# ---- Keine Verzeichnislisten ----
+Options -Indexes
+
 # ---- Adressen ohne .html ----
 <IfModule mod_rewrite.c>
   RewriteEngine On
+
+  # Sonderfall: dienstleistungen.html liegt neben dem Ordner dienstleistungen/.
+  # Die allgemeine Regel unten greift hier nicht, weil sie Verzeichnisse
+  # ausnimmt (!-d) — ohne diese Zeile landete /dienstleistungen auf dem
+  # leeren Ordner statt auf der Uebersichtsseite.
+  RewriteRule ^dienstleistungen/?$ dienstleistungen.html [L]
+
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteCond %{REQUEST_FILENAME}\.html -f
   RewriteRule ^(.*)$ $1.html [L]

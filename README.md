@@ -21,6 +21,7 @@ Ein Build ist nicht nötig. Was im Ordner liegt, ist die Website.
 
 ```
 index.html              Startseite
+dienstleistungen.html   Uebersicht der sechs Bereiche
 kontakt.html            Anfrageformular
 jobs.html               Stellen, FAQ, Bewerbungsformular
 team.html               Büroteam
@@ -28,7 +29,7 @@ galerie.html            Bildergalerie mit Lightbox
 impressum.html          Pflichtangaben
 datenschutz.html        Datenschutzerklärung
 404.html                Fehlerseite
-dienstleistungen/*.html sechs Leistungsseiten
+dienstleistungen/*.html sechs Leistungsseiten (Detailebene)
 
 assets/css/styles.css   einzige Design-Quelle (Tokens ganz oben)
 assets/css/fonts.css    @font-face für die lokalen Schriften

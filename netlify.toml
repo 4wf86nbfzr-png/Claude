@@ -94,6 +94,12 @@
   from = "/datenschutz"
   to = "/datenschutz.html"
   status = 200
+# Die Uebersichtsseite liegt als dienstleistungen.html neben dem gleichnamigen
+# Ordner. Diese Regel muss vor der fuer die Unterseiten stehen.
+[[redirects]]
+  from = "/dienstleistungen"
+  to = "/dienstleistungen.html"
+  status = 200
 [[redirects]]
   from = "/dienstleistungen/:name"
   to = "/dienstleistungen/:name.html"
