@@ -1,0 +1,14 @@
+{
+  "name": "herm-service-team-website",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Website der HERM Service Team e.K. — statische Seiten plus eine Funktion, die Formulareingaben als PDF per Mail zustellt.",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "nodemailer": "^9.0.5",
+    "pdfkit": "^0.19.1"
+  }
+}

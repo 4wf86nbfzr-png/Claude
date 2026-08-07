@@ -38,6 +38,11 @@ assets/fonts/           Schriftdateien (woff2)
 assets/img/             Fotos, je einmal als .jpg und .webp
 assets/video/           Imagefilm + Untertitel
 
+api/formular.js         nimmt die Formulare an und verschickt den PDF-Beleg
+api/_beleg.js           Aussehen des PDF
+api/_logo.js            Wortzeichen für das PDF, eingebettet
+package.json            die zwei Pakete, die nur die Funktion braucht
+
 netlify.toml            Hosting-Konfiguration Netlify
 vercel.json             Hosting-Konfiguration Vercel
 .vercelignore           was Vercel nicht ausliefern soll
@@ -64,11 +69,16 @@ JavaScript.
 
 Der Versandweg wird in dieser Reihenfolge gewählt (`assets/js/main.js`):
 
-| Bedingung am `<form>` | Weg |
-|---|---|
-| `data-endpunkt="https://…"` | POST an diese Adresse (Formspree, eigenes Backend) |
-| `data-netlify="true"` | Netlify Forms — POST auf `/`, ohne Zugangsschlüssel |
-| keins von beidem | öffnet das Mailprogramm mit fertiger Nachricht |
+| Stufe | Bedingung | Weg |
+|---|---|---|
+| 0 | `/api/formular` antwortet | PDF-Beleg bauen und per Mail schicken |
+| 1 | `data-endpunkt="https://…"` | POST an diese Adresse (Formspree, eigenes Backend) |
+| 2 | `data-netlify="true"` | Netlify Forms — POST auf `/`, ohne Zugangsschlüssel |
+| 3 | keins von beidem | öffnet das Mailprogramm mit fertiger Nachricht |
+
+Jede Stufe reicht an die nächste weiter, wenn es sie an dieser Adresse nicht
+gibt. Eine Anfrage geht dadurch nie verloren — auch nicht, solange Stufe 0
+noch nicht eingerichtet ist.
 
 Aktuell ist `data-netlify="true"` gesetzt. **Auf Netlify funktionieren die
 Formulare damit sofort**, ohne dass irgendwo ein Schlüssel hinterlegt werden
@@ -83,6 +93,66 @@ Auf einem anderen Host: `data-netlify="true"` entfernen und stattdessen
 
 Ohne Netlify und ohne Endpunkt bleibt der Mail-Weg — funktionsfähig, aber
 nicht schön: der Absender muss die Mail selbst abschicken.
+
+---
+
+## Der PDF-Beleg
+
+Jede Anfrage und jede Bewerbung kommt als **PDF im Anhang einer Mail** an.
+Darin steht genau das, was ausgefüllt wurde — geordnet, mit Eingangszeitpunkt
+und einer Referenz wie `AN-260807-1432`, die auch im Betreff und im Dateinamen
+steht.
+
+Zuständig sind drei Dateien:
+
+```
+api/formular.js   nimmt den POST an, prüft, baut, verschickt
+api/_beleg.js     das Aussehen des PDF (Bauplan der Felder ganz oben)
+api/_logo.js      das Wortzeichen, eingebettet
+```
+
+Die Website selbst bleibt, was sie war: statische Dateien ohne Aufbauschritt.
+Nur diese eine Funktion läuft auf dem Server, und nur sie kennt die
+Zugangsdaten. Im Browser landet davon nichts.
+
+**Ein neues Feld im Formular** erscheint von selbst im Beleg — unter „Weitere
+Angaben", wenn es im Bauplan (`BAUPLAN` in `api/_beleg.js`) nicht steht. Wer
+es an eine bestimmte Stelle setzen will, trägt es dort in die passende Gruppe
+ein. Die beiden Honigtopf-Felder (`firmenname`, `webseite`) tauchen nie auf.
+
+### Einrichten
+
+Vercel → Project → **Settings** → **Environment Variables**:
+
+| Name | Wert | |
+|---|---|---|
+| `SMTP_HOST` | z. B. `smtp.ionos.de` | Postausgangsserver des Postfachs |
+| `SMTP_PORT` | `465` oder `587` | 465 = SSL, 587 = STARTTLS |
+| `SMTP_USER` | das Postfach, über das versendet wird | |
+| `SMTP_PASS` | dessen Kennwort | |
+| `MAIL_AN` | Empfänger der Belege | mehrere durch Komma getrennt |
+| `MAIL_VON` | optional | sonst wird `SMTP_USER` genommen |
+
+Danach einmal **Redeploy**, damit die Funktion die Werte sieht.
+
+Solange auch nur eine der vier Pflichtangaben fehlt, antwortet die Funktion
+mit `503` und die Website nimmt still den bisherigen Weg. Es muss also nichts
+abgeschaltet werden, während die Zugangsdaten noch nicht da sind.
+
+**Absenderadresse:** versendet wird über das eigene Postfach der Domain, nicht
+über einen fremden Dienst. Deshalb passt der Absender zum SPF-Eintrag der
+Domain und die Mail landet nicht im Spam. Ein „Antworten" auf die Mail geht
+direkt an die Person, die das Formular ausgefüllt hat (`Reply-To`).
+
+### Was die Funktion abweist
+
+| Fall | Antwort | Was der Absender sieht |
+|---|---|---|
+| Honigtopf gefüllt (Bot) | `200` | Danke-Seite, es wird nichts verschickt |
+| Name, E-Mail oder Nachricht fehlt | `400` | Fehlermeldung mit Telefonnummer |
+| Zugangsdaten fehlen | `503` | nichts — es geht Stufe 1–3 weiter |
+| Postfach nicht erreichbar | `502` nach ~8 s | Fehlermeldung + Mail-Ersatzweg |
+| mehr als 64 KB Daten | `413` | Fehlermeldung |
 
 ---
 
@@ -200,17 +270,25 @@ Vercel → *Settings* → **Deployment Protection** → *Vercel Authentication*.
 Damit kommt nur hinein, wer im Vercel-Team angemeldet ist. Ob das im
 gebuchten Tarif enthalten ist, steht dort direkt am Schalter.
 
+### Einstellungen beim Import — Nachtrag zur Funktion
+
+Seit `api/formular.js` dazugekommen ist, liegt eine `package.json` im
+Projekt. Vercel installiert daraus `pdfkit` und `nodemailer` für die Funktion.
+An den Feldern oben ändert das nichts: es gibt weiterhin **kein Build
+Command** — die Website bleibt statisch, nur die Funktion wird gebaut.
+
+`node_modules/` gehört nicht ins Repository und steht in `.gitignore`.
+
 ### Formulare auf Vercel
 
-Netlify Forms gibt es dort nicht. Auf Vercel nehmen die Formulare deshalb
-den Mail-Weg: `main.js` merkt, dass keine Annahme hinterlegt ist, und öffnet
-das Mailprogramm mit der fertigen Nachricht. Pflichtfeldprüfung,
-Fehlermeldungen und Bestätigung lassen sich vollständig testen.
+Hier laufen sie über die eigene Funktion `/api/formular` — jede Anfrage kommt
+als PDF im Postfach an. Was dafür einzutragen ist, steht oben unter
+**Der PDF-Beleg → Einrichten**.
 
-Für echten Versand später eine der beiden Zeilen setzen:
-
-* `data-endpunkt="https://formspree.io/f/xxxxxxx"` an beiden `<form>` — oder
-* eine eigene Funktion unter `api/` anlegen und dorthin zeigen lassen.
+Solange die Zugangsdaten fehlen, antwortet die Funktion mit `503` und die
+Formulare nehmen den Mail-Weg: `main.js` öffnet das Mailprogramm mit der
+fertigen Nachricht. Pflichtfeldprüfung, Fehlermeldungen und Bestätigung
+lassen sich also auch vorher schon vollständig testen.
 
 `data-netlify="true"` kann dabei stehen bleiben; außerhalb von Netlify wird
 es nicht ausgewertet.
@@ -262,6 +340,10 @@ Diese Punkte müssen erledigt sein. Erst danach die Sperren lösen.
 
 **Technisch**
 
+- [ ] SMTP-Zugangsdaten des Postfachs als Environment Variables hinterlegen,
+      damit die Formulare den PDF-Beleg verschicken (siehe **Der PDF-Beleg →
+      Einrichten**). `MAIL_AN` danach von der Testadresse auf die endgültige
+      umstellen.
 - [ ] `robots.txt`: oberen Block löschen, unteren einkommentieren.
 - [ ] In allen 14 Seiten den Block `TESTBETRIEB` samt
       `<meta name="robots" content="noindex, …">` entfernen.

@@ -4,6 +4,11 @@
   "buildCommand": null,
   "outputDirectory": null,
   "trailingSlash": false,
+  "functions": {
+    "api/formular.js": {
+      "maxDuration": 20
+    }
+  },
   "headers": [
     {
       "source": "/(.*)",

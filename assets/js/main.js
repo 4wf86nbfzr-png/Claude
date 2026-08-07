@@ -612,13 +612,17 @@
      können: prüfen, verständlich meckern, absenden und bestätigen.
 
      Übermittlung, in dieser Reihenfolge:
+       0. /api/formular             -> die eigene Funktion; sie baut aus den
+                                       Angaben ein PDF und schickt es ans Büro
        1. data-endpunkt="https://…"  -> dorthin (Formspree, eigenes Backend)
        2. data-netlify="true"        -> POST auf "/" (Netlify Forms, ohne Konto-
                                         schlüssel; Netlify liest das Formular
                                         beim Deploy aus dem HTML)
        3. sonst                      -> fertige Mail im Mailprogramm öffnen
-     Schlägt 1 oder 2 fehl, wird nicht stillschweigend verschluckt: es erscheint
-     eine Fehlermeldung mit Telefonnummer und ein Mail-Ersatzweg.
+     Jede Stufe reicht an die nächste weiter, wenn es sie an dieser Adresse
+     nicht gibt. Geht dagegen etwas wirklich schief, wird das nicht still-
+     schweigend verschluckt: es erscheint eine Fehlermeldung mit Telefonnummer
+     und ein Mail-Ersatzweg.
 
      Spam-Schutz ohne Captcha: ein unsichtbares Feld (Honigtopf), das nur
      Maschinen ausfüllen, plus eine Mindestzeit zwischen Laden und Absenden.
@@ -791,6 +795,42 @@
 
       const daten = new FormData(form);
       daten.delete(honigtopf ? honigtopf.name : '__kein_feld__');
+
+      /* 0. Die eigene Funktion unter /api/formular. Sie baut aus genau diesen
+            Angaben einen PDF-Beleg und schickt ihn ans Büro — das ist der
+            Weg, der am Ende zählt.
+
+            Sie antwortet mit 503, solange die Zugangsdaten des Postfachs
+            nicht hinterlegt sind, und mit 404, wenn die Seite irgendwo liegt,
+            wo es keine Funktionen gibt (GitHub Pages, ein Ordner auf der
+            Platte). In beiden Fällen läuft es unten den bisherigen Weg
+            weiter — eine Anfrage geht dadurch nie verloren.               */
+      if(location.protocol.startsWith('http')){
+        sperren(true);
+        melden('Wird gesendet …', 'laeuft');
+        let stand = 0;
+        try{
+          const antwort = await fetch('/api/formular', {
+            method: 'POST',
+            headers: { 'Content-Type':'application/x-www-form-urlencoded',
+                       'Accept':'application/json' },
+            body: new URLSearchParams(daten).toString()
+          });
+          stand = antwort.status;
+          if(antwort.ok){ danken(); return; }
+        }catch(e){ stand = 0; }   /* gar keine Antwort — weiter unten */
+
+        sperren(false);
+        melden('');
+        /* Nicht vorhanden oder nicht eingerichtet: weiterreichen.
+           Alles andere ist ein echter Fehler und wird gemeldet. */
+        if(stand && ![404, 405, 501, 503].includes(stand)){
+          melden('Das Absenden hat nicht geklappt. Bitte rufen Sie uns an unter '
+               + '+49 (40) 27075100 — oder schicken Sie die Anfrage per E-Mail.', 'fehler');
+          mailWeg(daten);
+          return;
+        }
+      }
 
       const endpunkt = form.dataset.endpunkt;
       /* Netlify nimmt den POST nur auf einem Netlify-Deploy entgegen. Überall

@@ -198,6 +198,53 @@ Unterseiten.
 
 ---
 
+## Der PDF-Beleg
+
+Jede Anfrage und jede Bewerbung wird als PDF ins Postfach zugestellt
+(`api/_beleg.js`). Das Blatt ist die einzige Stelle, an der die Marke außerhalb
+des Browsers auftritt — es gehört deshalb hierher.
+
+- **Ein dunkles Band mit dem Wortzeichen oben, sonst Weiß.** Das Zeichen liegt
+  hell auf durchsichtigem Grund; ohne das Band verschwände es.
+- **Helvetica, nicht die Hausschriften.** Die drei Schriften der Website liegen
+  als `woff2` vor — ein Format, das kein PDF einbetten kann. Helvetica ist eine
+  der 14 Standardschriften, die jeder Betrachter mitbringt, deckt Umlaute und ß
+  ab und hält den Anhang bei rund 32 KB. Eine eingebettete Schrift wäre
+  hübscher und dreimal so schwer.
+- **Beschriftung links leise, Angabe rechts fett.** Wer den Beleg überfliegt,
+  sucht die Angabe, nicht ihren Namen.
+- **Es geht nichts verloren.** `BAUPLAN` ordnet die bekannten Felder; alles
+  Übrige landet unter „Weitere Angaben". Ein neues Feld im Formular erscheint
+  dadurch von selbst — auch wenn niemand daran denkt, hier nachzuziehen.
+  Ausgenommen sind nur die beiden Honigtöpfe.
+
+### Die Falle: `width` bricht schon Umgebrochenes noch einmal um
+
+Der lange Nachrichtentext wird von Hand umgebrochen — nur so lässt sich die
+graue Fläche dahinter auf jeder Seite passend hoch zeichnen. Beim Setzen der
+fertigen Zeilen darf dann **kein `width` mehr mitgegeben werden**:
+
+```js
+doc.text(zeile, x, y, { lineBreak: false });   // richtig
+doc.text(zeile, x, y, { width: b, lineBreak: false });   // falsch
+```
+
+pdfkit misst beim Setzen eine Spur breiter als `widthOfString` meldet, hält die
+fertige Zeile deshalb für zu lang und zerlegt sie ein zweites Mal — die zweite
+Hälfte landet auf der Grundlinie der nächsten Zeile, und der Beleg sieht aus,
+als sei er zweimal übereinander gedruckt worden.
+
+Aus demselben Grund wird gegen `innen - 2` umgebrochen, nicht gegen `innen`.
+
+### Die zweite Falle: die Fußzeile legt Seiten an
+
+Die Fußzeile steht unterhalb des Satzspiegels. `doc.text()` hält das für einen
+Überlauf und hängt eine neue Seite an — auf der dann wieder eine Fußzeile
+steht, und so fort. Vor der Schleife über die Seiten deshalb
+`doc.page.margins.bottom = 0` setzen und die Seitenzahl **vorher** merken.
+
+---
+
 ## Barrierefreiheit
 
 Das ist keine Kür, sondern Teil der Abnahme:
