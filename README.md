@@ -182,6 +182,11 @@ Diese Punkte müssen erledigt sein. Erst danach die Sperren lösen.
 - [ ] Datenschutzerklärung: Hoster mit Name und Anschrift eintragen,
       Auftragsverarbeitungsvertrag abschließen.
 - [ ] Beide Rechtstexte anwaltlich prüfen lassen.
+- [ ] Telefonische Erreichbarkeit eintragen (`kontakt.html`, als
+      `bitte ergänzen` markiert). Danach dieselbe Angabe als
+      `openingHours` in die strukturierten Daten der Startseite.
+- [ ] Bewertungen oder benannte Referenzkunden ergänzen, sobald eine
+      Freigabe vorliegt — derzeit stehen dort nur Branchenangaben.
 - [ ] Porträts von Maik Herm und Valeria Occhipinto ergänzen
       (`assets/img/team/`, Format wie die vorhandenen: 1000 × 1250).
 - [ ] Bewegtes Material für den Imagefilm (Bild ist noch ein Platzhalter

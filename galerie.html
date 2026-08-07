@@ -44,6 +44,9 @@
 <script>document.documentElement.classList.remove("kein-js")</script>
 </head>
 <body>
+<!-- Erstes Element im Tabulator-Lauf: wer mit der Tastatur arbeitet,
+     muss sonst auf jeder Seite durch die ganze Navigation. -->
+<a class="sprunglink" href="#inhalt">Zum Inhalt springen</a>
 <div id="scrollbar"></div>
 <button id="toTop" aria-label="Zurück nach oben">
   <svg viewBox="0 0 24 24" fill="none"><path d="M12 20V6M6 12l6-6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -51,7 +54,7 @@
 
 <header class="nav scrolled" id="nav">
   <a class="brand" href="index.html" aria-label="HERM Service Team – Startseite">
-    <img class="brand__logo" src="assets/logo/logo-herm.png" alt="HERM Service Team" width="1416" height="540" />
+    <img class="brand__logo" src="assets/logo/logo-herm.png" alt="HERM Service Team" width="800" height="305" />
   </a>
   <nav class="nav__links" aria-label="Hauptnavigation">
     <a href="index.html#leistungen">Dienstleistungen</a>
@@ -97,7 +100,7 @@
   </div>
 </nav>
 
-<main>
+<main id="inhalt" tabindex="-1">
   <section class="subhero subhero--band">
     <div class="subhero__photo" aria-hidden="true" data-lauf>
       <picture><source type="image/webp" srcset="assets/img/logistik-detail.webp" /><img src="assets/img/logistik-detail.jpg" alt="" fetchpriority="high" width="1400" height="1400" /></picture>
@@ -202,7 +205,7 @@
     <div class="foot__grid">
       <div class="foot__brand">
         <a class="brand" href="index.html">
-          <img class="brand__logo" src="assets/logo/logo-herm.png" alt="HERM Service Team" width="1416" height="540" />
+          <img class="brand__logo" src="assets/logo/logo-herm.png" alt="HERM Service Team" width="800" height="305" />
         </a>
         <p>Ihr Partner für Sicherheit, Promotion und Gastro-Personal. Personaldienstleistung aus Hamburg – mit über 20 Jahren Erfahrung.</p>
         <div class="socials">
@@ -213,7 +216,7 @@
         </div>
       </div>
       <div>
-        <h4>Sitemap</h4>
+        <h2>Sitemap</h2>
         <ul>
           <li><a href="index.html">Home</a></li>
           <li><a href="index.html#leistungen">Dienstleistungen</a></li>
@@ -223,7 +226,7 @@
         </ul>
       </div>
       <div>
-        <h4>Dienstleistungen</h4>
+        <h2>Dienstleistungen</h2>
         <ul>
           <li><a href="dienstleistungen/gastro-personal.html">Gastro-Personal</a></li>
           <li><a href="dienstleistungen/sicherheit.html">Sicherheit</a></li>
@@ -234,7 +237,7 @@
         </ul>
       </div>
       <div>
-        <h4>Kontakt</h4>
+        <h2>Kontakt</h2>
         <ul>
           <li><a href="kontakt.html">Anfrage &amp; Kontakt</a></li>
           <li><a href="tel:+494027075100">+49 (40) 27075100</a></li>

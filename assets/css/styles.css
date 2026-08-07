@@ -607,7 +607,13 @@ body.menu-open #mobileMenu{ transform:none; visibility:visible; }
 .svc__gate{ position:absolute; inset:0; z-index:1; overflow:hidden; }
 .svc__leaf{
   position:absolute; top:0; bottom:0; width:50%;
-  background-image:url("../img/logistik-tor.jpg");
+  /* Als CSS-Hintergrund gibt es kein <picture>. image-set() uebernimmt die
+     Aushandlung: moderne Browser nehmen WebP, aeltere die erste Zeile.
+     Die Datei ist auf 1200 Pixel gerechnet — mehr sieht man an dieser
+     Stelle auch auf einem dichten Bildschirm nicht. */
+  background-image:url("../img/logistik-tor-flaeche.jpg");
+  background-image:image-set(url("../img/logistik-tor-flaeche.webp") type("image/webp"),
+                             url("../img/logistik-tor-flaeche.jpg") type("image/jpeg"));
   background-repeat:no-repeat; background-size:200% 100%;
   transition:transform .75s var(--ease);
 }
@@ -796,7 +802,13 @@ body.menu-open #mobileMenu{ transform:none; visibility:visible; }
 .gate{ position:absolute; inset:0; z-index:2; overflow:hidden; border-radius:var(--r-m); pointer-events:none; }
 .gate__leaf{
   position:absolute; top:0; bottom:0; width:50%;
-  background-image:url("../img/logistik-tor.jpg");
+  /* Als CSS-Hintergrund gibt es kein <picture>. image-set() uebernimmt die
+     Aushandlung: moderne Browser nehmen WebP, aeltere die erste Zeile.
+     Die Datei ist auf 1200 Pixel gerechnet — mehr sieht man an dieser
+     Stelle auch auf einem dichten Bildschirm nicht. */
+  background-image:url("../img/logistik-tor-flaeche.jpg");
+  background-image:image-set(url("../img/logistik-tor-flaeche.webp") type("image/webp"),
+                             url("../img/logistik-tor-flaeche.jpg") type("image/jpeg"));
   background-repeat:no-repeat; background-size:200% 100%;
   will-change:transform;
 }
@@ -992,7 +1004,7 @@ body.menu-open #mobileMenu{ transform:none; visibility:visible; }
    ============================================================ */
 footer{ border-top:1px solid var(--line); padding:70px 0 40px; }
 .foot__grid{ display:grid; grid-template-columns:1.5fr 1fr 1fr 1fr; gap:40px; }
-footer h4{ font-family:var(--font-mono); font-size:.68rem; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); margin-bottom:18px; }
+footer h2{ font-family:var(--font-mono); font-size:.68rem; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); margin-bottom:18px; }
 footer ul{ list-style:none; display:flex; flex-direction:column; gap:10px; }
 footer ul a{ color:var(--chrome); font-size:.92rem; }
 footer ul a:hover{ color:var(--paper); }
@@ -1150,11 +1162,17 @@ footer ul a:hover{ color:var(--paper); }
 .content__lead p{ color:var(--chrome); font-size:var(--fs-lead); max-width:var(--measure); }
 .content__lead p+p{ margin-top:1.05em; }
 .side{ background:var(--ink-2); border:1px solid var(--line); border-radius:var(--r-m); padding:clamp(24px,2.4vw,32px); position:sticky; top:100px; }
-.side h4{ font-family:var(--font-mono); font-size:.66rem; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); margin-bottom:18px; }
+.side h2{ font-family:var(--font-mono); font-size:.66rem; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); margin-bottom:18px; }
 .side .btn{ width:100%; justify-content:center; margin-top:24px; }
 .side__hinweis{ color:var(--muted); font-size:.84rem; margin-top:14px; text-align:center; }
 .ticklist{ list-style:none; display:flex; flex-direction:column; gap:12px; }
 .ticklist li{ display:flex; gap:12px; align-items:flex-start; color:var(--chrome); font-size:.98rem; }
+/* Ein Flex-Kasten rechnet seine Mindestbreite aus der Summe seiner Teile.
+   Steht in einem Punkt mehr als ein Element, addieren sich deren
+   Mindestbreiten und sprengen bei 320 px die Spalte. Diese zwei Zeilen
+   erlauben das Umbrechen und nehmen der Liste diese Wirkung. */
+.ticklist li > *{ min-width:0; }
+.ticklist li{ flex-wrap:wrap; }
 .ticklist li::before{ content:""; width:18px; height:18px; flex:none; margin-top:2px; border-radius:var(--r-s); background:color-mix(in srgb,var(--accent) 22%,transparent); box-shadow:inset 0 0 0 1px var(--accent); background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M5 12l5 5 9-10' stroke='%23fff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-size:14px; background-repeat:no-repeat; background-position:center; }
 
 /* ---- Team ----
@@ -1254,6 +1272,7 @@ footer ul a:hover{ color:var(--paper); }
 /* Sichtbar offene Angabe. Rechtliche Pflichtangaben darf niemand raten —
    solche Stellen müssen auffallen, bis sie ausgefüllt sind. Vor dem
    Live-Gang darf keine davon mehr in den Seiten stehen. */
+.content__grid > *{ min-width:0; }
 .offen{
   display:inline-block; padding:.15em .6em; border-radius:var(--r-s);
   background:rgba(240,161,157,.12); box-shadow:inset 0 0 0 1px rgba(240,161,157,.45);
@@ -1800,3 +1819,24 @@ h1.reveal-up.in, h2.reveal-up.in, h3.reveal-up.in{
   .subhero__photo[data-lauf] picture{ transform:none; }
   .gal__item.reveal-up picture{ clip-path:none; }
 }
+
+
+/* ---- Sprunglink ----
+   Erstes fokussierbares Element jeder Seite. Er liegt außerhalb des
+   Sichtfelds und kommt erst beim Tabulator hervor — wer mit der Tastatur
+   arbeitet, muss sonst auf jeder Unterseite durch acht Navigationslinks,
+   bevor der Inhalt beginnt (WCAG 2.4.1). */
+.sprunglink{
+  position:fixed; top:0; left:0; z-index:10001;
+  transform:translateY(-140%);
+  background:#FFF; color:#08080A;
+  font-family:var(--font-body); font-weight:600; font-size:.95rem;
+  padding:.85em 1.5em; border-radius:0 0 var(--r-s) 0;
+  box-shadow:0 8px 30px -12px rgba(0,0,0,.9);
+  transition:transform var(--t-base) var(--ease-out);
+}
+.sprunglink:focus{ transform:none; }
+/* Das Sprungziel bekommt tabindex="-1", damit der Fokus dort wirklich
+   ankommt. Ohne diese Regel zeichnet der Browser dann einen Rahmen um die
+   ganze Seite. */
+main:focus{ outline:none; }
