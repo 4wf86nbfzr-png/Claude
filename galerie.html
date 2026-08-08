@@ -206,7 +206,12 @@
   <div>
     <!-- kein src="": ein leeres src lässt den Browser die Seite selbst noch
          einmal anfordern. Die Quelle setzt main.js beim Öffnen. -->
-    <img class="lightbox__bild" alt="" />
+    <!-- Ein durchsichtiges Pixel als Startbild. Ein <img> ganz ohne src ist
+         ein kaputtes Bild: manche Browser zeichnen dafür ein Platzhalter-
+         symbol, und im Quelltext steht ein Element, das nichts lädt. Die
+         echte Aufnahme setzt main.js beim Öffnen ein. -->
+    <img class="lightbox__bild" alt="" width="1" height="1"
+         src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" />
     <p class="lightbox__bu"><span class="lightbox__bu-text"></span><span class="lightbox__zaehler"></span></p>
   </div>
 </dialog>

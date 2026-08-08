@@ -1093,7 +1093,11 @@ body.menu-open #mobileMenu > a{ opacity:1; translate:0 0; }
    gemeint ist, und ein Vorlesewerkzeug liest keinen Strich mit. */
 .panel .num{ font-family:var(--font-mono); font-size:.72rem; letter-spacing:.24em; word-spacing:.9em; color:var(--accent); }
 /* ohne Karte trägt der Schatten die Lesbarkeit über unruhigen Bildstellen */
-.panel h3{ font-size:var(--fs-h3); margin:.4em 0 .2em;
+/* h2, nicht h3: die Bühnentitel folgen direkt auf die h1 der Seite. Eine
+   übersprungene Ebene liest ein Vorlesewerkzeug als fehlenden Abschnitt —
+   „Servicekräfte mieten" kam nach „Unsere Dienstleistungen" als Unter-Unter-
+   punkt an, obwohl es das Kapitel selbst ist. */
+.panel h2{ font-size:var(--fs-h3); margin:.4em 0 .2em;
   text-shadow:0 2px 24px rgba(0,0,0,.75), 0 1px 3px rgba(0,0,0,.6); }
 .panel .num, .panel .tag, .panel p, .panel .chip, .panel .go{ text-shadow:0 1px 14px rgba(0,0,0,.8); }
 /* Der Leitsatz ist ein Satz, keine Signatur — in der Grundschrift gesetzt liest
@@ -2835,20 +2839,37 @@ h1.reveal-up.in, h2.reveal-up.in, h3.reveal-up.in{
 
 
 /* ---- Sprunglink ----
-   Erstes fokussierbares Element jeder Seite. Er liegt außerhalb des
-   Sichtfelds und kommt erst beim Tabulator hervor — wer mit der Tastatur
-   arbeitet, muss sonst auf jeder Unterseite durch acht Navigationslinks,
-   bevor der Inhalt beginnt (WCAG 2.4.1). */
+   Erstes fokussierbares Element jeder Seite. Wer mit der Tastatur arbeitet,
+   muss sonst auf jeder Unterseite durch acht Navigationslinks, bevor der
+   Inhalt beginnt (WCAG 2.4.1). Mit Maus oder Finger bekommt man ihn nie zu
+   sehen.
+
+   Vorher wurde er mit `transform:translateY(-140%)` aus dem Bild geschoben.
+   Das reicht nicht: ein fest stehendes Element, das nur oberhalb des
+   Fensters geparkt ist, kommt beim Gummiband-Effekt am oberen Seitenrand
+   hervor — auf dem iPhone genügt ein Wisch nach unten am Seitenanfang, und
+   der weiße Kasten steht in der Ecke. Genau so ist er aufgefallen.
+
+   Jetzt hat er im Ruhezustand gar keine Fläche mehr: ein Pixel groß und
+   beschnitten. Da kann nichts hervorkommen, egal wie die Seite federt.
+   Erst der Fokus gibt ihm seine Maße zurück. */
 .sprunglink{
   position:fixed; top:0; left:0; z-index:10001;
-  transform:translateY(-140%);
+  width:1px; height:1px; overflow:hidden;
+  clip:rect(0 0 0 0); clip-path:inset(50%);
+  white-space:nowrap; padding:0; border:0;
   background:#FFF; color:#000;
   font-family:var(--font-body); font-weight:600; font-size:.95rem;
-  padding:.85em 1.5em; border-radius:0 0 var(--r-s) 0;
-  box-shadow:0 8px 30px -12px rgba(0,0,0,.9);
-  transition:transform var(--t-base) var(--ease-out);
 }
-.sprunglink:focus{ transform:none; }
+/* Sichtbar nur am Tabulator — und dann nicht in die Ecke gequetscht,
+   sondern auf demselben Seitenrand wie der übrige Inhalt. */
+.sprunglink:focus{
+  width:auto; height:auto; overflow:visible;
+  clip:auto; clip-path:none;
+  top:clamp(12px,2vw,20px); left:clamp(20px,5vw,64px);
+  padding:.85em 1.5em; border-radius:var(--r-s);
+  box-shadow:0 8px 30px -12px rgba(0,0,0,.9);
+}
 /* Das Sprungziel bekommt tabindex="-1", damit der Fokus dort wirklich
    ankommt. Ohne diese Regel zeichnet der Browser dann einen Rahmen um die
    ganze Seite. */

@@ -787,6 +787,25 @@ Das ist keine Kür, sondern Teil der Abnahme:
 - Der Systemzeiger wird nie ausgeblendet (siehe „Der Zeiger ersetzt den
   Systemzeiger nicht").
 
+### Die Falle: ein geparktes `position:fixed` kommt beim Gummiband zurück
+
+Der Sprunglink („Zum Inhalt springen", WCAG 2.4.1) stand zuerst als
+ausgewachsener Knopf über der Kopfzeile und war nur mit
+`transform:translateY(-140%)` aus dem Bild geschoben. Auf dem iPhone
+verschiebt das Überziehen am Seitenanfang aber die ganze Darstellung — und
+dann steht der geparkte Knopf sichtbar in der linken oberen Ecke, gequetscht
+zwischen Kante und Uhr. Im Browser am Rechner fällt das nie auf.
+
+Ein Element, das nur bei Tastaturbedienung erscheinen soll, wird deshalb
+**nicht verschoben, sondern verkleinert**: 1 × 1 px, `overflow:hidden`,
+`clip-path:inset(50%)`. So belegt es keine Fläche, die irgendein Rand wieder
+hervorholen könnte. Erst `:focus` gibt ihm Größe zurück — und zwar auf dem
+Seitenrand (`left:clamp(20px,5vw,64px)`), nicht in der Ecke.
+
+Der Sprunglink bleibt dabei erhalten. Er ist keine zweite Ausgabe des Logos,
+sondern die einzige Möglichkeit, mit der Tastatur an Navigation und Menü
+vorbei in den Inhalt zu kommen.
+
 ---
 
 ## Was bewusst fehlt
