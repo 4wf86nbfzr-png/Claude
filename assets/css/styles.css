@@ -555,14 +555,22 @@ body.menu-open #mobileMenu > a{ opacity:1; translate:0 0; }
    --zeilen-luft ist der Unterschied zwischen beiden Werten und steht an
    einer Stelle, weil Hero, Unterseitentitel und Schlusszeile dieselbe
    Rechnung brauchen. */
-/* --zeile-eng steht auf .96, nicht auf .9. Der Unterschied ist genau der
-   Platz, den die Punkte auf dem Ä brauchen: bei .9 saßen sie in „TRÄGT."
-   direkt am R der Zeile darüber. Enger geht in dieser Schrift nicht, ohne
-   dass Umlaute an die vorherige Zeile stoßen — und Umlaute kommen im
-   Deutschen an jeder zweiten Ecke vor. */
+/* --zeile-eng ist der sichtbare Zeilenabstand. Er steht auf 1.04, und das
+   ist nachgerechnet, nicht geschätzt:
+
+   Die Punkte auf einem Ä stehen in dieser Schrift bis rund 0,95 em über der
+   Grundlinie. Die Grundlinie der Zeile darüber liegt genau einen
+   Zeilenabstand höher. Bei 0,9 oder 0,96 liegt der Umlaut damit ÜBER der
+   vorherigen Grundlinie — die Punkte in „TRÄGT." saßen im „EVENT" darüber
+   und lasen sich wie ein Satzfehler. Erst ab etwa 1,02 gehen sie frei; 1,04
+   lässt eine Haarlinie Luft.
+
+   Enger geht es in dieser Schrift nicht, und Umlaute kommen im Deutschen an
+   jeder zweiten Ecke vor. Wer den Wert wieder senkt, muss eine Zeile mit
+   Ä, Ö oder Ü unter einer anderen Zeile ansehen — nicht nur die Zahl. */
 .hero h1,
 .subhero h1,
-.foot__claim{ --zeile-eng:.96; --zeile-weit:1.26; }
+.foot__claim{ --zeile-eng:1.04; --zeile-weit:1.26; }
 .hero h1 .line,
 .subhero h1 .line,
 .foot__claim-zeile{
@@ -1537,6 +1545,37 @@ a, button, summary, label, input, select, textarea{
   -webkit-tap-highlight-color:transparent;
 }
 
+/* ---- Seitenwechsel ----
+   Ein Klick in der Leiste soll sich nicht wie ein Seitenaufruf anfühlen,
+   sondern wie ein Reiterwechsel. Genau dafür gibt es Ansichtsübergänge: der
+   Browser hält das alte Bild fest, holt die neue Seite und blendet weich
+   hinüber. Kein weißes Aufblitzen, kein Sprung.
+
+   Das kostet keine Zeile JavaScript und keine Bibliothek — die drei Zeilen
+   hier sind alles. Browser, die es nicht können, wechseln wie bisher; es
+   gibt also nichts zu reparieren, nur etwas dazuzugewinnen.
+
+   Wichtig ist der zweite Teil: Kopfzeile und App-Leiste bekommen einen
+   eigenen Namen. Damit erkennt der Browser sie auf beiden Seiten als
+   dasselbe Element und blendet sie NICHT mit über — sie bleiben stehen,
+   während der Inhalt dazwischen wechselt. Das ist der Unterschied zwischen
+   „Seite lädt neu" und „Reiter gewechselt". Das Wortzeichen links oben
+   steht damit während des ganzen Wechsels ruhig an seinem Platz. */
+@view-transition{ navigation:auto; }
+header.nav{ view-transition-name:kopfzeile; }
+.appleiste{ view-transition-name:appleiste; }
+#preloader{ view-transition-name:vorspann; }
+::view-transition-old(root),
+::view-transition-new(root){
+  animation-duration:.4s;
+  animation-timing-function:var(--ease-out);
+}
+/* Wer ruhige Darstellung eingestellt hat, bekommt den harten Wechsel — ein
+   Überblenden ist auch eine Bewegung. */
+@media (prefers-reduced-motion:reduce){
+  @view-transition{ navigation:none; }
+}
+
 .appleiste{
   position:fixed; z-index:930; left:0; right:0; bottom:0;
   display:none;                       /* nur am Telefon, siehe unten */
@@ -1546,7 +1585,28 @@ a, button, summary, label, input, select, textarea{
   /* Die Heimtaste des iPhones liegt über dem unteren Rand. Ohne diese
      Zeile säßen die Beschriftungen darunter. */
   padding-bottom:env(safe-area-inset-bottom, 0px);
+  transition:background .45s var(--ease-swift), border-color .45s var(--ease-swift);
 }
+/* ---- Solange gescrollt wird, tritt die Leiste zurück ----
+   Im Stillstand ist sie eine Fläche, auf der man etwas auswählt. Während
+   man scrollt, ist sie im Weg: ein deckender Balken über dem unteren
+   Fünftel des Fotos.
+
+   Deshalb löst sie sich beim Scrollen in einen Verlauf auf. Kein Ausblenden
+   und kein Wegfahren: die Zeichen bleiben sichtbar und antippbar, man sieht
+   nur wieder durch sie hindurch. Der Verlauf statt einer gleichmäßigen
+   Tönung hält die Beschriftungen auch über hellen Bildstellen lesbar und
+   nimmt gleichzeitig die harte Oberkante weg — genau die macht den Balken
+   zum Block.
+
+   .faehrt setzt main.js beim Scrollen und nimmt es eine halbe Sekunde nach
+   dem letzten Bild wieder weg. */
+.appleiste.faehrt{
+  background:linear-gradient(to top, rgba(0,0,0,.62) 0%, rgba(0,0,0,.34) 55%, rgba(0,0,0,0) 100%);
+  border-top-color:transparent;
+}
+.appleiste.faehrt a{ color:rgba(255,255,255,.6); }
+.appleiste.faehrt a[aria-current="page"]{ color:var(--paper); }
 .appleiste a{
   flex:1 1 0; min-width:0;
   display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;
@@ -1568,7 +1628,11 @@ a, button, summary, label, input, select, textarea{
 }
 .appleiste a{ position:relative; }
 
-@media (max-width:900px){
+/* 980 px, nicht 900: genau dort verschwindet die Navigation aus der
+   Kopfzeile und der Menüknopf tritt an ihre Stelle. Wären es zwei
+   verschiedene Grenzen, gäbe es dazwischen einen Bereich mit Menüknopf,
+   aber ohne Leiste — und dort müsste das Menü wieder alles enthalten. */
+@media (max-width:980px){
   .appleiste{ display:flex; }
   /* Platz für die Leiste, damit sie den Fuß nicht überdeckt. */
   body{ padding-bottom:calc(57px + env(safe-area-inset-bottom, 0px)); }
@@ -1582,6 +1646,55 @@ a, button, summary, label, input, select, textarea{
     padding-top:calc(var(--nav-h,78px) + 4vh + env(safe-area-inset-top, 0px));
     padding-bottom:calc(clamp(28px,5vh,54px) + 57px + env(safe-area-inset-bottom, 0px));
   }
+
+  /* ---- Nichts doppelt ----
+     Was unten in der Leiste steht, steht nicht noch einmal im Menü. Sonst
+     bietet die Ansicht zwei Wege zum selben Ziel an, und der Besucher muss
+     erst herausfinden, dass es dasselbe ist.
+     Die Links bleiben im Markup — sie werden nur dort ausgeblendet, wo die
+     Leiste sie ohnehin anbietet. Auf breiten Fenstern und ohne die Leiste
+     ist das Menü weiterhin vollständig.
+     Ausgewählt wird über das Ende der Adresse, damit dieselbe Regel für
+     „dienstleistungen.html" und „../dienstleistungen.html" gilt. */
+  #mobileMenu > a[href$="dienstleistungen.html"],
+  #mobileMenu > a[href$="jobs.html"],
+  #mobileMenu > a[href$="kontakt.html"],
+  #mobileMenu .menu__aktion a.btn{ display:none; }
+  /* Übrig bleibt im Fuß des Menüs die Telefonnummer — der einzige Weg, den
+     die Leiste nicht anbietet. Sie steht dann allein und braucht keine
+     eigene Zeile mehr über sich. */
+  .menu__aktion{ margin-top:clamp(20px,4vh,40px); }
+
+  /* ---- Was am Telefon wegfällt, damit das Scrollen glatt läuft ----
+     Nicht die Bewegung ist teuer, sondern das, was der Browser in jedem
+     Bild neu zeichnen muss. Drei Dinge kosten auf einem Telefon mehr als
+     alles andere zusammen — und keins davon sieht man dort wirklich:
+
+     1. Die Körnung. Sie liegt als fest stehende Fläche über der ganzen
+        Seite und mischt sich per mix-blend-mode ein: dadurch muss der
+        Browser bei jeder Bewegung das ganze Fenster neu verrechnen.
+     2. Der Weichzeichner hinter Kopfzeile und App-Leiste. backdrop-filter
+        liest bei jedem Bild den Bildinhalt dahinter zurück — auf dem
+        Schreibtisch verkraftbar, auf einem Telefon der teuerste Posten der
+        Seite. Statt zu zeichnen wird die Fläche einfach dichter.
+     3. Der Lichtabfall der Kinofassung, ein bildschirmfüllender
+        Farbverlauf, dessen Deckkraft sich laufend ändert.
+
+     Die Balken selbst bleiben — sie bewegen sich über transform und kosten
+     nichts. */
+  body::after{ display:none; }
+  header.nav.scrolled{
+    background:rgba(0,0,0,.92);
+    backdrop-filter:none; -webkit-backdrop-filter:none;
+  }
+  .appleiste{ backdrop-filter:none; -webkit-backdrop-filter:none; }
+  .kino::after{ display:none; }
+
+  /* Die Szenen der Startseite behalten ihre Kamerafahrt, aber ohne
+     will-change: sechs bildschirmfüllende Fotos dauerhaft als eigene Ebene
+     im Speicher zu halten, bringt genau das Ruckeln, das es verhindern
+     soll. Der Browser legt die Ebene beim Scrollen ohnehin an. */
+  .svc[data-lauf] .svc__bild picture{ will-change:auto; }
 }
 
 /* Abgelegt auf dem Startbildschirm: dann gibt es keine Adresszeile mehr,
@@ -1645,7 +1758,31 @@ a, button, summary, label, input, select, textarea{
   .expect__grid{ grid-template-columns:1fr; }
   .contact-cards{ grid-template-columns:1fr; }
   .foot__grid{ grid-template-columns:1fr 1fr; }
-  .stage{ height:190vh; }
+
+  /* ---- Die Bühnen am Telefon ----
+     Auf dem Schreibtisch fährt die Kamera in jeder Bühne heran und blendet
+     dabei von der Totale auf ein Detail über: zwei bildschirmfüllende Fotos
+     übereinander, deren Deckkraft und Maßstab sich in jedem Bild ändern.
+     Das ist genau die Stelle, an der es am Telefon gehakt hat — sechsmal
+     hintereinander, jedes Mal zwei Vollbilder.
+
+     Hier bleibt es deshalb bei einer Aufnahme, ohne Heranfahren. Die Bühne
+     verliert ihre Kamerafahrt, behält aber alles andere: das große Foto,
+     die Kapitelmarke mit der Fortschrittslinie, das Tor bei der Logistik
+     und den Textblock. main.js schreibt die dazu nicht mehr gebrauchten
+     Werte gar nicht erst — die Regeln hier sind die zweite Sicherung. */
+  .stage{ height:150vh; }
+  .detail{ display:none; }
+  .scene{ transform:none; will-change:auto; }
+  /* Ohne --panel bliebe der Text unsichtbar: seine Deckkraft hängt daran.
+     Er steht am Telefon deshalb einfach da. */
+  .panel{
+    opacity:1;
+    /* Die Leiste liegt über der Bühne. Ohne diesen Zuschlag steht die
+       letzte Zeile des Textblocks dahinter. */
+    padding-bottom:calc(clamp(32px,6vh,80px) + 57px + env(safe-area-inset-bottom, 0px));
+  }
+  .panel > *{ opacity:1; transform:none; }
 }
 @media (max-width:560px){
   /* Kopfzeile: nur Logo und Burger. Anfrage und Telefon stehen im Menü. */
@@ -1663,7 +1800,15 @@ a, button, summary, label, input, select, textarea{
   .burger{ padding-left:0; width:44px; justify-content:center; }
   .burger i{ left:9px; }
   .foot__grid{ grid-template-columns:1fr; }
-  .panel{ padding:22px; }
+  /* Kein `padding:22px` mehr. Die Kurzschreibweise setzte alle vier Kanten
+     und nahm dem Textblock damit genau die Polsterung unten, die ihn über
+     die App-Leiste hebt — „Zum Bereich" verschwand dahinter. Seitlich gilt
+     hier derselbe Seitenrand wie überall, unten kommt die Höhe der Leiste
+     dazu. */
+  .panel{
+    padding-inline:clamp(20px,5vw,64px);
+    padding-bottom:calc(clamp(32px,6vh,80px) + 57px + env(safe-area-inset-bottom, 0px));
+  }
   /* Untereinander, aber linksbündig. Zentriert war richtig, solange die
      Aktionen Flächen waren; als Textlinks liest ein zentrierter Link wie ein
      verrutschter Absatz. */

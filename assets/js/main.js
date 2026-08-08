@@ -151,6 +151,24 @@
     });
   }
 
+  /* Solange gescrollt wird, tritt die Leiste zurück und gibt das Bild frei;
+     kommt das Scrollen zur Ruhe, steht sie wieder da. Was das heißt, steht
+     im Stylesheet unter `.appleiste.faehrt`.
+
+     Der Zustand wird nur bei echtem Wechsel geschrieben — sonst liefe bei
+     jedem Scrollbild eine Klassenänderung, und die Leiste wäre selbst zur
+     Bremse geworden, die sie verhindern soll. */
+  let leisteZeit, leisteFaehrt = false;
+  function leisteScrollt(){
+    if(!appleiste) return;
+    if(!leisteFaehrt){ leisteFaehrt = true; appleiste.classList.add('faehrt'); }
+    clearTimeout(leisteZeit);
+    leisteZeit = setTimeout(()=>{
+      leisteFaehrt = false;
+      appleiste.classList.remove('faehrt');
+    }, 520);
+  }
+
   /* Eintritte beim Scrollen. Gruppen mit data-stagger bekommen pro Kind einen
      Index, damit sie nacheinander statt gleichzeitig erscheinen — das gibt dem
      Abschnitt einen Takt, statt alles auf einen Schlag zu zeigen. */
@@ -205,7 +223,20 @@
      entfallen — mit ihnen der mousemove-Listener, der bei jeder Mausbewegung
      transform auf drei großflächig weichgezeichnete Elemente schrieb. */
 
-  /* ---- Cinematic scroll-zoom for each stage ---- */
+  /* ---- Cinematic scroll-zoom for each stage ----
+     Am Telefon läuft die Kamerafahrt nicht. Sie besteht aus zwei
+     bildschirmfüllenden Fotos übereinander, deren Maßstab und Deckkraft
+     sich in jedem Bild ändern — sechsmal hintereinander. Genau daran hat
+     das Scrollen auf `dienstleistungen.html` gehakt.
+
+     Was hier entschieden wird, ist nur, ob die drei Werte überhaupt
+     geschrieben werden. Wie die Bühne dann aussieht, steht im Stylesheet
+     (Abschnitt „Die Bühnen am Telefon"). Der Wert wird einmal gelesen und
+     nicht laufend nachgeprüft: wer sein Fenster von 900 auf 1400 Pixel
+     zieht, bekommt die Fahrt beim nächsten Aufruf. */
+  const schmal = window.matchMedia('(max-width:980px)');
+  const sparsam = schmal.matches;
+
   const clamp = (v,a,b)=> Math.max(a, Math.min(b,v));
   const smooth = (a,b,x)=>{ const t = clamp((x-a)/(b-a),0,1); return t*t*(3-2*t); };
   /* Elemente einmal auflösen statt in jedem Frame. Vorher liefen pro Bild vier
@@ -239,15 +270,17 @@
       st.oben = rect.top; st.unten = rect.bottom;
       const total = st.el.offsetHeight - vh;
       const p = clamp((-rect.top) / total, 0, 1);
-      /* Annäherung, nicht Aufziehen: das Foto füllt die Bühne bereits (siehe
-         .scene__frame im Stylesheet), deshalb genügt eine ruhige Fahrt von
-         1 auf 1,42. Der frühere Faktor 1,7 stammt aus der Zeit, als die Szene
-         als 560-px-Quadrat begann und über den Bildschirm wachsen musste. */
-      set(st, st.scene,  'zoom',   (1 + p*0.42).toFixed(3));
-      // detail (interior/closeup) cross-fades in
-      set(st, st.detail, 'detail', smooth(0.34, 0.62, p).toFixed(3));
-      // panel reveals last
-      set(st, st.panel,  'panel',  smooth(0.5, 0.82, p).toFixed(3));
+      if(!sparsam){
+        /* Annäherung, nicht Aufziehen: das Foto füllt die Bühne bereits (siehe
+           .scene__frame im Stylesheet), deshalb genügt eine ruhige Fahrt von
+           1 auf 1,42. Der frühere Faktor 1,7 stammt aus der Zeit, als die Szene
+           als 560-px-Quadrat begann und über den Bildschirm wachsen musste. */
+        set(st, st.scene,  'zoom',   (1 + p*0.42).toFixed(3));
+        // detail (interior/closeup) cross-fades in
+        set(st, st.detail, 'detail', smooth(0.34, 0.62, p).toFixed(3));
+        // panel reveals last
+        set(st, st.panel,  'panel',  smooth(0.5, 0.82, p).toFixed(3));
+      }
       // Tür/Tor zuerst: der Spalt ist offen, bevor die Kamera ernsthaft
       // hineinfährt — sonst liest der Wechsel als Schnitt statt als Öffnen.
       set(st, st.door,   'door',   smooth(0.02, 0.24, p).toFixed(3));
@@ -1017,6 +1050,7 @@
   let ticking = false;
   function onScroll(){
     onScrollTop();
+    leisteScrollt();
     clearTimeout(nachleseZeit);
     nachleseZeit = setTimeout(nachlese, 160);
     if(!reduce && !ticking){

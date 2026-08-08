@@ -401,6 +401,14 @@ Unterseiten.
   `max-width:15ch` stand auf der Sicherheitsseite
   „VERANSTALTUNGSSC / HUTZ“. Große Überschriften bekommen deshalb keine
   Höchstbreite — der Satzspiegel begrenzt, `text-wrap:balance` verteilt.
+- **Der Zeilenabstand großer Überschriften ist nach unten begrenzt — durch
+  die Umlaute.** Die Punkte auf einem Ä stehen bis rund 0,95 em über der
+  Grundlinie; die Grundlinie der Zeile darüber liegt genau einen
+  Zeilenabstand höher. Bei 0,9 liegt der Umlaut damit *über* der vorherigen
+  Grundlinie: die Punkte in „TRÄGT." saßen im „EVENT" darüber und lasen sich
+  wie ein Satzfehler. `--zeile-eng` steht deshalb auf **1.04** — enger geht
+  es in dieser Schrift nicht. Wer den Wert senkt, muss eine Zeile mit Ä, Ö
+  oder Ü unter einer anderen Zeile ansehen, nicht nur die Zahl.
 - Knöpfe stehen in der Grundschrift. Schreibmaschinenschrift in Versalien auf
   einem Knopf ist das deutlichste Erkennungszeichen fertiger Dark-Templates.
   In der Kopfzeile ist sie dagegen richtig: dort sind es Wegmarken, keine
@@ -609,20 +617,83 @@ Die Linie gehört deshalb an ein Pseudoelement, nicht an den Rahmen:
 Am Schreibtisch liest man eine Website, am Telefon bedient man sie. Die kleine
 Ansicht ist deshalb keine verkleinerte Fassung der großen, sondern ein eigenes
 Bedienbild. Alles davon steht im Abschnitt `APP-ANSICHT` in `styles.css` und
-greift nur unterhalb von 900 px.
+greift **unterhalb von 980 px** — genau dort, wo die Navigation aus der
+Kopfzeile verschwindet und der Menüknopf an ihre Stelle tritt. Zwei
+verschiedene Grenzen hätten einen Bereich mit Menüknopf, aber ohne Leiste
+ergeben, und dort müsste das Menü wieder alles enthalten.
 
 **Die Leiste unten** (`.appleiste`) hält die vier Wege, die jemand am Telefon
 wirklich geht: Start · Leistungen · Jobs · Anfrage. Sie liegt dort, wo der
 Daumen ohnehin ist. Das Vollbildmenü oben bleibt für alles Übrige — Team,
-Galerie, Referenzen, Impressum.
+Galerie, Referenzen.
 
 - Der Reiter der aktuellen Seite trägt `aria-current="page"`; daran hängt der
   Strich in der Markenfarbe. Die sechs Detailseiten zählen zu „Leistungen".
 - **Ein Tipp auf den aktiven Reiter lädt nicht neu, sondern springt nach
   oben.** Genau das erwartet man in einer Anwendung, und auf einer Seite von
   dreizehn Bildschirmhöhen ist es der häufigste Wunsch.
+- **Nichts steht doppelt.** Was die Leiste anbietet, wird im Menü
+  ausgeblendet — nur dort, wo die Leiste auch sichtbar ist. Die Links
+  bleiben im Markup; auf breiten Fenstern ist das Menü vollständig.
+  Ausgewählt wird über das Ende der Adresse (`[href$="jobs.html"]`), damit
+  dieselbe Regel für `jobs.html` und `../jobs.html` gilt.
+- **Beim Scrollen tritt die Leiste zurück.** Im Stillstand ist sie eine
+  Fläche, auf der man auswählt; während man scrollt, ist sie ein deckender
+  Balken über dem unteren Fünftel des Bildes. `.faehrt` (setzt `main.js`,
+  nimmt es 520 ms nach dem letzten Bild wieder weg) löst sie in einen
+  Verlauf auf: die Zeichen bleiben sichtbar und antippbar, die harte
+  Oberkante verschwindet. Kein Ausblenden, kein Wegfahren — die Leiste muss
+  jederzeit erreichbar bleiben.
 - `body` bekommt `padding-bottom` in Höhe der Leiste, sonst verdeckt sie den
-  Fuß. Der Knopf „Nach oben" rückt darüber.
+  Fuß. Der Knopf „Nach oben" rückt darüber, und der Textblock der Bühnen
+  bekommt denselben Zuschlag auf `padding-bottom` — ohne ihn stand „Zum
+  Bereich" hinter der Leiste.
+
+### Der Wechsel zwischen den Reitern
+
+Ein Klick in der Leiste soll sich wie ein Reiterwechsel anfühlen, nicht wie
+ein Seitenaufruf. Das leisten Ansichtsübergänge, und zwar ohne eine Zeile
+JavaScript:
+
+```css
+@view-transition{ navigation:auto; }
+header.nav{ view-transition-name:kopfzeile; }
+.appleiste{ view-transition-name:appleiste; }
+```
+
+Die zweite Hälfte ist die wichtige: Kopfzeile und Leiste bekommen einen
+eigenen Namen. Damit erkennt der Browser sie auf beiden Seiten als dasselbe
+Element und blendet sie **nicht** mit über — sie bleiben stehen, während der
+Inhalt dazwischen wechselt. Das Wortzeichen links oben steht dadurch während
+des ganzen Wechsels ruhig an seinem Platz.
+
+Browser, die das nicht können, wechseln wie bisher. Bei reduzierter Bewegung
+wird der Übergang abgeschaltet — ein Überblenden ist auch eine Bewegung.
+
+Nachprüfen lässt sich das über das Ereignis `pagereveal`: es trägt bei einem
+echten Übergang ein `viewTransition`-Objekt.
+
+### Was am Telefon wegfällt, damit das Scrollen glatt läuft
+
+Nicht die Bewegung ist teuer, sondern das, was der Browser in jedem Bild neu
+zeichnen muss. Vier Dinge kosten dort mehr als alles andere zusammen — und
+keins davon sieht man auf einem Telefon wirklich:
+
+| Weg | Warum |
+|---|---|
+| Körnung (`body::after`) | feste Fläche über der ganzen Seite, die sich per `mix-blend-mode` einmischt — der Browser verrechnet bei jeder Bewegung das ganze Fenster neu |
+| `backdrop-filter` an Kopfzeile und Leiste | liest bei jedem Bild den Inhalt dahinter zurück; der teuerste Posten der Seite. Die Flächen werden stattdessen dichter |
+| Lichtabfall der Kinofassung (`.kino::after`) | bildschirmfüllender Farbverlauf mit laufend wechselnder Deckkraft |
+| Kamerafahrt der sechs Bühnen | zwei bildschirmfüllende Fotos übereinander, deren Maßstab und Deckkraft sich in jedem Bild ändern — sechsmal hintereinander. **Genau hier hat es gehakt.** |
+
+Die Bühne behält am Telefon alles außer der Fahrt: das große Foto, die
+Kapitelmarke mit Fortschrittslinie, das Tor bei der Logistik und den
+Textblock. `main.js` schreibt `--zoom`, `--detail` und `--panel` dort gar
+nicht erst (`sparsam`); die Regeln im Stylesheet sind die zweite Sicherung.
+
+**Wer das ändert, muss zwei Dinge zusammen ändern:** ohne `--panel` hängt die
+Deckkraft des Textblocks an einem Wert, den niemand mehr schreibt — er wäre
+unsichtbar. Deshalb steht im selben Block `.panel{ opacity:1 }`.
 
 **Ablegen auf dem Startbildschirm.** `site.webmanifest` im Wurzelverzeichnis
 macht die Seite installierbar: schwarzer Grund, das Wortzeichen als Symbol,
