@@ -405,7 +405,14 @@ body.menu-open #mobileMenu{ transform:none; visibility:visible; }
 .trust__grid{
   display:grid; grid-template-columns:repeat(4,minmax(0,1fr));
   gap:clamp(18px,2.6vw,40px);
-  padding:clamp(24px,3.2vw,40px) 0;
+  /* padding-block, nicht padding.
+     Das Element traegt .wrap und .trust__grid gleichzeitig. Eine
+     Kurzschreibweise „padding: … 0" setzt auch links und rechts — und
+     ueberschreibt damit den Seitenrand, den .wrap gerade gesetzt hat. Der
+     Block klebte dadurch an beiden Kanten, waehrend der Rest der Seite Luft
+     hatte. Am Handy faellt das am staerksten auf, es galt aber auf jeder
+     Breite. */
+  padding-block:clamp(24px,3.2vw,40px);
 }
 .trust__item{ display:grid; gap:5px; align-content:start; }
 .trust__item b{
@@ -413,8 +420,22 @@ body.menu-open #mobileMenu{ transform:none; visibility:visible; }
   font-size:clamp(1.32rem,2vw,1.8rem); letter-spacing:-.02em;
 }
 .trust__item span{ color:var(--muted); font-size:.9rem; line-height:1.4; }
-@media (max-width:760px){
+/* „Arbeitnehmerueberlassung" ist 23 Zeichen ohne Fuge. In einer schmalen
+   Spalte laeuft das Wort sonst aus seinem Kasten heraus — dieselbe Vorsorge
+   wie bei den Ueberschriften. */
+.trust__item b, .trust__item span{ hyphens:auto; overflow-wrap:break-word; }
+/* Zwei Spalten schon ab 900 px, nicht erst ab 760. Zwischen 760 und 900 px
+   blieben vier Spalten a rund 170 px — zu wenig fuer die langen Woerter. */
+@media (max-width:900px){
   .trust__grid{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:22px 20px; }
+}
+/* Am Handy eine Spalte. Zu zweit blieben auf 390 px je 165 px uebrig — dort
+   passt weder „Personalmanagement" noch „Erlaubnis nach AUEG" in eine Zeile;
+   beide Ueberschriften brachen um und der Block wirkte gequetscht. Vier kurze
+   Angaben untereinander lesen sich wie der uebrige Inhalt der Seite, der
+   unterhalb von 520–640 px ueberall auf eine Spalte geht. */
+@media (max-width:560px){
+  .trust__grid{ grid-template-columns:1fr; gap:20px; }
 }
 
 .scrollcue{
@@ -1423,7 +1444,9 @@ footer ul a:hover{ color:var(--paper); }
 .form__status{ margin-top:var(--gap-s); font-size:.95rem; color:var(--chrome); }
 .form__status[data-stand="fehler"]{ color:#FFB4B4; }
 
-.pagenav{ display:flex; justify-content:space-between; gap:16px; border-top:1px solid var(--line); padding:clamp(28px,3.4vw,44px) 0; flex-wrap:wrap; }
+/* padding-block aus demselben Grund wie bei .trust__grid: das Element traegt
+   auch .wrap, und eine Kurzschreibweise loeschte dort den Seitenrand. */
+.pagenav{ display:flex; justify-content:space-between; gap:16px; border-top:1px solid var(--line); padding-block:clamp(28px,3.4vw,44px); flex-wrap:wrap; }
 .pagenav a{
   font-family:var(--font-display); font-weight:800; font-size:var(--fs-h4); letter-spacing:-.02em;
   color:var(--chrome); display:flex; flex-direction:column; gap:6px;

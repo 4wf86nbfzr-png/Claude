@@ -130,6 +130,50 @@ muss dort nichts nachziehen.
 
 ---
 
+## Der Seitenrand
+
+Alles, was den Seitenrand hält, trägt `.wrap`. Die Klasse setzt genau zwei
+Dinge: eine Höchstbreite und `padding-inline:clamp(20px,5vw,64px)`. Dass jeder
+Block auf jeder Seite denselben Abstand zur Kante hat, hängt allein daran.
+
+### Die Falle: die Kurzschreibweise `padding` löscht `.wrap`
+
+Ein Element trägt oft beide Klassen gleichzeitig — `class="wrap trust__grid"`.
+Schreibt die zweite Regel dann
+
+```css
+.trust__grid{ padding:clamp(24px,3.2vw,40px) 0; }   /* falsch */
+```
+
+setzt die Kurzschreibweise **alle vier** Kanten, also auch links und rechts —
+und macht damit den Seitenrand zunichte, den `.wrap` gerade gesetzt hat. Der
+Block klebt an beiden Kanten, während der Rest der Seite Luft hat. Richtig ist:
+
+```css
+.trust__grid{ padding-block:clamp(24px,3.2vw,40px); }   /* richtig */
+```
+
+Genau das ist zweimal passiert: bei der Vertrauensleiste der Startseite und
+bei der Blätternavigation am Fuß der sechs Leistungsseiten. Aufgefallen ist es
+erst an einem Handy-Bildschirmfoto — auf breiten Fenstern sieht ein fehlender
+Rand nach Absicht aus.
+
+Nachmessen lässt sich das über alle Seiten in einer Schleife:
+
+```js
+const soll = Math.min(Math.max(20, innerWidth * 0.05), 64);
+[...document.querySelectorAll('.wrap')].filter(e => {
+  const cs = getComputedStyle(e);
+  return Math.abs(parseFloat(cs.paddingLeft)  - soll) > 1
+      || Math.abs(parseFloat(cs.paddingRight) - soll) > 1;
+});
+```
+
+Nach dem Laden muss diese Liste auf jeder Seite und in jeder Fensterbreite
+leer sein.
+
+---
+
 ## Seitenaufbau
 
 Die Website ist bewusst **mehrseitig**, auch wenn die Startseite lang ist:
