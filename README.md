@@ -80,7 +80,7 @@ Der Versandweg wird in dieser Reihenfolge gewählt (`assets/js/main.js`):
 | 0 | `/api/formular` antwortet | PDF-Beleg bauen und per Mail schicken |
 | 1 | `data-endpunkt="https://…"` | POST an diese Adresse (Formspree, eigenes Backend) |
 | 2 | `data-netlify="true"` | Netlify Forms — POST auf `/`, ohne Zugangsschlüssel |
-| 3 | keins von beidem | Meldung mit einem Mail-Link zum Anklicken |
+| 3 | keins von beidem | Meldung mit Telefonnummer und Adresse |
 
 Jede Stufe reicht an die nächste weiter, wenn es sie an dieser Adresse nicht
 gibt. Eine Anfrage geht dadurch nie verloren — auch nicht, solange Stufe 0
@@ -97,11 +97,13 @@ muss. Nach dem ersten Deploy einmalig einstellen:
 Auf einem anderen Host: `data-netlify="true"` entfernen und stattdessen
 `data-endpunkt="https://formspree.io/f/xxxxxxx"` setzen. Sonst ändert sich nichts.
 
-Ohne Netlify und ohne Endpunkt bleibt der Mail-Weg. Die Seite öffnet dabei
-**nie von selbst** ein Mailprogramm — sie zeigt eine Meldung mit einem Link,
-den anklicken kann, wer will. Ungefragt in Outlook zu landen, während man ein
-Formular abschickt, sieht wie ein Fehler aus, und beim ersten Mal war es auch
-einer.
+**Die Seite schickt niemanden in sein Mailprogramm** — weder von selbst noch
+über einen Link. Wer ein Formular ausfüllt, klickt auf „Senden" und ist
+fertig: es erscheint die Danke-Ansicht, und die Bestätigung kommt per Mail.
+
+Fällt wirklich jeder Weg aus, steht dort eine Meldung mit Telefonnummer und
+Adresse — mehr nicht. Alles, was den Besucher in ein anderes Programm
+schickt, liest sich als Fehler, auch wenn es als Hilfe gemeint ist.
 
 ---
 
@@ -598,9 +600,9 @@ Ersatzweg ausgewichen. Prüfen lässt sich das in einem Schritt: die Adresse
 | `{"ok":false,"grund":"nur POST"}` | Die Funktion läuft. Der Fehler liegt woanders — *Logs → Functions*. |
 | Die 404-Seite der Website | Die Funktion ist nicht mitgekommen. Paket neu bauen und hochladen. |
 
-**Die Seite öffnet dabei nie von selbst ein Mailprogramm.** Sie zeigt eine
-Meldung mit einem Link, den anklicken kann, wer will. Wer ein Formular
-ausfüllt, will es abschicken — und nicht in Outlook landen.
+**Ins Mailprogramm führt die Seite dabei nie** — weder von selbst noch über
+einen Link. Sie zeigt eine Meldung mit Telefonnummer und Adresse, und das
+ausgefüllte Formular bleibt stehen.
 
 ### Was dieser Weg nicht leistet
 

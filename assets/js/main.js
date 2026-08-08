@@ -618,9 +618,10 @@
        2. data-netlify="true"        -> POST auf "/" (Netlify Forms, ohne Konto-
                                         schlüssel; Netlify liest das Formular
                                         beim Deploy aus dem HTML)
-       3. sonst                      -> Meldung mit einem Mail-Link, den der
-                                       Besucher anklicken kann — die Seite
-                                       öffnet nie von selbst ein Mailprogramm
+       3. sonst                      -> Meldung mit Telefonnummer und Adresse.
+                                       Die Seite schickt niemanden in sein
+                                       Mailprogramm — weder von selbst noch
+                                       über einen Link.
      Jede Stufe reicht an die nächste weiter, wenn es sie an dieser Adresse
      nicht gibt. Geht dagegen etwas wirklich schief, wird das nicht still-
      schweigend verschluckt: es erscheint eine Fehlermeldung mit Telefonnummer
@@ -837,8 +838,7 @@
         /* Nicht vorhanden oder nicht eingerichtet: weiterreichen.
            Alles andere ist ein echter Fehler und wird gemeldet. */
         if(stand && ![404, 405, 501, 503].includes(stand)){
-          ersatzweg(daten, 'Das Absenden hat nicht geklappt. Bitte rufen Sie uns '
-                  + 'an unter +49 (40) 27075100 —');
+          ersatzweg('Das Absenden hat nicht geklappt.');
           return;
         }
       }
@@ -871,52 +871,32 @@
           return;
         }catch(e){
           sperren(false);
-          ersatzweg(daten, 'Das Absenden hat nicht geklappt. Bitte rufen Sie uns '
-                  + 'an unter +49 (40) 27075100 —');
+          ersatzweg('Das Absenden hat nicht geklappt.');
           return;
         }
       }
 
       /* Kein Weg hinterlegt — die Seite liegt etwa als Datei auf der Platte. */
-      ersatzweg(daten, 'Diese Vorschau kann noch nicht selbst versenden —');
+      ersatzweg('Diese Vorschau kann noch nicht selbst versenden.');
     });
 
-    /* Der Ersatzweg, wenn online nichts geht.
+    /* Wenn online nichts geht.
        ---------------------------------------------------------------------
-       Früher öffnete sich hier von selbst das Mailprogramm. Das ist genau
-       das falsche Verhalten: Wer ein Formular ausfüllt, will es abschicken
-       und nicht in Outlook landen. Ausserdem sieht es aus, als sei das der
-       vorgesehene Weg — dabei ist es die Notlösung.
+       Hier stand einmal ein Weg über das Mailprogramm des Besuchers: erst
+       öffnete es sich von selbst, später gab es einen Link dorthin. Beides
+       ist weg.
 
-       Jetzt steht dort eine Meldung mit einem Link. Wer will, klickt ihn an;
-       wer nicht, ruft an. Nichts passiert ungefragt. */
-    function ersatzweg(daten, vorspann){
-      const link = mailLink(daten);
-      if(!status) return;
-      status.textContent = vorspann + ' ';
-      const a = document.createElement('a');
-      a.href = link;
-      a.textContent = 'oder die Anfrage per E-Mail schicken';
-      status.appendChild(a);
-      status.dataset.stand = 'fehler';
-    }
+       Der Grund ist einfach: Wer ein Formular ausfüllt, will auf „Senden"
+       klicken und fertig sein. Alles, was ihn stattdessen in ein anderes
+       Programm schickt, liest sich als Fehler — auch wenn es als Hilfe
+       gemeint war. Bleibt nur die Meldung, wie man uns sonst erreicht.
 
-    /* Baut aus den Feldern eine lesbare Mail. */
-    function mailLink(daten){
-      const zeilen = [];
-      for(const [feld, wert] of daten.entries()){
-        if(feld === 'form-name') continue;
-        const t = String(wert).trim();
-        if(t) zeilen.push(feld + ': ' + t);
-      }
-      /* Steht eine eigene Angabe drin, gehört sie in den Betreff — „Anderer
-         Bereich" hilft in der Disposition niemandem weiter. */
-      const bereich = daten.get('Bereich (eigene Angabe)') || daten.get('Bereich');
-      const betreff = (form.dataset.betreff || 'Nachricht über die Website')
-        + (bereich ? ' — ' + bereich : '');
-      return 'mailto:' + empfaenger
-        + '?subject=' + encodeURIComponent(betreff)
-        + '&body='    + encodeURIComponent(zeilen.join('\n'));
+       Zu sehen bekommt das ohnehin fast niemand: davor liegen die Funktion
+       und, auf Netlify, die Formularannahme. Erst wenn beide ausfallen,
+       kommt diese Zeile.                                                   */
+    function ersatzweg(vorspann){
+      melden(vorspann + ' Bitte rufen Sie uns an unter +49 (40) 27075100 '
+           + 'oder schreiben Sie an ' + empfaenger + '.', 'fehler');
     }
   });
 
