@@ -3,6 +3,10 @@
 /* ---------------------------------------------------------------------------
    Die Formularfunktion — Hülle für Netlify
    ---------------------------------------------------------------------------
+   ACHTUNG: Diese Datei wird nicht so ausgeliefert, wie sie hier steht.
+   `tools/paket-bauen.sh` bündelt sie samt aller Abhängigkeiten zu einer
+   einzigen Datei unter netlify/functions/formular.js. Der Grund steht dort.
+
    Dasselbe wie `api/formular.js`, nur in Netlifys Sprache. Netlify reicht ein
    `event`-Objekt herein und erwartet `{ statusCode, headers, body }` zurück;
    Vercel reicht `(req, res)`. Was dazwischen passiert — Beleg, Angebotsbogen,
@@ -17,7 +21,7 @@
    Site configuration → Environment variables (dieselben Namen wie bei Vercel).
 --------------------------------------------------------------------------- */
 
-const { verarbeite } = require('../../api/_vorgang.js');
+const { verarbeite } = require('./_vorgang.js');
 
 const GRENZE = 64 * 1024;   // mehr als 64 KB tippt niemand in ein Formular
 

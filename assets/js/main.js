@@ -618,7 +618,9 @@
        2. data-netlify="true"        -> POST auf "/" (Netlify Forms, ohne Konto-
                                         schlüssel; Netlify liest das Formular
                                         beim Deploy aus dem HTML)
-       3. sonst                      -> fertige Mail im Mailprogramm öffnen
+       3. sonst                      -> Meldung mit einem Mail-Link, den der
+                                       Besucher anklicken kann — die Seite
+                                       öffnet nie von selbst ein Mailprogramm
      Jede Stufe reicht an die nächste weiter, wenn es sie an dieser Adresse
      nicht gibt. Geht dagegen etwas wirklich schief, wird das nicht still-
      schweigend verschluckt: es erscheint eine Fehlermeldung mit Telefonnummer
@@ -835,9 +837,8 @@
         /* Nicht vorhanden oder nicht eingerichtet: weiterreichen.
            Alles andere ist ein echter Fehler und wird gemeldet. */
         if(stand && ![404, 405, 501, 503].includes(stand)){
-          melden('Das Absenden hat nicht geklappt. Bitte rufen Sie uns an unter '
-               + '+49 (40) 27075100 — oder schicken Sie die Anfrage per E-Mail.', 'fehler');
-          mailWeg(daten);
+          ersatzweg(daten, 'Das Absenden hat nicht geklappt. Bitte rufen Sie uns '
+                  + 'an unter +49 (40) 27075100 —');
           return;
         }
       }
@@ -870,19 +871,38 @@
           return;
         }catch(e){
           sperren(false);
-          melden('Das Absenden hat nicht geklappt. Bitte rufen Sie uns an unter '
-               + '+49 (40) 27075100 — oder schicken Sie die Anfrage per E-Mail.', 'fehler');
-          mailWeg(daten);
+          ersatzweg(daten, 'Das Absenden hat nicht geklappt. Bitte rufen Sie uns '
+                  + 'an unter +49 (40) 27075100 —');
           return;
         }
       }
 
-      /* Kein Dienst hinterlegt: fertige Mail öffnen. */
-      mailWeg(daten, true);
+      /* Kein Weg hinterlegt — die Seite liegt etwa als Datei auf der Platte. */
+      ersatzweg(daten, 'Diese Vorschau kann noch nicht selbst versenden —');
     });
 
-    /* Baut aus den Feldern eine lesbare Mail und öffnet das Mailprogramm. */
-    function mailWeg(daten, auchDanken){
+    /* Der Ersatzweg, wenn online nichts geht.
+       ---------------------------------------------------------------------
+       Früher öffnete sich hier von selbst das Mailprogramm. Das ist genau
+       das falsche Verhalten: Wer ein Formular ausfüllt, will es abschicken
+       und nicht in Outlook landen. Ausserdem sieht es aus, als sei das der
+       vorgesehene Weg — dabei ist es die Notlösung.
+
+       Jetzt steht dort eine Meldung mit einem Link. Wer will, klickt ihn an;
+       wer nicht, ruft an. Nichts passiert ungefragt. */
+    function ersatzweg(daten, vorspann){
+      const link = mailLink(daten);
+      if(!status) return;
+      status.textContent = vorspann + ' ';
+      const a = document.createElement('a');
+      a.href = link;
+      a.textContent = 'oder die Anfrage per E-Mail schicken';
+      status.appendChild(a);
+      status.dataset.stand = 'fehler';
+    }
+
+    /* Baut aus den Feldern eine lesbare Mail. */
+    function mailLink(daten){
       const zeilen = [];
       for(const [feld, wert] of daten.entries()){
         if(feld === 'form-name') continue;
@@ -894,14 +914,9 @@
       const bereich = daten.get('Bereich (eigene Angabe)') || daten.get('Bereich');
       const betreff = (form.dataset.betreff || 'Nachricht über die Website')
         + (bereich ? ' — ' + bereich : '');
-      const link = 'mailto:' + empfaenger
+      return 'mailto:' + empfaenger
         + '?subject=' + encodeURIComponent(betreff)
         + '&body='    + encodeURIComponent(zeilen.join('\n'));
-      window.location.href = link;
-      if(auchDanken){
-        melden('Ihr E-Mail-Programm öffnet sich mit der fertigen Nachricht. '
-             + 'Klappt das nicht, schreiben Sie bitte an ' + empfaenger + '.');
-      }
     }
   });
 

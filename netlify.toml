@@ -17,17 +17,15 @@
   functions = "netlify/functions"
 
 [functions]
-  # ---- Warum "zisi" und nicht der neuere Bündler ----
-  # esbuild fasst die Funktion samt Abhängigkeiten in eine Datei zusammen.
-  # Dabei verliert `__dirname` seine Bedeutung, und Pakete, die zur Laufzeit
-  # eigene Dateien nachladen, finden sie nicht mehr. zisi kopiert stattdessen
-  # node_modules mit — langsamer, dafür verhält sich alles wie lokal.
+  # Die Funktion kommt bereits gebündelt an — eine einzige Datei ohne
+  # Abhängigkeiten, gebaut von tools/paket-bauen.sh. Sie braucht hier keinen
+  # Bündler mehr; die Angabe steht nur für den Fall, dass die Seite später
+  # doch einmal aus einem Repository gebaut wird.
+  #
+  # Der Grund für das Vorbündeln: bei einem Deploy per Ziehen-und-Ablegen
+  # baut Netlify nichts. Eine Funktion, die `require('pdfkit')` sagt, fände
+  # dort nichts vor.
   node_bundler = "zisi"
-  # Die Schriftmetriken von pdfkit sind Datendateien, keine require()-Aufrufe;
-  # ein Bündler sieht sie nicht. Diese Zeile nimmt sie ausdrücklich mit.
-  # (Der Beleg benutzt inzwischen die Standalone-Fassung, die sie eingebettet
-  # trägt — die Zeile bleibt als Netz für den Fall, dass jemand zurückstellt.)
-  included_files = ["node_modules/pdfkit/js/data/**"]
 
 # ---- Die Formularfunktion ----
 # Auf Netlify liegt sie unter /.netlify/functions/formular. Die Website ruft

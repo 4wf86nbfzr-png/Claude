@@ -3,3 +3,7 @@ node_modules/
 
 # Das fertige Paket zum Hochladen — wird mit tools/paket-bauen.sh erzeugt
 herm-website-netlify.zip
+
+# Die gebündelte Funktion — Ergebnis von tools/paket-bauen.sh, keine Quelle.
+# Die Quelle steht in api/_netlify.js.
+netlify/functions/

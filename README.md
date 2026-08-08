@@ -40,7 +40,7 @@ assets/video/           Imagefilm + Untertitel
 
 api/_vorgang.js         der Ablauf — Beleg, Angebot, zwei Mails
 api/formular.js         Hülle für Vercel
-netlify/functions/…     Hülle für Netlify (dieselbe Sache)
+api/_netlify.js         Hülle für Netlify (wird vorher gebündelt)
 api/_beleg.js           Aussehen des PDF-Belegs
 api/_angebot.js         Angebotsbogen: Datensatz, Word-Datei und PDF
 api/_mails.js           Wortlaut aller drei Mails
@@ -80,7 +80,7 @@ Der Versandweg wird in dieser Reihenfolge gewählt (`assets/js/main.js`):
 | 0 | `/api/formular` antwortet | PDF-Beleg bauen und per Mail schicken |
 | 1 | `data-endpunkt="https://…"` | POST an diese Adresse (Formspree, eigenes Backend) |
 | 2 | `data-netlify="true"` | Netlify Forms — POST auf `/`, ohne Zugangsschlüssel |
-| 3 | keins von beidem | öffnet das Mailprogramm mit fertiger Nachricht |
+| 3 | keins von beidem | Meldung mit einem Mail-Link zum Anklicken |
 
 Jede Stufe reicht an die nächste weiter, wenn es sie an dieser Adresse nicht
 gibt. Eine Anfrage geht dadurch nie verloren — auch nicht, solange Stufe 0
@@ -97,8 +97,11 @@ muss. Nach dem ersten Deploy einmalig einstellen:
 Auf einem anderen Host: `data-netlify="true"` entfernen und stattdessen
 `data-endpunkt="https://formspree.io/f/xxxxxxx"` setzen. Sonst ändert sich nichts.
 
-Ohne Netlify und ohne Endpunkt bleibt der Mail-Weg — funktionsfähig, aber
-nicht schön: der Absender muss die Mail selbst abschicken.
+Ohne Netlify und ohne Endpunkt bleibt der Mail-Weg. Die Seite öffnet dabei
+**nie von selbst** ein Mailprogramm — sie zeigt eine Meldung mit einem Link,
+den anklicken kann, wer will. Ungefragt in Outlook zu landen, während man ein
+Formular abschickt, sieht wie ein Fehler aus, und beim ersten Mal war es auch
+einer.
 
 ---
 
@@ -532,16 +535,23 @@ Kein Konto bei GitHub nötig, kein Build, keine Kreditkarte.
 
 ```bash
 bash 
-# → herm-website-netlify.zip  (rund 21 MB)
+# → herm-website-netlify.zip  (rund 14 MB)
 ```
 
-Das Skript installiert die drei Pakete der Funktion neu, prüft, dass sie
-lädt, und schnürt alles zusammen — ohne Arbeitsdateien, die im Netz nichts zu
-suchen haben.
+**Warum ein eigenes Skript?** Beim Ziehen-und-Ablegen führt Netlify keinen
+Build aus — es veröffentlicht, was im Paket liegt. Eine Funktion, die
+`require('pdfkit')` sagt, fände dort nichts vor.
 
-**Warum ein ZIP mit `node_modules`?** Beim Ziehen-und-Ablegen führt Netlify
-keinen Build aus; es veröffentlicht, was im Paket liegt. Die Pakete müssen
-also mit hinein.
+Das Skript bündelt sie deshalb vorher: aus `api/_netlify.js` samt aller
+Abhängigkeiten wird **eine einzige Datei** unter
+`netlify/functions/formular.js` (rund 3,8 MB). Die braucht kein
+`node_modules` und keinen Bündler auf der Gegenseite — sie läuft, wo immer
+sie landet.
+
+Zwei Kontrollen laufen dabei mit: das Bündel muss für sich allein starten,
+und es darf **nichts** außer eingebauten Node-Modulen nachladen. Schlägt eine
+davon fehl, bricht das Skript ab, statt ein Paket zu bauen, das erst auf dem
+Server auffliegt.
 
 ### 2. Hochladen
 
@@ -577,6 +587,21 @@ Mails ankommen:
 
 Kommt nichts an: **Logs → Functions → formular**. Dort steht der Grund.
 
+### Wenn die Formulare ins Mailprogramm führen
+
+Dann ist die Funktion nicht erreichbar, und die Seite ist auf ihren letzten
+Ersatzweg ausgewichen. Prüfen lässt sich das in einem Schritt: die Adresse
+`/api/formular` im Browser aufrufen.
+
+| Was dasteht | Was es heißt |
+|---|---|
+| `{"ok":false,"grund":"nur POST"}` | Die Funktion läuft. Der Fehler liegt woanders — *Logs → Functions*. |
+| Die 404-Seite der Website | Die Funktion ist nicht mitgekommen. Paket neu bauen und hochladen. |
+
+**Die Seite öffnet dabei nie von selbst ein Mailprogramm.** Sie zeigt eine
+Meldung mit einem Link, den anklicken kann, wer will. Wer ein Formular
+ausfüllt, will es abschicken — und nicht in Outlook landen.
+
 ### Was dieser Weg nicht leistet
 
 Die Adresse ist **öffentlich erreichbar**, wenn jemand sie kennt. Ein
@@ -590,7 +615,7 @@ nirgends verlinkt ist, reicht das; ein Geheimnis ist es nicht.
 
 | | Vercel | Netlify |
 |---|---|---|
-| Funktion liegt in | `api/formular.js` | `netlify/functions/formular.js` |
+| Funktion liegt in | `api/formular.js` | `api/_netlify.js`, gebündelt |
 | Adresse | `/api/formular` | `/api/formular` (per Weiterleitung) |
 | Zeitgrenze | 20 s (in `vercel.json`) | **10 s**, fest |
 | Konfiguration | `vercel.json` | `netlify.toml` |

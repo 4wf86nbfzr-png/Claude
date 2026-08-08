@@ -11,5 +11,8 @@
     "docx": "^9.7.1",
     "nodemailer": "^9.0.5",
     "pdfkit": "^0.19.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.1"
   }
 }
