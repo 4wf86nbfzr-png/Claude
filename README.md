@@ -179,6 +179,38 @@ Was schon drinsteht:
 * die Standardzeile `+ 1 Stunde für An- und Abfahrt je Mitarbeiter`
 * alle sechs Bedingungen und die vollständige Fußzeile
 
+### Die Zusage: der Bogen fehlt nie und gehört nie zu jemand anderem
+
+Drei Sicherungen in `api/formular.js`:
+
+1. **Stimmigkeit.** Nach dem Bauen wird geprüft, ob im Datensatz wirklich die
+   Angaben dieser Anfrage stehen — Ansprechpartner, Firma, E-Mail,
+   Einsatzdatum. Ein Bogen mit fremden Daten wäre der schlimmste Fehler von
+   allen, weil er richtig aussähe.
+2. **Format und Umfang.** Eine Word-Datei fängt mit `PK` an, ein PDF mit
+   `%PDF`, beide sind mindestens 5 KB groß. Ein abgeschnittener Puffer fällt
+   hier auf und nicht erst beim Öffnen in der Disposition.
+3. **Zweiter Versuch.** Schlägt eine der beiden Prüfungen fehl, wird alles
+   noch einmal gebaut.
+
+Und wenn auch das misslingt? Dann geht die Anfrage **trotzdem** raus — aber
+mit `[OHNE ANGEBOT]` im Betreff und einem Hinweis ganz oben im Text, den man
+nicht übersieht. Alle Angaben stehen weiterhin im PDF-Beleg, der Bogen lässt
+sich von Hand anlegen. **Still fehlen darf er nie.**
+
+### Zwei Anfragen in derselben Minute
+
+Jede Referenz endet auf drei Zeichen aus `crypto.randomBytes` —
+`AN-260808-0645-BYT`. Ohne sie hießen zwei Anfragen aus derselben Minute
+gleich: gleiche Referenz, gleicher Dateiname, gleiche Angebotsnummer. In der
+Disposition wäre das nicht auffällig, sondern still falsch.
+
+Der Angebotsbogen trägt dieselben drei Zeichen (`A-260808-0645-BYT`). Daran
+ist zu sehen, dass Beleg und Bogen zum selben Vorgang gehören.
+
+Aus dem Alphabet fehlen I, O, 0 und 1 — am Telefon vorgelesen sind sie nicht
+zu unterscheiden.
+
 ### Was bewusst leer bleibt
 
 **Alle Preise.** Menge, Preis, Rabatt, Betrag, Nettobetrag, Umsatzsteuer und

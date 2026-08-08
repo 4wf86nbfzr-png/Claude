@@ -129,6 +129,66 @@ async function speichern(vorgang){
   return { abgelegt: false, id: null };
 }
 
+/* --- Der Angebotsbogen, abgesichert --------------------------------------
+   Bei einer Anfrage muss der Bogen im Anhang liegen — und zwar der zu dieser
+   Anfrage. Drei Sicherungen sorgen dafür:
+
+   1. **Stimmigkeit.** Nach dem Bauen wird geprüft, ob im Datensatz wirklich
+      die Angaben dieser Anfrage stehen. Ein Bogen mit fremden Daten wäre der
+      schlimmste Fehler von allen: er sähe richtig aus.
+   2. **Format und Umfang.** Eine Word-Datei fängt mit „PK" an, ein PDF mit
+      „%PDF". Ein abgeschnittener Puffer fällt hier auf, nicht erst beim
+      Öffnen in der Disposition.
+   3. **Zweiter Versuch.** Schlägt einer der beiden Punkte fehl, wird alles
+      noch einmal gebaut. Erst wenn auch das misslingt, geht die Anfrage ohne
+      Bogen raus — dann aber mit „[OHNE ANGEBOT]" im Betreff und einer
+      Anweisung im Text. Still fehlen darf er nie.                          */
+
+function stimmig(angebot, daten){
+  const gleich = (a, b) => sauber(a) === sauber(b);
+  if(!angebot || !angebot.offerNumber) return 'kein Datensatz';
+  if(!gleich(angebot.customer.contact, daten['Name']))    return 'Ansprechpartner weicht ab';
+  if(!gleich(angebot.customer.company, daten['Firma']))   return 'Firma weicht ab';
+  if(!gleich(angebot.customer.email,   daten['E-Mail']))  return 'E-Mail weicht ab';
+  if(!gleich(angebot.assignment.date,  daten['Datum']))   return 'Einsatzdatum weicht ab';
+  return null;
+}
+
+function dateiGeprueft(puffer, magie, name){
+  if(!Buffer.isBuffer(puffer))        return `${name}: kein Puffer`;
+  if(puffer.length < 5000)            return `${name}: nur ${puffer.length} Bytes`;
+  if(puffer.slice(0, magie.length).toString('latin1') !== magie)
+                                      return `${name}: falsches Format`;
+  return null;
+}
+
+async function angebotBauen(daten, beleg){
+  let letzter = null;
+  for(let versuch = 1; versuch <= 2; versuch++){
+    try {
+      const angebot = generateOfferDraft(daten, new Date(beleg.eingangISO), beleg.marke);
+      const abweichung = stimmig(angebot, daten);
+      if(abweichung) throw new Error('Datensatz unstimmig — ' + abweichung);
+
+      const docx = await baueAngebotDocx(angebot);
+      /* Derselbe Bogen zusätzlich als PDF. Die Word-Datei ist zum Ausfüllen
+         da, das PDF zum Ansehen — auf dem Telefon setzt die Vorschau ein
+         Word-Dokument nicht so, wie Word es setzt. */
+      const pdf  = await baueAngebotPdf(angebot);
+
+      const schlecht = dateiGeprueft(docx, 'PK', 'Word-Datei')
+                    || dateiGeprueft(pdf,  '%PDF', 'PDF');
+      if(schlecht) throw new Error(schlecht);
+
+      return { angebot, docx, pdf, fehler: null };
+    } catch(e){
+      letzter = (e && e.message) || String(e);
+      console.error(`Angebotsbogen, Versuch ${versuch} fehlgeschlagen:`, letzter);
+    }
+  }
+  return { angebot: null, docx: null, pdf: null, fehler: letzter };
+}
+
 module.exports = async function (req, res){
   if(req.method === 'OPTIONS'){ res.statusCode = 204; return res.end(); }
   if(req.method !== 'POST'){
@@ -172,21 +232,11 @@ module.exports = async function (req, res){
     return json(res, 500, { ok: false, grund: 'Beleg fehlgeschlagen' });
   }
 
+  let angebotFehler = null;
   if(art === 'anfrage'){
-    /* Der Entwurf darf den Vorgang nicht zu Fall bringen. Kommt er nicht
-       zustande, geht die Anfrage trotzdem raus — nur eben ohne Word-Datei.
-       Eine Anfrage zu verlieren wäre der teurere Fehler. */
-    try {
-      angebot = generateOfferDraft(daten, new Date(beleg.eingangISO));
-      docx    = await baueAngebotDocx(angebot);
-      /* Derselbe Bogen zusätzlich als PDF. Die Word-Datei ist zum Ausfüllen
-         da, das PDF zum Ansehen — auf dem Telefon setzt die Vorschau ein
-         Word-Dokument nicht so, wie Word es setzt. */
-      angebotPdf = await baueAngebotPdf(angebot);
-    } catch(e){
-      console.error('Angebotsentwurf fehlgeschlagen:', e && e.message);
-      angebot = null; docx = null; angebotPdf = null;
-    }
+    const versuch = await angebotBauen(daten, beleg);
+    angebot = versuch.angebot; docx = versuch.docx; angebotPdf = versuch.pdf;
+    angebotFehler = versuch.fehler;
   }
 
   try { await speichern({ art, daten, beleg, angebot }); }
@@ -213,7 +263,7 @@ module.exports = async function (req, res){
 
   const post = art === 'bewerbung'
     ? MAILS.bewerbungsMail(daten, beleg)
-    : MAILS.dispositionsMail(daten, beleg, angebot);
+    : MAILS.dispositionsMail(daten, beleg, angebot, angebotFehler);
 
   const anhaenge = [{
     filename: beleg.dateiname, content: beleg.pdf, contentType: 'application/pdf'

@@ -34,7 +34,7 @@ function kopfsicher(wert){
  * @param {object} beleg   Rückgabe von baueBeleg()
  * @param {object} angebot Rückgabe von generateOfferDraft() — oder null
  */
-function dispositionsMail(daten, beleg, angebot){
+function dispositionsMail(daten, beleg, angebot, angebotFehler){
   const firma  = oder(daten['Firma'], oder(daten['Name']));
   const datum  = datumHuebsch(daten['Datum']);
   const zeitVon = t(daten['Uhrzeit von']), zeitBis = t(daten['Uhrzeit bis']);
@@ -79,6 +79,7 @@ function dispositionsMail(daten, beleg, angebot){
     zeilen.push('', 'ANGEBOTSENTWURF',
       `Nummer:          ${angebot.offerNumber}`,
       `Status:          ${angebot.status}`,
+      `Gehört zu:       ${beleg.referenz}`,
       '',
       'Der Bogen liegt zweimal im Anhang: als Word-Datei zum Ausfüllen und',
       'als PDF zum Ansehen. Anschrift, Datum, Uhrzeit und Anzahl stehen',
@@ -90,10 +91,24 @@ function dispositionsMail(daten, beleg, angebot){
       'Er geht NICHT von allein an den Kunden.');
   }
 
+  /* Der Bogen konnte nicht gebaut werden. Das darf nicht still passieren:
+     die Anfrage geht trotzdem raus, aber unübersehbar markiert — im Betreff
+     und ganz oben im Text, damit es niemand überliest. */
+  if(!angebot){
+    zeilen.splice(1, 0,
+      '',
+      '!!! DER ANGEBOTSBOGEN KONNTE NICHT ERZEUGT WERDEN !!!',
+      '',
+      'Bitte von Hand aus der Vorlage anlegen. Alle Angaben stehen unten',
+      'und vollständig im angehängten PDF-Beleg.',
+      angebotFehler ? 'Grund: ' + String(angebotFehler).slice(0, 200) : '');
+  }
+
   zeilen.push('', 'Ein „Antworten" auf diese Mail geht direkt an den Absender.');
 
   return {
-    betreff: `Neue Personalanfrage – ${kopfsicher(firma)} – ${kopfsicher(datum || 'ohne Datum')}`,
+    betreff: (angebot ? '' : '[OHNE ANGEBOT] ')
+           + `Neue Personalanfrage – ${kopfsicher(firma)} – ${kopfsicher(datum || 'ohne Datum')}`,
     text:    zeilen.join('\n')
   };
 }

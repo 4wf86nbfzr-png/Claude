@@ -145,12 +145,17 @@ function istSonntag(datum){
   return new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])).getUTCDay() === 0;
 }
 
-function angebotsnummer(zeit){
+/* Die Kennung kommt vom Beleg — beide Dateien eines Vorgangs tragen dieselben
+   drei Zeichen am Ende. Fehlt sie, steht dort nichts; dann sind zwei Anfragen
+   derselben Minute nicht mehr auseinanderzuhalten, und genau das soll
+   auffallen. */
+function angebotsnummer(zeit, kennung){
   const t = new Intl.DateTimeFormat('de-DE', {
     day: '2-digit', month: '2-digit', year: '2-digit',
     hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Berlin'
   }).formatToParts(zeit).reduce((o, p) => (o[p.type] = p.value, o), {});
-  return `A-${t.year}${t.month}${t.day}-${t.hour}${t.minute}`;
+  return `A-${t.year}${t.month}${t.day}-${t.hour}${t.minute}`
+       + (kennung ? '-' + kennung : '');
 }
 
 /* --- 1. Der Datensatz ---------------------------------------------------- */
@@ -165,9 +170,10 @@ function angebotsnummer(zeit){
  *
  * @param {object} daten   Feldname → Wert, so wie das Formular sie schickt
  * @param {Date}   eingang Zeitpunkt der Anfrage
+ * @param {string} kennung Die drei Zeichen des Belegs — verbindet beide Dateien
  * @returns {object} Angebotsentwurf
  */
-function generateOfferDraft(daten, eingang){
+function generateOfferDraft(daten, eingang, kennung){
   const zeit = eingang instanceof Date ? eingang : new Date();
 
   const bereichFrei = text(daten['Bereich (eigene Angabe)']);
@@ -194,7 +200,7 @@ function generateOfferDraft(daten, eingang){
   const gueltig = new Date(zeit.getTime() + BOGEN.gueltigTage * 86400000);
 
   return {
-    offerNumber: angebotsnummer(zeit),   // interne Kennung; auf dem Bogen bleibt das Feld leer
+    offerNumber: angebotsnummer(zeit, kennung),  // auf dem Bogen bleibt das Feld leer
     createdAt:   zeit.toISOString(),
     validUntil:  gueltig.toISOString(),
     status:      OFFER_STATUS.DRAFT,     // ohne Preise nie etwas anderes
@@ -557,7 +563,7 @@ async function baueAngebotDocx(angebot){
 
   const doc = new Document({
     creator: 'HERM Service Team e.K.',
-    title:   'Angebot',
+    title:   `Angebot ${angebot.offerNumber}`,
     description: 'Entwurf aus einer Anfrage über hermserviceteam.com — '
                + 'Preise und Nummern trägt die Disposition ein.',
     styles: { default: { document: { run: { font: SCHRIFT, size: 19, color: FARBE.text } } } },
@@ -604,7 +610,7 @@ function baueAngebotPdf(angebot){
 
   const doc = new PDFDocument({
     size: 'A4', margin: pt(RAND_SEITE), bufferPages: true,
-    info: { Title: 'Angebot', Author: 'HERM Service Team e.K.',
+    info: { Title: `Angebot ${angebot.offerNumber}`, Author: 'HERM Service Team e.K.',
             Subject: 'Entwurf — Preise trägt die Disposition ein',
             Creator: 'hermserviceteam.com', Producer: 'hermserviceteam.com' }
   });

@@ -20,6 +20,7 @@
 --------------------------------------------------------------------------- */
 
 const PDFDocument = require('pdfkit');
+const crypto = require('crypto');
 const LOGO = require('./_logo.js');
 
 const FARBE = {
@@ -139,14 +140,30 @@ function zeitstempel(datum){
   return d + ' Uhr';
 }
 
+/* Drei Zeichen, die zwei Vorgänge derselben Minute auseinanderhalten.
+   ---------------------------------------------------------------------------
+   Ohne sie hiessen zwei Anfragen, die im selben Augenblick eintreffen, gleich
+   — gleiche Referenz, gleicher Dateiname, gleiche Angebotsnummer. In der
+   Disposition wäre das nicht auffällig, sondern still falsch.
+
+   Aus dem Alphabet fehlen I, O, 0 und 1: am Telefon vorgelesen sind sie
+   nicht zu unterscheiden. */
+const ZEICHEN = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+function marke(){
+  const roh = crypto.randomBytes(3);
+  let m = '';
+  for(let i = 0; i < 3; i++) m += ZEICHEN[roh[i] % ZEICHEN.length];
+  return m;
+}
+
 /* Kurzes Zeichen, das in Mailbetreff, Dateiname und Beleg dasselbe sagt. */
-function referenz(art, datum){
+function referenz(art, datum, kennung){
   const t = new Intl.DateTimeFormat('de-DE', {
     day: '2-digit', month: '2-digit', year: '2-digit',
     hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Berlin'
   }).formatToParts(datum).reduce((o, p) => (o[p.type] = p.value, o), {});
   const kuerzel = art === 'bewerbung' ? 'BW' : 'AN';
-  return `${kuerzel}-${t.year}${t.month}${t.day}-${t.hour}${t.minute}`;
+  return `${kuerzel}-${t.year}${t.month}${t.day}-${t.hour}${t.minute}-${kennung}`;
 }
 
 /* „Anderer Bereich“ plus Freitext ergibt eine Zeile, nicht zwei. */
@@ -291,7 +308,8 @@ function seitenwechselWennNoetig(doc, hoehe){
 function baueBeleg(art, daten, eingang){
   const plan = BAUPLAN[art] || BAUPLAN.anfrage;
   const zeit = eingang instanceof Date ? eingang : new Date();
-  const ref  = referenz(art, zeit);
+  const kennung = marke();
+  const ref     = referenz(art, zeit, kennung);
 
   const doc = new PDFDocument({
     size: 'A4',
@@ -413,7 +431,10 @@ function baueBeleg(art, daten, eingang){
     absender:  sauber(daten['E-Mail']),
     bereich:   bereichZusammen(daten),
     eingang:   zeitstempel(zeit),
-    eingangISO: zeit.toISOString()
+    eingangISO: zeit.toISOString(),
+    /* Dieselben drei Zeichen bekommt der Angebotsbogen — daran ist zu sehen,
+       dass beide Dateien zum selben Vorgang gehören. */
+    marke:     kennung
   }));
 }
 
