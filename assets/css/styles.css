@@ -1628,42 +1628,37 @@ header.nav{ view-transition-name:kopfzeile; }
 }
 .appleiste a{ position:relative; }
 
-/* 980 px, nicht 900: genau dort verschwindet die Navigation aus der
-   Kopfzeile und der Menüknopf tritt an ihre Stelle. Wären es zwei
-   verschiedene Grenzen, gäbe es dazwischen einen Bereich mit Menüknopf,
-   aber ohne Leiste — und dort müsste das Menü wieder alles enthalten. */
+/* ============================================================
+   Die App-Ansicht hat zwei Bedingungen, nicht eine
+   ------------------------------------------------------------
+   1. `(max-width:980px)`  — schmal. Dort verschwindet die Navigation aus
+      der Kopfzeile und der Menüknopf tritt an ihre Stelle. Alles, was mit
+      der Breite zu tun hat, hängt allein daran.
+
+   2. `(max-width:980px) and (pointer:coarse)` — schmal UND mit dem Finger
+      bedient. Nur dort gibt es die Leiste am unteren Rand.
+
+   Der zweite Teil ist der Grund, warum am Schreibtisch keine Leiste
+   auftaucht, auch wenn man das Fenster schmal zieht: eine Leiste unter dem
+   Daumen ergibt nur Sinn, wo es einen Daumen gibt. Am Rechner — auch in der
+   abgelegten Anwendung — bleibt es beim Menü.
+
+   Was von der Leiste abhängt, MUSS in Block 2 stehen: der Platz, den sie
+   unten wegnimmt, und die Menüpunkte, die sie ersetzt. Stünde eines davon
+   in Block 1, hätte ein schmales Fenster am Rechner unten einen leeren
+   Streifen — oder ein Menü, dem drei Punkte fehlen, ohne dass es einen
+   Ersatz dafür gäbe.
+
+   Browser, die `pointer` nicht kennen, lassen Block 2 ganz weg: keine
+   Leiste, vollständiges Menü. Das ist der richtige Rückfall.
+   ============================================================ */
 @media (max-width:980px){
-  .appleiste{ display:flex; }
-  /* Platz für die Leiste, damit sie den Fuß nicht überdeckt. */
-  body{ padding-bottom:calc(57px + env(safe-area-inset-bottom, 0px)); }
-  /* Der Knopf „Nach oben" säße sonst hinter der Leiste. Er wandert
-     darüber — und rückt näher an den Rand, weil dort mehr Platz ist. */
-  #toTop{ bottom:calc(72px + env(safe-area-inset-bottom, 0px)); }
   /* Die Kopfzeile weicht der Statuszeile aus. Im Browser ist der Wert 0,
      auf dem abgelegten Startbildschirm die Höhe der Uhr. */
   header.nav{ padding-top:calc(clamp(14px,2.4vw,30px) + env(safe-area-inset-top, 0px)); }
   #mobileMenu{
     padding-top:calc(var(--nav-h,78px) + 4vh + env(safe-area-inset-top, 0px));
-    padding-bottom:calc(clamp(28px,5vh,54px) + 57px + env(safe-area-inset-bottom, 0px));
   }
-
-  /* ---- Nichts doppelt ----
-     Was unten in der Leiste steht, steht nicht noch einmal im Menü. Sonst
-     bietet die Ansicht zwei Wege zum selben Ziel an, und der Besucher muss
-     erst herausfinden, dass es dasselbe ist.
-     Die Links bleiben im Markup — sie werden nur dort ausgeblendet, wo die
-     Leiste sie ohnehin anbietet. Auf breiten Fenstern und ohne die Leiste
-     ist das Menü weiterhin vollständig.
-     Ausgewählt wird über das Ende der Adresse, damit dieselbe Regel für
-     „dienstleistungen.html" und „../dienstleistungen.html" gilt. */
-  #mobileMenu > a[href$="dienstleistungen.html"],
-  #mobileMenu > a[href$="jobs.html"],
-  #mobileMenu > a[href$="kontakt.html"],
-  #mobileMenu .menu__aktion a.btn{ display:none; }
-  /* Übrig bleibt im Fuß des Menüs die Telefonnummer — der einzige Weg, den
-     die Leiste nicht anbietet. Sie steht dann allein und braucht keine
-     eigene Zeile mehr über sich. */
-  .menu__aktion{ margin-top:clamp(20px,4vh,40px); }
 
   /* ---- Was am Telefon wegfällt, damit das Scrollen glatt läuft ----
      Nicht die Bewegung ist teuer, sondern das, was der Browser in jedem
@@ -1778,9 +1773,9 @@ header.nav{ view-transition-name:kopfzeile; }
      Er steht am Telefon deshalb einfach da. */
   .panel{
     opacity:1;
-    /* Die Leiste liegt über der Bühne. Ohne diesen Zuschlag steht die
-       letzte Zeile des Textblocks dahinter. */
-    padding-bottom:calc(clamp(32px,6vh,80px) + 57px + env(safe-area-inset-bottom, 0px));
+    /* Den Zuschlag für die Leiste setzt Block 2 — hier wäre er falsch:
+       ohne Leiste stünde unter dem Textblock ein leerer Streifen. */
+    padding-bottom:clamp(32px,6vh,80px);
   }
   .panel > *{ opacity:1; transform:none; }
 }
@@ -1805,16 +1800,51 @@ header.nav{ view-transition-name:kopfzeile; }
      die App-Leiste hebt — „Zum Bereich" verschwand dahinter. Seitlich gilt
      hier derselbe Seitenrand wie überall, unten kommt die Höhe der Leiste
      dazu. */
-  .panel{
-    padding-inline:clamp(20px,5vw,64px);
-    padding-bottom:calc(clamp(32px,6vh,80px) + 57px + env(safe-area-inset-bottom, 0px));
-  }
+  .panel{ padding-inline:clamp(20px,5vw,64px); }
   /* Untereinander, aber linksbündig. Zentriert war richtig, solange die
      Aktionen Flächen waren; als Textlinks liest ein zentrierter Link wie ein
      verrutschter Absatz. */
   .hero__actions{ display:grid; grid-template-columns:1fr; gap:2px; }
   .cta__actions{ display:grid; grid-template-columns:1fr; gap:2px; }
   .hero__actions .btn, .cta__actions .btn{ justify-self:start; }
+}
+
+/* ---- Block 2: alles, was es nur mit der Leiste gibt ----
+   Steht bewusst HINTER den uebrigen Responsive-Bloecken. Die Regeln hier
+   haben dieselbe Spezifitaet wie dort (`.panel`, `body`), und bei gleicher
+   Spezifitaet gewinnt die spaetere Regel. Stuende der Block weiter oben,
+   wuerde der Buehnenblock den Zuschlag fuer die Leiste wieder loeschen und
+   „Zum Bereich" saesse erneut dahinter. */
+@media (max-width:980px) and (pointer:coarse){
+  .appleiste{ display:flex; }
+  /* Platz für die Leiste, damit sie den Fuß nicht überdeckt. */
+  body{ padding-bottom:calc(57px + env(safe-area-inset-bottom, 0px)); }
+  /* Der Knopf „Nach oben" säße sonst hinter der Leiste. Er wandert
+     darüber — und rückt näher an den Rand, weil dort mehr Platz ist. */
+  #toTop{ bottom:calc(72px + env(safe-area-inset-bottom, 0px)); }
+  #mobileMenu{
+    padding-bottom:calc(clamp(28px,5vh,54px) + 57px + env(safe-area-inset-bottom, 0px));
+  }
+  /* Der Textblock der Bühnen ebenso — ohne den Zuschlag stand „Zum Bereich"
+     hinter der Leiste. */
+  .panel{ padding-bottom:calc(clamp(32px,6vh,80px) + 57px + env(safe-area-inset-bottom, 0px)); }
+
+  /* ---- Nichts doppelt ----
+     Was unten in der Leiste steht, steht nicht noch einmal im Menü. Sonst
+     bietet die Ansicht zwei Wege zum selben Ziel an, und der Besucher muss
+     erst herausfinden, dass es dasselbe ist.
+     Die Links bleiben im Markup — sie werden nur dort ausgeblendet, wo die
+     Leiste sie ohnehin anbietet. Ohne Leiste ist das Menü vollständig.
+     Ausgewählt wird über das Ende der Adresse, damit dieselbe Regel für
+     „dienstleistungen.html" und „../dienstleistungen.html" gilt. */
+  #mobileMenu > a[href$="dienstleistungen.html"],
+  #mobileMenu > a[href$="jobs.html"],
+  #mobileMenu > a[href$="kontakt.html"],
+  #mobileMenu .menu__aktion a.btn{ display:none; }
+  /* Übrig bleibt im Fuß des Menüs die Telefonnummer — der einzige Weg, den
+     die Leiste nicht anbietet. Sie steht dann allein und braucht keine
+     eigene Zeile mehr über sich. */
+  .menu__aktion{ margin-top:clamp(20px,4vh,40px); }
 }
 
 @media (prefers-reduced-motion:reduce){

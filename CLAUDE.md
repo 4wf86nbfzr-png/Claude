@@ -616,11 +616,41 @@ Die Linie gehört deshalb an ein Pseudoelement, nicht an den Rahmen:
 
 Am Schreibtisch liest man eine Website, am Telefon bedient man sie. Die kleine
 Ansicht ist deshalb keine verkleinerte Fassung der großen, sondern ein eigenes
-Bedienbild. Alles davon steht im Abschnitt `APP-ANSICHT` in `styles.css` und
-greift **unterhalb von 980 px** — genau dort, wo die Navigation aus der
-Kopfzeile verschwindet und der Menüknopf an ihre Stelle tritt. Zwei
-verschiedene Grenzen hätten einen Bereich mit Menüknopf, aber ohne Leiste
-ergeben, und dort müsste das Menü wieder alles enthalten.
+Bedienbild. Alles davon steht im Abschnitt `APP-ANSICHT` in `styles.css`.
+
+### Zwei Bedingungen, nicht eine
+
+Die Regeln zerfallen in zwei Blöcke, und die Trennung ist wichtig:
+
+| Block | Bedingung | Was darin steht |
+|---|---|---|
+| 1 | `(max-width:980px)` | alles, was mit der **Breite** zu tun hat: Sicherheitsabstände, weggelassene Effekte, die vereinfachten Bühnen |
+| 2 | `(max-width:980px) and (pointer:coarse)` | alles, was es **nur mit der Leiste** gibt: die Leiste selbst, der Platz, den sie unten wegnimmt, und die Menüpunkte, die sie ersetzt |
+
+980 px ist die Grenze, an der die Navigation aus der Kopfzeile verschwindet
+und der Menüknopf an ihre Stelle tritt.
+
+`pointer:coarse` ist der Grund, warum am Schreibtisch **keine** Leiste
+auftaucht, auch wenn man das Fenster schmal zieht: eine Leiste unter dem
+Daumen ergibt nur Sinn, wo es einen Daumen gibt. Am Rechner — auch in der
+abgelegten Anwendung — bleibt es beim Menü.
+
+Was von der Leiste abhängt, **muss** in Block 2 stehen. Stünde eines davon
+in Block 1, hätte ein schmales Fenster am Rechner unten einen leeren
+Streifen — oder ein Menü, dem drei Punkte fehlen, ohne dass es einen Ersatz
+dafür gäbe.
+
+Block 2 steht außerdem **hinter** den übrigen Responsive-Blöcken. Seine
+Regeln haben dieselbe Spezifität wie die dort (`.panel`, `body`), und bei
+gleicher Spezifität gewinnt die spätere. Weiter oben würde der Bühnenblock
+den Zuschlag für die Leiste wieder löschen.
+
+Browser, die `pointer` nicht kennen, lassen Block 2 ganz weg: keine Leiste,
+vollständiges Menü. Das ist der richtige Rückfall.
+
+**Zum Nachsehen am Rechner** genügt deshalb kein schmales Fenster — es
+braucht die Geräteansicht der Entwicklerwerkzeuge (die meldet
+`pointer:coarse`) oder ein echtes Telefon.
 
 **Die Leiste unten** (`.appleiste`) hält die vier Wege, die jemand am Telefon
 wirklich geht: Start · Leistungen · Jobs · Anfrage. Sie liegt dort, wo der
