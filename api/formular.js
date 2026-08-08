@@ -268,16 +268,22 @@ module.exports = async function (req, res){
   const anhaenge = [{
     filename: beleg.dateiname, content: beleg.pdf, contentType: 'application/pdf'
   }];
+  /* Derselbe Kundenteil wie im Beleg — beide Dateien stehen im Postfach
+     nebeneinander und sind auf einen Blick als zusammengehörig zu erkennen. */
+  const angebotName = angebot
+    ? ['Angebot', beleg.kunde, angebot.offerNumber].filter(Boolean).join('_')
+    : null;
+
   if(angebot && docx){
     anhaenge.push({
-      filename:    `Angebot-Entwurf-${angebot.offerNumber}.docx`,
+      filename:    `${angebotName}.docx`,
       content:     docx,
       contentType: DOCX_TYP
     });
   }
   if(angebot && angebotPdf){
     anhaenge.push({
-      filename:    `Angebot-Entwurf-${angebot.offerNumber}.pdf`,
+      filename:    `${angebotName}.pdf`,
       content:     angebotPdf,
       contentType: 'application/pdf'
     });

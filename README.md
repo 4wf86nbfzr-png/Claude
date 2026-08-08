@@ -156,8 +156,8 @@ in derselben Mail — derselbe Bogen zweimal:
 
 | Datei | wofür |
 |---|---|
-| `Angebot-Entwurf-A-260807-1432.docx` | zum Ausfüllen in Word |
-| `Angebot-Entwurf-A-260807-1432.pdf`  | zum Ansehen, überall gleich |
+| `Angebot_FR-Event-und-MesseCatering-GmbH_A-260808-0649-QQ6.docx` | zum Ausfüllen in Word |
+| `Angebot_FR-Event-und-MesseCatering-GmbH_A-260808-0649-QQ6.pdf`  | zum Ansehen, überall gleich |
 
 Der Bogen ist dem vorhandenen Angebotsformular nachgebaut — Kopf,
 Absenderzeile, Anschriftenfeld, Kennzahlenblock, Positionstabelle, die sechs
@@ -197,6 +197,31 @@ Und wenn auch das misslingt? Dann geht die Anfrage **trotzdem** raus — aber
 mit `[OHNE ANGEBOT]` im Betreff und einem Hinweis ganz oben im Text, den man
 nicht übersieht. Alle Angaben stehen weiterhin im PDF-Beleg, der Bogen lässt
 sich von Hand anlegen. **Still fehlen darf er nie.**
+
+### Die Dateinamen
+
+Alle drei Anhänge tragen den Kunden im Namen — dann muss in der Disposition
+niemand umbenennen, und im Postfach ist auf einen Blick zu sehen, wozu eine
+Datei gehört:
+
+```
+Personalanfrage_FR-Event-und-MesseCatering-GmbH_AN-260808-0649-QQ6.pdf
+Angebot_FR-Event-und-MesseCatering-GmbH_A-260808-0649-QQ6.docx
+Angebot_FR-Event-und-MesseCatering-GmbH_A-260808-0649-QQ6.pdf
+Bewerbung_Jonas-Petersen_BW-260808-0649-3KQ.pdf
+```
+
+Bei einer Anfrage ist die **Firma** der Anker, bei einer Bewerbung der
+**Name**; fehlt die Firma, wird der Ansprechpartner genommen. Ergibt beides
+nichts Brauchbares, bleibt der Name eben kurz — `Personalanfrage_AN-…pdf` ist
+besser als ein kaputter Dateiname.
+
+`dateiTeil()` in `api/_beleg.js` schreibt Umlaute um (`Größenwahn` →
+`Groessenwahn`), macht aus allem Übrigen Bindestriche und kürzt lange Namen an
+der Wortgrenze. Ein Dateiname wandert durch Mailprogramme, Dateisysteme und
+Windows-Freigaben, und jedes davon stolpert über andere Zeichen — was hier
+durchkommt, kommt überall durch. Nebenbei kann so auch nichts aus einem
+Formularfeld in einen Pfad geraten.
 
 ### Zwei Anfragen in derselben Minute
 

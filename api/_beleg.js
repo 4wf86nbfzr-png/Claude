@@ -166,6 +166,33 @@ function referenz(art, datum, kennung){
   return `${kuerzel}-${t.year}${t.month}${t.day}-${t.hour}${t.minute}-${kennung}`;
 }
 
+/* Der Kunde im Dateinamen.
+   ---------------------------------------------------------------------------
+   „Angebot_FR-Event-und-MesseCatering-GmbH_AN-260808-0645-BYT.docx" — dann
+   muss in der Disposition niemand umbenennen, und im Postfach ist auf einen
+   Blick zu sehen, zu wem die Datei gehört.
+
+   Umlaute werden umschrieben und alles Übrige zu Bindestrichen: ein Dateiname
+   wandert durch Mailprogramme, Dateisysteme und Windows-Freigaben, und jedes
+   davon stolpert über andere Zeichen. Was hier durchkommt, kommt überall
+   durch.                                                                    */
+const UMSCHRIFT = { 'Ä':'Ae','Ö':'Oe','Ü':'Ue','ä':'ae','ö':'oe','ü':'ue',
+                    'ß':'ss','&':'und','é':'e','è':'e','ê':'e','á':'a','à':'a',
+                    'í':'i','ó':'o','ú':'u','ñ':'n','ç':'c' };
+function dateiTeil(wert, grenze){
+  const roh = sauber(wert).replace(/[ÄÖÜäöüß&éèêáàíóúñç]/g, z => UMSCHRIFT[z] || z);
+  const rein = roh.normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
+                  .replace(/[^A-Za-z0-9]+/g, '-')
+                  .replace(/^-+|-+$/g, '');
+  const max = grenze || 48;
+  if(rein.length <= max) return rein;
+  /* An der Wortgrenze kürzen, sonst steht „…Messebau-Gm" im Dateinamen.
+     Nur wenn dabei nicht mehr als ein Drittel verlorengeht. */
+  const kurz = rein.slice(0, max);
+  const bruch = kurz.lastIndexOf('-');
+  return (bruch > max * 0.66 ? kurz.slice(0, bruch) : kurz).replace(/-+$/, '');
+}
+
 /* „Anderer Bereich“ plus Freitext ergibt eine Zeile, nicht zwei. */
 function bereichZusammen(daten){
   const frei = sauber(daten['Bereich (eigene Angabe)']);
@@ -421,10 +448,17 @@ function baueBeleg(art, daten, eingang){
 
   doc.end();
 
+  /* Bei einer Anfrage ist die Firma der Anker, bei einer Bewerbung der Name.
+     Fehlt beides, bleibt der Dateiname eben ohne — lieber kurz als leer. */
+  const kunde = dateiTeil(art === 'bewerbung'
+    ? daten['Name']
+    : (sauber(daten['Firma']) || daten['Name']));
+
   return fertig.then(pdf => ({
     pdf,
     referenz:  ref,
-    dateiname: `${plan.art}-${ref}.pdf`,
+    kunde,
+    dateiname: [plan.art, kunde, ref].filter(Boolean).join('_') + '.pdf',
     art:       plan.art,
     titel:     plan.titel,
     name:      sauber(daten['Name']),
@@ -438,4 +472,4 @@ function baueBeleg(art, daten, eingang){
   }));
 }
 
-module.exports = { baueBeleg, BAUPLAN, sauber };
+module.exports = { baueBeleg, BAUPLAN, sauber, dateiTeil };
