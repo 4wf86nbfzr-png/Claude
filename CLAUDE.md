@@ -305,6 +305,20 @@ und alles darunter rutschte mit.
 Wer Abstände am Vorbild abmisst, misst deshalb ab der **Unterkante der
 Zeile**, nicht ab der Unterkante des Textes darin.
 
+### Die vierte Falle: einfache Betrachter rechnen Tabellen klein
+
+Word und LibreOffice setzen einen freistehenden Absatz und denselben Absatz
+in einer Tabelle gleich. Die Vorschau auf dem iPhone tut das nicht: sie
+rechnet Tabellen auf die Bildschirmbreite herunter und lässt freistehende
+Absätze in Lesegröße stehen. Auf einem Blatt, das beides mischt, steht die
+halbe Seite winzig und die andere riesig — und genau so kam der erste Bogen
+beim Betrieb an.
+
+Deshalb steht auf dem Angebotsbogen **alles** in Tabellen derselben Breite,
+auch das, was wie ein einfacher Absatz aussieht (`alsZeile()`). Und deshalb
+liegt derselbe Bogen zusätzlich als PDF bei: ein PDF sieht überall gleich
+aus.
+
 ### Wie nachgemessen wird
 
 Die Maße im Kopf von `_angebot.js` sind keine Schätzung. Der vorhandene Bogen

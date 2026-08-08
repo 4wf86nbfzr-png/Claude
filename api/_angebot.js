@@ -85,6 +85,10 @@ const BOGEN = {
 
 /* Die Zustände, die ein Angebot durchläuft. Der Entwurf kennt nur den
    ersten; alles Weitere setzt ein Mensch oder ein späterer Freigabeschritt. */
+/* Wie viele Bedingungen neben dem Summenkasten stehen. Im Vorbild laufen die
+   restlichen darunter über die ganze Breite weiter. Gilt für beide Fassungen. */
+const NEBEN_KASTEN = 3;
+
 const OFFER_STATUS = Object.freeze({
   DRAFT:           'DRAFT',            // gebaut, Preise offen
   REVIEW_REQUIRED: 'REVIEW_REQUIRED',  // gerechnet, wartet auf die Disposition
@@ -349,6 +353,31 @@ function zelle(inhalt, o = {}){
   });
 }
 
+/* Ein Absatz, der wie ein Absatz aussieht, aber in einer Tabelle steht.
+   ---------------------------------------------------------------------------
+   Word und LibreOffice setzen beides gleich. Einfache Betrachter — etwa die
+   Vorschau auf dem iPhone — tun das nicht: sie rechnen Tabellen auf die
+   Bildschirmbreite herunter und lassen freistehende Absätze in Lesegröße
+   stehen. Auf einem Blatt, das beides mischt, steht dann die halbe Seite
+   winzig und die andere Hälfte riesig.
+
+   Deshalb steht auf diesem Bogen alles in Tabellen derselben Breite. Dann
+   wird alles gleich behandelt — egal, womit man es öffnet.                 */
+const alsZeile = (inhalt, o = {}) => new Table({
+  width: { size: SATZBREITE, type: WidthType.DXA },
+  columnWidths: [SATZBREITE],
+  layout: TableLayoutType.FIXED,
+  borders: KEIN_RAHMEN,
+  rows: [ new TableRow({ children: [
+    new TableCell({
+      width: { size: SATZBREITE, type: WidthType.DXA },
+      borders: KEIN_RAHMEN,
+      margins: { top: o.vor || 0, bottom: o.nach || 0, left: 0, right: 0 },
+      children: Array.isArray(inhalt) ? inhalt : [inhalt]
+    })
+  ]})]
+});
+
 const tabelle = (zeilen, spalten, rahmen) => new Table({
   width: { size: spalten.reduce((a, b) => a + b, 0), type: WidthType.DXA },
   columnWidths: spalten,
@@ -380,10 +409,10 @@ async function baueAngebotDocx(angebot){
   ]})], SPALTEN.kopf));
 
   /* Absenderzeile --------------------------------------------------------- */
-  teile.push(absatz([
+  teile.push(alsZeile(absatz([
     lauf(BOGEN.absenderzeile.firma, { groesse: GRAD.absender, fett: true }),
     lauf(BOGEN.absenderzeile.rest,  { groesse: GRAD.absender, farbe: FARBE.leise })
-  ], { vor: LUFT.vorAbsender, nach: LUFT.nachAbsender }));
+  ], { nach: 0 }), { vor: LUFT.vorAbsender, nach: LUFT.nachAbsender }));
 
   /* Anschrift links, Kennzahlen rechts ------------------------------------ */
   /* Firma und Anschrift, sonst nichts: im Vorbild steht im Anschriftenfeld
@@ -413,8 +442,9 @@ async function baueAngebotDocx(angebot){
   ]})], SPALTEN.adresse));
 
   /* Einleitung ------------------------------------------------------------ */
-  teile.push(absatz(BOGEN.einleitung, { kursiv: true, groesse: GRAD.einleitung,
-                                        vor: LUFT.nachAnschrift, nach: LUFT.nachEinleitung }));
+  teile.push(alsZeile(absatz(BOGEN.einleitung, { kursiv: true, groesse: GRAD.einleitung,
+                                                 nach: 0 }),
+                      { vor: LUFT.nachAnschrift, nach: LUFT.nachEinleitung }));
 
   /* Positionstabelle ------------------------------------------------------ */
   const POS_SP = SPALTEN.positionen;
@@ -455,8 +485,6 @@ async function baueAngebotDocx(angebot){
      wird deshalb geteilt: die ersten drei Bedingungen stehen in einer Zelle
      neben dem Kasten, die letzten drei als gewöhnliche Absätze darunter.
      Das sieht gleich aus und steht bei jedem gleich.                       */
-  const NEBEN_KASTEN = 3;
-
   function bedingungsAbsaetze(von, bis){
     const raus = [];
     BOGEN.bedingungen.slice(von, bis).forEach(([titel, saetze], i) => {
@@ -503,8 +531,8 @@ async function baueAngebotDocx(angebot){
   const UNTEN_SP = SPALTEN.unten;
   /* Ein leerer Absatz von 7 Punkt — im Vorbild stehen zwischen Tabellenkante
      und den Bedingungen nur rund 1,5 mm. */
-  teile.push(new Paragraph({ spacing: { after: 0, line: LUFT.nachTabelle,
-                                        lineRule: 'exact' }, children: [] }));
+  teile.push(alsZeile(new Paragraph({ spacing: { after: 0, line: LUFT.nachTabelle,
+                                                 lineRule: 'exact' }, children: [] })));
   teile.push(tabelle([ new TableRow({ children: [
     zelle(bedingungen, { dxa: UNTEN_SP[0], luft: 0, seite: 0, mitte: false }),
     zelle([absatz('', { nach: 0 })], { dxa: UNTEN_SP[1], luft: 0, seite: 0, mitte: false }),
@@ -512,10 +540,10 @@ async function baueAngebotDocx(angebot){
   ]})], UNTEN_SP));
 
   /* Der Rest über die ganze Breite, unterhalb des Kastens. */
-  teile.push(...bedingungsAbsaetze(NEBEN_KASTEN, BOGEN.bedingungen.length));
+  teile.push(alsZeile(bedingungsAbsaetze(NEBEN_KASTEN, BOGEN.bedingungen.length)));
 
   /* Fußzeile — auf jeder Seite ------------------------------------------- */
-  const fusszeile = new Footer({ children: BOGEN.fuss.map((zeile, i) =>
+  const fusszeile = new Footer({ children: [ alsZeile(BOGEN.fuss.map((zeile, i) =>
     new Paragraph({
       spacing: { after: 0, before: i ? 0 : 60 },
       border: i ? undefined : { top: { style: BorderStyle.SINGLE, size: 2, color: FARBE.linie,
@@ -525,7 +553,7 @@ async function baueAngebotDocx(angebot){
         ...(normal ? [lauf(normal, { groesse: GRAD.fuss })] : [])
       ])
     })
-  )});
+  )) ]});
 
   const doc = new Document({
     creator: 'HERM Service Team e.K.',
@@ -549,3 +577,195 @@ module.exports = {
   generateOfferDraft, baueAngebotDocx, OFFER_STATUS, BOGEN,
   /* für Tests */ _intern: { stunde, dauer, istSonntag, datumKurz, uhrPunkt }
 };
+
+/* --- 3. Derselbe Bogen als PDF ------------------------------------------- */
+/* ---------------------------------------------------------------------------
+   Warum zweimal?
+
+   Die Word-Datei ist zum Ausfüllen da — dafür braucht es Word. Angesehen wird
+   der Bogen aber oft zuerst auf dem Telefon, und die Vorschau dort setzt ein
+   Word-Dokument nicht so, wie Word es setzt: sie rechnet Tabellen auf die
+   Bildschirmbreite herunter. Ein PDF hat dieses Problem nicht — es sieht
+   überall aus wie hier.
+
+   Beide Blätter kommen aus denselben Maßen: `SPALTEN`, `GRAD` und `LUFT`
+   stehen in Twips, hier geteilt durch 20 ergibt das Punkte. Wer oben eine
+   Zahl ändert, ändert damit beide Fassungen.
+--------------------------------------------------------------------------- */
+
+const PDFDocument = require('pdfkit');
+
+const pt = twips => twips / 20;            // Twips → Punkt
+const hp = halbe => halbe / 2;             // halbe Punkte → Punkt
+
+function baueAngebotPdf(angebot){
+  const k = angebot.customer;
+  const p = angebot.pricing[0];
+
+  const doc = new PDFDocument({
+    size: 'A4', margin: pt(RAND_SEITE), bufferPages: true,
+    info: { Title: 'Angebot', Author: 'HERM Service Team e.K.',
+            Subject: 'Entwurf — Preise trägt die Disposition ein',
+            Creator: 'hermserviceteam.com', Producer: 'hermserviceteam.com' }
+  });
+
+  const L = pt(RAND_SEITE);                 // linker Satzrand
+  const B = pt(SATZBREITE);                 // Satzbreite
+  const R = L + B;                          // rechter Satzrand
+  const grau = '#' + FARBE.leise, schwarz = '#' + FARBE.text;
+  const linie = '#' + FARBE.linie, kopfgrund = '#' + FARBE.kopf;
+
+  const teile = [];
+  doc.on('data', d => teile.push(d));
+  const fertig = new Promise((los, nix) => {
+    doc.on('end', () => los(Buffer.concat(teile)));
+    doc.on('error', nix);
+  });
+
+  const setz = (t, x, y, o = {}) => {
+    doc.font(o.fett ? (o.kursiv ? 'Helvetica-BoldOblique' : 'Helvetica-Bold')
+                    : (o.kursiv ? 'Helvetica-Oblique'     : 'Helvetica'))
+       .fontSize(o.groesse || 9.5).fillColor(o.farbe || schwarz)
+       .text(t, x, y, { lineBreak: false, width: o.breite, align: o.align });
+  };
+  const strich = (x1, y, x2, farbe) => doc.save()
+    .moveTo(x1, y).lineTo(x2, y).lineWidth(.5).strokeColor(farbe || linie).stroke().restore();
+
+  /* Kopf ------------------------------------------------------------------ */
+  let y = pt(620);
+  setz('ANGEBOT', L, y, { groesse: hp(GRAD.titel) });
+  const logoB = 128.25, logoH = 48.75;      // 171 × 65 px bei 96 dpi
+  doc.image(LOGO, R - logoB, y + pt(LUFT.logoTiefer), { width: logoB });
+  y = Math.max(y + hp(GRAD.titel) * 1.2, y + pt(LUFT.logoTiefer) + logoH);
+
+  /* Absenderzeile --------------------------------------------------------- */
+  y += pt(LUFT.vorAbsender);
+  doc.font('Helvetica-Bold').fontSize(hp(GRAD.absender)).fillColor(schwarz)
+     .text(BOGEN.absenderzeile.firma, L, y, { lineBreak: false, continued: true })
+     .font('Helvetica').fillColor(grau)
+     .text(BOGEN.absenderzeile.rest, { lineBreak: false });
+  y += hp(GRAD.absender) * 1.35 + pt(LUFT.nachAbsender);
+
+  /* Anschrift links, Kennzahlen rechts ------------------------------------ */
+  const anschrift = [k.company, ...(k.address ? k.address.split('\n') : [])]
+    .map(text).filter(Boolean);
+  if(!anschrift.length) anschrift.push(k.contact || '');
+
+  const zeilenH = hp(GRAD.anschrift) * 1.32;
+  anschrift.forEach((z, i) => setz(z, L, y + i * zeilenH, { groesse: hp(GRAD.anschrift) }));
+
+  const kx = L + pt(SPALTEN.adresse[0]);
+  const kh = hp(GRAD.kennzahl) * 1.32 + 2 * pt(38);   // wie die Zellenluft im DOCX
+  [['Angebotsnr.', ''], ['Kundennummer', text(k.customerNumber)],
+   ['Ausstellungsdatum', datumHuebsch(angebot.createdAt.slice(0, 10))],
+   ['Gültig bis', datumHuebsch(angebot.validUntil.slice(0, 10))]
+  ].forEach(([b, w], i) => {
+    const yy = y + i * kh;
+    setz(b, kx, yy, { groesse: hp(GRAD.kennzahl), farbe: schwarz });
+    setz(w, kx + pt(SPALTEN.kennzahl[0]), yy,
+         { groesse: hp(GRAD.kennzahl), fett: true,
+           breite: pt(SPALTEN.kennzahl[1]), align: 'right' });
+  });
+
+  y = Math.max(y + anschrift.length * zeilenH, y + 4 * kh) + pt(LUFT.nachAnschrift);
+
+  /* Einleitung ------------------------------------------------------------ */
+  setz(BOGEN.einleitung, L, y, { groesse: hp(GRAD.einleitung), kursiv: true });
+  y += hp(GRAD.einleitung) * 1.35 + pt(LUFT.nachEinleitung);
+
+  /* Positionstabelle ------------------------------------------------------ */
+  const sp = SPALTEN.positionen.map(pt);
+  const kanten = sp.reduce((a, w) => (a.push(a[a.length - 1] + w), a), [L]);
+  const rand   = pt(LUFT.zellenrand);
+
+  const kopfH = hp(GRAD.tabellenkopf) * 1.3 + 2 * pt(LUFT.kopfzelle);
+  doc.save().rect(L, y, B, kopfH).fill(kopfgrund).restore();
+  const kopfY = y + (kopfH - hp(GRAD.tabellenkopf) * 1.15) / 2;
+  ['BESCHREIBUNG', 'MENGE', 'PREIS (€)', 'RABATT %', 'BETRAG (€)'].forEach((t, i) => {
+    setz(t, kanten[i] + rand, kopfY, { groesse: hp(GRAD.tabellenkopf), fett: true,
+      breite: sp[i] - 2 * rand, align: i ? 'right' : 'left' });
+  });
+  strich(L, y, R);
+  y += kopfH;
+
+  const zeileY = y + pt(LUFT.positionszelle);
+  setz(p.description, kanten[0] + rand, zeileY, { groesse: hp(GRAD.position) });
+  let dy = zeileY + hp(GRAD.position) * 1.3 + pt(110) / 2;
+  p.detail.forEach((d, i) => {
+    setz(d, kanten[0] + rand, dy, { groesse: hp(GRAD.positionDetail), farbe: grau });
+    dy += hp(GRAD.positionDetail) * 1.3 + (i < p.detail.length - 1 ? pt(25) : 0);
+  });
+  const zeileH = (dy - y) + pt(LUFT.positionszelle);
+  strich(L, y + zeileH, R);
+  doc.save().moveTo(L, y - kopfH).lineTo(L, y + zeileH).lineWidth(.5).strokeColor(linie).stroke()
+     .moveTo(R, y - kopfH).lineTo(R, y + zeileH).lineWidth(.5).strokeColor(linie).stroke().restore();
+  y += zeileH + pt(LUFT.nachTabelle);
+
+  /* Bedingungen links, Summen rechts -------------------------------------- */
+  const bx = L, bBreite = pt(SPALTEN.unten[0]);
+  const sx = L + pt(SPALTEN.unten[0]) + pt(SPALTEN.unten[1]);
+  const sBreite = pt(SPALTEN.unten[2]);
+
+  /* Summenkasten */
+  const sh = hp(GRAD.summe) * 1.3 + 2 * pt(LUFT.summenzelle);
+  ['NETTOBETRAG', null, 'ANGEBOTSBETRAG'].forEach((t, i) => {
+    const yy = sx && y + i * sh;
+    if(i === 0) strich(sx, y, sx + sBreite);
+    const ty = yy + (sh - hp(GRAD.summe) * 1.15) / 2;
+    if(t) setz(t, sx + rand, ty, { groesse: hp(GRAD.summe), fett: true });
+    else {
+      doc.font('Helvetica-Bold').fontSize(hp(GRAD.summe)).fillColor(schwarz)
+         .text(`UST. ${BOGEN.ust}% `, sx + rand, ty, { lineBreak: false, continued: true })
+         .font('Helvetica-Oblique').text('von', { lineBreak: false });
+    }
+    strich(sx, yy + sh, sx + sBreite);
+  });
+  doc.save().moveTo(sx, y).lineTo(sx, y + 3 * sh).lineWidth(.5).strokeColor(linie).stroke()
+     .moveTo(sx + sBreite, y).lineTo(sx + sBreite, y + 3 * sh).lineWidth(.5)
+     .strokeColor(linie).stroke().restore();
+
+  /* Bedingungen — die ersten drei schmal neben dem Kasten, der Rest breit */
+  function bedingungen(von, bis, x, breite, oben){
+    let yy = oben;
+    BOGEN.bedingungen.slice(von, bis).forEach(([titel, saetze], i) => {
+      if(i) yy += pt(190);
+      doc.font('Helvetica-Oblique').fontSize(hp(GRAD.bedingung)).fillColor(schwarz)
+         .text(titel, x, yy, { width: breite });
+      yy = doc.y;
+      saetze.forEach(z => { doc.text(z, x, yy, { width: breite }); yy = doc.y; });
+    });
+    return yy;
+  }
+  const linksUnten = bedingungen(0, NEBEN_KASTEN, bx, bBreite, y);
+  y = Math.max(linksUnten, y + 3 * sh) + pt(190);
+  y = bedingungen(NEBEN_KASTEN, BOGEN.bedingungen.length, L, B, y);
+
+  /* Fußzeile -------------------------------------------------------------- */
+  doc.page.margins.bottom = 0;
+  const fh = hp(GRAD.fuss) * 1.42;
+  /* Vier Zeilen à ~10,7 pt müssen oberhalb der Blattkante bleiben — mit den
+     zwölf Punkt Zugabe des ersten Anlaufs stand die letzte Zeile draußen. */
+  let fy = doc.page.height - pt(900);
+  strich(L, fy - 10, R);
+  BOGEN.fuss.forEach((zeile, i) => {
+    let x = L;
+    zeile.forEach(([fett, normal]) => {
+      if(fett){
+        doc.font('Helvetica-Bold').fontSize(hp(GRAD.fuss)).fillColor(schwarz)
+           .text(fett, x, fy + i * fh, { lineBreak: false });
+        x += doc.widthOfString(fett);
+      }
+      if(normal){
+        doc.font('Helvetica').fontSize(hp(GRAD.fuss)).fillColor(schwarz)
+           .text(normal, x, fy + i * fh, { lineBreak: false });
+        x += doc.widthOfString(normal);
+      }
+    });
+  });
+
+  doc.flushPages();
+  doc.end();
+  return fertig;
+}
+
+module.exports.baueAngebotPdf = baueAngebotPdf;

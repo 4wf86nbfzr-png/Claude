@@ -44,7 +44,7 @@
 
 const nodemailer = require('nodemailer');
 const { baueBeleg, BAUPLAN, sauber } = require('./_beleg.js');
-const { generateOfferDraft, baueAngebotDocx } = require('./_angebot.js');
+const { generateOfferDraft, baueAngebotDocx, baueAngebotPdf } = require('./_angebot.js');
 const MAILS = require('./_mails.js');
 
 const DOCX_TYP = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
@@ -165,7 +165,7 @@ module.exports = async function (req, res){
   }
 
   /* --- Beleg, Entwurf, Word-Datei ---------------------------------------- */
-  let beleg, angebot = null, docx = null;
+  let beleg, angebot = null, docx = null, angebotPdf = null;
   try { beleg = await baueBeleg(art, daten, new Date()); }
   catch(e){
     console.error('Beleg konnte nicht gebaut werden:', e);
@@ -179,9 +179,13 @@ module.exports = async function (req, res){
     try {
       angebot = generateOfferDraft(daten, new Date(beleg.eingangISO));
       docx    = await baueAngebotDocx(angebot);
+      /* Derselbe Bogen zusätzlich als PDF. Die Word-Datei ist zum Ausfüllen
+         da, das PDF zum Ansehen — auf dem Telefon setzt die Vorschau ein
+         Word-Dokument nicht so, wie Word es setzt. */
+      angebotPdf = await baueAngebotPdf(angebot);
     } catch(e){
       console.error('Angebotsentwurf fehlgeschlagen:', e && e.message);
-      angebot = null; docx = null;
+      angebot = null; docx = null; angebotPdf = null;
     }
   }
 
@@ -214,11 +218,18 @@ module.exports = async function (req, res){
   const anhaenge = [{
     filename: beleg.dateiname, content: beleg.pdf, contentType: 'application/pdf'
   }];
-  if(docx && angebot){
+  if(angebot && docx){
     anhaenge.push({
       filename:    `Angebot-Entwurf-${angebot.offerNumber}.docx`,
       content:     docx,
       contentType: DOCX_TYP
+    });
+  }
+  if(angebot && angebotPdf){
+    anhaenge.push({
+      filename:    `Angebot-Entwurf-${angebot.offerNumber}.pdf`,
+      content:     angebotPdf,
+      contentType: 'application/pdf'
     });
   }
 

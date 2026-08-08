@@ -40,7 +40,7 @@ assets/video/           Imagefilm + Untertitel
 
 api/formular.js         nimmt die Formulare an und führt den Vorgang aus
 api/_beleg.js           Aussehen des PDF-Belegs
-api/_angebot.js         Angebotsbogen: Datensatz und Word-Datei
+api/_angebot.js         Angebotsbogen: Datensatz, Word-Datei und PDF
 api/_mails.js           Wortlaut aller drei Mails
 api/_logo.js            Wortzeichen hell — für das dunkle Band im PDF
 api/_logo_dunkel.js     Wortzeichen schwarz — für den weissen Angebotsbogen
@@ -151,11 +151,24 @@ direkt an die Person, die das Formular ausgefüllt hat (`Reply-To`).
 
 ## Der Angebotsentwurf
 
-Bei einer **Personalanfrage** liegt neben dem PDF-Beleg eine zweite Datei in
-derselben Mail: `Angebot-Entwurf-A-260807-1432.docx`. Der Bogen ist dem
-vorhandenen Angebotsformular nachgebaut — Kopf, Absenderzeile,
-Anschriftenfeld, Kennzahlenblock, Positionstabelle, die sechs Bedingungen und
-die Fußzeile mit Firmen- und Bankangaben.
+Bei einer **Personalanfrage** liegen neben dem PDF-Beleg zwei weitere Dateien
+in derselben Mail — derselbe Bogen zweimal:
+
+| Datei | wofür |
+|---|---|
+| `Angebot-Entwurf-A-260807-1432.docx` | zum Ausfüllen in Word |
+| `Angebot-Entwurf-A-260807-1432.pdf`  | zum Ansehen, überall gleich |
+
+Der Bogen ist dem vorhandenen Angebotsformular nachgebaut — Kopf,
+Absenderzeile, Anschriftenfeld, Kennzahlenblock, Positionstabelle, die sechs
+Bedingungen und die Fußzeile mit Firmen- und Bankangaben.
+
+**Warum zweimal?** Die Vorschau auf dem Telefon setzt ein Word-Dokument nicht
+so, wie Word es setzt: sie rechnet Tabellen auf die Bildschirmbreite herunter
+und lässt freistehende Absätze in Lesegröße stehen. Auf einem Blatt, das
+beides mischt, steht dann die halbe Seite winzig und die andere riesig. Der
+Bogen setzt deshalb **alles** in Tabellen derselben Breite — und wer ihn nur
+ansehen will, öffnet ohnehin das PDF.
 
 Was schon drinsteht:
 
@@ -239,7 +252,7 @@ Funktion nur `DRAFT`; die übrigen sind für den späteren Freigabeschritt da.
 | Preise ergänzen | **bewusst offen** — trägt die Disposition ein |
 | **KI** statt fester Regeln | offen — `generateOfferDraft()` ist die Stelle |
 | Word-Datei | fertig |
-| PDF zusätzlich | offen — `api/_beleg.js` zeigt, wie es ginge |
+| PDF zusätzlich | fertig |
 | Freigabe durch die Disposition | offen — bewusst; braucht Oberfläche und Ablage |
 | Versand nach Freigabe | offen — setzt die Freigabe voraus |
 
@@ -253,7 +266,7 @@ liegen kann, gibt es keine Freigabe. `speichern()` ist dafür vorbereitet.
 
 | An | Wann | Inhalt |
 |---|---|---|
-| Disposition | jede Anfrage | strukturierter Text, PDF-Beleg, Angebotsentwurf |
+| Disposition | jede Anfrage | strukturierter Text, PDF-Beleg, Angebot als DOCX **und** PDF |
 | Kundin/Kunde | jede Anfrage | Eingangsbestätigung, kein Anhang |
 | Disposition | jede Bewerbung | strukturierter Text, PDF-Beleg |
 
