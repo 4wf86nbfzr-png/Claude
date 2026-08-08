@@ -38,7 +38,9 @@ assets/fonts/           Schriftdateien (woff2)
 assets/img/             Fotos, je einmal als .jpg und .webp
 assets/video/           Imagefilm + Untertitel
 
-api/formular.js         nimmt die Formulare an und führt den Vorgang aus
+api/_vorgang.js         der Ablauf — Beleg, Angebot, zwei Mails
+api/formular.js         Hülle für Vercel
+netlify/functions/…     Hülle für Netlify (dieselbe Sache)
 api/_beleg.js           Aussehen des PDF-Belegs
 api/_angebot.js         Angebotsbogen: Datensatz, Word-Datei und PDF
 api/_mails.js           Wortlaut aller drei Mails
@@ -46,6 +48,7 @@ api/_logo.js            Wortzeichen hell — für das dunkle Band im PDF
 api/_logo_dunkel.js     Wortzeichen schwarz — für den weissen Angebotsbogen
 package.json            die drei Pakete, die nur die Funktion braucht
 
+tools/paket-bauen.sh    baut das ZIP zum Hochladen bei Netlify
 netlify.toml            Hosting-Konfiguration Netlify
 vercel.json             Hosting-Konfiguration Vercel
 .vercelignore           was Vercel nicht ausliefern soll
@@ -487,25 +490,94 @@ es nicht ausgewertet.
 
 ---
 
-## Auf Netlify veröffentlichen
+## Auf Netlify veröffentlichen — der Testweg
 
-1. netlify.com → **Add new site → Import an existing project** → GitHub →
-   dieses Repository, Branch `claude/entpacken-demo-oeffnen-29f7th`.
-2. Build command: **leer lassen.** Publish directory: **`.`**
-   (`netlify.toml` setzt beides bereits.)
-3. Deploy. Es entsteht eine Adresse wie `https://zufallsname.netlify.app`.
-4. **Passwortschutz:** Site configuration → *Access & security* →
-   *Visitor access* → **Password protection**. Danach ist die Vorschau nur
-   mit Passwort erreichbar. Das ist eine Funktion des kostenpflichtigen
-   Netlify-Tarifs (Pro).
-   *Kostenlose Alternative:* Cloudflare Pages + Cloudflare Access
-   (E-Mail-Freigabe für bis zu 50 Personen). Dann laufen die Formulare
-   allerdings nicht mehr über Netlify Forms — dort wäre ein Endpunkt nötig.
-5. Formular-Benachrichtigungen einstellen (siehe oben).
+Netlify hat einen kostenlosen Tarif, der alles kann, was diese Website
+braucht: statische Seiten **und** eine Node-Funktion mit echtem Netzzugang.
+Das ist der entscheidende Punkt — der Angebotsbogen wird auf dem Server
+gebaut und per SMTP verschickt. Reine Datei-Hoster (GitHub Pages, Surge) und
+Hoster mit Worker-Laufzeit (Cloudflare Pages) können das nicht: dort gibt es
+kein SMTP.
 
-Die Sperre gegen Suchmaschinen wirkt dabei dreifach: `robots.txt`,
-`<meta name="robots">` in jeder Seite und der Header `X-Robots-Tag` aus
-`netlify.toml`.
+Kein Konto bei GitHub nötig, kein Build, keine Kreditkarte.
+
+### 1. Paket bauen
+
+```bash
+bash 
+# → herm-website-netlify.zip  (rund 21 MB)
+```
+
+Das Skript installiert die drei Pakete der Funktion neu, prüft, dass sie
+lädt, und schnürt alles zusammen — ohne Arbeitsdateien, die im Netz nichts zu
+suchen haben.
+
+**Warum ein ZIP mit `node_modules`?** Beim Ziehen-und-Ablegen führt Netlify
+keinen Build aus; es veröffentlicht, was im Paket liegt. Die Pakete müssen
+also mit hinein.
+
+### 2. Hochladen
+
+1. [app.netlify.com](https://app.netlify.com) → Konto anlegen (E-Mail genügt)
+2. **Sites** → Kachel **„Deploy manually"** → das ZIP darauf ziehen
+3. Nach etwa einer Minute steht die Adresse da, etwa
+   `https://schillernder-name-a1b2c3.netlify.app`
+
+### 3. Postfach hinterlegen
+
+**Site configuration → Environment variables → Add a variable**
+
+| Name | Wert |
+|---|---|
+| `SMTP_HOST` | Postausgangsserver des Absenderpostfachs |
+| `SMTP_PORT` | `465` |
+| `SMTP_USER` | die Adresse, über die versendet wird |
+| `SMTP_PASS` | deren Kennwort |
+| `MAIL_AN` | die Adresse, die die Anfragen bekommt |
+
+`SMTP_HOST` steht beim Mailanbieter unter „Postausgangsserver (SMTP)".
+Danach das ZIP **noch einmal** hochladen — die Funktion liest die Werte beim
+Start.
+
+### 4. Prüfen
+
+`https://…netlify.app/kontakt` aufrufen, ausfüllen, absenden. Es müssen zwei
+Mails ankommen:
+
+* an `MAIL_AN`: Betreff `Neue Personalanfrage – …`, drei Anhänge
+* an die im Formular angegebene Adresse: die Eingangsbestätigung
+
+Kommt nichts an: **Logs → Functions → formular**. Dort steht der Grund.
+
+### Was dieser Weg nicht leistet
+
+Die Adresse ist **öffentlich erreichbar**, wenn jemand sie kennt. Ein
+Passwortschutz ist bei Netlify kostenpflichtig. Gegen Suchmaschinen ist die
+Seite dreifach gesperrt (`robots.txt`, `<meta name="robots">`,
+`X-Robots-Tag`), sie taucht also nicht in Ergebnissen auf — aber wer den Link
+hat, kommt hinein. Für eine Testfassung mit einer zufälligen Adresse, die
+nirgends verlinkt ist, reicht das; ein Geheimnis ist es nicht.
+
+### Der Unterschied zu Vercel
+
+| | Vercel | Netlify |
+|---|---|---|
+| Funktion liegt in | `api/formular.js` | `netlify/functions/formular.js` |
+| Adresse | `/api/formular` | `/api/formular` (per Weiterleitung) |
+| Zeitgrenze | 20 s (in `vercel.json`) | **10 s**, fest |
+| Konfiguration | `vercel.json` | `netlify.toml` |
+
+Beide Hüllen sind dünn und rufen dasselbe `api/_vorgang.js` auf — der Ablauf
+steht genau einmal da und kann nicht auseinanderlaufen.
+
+Wegen der zehn Sekunden verschickt die Funktion beide Mails über **eine**
+Verbindung (`pool: true`). Der teure Teil ist der Verbindungsaufbau, nicht die
+Nachricht; ohne Bündelung kann es knapp werden. Gemessen: 0,45 s.
+
+Und `pdfkit` liest seine Schriftmetriken normalerweise zur Laufzeit von der
+Platte. Sobald ein Host die Funktion bündelt, fehlen die Dateien. Deshalb
+benutzen Beleg und Angebot die **Standalone-Fassung**, die sie eingebettet
+trägt — das ist der Grund, warum es hier läuft und anderswo nicht.
 
 ---
 

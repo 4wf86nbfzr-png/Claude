@@ -1,2 +1,5 @@
 # Abhängigkeiten der Formularfunktion — Vercel installiert sie aus package.json
 node_modules/
+
+# Das fertige Paket zum Hochladen — wird mit tools/paket-bauen.sh erzeugt
+herm-website-netlify.zip

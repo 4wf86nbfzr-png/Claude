@@ -19,9 +19,24 @@
    eingebettete Datei und macht den Beleg damit klein genug fürs Postfach.
 --------------------------------------------------------------------------- */
 
-const PDFDocument = require('pdfkit');
+/* Die Standalone-Fassung von pdfkit, nicht die gewöhnliche.
+   ---------------------------------------------------------------------------
+   `require('pdfkit')` liest seine Schriftmetriken zur Laufzeit von der Platte:
+   `fs.readFileSync(__dirname + '/data/Helvetica.afm')`. Sobald ein Host die
+   Funktion bündelt — Netlify, AWS Lambda, fast alle —, zeigt `__dirname`
+   woandershin, die Datei fehlt, und der erste Beleg scheitert mit ENOENT.
+
+   Die Standalone-Fassung trägt alle vierzehn Schriften eingebettet und fasst
+   kein Dateisystem an. Sie ist mit 2,4 MB grösser, dafür läuft sie überall
+   gleich. */
+const PDFDocument = require('pdfkit/js/pdfkit.standalone.js');
 const crypto = require('crypto');
 const LOGO = require('./_logo.js');
+/* Als Datei-URL statt als Puffer: die Standalone-Fassung bringt ihren eigenen
+   Buffer mit und erkennt einen Node-Buffer nicht als solchen — sie hielte ihn
+   für einen Dateipfad. Eine data:-URL versteht jede Fassung. */
+const LOGO_URI = 'data:image/png;base64,' + LOGO.toString('base64');
+
 
 const FARBE = {
   ink:     '#0b0b0c',
@@ -206,7 +221,7 @@ function bereichZusammen(daten){
 function kopfband(doc, plan, breite){
   doc.save();
   doc.rect(0, 0, doc.page.width, KOPFHOEHE).fill(FARBE.ink);
-  doc.image(LOGO, RAND, 30, { width: 132 });
+  doc.image(LOGO_URI, RAND, 30, { width: 132 });
   doc.font('Helvetica-Bold').fontSize(8).fillColor('#ffffff').opacity(.72)
      .text(plan.lauf, RAND, 40, { width: breite, align: 'right', characterSpacing: 1.6 });
   doc.opacity(1).restore();

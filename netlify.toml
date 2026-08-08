@@ -12,16 +12,40 @@
 
 [build]
   publish = "."
-  # Kein Build-Schritt: reines HTML/CSS/JS.
+  # Kein Build-Schritt: die Website ist reines HTML/CSS/JS.
   command = ""
+  functions = "netlify/functions"
+
+[functions]
+  # ---- Warum "zisi" und nicht der neuere Bündler ----
+  # esbuild fasst die Funktion samt Abhängigkeiten in eine Datei zusammen.
+  # Dabei verliert `__dirname` seine Bedeutung, und Pakete, die zur Laufzeit
+  # eigene Dateien nachladen, finden sie nicht mehr. zisi kopiert stattdessen
+  # node_modules mit — langsamer, dafür verhält sich alles wie lokal.
+  node_bundler = "zisi"
+  # Die Schriftmetriken von pdfkit sind Datendateien, keine require()-Aufrufe;
+  # ein Bündler sieht sie nicht. Diese Zeile nimmt sie ausdrücklich mit.
+  # (Der Beleg benutzt inzwischen die Standalone-Fassung, die sie eingebettet
+  # trägt — die Zeile bleibt als Netz für den Fall, dass jemand zurückstellt.)
+  included_files = ["node_modules/pdfkit/js/data/**"]
+
+# ---- Die Formularfunktion ----
+# Auf Netlify liegt sie unter /.netlify/functions/formular. Die Website ruft
+# aber /api/formular auf — genau wie auf Vercel. Diese Regel verbindet beides,
+# damit im Browser kein Unterschied besteht.
+# Sie muss VOR der 404-Regel ganz unten stehen.
+[[redirects]]
+  from = "/api/formular"
+  to = "/.netlify/functions/formular"
+  status = 200
+  force = true
 
 # ---- Netlify Forms ----
-# Die Formulare in kontakt.html und jobs.html tragen data-netlify="true"
-# und einen Namen. Netlify erkennt sie beim Deploy automatisch; die
-# Eingänge stehen danach unter "Forms" im Netlify-Dashboard.
+# Die Formulare tragen data-netlify="true"; Netlify erkennt sie beim Deploy
+# und sammelt die Eingänge unter "Forms". Das ist der Auffangweg: Solange die
+# Zugangsdaten des Postfachs fehlen, antwortet die Funktion mit 503, und die
+# Website reicht an Netlify Forms weiter. Kein Eingang geht verloren.
 # Weiterleitung per Mail: Netlify → Forms → Settings → Form notifications
-#   Anfragen    -> info@hermserviceteam.com
-#   Bewerbungen -> info@hermserviceteam.com
 
 [[headers]]
   for = "/*"

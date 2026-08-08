@@ -32,6 +32,11 @@ const {
 } = require('docx');
 
 const LOGO = require('./_logo_dunkel.js');
+/* Als Datei-URL statt als Puffer: die Standalone-Fassung bringt ihren eigenen
+   Buffer mit und erkennt einen Node-Buffer nicht als solchen — sie hielte ihn
+   für einen Dateipfad. Eine data:-URL versteht jede Fassung. */
+const LOGO_URI = 'data:image/png;base64,' + LOGO.toString('base64');
+
 
 /* Alles, was auf jedem Bogen gleich steht. Aus dem vorhandenen Angebot
    übernommen — wer etwas ändert, ändert es hier und nur hier. */
@@ -599,7 +604,17 @@ module.exports = {
    Zahl ändert, ändert damit beide Fassungen.
 --------------------------------------------------------------------------- */
 
-const PDFDocument = require('pdfkit');
+/* Die Standalone-Fassung von pdfkit, nicht die gewöhnliche.
+   ---------------------------------------------------------------------------
+   `require('pdfkit')` liest seine Schriftmetriken zur Laufzeit von der Platte:
+   `fs.readFileSync(__dirname + '/data/Helvetica.afm')`. Sobald ein Host die
+   Funktion bündelt — Netlify, AWS Lambda, fast alle —, zeigt `__dirname`
+   woandershin, die Datei fehlt, und der erste Beleg scheitert mit ENOENT.
+
+   Die Standalone-Fassung trägt alle vierzehn Schriften eingebettet und fasst
+   kein Dateisystem an. Sie ist mit 2,4 MB grösser, dafür läuft sie überall
+   gleich. */
+const PDFDocument = require('pdfkit/js/pdfkit.standalone.js');
 
 const pt = twips => twips / 20;            // Twips → Punkt
 const hp = halbe => halbe / 2;             // halbe Punkte → Punkt
@@ -641,7 +656,7 @@ function baueAngebotPdf(angebot){
   let y = pt(620);
   setz('ANGEBOT', L, y, { groesse: hp(GRAD.titel) });
   const logoB = 128.25, logoH = 48.75;      // 171 × 65 px bei 96 dpi
-  doc.image(LOGO, R - logoB, y + pt(LUFT.logoTiefer), { width: logoB });
+  doc.image(LOGO_URI, R - logoB, y + pt(LUFT.logoTiefer), { width: logoB });
   y = Math.max(y + hp(GRAD.titel) * 1.2, y + pt(LUFT.logoTiefer) + logoH);
 
   /* Absenderzeile --------------------------------------------------------- */
