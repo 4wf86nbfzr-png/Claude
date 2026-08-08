@@ -756,8 +756,7 @@
         '<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5 9-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
         '</span>' +
         '<h2 class="u-caps">' + (form.dataset.dankeTitel || 'Danke!') + '</h2>' +
-        '<p>' + (form.dataset.dankeText || 'Ihre Nachricht ist bei uns. Wir melden uns zeitnah zurück.') + '</p>' +
-        '<a class="btn" href="tel:+494027075100">Oder direkt anrufen: +49 (40) 27075100</a>';
+        '<p>' + (form.dataset.dankeText || 'Ihre Nachricht ist bei uns. Wir melden uns zeitnah zurück.') + '</p>';
       form.replaceWith(danke);
       danke.focus();
       danke.scrollIntoView({ block:'center' });
