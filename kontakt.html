@@ -37,6 +37,17 @@
 <link rel="icon" href="assets/logo/favicon-32.png" sizes="32x32" type="image/png" />
 <link rel="icon" href="assets/logo/favicon-16.png" sizes="16x16" type="image/png" />
 <link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png" />
+<!-- Auf dem Startbildschirm laeuft die Seite als eigene Anwendung: ohne
+     Adresszeile, mit schwarzem Grund und dem Wortzeichen als Symbol. Das
+     Manifest liegt im Wurzelverzeichnis; die Pfade darin sind absolut. -->
+<link rel="manifest" href="site.webmanifest" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<!-- black-translucent laesst die Seite unter die Statuszeile laufen; die
+     Uhr steht dann weiss auf dem Foto. Den Platz dafuer holt sich die
+     Kopfzeile ueber env(safe-area-inset-top) zurueck. -->
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="HERM" />
 <link rel="icon" href="assets/logo/favicon.ico" sizes="any" />
 <link rel="stylesheet" href="assets/css/styles.css">
 <!-- Inhalte werden beim Scrollen eingeblendet. Ohne JavaScript bliebe die
@@ -435,6 +446,31 @@
     </div>
   </div>
 </footer>
+<!-- ============ APP-LEISTE (nur Handy) ============
+     Am Telefon liegt der Daumen unten, nicht oben. Die vier Wege, die
+     jemand hier wirklich geht, stehen deshalb am unteren Rand — wie in
+     einer Anwendung. Das Vollbildmenue oben bleibt fuer alles Uebrige.
+     Auf dem Schreibtisch ist die Leiste ausgeblendet; dort ist die
+     Kopfzeile in Reichweite. -->
+<nav class="appleiste" aria-label="Schnellzugriff">
+  <a href="index.html">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20h-5v-5.5H9V20H4z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+    <span>Start</span>
+  </a>
+  <a href="dienstleistungen.html">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    <span>Leistungen</span>
+  </a>
+  <a href="jobs.html">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 8h16v11H4z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 8V6.5A1.5 1.5 0 0 1 10.5 5h3A1.5 1.5 0 0 1 15 6.5V8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    <span>Jobs</span>
+  </a>
+  <a href="kontakt.html" aria-current="page">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16v12H4z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="m4.6 7 7.4 5.6L19.4 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span>Anfrage</span>
+  </a>
+</nav>
+
 <script src="assets/js/main.js"></script>
 </body>
 </html>

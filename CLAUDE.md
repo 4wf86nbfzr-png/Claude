@@ -35,6 +35,15 @@ Die Seite soll nach Handwerk aussehen, nicht nach Baukasten. Konkret heißt das:
 - **Nicht alles auf die Mittelachse.** Überschriften stehen links, Text sitzt
   unten links im Bild, die sechs Szenen der Startseite wechseln die Seite.
   Zentrierter Satz stellt nichts in ein Verhältnis.
+- **Keine Zeichen vor dem Text.** Kein Strich vor der Auszeichnungszeile, kein
+  Punkt vor dem Merkmal, keine Nummer vor dem Menüpunkt, kein Gedankenstrich
+  zwischen Nummer und Name. Was trennt, ist der Abstand. Ein Zeichen davor ist
+  eine zweite Aussage über etwas, das für sich stehen kann — und in der Menge
+  liest es als Zierrat.
+- **Keine Silbentrennung.** `hyphens:auto` setzt am Zeilenende einen
+  Trennstrich; in Display-Größe ist der so breit wie ein Gestaltungselement.
+  `overflow-wrap:break-word` bleibt als Notnagel — es bricht ohne Strich und
+  greift nur, wenn ein Wort wirklich nicht in die Zeile passt.
 
 ---
 
@@ -552,6 +561,53 @@ Die Linie gehört deshalb an ein Pseudoelement, nicht an den Rahmen:
 .fgruppe + .fgruppe{ position:relative; padding-top:…; }        /* richtig */
 .fgruppe + .fgruppe::before{ content:""; position:absolute; top:0; left:0; right:0; height:1px; background:var(--line); }
 ```
+
+---
+
+## Die App-Ansicht
+
+Am Schreibtisch liest man eine Website, am Telefon bedient man sie. Die kleine
+Ansicht ist deshalb keine verkleinerte Fassung der großen, sondern ein eigenes
+Bedienbild. Alles davon steht im Abschnitt `APP-ANSICHT` in `styles.css` und
+greift nur unterhalb von 900 px.
+
+**Die Leiste unten** (`.appleiste`) hält die vier Wege, die jemand am Telefon
+wirklich geht: Start · Leistungen · Jobs · Anfrage. Sie liegt dort, wo der
+Daumen ohnehin ist. Das Vollbildmenü oben bleibt für alles Übrige — Team,
+Galerie, Referenzen, Impressum.
+
+- Der Reiter der aktuellen Seite trägt `aria-current="page"`; daran hängt der
+  Strich in der Markenfarbe. Die sechs Detailseiten zählen zu „Leistungen".
+- **Ein Tipp auf den aktiven Reiter lädt nicht neu, sondern springt nach
+  oben.** Genau das erwartet man in einer Anwendung, und auf einer Seite von
+  dreizehn Bildschirmhöhen ist es der häufigste Wunsch.
+- `body` bekommt `padding-bottom` in Höhe der Leiste, sonst verdeckt sie den
+  Fuß. Der Knopf „Nach oben" rückt darüber.
+
+**Ablegen auf dem Startbildschirm.** `site.webmanifest` im Wurzelverzeichnis
+macht die Seite installierbar: schwarzer Grund, das Wortzeichen als Symbol,
+`display:standalone`. Die Symbole liegen unter `assets/logo/app-icon-*.png`
+und sind aus dem vorhandenen Logo gerechnet — die maskierbare Fassung hat
+20 % Luft ringsum, weil Android frei geformt ausschneidet.
+
+Abgelegt fällt zweierlei weg, was nur im Browser Sinn ergibt: das Gummiband
+am Seitenende (`overscroll-behavior-y:none`) und der Vorspann — eine
+Anwendung, die man mehrmals täglich öffnet, darf keine Einblendung haben.
+
+### Die Falle: die Systemleisten nehmen sich den Platz
+
+Auf dem iPhone liegt oben die Uhr und unten der Balken für die Heimgeste.
+Mit `apple-mobile-web-app-status-bar-style: black-translucent` läuft die Seite
+unter beide — was für das Foto im Hero richtig ist und für die Kopfzeile
+falsch. Beide Ränder holen sich den Platz deshalb selbst zurück:
+
+```css
+header.nav{ padding-top:calc(… + env(safe-area-inset-top, 0px)); }
+.appleiste{ padding-bottom:env(safe-area-inset-bottom, 0px); }
+```
+
+Ohne die zweite Zeile stehen die Beschriftungen der Leiste unter dem Balken.
+Im Browser sind beide Werte 0, die Regel kostet dort also nichts.
 
 ---
 

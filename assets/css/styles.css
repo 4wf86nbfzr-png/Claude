@@ -133,7 +133,10 @@ body::after{
   text-transform:uppercase; color:var(--accent);
   display:inline-flex; align-items:center; gap:.7em;
 }
-.eyebrow::before{ content:""; width:26px; height:1px; background:var(--accent); opacity:.7; }
+/* Der 26-px-Strich vor jeder Auszeichnungszeile ist entfallen. Er war als
+   typografische Marke gedacht und liest auf einer Seite, die sonst nur mit
+   Haarlinien und Abstand arbeitet, wie ein Bindestrich vor der Ueberschrift.
+   Die Zeile traegt sich ueber Sperrung und Farbe selbst. */
 
 /* Überschriften.
    Vorher stand `text-transform:uppercase` global auf h1/h2/h3 — jede Überschrift
@@ -150,7 +153,11 @@ h1,h2,h3,h4{ font-family:var(--font-display); font-weight:800; line-height:1.06;
      320-px-Gerät in Display-Größe 393 px breit und schob die ganze Seite
      seitlich raus. hyphens:auto trennt sinnvoll (html lang="de" liefert die
      Trennregeln), break-word ist der Notnagel für Wörter ohne Trennstelle. */
-  overflow-wrap:break-word; hyphens:auto; }
+  /* Keine automatische Silbentrennung: sie setzt am Zeilenende einen
+     Trennstrich, und der liest in dieser Groesse als Gestaltungselement statt
+     als Trennung. break-word bleibt als Notnagel — es bricht ohne Strich und
+     greift nur, wenn ein Wort wirklich nicht in die Zeile passt. */
+  overflow-wrap:break-word; }
 h1{ letter-spacing:-.03em; }
 .u-caps{ text-transform:uppercase; letter-spacing:-.005em; }
 h1.u-caps{ letter-spacing:-.012em; }
@@ -407,11 +414,12 @@ body.menu-open .burger i:nth-child(3){ transform:translateY(-5px) rotate(-45deg)
 }
 body.menu-open #mobileMenu{ transform:none; visibility:visible; }
 
-/* Die sechs Wegmarken. counter statt Zahlen im Markup: die Reihenfolge steht
-   damit an einer Stelle, und ein siebter Punkt zählt von selbst weiter. */
-#mobileMenu{ counter-reset:menue; }
+/* Die sechs Wegmarken — nur Text. Die vorangestellten Nummern 01–06 sind
+   entfallen: in einem Menü mit sechs Punkten ordnet niemand nach Nummer, sie
+   waren Zierrat vor dem Wort. Ohne sie beginnt jede Zeile an derselben Kante
+   wie das Logo darüber, und das Menü liest sich als Verzeichnis statt als
+   Liste. */
 #mobileMenu > a{
-  counter-increment:menue;
   display:flex; align-items:baseline; gap:clamp(14px,2.4vw,32px);
   font-family:var(--font-display); font-weight:800;
   font-size:clamp(2rem,7.2vw,4.6rem); line-height:1.02; letter-spacing:-.025em;
@@ -425,18 +433,16 @@ body.menu-open #mobileMenu{ transform:none; visibility:visible; }
   transition-delay:calc(var(--i,0) * 55ms + .18s);
 }
 body.menu-open #mobileMenu > a{ opacity:1; translate:0 0; }
-#mobileMenu > a::before{
-  content:counter(menue,decimal-leading-zero);
-  font-family:var(--font-mono); font-weight:400;
-  font-size:clamp(.62rem,1.1vw,.72rem); letter-spacing:.2em;
-  color:var(--muted); flex:none; width:2.6em;
-  transition:color var(--t-base) var(--ease-swift);
-}
 /* Beim Ansteuern treten die übrigen zurück, statt dass der eine hervortritt —
    dieselbe Aussage, aber ohne dass etwas größer oder bunter wird. */
 #mobileMenu:hover > a{ color:var(--muted); }
 #mobileMenu > a:hover{ color:var(--paper); }
-#mobileMenu > a:hover::before{ color:var(--orchid); }
+/* Die Seite, auf der man steht: derselbe Markenpunkt wie in der Kopfzeile. */
+#mobileMenu > a[aria-current="page"]{ color:var(--paper); }
+#mobileMenu > a[aria-current="page"]::after{
+  content:""; width:.32em; height:.32em; border-radius:50%;
+  background:var(--orchid); align-self:center; margin-left:.1em; flex:none;
+}
 
 /* Fuß des Menüs: Aktion, Telefon, Netzwerke — auf einer Linie abgesetzt. */
 .menu__aktion{
@@ -594,7 +600,7 @@ body.menu-open #mobileMenu > a{ opacity:1; translate:0 0; }
 /* „Arbeitnehmerueberlassung" ist 23 Zeichen ohne Fuge. In einer schmalen
    Spalte laeuft das Wort sonst aus seinem Kasten heraus — dieselbe Vorsorge
    wie bei den Ueberschriften. */
-.trust__item b, .trust__item span{ hyphens:auto; overflow-wrap:break-word; }
+.trust__item b, .trust__item span{ overflow-wrap:break-word; }
 /* Zwei Spalten schon ab 900 px, nicht erst ab 760. Zwischen 760 und 900 px
    blieben vier Spalten a rund 170 px — zu wenig fuer die langen Woerter. */
 @media (max-width:900px){
@@ -680,7 +686,7 @@ body.menu-open #mobileMenu > a{ opacity:1; translate:0 0; }
   text-transform:uppercase; color:var(--muted);
   padding:7px 0; display:inline-flex; align-items:center; gap:.7em;
 }
-.badge::before{ content:""; width:4px; height:4px; background:var(--line-stark); flex:none; }
+/* Ohne Aufzaehlungszeichen: der Abstand trennt. */
 
 /* ============================================================
    IMAGEFILM — 45 Sekunden, Endlosschleife, stumm
@@ -885,12 +891,9 @@ body.menu-open #mobileMenu > a{ opacity:1; translate:0 0; }
   display:flex; align-items:center; gap:.9em;
   transition:color var(--t-base) var(--ease-swift);
 }
-/* Ein Strich neben der Nummer, der beim Ansteuern länger wird. Mehr braucht
-   es nicht, um zu zeigen, dass die ganze Fläche ein Link ist. */
-.svc__num::after{
-  content:""; width:clamp(28px,4vw,60px); height:1px; background:currentColor;
-  transition:width var(--t-base) var(--ease-out);
-}
+/* Der Strich neben der Nummer ist entfallen. Dass die ganze Flaeche ein Link
+   ist, sagt schon „Ansehen" darunter — und die Nummer soll eine Nummer sein,
+   kein Zeichen. */
 .svc--rechts .svc__num{ flex-direction:row-reverse; }
 .svc__body{ display:flex; flex-direction:column; gap:clamp(8px,1.2vh,14px); align-items:inherit; }
 /* Die Zeile, die die Szene trägt. Sie steht in derselben Größenordnung wie
@@ -930,7 +933,6 @@ body.menu-open #mobileMenu > a{ opacity:1; translate:0 0; }
    Schlagschatten — die Fläche bleibt, wo sie ist. */
 .svc:hover .svc__img, .svc:focus-visible .svc__img{ transform:scale(1.1); }
 .svc:hover .svc__num, .svc:focus-visible .svc__num{ color:var(--paper); }
-.svc:hover .svc__num::after, .svc:focus-visible .svc__num::after{ width:clamp(44px,6vw,92px); }
 .svc:hover .svc__go::after, .svc:focus-visible .svc__go::after{ transform:scaleX(1); transform-origin:left; }
 .svc--rechts:hover .svc__go::after{ transform-origin:right; }
 .svc:hover .svc__go svg, .svc:focus-visible .svc__go svg{ transform:translateX(5px); }
@@ -1037,7 +1039,10 @@ body.menu-open #mobileMenu > a{ opacity:1; translate:0 0; }
 .panel > *:nth-child(1){ --d:0 }    .panel > *:nth-child(2){ --d:.05 }
 .panel > *:nth-child(3){ --d:.10 }  .panel > *:nth-child(4){ --d:.15 }
 .panel > *:nth-child(5){ --d:.20 }  .panel > *:nth-child(6){ --d:.25 }
-.panel .num{ font-family:var(--font-mono); font-size:.72rem; letter-spacing:.24em; color:var(--accent); }
+/* „01 Gastronomie" ohne Gedankenstrich dazwischen — die Lücke trennt.
+   word-spacing statt eines Zeichens: dadurch steht im Text nur, was auch
+   gemeint ist, und ein Vorlesewerkzeug liest keinen Strich mit. */
+.panel .num{ font-family:var(--font-mono); font-size:.72rem; letter-spacing:.24em; word-spacing:.9em; color:var(--accent); }
 /* ohne Karte trägt der Schatten die Lesbarkeit über unruhigen Bildstellen */
 .panel h3{ font-size:var(--fs-h3); margin:.4em 0 .2em;
   text-shadow:0 2px 24px rgba(0,0,0,.75), 0 1px 3px rgba(0,0,0,.6); }
@@ -1055,7 +1060,7 @@ body.menu-open #mobileMenu > a{ opacity:1; translate:0 0; }
   text-transform:uppercase; color:var(--muted);
   padding:7px 0; display:inline-flex; align-items:center; gap:.7em;
 }
-.chip::before{ content:""; width:4px; height:4px; background:var(--line-stark); flex:none; }
+
 /* Aus dem Textlink ist ein echter Knopf geworden: die Bühne ist der Moment, in
    dem jemand überzeugt ist — dort darf die Handlungsaufforderung nicht als
    Kleingedrucktes enden. */
@@ -1299,7 +1304,7 @@ body.menu-open #mobileMenu > a{ opacity:1; translate:0 0; }
   padding:7px 0; display:inline-flex; align-items:center; gap:.7em;
   transition:color var(--t-fast) var(--ease-swift);
 }
-.q::before{ content:""; width:4px; height:4px; background:var(--line-stark); flex:none; }
+
 .q:hover{ color:var(--paper); }
 
 /* ============================================================
@@ -1467,6 +1472,87 @@ body > footer ul a:hover{ color:var(--paper); }
 }
 #toTop::after{ content:"Nach oben"; }
 @media (max-width:560px){ #toTop::after{ content:"Oben"; } }
+
+/* ============================================================
+   APP-ANSICHT — was am Telefon anders ist
+   ------------------------------------------------------------
+   Am Schreibtisch liest man eine Website, am Telefon bedient man sie.
+   Deshalb bekommt die kleine Ansicht keine verkleinerte Fassung der
+   großen, sondern ein eigenes Bedienbild:
+
+     · vier Wege unten am Rand, wo der Daumen liegt
+     · Kopfzeile und Leiste weichen den Systemleisten aus (safe-area)
+     · über das Manifest lässt sich die Seite ablegen und läuft dann
+       ohne Adresszeile — dann ist der Unterschied zur App keiner mehr
+
+   Alles davon greift nur unterhalb von 900 px. Auf breiten Fenstern
+   ist die Leiste ausgeblendet und nichts von hier wirkt.
+   ============================================================ */
+
+/* Kein blauer Kasten beim Antippen — das ist das deutlichste Zeichen
+   dafür, dass man eine Website und keine Anwendung bedient. */
+a, button, summary, label, input, select, textarea{
+  -webkit-tap-highlight-color:transparent;
+}
+
+.appleiste{
+  position:fixed; z-index:930; left:0; right:0; bottom:0;
+  display:none;                       /* nur am Telefon, siehe unten */
+  background:rgba(0,0,0,.86);
+  backdrop-filter:blur(20px) saturate(1.2); -webkit-backdrop-filter:blur(20px) saturate(1.2);
+  border-top:1px solid var(--line);
+  /* Die Heimtaste des iPhones liegt über dem unteren Rand. Ohne diese
+     Zeile säßen die Beschriftungen darunter. */
+  padding-bottom:env(safe-area-inset-bottom, 0px);
+}
+.appleiste a{
+  flex:1 1 0; min-width:0;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;
+  padding:10px 4px 9px; min-height:56px;
+  color:var(--muted);
+  font-family:var(--font-mono); font-size:.56rem; letter-spacing:.14em;
+  text-transform:uppercase; text-align:center;
+  transition:color var(--t-fast) var(--ease-swift);
+}
+.appleiste svg{ width:21px; height:21px; flex:none; }
+.appleiste a span{ display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%; }
+.appleiste a:active{ color:var(--paper); }
+/* Der Reiter, auf dem man steht. Der Strich darüber ist die einzige
+   Stelle in der Leiste, an der die Marke auftaucht. */
+.appleiste a[aria-current="page"]{ color:var(--paper); }
+.appleiste a[aria-current="page"]::before{
+  content:""; position:absolute; top:-1px; left:22%; right:22%; height:2px;
+  background:var(--orchid);
+}
+.appleiste a{ position:relative; }
+
+@media (max-width:900px){
+  .appleiste{ display:flex; }
+  /* Platz für die Leiste, damit sie den Fuß nicht überdeckt. */
+  body{ padding-bottom:calc(57px + env(safe-area-inset-bottom, 0px)); }
+  /* Der Knopf „Nach oben" säße sonst hinter der Leiste. Er wandert
+     darüber — und rückt näher an den Rand, weil dort mehr Platz ist. */
+  #toTop{ bottom:calc(72px + env(safe-area-inset-bottom, 0px)); }
+  /* Die Kopfzeile weicht der Statuszeile aus. Im Browser ist der Wert 0,
+     auf dem abgelegten Startbildschirm die Höhe der Uhr. */
+  header.nav{ padding-top:calc(clamp(14px,2.4vw,30px) + env(safe-area-inset-top, 0px)); }
+  #mobileMenu{
+    padding-top:calc(var(--nav-h,78px) + 4vh + env(safe-area-inset-top, 0px));
+    padding-bottom:calc(clamp(28px,5vh,54px) + 57px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* Abgelegt auf dem Startbildschirm: dann gibt es keine Adresszeile mehr,
+   an der man sich festhalten kann. Zwei Kleinigkeiten machen dort den
+   Unterschied zwischen „Website im Vollbild" und „Anwendung". */
+@media (display-mode:standalone), (display-mode:minimal-ui){
+  /* Kein Gummiband am oberen und unteren Ende und kein Nachladen durch
+     Herunterziehen — in einer Anwendung erwartet das niemand. */
+  html, body{ overscroll-behavior-y:none; }
+  /* Der Vorspann läuft nur einmal je Besuch; abgelegt startet die Seite
+     oft, deshalb bleibt er dort ganz weg. */
+  #preloader{ display:none; }
+}
 
 /* ============================================================
    Zeiger — der Ring, der der Maus nachläuft
@@ -2289,7 +2375,8 @@ body.svc-transit::after{
 }
 .stage__zeile{ display:flex; align-items:baseline; gap:.65em; }
 .stage__nr{ color:var(--paper); }
-.stage__titel::before{ content:"·"; margin-right:.65em; color:var(--muted); }
+/* Der Mittelpunkt zwischen Nummer und Name ist entfallen — die Luecke aus
+   .stage__zeile (gap:.65em) trennt bereits. */
 .stage__linie{
   display:block; width:clamp(84px,11vw,148px); height:1px;
   background:

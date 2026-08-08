@@ -135,6 +135,22 @@
      im Stylesheet als --i; hier wird er nur einmal geschrieben. */
   document.querySelectorAll('#mobileMenu > a').forEach((a, i)=> a.style.setProperty('--i', i));
 
+  /* ---- App-Leiste ----
+     Ein Tipp auf den Reiter, auf dem man ohnehin schon steht, lädt die
+     Seite in einer Anwendung nicht neu — er springt nach oben. Genau das
+     tut er hier auch. Ohne das wäre der halbe Nutzen des Reiters weg: auf
+     einer Seite von dreizehn Bildschirmhöhen ist „wieder ganz nach oben"
+     der häufigste Wunsch. */
+  const appleiste = document.querySelector('.appleiste');
+  if(appleiste){
+    appleiste.addEventListener('click', (ev)=>{
+      const a = ev.target.closest('a');
+      if(!a || a.getAttribute('aria-current') !== 'page') return;
+      ev.preventDefault();
+      window.scrollTo({ top:0, behavior: reduce ? 'auto' : 'smooth' });
+    });
+  }
+
   /* Eintritte beim Scrollen. Gruppen mit data-stagger bekommen pro Kind einen
      Index, damit sie nacheinander statt gleichzeitig erscheinen — das gibt dem
      Abschnitt einen Takt, statt alles auf einen Schlag zu zeigen. */
