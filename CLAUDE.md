@@ -13,12 +13,28 @@ Die Seite soll nach Handwerk aussehen, nicht nach Baukasten. Konkret heißt das:
 - **Ein Stylesheet, eine Wahrheit.** Alle Werte kommen aus den Tokens ganz
   oben in `assets/css/styles.css`. Keine Einzelfarben, keine Einzelabstände
   irgendwo im Markup.
+- **Der Grund ist echtes Schwarz** (`--ink: #000000`). Nicht #08080A, nicht
+  „fast schwarz". Auf einem OLED-Bildschirm schaltet #000 die Pixel ab: ein
+  angeschnittenes Foto hat dann keinen Rand mehr, an dem es aufhört. Genau
+  davon lebt der Auftritt.
 - **Fotos tragen die Seite.** Wo ein Bild die Aussage trägt, braucht es keine
-  Grafik, keinen Farbverlauf und keinen Leuchteffekt daneben.
-- **Schwarzweiß bleibt schwarzweiß.** Die Akzentvariablen der Bühnen stehen
-  alle auf Weiß. Wer eine Farbe einführt, muss sie über die ganze Seite
-  durchziehen — sonst wirkt sie wie ein Versehen.
+  Grafik, keinen Farbverlauf und keinen Leuchteffekt daneben. Bilder laufen
+  im Zweifel bis an die Fensterkante, nicht bis zum Satzspiegel.
+- **95 % schwarzweiß, 5 % Marke.** Lila (`--violet`, `--orchid`) markiert und
+  trägt nicht: aktiver Menüpunkt, Hover auf einer Kontaktangabe, ein Punkt
+  von vier Pixeln. Wer daraus eine Fläche macht, kippt den ganzen Auftritt
+  ins Templatehafte.
+- **Keine Karten.** Kein Rahmen, kein eigener Grund, keine runde Ecke um
+  einen Inhalt herum. Getrennt wird durch Haarlinien und Abstand. `--r-m`
+  steht deshalb auf 0.
+- **Keine Pillen.** Eine Aktion ist ein Textlink mit einer Linie darunter,
+  die beim Ansteuern durchläuft (`.btn`). Die einzige Ausnahme ist der
+  Absendeknopf eines Formulars — er ist groß und hat Linien oben und unten,
+  aber auch er hat keine Fläche im Ruhezustand.
 - **Keine Dauerbewegung.** Nichts pulsiert, nichts wandert von allein.
+- **Nicht alles auf die Mittelachse.** Überschriften stehen links, Text sitzt
+  unten links im Bild, die sechs Szenen der Startseite wechseln die Seite.
+  Zentrierter Satz stellt nichts in ein Verhältnis.
 
 ---
 
@@ -115,18 +131,69 @@ Prüfen lässt sich das in einer Zeile:
 | Ort | Bewegung |
 |---|---|
 | Hero, Kopf der Unterseiten | Bild läuft langsamer mit als der Text (`--weg`) |
-| Sechs Bühnen | Kamerafahrt aus `--zoom`, `--detail`, `--panel`, `--door` |
+| Hero, Titelzeilen | Jede Zeile fährt aus ihrer eigenen Maske nach oben (`.line`) |
+| Sechs Szenen der Startseite | Ken Burns: Foto von 1,12 auf 1,0 über die ganze Vorbeifahrt (`--lauf`) |
+| Sechs Bühnen (`dienstleistungen.html`) | Kamerafahrt aus `--zoom`, `--detail`, `--panel`, `--door` |
 | Bühnen, Rand | Kinobalken und Lichtabfall (`.kino`, über `--kino`) |
 | Bühnen, oben links | Kapitelmarke mit Fortschrittslinie (`--kapitel`) |
 | Bühnen, rechts | Kapitelrail als Sprungnavigation, baut `main.js` |
 | Bühnenende | Abblende auf dem letzten Zehntel |
 | Überschriften | Aufblende von oben nach unten (`mask-size`) |
 | Bildbänder, Galerie | Aufdecken von unten plus Gegenbewegung des Motivs |
+| Fußzeile | Schlusszeile fährt zeilenweise auf (`.foot__claim`, gleiche Technik wie der Hero) |
 | Einsatzleitung (Sicherheit) | Aufdecken von unten, Beschriftung im selben Rahmen unter dem Foto |
+| Zeiger (nur Maus) | Ring läuft nach, wird über Links größer, zeigt über Bildern „Ansehen" |
 
 Die Kinobalken überbrücken die feste Navigationsleiste — ihre Höhe misst
 `main.js` und legt sie als `--nav-h` ab. Wer an der Navigation etwas ändert,
 muss dort nichts nachziehen.
+
+### Der Zeiger ersetzt den Systemzeiger nicht
+
+Der Ring (`.zeiger`) begleitet die Maus, er tritt nicht an ihre Stelle. Viele
+Auftritte dieser Machart blenden den Systemzeiger aus — das nimmt allen die
+Einstellung weg, die ihn vergrößert, invertiert oder auf hohen Kontrast
+gestellt haben. Auf einer Seite, deren Ziel eine Anfrage ist, ist das ein
+schlechtes Geschäft. Er wird außerdem nur angelegt, wenn
+`(hover:hover) and (pointer:fine)` zutrifft und keine reduzierte Bewegung
+gewünscht ist.
+
+### Die dritte Falle: `animation:none` holt keinen Startwert zurück
+
+Der `prefers-reduced-motion`-Block setzt `*{ animation:none !important }`.
+Was seine Sichtbarkeit einer Einblendung verdankt — `opacity:0` plus
+`animation:fadeIn … forwards` —, bleibt dadurch **unsichtbar**: die Animation
+ist weg, der Startwert bleibt.
+
+Das ist genau einmal passiert und hat den Vorspann im Hero verschwinden
+lassen. Jede solche Stelle muss im Block einzeln zurückgeholt werden:
+
+```css
+@media (prefers-reduced-motion:reduce){
+  .hero__sub, .hero__actions, .scrollcue > *, .pre-logo__img{ opacity:1; transform:none; }
+}
+```
+
+Dasselbe gilt für scroll-geführte Werte: ohne Motor bleibt `--lauf` auf 0
+stehen, und `scale(calc(1.12 - var(--lauf,0) * .12))` ergibt dann dauerhaft
+1,12 — den Anfangszustand einer Fahrt, die gar nicht stattfindet. Auch das
+wird im selben Block auf `transform:none` gesetzt.
+
+Nachprüfen lässt sich beides mit einem zweiten Kontext im Browser
+(`reducedMotion: 'reduce'`) und der Frage, ob irgendein Textelement auf
+`opacity < 0.05` steht.
+
+### Die vierte Falle: `animation … forwards` schlägt jede normale Regel
+
+Der Scrollhinweis im Hero sollte beim Laden einblenden *und* beim Scrollen
+wieder verschwinden — beides über `opacity`. Das geht nicht: eine Animation
+mit `forwards` hält ihren Endwert fest und gewinnt gegen jede gewöhnliche
+Deklaration. Der Hinweis blieb stehen.
+
+Die Lösung ist banal, muss einem aber einfallen: **die beiden Bewegungen auf
+zwei Elemente legen.** Die Einblendung liegt auf den Kindern
+(`.scrollcue > *`), die Ausblendung beim Scrollen auf der Hülle
+(`.hero[data-weg] .scrollcue`).
 
 ---
 
@@ -172,6 +239,23 @@ const soll = Math.min(Math.max(20, innerWidth * 0.05), 64);
 Nach dem Laden muss diese Liste auf jeder Seite und in jeder Fensterbreite
 leer sein.
 
+### Die zweite Falle: `footer` ist nicht nur der Seitenfuß
+
+`<footer>` ist ein ganz gewöhnliches Element und darf überall stehen. Auf der
+Startseite steht eines davon **im `<blockquote>`** des großen Zitats — dort
+gehört die Quellenangabe hin. Eine Regel
+
+```css
+footer{ border-top:1px solid var(--line); padding:110px 0 48px; }   /* falsch */
+```
+
+traf deshalb auch sie: unter dem Zitat von Tim Mälzer stand eine Trennlinie
+und 110 px Luft, bevor sein Name kam. Richtig ist `body > footer`. Dasselbe
+gilt für `footer h2`, `footer ul` und `footer .brand__logo`.
+
+Das ist der allgemeinere Punkt hinter beiden Fallen dieses Abschnitts: ein
+Selektor, der nur einen Ort meint, muss auch nur diesen Ort treffen.
+
 ---
 
 ## Seitenaufbau
@@ -210,15 +294,34 @@ Deshalb liegen die Ebenen jetzt so:
 
 | Seite | Aufgabe | Länge |
 |---|---|---|
-| Startseite | zehn abgegrenzte Blöcke, jeder mit einer Aussage | rund 10 Bildschirmhöhen |
-| Dienstleistungen | die sechs Bühnen als Kamerafahrt, jede führt weiter | rund 16 |
-| Sechs Detailseiten | alles im Einzelnen | je 6 bis 8 |
+| Startseite | abgegrenzte Blöcke, jeder mit einer Aussage, plus sechs Szenen als Verweis | rund 14 Bildschirmhöhen |
+| Dienstleistungen | die sechs Bühnen als Kamerafahrt, jede führt weiter | rund 15 |
+| Sechs Detailseiten | alles im Einzelnen | je 7 bis 8 |
 
 **Die Bühnen gehören nicht zurück auf die Startseite.** Sie sind dort nicht
 zu lang gewesen, sondern am falschen Ort: eine Startseite ordnet und
-verweist, die Tiefe steht dahinter. Auf der Startseite vertritt sie das
-Kachelraster (`.svc-grid`) — dieselben sechs Bereiche, sechs Klicks, ein
-Bildschirm.
+verweist, die Tiefe steht dahinter.
+
+### Szene ≠ Bühne
+
+Auf der Startseite steht seit dem Redesign an dieser Stelle **kein
+Kachelraster mehr**, sondern sechs **Szenen** (`.svc`) — jede eine randlose
+Fläche von rund 76 svh mit Foto, Nummer und einer sehr großen Zeile. Der
+Unterschied zu den Bühnen auf `dienstleistungen.html` ist der Punkt:
+
+|  | Szene (Startseite) | Bühne (Dienstleistungen) |
+|---|---|---|
+| Höhe | ~0,8 Bildschirmhöhen | 2,3 Bildschirmhöhen, sticky |
+| Bewegung | eine Kamerafahrt beim Vorbeiscrollen (`--lauf`) | Zoom, Detailwechsel, Tor, Panel (`--kapitel`) |
+| Inhalt | Name, ein Satz, ein Link | ganze Leistungsbeschreibung |
+| Aufgabe | verweisen | erzählen |
+
+Eine Szene kostet also gut ein Achtel dessen, was eine Bühne kostet, und
+verweist trotzdem mit vollem Gewicht. Genau deshalb ist die Startseite
+weiterhin keine One-Page: **jede Szene ist ein Link auf ihre eigene
+Unterseite**, dieselben sechs Adressen wie vorher. Wer die Szenen zu Bühnen
+ausbaut, macht aus der Startseite wieder das, was das Team schon einmal
+zu Recht bemängelt hat.
 
 **Achtung bei Adressen:** `dienstleistungen.html` liegt neben dem Ordner
 `dienstleistungen/`. Die Adresse `/dienstleistungen` ohne Endung ist
@@ -232,13 +335,27 @@ Unterseiten.
 
 - Auszeichnung: Bricolage Grotesque · Fließtext: Instrument Sans ·
   Technisches: Space Mono. Alle drei liegen lokal unter `assets/fonts/`.
+- **Fünf Stufen, sonst nichts:** `--fs-mega` (Hero, Szenentitel, Schluss,
+  Fußzeile), `--fs-display` (Titel der Unterseiten), `--fs-h2`, `--fs-h3`,
+  `--fs-h4`. Wer eine sechste clamp-Formel schreibt, hat eine Stufe zu viel.
+- **`--fs-mega` ist keine Schriftgröße, sondern eine Fläche.** Eine Zeile
+  über die halbe Fensterbreite wird nicht gelesen, sie wird gesehen. Sie
+  steht deshalb nur dort, wo eine Aussage den ganzen Bildschirm tragen darf,
+  und immer mit `line-height` um 0,9 — die Zeilen müssen einander berühren.
 - **Versalien nur da, wo sie etwas leisten** (`.u-caps`, Eyebrows,
-  Kapitelmarken). Ein ganzer Satz in gesperrten Versalien wird entziffert,
-  nicht gelesen.
+  Kapitelmarken, Szenentitel). Ein ganzer Satz in gesperrten Versalien wird
+  entziffert, nicht gelesen.
 - Alle Überschriften haben `hyphens:auto` und `overflow-wrap:break-word` —
   ohne das sprengt „Datenschutzerklärung“ ein 320-px-Fenster.
+- **`max-width` in `ch` bricht Versalien mitten im Wort.** `ch` ist die
+  Breite der Null; Versalien der Display-Schrift sind deutlich breiter. Mit
+  `max-width:15ch` stand auf der Sicherheitsseite
+  „VERANSTALTUNGSSC / HUTZ“. Große Überschriften bekommen deshalb keine
+  Höchstbreite — der Satzspiegel begrenzt, `text-wrap:balance` verteilt.
 - Knöpfe stehen in der Grundschrift. Schreibmaschinenschrift in Versalien auf
   einem Knopf ist das deutlichste Erkennungszeichen fertiger Dark-Templates.
+  In der Kopfzeile ist sie dagegen richtig: dort sind es Wegmarken, keine
+  Sätze.
 
 ---
 
@@ -397,6 +514,14 @@ noch.
 - **Die Paare stehen bewusst nebeneinander:** Dienstleistung/Datum,
   Uhrzeit von/bis, Personen/Ort. Wer die Reihenfolge im Markup ändert, bricht
   diese Paare — das Raster füllt stur von links nach rechts.
+- **Ein Feld ist eine Schreiblinie, kein Kasten.** Kein Grund, kein Rahmen
+  ringsum, nur `border-bottom`. Sechzehn Kästen untereinander sind das Bild
+  eines Antrags; sechzehn Linien sind ein gesetzter Bogen. Der Fokuszustand
+  liegt auf `box-shadow:0 1px 0 0 #FFF` und nicht auf einer dickeren Linie —
+  ein Pixel mehr Rahmen würde die ganze Spalte beim Hineinklicken um einen
+  Pixel verschieben.
+- **Die Beschriftung ist wichtiger als das Feld.** Sie steht über der Linie
+  und wird beim Hineinklicken hell (`.feld:focus-within > label`).
 
 Felder, die nur manchmal gebraucht werden, hängen an `data-wenn` /
 `data-wenn-wert` am umgebenden `.feld`. Das funktioniert mit Auswahlfeldern
@@ -413,6 +538,21 @@ Einwilligungstext als Ganzes nicht neben das Kästchen passt, braucht das
 Label zusätzlich `flex:1 1 0; min-width:0` — sonst springt es unter das
 Kästchen, sobald umbrochen werden darf.
 
+### Die zweite Falle: die `<legend>` schneidet ein Loch in den Rahmen
+
+Die fünf Gruppen werden durch eine Linie getrennt. Steht diese Linie als
+`border-top` am `<fieldset>`, passiert Folgendes: der Browser setzt die
+`<legend>` **in** den Rahmen und schneidet dafür eine Lücke hinein. Die
+Gruppenüberschrift stand dadurch mitten auf der Trennlinie, und rechts von
+ihr lief die Linie weiter — es sah aus wie ein Fehler, und es war einer.
+
+Die Linie gehört deshalb an ein Pseudoelement, nicht an den Rahmen:
+
+```css
+.fgruppe + .fgruppe{ position:relative; padding-top:…; }        /* richtig */
+.fgruppe + .fgruppe::before{ content:""; position:absolute; top:0; left:0; right:0; height:1px; background:var(--line); }
+```
+
 ---
 
 ## Barrierefreiheit
@@ -420,9 +560,19 @@ Kästchen, sobald umbrochen werden darf.
 Das ist keine Kür, sondern Teil der Abnahme:
 
 - Farbkontraste nach WCAG auf allen Seiten, auch bei geöffnetem Menü.
+  `--muted` steht auf `rgba(255,255,255,.52)`; bei `.46` lag der Kontrast
+  gegen Schwarz bei 4,56:1 und damit nur um sechs Hundertstel über der
+  Grenze — ein Wert, der gerade eben besteht, besteht beim nächsten Eingriff
+  nicht mehr.
 - Jeder Link und jeder Knopf hat einen zugänglichen Namen.
+- **Trefferflächen ab 44 px, auch wo die Schrift klein ist.** Vergrößert wird
+  die Fläche, nicht die Schrift: ein unsichtbares `::after` über dem Link
+  (siehe den Block ganz unten in `styles.css`). Im Vollbildmenü und im Fuß
+  gilt das für Telefonnummer und Netzwerk-Zeichen.
 - Kein waagerechter Überlauf bei 320, 390, 768, 1280 und 1440 px.
 - Betrieb ohne JavaScript und bei reduzierter Bewegung.
+- Der Systemzeiger wird nie ausgeblendet (siehe „Der Zeiger ersetzt den
+  Systemzeiger nicht").
 
 ---
 

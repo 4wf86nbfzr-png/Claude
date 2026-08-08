@@ -109,6 +109,32 @@
     if(ev.key === 'Escape' && document.body.classList.contains('menu-open')) menueSetzen(false);
   });
 
+  /* ---- Wo bin ich? ----
+     Der Menüpunkt der aktuellen Seite bekommt aria-current. Daran hängt im
+     Stylesheet der kleine Punkt in der Markenfarbe — die einzige Stelle in
+     der Kopfzeile, an der Farbe vorkommt. Verglichen wird nur der Dateiname,
+     damit es gleichermaßen unter /team.html, /team und /dienstleistungen/…
+     funktioniert.
+
+     Für die sechs Detailseiten zählt „Dienstleistungen" als aktiv: sie liegen
+     im Ordner dienstleistungen/ und sind Kinder dieses Punktes. */
+  (function(){
+    const hier = location.pathname.replace(/\/+$/, '/');
+    const datei = hier.split('/').pop() || 'index.html';
+    const imOrdner = /\/dienstleistungen\//.test(hier);
+    document.querySelectorAll('.nav__links a, #mobileMenu > a').forEach(a => {
+      const ziel = (a.getAttribute('href') || '').split('/').pop().split('#')[0];
+      if(!ziel) return;                                  // reine Sprungmarke
+      const treffer = ziel === datei
+        || (imOrdner && ziel === 'dienstleistungen.html');
+      if(treffer) a.setAttribute('aria-current', 'page');
+    });
+  })();
+
+  /* Die Punkte des Vollbildmenüs kommen nacheinander herein. Der Index steht
+     im Stylesheet als --i; hier wird er nur einmal geschrieben. */
+  document.querySelectorAll('#mobileMenu > a').forEach((a, i)=> a.style.setProperty('--i', i));
+
   /* Eintritte beim Scrollen. Gruppen mit data-stagger bekommen pro Kind einen
      Index, damit sie nacheinander statt gleichzeitig erscheinen — das gibt dem
      Abschnitt einen Takt, statt alles auf einen Schlag zu zeigen. */
@@ -139,7 +165,11 @@
     io.unobserve(el);
     wartend.delete(el);
   }
-  document.querySelectorAll('.reveal-up, [data-stagger]').forEach(el=>{
+  /* .foot__claim hängt mit dran: die Schlusszeile des Fußes läuft aus ihren
+     Masken nach oben, sobald sie hereinkommt — dieselbe Geste wie im Hero,
+     nur nicht zeitgesteuert. Sie trägt bewusst nicht .reveal-up: das wären
+     zwei Bewegungen auf derselben Zeile. */
+  document.querySelectorAll('.reveal-up, [data-stagger], .foot__claim').forEach(el=>{
     wartend.add(el);
     io.observe(el);
   });
@@ -193,8 +223,11 @@
       st.oben = rect.top; st.unten = rect.bottom;
       const total = st.el.offsetHeight - vh;
       const p = clamp((-rect.top) / total, 0, 1);
-      // zoom in as we scroll through
-      set(st, st.scene,  'zoom',   (1 + p*1.7).toFixed(3));
+      /* Annäherung, nicht Aufziehen: das Foto füllt die Bühne bereits (siehe
+         .scene__frame im Stylesheet), deshalb genügt eine ruhige Fahrt von
+         1 auf 1,42. Der frühere Faktor 1,7 stammt aus der Zeit, als die Szene
+         als 560-px-Quadrat begann und über den Bildschirm wachsen musste. */
+      set(st, st.scene,  'zoom',   (1 + p*0.42).toFixed(3));
       // detail (interior/closeup) cross-fades in
       set(st, st.detail, 'detail', smooth(0.34, 0.62, p).toFixed(3));
       // panel reveals last
@@ -898,6 +931,71 @@
            + 'oder schreiben Sie an ' + empfaenger + '.', 'fehler');
     }
   });
+
+  /* ---- Zeiger ----
+     Ein weicher Ring, der der Maus nachläuft: über Links wird er größer,
+     über den sechs Szenen zeigt er „Ansehen". Nur am Schreibtisch — auf
+     einem Touchgerät gibt es keinen Zeiger, dem etwas nachlaufen könnte.
+
+     Der Systemzeiger bleibt sichtbar. Viele Auftritte dieser Machart blenden
+     ihn aus und ersetzen ihn durch den eigenen Punkt; das sieht einen Moment
+     lang beeindruckend aus und nimmt allen die Einstellung weg, die ihren
+     Zeiger vergrößert, invertiert oder auf hohen Kontrast gestellt haben.
+     Auf einer Seite, deren Ziel eine Anfrage ist, ist das ein schlechtes
+     Geschäft. Der Ring begleitet also, er ersetzt nicht.
+
+     Kosten: ein pointermove-Listener und eine rAF-Schleife, die von selbst
+     endet, sobald der Ring seinen Zielpunkt erreicht hat. Es läuft nichts
+     im Leerlauf weiter. */
+  (function(){
+    if(reduce) return;
+    if(!window.matchMedia('(hover:hover) and (pointer:fine)').matches) return;
+
+    const ring = document.createElement('div');
+    ring.className = 'zeiger';
+    ring.setAttribute('aria-hidden', 'true');
+    ring.innerHTML = '<span class="zeiger__wort">Ansehen</span>';
+    document.body.appendChild(ring);
+
+    let zielX = window.innerWidth / 2, zielY = window.innerHeight / 2;
+    let x = zielX, y = zielY, laeuft = false, sichtbar = false;
+
+    function folgen(){
+      /* Nachlauf statt harter Kopplung: der Ring hängt eine Spur hinterher,
+         und genau dieser Verzug macht ihn ruhig statt nervös. */
+      x += (zielX - x) * .18;
+      y += (zielY - y) * .18;
+      ring.style.transform = 'translate3d(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px,0) translate(-50%,-50%)';
+      if(Math.abs(zielX - x) > .3 || Math.abs(zielY - y) > .3){
+        requestAnimationFrame(folgen);
+      } else {
+        laeuft = false;
+      }
+    }
+
+    window.addEventListener('pointermove', (ev)=>{
+      if(ev.pointerType && ev.pointerType !== 'mouse') return;
+      zielX = ev.clientX; zielY = ev.clientY;
+      if(!sichtbar){ sichtbar = true; ring.classList.add('an'); }
+      if(!laeuft){ laeuft = true; requestAnimationFrame(folgen); }
+    }, { passive:true });
+
+    /* Zustand am Zielobjekt ablesen, nicht an jedem Element einzeln
+       anmelden: ein Listener für die ganze Seite statt hunderter. */
+    document.addEventListener('pointerover', (ev)=>{
+      const el = ev.target.closest ? ev.target : ev.target.parentElement;
+      if(!el || !el.closest) return;
+      ring.classList.toggle('zeiger--sehen', !!el.closest('.svc, .gal__item, .film__buehne'));
+      ring.classList.toggle('zeiger--aktiv',
+        !!el.closest('a, button, [role="button"], input, select, textarea, summary, label'));
+    }, true);
+
+    /* Verlässt die Maus das Fenster, verschwindet der Ring — sonst bleibt er
+       am Rand kleben, während der Zeiger längst woanders ist. */
+    const weg = ()=>{ sichtbar = false; ring.classList.remove('an'); };
+    document.documentElement.addEventListener('mouseleave', weg);
+    window.addEventListener('blur', weg);
+  })();
 
   /* rAF-throttled scroll */
   let ticking = false;

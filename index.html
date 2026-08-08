@@ -24,7 +24,7 @@
      ============================================================ -->
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
 <link rel="canonical" href="https://hermserviceteam.com/" />
-<meta name="theme-color" content="#08080A" />
+<meta name="theme-color" content="#000000" />
 <!-- Vorschau beim Teilen in Messengern und sozialen Netzwerken -->
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="HERM Service Team" />
@@ -237,17 +237,23 @@
       <span class="line"><span>Ihr Event</span></span>
       <span class="line"><span>trägt.</span></span>
     </h1>
-    <p class="hero__sub">Bevor der erste Gast kommt, steht unser Team. Service, Sicherheit,
-      Hostessen, Logistik, Fahrservice und Reinigung — aus einem Haus, aus Hamburg.</p>
-    <div class="hero__actions">
-      <a class="btn" href="kontakt.html">Personal anfragen
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </a>
-      <a class="btn btn--ghost" href="#leistungen">Was wir stellen</a>
+    <!-- Vorspann und Aktionen stehen auf einer Linie unter der Hauptzeile:
+         links, was wir tun, rechts, was man tun kann. -->
+    <div class="hero__fuss">
+      <p class="hero__sub">Bevor der erste Gast kommt, steht unser Team. Service, Sicherheit,
+        Hostessen, Logistik, Fahrservice und Reinigung — aus einem Haus, aus Hamburg.</p>
+      <div class="hero__actions">
+        <a class="btn" href="kontakt.html">Personal anfragen
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a class="btn btn--ghost" href="#leistungen">Was wir stellen
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M6 13l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
     </div>
   </div>
 
-  <div class="scrollcue" aria-hidden="true">Scrollen<i></i></div>
+  <div class="scrollcue" aria-hidden="true"><span>Scrollen</span><i></i></div>
 </section>
 
 <!-- ============ VERTRAUENSLEISTE ============ -->
@@ -356,82 +362,105 @@
   </div>
 </section>
 
-<!-- Übersicht: führt direkt zur Detailseite, ohne dass man die ganze
-     Startseite durchscrollen muss. -->
+<!-- Übersicht der sechs Bereiche.
+     Vorher stand hier ein Kachelraster: sechs Bilder in unterschiedlichen
+     Formaten, dicht nebeneinander, jedes mit Rahmen und runder Ecke. Das las
+     sich als Katalogseite — und genau darin unterscheidet sich eine
+     Baukastenseite von einer gebauten.
+
+     Jetzt bekommt jeder Bereich eine eigene Szene über die volle Fensterbreite:
+     ein Foto, eine sehr große Zeile, eine Nummer. Die Bereiche wechseln sich
+     dabei seitlich ab, damit beim Scrollen ein Takt entsteht statt einer Liste.
+
+     Wichtig: Das ist keine One-Page-Lösung. Jede Szene ist ein Link auf ihre
+     eigene Unterseite — dieselben sechs Adressen wie vorher. Die Tiefe liegt
+     weiterhin dort, hier steht nur der Verweis. -->
 <section class="services-grid">
-  <div class="wrap svc-grid reveal-up" data-stagger>
-      <a class="svc svc--gross" href="dienstleistungen/gastro-personal.html">
-        <picture><source type="image/webp" srcset="assets/img/gastro.webp" /><img class="svc__img" src="assets/img/gastro.jpg" alt="" loading="lazy" width="1600" height="1600" /></picture>
-        <span class="svc__num">01</span>
-        <span class="svc__body">
-          <span class="svc__name">Gastro-Personal</span>
-          <span class="svc__txt">Servicekräfte für Menü, Catering, Bankett und Bar.</span>
-          <span class="svc__go">Ansehen
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <div class="svc-grid">
+      <a class="svc" href="dienstleistungen/gastro-personal.html" data-lauf>
+        <span class="svc__bild"><picture><source type="image/webp" srcset="assets/img/gastro.webp" /><img class="svc__img" src="assets/img/gastro.jpg" alt="" loading="lazy" width="1600" height="1600" /></picture></span>
+        <span class="svc__inner">
+          <span class="svc__num">01</span>
+          <span class="svc__body">
+            <span class="svc__name">Gastro-Personal</span>
+            <span class="svc__txt">Servicekräfte für Menü, Catering, Bankett und Bar.</span>
+            <span class="svc__go">Ansehen
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
           </span>
         </span>
       </a>
-      <a class="svc svc--hoch" href="dienstleistungen/sicherheit.html">
-        <picture><source type="image/webp" srcset="assets/img/sicherheit.webp" /><img class="svc__img" src="assets/img/sicherheit.jpg" alt="" loading="lazy" width="1600" height="1600" /></picture>
-        <span class="svc__num">02</span>
-        <span class="svc__body">
-          <span class="svc__name">Sicherheit</span>
-          <span class="svc__txt">Veranstaltungsschutz, Crowdmanagement, Personenschutz.</span>
-          <span class="svc__go">Ansehen
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <a class="svc svc--rechts" href="dienstleistungen/sicherheit.html" data-lauf>
+        <span class="svc__bild"><picture><source type="image/webp" srcset="assets/img/sicherheit.webp" /><img class="svc__img" src="assets/img/sicherheit.jpg" alt="" loading="lazy" width="1600" height="1600" /></picture></span>
+        <span class="svc__inner">
+          <span class="svc__num">02</span>
+          <span class="svc__body">
+            <span class="svc__name">Sicherheit</span>
+            <span class="svc__txt">Veranstaltungsschutz, Crowdmanagement, Personenschutz.</span>
+            <span class="svc__go">Ansehen
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
           </span>
         </span>
       </a>
-      <a class="svc svc--hoch" href="dienstleistungen/promotion-hostess.html">
-        <picture><source type="image/webp" srcset="assets/img/promotion-messe.webp" /><img class="svc__img" src="assets/img/promotion-messe.jpg" alt="" loading="lazy" width="1129" height="1591" /></picture>
-        <span class="svc__num">03</span>
-        <span class="svc__body">
-          <span class="svc__name">Promotion &amp; Hostess</span>
-          <span class="svc__txt">Hostessen und Promoter für Messe und Empfang.</span>
-          <span class="svc__go">Ansehen
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <a class="svc" href="dienstleistungen/promotion-hostess.html" data-lauf>
+        <span class="svc__bild"><picture><source type="image/webp" srcset="assets/img/promotion-messe.webp" /><img class="svc__img" src="assets/img/promotion-messe.jpg" alt="" loading="lazy" width="1129" height="1591" /></picture></span>
+        <span class="svc__inner">
+          <span class="svc__num">03</span>
+          <span class="svc__body">
+            <span class="svc__name">Promotion &amp; Hostess</span>
+            <span class="svc__txt">Hostessen und Promoter für Messe und Empfang.</span>
+            <span class="svc__go">Ansehen
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
           </span>
         </span>
       </a>
-      <a class="svc svc--gross" href="dienstleistungen/logistik.html">
-        <picture><source type="image/webp" srcset="assets/img/logistik.webp" /><img class="svc__img" src="assets/img/logistik.jpg" alt="" loading="lazy" width="1600" height="1600" /></picture>
+      <a class="svc svc--rechts" href="dienstleistungen/logistik.html" data-lauf>
+        <span class="svc__bild"><picture><source type="image/webp" srcset="assets/img/logistik.webp" /><img class="svc__img" src="assets/img/logistik.jpg" alt="" loading="lazy" width="1600" height="1600" /></picture></span>
         <!-- geschlossenes Tor über dem Saal: beim Klick fahren die Flügel
-             auseinander, danach zoomt die Kachel weiter hinein -->
+             auseinander, danach zoomt die Szene weiter hinein -->
         <span class="svc__gate" aria-hidden="true">
           <span class="svc__leaf svc__leaf--l"></span>
           <span class="svc__leaf svc__leaf--r"></span>
         </span>
-        <span class="svc__num">04</span>
-        <span class="svc__body">
-          <span class="svc__name">Logistik</span>
-          <span class="svc__txt">Auf- und Abbau, Transport, Bühnen- und Messelogistik.</span>
-          <span class="svc__go">Ansehen
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="svc__inner">
+          <span class="svc__num">04</span>
+          <span class="svc__body">
+            <span class="svc__name">Logistik</span>
+            <span class="svc__txt">Auf- und Abbau, Transport, Bühnen- und Messelogistik.</span>
+            <span class="svc__go">Ansehen
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
           </span>
         </span>
       </a>
-      <a class="svc svc--breit" href="dienstleistungen/fahrservice.html">
-        <picture><source type="image/webp" srcset="assets/img/fahrservice-door.webp" /><img class="svc__img" src="assets/img/fahrservice-door.jpg" alt="" loading="lazy" width="1536" height="1024" /></picture>
-        <span class="svc__num">05</span>
-        <span class="svc__body">
-          <span class="svc__name">Fahrservice</span>
-          <span class="svc__txt">Flughafentransfer, Shuttle und Chauffeur — deutschlandweit.</span>
-          <span class="svc__go">Ansehen
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <a class="svc" href="dienstleistungen/fahrservice.html" data-lauf>
+        <span class="svc__bild"><picture><source type="image/webp" srcset="assets/img/fahrservice-door.webp" /><img class="svc__img" src="assets/img/fahrservice-door.jpg" alt="" loading="lazy" width="1536" height="1024" /></picture></span>
+        <span class="svc__inner">
+          <span class="svc__num">05</span>
+          <span class="svc__body">
+            <span class="svc__name">Fahrservice</span>
+            <span class="svc__txt">Flughafentransfer, Shuttle und Chauffeur — deutschlandweit.</span>
+            <span class="svc__go">Ansehen
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
           </span>
         </span>
       </a>
       <!-- data-bereich ist der Haken für eine Ausschnittskorrektur in styles.css:
-           die Kachel ist 2:1, die Aufnahme 3:2 — ohne Korrektur schneidet der
-           mittige Anschnitt den Kopf ab. -->
-      <a class="svc svc--breit" data-bereich="reinigung" href="dienstleistungen/reinigung.html">
-        <picture><source type="image/webp" srcset="assets/img/reinigung.webp" /><img class="svc__img" src="assets/img/reinigung.jpg" alt="" loading="lazy" width="1536" height="1024" /></picture>
-        <span class="svc__num">06</span>
-        <span class="svc__body">
-          <span class="svc__name">Reinigung</span>
-          <span class="svc__txt">Gebäude-, Büro- und Praxisreinigung, auf Wunsch Desinfektion.</span>
-          <span class="svc__go">Ansehen
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+           die Szene ist sehr breit, die Aufnahme 3:2 — ohne Korrektur schneidet
+           der mittige Anschnitt den Kopf ab. -->
+      <a class="svc svc--rechts" data-bereich="reinigung" href="dienstleistungen/reinigung.html" data-lauf>
+        <span class="svc__bild"><picture><source type="image/webp" srcset="assets/img/reinigung.webp" /><img class="svc__img" src="assets/img/reinigung.jpg" alt="" loading="lazy" width="1536" height="1024" /></picture></span>
+        <span class="svc__inner">
+          <span class="svc__num">06</span>
+          <span class="svc__body">
+            <span class="svc__name">Reinigung</span>
+            <span class="svc__txt">Gebäude-, Büro- und Praxisreinigung, auf Wunsch Desinfektion.</span>
+            <span class="svc__go">Ansehen
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
           </span>
         </span>
       </a>
@@ -543,7 +572,7 @@
 <!-- ============ CTA / KONTAKT ============ -->
 <section class="cta" id="kontakt">
   <div class="wrap cta__inner">
-    <span class="eyebrow reveal-up" style="justify-content:center">Haben Sie noch Fragen?</span>
+    <span class="eyebrow reveal-up">Haben Sie noch Fragen?</span>
     <h2 class="reveal-up u-caps" data-d="1">Lassen Sie uns Ihr Event tragen.</h2>
     <p class="reveal-up" data-d="2">Schreiben Sie uns, was ansteht — wir erstellen Ihnen ein
       persönliches Angebot. Telefonisch, per E-Mail oder über das Formular.</p>
@@ -584,6 +613,16 @@
 <!-- ============ FOOTER ============ -->
 <footer>
   <div class="wrap">
+    <!-- Schlusszeile des Fusses. Sie greift die Aussage der Startseite noch
+         einmal auf und ist gleichzeitig der letzte Weg zur Anfrage — wer bis
+         hierher gelesen hat, soll nicht erst wieder nach oben scrollen. -->
+    <a class="foot__claim" href="kontakt.html">
+      <span class="foot__claim-zeile"><span>Personal, das</span></span>
+      <span class="foot__claim-zeile"><span>Ihr Event trägt.</span></span>
+      <span class="foot__claim-go">Anfrage starten
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+    </a>
     <div class="foot__grid">
       <div class="foot__brand">
         <a class="brand" href="#top">

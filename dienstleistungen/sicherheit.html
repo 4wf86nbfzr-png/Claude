@@ -21,7 +21,7 @@
      ============================================================ -->
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
 <link rel="canonical" href="https://hermserviceteam.com/dienstleistungen/sicherheit.html" />
-<meta name="theme-color" content="#08080A" />
+<meta name="theme-color" content="#000000" />
 <!-- Vorschau beim Teilen in Messengern und sozialen Netzwerken -->
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="HERM Service Team" />
@@ -131,13 +131,15 @@
     </div>
   </section>
 
-  <section class="content" style="padding-top:0">
-    <div class="wrap">
-      <figure class="wide-shot reveal-up" data-lauf>
-        <picture><source type="image/webp" srcset="../assets/img/sicherheit-detail.webp" /><img src="../assets/img/sicherheit-detail.jpg" alt="Ordner am Absperrgitter vor dem Publikum" loading="lazy" width="1400" height="1400" /></picture>
-        <figcaption>Am Absperrgitter</figcaption>
-      </figure>
-    </div>
+  <!-- Randlos: die Figur liegt bewusst NICHT in .wrap. Ein Bildband,
+       das an beiden Fensterkanten aufhoert, liest als Abbildung im
+       Text; eines, das darueber hinauslaeuft, liest als Szene. Die
+       Bildunterschrift holt sich den Seitenrand selbst zurueck. -->
+  <section class="content content--randlos" style="padding-top:0">
+    <figure class="wide-shot reveal-up" data-lauf>
+      <picture><source type="image/webp" srcset="../assets/img/sicherheit-detail.webp" /><img src="../assets/img/sicherheit-detail.jpg" alt="Ordner am Absperrgitter vor dem Publikum" loading="lazy" width="1400" height="1400" /></picture>
+      <figcaption>Am Absperrgitter</figcaption>
+    </figure>
   </section>
 
   <section class="section-soft">
@@ -236,6 +238,16 @@
 
 <footer>
   <div class="wrap">
+    <!-- Schlusszeile des Fusses. Sie greift die Aussage der Startseite noch
+         einmal auf und ist gleichzeitig der letzte Weg zur Anfrage — wer bis
+         hierher gelesen hat, soll nicht erst wieder nach oben scrollen. -->
+    <a class="foot__claim" href="../kontakt.html">
+      <span class="foot__claim-zeile"><span>Personal, das</span></span>
+      <span class="foot__claim-zeile"><span>Ihr Event trägt.</span></span>
+      <span class="foot__claim-go">Anfrage starten
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+    </a>
     <div class="foot__grid">
       <div class="foot__brand">
         <a class="brand" href="../index.html">
