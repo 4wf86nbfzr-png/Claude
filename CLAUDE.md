@@ -104,6 +104,46 @@ Wer eine neue Aufblende baut, prüft mit einem Blick in die Konsole:
 
 Nach einmal Durchscrollen muss diese Liste leer sein.
 
+### Die Kehrseite: eine Maske ist so groß wie ihr Kasten
+
+Die Maske löst die Beobachter-Falle — dafür hat sie eine eigene. Sie deckt
+genau den **Rahmenkasten** ab, und der ist bei einem Durchschuss unter etwa
+1,25 kleiner als die Schrift darin. Alles, was oben oder unten heraussteht,
+fällt weg: Umlautpunkte und Unterlängen. Auf Deutsch heißt das, dass
+ausgerechnet Ä, Ö und Ü ihre Punkte verlieren — im Hero fehlten sie bei
+„TRÄGT.", in einer Zwischenüberschrift bei „SO LÄUFT".
+
+**Was nicht hilft:** die Maske über den Kasten hinausschieben.
+`mask-position` und `mask-size` wirken zwar, aber `mask-clip` begrenzt die
+bemalte Fläche weiter auf den Rahmenkasten. Der dafür vorgesehene Wert
+`no-clip` wird von Chromium als gültig gemeldet und ändert nichts —
+nachgemessen mit drei Varianten (mit, ohne, und mit `padding`).
+
+**Was hilft, ist nur ein größerer Kasten.** Je nachdem, womit beschnitten
+wird:
+
+- **Maske** (`h1/h2/h3.reveal-up`): `padding-block:.14em`. Bewusst ohne
+  Ausgleich durch einen negativen Außenabstand — diese Regel steht weit
+  unten im Stylesheet und würde bei gleicher Spezifität die
+  Abstandsangaben der einzelnen Abschnitte überschreiben.
+- **`overflow:hidden`** (die Zeilen im Hero, auf den Unterseiten und im
+  Fuß): dort bekommt die maskierte Zeile einen Durchschuss, in den die
+  Schrift wirklich hineinpasst (`--zeile-weit:1.26`), und die optische Enge
+  kommt über einen negativen Abstand **zwischen** den Zeilen zurück
+  (`--zeile-eng:.96`). Die Maske schneidet dann nur noch Luft.
+
+Nachmessen lässt sich das nur im Bild, nicht im DOM: dieselbe Stelle einmal
+mit und einmal ohne Maske aufnehmen und die beiden Aufnahmen vergleichen.
+Wichtig dabei, sonst misst man Unsinn:
+
+- Erst **nach** der Aufblende die Maske abschalten, sonst vergleicht man
+  einen fertigen mit einem nie gestarteten Zustand.
+- **Nur das geprüfte Element** entmasken. Ein globales `overflow:visible`
+  nimmt auch `body{overflow-x:hidden}` weg; dann erscheint ein Rollbalken,
+  die Zeile bricht anders um, und man vergleicht zwei Layouts.
+- Bei `overflow` statt Maske gibt es keinen layoutneutralen Weg — dort hilft
+  nur Hinsehen.
+
 ### Die zweite Falle: `aspect-ratio` und das `height`-Attribut
 
 Jedes `<img>` trägt `width`/`height` im Markup — richtig so, das verhindert

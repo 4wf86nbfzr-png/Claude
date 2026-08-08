@@ -535,14 +535,55 @@ body.menu-open #mobileMenu > a{ opacity:1; translate:0 0; }
    die Zeilen müssen einander berühren, nicht nebeneinander stehen. */
 .hero h1{
   font-size:var(--fs-mega); margin:clamp(14px,2vh,26px) 0 0;
-  max-width:none; line-height:.9; letter-spacing:-.035em;
+  max-width:none; line-height:var(--zeile-eng,.96); letter-spacing:-.035em;
   text-shadow:0 2px 40px rgba(0,0,0,.5);
 }
 /* Jede Zeile läuft aus ihrer eigenen Maske nach oben. overflow:hidden statt
-   clip-path — siehe die Notiz im Abschnitt BEWEGUNG. Der Puffer unten fängt
-   die Unterlängen ab, die die Maske sonst abschneidet. */
-.hero h1 .line{ display:block; overflow:hidden; padding-bottom:.06em; margin-bottom:-.06em; }
-.hero h1 .line span{ display:block; transform:translateY(105%); animation:heroRise 1.1s var(--ease-out) forwards; }
+   clip-path — siehe die Notiz im Abschnitt BEWEGUNG.
+
+   Die Maske ist genau so hoch wie ihre Zeile. Bei line-height:.9 ist die
+   Zeile aber kleiner als die Schrift: Umlautpunkte stehen oben heraus,
+   Unterlängen unten. Beides wurde abgeschnitten — bei „TRÄGT." fehlten die
+   Punkte auf dem Ä.
+
+   Die Lösung ist nicht mehr Polsterung, sondern der richtige Kasten: die
+   maskierte Zeile bekommt einen Durchschuss, in den die Schrift wirklich
+   hineinpasst, und die optische Enge kommt danach über einen negativen
+   Abstand zwischen den Zeilen zurück. Die Maske schneidet dadurch nie
+   Tinte, sondern nur Luft.
+
+   --zeilen-luft ist der Unterschied zwischen beiden Werten und steht an
+   einer Stelle, weil Hero, Unterseitentitel und Schlusszeile dieselbe
+   Rechnung brauchen. */
+/* --zeile-eng steht auf .96, nicht auf .9. Der Unterschied ist genau der
+   Platz, den die Punkte auf dem Ä brauchen: bei .9 saßen sie in „TRÄGT."
+   direkt am R der Zeile darüber. Enger geht in dieser Schrift nicht, ohne
+   dass Umlaute an die vorherige Zeile stoßen — und Umlaute kommen im
+   Deutschen an jeder zweiten Ecke vor. */
+.hero h1,
+.subhero h1,
+.foot__claim{ --zeile-eng:.96; --zeile-weit:1.26; }
+.hero h1 .line,
+.subhero h1 .line,
+.foot__claim-zeile{
+  display:block; overflow:hidden;
+  line-height:var(--zeile-weit);
+}
+.hero h1 .line + .line,
+.subhero h1 .line + .line,
+.foot__claim-zeile + .foot__claim-zeile{
+  margin-top:calc((var(--zeile-eng) - var(--zeile-weit)) * 1em);
+}
+/* Die erste Zeile bringt oben Luft mit, die es vorher nicht gab — sie wird
+   hier wieder abgezogen, damit die Überschrift an derselben Stelle sitzt. */
+.hero h1 .line:first-child,
+.subhero h1 .line:first-child,
+.foot__claim-zeile:first-of-type{
+  margin-top:calc((var(--zeile-eng) - var(--zeile-weit)) * .5em);
+}
+/* 112 %, nicht 105: der Kasten ist jetzt höher als die Zeile darin, und bei
+   105 % lugte die Oberkante der Schrift schon im Ruhezustand hervor. */
+.hero h1 .line span{ display:block; transform:translateY(112%); animation:heroRise 1.1s var(--ease-out) forwards; }
 .hero h1 .line:nth-child(2) span{ animation-delay:.09s } .hero h1 .line:nth-child(3) span{ animation-delay:.18s }
 @keyframes heroRise{ to{ transform:none } }
 
@@ -1390,15 +1431,16 @@ body > footer{ border-top:1px solid var(--line); padding:clamp(56px,8vw,110px) 0
 .foot__claim{
   display:block; margin-bottom:clamp(44px,7vw,96px);
   font-family:var(--font-display); font-weight:800; text-transform:uppercase;
-  font-size:var(--fs-mega); line-height:.9; letter-spacing:-.04em;
+  font-size:var(--fs-mega); line-height:var(--zeile-eng,.96); letter-spacing:-.04em;
   color:var(--paper);
 }
 /* Dieselbe Maskentechnik wie im Hero: jede Zeile läuft aus ihrem eigenen
    Ausschnitt nach oben, sobald der Fuß hereinkommt. Der Puffer unten fängt
    die Unterlängen ab. */
-.foot__claim-zeile{ display:block; overflow:hidden; padding-bottom:.06em; margin-bottom:-.06em; }
+/* Kasten und Abstaende stehen weiter oben zusammen mit Hero und
+   Unterseitentitel — dieselbe Rechnung fuer alle drei. */
 .foot__claim-zeile > span{
-  display:block; transform:translateY(105%);
+  display:block; transform:translateY(112%);
   transition:transform 1s var(--ease-out);
 }
 .foot__claim-zeile:nth-of-type(2) > span{ transition-delay:.09s; }
@@ -1711,7 +1753,7 @@ a, button, summary, label, input, select, textarea{
 .subhero h1{
   text-shadow:0 2px 30px rgba(0,0,0,.7);
   font-size:var(--fs-display); font-weight:800;
-  line-height:.94; letter-spacing:-.035em;
+  line-height:var(--zeile-eng,.96); letter-spacing:-.035em;
   /* Keine Höchstbreite. Mit 15ch brach „Veranstaltungsschutz" mitten im Wort
      um („VERANSTALTUNGSSC / HUTZ"): ch misst die Breite der Null, und
      Versalien der Display-Schrift sind deutlich breiter. Der Satzspiegel
@@ -1720,8 +1762,7 @@ a, button, summary, label, input, select, textarea{
 }
 /* Die Zeilenmaske aus dem Hero gilt hier genauso, wo die Überschrift in
    .line-Hüllen gesetzt ist; steht sie als einfacher Text, passiert nichts. */
-.subhero h1 .line{ display:block; overflow:hidden; padding-bottom:.06em; margin-bottom:-.06em; }
-.subhero h1 .line span{ display:block; transform:translateY(105%); animation:heroRise 1.05s var(--ease-out) forwards; }
+.subhero h1 .line span{ display:block; transform:translateY(112%); animation:heroRise 1.05s var(--ease-out) forwards; }
 .subhero h1 .line:nth-child(2) span{ animation-delay:.09s }
 .subhero .tag{
   display:block; color:var(--chrome); font-family:var(--font-body);
@@ -2461,7 +2502,27 @@ body.svc-transit::after{
    dauerhaft unsichtbar. Die Maske beschneidet nur die Darstellung.
    Aus demselben Grund liegt der Effekt bei Bildern immer auf einem
    Kind (<picture>), nie auf dem beobachteten Element selbst. */
+/* Eine Maske deckt genau den Rahmenkasten ab — und der ist bei einem
+   Durchschuss unter 1,25 kleiner als die Schrift darin. Alles, was oben oder
+   unten herausragt (Umlautpunkte, Unterlaengen), faellt dadurch weg, auch
+   wenn die Maske voll aufgezogen ist. Genau so fehlte in „SO LÄUFT EINE
+   ANFRAGE" die oberste Zeile der Punkte auf dem Ä.
+
+   Die Maske ueber den Kasten hinauszuschieben hilft nicht: mask-position und
+   mask-size wirken zwar, aber mask-clip begrenzt die bemalte Flaeche
+   weiterhin auf den Rahmenkasten. Der dafuer vorgesehene Wert `no-clip` wird
+   von Chromium zwar als gueltig gemeldet, aendert aber nichts — nachgemessen
+   mit drei Varianten: mit no-clip, ohne no-clip und mit padding. Nur padding
+   hat geholfen.
+
+   Deshalb bekommt der Kasten selbst die Luft. .14em oben und unten reichen
+   fuer jeden hier vorkommenden Durchschuss; ausgeglichen wird das bewusst
+   nicht, weil ein negativer Aussenabstand an dieser Stelle die
+   Abstandsangaben der einzelnen Abschnitte ueberschreiben wuerde (diese
+   Regel steht weiter unten im Stylesheet und gewinnt bei gleicher
+   Spezifitaet). Die Seiten werden dadurch rund ein Prozent laenger. */
 h1.reveal-up, h2.reveal-up, h3.reveal-up{
+  padding-block:.14em;
   /* die Aufblende ersetzt die Einfahrt — zwei Bewegungen auf derselben
      Zeile lesen als Effekt, eine liest als Schnitt */
   opacity:1; transform:none;
