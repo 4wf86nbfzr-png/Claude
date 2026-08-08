@@ -34,7 +34,10 @@
      SMTP_PORT     465 (SSL) oder 587 (STARTTLS)
      SMTP_USER     das Postfach, über das versendet wird
      SMTP_PASS     dessen Kennwort
-     MAIL_AN       Empfänger der Belege, mehrere durch Komma getrennt
+     MAIL_AN       Empfänger der Anfragen, mehrere durch Komma getrennt
+     MAIL_BEWERBUNG  Empfänger der Bewerbungen; fehlt sie, gilt MAIL_AN.
+                     Hier steht auch das Postfach, das auf der Website nicht
+                     auftauchen soll — als Variable bleibt es auf dem Server.
      MAIL_VON      optional; sonst wird SMTP_USER genommen
      MAIL_BESTAETIGUNG   optional; "aus" schaltet die Kundenbestätigung ab
 
@@ -176,7 +179,23 @@ async function verarbeite(daten){
   const host = process.env.SMTP_HOST;
   const user = process.env.SMTP_USER;
   const pass = process.env.SMTP_PASS;
-  const an   = process.env.MAIL_AN;
+  /* Wer bekommt was.
+     ------------------------------------------------------------------------
+     Anfragen gehen an MAIL_AN. Bewerbungen gehen an MAIL_BEWERBUNG — dort
+     dürfen mehrere Adressen stehen, durch Komma getrennt, und sie bekommen
+     alle dieselbe Mail mit demselben Anhang.
+
+     Der Grund für die zweite Variable: die Bewerbungen sollen zusätzlich an
+     ein Postfach gehen, das auf der Website nicht auftauchen soll. Als
+     Environment Variable steht die Adresse nur auf dem Server — im Browser
+     landet davon nichts. Deshalb gehört sie hierher und nicht ins Markup.
+
+     Ist MAIL_BEWERBUNG nicht gesetzt, gilt MAIL_AN. Ein vergessener Eintrag
+     führt so nie dazu, dass eine Bewerbung nirgends ankommt.               */
+  const an = art === 'bewerbung'
+    ? (process.env.MAIL_BEWERBUNG || process.env.MAIL_AN)
+    : process.env.MAIL_AN;
+
   if(!host || !user || !pass || !an){
     // Kein Postfach hinterlegt: die Website nimmt ihren bisherigen Weg.
     return json(503, { ok: false, grund: 'Versand noch nicht eingerichtet' });
@@ -231,6 +250,7 @@ async function verarbeite(daten){
   });
 
   const von = process.env.MAIL_VON || user;
+  const empfaenger = an.split(',').map(a => a.trim()).filter(Boolean);
 
   const post = art === 'bewerbung'
     ? MAILS.bewerbungsMail(daten, beleg)
@@ -265,7 +285,7 @@ async function verarbeite(daten){
   try {
     await kanal.sendMail({
       from:    `"HERM Service Team — Website" <${von}>`,
-      to:      an.split(',').map(s => s.trim()).filter(Boolean),
+      to:      empfaenger,
       replyTo: beleg.absender
         ? `"${MAILS.kopfsicher(beleg.name)}" <${beleg.absender}>` : undefined,
       subject: post.betreff,
@@ -290,7 +310,7 @@ async function verarbeite(daten){
       await kanal.sendMail({
         from:    `"HERM Service Team" <${von}>`,
         to:      beleg.absender,
-        replyTo: an.split(',')[0].trim(),
+        replyTo: empfaenger[0],
         subject: b.betreff,
         text:    b.text
       });

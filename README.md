@@ -136,7 +136,8 @@ Vercel → Project → **Settings** → **Environment Variables**:
 | `SMTP_PORT` | `465` oder `587` | 465 = SSL, 587 = STARTTLS |
 | `SMTP_USER` | das Postfach, über das versendet wird | |
 | `SMTP_PASS` | dessen Kennwort | |
-| `MAIL_AN` | Empfänger der Belege | mehrere durch Komma getrennt |
+| `MAIL_AN` | Empfänger der **Anfragen** | mehrere durch Komma getrennt |
+| `MAIL_BEWERBUNG` | Empfänger der **Bewerbungen** | fehlt sie, gilt `MAIL_AN` |
 | `MAIL_VON` | optional | sonst wird `SMTP_USER` genommen |
 
 Danach einmal **Redeploy**, damit die Funktion die Werte sieht.
@@ -326,9 +327,35 @@ liegen kann, gibt es keine Freigabe. `speichern()` ist dafür vorbereitet.
 
 | An | Wann | Inhalt |
 |---|---|---|
-| Disposition | jede Anfrage | strukturierter Text, PDF-Beleg, Angebot als DOCX **und** PDF |
+| `MAIL_AN` | jede Anfrage | strukturierter Text, PDF-Beleg, Angebot als DOCX **und** PDF |
 | Kundin/Kunde | jede Anfrage | Eingangsbestätigung, kein Anhang |
-| Disposition | jede Bewerbung | strukturierter Text, PDF-Beleg |
+| `MAIL_BEWERBUNG` | jede Bewerbung | strukturierter Text, PDF-Beleg |
+
+### Warum Bewerbungen einen eigenen Verteiler haben
+
+Bewerbungen sollen gleichzeitig an zwei Postfächer gehen — an das öffentliche
+und an eines, das auf der Website **nicht** auftauchen soll. Deshalb steht der
+Verteiler in `MAIL_BEWERBUNG` und nicht im Markup:
+
+```
+MAIL_AN         info@hermserviceteam.com
+MAIL_BEWERBUNG  info@hermserviceteam.com, dispo@hermserviceteam.com
+```
+
+Eine Environment Variable liegt auf dem Server. Im Browser landet davon
+nichts — weder im HTML noch im JavaScript, weder sichtbar noch im Quelltext.
+Geprüft wird das mit: kein ausgeliefertes Dokument darf die Zeichenfolge
+`dispo@` enthalten.
+
+Ist `MAIL_BEWERBUNG` nicht gesetzt, gilt `MAIL_AN`. Ein vergessener Eintrag
+führt so nie dazu, dass eine Bewerbung nirgends ankommt.
+
+> **Eine Einschränkung, die dazugehört.** Wenn die Funktion einmal nicht
+> erreichbar ist, öffnet die Website als Ersatzweg das Mailprogramm des
+> Absenders. Dabei kann nur die Adresse verwendet werden, die im Markup
+> steht — also `info@hermserviceteam.com`. Das zweite Postfach bekommt in
+> diesem Fall nichts. Anders ginge es nicht, ohne die Adresse in die Seite zu
+> schreiben.
 
 Der Wortlaut steht in `api/_mails.js` — an einer Stelle, nicht verteilt.
 
@@ -533,7 +560,8 @@ also mit hinein.
 | `SMTP_PORT` | `465` |
 | `SMTP_USER` | die Adresse, über die versendet wird |
 | `SMTP_PASS` | deren Kennwort |
-| `MAIL_AN` | die Adresse, die die Anfragen bekommt |
+| `MAIL_AN` | wer die **Anfragen** bekommt |
+| `MAIL_BEWERBUNG` | wer die **Bewerbungen** bekommt, mehrere durch Komma |
 
 `SMTP_HOST` steht beim Mailanbieter unter „Postausgangsserver (SMTP)".
 Danach das ZIP **noch einmal** hochladen — die Funktion liest die Werte beim
