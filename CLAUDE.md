@@ -657,8 +657,24 @@ wirklich geht: Start · Leistungen · Jobs · Anfrage. Sie liegt dort, wo der
 Daumen ohnehin ist. Das Vollbildmenü oben bleibt für alles Übrige — Team,
 Galerie, Referenzen.
 
-- Der Reiter der aktuellen Seite trägt `aria-current="page"`; daran hängt der
-  Strich in der Markenfarbe. Die sechs Detailseiten zählen zu „Leistungen".
+- Der Reiter der aktuellen Seite trägt `aria-current="page"`. Die sechs
+  Detailseiten zählen zu „Leistungen".
+- **Die Marke wandert.** Über dem aktiven Reiter steht das Wortzeichen
+  (`.appleiste__marke`) — und es bleibt beim Wechsel nicht stehen, sondern
+  gleitet zum nächsten Reiter hinüber, über den Seitenwechsel hinweg. Drei
+  Dinge müssen dafür zusammenkommen:
+  1. `view-transition-name:reiter`. Daran erkennt der Browser die Marke auf
+     beiden Seiten als dasselbe Ding und bewegt sie von ihrer alten an ihre
+     neue Stelle, statt sie zu überblenden.
+  2. **Genau eine Marke im Dokument.** Zwei Elemente mit demselben
+     Übergangsnamen lassen den ganzen Übergang abbrechen. Sie steht deshalb
+     einmal im Markup und wird über `:has(> a:nth-of-type(n)[aria-current])`
+     an die richtige Stelle geschoben — sie weiß nichts von der Seite, auf
+     der sie liegt.
+  3. Sie sitzt **anstelle** des Reiter-Zeichens, nicht darüber: in einer
+     57 px hohen Leiste ist darüber kein Platz, und übereinander waren
+     Wortzeichen und Symbol beide unlesbar. Das Zeichen des aktiven Reiters
+     tritt dafür zurück (`visibility:hidden`); die Beschriftung bleibt.
 - **Ein Tipp auf den aktiven Reiter lädt nicht neu, sondern springt nach
   oben.** Genau das erwartet man in einer Anwendung, und auf einer Seite von
   dreizehn Bildschirmhöhen ist es der häufigste Wunsch.

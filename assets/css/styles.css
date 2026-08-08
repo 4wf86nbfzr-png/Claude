@@ -1619,14 +1619,60 @@ header.nav{ view-transition-name:kopfzeile; }
 .appleiste svg{ width:21px; height:21px; flex:none; }
 .appleiste a span{ display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%; }
 .appleiste a:active{ color:var(--paper); }
-/* Der Reiter, auf dem man steht. Der Strich darüber ist die einzige
-   Stelle in der Leiste, an der die Marke auftaucht. */
 .appleiste a[aria-current="page"]{ color:var(--paper); }
-.appleiste a[aria-current="page"]::before{
-  content:""; position:absolute; top:-1px; left:22%; right:22%; height:2px;
-  background:var(--orchid);
-}
 .appleiste a{ position:relative; }
+
+/* ---- Die wandernde Marke ----
+   Statt eines Strichs über dem aktiven Reiter steht dort das Wortzeichen —
+   und es bleibt beim Wechsel nicht stehen, sondern gleitet zum nächsten
+   Reiter hinüber. Über den Seitenwechsel hinweg.
+
+   Das geht, weil die Marke einen eigenen Übergangsnamen trägt. Der Browser
+   erkennt sie dadurch auf beiden Seiten als dasselbe Ding und bewegt sie
+   von ihrer alten an ihre neue Stelle, während der Inhalt dahinter
+   überblendet. Die Leiste selbst steht still (sie hat ihren eigenen Namen),
+   der Inhalt wechselt — und die Marke fährt darüber hinweg. Genau das macht
+   aus vier Links vier Reiter.
+
+   Wo sie steht, entscheidet allein der aktive Reiter: vier gleich breite
+   Felder, die Marke sitzt im n-ten. Im Markup steht sie deshalb nur einmal
+   und weiß nichts von der Seite, auf der sie liegt.
+
+   Warum nicht einfach vier Marken, je eine pro Reiter? Weil zwei Elemente
+   mit demselben Übergangsnamen den ganzen Übergang abbrechen lassen. Es
+   darf genau eine geben. */
+/* Die Marke sitzt genau dort, wo sonst das Zeichen des Reiters steht — und
+   dieses Zeichen tritt dafür zurück. Erst war sie darüber gesetzt; dann lag
+   das Wortzeichen auf dem Haus und auf dem Koffer, und beide waren
+   unlesbar. Über dem Zeichen ist in einer 57 px hohen Leiste kein Platz,
+   und höher soll sie nicht werden.
+
+   Dass der aktive Reiter sein Zeichen gegen das Wortzeichen tauscht, ist
+   kein Verlust: die Beschriftung darunter sagt weiterhin, worum es geht,
+   und die Marke sagt, dass man dort steht. */
+.appleiste__marke{
+  position:absolute; top:10px; left:0; width:25%; height:21px;
+  display:none; place-items:center; pointer-events:none;
+  view-transition-name:reiter;
+}
+.appleiste__marke img{
+  width:21px; height:21px; display:block;
+  filter:drop-shadow(0 1px 5px rgba(0,0,0,.7));
+}
+.appleiste a[aria-current="page"] svg{ visibility:hidden; }
+/* Sichtbar nur, wenn diese Seite überhaupt einen Reiter hat — Team,
+   Galerie, Impressum und Datenschutz liegen außerhalb der vier. */
+.appleiste:has(> a[aria-current="page"]) .appleiste__marke{ display:grid; }
+.appleiste:has(> a:nth-of-type(1)[aria-current="page"]) .appleiste__marke{ left:0; }
+.appleiste:has(> a:nth-of-type(2)[aria-current="page"]) .appleiste__marke{ left:25%; }
+.appleiste:has(> a:nth-of-type(3)[aria-current="page"]) .appleiste__marke{ left:50%; }
+.appleiste:has(> a:nth-of-type(4)[aria-current="page"]) .appleiste__marke{ left:75%; }
+/* Etwas länger als der Inhaltswechsel: die Marke soll den Weg sichtbar
+   zurücklegen, nicht mit dem Überblenden verschwinden. */
+::view-transition-group(reiter){
+  animation-duration:.52s;
+  animation-timing-function:var(--ease-out);
+}
 
 /* ============================================================
    Die App-Ansicht hat zwei Bedingungen, nicht eine

@@ -312,6 +312,14 @@
      Auf dem Schreibtisch ist die Leiste ausgeblendet; dort ist die
      Kopfzeile in Reichweite. -->
 <nav class="appleiste" aria-label="Schnellzugriff">
+  <!-- Die wandernde Marke. Sie zeigt, auf welchem Reiter man steht, und
+       gleitet beim Wechsel zum naechsten hinueber — auch ueber den
+       Seitenwechsel hinweg, weil sie einen eigenen Uebergangsnamen traegt.
+       Wo sie steht, entscheidet das Stylesheet anhand des aktiven Reiters;
+       hier steht sie nur einmal. -->
+  <span class="appleiste__marke" aria-hidden="true">
+    <img src="../assets/logo/logo-herm-mark.png" alt="" width="540" height="540" />
+  </span>
   <a href="../index.html">
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20h-5v-5.5H9V20H4z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
     <span>Start</span>
