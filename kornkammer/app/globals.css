@@ -311,6 +311,31 @@ button {
   }
 }
 
+/* Die Warenkorbschublade kommt auf dem Telefon von unten und ab Tablet von
+   rechts. Die Richtung im Geschlossenzustand steht als Variable hier, damit
+   das Bauteil nicht zwei Fassungen seines Stils mitschleppen muss. */
+.schublade {
+  --zu: translate3d(0, 101%, 0);
+}
+@media (min-width: 640px) {
+  .schublade {
+    --zu: translate3d(101%, 0, 0);
+  }
+}
+
+/* Bildwechsel in der Fruchtfolge. Der Anlass ist die Auswahl des Besuchers,
+   also darf es sich bewegen — kurz, und nur einmal je Wechsel. */
+@keyframes ff-bild {
+  from {
+    opacity: 0;
+    clip-path: inset(0 0 12% 0);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+  }
+}
+
 /* ==========================================================================
    REDUZIERTE BEWEGUNG
    ========================================================================== */

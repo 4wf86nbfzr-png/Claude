@@ -16,11 +16,14 @@ import { chromium } from 'playwright'
  *          BASE=http://localhost:3000 node tools/typo-audit.mjs
  */
 const BASE = process.env.BASE || 'http://localhost:3000'
-const SEITEN = [
+/* Voller Durchlauf dauert eine knappe Stunde. Wer nur an einer Seite etwas
+   geaendert hat, gibt sie mit SEITEN=/shop,/hof einzeln an. */
+const ALLE = [
   '/', '/hof', '/produkte', '/produkte/kartoffeln', '/produkte/getreide', '/produkte/speiseoele',
-  '/produkte/nudeln', '/produkte/senf', '/bio', '/team', '/hofladen', '/galerie', '/kontakt',
-  '/impressum', '/datenschutz', '/gibtsnicht',
+  '/produkte/nudeln', '/produkte/senf', '/shop', '/bio', '/team', '/hofladen', '/galerie',
+  '/kontakt', '/impressum', '/datenschutz', '/gibtsnicht',
 ]
+const SEITEN = process.env.SEITEN ? process.env.SEITEN.split(',') : ALLE
 const BREITEN = [
   ['320 sehr schmal', 320, 720],
   ['390 Telefon', 390, 844],

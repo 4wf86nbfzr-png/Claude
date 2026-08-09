@@ -1,0 +1,40 @@
+# Netlify.
+#
+# Die Seite hat keinen Serveranteil: alle Routen sind vorgerendert, Formulare
+# gehen als mailto auf, der Warenkorb liegt im Browser. Deshalb wird sie als
+# statisches Verzeichnis ausgeliefert und braucht weder Funktionen noch das
+# Next Runtime Plugin.
+#
+# Zwei Wege fuehren zum Ziel:
+#
+#   1. Aus dem Zip. Das mitgelieferte kornkammer-netlify.zip enthaelt bereits
+#      das fertige Verzeichnis. Auf app.netlify.com/drop hochladen, fertig.
+#
+#   2. Aus dem Repository. Netlify auf dieses Verzeichnis zeigen lassen; der
+#      Befehl unten baut den statischen Export nach `out/`.
+
+[build]
+  command = "DEMO_EXPORT=1 npm run build"
+  publish = "out"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Videos und Poster tragen ihre Fassung im Namen. Lange Cachezeit ist sicher
+# und spart auf dem Telefon den erneuten Download des 4K-Materials.
+[[headers]]
+  for = "/video/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/_next/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Frame-Options = "SAMEORIGIN"

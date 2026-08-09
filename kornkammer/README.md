@@ -150,10 +150,14 @@ components/
   motion/            SmoothScroll (Lenis), Reveal, SplitLines, Parallax,
                      PinnedStory, HorizontalScroll, MagneticButton, GrainCanvas
   sections/          Hero, Manifest, SoilToTable, FarmStory, ProductWorld,
-                     CropRotation, FarmShop, Team, BioCerts
+                     CropRotation, Geschichte, Lage, FarmShop, Team, BioCerts
+  shop/              Sortiment, ArtikelKarte, Artikelbild, Mengenwahl,
+                     Warenkorbleiste, WarenkorbSchublade
   ui/                Eyebrow, Button, FieldLine, MediaFrame, PageHeader
-lib/                 gsap.ts (eine Registrierung), motion.ts (Tokens), split.ts
-data/                farm, products, crops, certifications, team, stations
+lib/                 gsap.ts (eine Registrierung), motion.ts (Tokens),
+                     split.ts, warenkorb.tsx (Warenkorb als Kontext)
+data/                farm, products, shop, crops, geschichte, certifications,
+                     team, stations
 public/video/        Hero in drei Stufen, Poster
 tools/upscale.sh     die Video-Kette bis zum Zwischenmaster
 tools/video-neu.sh   Auslieferungsstufen aus dem Master, mit Randschnitt
@@ -325,6 +329,114 @@ Gründungsjahr, Produktbereiche, Kulturen der Fruchtfolge.
 
 ---
 
+## Der Shop
+
+`/shop`. Sortiment mit Filter, Warenkorb, Schublade, Bestellmail.
+
+### Wo die Zahlen hingehören
+
+Alles Inhaltliche steht in **`data/shop.ts`**. Eine Datei, ein Array, keine
+Datenbank. Pro Artikel gibt es `varianten` — das sind die Gebindegrößen:
+
+```ts
+{
+  slug: 'mehl',
+  name: 'Mehl aus eigener Vermahlung',
+  gruppe: 'Getreide und Mehle',
+  kurz: 'Weizen und Dinkel vom eigenen Schlag.',
+  bild: '/images/…',
+  bildAlt: '…',
+  varianten: [
+    { id: 'mehl-1', gebinde: '1 kg', preisCent: 320, menge: 1, grundmenge: 'kg' },
+    { id: 'mehl-5', gebinde: '5 kg', preisCent: 1450, menge: 5, grundmenge: 'kg' },
+  ],
+}
+```
+
+- `preisCent` ist **immer** eine ganze Zahl in Cent. Nie `3.20` — in
+  JavaScript ergibt `0.1 + 0.2` nicht `0.3`, und bei einer Rechnung über
+  zwanzig Posten sieht man das.
+- `menge` und `grundmenge` erzeugen den **Grundpreis** („4,50 € je
+  Kilogramm“). Der ist bei Lebensmitteln nach der Preisangabenverordnung
+  Pflicht, sobald ein Preis dasteht.
+- Ab zwei Varianten erscheint automatisch die Gebindeauswahl auf der Karte.
+- Die `id` einer Variante ist der Schlüssel im gespeicherten Warenkorb. Wer
+  sie umbenennt, wirft alte Körbe weg — das ist verkraftbar, aber man sollte
+  es wissen.
+
+### Warum überall „Preis auf Anfrage“ steht
+
+Der bestehende Onlineshop war aus der Bauumgebung nicht erreichbar, der
+Egress-Filter blockt `shopteamkornkammer.company.site`. Preise und
+Gebindegrößen liegen deshalb nicht vor und wurden **nicht geschätzt**. Ein
+erfundener Preis auf einer Verkaufsseite ist keine Kleinigkeit.
+
+Solange `preisCent` auf `null` steht, verhält sich der Shop so:
+
+- Der Knopf heißt „Auf die Anfrageliste“ statt „In den Warenkorb“.
+- Die Karte zeigt „Preis auf Anfrage“ statt einer Zahl.
+- Die Summe in der Schublade weist sich selbst als unvollständig aus.
+- Über dem Sortiment steht ein Hinweis, dass die Preise nachgetragen werden.
+
+Sobald **ein** Preis eingetragen ist, verschwindet der Hinweis über dem
+Sortiment von selbst (`PREISE_GEPFLEGT` in `data/shop.ts`), und die
+betroffenen Artikel schalten auf Warenkorb um. Es ist nichts zu
+programmieren.
+
+### Was der Warenkorb ist und was nicht
+
+`lib/warenkorb.tsx` hält die Positionen als React Kontext und legt sie unter
+`kornkammer.warenkorb.v1` im `localStorage` ab. Der Korb überlebt einen
+Seitenwechsel und das Schließen des Browsers. Beim Einlesen werden Kennungen
+verworfen, die es im Sortiment nicht mehr gibt.
+
+Gerechnet wird in Cent. Der gespeicherte Stand kommt erst **nach** dem
+Einhängen dazu, nicht schon beim ersten Rendern — sonst weicht der Client vom
+Server ab, React verwirft den Teilbaum, und auf dieser Seite ist genau daran
+schon einmal das Hero Video gestorben.
+
+**Kein Bezahlvorgang.** Der Korb wird am Ende zu einer vorformulierten
+Bestellmail an den Hof: Menge, Artikel, Gebinde, Summe, Abholtermin. Sie
+öffnet sich im Mailprogramm des Besuchers und wird von ihm abgeschickt — es
+geht nichts an uns, solange er das nicht tut. Ein echter Zahlungsweg braucht
+Widerrufsbelehrung, AGB, Zahlungsdienstleister und eine Steuerentscheidung;
+das kann eine Oberfläche nicht vortäuschen. Wer Versand will, geht über den
+bestehenden Onlineshop, der Knopf dafür steht daneben.
+
+### Bedienung
+
+- Die Leiste unten erscheint erst, wenn etwas im Korb liegt, und sitzt über
+  der App Leiste des Telefons (`--leiste` plus `safe-area-inset-bottom`).
+- Bei jedem Hinzufügen macht sie einen kurzen Satz nach oben. Das ist die
+  Rückmeldung, die sonst fehlt, wenn der Knopf weit oben auf der Seite liegt.
+- Die Schublade fährt auf dem Telefon von unten ein, ab Tablet von rechts.
+  Escape schließt, der Fokus wandert beim Öffnen hinein und bleibt darin.
+  Geschlossen steht sie auf `visibility: hidden` und ist damit weder
+  antippbar noch vorlesbar.
+
+---
+
+## Die Karte
+
+`components/sections/Lage.tsx` zeigt einen **statischen** Kartenausschnitt aus
+OpenStreetMap und verlinkt auf Klick die Route bei Google Maps.
+
+Bewusst keine Einbettung: ein eingebetteter Kartendienst lädt beim
+Seitenaufruf Kacheln von einem Dritten und übermittelt dabei die IP jedes
+Besuchers, ohne dass jemand darum gebeten hätte. Bei einer deutschen
+Firmenseite ist das die Stelle, an der es teuer wird — dieselbe Erwägung wie
+bei den Schriften. So entscheidet der Besucher selbst, wann er zu Google geht.
+
+Die Namensnennung „Kartendaten © OpenStreetMap Mitwirkende“ steht sichtbar
+unter der Karte. Das verlangt die Lizenz (ODbL). Wird der Ausschnitt
+ausgetauscht, muss sie bleiben.
+
+Das Ziel des Routenknopfs kommt aus `ROUTE_URL` in `data/farm.ts` und wird
+aus der Anschrift gebildet. Sobald Koordinaten belegt sind, gehören sie
+dorthin — dann trifft die Route den Hofeingang statt die Straße.
+
+---
+
 ## Technik im Detail
 
 - **Schriften** kommen über `next/font` und werden vom eigenen Server
@@ -347,6 +459,28 @@ Gründungsjahr, Produktbereiche, Kulturen der Fruchtfolge.
 
 ## Deploy
 
-Statisch vorgerendert, alle einundzwanzig Routen. Vercel oder jeder Node Host.
-Die Videos liegen unter `public/video/` und werden über
-`Cache-Control: immutable` ausgeliefert, siehe `next.config.mjs`.
+Statisch vorgerendert. Vercel oder jeder Node Host. Die Videos liegen unter
+`public/video/` und werden über `Cache-Control: immutable` ausgeliefert,
+siehe `next.config.mjs`.
+
+### Netlify
+
+```bash
+npm run netlify
+```
+
+Ergebnis ist **`kornkammer-netlify.zip`** im Projektordner. Auf
+[app.netlify.com/drop](https://app.netlify.com/drop) ziehen, fertig — kein
+Build auf Netlify nötig, keine Funktionen, kein Next Runtime Plugin.
+
+Wer stattdessen aus dem Repository bauen lassen will: `netlify.toml` liegt
+bei und setzt Befehl (`DEMO_EXPORT=1 npm run build`), Verzeichnis (`out`) und
+die Cache-Kopfzeilen für Video und Static Chunks.
+
+Zwei Dinge zum Wissen:
+
+- Der Export läuft mit `DEMO_EXPORT=1`. Das schaltet `output: 'export'` und
+  `images.unoptimized` — auf einem reinen Statik-Host gibt es keinen
+  Bildoptimierer, der zur Laufzeit skalieren könnte.
+- Kopfzeilen aus `next.config.mjs` greifen im Export nicht, weil kein Node
+  Server ausliefert. Deshalb stehen sie zusätzlich in `netlify.toml`.

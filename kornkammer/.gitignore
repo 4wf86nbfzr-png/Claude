@@ -1,7 +1,9 @@
 node_modules
 .next
+.next-export
 out
 build
+kornkammer-netlify.zip
 .DS_Store
 *.pem
 .env*

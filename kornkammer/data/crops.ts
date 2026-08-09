@@ -1,69 +1,65 @@
 export type Crop = {
+  /** Wie die Kultur im Fruchtfolgeplan des Betriebs steht */
   name: string
-  /** Wann die Kultur das Feld praegt — als Wort, nicht als Datum */
-  season: string
+  /** Weitere Kulturen, die an dieser Stelle stehen koennen */
+  auch?: string[]
+  /** Was die Kultur im Boden leistet */
   role: string
   note: string
+  image?: string
+  imageAlt?: string
 }
 
 /**
- * Die Fruchtfolge, erzaehlt als Abfolge von Aufgaben.
- * Bewusst ohne Prozentangaben oder Flaechenzahlen: dazu liegen keine
- * belastbaren Werte vor, und Schmuckziffern will die Seite ohnehin nicht.
+ * Die Fruchtfolge, wie sie der Betrieb selbst auffuehrt.
+ *
+ * QUELLE: Uebersicht „Fruchtfolge aktuell“ des Betriebs. Sechs Glieder,
+ * beginnend beim Rotklee. Die Reihenfolge ist Inhalt, keine Zierziffer —
+ * deshalb steht sie im Layout als Abfolge und nicht als nummerierte Liste.
+ *
+ * Die Erlaeuterungen zur Wirkung der einzelnen Glieder sind fachliche
+ * Einordnung des oekologischen Landbaus, keine Betriebsangaben. Zahlen zu
+ * Flaechen oder Ertraegen stehen bewusst nicht darin: dazu liegt nichts vor.
  */
 export const CROPS: Crop[] = [
   {
+    name: 'Rotklee',
+    role: 'Stickstoffsammler',
+    note: 'Der erste Aufwuchs wird siliert, der zweite gedroschen. Der Klee bindet Stickstoff aus der Luft und übergibt ihn an die Frucht, die nach ihm kommt. Er ist der Grund, warum auf diesen Flächen kein Mineraldünger nötig ist.',
+    image: '/images/fruchtfolge/ernte.webp',
+    imageAlt: 'Feldhäcksler bei der Ernte des ersten Aufwuchses',
+  },
+  {
     name: 'Winterweizen',
-    season: 'Herbstsaat',
     role: 'Brotgetreide',
-    note: 'Steht über Winter, nutzt die Feuchte im Frühjahr und trägt den größten Teil der Mehlernte.',
-  },
-  {
-    name: 'Dinkel',
-    season: 'Herbstsaat',
-    role: 'Brotgetreide',
-    note: 'Kommt mit weniger Nährstoff aus als Weizen und verzeiht dem Boden eine schwächere Vorfrucht.',
-  },
-  {
-    name: 'Hafer',
-    season: 'Frühjahrssaat',
-    role: 'Gesundungsfrucht',
-    note: 'Unterbricht Krankheitskreisläufe im Getreide und hinterlässt eine gut durchwurzelte Krume.',
-  },
-  {
-    name: 'Roggen',
-    season: 'Herbstsaat',
-    role: 'Brotgetreide',
-    note: 'Die robusteste Halmfrucht im Betrieb. Beschattet früh und hält Beikraut selbst in Schach.',
+    note: 'Steht direkt nach dem Klee und holt sich, was dieser hinterlassen hat. Als anspruchsvollste Halmfrucht bekommt der Weizen den besten Platz in der Folge.',
+    image: '/images/fruchtfolge/stoppel.webp',
+    imageAlt: 'Reifes Getreide kurz vor dem Drusch',
   },
   {
     name: 'Kartoffeln',
-    season: 'Frühjahrssaat',
-    role: 'Hackfrucht',
-    note: 'Wird mechanisch gepflegt. Der häufige Durchgang lockert den Boden und hält ihn beikrautfrei.',
+    auch: ['Hafer', 'Winterraps'],
+    role: 'Hackfrucht oder Ölfrucht',
+    note: 'Je nach Schlag und Jahr steht hier eine von drei Kulturen. Kartoffeln werden mechanisch gepflegt, der häufige Durchgang lockert die Krume. Winterraps bricht mit seiner Pfahlwurzel verdichtete Schichten auf, Hafer unterbricht Krankheitskreisläufe im Getreide.',
+    image: '/images/fruchtfolge/kartoffeln.webp',
+    imageAlt: 'Frisch gehäufelte Kartoffeldämme vor einem Waldrand',
   },
   {
-    name: 'Senf',
-    season: 'Zwischenfrucht',
-    role: 'Bodendecker',
-    note: 'Deckt den Boden nach der Ernte, verhindert Erosion und liefert die Saat für die eigene Manufaktur.',
+    name: 'Dinkel',
+    role: 'Brotgetreide',
+    note: 'Kommt mit weniger Nährstoff aus als Weizen und verzeiht dem Boden eine schwächere Vorfrucht. Deshalb steht er an der Stelle, an der die Reserven aus dem Klee zur Neige gehen.',
   },
   {
-    name: 'Raps',
-    season: 'Herbstsaat',
-    role: 'Ölfrucht',
-    note: 'Die Basis für Ruhrtalgold. Tiefe Pfahlwurzel, die verdichtete Schichten aufbricht.',
+    name: 'Hafer',
+    auch: ['Mohn', 'Senf'],
+    role: 'Sommerung',
+    note: 'Die Sommerung öffnet ein Zeitfenster für die Beikrautregulierung, das eine Herbstsaat nicht lässt. Blaumohn ist die anspruchsvollste dieser drei und eine Kultur, die im Revier sonst kaum jemand stehen hat.',
+    image: '/images/fruchtfolge/mohn.webp',
+    imageAlt: 'Blühender Blaumohn in voller Blüte',
   },
   {
-    name: 'Rotklee',
-    season: 'Mehrjährig',
-    role: 'Stickstoffsammler',
-    note: 'Bindet Stickstoff aus der Luft und macht ihn den Folgefrüchten verfügbar. Ersetzt den Mineraldünger.',
-  },
-  {
-    name: 'Blaumohn',
-    season: 'Frühjahrssaat',
-    role: 'Ölfrucht',
-    note: 'Anspruchsvoll in der Pflege, dafür eine Kultur, die im Revier kaum jemand sonst stehen hat.',
+    name: 'Dinkel',
+    role: 'Brotgetreide',
+    note: 'Schließt die Folge ab. Danach beginnt sie von vorn, mit dem Klee, der den Boden wieder auffüllt.',
   },
 ]

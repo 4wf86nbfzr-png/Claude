@@ -10,6 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '',
     '/hof',
     '/produkte',
+    '/shop',
     '/bio',
     '/team',
     '/hofladen',

@@ -16,6 +16,7 @@ export const HAUPT: Eintrag[] = [
   { href: '/', label: 'Startseite', kurz: 'Start' },
   { href: '/hof', label: 'Der Hof', kurz: 'Hof' },
   { href: '/produkte', label: 'Produkte', kurz: 'Produkte' },
+  { href: '/shop', label: 'Shop', kurz: 'Shop' },
   { href: '/bio', label: 'Bio verstehen', kurz: 'Bio' },
   { href: '/hofladen', label: 'Direkt vom Hof', kurz: 'Hofladen' },
   { href: '/galerie', label: 'Galerie', kurz: 'Galerie' },

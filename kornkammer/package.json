@@ -10,6 +10,7 @@
     "lint": "next lint",
     "format": "prettier --write \"**/*.{ts,tsx,css,md}\"",
     "demo": "DEMO_EXPORT=1 next build && node tools/demo-bundle.mjs",
+    "netlify": "DEMO_EXPORT=1 next build && node tools/netlify-zip.mjs",
     "satzpruefung": "node tools/typo-audit.mjs",
     "loaderpruefung": "node tools/loader-notfall.mjs"
   },
@@ -27,6 +28,7 @@
     "autoprefixer": "^10.5.4",
     "eslint": "^9.39.5",
     "eslint-config-next": "^15.5.23",
+    "playwright": "^1.62.1",
     "postcss": "^8.5.26",
     "prettier": "^3.9.6",
     "tailwindcss": "^3.4.19",

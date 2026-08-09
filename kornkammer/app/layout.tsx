@@ -7,6 +7,9 @@ import PageTransition from '@/components/layout/PageTransition'
 import Nav from '@/components/layout/Nav'
 import AppBar from '@/components/layout/AppBar'
 import Footer from '@/components/layout/Footer'
+import { WarenkorbProvider } from '@/lib/warenkorb'
+import Warenkorbleiste from '@/components/shop/Warenkorbleiste'
+import WarenkorbSchublade from '@/components/shop/WarenkorbSchublade'
 import { FARM, SITE, ROUTE_URL } from '@/data/farm'
 
 /* Schriften kommen ueber next/font: selbst gehostet, kein Aufruf an Dritte
@@ -119,14 +122,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <a href="#inhalt" className="skip">
           Zum Inhalt springen
         </a>
-        <SmoothScroll>
-          <Nav />
-          <PageTransition>
-            <main id="inhalt">{children}</main>
-            <Footer />
-          </PageTransition>
-          <AppBar />
-        </SmoothScroll>
+        {/* Der Warenkorb liegt ueber dem Seitenwechsel, damit er beim
+            Navigieren nicht verloren geht. */}
+        <WarenkorbProvider>
+          <SmoothScroll>
+            <Nav />
+            <PageTransition>
+              <main id="inhalt">{children}</main>
+              <Footer />
+            </PageTransition>
+            <AppBar />
+          </SmoothScroll>
+          <Warenkorbleiste />
+          <WarenkorbSchublade />
+        </WarenkorbProvider>
       </body>
     </html>
   )
