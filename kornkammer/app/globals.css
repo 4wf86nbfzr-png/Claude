@@ -263,6 +263,37 @@ button {
 }
 
 /* ==========================================================================
+   NOTBREMSE FUER DEN LOADER
+
+   Der Loader wird vom Server mitgeliefert, damit der Einstieg nicht
+   flackert. Damit haengt aber die ganze Seite daran, dass JavaScript ihn
+   auch wieder wegnimmt — und wenn das ausbleibt, sieht man nur noch den
+   Schriftzug auf schwarzer Flaeche. Genau das ist passiert.
+
+   Diese Animation blendet ihn nach gut drei Sekunden aus, ganz ohne
+   JavaScript. Sie greift also auch, wenn Skripte abgeschaltet sind, von
+   einer Sandbox blockiert werden oder die Hydration scheitert.
+
+   Laeuft JavaScript, setzt der Loader sofort `js-aktiv` und schaltet sie
+   ab — dann fuehrt weiter GSAP Regie.
+   ========================================================================== */
+
+#loader {
+  animation: loader-freigeben 0.45s 3.2s forwards;
+}
+#loader.js-aktiv {
+  animation: none;
+}
+
+@keyframes loader-freigeben {
+  to {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+
+/* ==========================================================================
    REDUZIERTE BEWEGUNG
    ========================================================================== */
 

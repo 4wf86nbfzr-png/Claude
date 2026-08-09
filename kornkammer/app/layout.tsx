@@ -108,6 +108,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        {/* Ohne Skripte gibt es keinen Ladevorhang. Die CSS-Notbremse in
+            globals.css blendet ihn zwar ohnehin aus, hier verschwindet er
+            aber sofort statt nach drei Sekunden. */}
+        <noscript>
+          <style>{`#loader{display:none!important}`}</style>
+        </noscript>
+
         <a href="#inhalt" className="skip">
           Zum Inhalt springen
         </a>

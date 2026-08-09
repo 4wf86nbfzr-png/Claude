@@ -10,7 +10,8 @@
     "lint": "next lint",
     "format": "prettier --write \"**/*.{ts,tsx,css,md}\"",
     "demo": "DEMO_EXPORT=1 next build && node tools/demo-bundle.mjs",
-    "satzpruefung": "node tools/typo-audit.mjs"
+    "satzpruefung": "node tools/typo-audit.mjs",
+    "loaderpruefung": "node tools/loader-notfall.mjs"
   },
   "dependencies": {
     "gsap": "^3.15.0",

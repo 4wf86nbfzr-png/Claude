@@ -10,6 +10,14 @@ import { MOTION, prefersReducedMotion } from '@/lib/motion'
  * Der Wortlaut erscheint, die Furche zieht einmal durch, dann gibt der
  * Loader den Hero frei — spaetestens aber nach kurzer Zeit, damit niemand
  * auf ein haengendes Netzwerk wartet.
+ *
+ * WICHTIG: Der Loader wird vom Server mitgeliefert. Er darf deshalb unter
+ * keinen Umstaenden davon abhaengen, dass dieses Skript laeuft — sonst
+ * verdeckt er die Seite dauerhaft, wenn JavaScript blockiert ist oder die
+ * Hydration scheitert. Die Absicherung steht als reine CSS-Animation in
+ * `globals.css` unter „Notbremse fuer den Loader“, dazu eine `noscript`
+ * Regel im Layout. Hier wird sie nur abgeschaltet, sobald JavaScript
+ * tatsaechlich uebernimmt.
  */
 export default function Loader() {
   const root = useRef<HTMLDivElement>(null)
@@ -19,7 +27,14 @@ export default function Loader() {
     const el = root.current
     if (!el) return
 
-    if (prefersReducedMotion()) {
+    // Ab hier fuehrt JavaScript Regie, die CSS-Notbremse wird abgeschaltet.
+    el.classList.add('js-aktiv')
+
+    // Kam die Hydration so spaet, dass die Notbremse schon gegriffen hat,
+    // wird nicht nachtraeglich noch einmal eingeblendet.
+    const zuSpaet = typeof performance !== 'undefined' && performance.now() > 3000
+
+    if (zuSpaet || prefersReducedMotion()) {
       setDone(true)
       return
     }
@@ -27,9 +42,7 @@ export default function Loader() {
     const path = el.querySelector('path')
     const word = el.querySelector('[data-word] span')
 
-    const tl = gsap.timeline({
-      onComplete: () => setDone(true),
-    })
+    const tl = gsap.timeline({ onComplete: () => setDone(true) })
 
     if (word)
       tl.fromTo(word, { yPercent: 140 }, { yPercent: 0, duration: 0.8, ease: MOTION.reveal.ease })
@@ -42,11 +55,12 @@ export default function Loader() {
 
     tl.to(el, { yPercent: -101, duration: 0.75, ease: 'expo.inOut' }, '+=0.05')
 
-    // Sicherheitsnetz: laenger als das darf der Vorhang nie stehen bleiben.
-    const guard = window.setTimeout(() => setDone(true), 2600)
+    // Sicherheitsnetz innerhalb von JavaScript: laenger als das darf der
+    // Vorhang nie stehen bleiben, auch wenn eine Teilanimation klemmt.
+    const wache = window.setTimeout(() => setDone(true), 2600)
 
     return () => {
-      window.clearTimeout(guard)
+      window.clearTimeout(wache)
       tl.kill()
     }
   }, [])
@@ -55,6 +69,7 @@ export default function Loader() {
 
   return (
     <div
+      id="loader"
       ref={root}
       aria-hidden="true"
       className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-soilDeep"

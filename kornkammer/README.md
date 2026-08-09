@@ -167,6 +167,27 @@ Story den Fortschritt.
   die Umlautpunkte ab, aus „STÜCK“ wurde „STUCK“.
 - **Echte deutsche Anführungszeichen** im gesamten sichtbaren Text.
 
+### Der Loader darf die Seite nie einsperren
+
+Der Ladevorhang wird vom Server mitgeliefert, damit der Einstieg nicht
+flackert. Damit hing die ganze Seite aber daran, dass JavaScript ihn auch
+wieder wegnimmt — blieb das aus, sah man nur den Schriftzug auf schwarzer
+Fläche und kam nicht weiter. Drei Ebenen sichern das jetzt ab:
+
+- **CSS-Notbremse** in `globals.css`: eine Animation blendet `#loader` nach
+  gut drei Sekunden aus, ganz ohne JavaScript. Übernimmt das Skript, setzt
+  es `js-aktiv` und schaltet sie ab.
+- **`noscript`-Regel** im Layout: sind Skripte abgeschaltet, ist der Vorhang
+  von vornherein weg statt nach drei Sekunden.
+- **Zeitwächter** innerhalb der Komponente, falls eine Teilanimation klemmt.
+
+Kam die Hydration so spät, dass die Notbremse schon gegriffen hat, blendet
+die Komponente nicht nachträglich wieder ein.
+
+Geprüft wird das gegen fünf Fälle: Normalbetrieb, JavaScript abgeschaltet,
+alle Skriptbündel blockiert, einzelner Baustein blockiert, Fehler während
+der Hydration. In allen fünf ist die Seite lesbar.
+
 ### Satzprüfung
 
 `tools/typo-audit.mjs` fährt jede Seite in sechs Breiten von 320 px bis

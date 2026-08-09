@@ -83,9 +83,14 @@ html = html.replace(/<script[^>]*src="([^"]+)"[^>]*><\/script>/g, (treffer, src)
   }
 })
 
-/* ------------------------------------------------------------------ Poster */
+/* ------------------------------------------------------------------ Poster
+   Global ersetzen, nicht nur das erste Vorkommen: der Pfad steht sowohl im
+   Markup als auch im RSC-Payload. Wer nur den ersten Treffer nimmt, erwischt
+   den Payload und laesst das Attribut am `<video>` stehen — dann bleibt der
+   Hero schwarz, sobald das Video nicht laeuft. */
 const poster = lies('/video/hero-poster.webp')
-html = html.replace('/video/hero-poster.webp', b64(poster, 'image/webp'))
+const posterUrl = b64(poster, 'image/webp')
+html = html.split('/video/hero-poster.webp').join(posterUrl)
 bilanz.push(['Poster', 'hero-poster.webp', poster.length])
 
 /* ------------------------------------------------- Anfragen, die ins Leere gehen
