@@ -1,5 +1,7 @@
 export type Certification = {
   name: string
+  /** Bildmarke, sofern eine vorliegt. Nachbauen kommt nicht in Frage. */
+  logo?: string
   kind: string
   claim: string
   body: string
@@ -10,6 +12,7 @@ export type Certification = {
 export const CERTIFICATIONS: Certification[] = [
   {
     name: 'Bioland',
+    logo: '/logo/bioland.webp',
     kind: 'Anbauverband',
     claim: 'Geht über die gesetzlichen Mindeststandards hinaus.',
     body: 'Bioland ist ein privatrechtlicher Verband. Wer sich ihm anschließt, verpflichtet sich auf Richtlinien, die enger gefasst sind als die EU Rechtsvorschriften für den ökologischen Landbau. Der Betrieb wird als Ganzes umgestellt, nicht nur einzelne Flächen.',

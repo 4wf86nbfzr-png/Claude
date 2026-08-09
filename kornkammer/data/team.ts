@@ -1,50 +1,44 @@
 export type Member = {
   id: string
   name: string
+  /** Funktion im Betrieb. Leer, solange sie nicht belegt ist. */
   role: string
+  /** Verantwortung, ebenfalls nur wenn belegt. */
   responsibility: string
   image?: string
-  /** true = Name und Rolle sind noch nicht belegt und muessen ersetzt werden */
-  platzhalter: boolean
+  imageAlt?: string
 }
 
 /**
- * ACHTUNG · PLATZHALTER
- * Die Namen des Teams liessen sich aus der Bauumgebung nicht belegen
- * (team-kornkammer.de und ruhrtalgold.de sind hier nicht erreichbar).
- * Statt Personen zu erfinden, stehen hier Rollen ohne Namen. Die Seite
- * weist das sichtbar aus. Ersetzen: Name, Rolle, Foto eintragen und
- * `platzhalter` auf false setzen.
+ * Namen und Fotos stammen von team-kornkammer.de.
+ *
+ * Die Bilder sind aus Bildschirmfotos der Bestandsseite freigestellt, mehr
+ * lag nicht vor. Fuer Karten in dieser Groesse reicht das, gross gezogen
+ * sieht man die Herkunft. Wer die Originale hat, tauscht die Dateien unter
+ * `public/images/team/` einfach aus.
+ *
+ * OFFEN: Zu keiner der Personen ist die Funktion im Betrieb belegt. Sie
+ * bleibt deshalb leer, und die Seite weist das aus, statt eine Rolle zu
+ * erfinden. Ebenso fehlen die uebrigen Mitglieder des Teams.
  */
 export const TEAM: Member[] = [
   {
-    id: 'betriebsleitung',
-    name: 'Name folgt',
-    role: 'Betriebsleitung',
-    responsibility: 'Fruchtfolge, Flächen, alle Entscheidungen, die das Feld betreffen.',
-    platzhalter: true,
+    id: 'stefan-pawliczek',
+    name: 'Stefan Pawliczek',
+    role: '',
+    responsibility: '',
+    image: '/images/team/stefan-pawliczek.webp',
+    imageAlt: 'Stefan Pawliczek im blühenden Rapsfeld',
   },
   {
-    id: 'verarbeitung',
-    name: 'Name folgt',
-    role: 'Verarbeitung',
-    responsibility: 'Mühle, Ölpressung und Senfmanufaktur.',
-    platzhalter: true,
-  },
-  {
-    id: 'hofverkauf',
-    name: 'Name folgt',
-    role: 'Hofverkauf',
-    responsibility: 'Der Freitag am Hof, Sortiment und Kundschaft.',
-    platzhalter: true,
-  },
-  {
-    id: 'technik',
-    name: 'Name folgt',
-    role: 'Technik',
-    responsibility: 'Maschinen, Werkstatt und alles, was zur Ernte laufen muss.',
-    platzhalter: true,
+    id: 'dirk-liedmann',
+    name: 'Dirk Liedmann',
+    role: '',
+    responsibility: '',
+    image: '/images/team/dirk-liedmann.webp',
+    imageAlt: 'Dirk Liedmann im blühenden Rapsfeld',
   },
 ]
 
-export const TEAM_UNBESTAETIGT = TEAM.some((m) => m.platzhalter)
+/** Solange Funktionen fehlen, sagt die Seite das offen. */
+export const TEAM_UNVOLLSTAENDIG = TEAM.some((m) => !m.role)

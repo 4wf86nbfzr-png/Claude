@@ -31,12 +31,27 @@ export default function BioCerts() {
               <div className="border-t border-[var(--hair)] py-[clamp(2rem,5vh,3.5rem)]">
                 <div className="grid grid-cols-1 gap-[clamp(1.5rem,4vw,3.5rem)] lg:grid-cols-[0.85fr_1.15fr]">
                   <div>
-                    <h3
-                      className="text-h2 leading-[0.98] tracking-[-0.03em]"
-                      style={{ fontVariationSettings: "'SOFT' 30" }}
-                    >
-                      {cert.name}
-                    </h3>
+                    {cert.logo ? (
+                      <img
+                        src={cert.logo}
+                        alt={cert.name}
+                        width={112}
+                        height={112}
+                        loading="lazy"
+                        decoding="async"
+                        style={{ width: 112, height: 112 }}
+                      />
+                    ) : (
+                      <h3
+                        className="text-h2 leading-[0.98] tracking-[-0.03em]"
+                        style={{ fontVariationSettings: "'SOFT' 30" }}
+                      >
+                        {cert.name}
+                      </h3>
+                    )}
+                    {cert.logo && (
+                      <h3 className="mt-5 text-h3 leading-[1] tracking-[-0.03em]">{cert.name}</h3>
+                    )}
                     <p className="u-mono mt-4 text-[color:var(--clay)]">{cert.kind}</p>
                   </div>
 

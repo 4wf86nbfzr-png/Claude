@@ -22,6 +22,14 @@ const ZIEL = join(WURZEL, 'demo', 'kornkammer-demo.html')
 const lies = (p) => readFileSync(join(OUT, p.replace(/^\//, '')))
 const b64 = (buf, typ) => `data:${typ};base64,${buf.toString('base64')}`
 const kb = (n) => Math.round(n / 1024).toLocaleString('de-DE')
+const typVon = (pfad) =>
+  pfad.endsWith('.png')
+    ? 'image/png'
+    : pfad.endsWith('.jpg') || pfad.endsWith('.jpeg')
+      ? 'image/jpeg'
+      : pfad.endsWith('.svg')
+        ? 'image/svg+xml'
+        : 'image/webp'
 
 let html = readFileSync(join(OUT, 'index.html'), 'utf8')
 const bilanz = []
@@ -111,11 +119,20 @@ html = html.replace(
   },
 )
 
-/* ==================================================================== Logo
-   Steht im Markup und im RSC-Payload, deshalb global ersetzen. */
-const logo = lies('/logo/logo.webp')
-html = html.split('/logo/logo.webp').join(b64(logo, 'image/webp'))
-bilanz.push(['Logo', 'logo.webp', logo.length])
+/* =================================================================== Marken
+   Alle Dateien unter /logo/ einbetten, nicht nur die Wortmarke: dort liegt
+   auch das Bioland-Zeichen. Ersetzt wird der blosse Pfad, damit beide
+   Schreibweisen getroffen werden — die im Markup und die JSON-escapte im
+   RSC-Payload. */
+for (const pfad of [...new Set(html.match(/\/logo\/[A-Za-z0-9._-]+/g) ?? [])]) {
+  try {
+    const datei = lies(pfad)
+    html = html.split(pfad).join(b64(datei, typVon(pfad)))
+    bilanz.push(['Marke', pfad.split('/').pop(), datei.length])
+  } catch {
+    /* Gibt es nicht, dann bleibt der Pfad stehen. */
+  }
+}
 
 /* ================================================================ Tab-Icon */
 html = html.replace(/href="\/apple-icon\.png[^"]*"/, () => {
@@ -149,14 +166,27 @@ const platzUrl = b64(platzhalter, 'image/webp')
 bilanz.push(['Platzhalter', 'platzhalter.webp', platzhalter.length])
 
 const LEER = '"data:,"'
-const PLATZ = `"${platzUrl}"`
-const PLATZ_ESCAPT = `\\"${platzUrl}\\"`
+
+/* Fotos, die es wirklich gibt, werden eingebettet. Nur fuer die fehlenden
+   tritt das beschriftete Platzhalterbild ein. Frueher wurde pauschal alles
+   ersetzt — damit verschwanden auch die echten Aufnahmen aus der Demo. */
+let echte = 0
+let fehlende = 0
+for (const pfad of [...new Set(html.match(/\/images\/[A-Za-z0-9._/-]+/g) ?? [])]) {
+  try {
+    const datei = lies(pfad)
+    html = html.split(pfad).join(b64(datei, typVon(pfad)))
+    echte++
+  } catch {
+    html = html.split(pfad).join(platzUrl)
+    fehlende++
+  }
+}
+bilanz.push(['Fotos', `${echte} echt, ${fehlende} als Platzhalter`, 0])
 
 html = html
   .replace(/\\"\/video\/hero(-2k|-4k)?\.(mp4|webm)\\"/g, '\\"data:,\\"')
   .replace(/(?<!\\)"\/video\/hero(-2k|-4k)?\.(mp4|webm)"/g, LEER)
-  .replace(/\\"\/images\/[^"\\]*\\"/g, PLATZ_ESCAPT)
-  .replace(/(?<!\\)"\/images\/[^"\\]*"/g, PLATZ)
   // Die Schriften stecken schon im Stylesheet. React legt aus dem RSC-Payload
   // aber noch einmal Vorlade-Verweise an, die hier ins Leere zeigen wuerden.
   .replace(/\\"\/_next\/static\/media\/[^"\\]*\\"/g, '\\"data:,\\"')
@@ -170,15 +200,25 @@ html = html
    Hero nur dort, wo JavaScript erlaubt ist.
 
    Die kleinste Stufe reicht, das Buendel soll sich noch verschicken lassen.
-   WebM statt MP4, weil kleiner; VP9 spielt jeder Browser ab, der fuer so eine
-   Demo in Frage kommt. Wo nicht, bleibt das Poster stehen. */
-const video = lies('/video/hero.webm')
-bilanz.push(['Video', 'hero.webm', video.length])
+
+   MP4 mit H.264, nicht WebM. Das war ein Fehler in der ersten Fassung: hier
+   im Pruefbrowser fehlt der H.264-Decoder, also lag WebM nahe — auf dem
+   iPhone spielt Safari WebM aber nicht zuverlaessig, und genau dort blieb
+   das Video schwarz. H.264 kann dagegen jedes Geraet. */
+const video = lies('/video/hero.mp4')
+bilanz.push(['Video', 'hero.mp4', video.length])
+
+/* Zusaetzlich WebM als Rueckfall im Skript. Es kostet gut ein Megabyte,
+   deckt dafuer aber die wenigen Browser ab, die kein H.264 mitbringen —
+   und macht die Wiedergabe hier im Pruefbrowser ueberhaupt erst pruefbar,
+   dem genau dieser Decoder fehlt. */
+const videoWebm = lies('/video/hero.webm')
+bilanz.push(['Video Rueckfall', 'hero.webm', videoWebm.length])
 
 const videoVorher = html.length
 html = html.replace(
   '<video id="hero-video"',
-  `<video id="hero-video" src="${b64(video, 'video/webm')}"`,
+  `<video id="hero-video" src="${b64(video, 'video/mp4')}"`,
 )
 if (html.length === videoVorher) {
   console.warn('WARNUNG: Das Videoelement wurde nicht gefunden.')
@@ -193,6 +233,64 @@ const nachtrag = `
 <script>
 /* Demo-Nachtrag. Steht nicht im Projekt, nur in dieser einzelnen Datei. */
 (function () {
+  /* Safari tut sich mit mehreren Megabyte als Daten-URL im Video schwer.
+     Liegt JavaScript vor, wird daraus einmal ein Blob — das spielt
+     zuverlaessig. Ohne JavaScript bleibt die Daten-URL, die steht ja schon
+     im Markup. */
+  var WEBM = '${videoWebm.toString('base64')}'
+
+  function blobAus(daten, typ) {
+    var roh = atob(daten)
+    var buf = new Uint8Array(roh.length)
+    for (var i = 0; i < roh.length; i++) buf[i] = roh.charCodeAt(i)
+    return URL.createObjectURL(new Blob([buf], { type: typ }))
+  }
+
+  function abspielen(v) {
+    v.load()
+    var los = v.play()
+    if (los && los.catch) los.catch(function () {})
+  }
+
+  function einhaengen() {
+    var v = document.getElementById('hero-video')
+    if (!v) return
+
+    // Kann der Browser H.264? Wenn nicht, gleich auf WebM wechseln.
+    if (!v.canPlayType('video/mp4; codecs="avc1.42E01E"')) {
+      v.src = blobAus(WEBM, 'video/webm')
+      abspielen(v)
+      return
+    }
+
+    // Safari tut sich mit mehreren Megabyte als Daten-URL im Video schwer.
+    // Als Blob spielt es zuverlaessig. Ohne JavaScript bleibt die Daten-URL,
+    // die steht ja schon im Markup.
+    var quelle = v.getAttribute('src') || ''
+    var trenner = quelle.indexOf('base64,')
+    if (trenner < 0) return
+    try {
+      v.src = blobAus(quelle.slice(trenner + 7), 'video/mp4')
+      abspielen(v)
+    } catch (e) {
+      /* Dann bleibt es bei der Daten-URL. */
+    }
+
+    // Geht trotzdem etwas schief, bleibt WebM als letzter Versuch.
+    v.addEventListener('error', function () {
+      if (v.dataset.rueckfall) return
+      v.dataset.rueckfall = 'ja'
+      v.src = blobAus(WEBM, 'video/webm')
+      abspielen(v)
+    })
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', einhaengen)
+  } else {
+    einhaengen()
+  }
+
   var hinweis = document.createElement('div')
   hinweis.setAttribute('role', 'status')
   hinweis.style.cssText =

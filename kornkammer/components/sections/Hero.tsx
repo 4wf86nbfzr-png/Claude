@@ -5,8 +5,8 @@ import { gsap, ScrollTrigger } from '@/lib/gsap'
 import { MOTION, prefersReducedMotion } from '@/lib/motion'
 import GrainCanvas from '@/components/motion/GrainCanvas'
 import SplitLines from '@/components/motion/SplitLines'
-import Eyebrow from '@/components/ui/Eyebrow'
-import { FARM } from '@/data/farm'
+import Siegel from '@/components/ui/Siegel'
+import { LogoBild } from '@/components/ui/Logo'
 
 /**
  * DER EINSTIEG
@@ -208,30 +208,26 @@ export default function Hero() {
             /* Die App-Leiste steht unten im Weg, ihre Hoehe kommt dazu. */
             style={{ paddingBottom: 'calc(clamp(3.5rem, 9vh, 7rem) + var(--leiste))' }}
           >
-            {/* Die Untergrenze des Grades ist so gewaehlt, dass „KORNKAMMER“
-                auch bei 320 px Fensterbreite in eine Zeile passt. Sonst
-                schneidet die Maske das Wort seitlich ab, weil `no-break` es
-                nicht umbrechen laesst. */}
-            <SplitLines
-              as="h1"
-              immediate
-              delay={0.25}
-              className="optical no-break text-[clamp(2.15rem,11.2vw,9rem)] uppercase leading-[0.86] tracking-[-0.03em]"
-            >
-              Team Kornkammer
-            </SplitLines>
+            {/* Die Wortmarke gross ueber dem Video statt als gesetzte Zeile.
+                Das Bild laeuft dahinter weiter, das Logo traegt den Namen. */}
+            <h1 data-fade className="m-0">
+              <span className="block w-[clamp(15rem,52vw,38rem)]">
+                <LogoBild breite={608} priority fluid />
+              </span>
+              <span className="sr-only">Team Kornkammer</span>
+            </h1>
 
             <SplitLines
               as="p"
               immediate
-              delay={0.5}
-              className="mt-3 text-h3 u-italic text-wheatSoft"
+              delay={0.4}
+              className="mt-5 text-h3 u-italic text-wheatSoft"
             >
               Bio aus dem Revier
             </SplitLines>
 
             <div data-fade className="mt-8">
-              <Eyebrow items={[...FARM.certifications]} tone="paper" />
+              <Siegel gross />
             </div>
           </div>
         </div>

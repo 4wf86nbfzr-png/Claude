@@ -198,6 +198,16 @@ in der App-Leiste festen Platz, statt auf Icongröße gequetscht zu werden.
 Ein sauber freigestelltes Bildzeichen lässt sich daraus nicht gewinnen, weil
 Brot und Schrift einander überlappen.
 
+Im Hero steht sie groß über dem Video: das Bild läuft dahinter weiter, das
+Logo trägt den Namen. Eine gesetzte Schriftzeile steht dort nicht mehr, sie
+wäre eine Dopplung. Für Vorlesewerkzeuge bleibt der Name als `sr-only`-Text
+in der `h1`.
+
+Das **Bioland-Zeichen** liegt als Bildmarke bei (`public/logo/bioland.webp`)
+und steht in der Siegelzeile des Heros sowie im Abschnitt „Bio verstehen".
+EU Bio und GlobalGAP bleiben Text — dafür liegt keine Bilddatei vor, und ein
+nachgebautes Siegel wäre falsch.
+
 Auf dem Telefon zeigt die Kopfzeile **kein** Logo: die App-Leiste trägt es
 dort dauerhaft, zweimal wäre es zu viel. Aus demselben Grund hat das Menü
 keine eigene Wortmarke.
@@ -266,8 +276,12 @@ greift sie ohne weitere Änderung. Erwartete Pfade stehen in `data/products.ts`,
 erreichbar (Egress gesperrt). Übernommen wurden nur öffentlich indexierte
 Angaben. Erfunden wurde nichts. Offen und im Layout sichtbar markiert:
 
-- **Team.** Namen, Funktionen und Fotos fehlen. `data/team.ts` enthält Rollen
-  ohne Namen, jeder Eintrag trägt `platzhalter: true`. Die Seite weist das aus.
+- **Team.** Stefan Pawliczek und Dirk Liedmann sind mit Namen und Foto
+  eingesetzt. Offen bleiben ihre **Funktionen** im Betrieb und die übrigen
+  Mitglieder — die Seite schreibt „Funktion folgt", statt eine Rolle zu
+  erfinden. Die Fotos sind aus Bildschirmfotos der Bestandsseite
+  freigestellt (760 × 760); für Karten reicht das, groß gezogen sieht man
+  die Herkunft. Originale einfach unter `public/images/team/` austauschen.
 - **Referenzen.** `data/referenzen.ts` ist absichtlich leer. Belegt ist nur
   die allgemeine Aussage, dass Bäckereien in der Region beliefert werden —
   welche, steht nirgends öffentlich. Fremde Firmennamen zu erfinden wäre hier
