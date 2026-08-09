@@ -1,0 +1,277 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================================
+   TOKENS
+   Der Grade kommt aus dem Drohnenmaterial: fast schwarzer Boden, warmes
+   Arbeitslicht, kuehle Daemmerung. Kein helles Biogruen.
+   ========================================================================== */
+
+:root {
+  /* Flaeche */
+  --soil: #141009;
+  --soil-deep: #0d0a06;
+  --soil-lift: #1d170e;
+
+  /* Helle Sektionen */
+  --paper: #efe7d8;
+  --paper-warm: #e4d9c4;
+
+  /* Akzente */
+  --wheat: #c8a13c;
+  --wheat-soft: #e2c069;
+  --clay: #9a6a44;
+  --field: #5f6d42;
+  --stone: #938877;
+
+  /* Linien: die Furche ist haardünn, nie ein Rahmen */
+  --hair: rgba(239, 231, 216, 0.16);
+  --hair-strong: rgba(239, 231, 216, 0.34);
+  --hair-dark: rgba(20, 16, 9, 0.16);
+  --hair-dark-strong: rgba(20, 16, 9, 0.32);
+
+  /* Schrift */
+  --font-display: var(--f-fraunces), 'Iowan Old Style', Georgia, serif;
+  --font-body: var(--f-hanken), ui-sans-serif, system-ui, sans-serif;
+  --font-utility: var(--f-mono), ui-monospace, 'SFMono-Regular', monospace;
+
+  /* Skala: bewusst weit, damit Typografie selbst Erlebnis ist */
+  --fs-mono: clamp(0.66rem, 0.62rem + 0.2vw, 0.78rem);
+  --fs-body: clamp(1rem, 0.96rem + 0.22vw, 1.125rem);
+  --fs-lead: clamp(1.18rem, 1.02rem + 0.72vw, 1.65rem);
+  --fs-h4: clamp(1.3rem, 1.1rem + 0.95vw, 2rem);
+  --fs-h3: clamp(1.75rem, 1.3rem + 2.1vw, 3.25rem);
+  --fs-h2: clamp(2.4rem, 1.5rem + 4.3vw, 6rem);
+  --fs-display: clamp(3rem, 1.5rem + 7.2vw, 9rem);
+  --fs-colossal: clamp(3.6rem, 1rem + 11.4vw, 14rem);
+
+  /* Raum */
+  --shell: 88rem;
+  --measure: 34rem;
+  --measure-lead: 46rem;
+  --gutter: clamp(1.25rem, 0.6rem + 3vw, 4.5rem);
+  --sec: clamp(6rem, 3rem + 11vw, 14rem);
+
+  /* Bewegung: eine Quelle fuer alle Sektionen */
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-soft: cubic-bezier(0.33, 1, 0.68, 1);
+  --ease-swift: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-reveal: 1s;
+
+  color-scheme: dark;
+}
+
+/* ==========================================================================
+   GRUNDLAGEN
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  /* Lenis uebernimmt das Scrollen; natives smooth wuerde dagegen arbeiten. */
+  scroll-behavior: auto;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--soil);
+  color: var(--paper);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: 1.6;
+  font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* Lenis haelt den Scrollwert selbst; ohne das ruckelt es auf iOS. */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.022em;
+  /* Lange deutsche Woerter brechen sonst aus dem Satz. */
+  hyphens: auto;
+  overflow-wrap: break-word;
+}
+
+/* Wortmarken duerfen nie mitten im Wort brechen: „KORNKAMME / R" ist
+   schlimmer als eine Zeile, die knapp wird. Stattdessen skaliert der Grad. */
+.no-break {
+  hyphens: manual;
+  overflow-wrap: normal;
+  word-break: keep-all;
+}
+
+p {
+  margin: 0;
+  text-wrap: pretty;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img,
+video,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+::selection {
+  background: var(--wheat);
+  color: var(--soil-deep);
+}
+
+:focus-visible {
+  outline: 2px solid var(--wheat);
+  outline-offset: 3px;
+  border-radius: 1px;
+}
+
+/* ==========================================================================
+   BAUSTEINE
+   ========================================================================== */
+
+.shell {
+  width: 100%;
+  max-width: var(--shell);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.section {
+  padding-block: var(--sec);
+}
+
+/* Helle Sektion: kehrt die Linienfarbe mit um */
+.on-paper {
+  background: var(--paper);
+  color: var(--soil);
+  --hair: var(--hair-dark);
+  --hair-strong: var(--hair-dark-strong);
+  --stone: #6f6455;
+  color-scheme: light;
+}
+
+.u-mono {
+  font-family: var(--font-utility);
+  font-size: var(--fs-mono);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 400;
+}
+
+/* Kursiv ist bei uns immer die Display-Stimme. Fraunces hat dafuer die
+   Achsen SOFT und WONK — ohne die wirkt die Kursive nur schraeg. */
+.u-italic {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-variation-settings: 'SOFT' 40, 'WONK' 1;
+  letter-spacing: -0.015em;
+}
+
+.measure {
+  max-width: var(--measure);
+}
+.measure-lead {
+  max-width: var(--measure-lead);
+}
+
+/* Optischer Randausgleich fuer grosse Display-Zeilen */
+.optical {
+  margin-left: -0.055em;
+}
+
+/* Skip-Link */
+.skip {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 200;
+  transform: translateY(-160%);
+  background: var(--paper);
+  color: var(--soil);
+  padding: 0.7rem 1.1rem;
+  transition: transform 0.25s var(--ease-swift);
+}
+.skip:focus-visible {
+  transform: translateY(0);
+}
+
+/* ==========================================================================
+   REVEAL-GRUNDZUSTAND
+   Ohne JS bleibt alles sichtbar (Klasse wird nie gesetzt) — die Seite
+   funktioniert also auch, wenn das Motion-Skript nicht laedt.
+   ========================================================================== */
+
+[data-reveal] {
+  will-change: transform, opacity;
+}
+
+/* Die Maske braucht Luft nach oben und unten, sonst schneidet sie bei enger
+   Durchschuss Umlautpunkte und Unterlaengen ab — „STÜCK" wurde sonst zu
+   „STUCK". Das Polster wird per negativem Aussenabstand wieder abgezogen,
+   damit die Zeile optisch an derselben Stelle sitzt. */
+.split-line {
+  display: block;
+  overflow: hidden;
+  padding-block: 0.22em;
+  margin-block: -0.22em;
+}
+.split-line > span {
+  display: block;
+  will-change: transform;
+}
+
+/* ==========================================================================
+   REDUZIERTE BEWEGUNG
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  [data-reveal],
+  .split-line > span {
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+  }
+}
