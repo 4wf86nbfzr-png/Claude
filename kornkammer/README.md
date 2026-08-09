@@ -16,6 +16,31 @@ npm run dev      # http://localhost:3000
 npm run build && npm start
 ```
 
+## Demo zum Ansehen ohne Server
+
+```bash
+npm run demo
+```
+
+Ergebnis ist **`demo/kornkammer-demo.html`**, rund drei Megabyte, eine
+einzige Datei. Doppelklick genügt, es braucht keinen Server und keine
+Internetverbindung: Stylesheet, Schriften, das Motion-Skript, das Poster und
+das Hero-Video stecken darin. Die Datei lässt sich per Mail weitergeben.
+
+Was darin anders ist als in der echten Seite:
+
+- Es ist **nur die Startseite**. Ein Klick auf einen Menüpunkt navigiert
+  nicht, sondern blendet kurz einen Hinweis ein.
+- Das Video liegt in der kleinsten Stufe bei (590 × 1280, WebM), damit die
+  Datei versendbar bleibt. Die 4K-Fassung steckt in `public/video/`.
+- Wo noch kein Foto vorliegt, greift derselbe beschriftete Platzhalter wie
+  im Projekt.
+- Die Browserkonsole meldet ein paar fehlgeschlagene Abrufe. Das ist der
+  Router von Next, der die Daten der Unterseiten vorholen will — die gibt es
+  in der einen Datei nicht. Sichtbar ist davon nichts.
+
+Gebaut wird sie von `tools/demo-bundle.mjs` aus dem statischen Export.
+
 ---
 
 ## Das Hero Video

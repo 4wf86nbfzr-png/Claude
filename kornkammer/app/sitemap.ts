@@ -2,6 +2,9 @@ import type { MetadataRoute } from 'next'
 import { SITE } from '@/data/farm'
 import { PRODUCTS } from '@/data/products'
 
+/* Wird ohnehin zur Bauzeit erzeugt. Die Angabe braucht der statische Export. */
+export const dynamic = 'force-static'
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const statisch = ['', '/hof', '/produkte', '/bio', '/team', '/hofladen', '/galerie', '/kontakt']
 
