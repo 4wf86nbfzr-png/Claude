@@ -53,6 +53,12 @@
   --gutter: clamp(1.25rem, 0.6rem + 3vw, 4.5rem);
   --sec: clamp(6rem, 3rem + 11vw, 14rem);
 
+  /* Hoehe der App-Leiste am unteren Rand. Inhalt, Umschalter und der
+     Scrollhinweis im Hero rechnen damit. Ab dem grossen Umbruch gibt es
+     die Leiste nicht — dort steht der Wert auf null, dann fallen alle
+     Abstaende, die sich darauf beziehen, von selbst weg. */
+  --leiste: 4rem;
+
   /* Bewegung: eine Quelle fuer alle Sektionen */
   --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-soft: cubic-bezier(0.33, 1, 0.68, 1);
@@ -89,6 +95,18 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+}
+
+/* Ab hier traegt die Kopfzeile die Bereiche, die App-Leiste entfaellt. */
+@media (min-width: 1024px) {
+  :root {
+    --leiste: 0rem;
+  }
+}
+
+/* Platz fuer die App-Leiste, damit sie die Fusszeile nicht abschneidet. */
+body {
+  padding-bottom: calc(var(--leiste) + env(safe-area-inset-bottom, 0px));
 }
 
 /* Lenis haelt den Scrollwert selbst; ohne das ruckelt es auf iOS. */

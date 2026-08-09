@@ -6,7 +6,17 @@ import { PRODUCTS } from '@/data/products'
 export const dynamic = 'force-static'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const statisch = ['', '/hof', '/produkte', '/bio', '/team', '/hofladen', '/galerie', '/kontakt']
+  const statisch = [
+    '',
+    '/hof',
+    '/produkte',
+    '/bio',
+    '/team',
+    '/hofladen',
+    '/galerie',
+    '/kontakt',
+    '/referenzen',
+  ]
 
   return [
     ...statisch.map((path) => ({

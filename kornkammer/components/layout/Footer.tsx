@@ -1,7 +1,9 @@
 import Link from 'next/link'
 import { FARM } from '@/data/farm'
+import { HAUPT, NEBEN } from '@/data/navigation'
 import SplitLines from '@/components/motion/SplitLines'
 import FieldLine from '@/components/ui/FieldLine'
+import Logo from '@/components/ui/Logo'
 
 /**
  * Der Footer ist ein Gestaltungselement, kein Restposten.
@@ -11,6 +13,8 @@ export default function Footer() {
   return (
     <footer className="relative bg-soilDeep pt-[clamp(5rem,12vh,9rem)]">
       <div className="shell">
+        <Logo breite={220} className="mb-12" />
+
         <SplitLines
           as="p"
           className="optical font-display text-colossal uppercase leading-[0.84] tracking-[-0.035em]"
@@ -61,26 +65,13 @@ export default function Footer() {
           <div>
             <p className="u-mono text-[color:var(--stone)]">Seiten</p>
             <ul className="mt-4 flex flex-col gap-2">
-              <li>
-                <Link href="/hof" className="hover:text-wheat">
-                  Der Hof
-                </Link>
-              </li>
-              <li>
-                <Link href="/produkte" className="hover:text-wheat">
-                  Produkte
-                </Link>
-              </li>
-              <li>
-                <Link href="/hofladen" className="hover:text-wheat">
-                  Direkt vom Hof
-                </Link>
-              </li>
-              <li>
-                <Link href="/bio" className="hover:text-wheat">
-                  Bio verstehen
-                </Link>
-              </li>
+              {[...HAUPT.filter((e) => e.href !== '/'), ...NEBEN].map((e) => (
+                <li key={e.href}>
+                  <Link href={e.href} className="hover:text-wheat">
+                    {e.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 

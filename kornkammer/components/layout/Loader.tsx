@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { gsap } from '@/lib/gsap'
 import { MOTION, prefersReducedMotion } from '@/lib/motion'
+import { LogoBild } from '@/components/ui/Logo'
 
 /**
  * Kein Spinner, keine kuenstliche Wartezeit.
@@ -40,7 +41,7 @@ export default function Loader() {
     }
 
     const path = el.querySelector('path')
-    const word = el.querySelector('[data-word] span')
+    const word = el.querySelector('[data-word] > span')
 
     const tl = gsap.timeline({ onComplete: () => setDone(true) })
 
@@ -75,7 +76,9 @@ export default function Loader() {
       className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-soilDeep"
     >
       <div data-word className="mask-line">
-        <span className="block text-h2 uppercase tracking-[-0.02em]">Kornkammer</span>
+        <span className="block">
+          <LogoBild breite={260} priority />
+        </span>
       </div>
       <svg
         viewBox="0 0 1200 8"

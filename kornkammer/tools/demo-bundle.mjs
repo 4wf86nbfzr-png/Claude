@@ -1,8 +1,9 @@
 /**
  * Baut aus dem statischen Export eine einzelne HTML-Datei zum Weitergeben.
  *
- * Alles wandert hinein: Stylesheets, Skripte, Schriften und das Hero-Video.
- * Damit laesst sich die Startseite ohne Server oeffnen und teilen.
+ * Alles wandert hinein: Stylesheet, Schriften, Skripte, Logo, Poster und das
+ * Hero-Video. Damit laesst sich die Startseite ohne Server oeffnen, teilen —
+ * und sie sieht auch dann vollstaendig aus, wenn Skripte blockiert sind.
  *
  * Aufruf:
  *   DEMO_EXPORT=1 npm run build
@@ -25,42 +26,38 @@ const kb = (n) => Math.round(n / 1024).toLocaleString('de-DE')
 let html = readFileSync(join(OUT, 'index.html'), 'utf8')
 const bilanz = []
 
-/* -------------------------------------------------------- Ohne JavaScript
-   Die Demo wird oft in Vorschaufenstern geoeffnet, die Skripte blockieren.
-   Sie muss deshalb ohne JavaScript vollstaendig aussehen: Video und
-   Platzhalter stehen direkt im Markup, nichts wird nachtraeglich
-   eingehaengt.
+/* ================================================================ Waechter
+   Die Quellenwahl des Heros setzt `src` auf den Pfad der passenden Stufe.
+   Den gibt es in dieser einen Datei nicht mehr, er liegt auf einer leeren
+   Daten-URL — die Zuweisung wuerde das eingebettete Video nur loeschen.
 
-   Dazu muss die Quellenwahl des Heros raus. Sie setzt `src` auf den Pfad
-   der passenden Stufe — und den gibt es in dieser einen Datei nicht mehr.
-   Das Skriptelement bleibt dabei stehen und wird nur geleert. Wer es
-   herausnimmt, aendert die Struktur gegenueber dem, was React beim
-   Hydrieren erwartet. */
-const vorher = html.length
+   Das Skript einfach zu leeren geht nicht: React vergleicht beim Hydrieren
+   auch den Inhalt eines ueber `dangerouslySetInnerHTML` gesetzten Skripts.
+   Weicht er ab, wird der Teilbaum neu gebaut und das eingesetzte `src` ist
+   weg. Deshalb bleibt das Skript unveraendert, und dieser Waechter laesst
+   genau die eine schaedliche Zuweisung ins Leere laufen. Er steht ganz vorn,
+   damit er vor allen Buendeln greift. */
 html = html.replace(
-  /<script>\s*\(function \(\) \{\s*var v = document\.getElementById\('hero-video'\);[\s\S]*?<\/script>/,
-  '<script>/* Quellenwahl entfaellt: das Video steht in dieser Datei fest im Markup. */</script>',
+  '<head>',
+  `<head><script>
+(function () {
+  var d = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'src')
+  if (!d || !d.set) return
+  Object.defineProperty(HTMLMediaElement.prototype, 'src', {
+    configurable: true,
+    get: function () {
+      return d.get.call(this)
+    },
+    set: function (wert) {
+      if (wert === 'data:,') return
+      d.set.call(this, wert)
+    },
+  })
+})()
+</script>`,
 )
-if (html.length === vorher) {
-  console.warn('WARNUNG: Die Quellenwahl des Heros wurde nicht gefunden.')
-}
 
-
-/* Hinweis zum Konsolenprotokoll
-   Der Router von Next holt beim Ueberfahren eines Links die Daten der
-   Zielseite vor. Die gibt es in dieser einen Datei nicht, der Abruf
-   scheitert also und wird protokolliert. Sichtbar ist davon nichts: der
-   Klick selbst wird weiter unten abgefangen, bevor er navigiert. Ein
-   Wechsel von `window.fetch` half nicht, der Aufruf laeuft nicht darueber. */
-
-/* ---------------------------------------------------------------- Tab-Icon */
-html = html.replace(/href="\/apple-icon\.png[^"]*"/, () => {
-  const icon = lies('/apple-icon.png')
-  bilanz.push(['Icon', 'apple-icon.png', icon.length])
-  return `href="${b64(icon, 'image/png')}"`
-})
-
-/* ---------------------------------------------------------------- Schriften
+/* =============================================================== Schriften
    Die woff2-Dateien stehen als url(...) im Stylesheet. */
 function schriftenEinbetten(css) {
   return css.replace(/url\(([^)]*\.woff2?)\)/g, (treffer, pfad) => {
@@ -75,60 +72,78 @@ function schriftenEinbetten(css) {
   })
 }
 
-/* ------------------------------------------------------------- Stylesheets */
+/* ============================================================= Stylesheets */
+html = html.replace(/<link[^>]+rel="stylesheet"[^>]*href="([^"]+)"[^>]*>/g, (treffer, href) => {
+  try {
+    const css = schriftenEinbetten(lies(href).toString('utf8'))
+    bilanz.push(['CSS', href.split('/').pop(), css.length])
+    return `<style>${css}</style>`
+  } catch {
+    return treffer
+  }
+})
+// Vorlade-Hinweise auf Dateien, die es gleich nicht mehr gibt
+html = html.replace(/<link[^>]+rel="preload"[^>]*>/g, '')
+
+/* ================================================================= Skripte
+   Nicht als Inline-Skript einsetzen, sondern die Quelle gegen eine Daten-URL
+   tauschen.
+
+   Der Unterschied ist entscheidend: Next liefert seine Buendel mit `async`
+   aus, sie laufen also erst nach dem Parsen. Ein Inline-Skript laeuft sofort,
+   mitten im Body — React beginnt dann zu hydrieren, bevor der Rest des
+   Markups und die restlichen Nutzdaten da sind, und bricht mit einem
+   Hydrationsfehler ab. Der Teilbaum wird neu gebaut, und dabei ging unter
+   anderem das eingesetzte Video-`src` verloren.
+
+   Mit einer Daten-URL bleiben Ladeart und Reihenfolge exakt wie im Original,
+   nur ohne Netzwerk. Kostet ein Drittel mehr Bytes, ist es aber wert. */
 html = html.replace(
-  /<link[^>]+rel="stylesheet"[^>]*href="([^"]+)"[^>]*>/g,
-  (treffer, href) => {
+  /<script([^>]*)\ssrc="([^"]+)"([^>]*)><\/script>/g,
+  (treffer, vor, src, nach) => {
     try {
-      const css = schriftenEinbetten(lies(href).toString('utf8'))
-      bilanz.push(['CSS', href.split('/').pop(), css.length])
-      return `<style>${css}</style>`
+      const js = lies(src)
+      bilanz.push(['JS', src.split('/').pop(), js.length])
+      return `<script${vor} src="${b64(js, 'text/javascript')}"${nach}></script>`
     } catch {
       return treffer
     }
   },
 )
-// Vorlade-Hinweise auf Dateien, die es gleich nicht mehr gibt
-html = html.replace(/<link[^>]+rel="preload"[^>]*>/g, '')
 
-/* ----------------------------------------------------------------- Skripte
-   Reihenfolge bleibt erhalten: Inline-Skripte laufen in Dokumentreihenfolge,
-   und genau darauf ist die Chunk-Registrierung von webpack ausgelegt. */
-html = html.replace(/<script[^>]*src="([^"]+)"[^>]*><\/script>/g, (treffer, src) => {
-  try {
-    const js = lies(src).toString('utf8')
-    bilanz.push(['JS', src.split('/').pop(), js.length])
-    return `<script>${js}\n</script>`
-  } catch {
-    return treffer
-  }
+/* ==================================================================== Logo
+   Steht im Markup und im RSC-Payload, deshalb global ersetzen. */
+const logo = lies('/logo/logo.webp')
+html = html.split('/logo/logo.webp').join(b64(logo, 'image/webp'))
+bilanz.push(['Logo', 'logo.webp', logo.length])
+
+/* ================================================================ Tab-Icon */
+html = html.replace(/href="\/apple-icon\.png[^"]*"/, () => {
+  const icon = lies('/apple-icon.png')
+  bilanz.push(['Icon', 'apple-icon.png', icon.length])
+  return `href="${b64(icon, 'image/png')}"`
 })
 
-/* ------------------------------------------------------------------ Poster
+/* ================================================================== Poster
    Global ersetzen, nicht nur das erste Vorkommen: der Pfad steht sowohl im
    Markup als auch im RSC-Payload. Wer nur den ersten Treffer nimmt, erwischt
    den Payload und laesst das Attribut am `<video>` stehen — dann bleibt der
    Hero schwarz, sobald das Video nicht laeuft. */
 const poster = lies('/video/hero-poster.webp')
-const posterUrl = b64(poster, 'image/webp')
-html = html.split('/video/hero-poster.webp').join(posterUrl)
+html = html.split('/video/hero-poster.webp').join(b64(poster, 'image/webp'))
 bilanz.push(['Poster', 'hero-poster.webp', poster.length])
 
-/* ------------------------------------------------- Pfade, die ins Leere gehen
+/* ================================================== Pfade, die ins Leere gehen
    Im Buendel gibt es weder /video noch /images. Videopfade werden auf eine
-   leere Daten-URL gelegt, damit der Browser gar keine Anfrage stellt. Fuer
+   leere Daten-URL gelegt (der Waechter oben faengt die Zuweisung ab), fuer
    die Fotos tritt ein beschriftetes Platzhalterbild an ihre Stelle.
 
-   Reihenfolge und Zeichenklassen sind hier heikel: im RSC-Payload stehen die
-   Pfade JSON-escapt in einem JS-String, also als \"/images/...\". Wer zuerst
-   die unescapte Form ersetzt, trifft dort das Anfuehrungszeichen hinter dem
-   Backslash, frisst den schliessenden Backslash mit und zerlegt den String —
-   die Seite parst dann gar nicht mehr. Deshalb erst die escapte Form, und
-   `[^"\\]` statt `[^"]`, damit kein Backslash mitgenommen wird. */
-/* Fuer die Fotos, die noch fehlen, steht ein beschriftetes Bild bereit.
-   Es wird als Datei eingesetzt und nicht auf eine leere Daten-URL gelegt:
-   nur so ist der Platzhalter auch dann zu sehen, wenn kein Skript laeuft
-   und der beschriftete Ersatz aus MediaFrame gar nicht erst greift. */
+   Reihenfolge und Zeichenklassen sind heikel: im RSC-Payload stehen die
+   Pfade JSON-escapt in einem JS-String. Wer zuerst die unescapte Form
+   ersetzt, trifft dort das Anfuehrungszeichen hinter dem Backslash, frisst
+   den schliessenden Backslash mit und zerlegt den String — die Seite parst
+   dann gar nicht mehr. Deshalb erst die escapte Form, und eine Zeichenklasse
+   ohne Backslash. */
 const platzhalter = readFileSync(join(WURZEL, 'tools', 'platzhalter.webp'))
 const platzUrl = b64(platzhalter, 'image/webp')
 bilanz.push(['Platzhalter', 'platzhalter.webp', platzhalter.length])
@@ -142,28 +157,24 @@ html = html
   .replace(/(?<!\\)"\/video\/hero(-2k|-4k)?\.(mp4|webm)"/g, LEER)
   .replace(/\\"\/images\/[^"\\]*\\"/g, PLATZ_ESCAPT)
   .replace(/(?<!\\)"\/images\/[^"\\]*"/g, PLATZ)
-  // Die Schriften stecken schon im Stylesheet. React legt aus dem
-  // RSC-Payload aber noch einmal Vorlade-Verweise an, die hier ins Leere
-  // zeigen wuerden.
+  // Die Schriften stecken schon im Stylesheet. React legt aus dem RSC-Payload
+  // aber noch einmal Vorlade-Verweise an, die hier ins Leere zeigen wuerden.
   .replace(/\\"\/_next\/static\/media\/[^"\\]*\\"/g, '\\"data:,\\"')
   .replace(/(?<!\\)"\/_next\/static\/media\/[^"\\]*"/g, LEER)
-  // Im RSC-Payload ist mancher Pfad ueber zwei Fragmente verteilt, dort
-  // greift kein Muster auf die ganze Zeichenkette. Es reicht aber, den
-  // Anfang zu ersetzen: aus dem Rest wird dann eine harmlose Daten-URL.
+  // Mancher Pfad ist ueber zwei RSC-Fragmente verteilt, dort greift kein
+  // Muster auf die ganze Zeichenkette. Es reicht, den Anfang zu ersetzen.
   .replace(/\/_next\/static\/media\//g, 'data:,')
 
-/* ------------------------------------------------------------- Hero-Video
-   Die kleinste Stufe reicht: das Buendel soll sich noch verschicken lassen.
+/* ============================================================== Hero-Video
+   Fest als `src` ins Markup, nicht per Skript nachgereicht: sonst laeuft der
+   Hero nur dort, wo JavaScript erlaubt ist.
 
-   WebM statt MP4: die Datei ist kleiner, und VP9 spielt heute jeder Browser
-   ab, der fuer so eine Demo in Frage kommt. Wo nicht, bleibt das Poster
-   stehen — dieselbe Darstellung wie bei reduzierter Bewegung. */
+   Die kleinste Stufe reicht, das Buendel soll sich noch verschicken lassen.
+   WebM statt MP4, weil kleiner; VP9 spielt jeder Browser ab, der fuer so eine
+   Demo in Frage kommt. Wo nicht, bleibt das Poster stehen. */
 const video = lies('/video/hero.webm')
 bilanz.push(['Video', 'hero.webm', video.length])
 
-/* Direkt als `src` ins Markup, nicht per Skript nachgereicht: sonst laeuft
-   der Hero nur dort, wo JavaScript erlaubt ist. `autoplay muted loop
-   playsinline` stehen ohnehin schon am Element. */
 const videoVorher = html.length
 html = html.replace(
   '<video id="hero-video"',
@@ -173,17 +184,20 @@ if (html.length === videoVorher) {
   console.warn('WARNUNG: Das Videoelement wurde nicht gefunden.')
 }
 
+/* ================================================================ Nachtrag
+   Zum Konsolenprotokoll: der Router von Next holt beim Ueberfahren eines
+   Links die Daten der Zielseite vor. Die gibt es in dieser einen Datei nicht,
+   der Abruf scheitert also und wird protokolliert. Sichtbar ist davon nichts,
+   der Klick wird hier abgefangen, bevor er navigiert. */
 const nachtrag = `
 <script>
 /* Demo-Nachtrag. Steht nicht im Projekt, nur in dieser einzelnen Datei. */
 (function () {
-  /* Unterseiten sind nicht Teil dieser einen Datei. Statt ins Leere zu
-     fuehren, sagt die Seite kurz Bescheid. */
   var hinweis = document.createElement('div')
   hinweis.setAttribute('role', 'status')
   hinweis.style.cssText =
-    'position:fixed;left:50%;bottom:2rem;transform:translate(-50%,calc(100% + 4rem));z-index:9999;' +
-    'background:#efe7d8;color:#141009;padding:.85rem 1.4rem;border-radius:999px;' +
+    'position:fixed;left:50%;bottom:calc(4rem + 1.25rem);transform:translate(-50%,calc(100% + 14rem));' +
+    'z-index:9999;background:#efe7d8;color:#141009;padding:.85rem 1.4rem;border-radius:999px;' +
     'font:400 .85rem/1.2 var(--font-body,sans-serif);pointer-events:none;' +
     'transition:transform .45s cubic-bezier(.16,1,.3,1);white-space:nowrap;max-width:92vw'
   hinweis.textContent = 'Nur die Startseite steckt in dieser Demo-Datei.'
@@ -198,13 +212,13 @@ const nachtrag = `
       var a = e.target && e.target.closest && e.target.closest('a[href]')
       if (!a) return
       var href = a.getAttribute('href') || ''
-      if (href.charAt(0) !== '/' ) return
+      if (href.charAt(0) !== '/') return
       e.preventDefault()
       e.stopPropagation()
       hinweis.style.transform = 'translate(-50%,0)'
       clearTimeout(timer)
       timer = setTimeout(function () {
-        hinweis.style.transform = 'translate(-50%,calc(100% + 4rem))'
+        hinweis.style.transform = 'translate(-50%,calc(100% + 14rem))'
       }, 2600)
     },
     true,
@@ -220,7 +234,7 @@ writeFileSync(ZIEL, html)
 
 console.log('Eingebettet:')
 for (const [art, name, groesse] of bilanz) {
-  console.log(`  ${art.padEnd(8)} ${name.padEnd(34)} ${kb(groesse).padStart(7)} KB`)
+  console.log(`  ${art.padEnd(12)} ${name.padEnd(32)} ${kb(groesse).padStart(7)} KB`)
 }
 console.log(`\n${ZIEL}`)
 console.log(`Gesamt: ${kb(statSync(ZIEL).size)} KB`)

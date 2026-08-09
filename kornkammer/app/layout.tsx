@@ -5,6 +5,7 @@ import './globals.css'
 import SmoothScroll from '@/components/motion/SmoothScroll'
 import PageTransition from '@/components/layout/PageTransition'
 import Nav from '@/components/layout/Nav'
+import AppBar from '@/components/layout/AppBar'
 import Footer from '@/components/layout/Footer'
 import { FARM, SITE, ROUTE_URL } from '@/data/farm'
 
@@ -124,6 +125,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <main id="inhalt">{children}</main>
             <Footer />
           </PageTransition>
+          <AppBar />
         </SmoothScroll>
       </body>
     </html>

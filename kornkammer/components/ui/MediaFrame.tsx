@@ -18,10 +18,17 @@ type Props = {
 /**
  * Bildrahmen mit Vorhang-Reveal.
  *
- * Solange kein echtes Foto vorliegt, zeigt der Rahmen einen beschrifteten
- * Platzhalter statt eines kaputten Bildes — die Bewegung ist trotzdem
- * vollstaendig implementiert, damit spaeter nur die Datei getauscht wird.
+ * Solange kein echtes Foto vorliegt, tritt ein beschriftetes Platzhalterbild
+ * an seine Stelle. Wichtig ist, dass das ueber einen Quellenwechsel am
+ * selben `img` laeuft und nicht ueber ein Ersatz-Element: sonst zeigt der
+ * Browser fuer einen Moment sein kaputtes Bildsymbol samt Alternativtext,
+ * und genau das sieht nach Fehler aus statt nach Absicht.
+ *
+ * Die Bewegung ist vollstaendig implementiert. Sobald eine Datei unter dem
+ * erwarteten Pfad liegt, greift sie ohne weitere Aenderung.
  */
+const PLATZHALTER = '/images/platzhalter.webp'
+
 export default function MediaFrame({
   src,
   alt,
@@ -33,7 +40,15 @@ export default function MediaFrame({
 }: Props) {
   const root = useRef<HTMLDivElement>(null)
   const imgRef = useRef<HTMLImageElement>(null)
-  const [failed, setFailed] = useState(false)
+  const [fehlt, setFehlt] = useState(false)
+
+  /* Der Fehler kann fallen, bevor React den Handler haengt: das `img` steht
+     schon im ausgelieferten Markup, der Browser versucht es sofort, und
+     `onError` kommt zu spaet. Deshalb beim Einhaengen einmal nachsehen. */
+  useEffect(() => {
+    const img = imgRef.current
+    if (img && img.complete && img.naturalWidth === 0) setFehlt(true)
+  }, [])
 
   useEffect(() => {
     const el = root.current
@@ -74,34 +89,27 @@ export default function MediaFrame({
       className={`relative overflow-hidden bg-soilDeep ${className ?? ''}`}
       style={style}
     >
-      {!failed && (
-        <img
-          ref={imgRef}
-          src={src}
-          alt={alt}
-          sizes={sizes}
-          loading={priority ? 'eager' : 'lazy'}
-          decoding="async"
-          onError={() => setFailed(true)}
-          className="h-full w-full object-cover"
-        />
-      )}
+      <img
+        ref={imgRef}
+        src={fehlt ? PLATZHALTER : src}
+        alt={fehlt ? `Platzhalter. Vorgesehenes Motiv: ${alt}` : alt}
+        sizes={sizes}
+        loading={priority ? 'eager' : 'lazy'}
+        decoding="async"
+        onError={() => {
+          if (!fehlt) setFehlt(true)
+        }}
+        className="h-full w-full object-cover"
+        /* Ohne das zeigt der Browser den Alternativtext als rohen Fliesstext,
+           solange das Bild noch nicht ausgetauscht ist. */
+        style={{ color: 'transparent' }}
+      />
 
-      {failed && (
-        <div
-          role="img"
-          aria-label={`Platzhalter. Vorgesehenes Motiv: ${alt}`}
-          className="flex h-full w-full flex-col justify-between p-5 sm:p-7"
-          style={{
-            background:
-              'repeating-linear-gradient(103deg, var(--soil-deep) 0px, var(--soil-deep) 26px, var(--soil) 26px, var(--soil) 27px)',
-          }}
-        >
-          <span className="u-mono text-[color:var(--stone)]">Bild folgt</span>
-          <span className="max-w-[26ch] text-[0.9rem] leading-snug text-[color:var(--stone)]">
-            {alt}
-          </span>
-        </div>
+      {/* Welches Motiv hier spaeter steht, gehoert sichtbar dazu. */}
+      {fehlt && (
+        <span className="u-mono pointer-events-none absolute inset-x-0 bottom-0 block bg-gradient-to-t from-[rgba(13,10,6,0.9)] to-transparent p-4 pt-10 text-[color:var(--stone)]">
+          {alt}
+        </span>
       )}
     </div>
   )

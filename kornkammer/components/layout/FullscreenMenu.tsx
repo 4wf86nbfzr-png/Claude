@@ -5,29 +5,28 @@ import { useEffect, useRef } from 'react'
 import { gsap } from '@/lib/gsap'
 import { MOTION, prefersReducedMotion } from '@/lib/motion'
 import { FARM } from '@/data/farm'
+import { NEBEN, RECHTLICHES } from '@/data/navigation'
 import FieldLine from '@/components/ui/FieldLine'
 
-const PRIMARY = [
-  { href: '/hof', label: 'Der Hof' },
-  { href: '/produkte', label: 'Produkte' },
-  { href: '/bio', label: 'Bio verstehen' },
-  { href: '/hofladen', label: 'Direkt vom Hof' },
-  { href: '/team', label: 'Team' },
-  { href: '/galerie', label: 'Galerie' },
-  { href: '/kontakt', label: 'Kontakt' },
-]
-
+/**
+ * Das Menue traegt nicht mehr die Hauptbereiche — die stehen in der
+ * Kopfzeile und auf dem Telefon in der App-Leiste. Hier liegt, was man
+ * gezielt sucht: die Menschen, der Kontakt, die Referenzen und die Wege
+ * nach draussen.
+ *
+ * Ohne eigene Wortmarke: die Kopfzeile bleibt sichtbar ueber dem Menue, auf
+ * dem Telefon die App-Leiste darunter. Ein drittes Logo waere eines zu viel.
+ */
 export default function FullscreenMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
   const root = useRef<HTMLDivElement>(null)
   const items = useRef<HTMLUListElement>(null)
 
-  /* Auf, zu, und der Fokus bleibt drin, solange es offen ist. */
   useEffect(() => {
     const el = root.current
     if (!el) return
 
     if (prefersReducedMotion()) {
-      gsap.set(el, { autoAlpha: open ? 1 : 0 })
+      gsap.set(el, { autoAlpha: open ? 1 : 0, pointerEvents: open ? 'auto' : 'none' })
       return
     }
 
@@ -70,18 +69,16 @@ export default function FullscreenMenu({ open, onClose }: { open: boolean; onClo
     <div
       ref={root}
       id="hauptmenue"
-      className="fixed inset-0 z-40 bg-soilDeep opacity-0"
+      className="fixed inset-0 z-[60] bg-soilDeep opacity-0"
       style={{ pointerEvents: 'none', visibility: 'hidden' }}
       aria-hidden={!open}
     >
-      {/* Auf niedrigen Fenstern muss das Menue scrollen duerfen, sonst
-          verschwinden Adresse und Shoplink unter der Kante. */}
       <nav
         className="shell flex h-full flex-col justify-center overflow-y-auto py-24"
-        aria-label="Hauptmenü"
+        aria-label="Weitere Seiten"
       >
         <ul ref={items} className="flex flex-col">
-          {PRIMARY.map((item) => (
+          {NEBEN.map((item) => (
             <li key={item.href} className="mask-line">
               <Link
                 href={item.href}
@@ -96,29 +93,69 @@ export default function FullscreenMenu({ open, onClose }: { open: boolean; onClo
 
         <FieldLine className="mt-10" animate={false} />
 
-        <div className="mt-8 flex flex-wrap items-start justify-between gap-8">
-          <address className="not-italic text-[color:var(--stone)]">
-            {FARM.address.street}
-            <br />
-            {FARM.address.zip}&nbsp;{FARM.address.city}
-          </address>
-          <div className="flex flex-col gap-2">
-            <a href={FARM.phone.href} tabIndex={open ? 0 : -1} className="hover:text-wheat">
-              {FARM.phone.display}
-            </a>
-            <a href={FARM.email.href} tabIndex={open ? 0 : -1} className="hover:text-wheat">
-              {FARM.email.display}
-            </a>
+        <div className="mt-8 flex flex-wrap items-start justify-between gap-x-10 gap-y-8">
+          <div>
+            <p className="u-mono text-[color:var(--stone)]">Folgen und kaufen</p>
+            <ul className="mt-4 flex flex-col gap-2">
+              <li>
+                <a
+                  href={FARM.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  tabIndex={open ? 0 : -1}
+                  className="text-lead hover:text-wheat"
+                >
+                  Instagram <span aria-hidden>↗</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  href={FARM.shop}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  tabIndex={open ? 0 : -1}
+                  className="text-lead hover:text-wheat"
+                >
+                  Onlineshop <span aria-hidden>↗</span>
+                </a>
+              </li>
+            </ul>
           </div>
-          <a
-            href={FARM.shop}
-            target="_blank"
-            rel="noopener noreferrer"
-            tabIndex={open ? 0 : -1}
-            className="u-mono text-wheat"
-          >
-            Onlineshop ↗
-          </a>
+
+          <div>
+            <p className="u-mono text-[color:var(--stone)]">Am Hof</p>
+            <address className="mt-4 not-italic leading-relaxed text-[color:var(--stone)]">
+              {FARM.address.street}
+              <br />
+              {FARM.address.zip}&nbsp;{FARM.address.city}
+            </address>
+            <div className="mt-3 flex flex-col gap-1">
+              <a href={FARM.phone.href} tabIndex={open ? 0 : -1} className="hover:text-wheat">
+                {FARM.phone.display}
+              </a>
+              <a
+                href={FARM.email.href}
+                tabIndex={open ? 0 : -1}
+                className="break-all hover:text-wheat"
+              >
+                {FARM.email.display}
+              </a>
+            </div>
+          </div>
+
+          <ul className="flex gap-6">
+            {RECHTLICHES.map((r) => (
+              <li key={r.href}>
+                <Link
+                  href={r.href}
+                  tabIndex={open ? 0 : -1}
+                  className="u-mono text-[color:var(--stone)] hover:text-paper"
+                >
+                  {r.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
       </nav>
     </div>

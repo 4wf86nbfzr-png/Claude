@@ -180,6 +180,33 @@ Story den Fortschritt.
   die Umlautpunkte ab, aus „STÜCK“ wurde „STUCK“.
 - **Echte deutsche Anführungszeichen** im gesamten sichtbaren Text.
 
+### Navigation
+
+Eine Quelle für alles: `data/navigation.ts`. Kopfzeile, App-Leiste,
+Umschalter, Menü und Fußzeile greifen dort zu.
+
+| | Inhalt |
+| --- | --- |
+| **Kopfzeile** (ab 1024 px) | Wortmarke, die Hauptbereiche, Schalter fürs Menü |
+| **App-Leiste** (unter 1024 px) | Wortmarke als Umschalter, daneben die Reiter |
+| **Umschalter** | alle Hauptbereiche, der aktuelle markiert |
+| **Menü** | Team, Kontakt, Referenzen, Instagram, Onlineshop, Rechtliches |
+
+Die Wortmarke ist eine Rastergrafik mit Brot und Ähren, kein Schriftzug, den
+man nachsetzen könnte. Unter etwa 130 px zerfällt sie — deshalb bekommt sie
+in der App-Leiste festen Platz, statt auf Icongröße gequetscht zu werden.
+Ein sauber freigestelltes Bildzeichen lässt sich daraus nicht gewinnen, weil
+Brot und Schrift einander überlappen.
+
+Auf dem Telefon zeigt die Kopfzeile **kein** Logo: die App-Leiste trägt es
+dort dauerhaft, zweimal wäre es zu viel. Aus demselben Grund hat das Menü
+keine eigene Wortmarke.
+
+Die Reiter-Reihe schiebt den aktiven Eintrag ins Bild. Gemessen wird dafür
+über `getBoundingClientRect`, nicht über `offsetLeft`: dessen Bezugspunkt
+ist der nächste positionierte Vorfahr, also die fixierte Leiste samt Logo —
+damit scrollte die Reihe um die Logobreite zu weit.
+
 ### Der Loader darf die Seite nie einsperren
 
 Der Ladevorhang wird vom Server mitgeliefert, damit der Einstieg nicht
@@ -241,6 +268,11 @@ Angaben. Erfunden wurde nichts. Offen und im Layout sichtbar markiert:
 
 - **Team.** Namen, Funktionen und Fotos fehlen. `data/team.ts` enthält Rollen
   ohne Namen, jeder Eintrag trägt `platzhalter: true`. Die Seite weist das aus.
+- **Referenzen.** `data/referenzen.ts` ist absichtlich leer. Belegt ist nur
+  die allgemeine Aussage, dass Bäckereien in der Region beliefert werden —
+  welche, steht nirgends öffentlich. Fremde Firmennamen zu erfinden wäre hier
+  besonders heikel, deshalb sagt die Seite offen, dass die Liste fehlt. Sobald
+  Einträge in der Datei stehen, schaltet sie von selbst auf die Liste um.
 - **Öffnungszeiten.** Die Quellen waren uneinheitlich (Freitag 8 bis 17 Uhr
   gegen 8 bis 18 Uhr). Hinterlegt ist die erste Variante mit
   `unbestaetigt: true`, sichtbar als „Zeiten bitte bestätigen".

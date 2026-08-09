@@ -45,7 +45,7 @@ export default function PageTransition({ children }: { children: React.ReactNode
       <div
         ref={veil}
         aria-hidden="true"
-        className="pointer-events-none fixed inset-0 z-[90] bg-soilDeep opacity-0"
+        className="pointer-events-none fixed inset-0 z-[95] bg-soilDeep opacity-0"
       />
       {children}
     </>

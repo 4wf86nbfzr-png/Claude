@@ -202,7 +202,12 @@ export default function Hero() {
 
         {/* Titel */}
         <div className="absolute inset-0 flex items-end">
-          <div ref={copy} className="shell w-full pb-[clamp(3.5rem,9vh,7rem)]">
+          <div
+            ref={copy}
+            className="shell w-full"
+            /* Die App-Leiste steht unten im Weg, ihre Hoehe kommt dazu. */
+            style={{ paddingBottom: 'calc(clamp(3.5rem, 9vh, 7rem) + var(--leiste))' }}
+          >
             {/* Die Untergrenze des Grades ist so gewaehlt, dass „KORNKAMMER“
                 auch bei 320 px Fensterbreite in eine Zeile passt. Sonst
                 schneidet die Maske das Wort seitlich ab, weil `no-break` es
@@ -234,7 +239,8 @@ export default function Hero() {
         {/* Scrollhinweis */}
         <div
           data-cue
-          className="pointer-events-none absolute bottom-6 right-[var(--gutter)] flex items-center gap-3"
+          className="pointer-events-none absolute right-[var(--gutter)] flex items-center gap-3"
+          style={{ bottom: 'calc(var(--leiste) + 1.25rem)' }}
         >
           <span className="u-mono text-[color:var(--paper)]">Scrollen</span>
           <span aria-hidden className="block h-10 w-px bg-[var(--hair-strong)]" />

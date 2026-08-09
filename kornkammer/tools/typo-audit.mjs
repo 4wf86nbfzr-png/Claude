@@ -95,9 +95,17 @@ const MESSEN = () => {
     const lh = st.lineHeight === 'normal' ? fs * 1.2 : parseFloat(st.lineHeight)
     const fbA = m.fontBoundingBoxAscent || fs * 0.8
     const fbD = m.fontBoundingBoxDescent || fs * 0.2
-    const grundlinie = rect.top + (lh - (fbA + fbD)) / 2 + fbA
+
+    // Innenabstaende gehoeren nicht zum Text. Wer sie mitrechnet, setzt die
+    // Grundlinie zu hoch an und zaehlt zu viele Zeilen — das meldet dann
+    // Beschnitt, wo in Wahrheit Polster ist.
+    const oben = parseFloat(st.paddingTop) || 0
+    const unten = parseFloat(st.paddingBottom) || 0
+    const inhalt = Math.max(lh, rect.height - oben - unten)
+
+    const grundlinie = rect.top + oben + (lh - (fbA + fbD)) / 2 + fbA
     const tinteOben = grundlinie - (m.actualBoundingBoxAscent || fbA)
-    const zeilen = Math.max(1, Math.round(rect.height / lh))
+    const zeilen = Math.max(1, Math.round(inhalt / lh))
     const tinteUnten = grundlinie + (zeilen - 1) * lh + (m.actualBoundingBoxDescent || fbD)
 
     let schnitt = 0
