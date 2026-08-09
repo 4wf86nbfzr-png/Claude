@@ -25,6 +25,27 @@ const kb = (n) => Math.round(n / 1024).toLocaleString('de-DE')
 let html = readFileSync(join(OUT, 'index.html'), 'utf8')
 const bilanz = []
 
+/* -------------------------------------------------------- Ohne JavaScript
+   Die Demo wird oft in Vorschaufenstern geoeffnet, die Skripte blockieren.
+   Sie muss deshalb ohne JavaScript vollstaendig aussehen: Video und
+   Platzhalter stehen direkt im Markup, nichts wird nachtraeglich
+   eingehaengt.
+
+   Dazu muss die Quellenwahl des Heros raus. Sie setzt `src` auf den Pfad
+   der passenden Stufe — und den gibt es in dieser einen Datei nicht mehr.
+   Das Skriptelement bleibt dabei stehen und wird nur geleert. Wer es
+   herausnimmt, aendert die Struktur gegenueber dem, was React beim
+   Hydrieren erwartet. */
+const vorher = html.length
+html = html.replace(
+  /<script>\s*\(function \(\) \{\s*var v = document\.getElementById\('hero-video'\);[\s\S]*?<\/script>/,
+  '<script>/* Quellenwahl entfaellt: das Video steht in dieser Datei fest im Markup. */</script>',
+)
+if (html.length === vorher) {
+  console.warn('WARNUNG: Die Quellenwahl des Heros wurde nicht gefunden.')
+}
+
+
 /* Hinweis zum Konsolenprotokoll
    Der Router von Next holt beim Ueberfahren eines Links die Daten der
    Zielseite vor. Die gibt es in dieser einen Datei nicht, der Abruf
@@ -93,23 +114,34 @@ const posterUrl = b64(poster, 'image/webp')
 html = html.split('/video/hero-poster.webp').join(posterUrl)
 bilanz.push(['Poster', 'hero-poster.webp', poster.length])
 
-/* ------------------------------------------------- Anfragen, die ins Leere gehen
-   Im Buendel gibt es kein /video und kein /images mehr. Die Pfade werden auf
-   eine leere Daten-URL gesetzt: der Browser stellt dann gar keine Anfrage,
-   und der beschriftete Platzhalter im MediaFrame greift sofort. */
+/* ------------------------------------------------- Pfade, die ins Leere gehen
+   Im Buendel gibt es weder /video noch /images. Videopfade werden auf eine
+   leere Daten-URL gelegt, damit der Browser gar keine Anfrage stellt. Fuer
+   die Fotos tritt ein beschriftetes Platzhalterbild an ihre Stelle.
 
-/* Reihenfolge und Zeichenklassen sind hier heikel: im RSC-Payload stehen die
+   Reihenfolge und Zeichenklassen sind hier heikel: im RSC-Payload stehen die
    Pfade JSON-escapt in einem JS-String, also als \"/images/...\". Wer zuerst
    die unescapte Form ersetzt, trifft dort das Anfuehrungszeichen hinter dem
    Backslash, frisst den schliessenden Backslash mit und zerlegt den String —
    die Seite parst dann gar nicht mehr. Deshalb erst die escapte Form, und
    `[^"\\]` statt `[^"]`, damit kein Backslash mitgenommen wird. */
+/* Fuer die Fotos, die noch fehlen, steht ein beschriftetes Bild bereit.
+   Es wird als Datei eingesetzt und nicht auf eine leere Daten-URL gelegt:
+   nur so ist der Platzhalter auch dann zu sehen, wenn kein Skript laeuft
+   und der beschriftete Ersatz aus MediaFrame gar nicht erst greift. */
+const platzhalter = readFileSync(join(WURZEL, 'tools', 'platzhalter.webp'))
+const platzUrl = b64(platzhalter, 'image/webp')
+bilanz.push(['Platzhalter', 'platzhalter.webp', platzhalter.length])
+
 const LEER = '"data:,"'
+const PLATZ = `"${platzUrl}"`
+const PLATZ_ESCAPT = `\\"${platzUrl}\\"`
+
 html = html
   .replace(/\\"\/video\/hero(-2k|-4k)?\.(mp4|webm)\\"/g, '\\"data:,\\"')
   .replace(/(?<!\\)"\/video\/hero(-2k|-4k)?\.(mp4|webm)"/g, LEER)
-  .replace(/\\"\/images\/[^"\\]*\\"/g, '\\"data:,\\"')
-  .replace(/(?<!\\)"\/images\/[^"\\]*"/g, LEER)
+  .replace(/\\"\/images\/[^"\\]*\\"/g, PLATZ_ESCAPT)
+  .replace(/(?<!\\)"\/images\/[^"\\]*"/g, PLATZ)
   // Die Schriften stecken schon im Stylesheet. React legt aus dem
   // RSC-Payload aber noch einmal Vorlade-Verweise an, die hier ins Leere
   // zeigen wuerden.
@@ -122,7 +154,6 @@ html = html
 
 /* ------------------------------------------------------------- Hero-Video
    Die kleinste Stufe reicht: das Buendel soll sich noch verschicken lassen.
-   Als Blob eingehaengt, damit die Daten genau einmal im Dokument stehen.
 
    WebM statt MP4: die Datei ist kleiner, und VP9 spielt heute jeder Browser
    ab, der fuer so eine Demo in Frage kommt. Wo nicht, bleibt das Poster
@@ -130,35 +161,22 @@ html = html
 const video = lies('/video/hero.webm')
 bilanz.push(['Video', 'hero.webm', video.length])
 
+/* Direkt als `src` ins Markup, nicht per Skript nachgereicht: sonst laeuft
+   der Hero nur dort, wo JavaScript erlaubt ist. `autoplay muted loop
+   playsinline` stehen ohnehin schon am Element. */
+const videoVorher = html.length
+html = html.replace(
+  '<video id="hero-video"',
+  `<video id="hero-video" src="${b64(video, 'video/webm')}"`,
+)
+if (html.length === videoVorher) {
+  console.warn('WARNUNG: Das Videoelement wurde nicht gefunden.')
+}
+
 const nachtrag = `
 <script>
 /* Demo-Nachtrag. Steht nicht im Projekt, nur in dieser einzelnen Datei. */
 (function () {
-  var b64 = "${video.toString('base64')}";
-
-  function alsBlob(daten, typ) {
-    var roh = atob(daten)
-    var buf = new Uint8Array(roh.length)
-    for (var i = 0; i < roh.length; i++) buf[i] = roh.charCodeAt(i)
-    return URL.createObjectURL(new Blob([buf], { type: typ }))
-  }
-
-  function videoEinhaengen() {
-    var v = document.getElementById('hero-video')
-    if (!v) return
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return
-    v.src = alsBlob(b64, 'video/webm')
-    v.load()
-    var los = v.play()
-    if (los && los.catch) los.catch(function () {})
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', videoEinhaengen)
-  } else {
-    videoEinhaengen()
-  }
-
   /* Unterseiten sind nicht Teil dieser einen Datei. Statt ins Leere zu
      fuehren, sagt die Seite kurz Bescheid. */
   var hinweis = document.createElement('div')

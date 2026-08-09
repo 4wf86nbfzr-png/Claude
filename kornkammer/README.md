@@ -27,19 +27,32 @@ einzige Datei. Doppelklick genügt, es braucht keinen Server und keine
 Internetverbindung: Stylesheet, Schriften, das Motion-Skript, das Poster und
 das Hero-Video stecken darin. Die Datei lässt sich per Mail weitergeben.
 
+Sie kommt **auch ohne JavaScript** vollständig zur Anzeige. Das ist keine
+Kür: Vorschaufenster blockieren häufig Skripte, und dann darf weder der
+Ladevorhang stehen bleiben noch das Video fehlen. Deshalb steht in dieser
+Datei alles fest im Markup — das Video als `src`, die Platzhalter als
+Bilddatei — statt nachträglich eingehängt zu werden.
+
 Was darin anders ist als in der echten Seite:
 
 - Es ist **nur die Startseite**. Ein Klick auf einen Menüpunkt navigiert
   nicht, sondern blendet kurz einen Hinweis ein.
 - Das Video liegt in der kleinsten Stufe bei (590 × 1280, WebM), damit die
   Datei versendbar bleibt. Die 4K-Fassung steckt in `public/video/`.
-- Wo noch kein Foto vorliegt, greift derselbe beschriftete Platzhalter wie
-  im Projekt.
+- Für die fehlenden Fotos steht ein beschriftetes Platzhalterbild
+  (`tools/platzhalter.webp`) statt des Platzhalters aus `MediaFrame` — der
+  bräuchte JavaScript.
 - Die Browserkonsole meldet ein paar fehlgeschlagene Abrufe. Das ist der
   Router von Next, der die Daten der Unterseiten vorholen will — die gibt es
   in der einen Datei nicht. Sichtbar ist davon nichts.
 
 Gebaut wird sie von `tools/demo-bundle.mjs` aus dem statischen Export.
+
+**Beim Ändern des Bündlers aufpassen:** Elemente dürfen ersetzt, aber nicht
+entfernt werden. React vergleicht beim Hydrieren die Struktur; nimmt man ein
+Element heraus, baut React den Teilbaum neu auf und verliert dabei genau die
+Attribute, die der Bündler gesetzt hat — das Video stand dann still. Deshalb
+wird die Quellenwahl des Heros geleert statt gelöscht.
 
 ---
 

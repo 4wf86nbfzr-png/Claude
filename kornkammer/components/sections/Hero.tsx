@@ -167,6 +167,12 @@ export default function Hero() {
           suppressHydrationWarning
         />
         <script dangerouslySetInnerHTML={{ __html: QUELLENWAHL }} />
+        {/* Ein zweites Videoelement im `noscript` waere naheliegend, damit der
+            Hero auch ohne Skripte laeuft. Es liegt im Stapel aber ueber dem
+            eigentlichen Video und deckt es mit seinem Poster zu, sobald man
+            es fuer die Einzeldatei-Demo wieder herausnimmt — und dieser
+            Eingriff zerlegt die Hydration. Ohne Skripte bleibt es deshalb
+            beim Poster, wie auch bei reduzierter Bewegung. */}
 
         {/* Grundschleier, immer aktiv. Er sorgt dafuer, dass Titel, Kopfzeile
             und Hinweis auf JEDEM Einzelbild lesbar bleiben — der Clip laeuft
