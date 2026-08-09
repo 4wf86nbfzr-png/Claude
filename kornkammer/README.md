@@ -37,8 +37,11 @@ Was darin anders ist als in der echten Seite:
 
 - Es ist **nur die Startseite**. Ein Klick auf einen Menüpunkt navigiert
   nicht, sondern blendet kurz einen Hinweis ein.
-- Das Video liegt in der kleinsten Stufe bei (590 × 1280, WebM), damit die
-  Datei versendbar bleibt. Die 4K-Fassung steckt in `public/video/`.
+- Das Video liegt in einer sparsamen Fassung bei (`hero-demo.mp4`,
+  590 × 1280, knapp ein Megabyte), damit die Datei versendbar bleibt und
+  Safari die Daten-URL annimmt. Die 4K-Fassung steckt in `public/video/`.
+  **H.264, nicht VP9** — Safari auf dem iPhone spielt WebM nicht
+  zuverlässig. WebM liegt nur als Rückfall für Browser ohne H.264 bei.
 - Für die fehlenden Fotos steht ein beschriftetes Platzhalterbild
   (`tools/platzhalter.webp`) statt des Platzhalters aus `MediaFrame` — der
   bräuchte JavaScript.
@@ -52,7 +55,8 @@ Gebaut wird sie von `tools/demo-bundle.mjs` aus dem statischen Export.
 entfernt werden. React vergleicht beim Hydrieren die Struktur; nimmt man ein
 Element heraus, baut React den Teilbaum neu auf und verliert dabei genau die
 Attribute, die der Bündler gesetzt hat — das Video stand dann still. Deshalb
-wird die Quellenwahl des Heros geleert statt gelöscht.
+wird die Quellenwahl des Heros nicht angetastet, sondern ein Wächter im Kopf
+fängt die eine schädliche Zuweisung ab.
 
 ---
 
@@ -82,7 +86,16 @@ nnedi3    kantengeführte neuronale Verdopplung, beide Achsen
 lanczos   Rest auf den Zielfaktor
 cas       Contrast Adaptive Sharpen, holt Mikrokontrast zurück
 unsharp   dezent obendrauf
+crop      links acht Pixel weg, siehe unten
 ```
+
+**Der grüne Rand.** `nnedi` lässt in Verbindung mit `transpose` links eine
+unbrauchbare Spalte stehen, sechs Pixel breit, in reinem Grün. Im Standbild
+fällt das kaum auf — bis `object-fit: cover` den Hochformat-Clip auf einem
+Querformat-Fenster um das Sechsfache streckt. Dann steht dort ein fetter
+grüner Balken. `tools/video-neu.sh` schneidet deshalb acht Pixel ab und
+zieht die Breite wieder auf. Der Versatz von 0,45 Prozent ist unsichtbar.
+Nachgemessen wird über die ganze Bildhöhe, nicht nur mittig.
 
 Gegen reines Lanczos gewinnt die Kette sichtbar: definierte Kanten statt
 Blockstruktur, ruhigere Flächen. Das Skript liegt unter `tools/upscale.sh`.
@@ -104,6 +117,14 @@ Warum nicht überall 4K: Der Clip ist Hochformat. Auf einem querformatigen
 Desktop deckt `object-fit: cover` über die **Breite** ab, ein Telefon braucht
 dafür kaum mehr als die Stufe `hd`. Acht Megabyte an jedes Gerät auszuliefern
 wäre teuer bezahlte Unschärfe.
+
+### Wenn Autoplay ausbleibt
+
+Autoplay kann aus Gründen scheitern, die die Seite nicht kennt — der
+Stromsparmodus auf dem Telefon unterbindet es grundsätzlich. Bleibt die
+Wiedergabe nach anderthalb Sekunden stehen, erscheint mittig ein Knopf
+„Film abspielen". Der Aufruf steht direkt in der Tipp-Behandlung, weil iOS
+die Wiedergabe nur aus einer echten Nutzergeste heraus erlaubt.
 
 ### Kein Scrub
 
@@ -134,7 +155,11 @@ components/
 lib/                 gsap.ts (eine Registrierung), motion.ts (Tokens), split.ts
 data/                farm, products, crops, certifications, team, stations
 public/video/        Hero in drei Stufen, Poster
-tools/upscale.sh     die Video-Kette
+tools/upscale.sh     die Video-Kette bis zum Zwischenmaster
+tools/video-neu.sh   Auslieferungsstufen aus dem Master, mit Randschnitt
+tools/demo-bundle.mjs   die Einzeldatei-Demo
+tools/typo-audit.mjs    Satzprüfung
+tools/loader-notfall.mjs  Ausfallszenarien
 ```
 
 ### Motion System

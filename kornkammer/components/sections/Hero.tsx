@@ -80,6 +80,7 @@ export default function Hero() {
   const veil = useRef<HTMLDivElement>(null)
   const copy = useRef<HTMLDivElement>(null)
   const [ruhig, setRuhig] = useState(false)
+  const [steht, setSteht] = useState(false)
 
   /* Die Quellen hat das Inline-Skript bereits gesetzt. Hier bleibt nur, den
      ruhigen Modus zu merken und das Abspielen anzustossen, falls der Browser
@@ -95,9 +96,37 @@ export default function Hero() {
       return
     }
 
-    // Wird Autoplay abgelehnt, bleibt schlicht das Poster stehen.
     video.play().catch(() => {})
+
+    /* Autoplay kann aus Gruenden ausbleiben, die die Seite nicht kennt —
+       der Stromsparmodus auf dem Telefon unterbindet es zum Beispiel
+       grundsaetzlich. Dann darf nicht einfach ein Standbild stehen
+       bleiben: nach kurzer Frist erscheint ein Knopf zum Antippen. */
+    const pruefen = window.setTimeout(() => {
+      setSteht(video.paused || video.currentTime < 0.05)
+    }, 1600)
+
+    const laeuft = () => setSteht(false)
+    const haelt = () => setSteht(true)
+    video.addEventListener('playing', laeuft)
+    video.addEventListener('pause', haelt)
+
+    return () => {
+      window.clearTimeout(pruefen)
+      video.removeEventListener('playing', laeuft)
+      video.removeEventListener('pause', haelt)
+    }
   }, [])
+
+  /* Von Hand starten. Der Aufruf steht direkt in der Tipp-Behandlung, weil
+     iOS die Wiedergabe nur aus einer echten Nutzergeste heraus erlaubt. */
+  const starten = () => {
+    const video = videoRef.current
+    if (!video) return
+    video.muted = true
+    const los = video.play()
+    if (los) los.then(() => setSteht(false)).catch(() => {})
+  }
 
   /* Die Kamerafahrt beim Verlassen des Heros. */
   useEffect(() => {
@@ -231,6 +260,20 @@ export default function Hero() {
             </div>
           </div>
         </div>
+
+        {/* Von Hand starten, falls Autoplay ausbleibt */}
+        {steht && !ruhig && (
+          <button
+            type="button"
+            onClick={starten}
+            className="absolute left-1/2 top-1/2 z-10 flex -translate-x-1/2 -translate-y-1/2 items-center gap-3 rounded-full border border-[var(--hair-strong)] bg-[rgba(13,10,6,0.72)] px-6 py-4 text-[color:var(--paper)] backdrop-blur-0 transition-colors duration-300 hover:border-wheat"
+          >
+            <span aria-hidden className="block text-[0.8rem] leading-none">
+              ▶
+            </span>
+            <span className="u-mono">Film abspielen</span>
+          </button>
+        )}
 
         {/* Scrollhinweis */}
         <div

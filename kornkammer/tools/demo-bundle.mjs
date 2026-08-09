@@ -185,8 +185,8 @@ for (const pfad of [...new Set(html.match(/\/images\/[A-Za-z0-9._/-]+/g) ?? [])]
 bilanz.push(['Fotos', `${echte} echt, ${fehlende} als Platzhalter`, 0])
 
 html = html
-  .replace(/\\"\/video\/hero(-2k|-4k)?\.(mp4|webm)\\"/g, '\\"data:,\\"')
-  .replace(/(?<!\\)"\/video\/hero(-2k|-4k)?\.(mp4|webm)"/g, LEER)
+  .replace(/\\"\/video\/hero(-2k|-4k|-demo)?\.(mp4|webm)\\"/g, '\\"data:,\\"')
+  .replace(/(?<!\\)"\/video\/hero(-2k|-4k|-demo)?\.(mp4|webm)"/g, LEER)
   // Die Schriften stecken schon im Stylesheet. React legt aus dem RSC-Payload
   // aber noch einmal Vorlade-Verweise an, die hier ins Leere zeigen wuerden.
   .replace(/\\"\/_next\/static\/media\/[^"\\]*\\"/g, '\\"data:,\\"')
@@ -204,16 +204,21 @@ html = html
    MP4 mit H.264, nicht WebM. Das war ein Fehler in der ersten Fassung: hier
    im Pruefbrowser fehlt der H.264-Decoder, also lag WebM nahe — auf dem
    iPhone spielt Safari WebM aber nicht zuverlaessig, und genau dort blieb
-   das Video schwarz. H.264 kann dagegen jedes Geraet. */
-const video = lies('/video/hero.mp4')
-bilanz.push(['Video', 'hero.mp4', video.length])
+   das Video schwarz. H.264 kann dagegen jedes Geraet.
+
+   Und es ist die sparsame Fassung: Safari tut sich mit langen Daten-URLs
+   im Video schwer, je kleiner desto besser stehen die Chancen, dass es
+   auch ohne JavaScript laeuft. Mit JavaScript wird daraus ohnehin ein
+   Blob, der spielt zuverlaessig. */
+const video = lies('/video/hero-demo.mp4')
+bilanz.push(['Video', 'hero-demo.mp4', video.length])
 
 /* Zusaetzlich WebM als Rueckfall im Skript. Es kostet gut ein Megabyte,
    deckt dafuer aber die wenigen Browser ab, die kein H.264 mitbringen —
    und macht die Wiedergabe hier im Pruefbrowser ueberhaupt erst pruefbar,
    dem genau dieser Decoder fehlt. */
-const videoWebm = lies('/video/hero.webm')
-bilanz.push(['Video Rueckfall', 'hero.webm', videoWebm.length])
+const videoWebm = lies('/video/hero-demo.webm')
+bilanz.push(['Video Rueckfall', 'hero-demo.webm', videoWebm.length])
 
 const videoVorher = html.length
 html = html.replace(
