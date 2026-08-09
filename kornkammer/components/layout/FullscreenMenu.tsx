@@ -39,7 +39,7 @@ export default function FullscreenMenu({ open, onClose }: { open: boolean; onClo
         .fromTo(el, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.35, ease: 'power2.out' })
         .fromTo(
           links,
-          { yPercent: 105 },
+          { yPercent: 140 },
           { yPercent: 0, duration: 0.85, ease: MOTION.reveal.ease, stagger: 0.05 },
           0.05,
         )
@@ -82,7 +82,7 @@ export default function FullscreenMenu({ open, onClose }: { open: boolean; onClo
       >
         <ul ref={items} className="flex flex-col">
           {PRIMARY.map((item) => (
-            <li key={item.href} className="overflow-hidden">
+            <li key={item.href} className="mask-line">
               <Link
                 href={item.href}
                 tabIndex={open ? 0 : -1}

@@ -120,7 +120,7 @@ export default function Hero() {
       // Ausschnitt zoomt minimal zurueck
       tl.fromTo(videoRef.current, { scale: 1.12 }, { scale: 1, ease: 'none' }, 0)
       // Verlauf waechst von unten nach oben
-      tl.fromTo(veil.current, { opacity: 0.25 }, { opacity: 1, ease: 'none' }, 0)
+      tl.fromTo(veil.current, { opacity: 0 }, { opacity: 1, ease: 'none' }, 0)
       // Titel verabschiedet sich Zeile fuer Zeile
       tl.to(
         copy.current ? Array.from(copy.current.querySelectorAll('.split-line > span, [data-fade]')) : [],
@@ -168,14 +168,27 @@ export default function Hero() {
         />
         <script dangerouslySetInnerHTML={{ __html: QUELLENWAHL }} />
 
-        {/* Verlauf von unten: traegt die Typografie, ohne das Bild zuzudecken */}
+        {/* Grundschleier, immer aktiv. Er sorgt dafuer, dass Titel, Kopfzeile
+            und Hinweis auf JEDEM Einzelbild lesbar bleiben — der Clip laeuft
+            durch helle Scheinwerferflaechen, auf denen heller Text sonst
+            untergeht. Kein Kasten, nur ein Verlauf ueber die Kanten. */}
+        <div
+          aria-hidden
+          className="absolute inset-0"
+          style={{
+            background:
+              'linear-gradient(to top, rgba(13,10,6,0.90) 0%, rgba(13,10,6,0.84) 18%, rgba(13,10,6,0.62) 34%, rgba(13,10,6,0.16) 55%, rgba(13,10,6,0.10) 74%, rgba(13,10,6,0.58) 100%)',
+          }}
+        />
+
+        {/* Darueber der Verlauf, der beim Verlassen des Heros zuwaechst */}
         <div
           ref={veil}
           aria-hidden
           className="absolute inset-0"
           style={{
             background:
-              'linear-gradient(to top, var(--soil) 0%, rgba(13,10,6,0.82) 26%, rgba(13,10,6,0.28) 58%, rgba(13,10,6,0.34) 100%)',
+              'linear-gradient(to top, var(--soil) 0%, rgba(13,10,6,0.86) 30%, rgba(13,10,6,0.42) 66%, rgba(13,10,6,0.3) 100%)',
           }}
         />
 
@@ -184,11 +197,15 @@ export default function Hero() {
         {/* Titel */}
         <div className="absolute inset-0 flex items-end">
           <div ref={copy} className="shell w-full pb-[clamp(3.5rem,9vh,7rem)]">
+            {/* Die Untergrenze des Grades ist so gewaehlt, dass „KORNKAMMER“
+                auch bei 320 px Fensterbreite in eine Zeile passt. Sonst
+                schneidet die Maske das Wort seitlich ab, weil `no-break` es
+                nicht umbrechen laesst. */}
             <SplitLines
               as="h1"
               immediate
               delay={0.25}
-              className="optical no-break text-[clamp(2.5rem,11.2vw,9rem)] uppercase leading-[0.86] tracking-[-0.03em]"
+              className="optical no-break text-[clamp(2.15rem,11.2vw,9rem)] uppercase leading-[0.86] tracking-[-0.03em]"
             >
               Team Kornkammer
             </SplitLines>
@@ -203,7 +220,7 @@ export default function Hero() {
             </SplitLines>
 
             <div data-fade className="mt-8">
-              <Eyebrow items={[...FARM.certifications]} />
+              <Eyebrow items={[...FARM.certifications]} tone="paper" />
             </div>
           </div>
         </div>
@@ -213,7 +230,7 @@ export default function Hero() {
           data-cue
           className="pointer-events-none absolute bottom-6 right-[var(--gutter)] flex items-center gap-3"
         >
-          <span className="u-mono text-[color:var(--stone)]">Scrollen</span>
+          <span className="u-mono text-[color:var(--paper)]">Scrollen</span>
           <span aria-hidden className="block h-10 w-px bg-[var(--hair-strong)]" />
         </div>
       </div>

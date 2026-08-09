@@ -139,7 +139,28 @@ Story den Fortschritt.
 - **Keine mitten im Wort gebrochenen Wortmarken.** `.no-break` plus ein
   Schriftgrad, der auf schmalen Geräten mitskaliert.
 - **Zeilenmasken mit Polster.** Ohne das schnitt die Maske bei engem Durchschuss
-  die Umlautpunkte ab, aus „STÜCK" wurde „STUCK".
+  die Umlautpunkte ab, aus „STÜCK“ wurde „STUCK“.
+- **Echte deutsche Anführungszeichen** im gesamten sichtbaren Text.
+
+### Satzprüfung
+
+`tools/typo-audit.mjs` fährt jede Seite in sechs Breiten von 320 px bis
+1920 px ab und misst pro Textelement die tatsächliche Glyphenausdehnung gegen
+jede Maskenkante. Damit fallen abgeschnittene Umlautpunkte, gekappte
+Unterlängen, seitlich beschnittene Wortmarken und Elemente auf, die nie
+sichtbar werden.
+
+```bash
+npm run build && npm start
+BASE=http://localhost:3000 node tools/typo-audit.mjs
+```
+
+Wichtig ist der doppelte Durchgang: Der erste löst die Reveals nur aus, der
+zweite misst. Wer während der Fahrt misst, sieht die Zeile noch unter ihrer
+Maske und bekommt lauter Fehlalarme.
+
+Jede neue Maske nimmt `.mask-line` und lässt ihren Inhalt aus mindestens
+140 Prozent Versatz einfahren. Bei weniger lugt er unten aus dem Polster.
 
 ---
 

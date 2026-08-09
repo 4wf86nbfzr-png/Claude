@@ -7,7 +7,7 @@ import type { Station } from '@/data/stations'
 import MediaFrame from '@/components/ui/MediaFrame'
 
 /**
- * „Vom Boden auf den Teller".
+ * „Vom Boden auf den Teller“.
  *
  * Links bleibt das Medium stehen, rechts laufen die Stationen durch.
  * Die Szene links wechselt mit jeder Station, eine Furchenlinie zeigt den

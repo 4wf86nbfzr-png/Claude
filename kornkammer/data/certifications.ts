@@ -23,7 +23,7 @@ export const CERTIFICATIONS: Certification[] = [
     name: 'EU Bio',
     kind: 'Gesetzlicher Rahmen',
     claim: 'Die Grundlage, auf der alles Weitere aufsetzt.',
-    body: 'Die EU Rechtsvorschriften für den ökologischen Landbau legen fest, was „Bio" mindestens bedeutet: kein chemisch synthetischer Pflanzenschutz, kein Mineraldünger, keine Gentechnik, dazu eine jährliche Kontrolle durch eine zugelassene Öko Kontrollstelle.',
+    body: 'Die EU Rechtsvorschriften für den ökologischen Landbau legen fest, was „Bio“ mindestens bedeutet: kein chemisch synthetischer Pflanzenschutz, kein Mineraldünger, keine Gentechnik, dazu eine jährliche Kontrolle durch eine zugelassene Öko Kontrollstelle.',
     points: [
       'Kein chemisch synthetischer Pflanzenschutz',
       'Kein leicht löslicher Mineraldünger',

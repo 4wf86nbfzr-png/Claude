@@ -7,7 +7,7 @@ export type Station = {
   mediaAlt: string
 }
 
-/** Die gepinnte Story „Vom Boden auf den Teller". */
+/** Die gepinnte Story „Vom Boden auf den Teller“. */
 export const STATIONS: Station[] = [
   {
     mark: 'Boden',

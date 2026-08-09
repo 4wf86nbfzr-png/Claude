@@ -10,10 +10,16 @@ export default function Eyebrow({
 }: {
   items: string | string[]
   className?: string
-  tone?: 'stone' | 'wheat'
+  /** `paper` ist fuer Text ueber Bewegtbild: gedaempftes Grau geht dort unter. */
+  tone?: 'stone' | 'wheat' | 'paper'
 }) {
   const list = Array.isArray(items) ? items : [items]
-  const color = tone === 'wheat' ? 'text-wheat' : 'text-[color:var(--stone)]'
+  const color =
+    tone === 'wheat'
+      ? 'text-wheat'
+      : tone === 'paper'
+        ? 'text-[color:var(--paper)]'
+        : 'text-[color:var(--stone)]'
 
   return (
     <p className={`u-mono flex flex-wrap items-center gap-x-4 gap-y-2 ${color} ${className ?? ''}`}>

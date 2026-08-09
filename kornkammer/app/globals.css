@@ -240,17 +240,24 @@ button {
   will-change: transform, opacity;
 }
 
-/* Die Maske braucht Luft nach oben und unten, sonst schneidet sie bei enger
-   Durchschuss Umlautpunkte und Unterlaengen ab — „STÜCK" wurde sonst zu
-   „STUCK". Das Polster wird per negativem Aussenabstand wieder abgezogen,
-   damit die Zeile optisch an derselben Stelle sitzt. */
+/* Jede Maske, hinter der Text hervorfaehrt, braucht Luft nach oben und unten.
+   Ohne sie schneidet sie bei engem Durchschuss die Umlautpunkte und die
+   Unterlaengen ab — aus „STÜCK" wurde so „STUCK". Das Polster wird per
+   negativem Aussenabstand wieder abgezogen, damit die Zeile optisch an
+   derselben Stelle sitzt.
+
+   Wer eine neue Maske baut, nimmt `.mask-line` und laesst den Inhalt aus
+   mindestens 140 Prozent Versatz einfahren — bei weniger lugt er unten
+   aus dem Polster hervor. */
+.mask-line,
 .split-line {
   display: block;
   overflow: hidden;
-  padding-block: 0.22em;
-  margin-block: -0.22em;
+  padding-block: 0.24em;
+  margin-block: -0.24em;
 }
-.split-line > span {
+.split-line > span,
+.mask-line > * {
   display: block;
   will-change: transform;
 }

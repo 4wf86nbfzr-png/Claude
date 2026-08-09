@@ -5,7 +5,7 @@
  * nicht erreichbar (Egress gesperrt). Die hier gesetzten Werte stammen aus
  * oeffentlich indexierten Angaben. Alles, was sich nicht eindeutig belegen
  * liess, traegt `unbestaetigt: true` und wird im Layout sichtbar als
- * „bitte bestaetigen" ausgewiesen, statt es zu erfinden.
+ * „bitte bestaetigen“ ausgewiesen, statt es zu erfinden.
  */
 
 export const FARM = {

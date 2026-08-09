@@ -31,7 +31,8 @@ export default function Loader() {
       onComplete: () => setDone(true),
     })
 
-    if (word) tl.fromTo(word, { yPercent: 110 }, { yPercent: 0, duration: 0.8, ease: MOTION.reveal.ease })
+    if (word)
+      tl.fromTo(word, { yPercent: 140 }, { yPercent: 0, duration: 0.8, ease: MOTION.reveal.ease })
 
     if (path instanceof SVGPathElement) {
       const len = path.getTotalLength()
@@ -58,7 +59,7 @@ export default function Loader() {
       aria-hidden="true"
       className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-soilDeep"
     >
-      <div data-word className="overflow-hidden">
+      <div data-word className="mask-line">
         <span className="block text-h2 uppercase tracking-[-0.02em]">Kornkammer</span>
       </div>
       <svg
