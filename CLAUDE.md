@@ -44,6 +44,18 @@ Die Seite soll nach Handwerk aussehen, nicht nach Baukasten. Konkret heißt das:
   Trennstrich; in Display-Größe ist der so breit wie ein Gestaltungselement.
   `overflow-wrap:break-word` bleibt als Notnagel — es bricht ohne Strich und
   greift nur, wenn ein Wort wirklich nicht in die Zeile passt.
+- **Kein Gedankenstrich im Satz.** Wo einer stand, steht jetzt ein Komma,
+  ein Doppelpunkt oder nichts. Kein Wort wurde dafür geändert; das erledigt
+  `tools/striche-ersetzen.py` und es ist mehrfach ausführbar. Stehen bleiben
+  nur Bereichsangaben (`12–14`, `Mo–Fr`, `8–18 Uhr`), Bindestriche in
+  Wörtern (`Gastro-Personal`, `Auf- und Abbau`) und die Trennung in `<title>`
+  — die steht im Reiter des Browsers, nicht auf der Seite.
+- **Unterstrichen heißt: hier geht es weiter.** Eine Linie unter einem
+  kurzen Eintrag liest im Netz als Link. Wo nichts dahintersteckt, darf
+  deshalb keine Linie stehen — die Aufzählungen der Leistungsseiten
+  (`.einsaetze`, `.erwartungen`) trennen durch Abstand. Eine Linie über die
+  **volle Breite** zwischen zwei Blöcken ist etwas anderes: das ist ein
+  Trenner, kein Unterstrich, und der bleibt (Stellenliste, Abschnittskanten).
 
 ---
 
@@ -77,6 +89,48 @@ Markup und eine Regel im CSS.
    ruhige Fassung. Zusätzlich gibt es einen `@media`-Block, der Masken und
    Beschnitte auflöst.
 5. **Ohne JavaScript ist alles sichtbar.** `.kein-js` hebt jede Startmaske auf.
+
+### Die teuerste Falle: `will-change` auf Vorrat
+
+`will-change:transform` sagt dem Browser: *lege dieses Element als eigene
+Ebene an und halte sie bereit.* Für die eine Fläche, die sich gerade bewegt,
+ist das richtig — und es ist messbar richtig: ohne `will-change` steigt die
+Rasterarbeit einer Durchfahrt durch `dienstleistungen.html` von 907 auf
+2296 ms.
+
+Für **alle sechs Bühnen gleichzeitig** ist es dagegen das Gegenteil. Jede
+Bühne hält zwei bildschirmfüllende Fotos übereinander; auf einem 1440er
+Bildschirm mit doppelter Pixeldichte ist eine solche Ebene rund 20 MB groß.
+Zwölf davon sind über 200 MB, die dauerhaft im Grafikspeicher liegen sollen.
+Der Compositor wirft dann Kacheln weg und legt sie beim Zurückscrollen neu
+an — und genau das sieht man als Ruckeln.
+
+Deshalb steht vor **jedem** `will-change` einer Bühne oder Szene die Klasse
+`.live`, die `main.js` beim Scrollen setzt:
+
+```css
+.scene{ transform:scale(var(--zoom,1)); }        /* keine Ebene */
+.stage.live .scene{ will-change:transform; }     /* Ebene nur, solange sichtbar */
+```
+
+Wer eine neue Fahrt baut, macht es genauso. Und wer im `@media`-Block für
+das Telefon etwas davon zurücknehmen will, muss die Spezifität mitnehmen:
+`.scene{…}` allein verliert gegen `.stage.live .scene{…}`.
+
+Gemessen wird das nicht an der Bildrate — die schwankt zu stark —, sondern
+an der Arbeit. `scratchpad/arbeit.js` summiert über eine Durchfahrt die
+Zeiten aus dem Tracing (Stil, Layout, Malen, Rastern). Der Unterschied
+zwischen zwei Fassungen ist dort stabil ablesbar, die Bildabstände sind es
+nicht.
+
+### Erst messen, dann schreiben
+
+Der Scroll-Motor las früher pro Schleife die Rechtecke, schrieb seine Werte,
+und die nächste Schleife las wieder. Jedes Schreiben macht das Layout
+ungültig, jedes folgende Lesen erzwingt es neu. `messen()` sammelt deshalb
+alle Rechtecke in einem Zug, erst danach schreiben `updateStages()`,
+`updateMotion()` und `updateKino()`. Wer eine vierte Schleife dazunimmt,
+hängt ihre Messung mit in `messen()` — nicht in die eigene Schleife.
 
 ### Die eine Falle, die man kennen muss
 
@@ -446,6 +500,27 @@ den es gibt. Gemessen am mittleren Gradientenbetrag sind das rund 30 % mehr
 Kantenschärfe (2,80 → 3,65). Wirklich hochauflösend wird die Seite erst mit
 Material in 2400 px, so wie `docs/foto-briefing.md` es verlangt.
 
+### Die Obergrenze kommt nicht von der Dateigröße, sondern vom Rastern
+
+Die erste Fassung dieser zweiten Stufe ging bis 3464 px — genau so viel, wie
+die Messung anforderte. Danach ruckelte `dienstleistungen.html` sichtbar.
+Gemessen über eine ganze Durchfahrt (`scratchpad/arbeit.js`, Summe aus Stil,
+Layout, Malen und Rastern):
+
+| Quellen | Arbeit je Durchfahrt | davon Rastern |
+|---|---|---|
+| nur 1600 px | 1229 ms | 765 ms |
+| bis 2560 px | 1326 ms | 869 ms |
+| bis 3464 px | 1830 ms | 1361 ms |
+
+Ein Foto, das gerade skaliert wird, muss der Browser in die Kachel des
+Compositors rechnen — und das kostet mit der Quellgröße. Über 2560 px steigt
+diese Arbeit steil an, während der sichtbare Gewinn klein bleibt: bei 2560
+rechnet der Browser am 1440er Schirm noch 1,18-fach hoch, bei 3464 wäre es
+1,00. Für ein Achtzehntel Schärfe das Doppelte an Rasterarbeit ist ein
+schlechtes Geschäft. `KANTE` in `tools/bilder-vergroessern.py` steht deshalb
+auf **2560**.
+
 **Nur WebP in der großen Stufe.** Die Rückfallebene bleibt die vorhandene
 JPEG-Datei in Ausgangsgröße. Dasselbe Bild als JPEG wäre 943 KB statt 405 KB
 — und würde nur von Browsern geholt, die kein WebP können.
@@ -509,8 +584,48 @@ jedes mit einer langsamen Kamerafahrt. Gebaut wird er von
   so neu aufnimmt, wirft die Musik weg, ohne dass es auffällt. Jetzt stehen
   die CSS-Animationen still, das Skript setzt ihre Zeit selbst, macht eine
   Aufnahme und schiebt sie direkt in ffmpeg.
-- **Die Musik wird nie neu kodiert.** Sie wird mit `-c:a copy` aus der
-  bisherigen Fassung herausgelöst und unverändert wieder eingebaut.
+- **1920 × 1080, und größer bringt nichts.** Am Laptop wird der Film auf
+  2880 Gerätepixel gezogen, was nach einer größeren Fassung klingt. Sie
+  wurde gebaut (`--gross`, 2560 × 1440) und gemessen: gegen dieselbe Vorlage
+  gerechnet **12,48 dB gegen 12,47 dB** — kein Unterschied, bei doppelter
+  Dateigröße. Der Grund ist banal: die Fotos, aus denen der Film besteht,
+  haben 1129 bis 1600 px. 1920 liegt bereits über der Vorlage; alles darüber
+  vergrößert nur, was ohnehin schon hochgerechnet ist.
+
+  Dasselbe gilt für die Kodierung: CRF 27 statt 31 wurde gebaut und an fünf
+  Einzelbildern nachgemessen — im Mittel **+1,7 % Kantenschärfe für +33 %
+  Dateigröße** (6,6 → 8,8 MB). Auch das ist ein schlechtes Geschäft, aus
+  demselben Grund. Es bleibt bei CRF 31.
+
+  Sobald echtes Material vorliegt, lohnt sich beides — der Schalter für die
+  große Fassung steht noch im Skript, und in `main.js` wartet
+  `data-src-gross`.
+- **Die Musik wird nie neu kodiert** — außer beim Mischen mit der Ansage,
+  denn das geht nicht anders. Damit sie dabei nicht bei jedem Durchgang
+  etwas verliert, liegt sie unberührt unter
+  `assets/video/imagefilm-musik.webm`; gemischt wird immer aus ihr, nie aus
+  einer schon gemischten Fassung.
+
+### Die Ansage
+
+`tools/film-vertonen.py` legt eine gesprochene Fassung der Untertitel unter
+den Film. Der Sprechtext ist **die VTT-Datei selbst** — damit können Bild,
+Untertitel und Stimme nie auseinanderlaufen.
+
+- Jede Zeile wird einzeln gesprochen und an ihrer Untertitelzeit eingesetzt,
+  nicht am Stück. Sonst verschiebt sich alles, sobald ein Satz einen
+  Wimpernschlag länger gerät.
+- Die Musik geht unter der Stimme um rund 10 dB zurück (Seitenkette) und
+  kommt zwischen den Sätzen von selbst wieder hoch. Gemessen: Verhältnis 12
+  ergab 17,5 dB und ließ die Musik fast verschwinden, Verhältnis 6 ergibt
+  10,6 dB. Die fertige Mischung steht auf −16 LUFS bei −1,5 dBFS Spitze.
+- **Die Stimme ist ein Platzhalter**, genau wie die Bilder des Films: ein
+  lokales Sprachmodell (Thorsten, deutsche Männerstimme, 22 kHz). Sie klingt
+  ruhig, aber sie klingt synthetisch. Vor dem Live-Gang gehört dort eine
+  echte Aufnahme hin.
+- **Die Sprachspur muss bis zum Ende reichen.** `sidechaincompress` hört
+  auf, sobald *eine* seiner beiden Spuren endet — und mit ihr das Bild. Beim
+  ersten Versuch war der Film dadurch 43 statt 45 Sekunden lang.
 - **Die ersten 0,8 s bleiben schwarz** und die Gesamtlänge bleibt die der
   Musik. Daran hängen die Untertitelzeiten in `imagefilm-de.vtt`. Wer den
   Vorlauf ändert, muss sie nachziehen.

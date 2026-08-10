@@ -42,6 +42,8 @@ assets/video/           Imagefilm + Untertitel
 tools/bilder-vergroessern.py  erzeugt die grosse Bildstufe
 tools/bilder-einhaengen.py    haengt sie ins Markup ein
 tools/film-bauen.js           baut den Imagefilm neu (Bild fuer Bild)
+tools/film-vertonen.py        spricht die Untertitel und mischt sie unter die Musik
+tools/striche-ersetzen.py     Gedankenstriche im Text durch Kommas ersetzen
 
 api/_vorgang.js         der Ablauf — Beleg, Angebot, zwei Mails
 api/formular.js         Hülle für Vercel
@@ -661,7 +663,28 @@ Diese Punkte müssen erledigt sein. Erst danach die Sperren lösen.
       (`assets/img/team/`, Format wie die vorhandenen: 1000 × 1250).
 - [ ] Bewegtes Material für den Imagefilm (Bild ist noch ein Platzhalter
       aus Fotos; die Musik liegt vor und ist freigegeben). Der Platzhalter
-      läuft in 1920 × 1080; echtes Material darf gern größer sein.
+      läuft in 1920 × 1080. Größer bringt derzeit nichts: die Fotos, aus
+      denen er besteht, haben 1129 bis 1600 px. Eine 2560er Fassung wurde
+      gebaut und gemessen und war exakt gleich gut. Sobald echtes Material
+      vorliegt, lohnt sie sich — `node tools/film-bauen.js --gross`.
+- [ ] **Die Ansage im Film neu einsprechen.** Sie kommt derzeit aus einem
+      Sprachmodell (Thorsten, deutsche Männerstimme) und klingt ruhig, aber
+      hörbar synthetisch — als Platzhalter gedacht, nicht als Endfassung.
+      Der Text steht in `assets/video/imagefilm-de.vtt`, die Zeiten stehen
+      dort ebenfalls. Liegt eine echte Aufnahme vor, ersetzt sie in
+      `tools/film-vertonen.py` den Synthese-Schritt; Mischung, Absenkung der
+      Musik und Lautheit bleiben wie sie sind.
+
+      Das Sprachmodell liegt **nicht** im Repository (110 MB). Es kommt aus
+      den Modellen des sherpa-onnx-Projekts und gehört nach `tools/stimme/`:
+
+      ```bash
+      curl -L -o /tmp/stimme.tar.bz2 \
+        https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/vits-piper-de_DE-thorsten-high.tar.bz2
+      tar xjf /tmp/stimme.tar.bz2 -C /tmp
+      mkdir -p tools/stimme && cp /tmp/vits-piper-de_DE-thorsten-high/de_DE-thorsten-high.onnx* tools/stimme/
+      pip install piper-tts imageio-ffmpeg
+      ```
 - [ ] Fotos in 2400 px nachliefern (`docs/foto-briefing.md`). Vorhanden sind
       1129 bis 1600 px; auf einem Retina-Bildschirm fordert ein randloses
       Foto bis zu 4090 px an. Die zweite Bildstufe rechnet das derzeit

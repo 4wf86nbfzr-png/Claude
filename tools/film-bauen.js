@@ -45,7 +45,14 @@ const WURZEL = path.dirname(__dirname);
 const IMG = path.join(WURZEL, 'assets/img');
 const VIDEO = path.join(WURZEL, 'assets/video');
 
-const BREITE = 1920, HOEHE = 1080, BILDRATE = 25;
+/* Zwei Fassungen. Am Telefon wird die kleine gezeigt (390 CSS-px mal drei
+   sind 1170 Geraetepixel — 1920 reicht dort dreifach), am Schreibtisch die
+   grosse: ein 1440er MacBook zieht das Bild auf 2880 Geraetepixel.
+   Gemessen am Kantenmass kostet allein dieses Hochziehen 43 %.
+       node tools/film-bauen.js            1920 x 1080
+       node tools/film-bauen.js --gross    2560 x 1440                       */
+const GROSS = process.argv.includes('--gross');
+const BREITE = GROSS ? 2560 : 1920, HOEHE = GROSS ? 1440 : 1080, BILDRATE = 25;
 const VORLAUF = 0.8;          // Sekunden Schwarz am Anfang
 const DAUER = 5;              // Sekunden je Szene
 
@@ -127,15 +134,23 @@ PY`, { stdio: 'inherit' });
   // Die Musik steckt in der bisherigen Fassung. Sie wird ohne Neukodierung
   // herausgeloest, zwischengelegt und spaeter unveraendert wieder eingebaut —
   // deshalb liegt keine zweite Tondatei im Projekt herum.
-  const ton = path.join(os.tmpdir(), 'imagefilm-ton.webm');
+  /* Der Ton kommt aus der fertigen kleinen Fassung — dort steckt bereits die
+     Mischung aus Musik und Ansage (tools/film-vertonen.py). Er wird nur
+     kopiert, nie neu kodiert. Gibt es die noch nicht, dient die reine
+     Musikspur als Quelle. */
+  const ton = path.join(os.tmpdir(), GROSS ? 'imagefilm-ton-gross.webm' : 'imagefilm-ton.webm');
   const bisher = path.join(VIDEO, 'imagefilm.webm');
+  const musik = path.join(VIDEO, 'imagefilm-musik.webm');
   if (!fs.existsSync(ton)) {
-    if (!fs.existsSync(bisher)) {
-      console.error('Weder Tonspur noch bisherige Fassung gefunden.');
+    const quelle = GROSS && fs.existsSync(bisher) ? bisher
+                 : fs.existsSync(musik) ? musik
+                 : fs.existsSync(bisher) ? bisher : null;
+    if (!quelle) {
+      console.error('Weder Musikspur noch bisherige Fassung gefunden.');
       process.exit(1);
     }
     require('child_process').execSync(
-      `"${FF}" -y -v error -i "${bisher}" -vn -c:a copy "${ton}"`, { stdio: 'inherit' });
+      `"${FF}" -y -v error -i "${quelle}" -vn -c:a copy "${ton}"`, { stdio: 'inherit' });
   }
   const info = require('child_process').execSync(`${FF} -hide_banner -i "${ton}" 2>&1 || true`).toString();
   const m = info.match(/Duration: (\d+):(\d+):([\d.]+)/);
@@ -144,11 +159,16 @@ PY`, { stdio: 'inherit' });
   console.log(`Tonspur ${laenge.toFixed(2)} s  ->  ${bilder} Einzelbilder`);
 
   /* --- 3) Bild für Bild aufnehmen und direkt in ffmpeg schieben --------- */
-  const ziel = path.join(VIDEO, 'imagefilm.webm');
+  const ziel = path.join(VIDEO, GROSS ? 'imagefilm-gross.webm' : 'imagefilm.webm');
   const ff = spawn(FF, [
     '-y', '-v', 'error',
     '-f', 'image2pipe', '-framerate', String(BILDRATE), '-i', '-',
     '-i', ton,
+    /* CRF 31 und nicht weniger. Nachgemessen an fuenf Einzelbildern bringt
+       CRF 27 im Mittel +1,7 % Kantenschaerfe und kostet +33 % Dateigroesse
+       (6,6 -> 8,8 MB). Der Grund: die Vorlage sind Fotos mit 1129 bis 1600 px,
+       in 1920 also ohnehin hochgerechnet. Da ist nichts mehr, was ein
+       feineres Quantisieren noch herausholen koennte. */
     '-c:v', 'libvpx-vp9', '-crf', '31', '-b:v', '0',
     '-row-mt', '1', '-deadline', 'good', '-cpu-used', '2',
     '-pix_fmt', 'yuv420p',

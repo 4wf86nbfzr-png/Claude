@@ -7,3 +7,6 @@ herm-website-netlify.zip
 # Die gebündelte Funktion — Ergebnis von tools/paket-bauen.sh, keine Quelle.
 # Die Quelle steht in api/_netlify.js.
 netlify/functions/
+
+# Sprachmodell fuer tools/film-vertonen.py — 110 MB, Bezug steht in README.md
+tools/stimme/

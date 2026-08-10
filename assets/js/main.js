@@ -249,7 +249,7 @@
     panel:  st.querySelector('.panel'),
     door:   st.querySelector('.door'),
     last:   { zoom:null, detail:null, panel:null, door:null, kapitel:null },
-    oben:   undefined, unten: undefined,
+    oben:   undefined, unten: undefined, live: null,
   }));
 
   /* Nur schreiben, wenn sich der Wert wirklich geändert hat — jedes
@@ -260,16 +260,53 @@
     el.style.setProperty('--' + key, value);
   }
 
-  function updateStages(){
+  /* ---- Erst messen, dann schreiben ----
+     Vorher las jede der drei Schleifen ihre Rechtecke, schrieb ihre Werte und
+     die nächste las wieder. Jedes Schreiben macht das Layout ungültig, jedes
+     folgende Lesen erzwingt es neu — pro Bild also mehrfach ein komplettes
+     Layout über eine Seite von fünfzehn Bildschirmhöhen. Genau das hat sich
+     als Ruckeln bemerkbar gemacht.
+
+     Jetzt sammelt `messen()` alle Rechtecke in einem Zug; erst danach wird
+     geschrieben. Der Browser rechnet das Layout dann einmal statt viermal. */
+  function messen(){
     const vh = window.innerHeight;
     for(const st of stages){
       const rect = st.el.getBoundingClientRect();
-      /* Fuer Kinobalken und Kapitelrail merken statt gleich noch einmal zu
-         messen — jedes getBoundingClientRect kostet, und pro Bild wuerden
-         sonst acht weitere anfallen. */
       st.oben = rect.top; st.unten = rect.bottom;
-      const total = st.el.offsetHeight - vh;
-      const p = clamp((-rect.top) / total, 0, 1);
+      st.hoehe = st.el.offsetHeight;
+      st.p = clamp((-rect.top) / (st.hoehe - vh), 0, 1);
+      st.sichtbar = rect.top < vh * 1.2 && rect.bottom > -vh * 0.2;
+    }
+    for(const s of spuren){
+      const r = s.el.getBoundingClientRect();
+      const h = Math.max(1, r.height);
+      s.sichtbar = r.top < vh * 1.2 && r.bottom > -vh * 0.2;
+      s.p = s.art === 'weg'
+        ? clamp(-r.top / h, 0, 1)               // 0 = steht noch, 1 = ganz oben raus
+        : clamp((vh - r.top) / (vh + h), 0, 1); // 0 = kommt unten herein, 1 = oben hinaus
+    }
+  }
+
+  function updateStages(){
+    for(const st of stages){
+      const p = st.p;
+      /* Nur die Bühne, die gerade zu sehen ist, wird zur eigenen Ebene.
+         `will-change` an allen sechs hieße: zwölf bildschirmfüllende Fotos
+         gleichzeitig im Grafikspeicher. Auf einem 1440er Bildschirm sind das
+         über 200 MB — der Compositor wirft dann Kacheln weg und legt sie neu
+         an, und genau das ist das Ruckeln. Die Klasse steht im Stylesheet
+         vor jedem `will-change` der Bühne. */
+      /* Beim Verlassen des Bildes wird noch **einmal** geschrieben, danach
+         nicht mehr. Ohne dieses letzte Mal bliebe die Buehne auf dem Wert
+         stehen, den sie beim Hinausrollen hatte — und zeigte beim
+         Zurueckkommen fuer ein Bild den alten Zustand. */
+      const warLive = st.live;
+      if(st.live !== st.sichtbar){
+        st.live = st.sichtbar;
+        st.el.classList.toggle('live', st.sichtbar);
+      }
+      if(!st.sichtbar && !warLive) continue;
       if(!sparsam){
         /* Annäherung, nicht Aufziehen: das Foto füllt die Bühne bereits (siehe
            .scene__frame im Stylesheet), deshalb genügt eine ruhige Fahrt von
@@ -308,20 +345,23 @@
      ============================================================ */
   const spuren = [];
   if(!reduce){
-    document.querySelectorAll('[data-weg]').forEach(el => spuren.push({ el, art:'weg',  wert:null }));
-    document.querySelectorAll('[data-lauf]').forEach(el => spuren.push({ el, art:'lauf', wert:null }));
+    document.querySelectorAll('[data-weg]').forEach(el => spuren.push({ el, art:'weg',  wert:null, live:null }));
+    document.querySelectorAll('[data-lauf]').forEach(el => spuren.push({ el, art:'lauf', wert:null, live:null }));
   }
 
   function updateMotion(){
-    if(!spuren.length) return;
-    const vh = window.innerHeight;
     for(const s of spuren){
-      const r = s.el.getBoundingClientRect();
-      const h = Math.max(1, r.height);
-      const p = s.art === 'weg'
-        ? clamp(-r.top / h, 0, 1)              // 0 = steht noch, 1 = ganz oben raus
-        : clamp((vh - r.top) / (vh + h), 0, 1); // 0 = kommt unten herein, 1 = oben hinaus
-      const w = p.toFixed(3);
+      /* Dasselbe wie bei den Bühnen: nur was zu sehen ist, wird zur eigenen
+         Ebene und bekommt überhaupt einen neuen Wert. Sechs bildschirm-
+         füllende Szenen dauerhaft im Grafikspeicher zu halten, kostet mehr
+         als die Fahrt selbst. */
+      const warLive = s.live;
+      if(s.live !== s.sichtbar){
+        s.live = s.sichtbar;
+        s.el.classList.toggle('live', s.sichtbar);
+      }
+      if(!s.sichtbar && !warLive) continue;   // letzter Wert schon geschrieben
+      const w = s.p.toFixed(3);
       if(s.wert !== w){ s.wert = w; s.el.style.setProperty('--' + s.art, w); }
     }
   }
@@ -477,8 +517,16 @@
       btnPlay.classList.toggle('film__knopf--laeuft', laeuft);
     }
 
+    /* Eine grössere Fassung des Films wurde gebaut und wieder verworfen: die
+       Fotos, aus denen er besteht, haben 1129 bis 1600 px, 1920 liegt also
+       schon über der Vorlage. Gemessen war 2560 exakt gleich gut und doppelt
+       so schwer. Liegt einmal echtes Material vor, kommt `data-src-gross`
+       zurück — dann lohnt es sich. */
     function quelleSetzen(){
-      if(!film.src && film.dataset.src) film.src = film.dataset.src;
+      if(film.src || !film.dataset.src) return;
+      const weit = window.matchMedia('(min-width:981px)').matches;
+      const knausrig = !!(navigator.connection && navigator.connection.saveData);
+      film.src = (weit && !knausrig && film.dataset.srcGross) || film.dataset.src;
     }
 
     /* Das scharfe Vorschaubild wiegt gut das Doppelte des kleinen. Es wird
@@ -1074,12 +1122,13 @@
     if(!reduce && !ticking){
       ticking = true;
       requestAnimationFrame(()=>{
+        messen();
         updateStages(); updateMotion(); updateKino(); scrubVideos();
         ticking = false;
       });
     }
   }
-  function alles(){ navHoehe(); updateStages(); updateMotion(); updateKino(); }
+  function alles(){ navHoehe(); messen(); updateStages(); updateMotion(); updateKino(); }
   window.addEventListener('scroll', onScroll, { passive:true });
   window.addEventListener('resize', ()=>{ onScrollTop(); if(!reduce) alles(); });
   onScrollTop(); if(!reduce) alles();

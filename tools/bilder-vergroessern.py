@@ -63,7 +63,15 @@ BEDARF = {
 }
 
 HOECHST = 3         # mehr als das Dreifache bringt nichts — es ist kein Detail da
-MEGAPIXEL = 12      # Deckel fuer die Dateigroesse
+# Deckel fuer die Kantenlaenge. Nicht die Dateigroesse ist der Grund, sondern
+# das Rastern: die Buehnen auf dienstleistungen.html halten zwei bildschirm-
+# fuellende Fotos gleichzeitig als eigene Ebene. Gemessen ueber eine ganze
+# Durchfahrt (Tracing, Summe aus Stil, Layout, Malen, Rastern):
+#     Quellen mit 1600 px      1175 ms
+#     Quellen bis 3464 px      1830 ms   <- ruckelt sichtbar
+#     Quellen bis MAXKANTE     siehe unten
+KANTE = int(os.environ.get("MAXKANTE", "2560"))
+MEGAPIXEL = 7       # Deckel fuer hochkantige Motive
 QUALITAET = 76      # gemessen: 405 KB bei 40,2 dB gegen die Vorlage
 UNSCHARF = (1.6, 52, 3)   # Radius, Staerke in Prozent, Schwelle
 
@@ -84,7 +92,7 @@ def main():
 
         im = Image.open(quelle).convert("RGB")
         b, h = im.size
-        faktor = min(BEDARF[stamm] / b, HOECHST)
+        faktor = min(BEDARF[stamm] / b, HOECHST, KANTE / max(b, h))
         # Deckel ueber die Gesamtflaeche, damit einzelne Dateien nicht ausufern
         if b * h * faktor * faktor > MEGAPIXEL * 1e6:
             faktor = (MEGAPIXEL * 1e6 / (b * h)) ** 0.5

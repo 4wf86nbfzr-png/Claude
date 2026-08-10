@@ -41,6 +41,11 @@ ANTEIL = {
 
 PICTURE = re.compile(r"<picture\b.*?</picture>", re.S)
 QUELLE = re.compile(r'(<source type="image/webp" srcset=")([^"]*?)([\w-]+)\.webp(")')
+# Schon eingehaengte Listen: die Breitenangaben werden nachgezogen, wenn
+# tools/bilder-vergroessern.py mit anderen Zielgroessen gelaufen ist.
+NACHZIEHEN = re.compile(
+    r'(srcset=")([^"]*?)([\w-]+)\.webp \d+w, \2\3-gross\.webp \d+w("\s+sizes=")'
+    r'\(max-width:980px\) 100vw, \d+vw(")')
 KACHEL = re.compile(r'<a class="gal__item([^"]*)" href="([^"]*?)([\w-]+)\.jpg"(?! data-gross)')
 
 
@@ -94,6 +99,19 @@ def main():
                     return (f'{q.group(1)}{pfad_teil}{stamm}.webp {klein}w, '
                             f'{pfad_teil}{stamm}-gross.webp {gross}w" '
                             f'sizes="(max-width:980px) 100vw, {ANTEIL[stamm]}vw{q.group(4)}')
+                def nachziehen(q):
+                    nonlocal n
+                    stamm = q.group(3)
+                    if stamm not in ANTEIL:
+                        return q.group(0)
+                    klein, gross = masse[stamm]
+                    neu = (f'{q.group(1)}{q.group(2)}{stamm}.webp {klein}w, '
+                           f'{q.group(2)}{stamm}-gross.webp {gross}w'
+                           f'{q.group(4)}(max-width:980px) 100vw, {ANTEIL[stamm]}vw{q.group(5)}')
+                    if neu != q.group(0):
+                        n += 1
+                    return neu
+                block = NACHZIEHEN.sub(nachziehen, block)
                 block = QUELLE.sub(ersetzen, block)
             neu.append(block)
             rest = m.end()
