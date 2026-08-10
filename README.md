@@ -36,7 +36,12 @@ assets/css/fonts.css    @font-face für die lokalen Schriften
 assets/js/main.js       alle Interaktionen
 assets/fonts/           Schriftdateien (woff2)
 assets/img/             Fotos, je einmal als .jpg und .webp
+                        …-gross.webp: zweite Stufe für Retina-Bildschirme
 assets/video/           Imagefilm + Untertitel
+
+tools/bilder-vergroessern.py  erzeugt die grosse Bildstufe
+tools/bilder-einhaengen.py    haengt sie ins Markup ein
+tools/film-bauen.js           baut den Imagefilm neu (Bild fuer Bild)
 
 api/_vorgang.js         der Ablauf — Beleg, Angebot, zwei Mails
 api/formular.js         Hülle für Vercel
@@ -655,7 +660,20 @@ Diese Punkte müssen erledigt sein. Erst danach die Sperren lösen.
 - [ ] Porträts von Maik Herm und Valeria Occhipinto ergänzen
       (`assets/img/team/`, Format wie die vorhandenen: 1000 × 1250).
 - [ ] Bewegtes Material für den Imagefilm (Bild ist noch ein Platzhalter
-      aus Fotos; die Musik liegt vor und ist freigegeben).
+      aus Fotos; die Musik liegt vor und ist freigegeben). Der Platzhalter
+      läuft in 1920 × 1080; echtes Material darf gern größer sein.
+- [ ] Fotos in 2400 px nachliefern (`docs/foto-briefing.md`). Vorhanden sind
+      1129 bis 1600 px; auf einem Retina-Bildschirm fordert ein randloses
+      Foto bis zu 4090 px an. Die zweite Bildstufe rechnet das derzeit
+      hoch — das sieht besser aus als der Browser es täte, ersetzt aber
+      kein echtes Material.
+      Am Schreibtisch ist damit alles unter 1,3-fach; nur `promotion-messe`
+      bleibt bei 1,4, weil das Original nur 1129 px hat.
+      **Am Telefon bleibt es bei 2,3- bis 3,5-fach.** Das ist kein Versehen:
+      dort bekämen die randlosen Fotos sonst die grosse Stufe, und die
+      Startseite würde von 2,4 auf rund 3,5 MB wachsen. Sobald echtes
+      Material in 2400 px vorliegt, löst sich das von selbst — dann kann
+      die kleine Stufe grösser werden, ohne dass etwas hochgerechnet wird.
 
 **Technisch**
 

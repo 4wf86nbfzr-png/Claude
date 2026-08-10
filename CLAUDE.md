@@ -416,6 +416,109 @@ Unterseiten.
 
 ---
 
+## Die Bilder
+
+Die Seite lebt von randlosen Fotos. Ein randloses Foto hat aber keine feste
+Größe — es ist so groß wie das Fenster, mal Gerätepixelverhältnis, mal
+Kamerafahrt. Deshalb liegt jedes großflächige Motiv in **zwei Stufen** vor:
+
+```
+gastro.webp        1600 px   Telefon, Tablet, Rückfallebene
+gastro-gross.webp  3464 px   Schreibtisch und Retina
+```
+
+Welche geholt wird, entscheidet der Browser aus der Kandidatenliste:
+
+```html
+<source type="image/webp"
+        srcset="assets/img/gastro.webp 1600w, assets/img/gastro-gross.webp 3464w"
+        sizes="(max-width:980px) 100vw, 142vw" />
+```
+
+Die große Stufe erzeugt `tools/bilder-vergroessern.py`, eingehängt wird sie
+von `tools/bilder-einhaengen.py`. Beide sind mehrfach ausführbar; das zweite
+meldet dann null Änderungen.
+
+**Was das leistet und was nicht.** Hochrechnen erzeugt keine Bilddetails. Es
+verlagert nur die Arbeit: einmal hier mit Lanczos und gemessener
+Nachschärfung statt bei jedem Aufruf im Browser mit dem einfachsten Filter,
+den es gibt. Gemessen am mittleren Gradientenbetrag sind das rund 30 % mehr
+Kantenschärfe (2,80 → 3,65). Wirklich hochauflösend wird die Seite erst mit
+Material in 2400 px, so wie `docs/foto-briefing.md` es verlangt.
+
+**Nur WebP in der großen Stufe.** Die Rückfallebene bleibt die vorhandene
+JPEG-Datei in Ausgangsgröße. Dasselbe Bild als JPEG wäre 943 KB statt 405 KB
+— und würde nur von Browsern geholt, die kein WebP können.
+
+**Die Galerie bekommt keine Kandidatenliste.** Ihre Kacheln sind klein; die
+große Fassung hängt stattdessen als `data-gross` am `<a>` und wird nur in
+der Lightbox gezeigt. Die Mechanik dafür stand schon in `main.js`.
+
+### Die Falle: bei `object-fit:cover` misst man die falsche Kante
+
+Wie viel Auflösung ein Foto braucht, sieht nach einer einfachen Rechnung aus:
+Kastenbreite mal Gerätepixelverhältnis. Das ist falsch, sobald `cover` im
+Spiel ist — und das ist es überall. `cover` vergrößert das Bild, bis **beide**
+Kanten den Kasten füllen, maßgeblich ist also die *längere relative* Kante:
+
+```js
+const s = Math.max(kasten.breite / bild.breite, kasten.hoehe / bild.hoehe);
+```
+
+Ein quadratisches Foto in einem 1440 × 900 großen Kasten wird demnach nicht
+auf 1440, sondern auf 1440 px *Höhe wie Breite* gezogen — und mit der
+Kamerafahrt von 1,42 fordert es 4090 Gerätepixel an, nicht 2880. Nach der
+Breite gerechnet sah dieselbe Stelle nach 1,4-fach aus und war in Wahrheit
+2,6-fach.
+
+Am deutlichsten steht das am Telefon: ein querformatiges Foto in einem
+390 × 844 großen Hochkant-Fenster wird über die **Höhe** gedeckt. Der
+sichtbare Streifen ist dann knapp ein Drittel des Bildes — und braucht
+3800 px Quelle, obwohl das Fenster 390 px breit ist.
+
+### Die zweite Falle: `naturalWidth` ist nicht die Dateigröße
+
+Sobald ein Bild aus einem `srcset` mit `w`-Angaben stammt, meldet
+`naturalWidth` **nicht** die Pixel der Datei, sondern die durch die
+Bilddichte geteilte Größe — damit das Layout in CSS-Pixeln aufgeht. Eine
+3200-px-Datei, die über `sizes:142vw` in einem 1440er Fenster landet, meldet
+sich als 2044 px.
+
+Wer damit nachmisst, misst Unsinn: dieselbe Datei sah dadurch erst nach
+2,0-fach aus, tatsächlich waren es 1,28. Die echten Maße kommen von der
+Platte, nicht aus dem DOM.
+
+### Warum `sizes` mit einer Handy-Bedingung anfängt
+
+`sizes="(max-width:980px) 100vw, 142vw"` — die erste Bedingung ist keine
+Kosmetik. Am Telefon läuft die Kamerafahrt nicht (siehe „Was am Telefon
+wegfällt"), das Foto nimmt also genau die Fensterbreite ein und nicht das
+1,42-fache. Ohne sie holt ein iPhone die 3400-px-Datei für eine Darstellung,
+die 1170 px breit ist.
+
+### Der Imagefilm
+
+Der Film ist ein Platzhalter: neun der vorhandenen Fotos, je fünf Sekunden,
+jedes mit einer langsamen Kamerafahrt. Gebaut wird er von
+`tools/film-bauen.js`.
+
+- **Bild für Bild, nicht als Bildschirmaufnahme.** Die erste Fassung wurde
+  mit Playwrights `recordVideo` in Echtzeit mitgeschnitten. Das ist auf
+  1280 × 720 festgelegt, lässt weder Bitrate noch Codec wählen, die Länge
+  schwankt um bis zu zwei Sekunden — und **Ton nimmt es gar nicht auf**. Wer
+  so neu aufnimmt, wirft die Musik weg, ohne dass es auffällt. Jetzt stehen
+  die CSS-Animationen still, das Skript setzt ihre Zeit selbst, macht eine
+  Aufnahme und schiebt sie direkt in ffmpeg.
+- **Die Musik wird nie neu kodiert.** Sie wird mit `-c:a copy` aus der
+  bisherigen Fassung herausgelöst und unverändert wieder eingebaut.
+- **Die ersten 0,8 s bleiben schwarz** und die Gesamtlänge bleibt die der
+  Musik. Daran hängen die Untertitelzeiten in `imagefilm-de.vtt`. Wer den
+  Vorlauf ändert, muss sie nachziehen.
+- Das Vorschaubild ist kein eigenes Motiv, sondern derselbe Ausschnitt mit
+  demselben Lichtabfall — sonst springt das Bild beim Antippen.
+
+---
+
 ## Der PDF-Beleg
 
 Jede Anfrage und jede Bewerbung wird als PDF ins Postfach zugestellt

@@ -481,6 +481,24 @@
       if(!film.src && film.dataset.src) film.src = film.dataset.src;
     }
 
+    /* Das scharfe Vorschaubild wiegt gut das Doppelte des kleinen. Es wird
+       deshalb erst geholt, wenn der Abschnitt in die Nähe kommt — wer nie so
+       weit scrollt, lädt es nie. Erst wenn es vollständig da ist, wird
+       getauscht; sonst blitzt für einen Moment gar kein Bild auf.
+       Ohne JavaScript bleibt das kleine stehen. Das ist richtig so: ohne
+       JavaScript läuft auch der Film nicht, das Vorschaubild ist dann alles,
+       was der Abschnitt zeigt. */
+    if(film.dataset.poster && 'IntersectionObserver' in window){
+      const pio = new IntersectionObserver((eintraege, beob)=>{
+        if(!eintraege.some(e=> e.isIntersecting)) return;
+        beob.disconnect();
+        const gross = new Image();
+        gross.onload = ()=>{ if(!film.currentTime) film.poster = film.dataset.poster; };
+        gross.src = film.dataset.poster;
+      }, { rootMargin:'200% 0px' });
+      pio.observe(film);
+    }
+
     /* Untertitel */
     const spurEl = film.querySelector('track');
     function spurUebernehmen(){
