@@ -55,6 +55,40 @@ STIMME = os.environ.get("STIMME", os.path.join(ROOT, "tools/stimme/de_DE-thorste
 # Satz (3,90 s) im kuerzesten Fenster (4,20 s) — und er klingt ruhiger.
 TEMPO = 1.06
 
+# ---------------------------------------------------------------------------
+# Aussprache
+#
+# Das Sprachmodell liest nach deutschen Regeln. Bei Fremdwoertern und in
+# Zusammensetzungen geht das schief — und zwar nachpruefbar: `phonemize()`
+# gibt die Lautschrift heraus, bevor irgendetwas gesprochen wird.
+#
+#     Servicekräfte   z ɛ ɾ v i ː k ɛ k r ɛ f t ə     „Ser-wie-keck-refte"
+#     Crowdmanagement k r ɔ v d m a n ɑ ɡ e ː m ɛ n t „Krowd-manaageement"
+#     Fahrservice     f ɑ ː ɾ z ɛ ɾ v i ː s           „Fahr-serwiess"
+#     diskret         d ɪ s k r ə t                   Schwa statt langem e
+#
+# Geaendert wird deshalb **nur der Sprechtext**, nie der Untertitel. Auf der
+# Seite steht weiterhin „Servicekräfte"; gesprochen wird, was hier rechts
+# steht. Wer einen Eintrag ergaenzt, prueft ihn mit --lautschrift nach.
+#
+# Einzeln steht „Service" uebrigens richtig da (s ɜ ː v ɪ s) — der Fehler
+# entsteht erst in der Zusammensetzung. Deshalb steht das Wort hier nicht.
+AUSSPRACHE = {
+    "Servicekräfte":   "Söhrwis-Kräfte",      # z ø ː ɾ v ɪ s k r ɛ f t ə
+    "Fahrservice":     "Fahr-Söhrwis",        # f ɑ ː ɾ z ø ː ɾ v ɪ s
+    "Crowdmanagement": "Kraud Männitschment", # k r a ʊ t m ɛ n ɪ t ʃ m ɛ n t
+    "Barkeeper":       "Bar-Kieper",          # b ɑ ː ɾ k i ː p ɜ
+    "diskret":         "diskreet",            # d ɪ s k r e ː t
+    "Auf- und Abbau":  "Auf und Ab-Bau",      # a ʊ f ʊ n t a p b a ʊ
+}
+
+
+def sprechfassung(text):
+    """Aus der Untertitelzeile den Sprechtext machen."""
+    for wort, laut in AUSSPRACHE.items():
+        text = text.replace(wort, laut)
+    return text
+
 # Wie weit die Musik unter der Stimme zurueckgeht. Gemessen ueber drei
 # Sprechstellen:
 #     Verhaeltnis 12  ->  17,5 dB   Musik faellt fast weg
@@ -116,9 +150,10 @@ def sprechen(zeilen, gesamtlaenge):
     zu_kurz = []
 
     for i, (anfang, ende, text) in enumerate(zeilen, 1):
+        gesprochen = sprechfassung(text)
         puffer = io.BytesIO()
         with wave.open(puffer, "wb") as w:
-            stimme.synthesize_wav(text, w, syn_config=SynthesisConfig(length_scale=TEMPO))
+            stimme.synthesize_wav(gesprochen, w, syn_config=SynthesisConfig(length_scale=TEMPO))
         puffer.seek(0)
         r = wave.open(puffer)
         proben = array.array("h", r.readframes(r.getnframes()))
@@ -132,7 +167,8 @@ def sprechen(zeilen, gesamtlaenge):
         # Falls eine Zeile doch ueberlappt, wird nicht abgeschnitten, sondern
         # hinten angehaengt — ein abgehackter Satz waere schlimmer.
         gesamt.extend(proben)
-        print(f"  {i}  bei {anfang:5.1f}s  {dauer:4.2f}s / {ende-anfang:4.1f}s  {text[:46]}")
+        anders = " *" if gesprochen != text else "  "
+        print(f"  {i}{anders} bei {anfang:5.1f}s  {dauer:4.2f}s / {ende-anfang:4.1f}s  {text[:44]}")
 
     if zu_kurz:
         for i, d, f in zu_kurz:
@@ -185,7 +221,25 @@ def einbauen(ff, ton):
     os.replace(neu, FILM)
 
 
+def lautschrift():
+    """Zeigt, was das Modell aus jeder Zeile macht — vorher und nachher."""
+    from piper import PiperVoice
+    stimme = PiperVoice.load(STIMME, config_path=STIMME + ".json")
+    def laute(t):
+        return " | ".join(" ".join(x for x in s if x not in "ˈˌ")
+                          for s in stimme.phonemize(t))
+    for i, (_, _, text) in enumerate(untertitel(), 1):
+        gesprochen = sprechfassung(text)
+        print(f"{i}. {text}")
+        if gesprochen != text:
+            print(f"   gesprochen: {gesprochen}")
+        print(f"   {laute(gesprochen)}\n")
+
+
 def main():
+    if "--lautschrift" in sys.argv:
+        lautschrift()
+        return
     ff = ffmpeg()
     zeilen = untertitel()
     print(f"{len(zeilen)} Untertitelzeilen aus {os.path.relpath(VTT, ROOT)}")

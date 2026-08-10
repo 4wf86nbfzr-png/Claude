@@ -827,7 +827,8 @@
       if(v.tooShort)  return 'Bitte etwas ausführlicher — mindestens ' + feld.minLength + ' Zeichen.';
       if(v.tooLong)   return 'Das ist zu lang — höchstens ' + feld.maxLength + ' Zeichen.';
       if(v.patternMismatch) return feld.dataset.fehler || 'Diese Eingabe passt nicht ins Format.';
-      if(v.rangeUnderflow || v.badInput) return 'Diese Eingabe können wir nicht lesen.';
+      if(v.rangeUnderflow || v.rangeOverflow) return feld.dataset.fehler || 'Dieser Wert liegt außerhalb des erlaubten Bereichs.';
+      if(v.badInput) return 'Diese Eingabe können wir nicht lesen.';
       return 'Bitte prüfen Sie diese Eingabe.';
     }
 
@@ -881,6 +882,26 @@
       quelle.addEventListener('change', stand);
       stand();
     });
+
+    /* ---- Einsatzzeitraum ----
+       Personal wird oft nicht für einen Tag gebraucht, sondern für einen
+       Aufbau über eine Woche. „Bis" darf leer bleiben; ist es gefüllt, darf
+       es nicht vor „von" liegen. Statt einer eigenen Prüfroutine bekommt das
+       zweite Feld schlicht ein `min` — dann meldet der Browser selbst, und
+       die Meldung läuft durch dieselbe Stelle wie alle anderen. */
+    (function(){
+      const von = form.querySelector('#datum'), bis = form.querySelector('#datum-bis');
+      if(!von || !bis) return;
+      function grenze(){
+        bis.min = von.value || '';
+        /* Steht dort schon ein früheres Datum, sofort melden statt bis zum
+           Absenden zu warten — man hat gerade beide Felder vor Augen. */
+        if(bis.value) pruefen(bis);
+      }
+      von.addEventListener('change', grenze);
+      von.addEventListener('input',  grenze);
+      grenze();
+    })();
 
     /* Beim Verlassen prüfen, danach bei jeder Eingabe nachziehen — sonst
        stehen Fehler noch da, während man sie gerade behebt. */

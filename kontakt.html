@@ -196,7 +196,11 @@
           <fieldset class="fgruppe">
             <legend class="fgruppe__titel"><span class="fgruppe__nr">02</span> Einsatz</legend>
             <div class="fgruppe__felder">
-              <div class="feld">
+              <!-- Ueber beide Spalten. Das Raster fuellt stur von links nach
+                   rechts; stuende hier ein halbes Feld, laege „Einsatz von"
+                   neben der Dienstleistung und „Einsatz bis" in der naechsten
+                   Zeile — die Paare waeren zerrissen. -->
+              <div class="feld full">
                 <label for="bereich">Dienstleistung *</label>
                 <select id="bereich" name="Bereich" required aria-describedby="fehler-bereich">
                   <option value="">Bitte w&auml;hlen</option>
@@ -215,21 +219,37 @@
                    data-wenn/-wert steuert das in main.js. Ohne JavaScript steht das
                    Feld dauerhaft da — dann ist es eine Zeile mehr, nicht eine
                    fehlende. -->
-              <div class="feld" data-wenn="bereich" data-wenn-wert="Anderer Bereich" data-wenn-pflicht>
+              <div class="feld full" data-wenn="bereich" data-wenn-wert="Anderer Bereich" data-wenn-pflicht>
                 <label for="bereich-frei">Welcher Bereich? *</label>
                 <input id="bereich-frei" name="Bereich (eigene Angabe)" type="text"
                        placeholder="z.&nbsp;B. Garderobe, Kassenpersonal, Auf- und Abbau"
                        aria-describedby="fehler-bereich-frei" />
                 <p class="feld__fehler" id="fehler-bereich-frei"></p>
               </div>
+              <!-- Zwei Datumsfelder statt einem: Personal wird oft nicht für
+                   einen Tag gebraucht, sondern für einen Messeaufbau über eine
+                   Woche. „Bis" darf leer bleiben — dann ist es ein Einsatz an
+                   einem Tag, genau wie vorher. main.js setzt das Mindestdatum
+                   des zweiten Feldes auf das erste und meldet, wenn jemand
+                   rückwärts wählt. -->
               <div class="feld">
-                <label for="datum">Einsatzdatum</label>
-                <input id="datum" name="Datum" type="date" />
-                <p class="feld__fehler"></p>
+                <label for="datum">Einsatz von</label>
+                <input id="datum" name="Datum" type="date"
+                       aria-describedby="fehler-datum" />
+                <p class="feld__fehler" id="fehler-datum"></p>
+              </div>
+              <div class="feld">
+                <label for="datum-bis">Einsatz bis</label>
+                <input id="datum-bis" name="Datum bis" type="date"
+                       data-fehler="Das Ende darf nicht vor dem Beginn liegen."
+                       aria-describedby="hinweis-datum fehler-datum-bis" />
+                <p class="feld__hinweis" id="hinweis-datum">Nur bei mehreren Tagen.</p>
+                <p class="feld__fehler" id="fehler-datum-bis"></p>
               </div>
               <!-- Von/bis ergeben die Stunden, aus denen der Angebotsentwurf
                    rechnet. Ohne sie bleibt das Angebot offen — es ist deshalb
-                   ein eigenes Feldpaar und keine Zeile im Freitext. -->
+                   ein eigenes Feldpaar und keine Zeile im Freitext.
+                   Bei mehrtägigen Einsätzen gelten sie je Tag. -->
               <div class="feld">
                 <label for="zeit-von">Uhrzeit von</label>
                 <input id="zeit-von" name="Uhrzeit von" type="time" />

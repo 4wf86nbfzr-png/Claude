@@ -110,6 +110,7 @@ function stimmig(angebot, daten){
   if(!gleich(angebot.customer.company, daten['Firma']))   return 'Firma weicht ab';
   if(!gleich(angebot.customer.email,   daten['E-Mail']))  return 'E-Mail weicht ab';
   if(!gleich(angebot.assignment.date,  daten['Datum']))   return 'Einsatzdatum weicht ab';
+  if(!gleich(angebot.assignment.dateTo, daten['Datum bis'])) return 'Einsatzende weicht ab';
   return null;
 }
 

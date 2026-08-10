@@ -37,6 +37,11 @@ function kopfsicher(wert){
 function dispositionsMail(daten, beleg, angebot, angebotFehler){
   const firma  = oder(daten['Firma'], oder(daten['Name']));
   const datum  = datumHuebsch(daten['Datum']);
+  /* Mehrtaegige Einsaetze stehen als Zeitraum in einer Zeile — die
+     Disposition liest hier zuerst, wie lange etwas laeuft. */
+  const datumBis = datumHuebsch(daten['Datum bis']);
+  const zeitraum = datum && datumBis && datumBis !== datum
+    ? `${datum} bis ${datumBis}` : oder(datum);
   const zeitVon = t(daten['Uhrzeit von']), zeitBis = t(daten['Uhrzeit bis']);
   const uhrzeit = zeitVon && zeitBis ? `${zeitVon} – ${zeitBis} Uhr` : oder(zeitVon || zeitBis);
 
@@ -55,7 +60,7 @@ function dispositionsMail(daten, beleg, angebot, angebotFehler){
     '',
     'EINSATZ',
     `Dienstleistung:  ${oder(bereich)}`,
-    `Datum:           ${oder(datum)}`,
+    `Datum:           ${zeitraum}`,
     `Uhrzeit:         ${uhrzeit}`,
     `Einsatzort:      ${oder(daten['Ort'])}`,
     `Personalanzahl:  ${oder(daten['Personenzahl'])}`,

@@ -150,6 +150,32 @@ function istSonntag(datum){
   return new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])).getUTCDay() === 0;
 }
 
+/* Ein Einsatz laeuft nicht immer an einem Tag. „Datum bis" ist freiwillig;
+   fehlt es oder ist es gleich dem Beginn, verhaelt sich alles wie bisher. */
+function alsTag(wert){
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(wert || '').trim());
+  return m ? Date.UTC(+m[1], +m[2] - 1, +m[3]) : null;
+}
+
+/** Anzahl Einsatztage einschliesslich beider Enden, sonst null. */
+function tage(von, bis){
+  const a = alsTag(von), b = alsTag(bis);
+  if(a === null) return null;
+  if(b === null || b <= a) return 1;
+  return Math.round((b - a) / 86400000) + 1;
+}
+
+/** Faellt irgendein Tag des Zeitraums auf einen Sonntag? */
+function sonntagImZeitraum(von, bis){
+  const a = alsTag(von); if(a === null) return false;
+  const b = alsTag(bis);
+  const ende = (b === null || b <= a) ? a : b;
+  for(let t = a; t <= ende; t += 86400000){
+    if(new Date(t).getUTCDay() === 0) return true;
+  }
+  return false;
+}
+
 /* Die Kennung kommt vom Beleg — beide Dateien eines Vorgangs tragen dieselben
    drei Zeichen am Ende. Fehlt sie, steht dort nichts; dann sind zwei Anfragen
    derselben Minute nicht mehr auseinanderzuhalten, und genau das soll
@@ -191,7 +217,11 @@ function generateOfferDraft(daten, eingang, kennung){
 
   const anzahlRoh = text(daten['Personenzahl']).replace(',', '.');
   const anzahl    = /^\d+(\.\d+)?$/.test(anzahlRoh) ? Number(anzahlRoh) : null;
-  const sonntag   = istSonntag(daten['Datum']);
+  /* Frueher wurde nur der erste Tag geprueft. Bei einem Zeitraum von Freitag
+     bis Montag haette der Sonntag darin gefehlt — und genau der ist der
+     Grund, warum diese Zeile existiert. */
+  const anzahlTage = tage(daten['Datum'], daten['Datum bis']);
+  const sonntag    = sonntagImZeitraum(daten['Datum'], daten['Datum bis']);
 
   /* Die Liste, die die Disposition abarbeitet, bevor der Bogen rausgeht. */
   const gruende = ['Menge, Preis, Rabatt und die drei Summen eintragen.',
@@ -199,8 +229,17 @@ function generateOfferDraft(daten, eingang, kennung){
   if(!bereich)        gruende.push('Es wurde kein Bereich angegeben — Position prüfen.');
   if(anzahl === null) gruende.push('Keine auswertbare Personenzahl — Anzahl in der Position prüfen.');
   if(std === null)    gruende.push('Keine oder unvollständige Uhrzeit — Einsatzzeit ergänzen.');
-  if(sonntag)         gruende.push('Der Einsatz fällt auf einen Sonntag.');
+  if(sonntag)         gruende.push(anzahlTage > 1
+                        ? 'Im Zeitraum liegt mindestens ein Sonntag.'
+                        : 'Der Einsatz fällt auf einen Sonntag.');
+  if(anzahlTage > 1)  gruende.push(`Der Einsatz läuft über ${anzahlTage} Tage — `
+                        + 'Menge je Tag rechnen und den Zeitraum in der Position prüfen.');
   gruende.push('Gesetzliche Feiertage prüft der Entwurf nicht. Bitte gegen den Kalender halten.');
+
+  /* Auf dem Bogen steht ein Zeitraum, sobald einer angegeben wurde. */
+  const zeitraumText = anzahlTage > 1
+    ? `${datumKurz(daten['Datum'])} bis ${datumKurz(daten['Datum bis'])}`
+    : datumKurz(daten['Datum']);
 
   const gueltig = new Date(zeit.getTime() + BOGEN.gueltigTage * 86400000);
 
@@ -228,6 +267,8 @@ function generateOfferDraft(daten, eingang, kennung){
       service:     bereich,
       serviceMenu: bereichWahl,
       date:        text(daten['Datum']),
+      dateTo:      text(daten['Datum bis']),
+      days:        anzahlTage,
       timeFrom:    text(daten['Uhrzeit von']),
       timeTo:      text(daten['Uhrzeit bis']),
       hours:       std,
@@ -241,10 +282,10 @@ function generateOfferDraft(daten, eingang, kennung){
     pricing: [{
       description: (anzahl !== null ? `${anzahl}x ` : '') + (bereich || 'Personal'),
       detail:      [
-        (text(daten['Datum']) && von !== null && bis !== null)
-          ? `${datumKurz(daten['Datum'])} in der Zeit von `
+        (zeitraumText && von !== null && bis !== null)
+          ? `${zeitraumText} in der Zeit von `
             + `${uhrPunkt(daten['Uhrzeit von'])}-${uhrPunkt(daten['Uhrzeit bis'])} Uhr`
-          : datumKurz(daten['Datum']),
+          : zeitraumText,
         BOGEN.anfahrt
       ].filter(Boolean),
       quantity: null, unitPrice: null, discount: null, amount: null
@@ -586,7 +627,8 @@ async function baueAngebotDocx(angebot){
 
 module.exports = {
   generateOfferDraft, baueAngebotDocx, OFFER_STATUS, BOGEN,
-  /* für Tests */ _intern: { stunde, dauer, istSonntag, datumKurz, uhrPunkt }
+  /* für Tests */ _intern: { stunde, dauer, istSonntag, datumKurz, uhrPunkt,
+                             tage, sonntagImZeitraum }
 };
 
 /* --- 3. Derselbe Bogen als PDF ------------------------------------------- */

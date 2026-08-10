@@ -623,6 +623,22 @@ Untertitel und Stimme nie auseinanderlaufen.
   lokales Sprachmodell (Thorsten, deutsche Männerstimme, 22 kHz). Sie klingt
   ruhig, aber sie klingt synthetisch. Vor dem Live-Gang gehört dort eine
   echte Aufnahme hin.
+- **Fremdwörter werden für die Stimme anders geschrieben.** Das Modell liest
+  nach deutschen Regeln; in Zusammensetzungen geht das schief. Nachprüfbar,
+  bevor irgendetwas gesprochen wird: `python3 tools/film-vertonen.py
+  --lautschrift` zeigt die Lautschrift jeder Zeile.
+
+  | steht im Untertitel | wird gesprochen als | vorher |
+  |---|---|---|
+  | Servicekräfte | Söhrwis-Kräfte | „Ser-wie-keck-refte" |
+  | Fahrservice | Fahr-Söhrwis | „Fahr-serwiess" |
+  | Crowdmanagement | Kraud Männitschment | „Krowd-manaageement" |
+  | Barkeeper | Bar-Kieper | „Bar-keh-per" |
+  | diskret | diskreet | Schwa statt langem e |
+
+  Geändert wird **nur der Sprechtext**, nie der Untertitel. Die Tabelle steht
+  in `tools/film-vertonen.py` unter `AUSSPRACHE`. Einzeln steht „Service"
+  übrigens richtig da — der Fehler entsteht erst in der Zusammensetzung.
 - **Die Sprachspur muss bis zum Ende reichen.** `sidechaincompress` hört
   auf, sobald *eine* seiner beiden Spuren endet — und mit ihr das Bild. Beim
   ersten Versuch war der Film dadurch 43 statt 45 Sekunden lang.
@@ -786,9 +802,24 @@ noch.
 - **Zwei Spalten am Schreibtisch, eine unterwegs** — dieselbe Grenze wie beim
   übrigen Inhalt (980 px), damit die Spalte neben dem Formular und das
   Formular gleichzeitig umbrechen.
-- **Die Paare stehen bewusst nebeneinander:** Dienstleistung/Datum,
-  Uhrzeit von/bis, Personen/Ort. Wer die Reihenfolge im Markup ändert, bricht
-  diese Paare — das Raster füllt stur von links nach rechts.
+- **Die Paare stehen bewusst nebeneinander:** Einsatz von/bis, Uhrzeit
+  von/bis, Personen/Ort. Wer die Reihenfolge im Markup ändert, bricht diese
+  Paare — das Raster füllt stur von links nach rechts. Aus demselben Grund
+  steht die Dienstleistung über **beide** Spalten (`.full`): ein halbes Feld
+  davor würde jedes folgende Paar um eine Zelle verschieben. Dasselbe gilt
+  für das bedingte Feld „Welcher Bereich?", das mal da ist und mal nicht.
+- **Der Einsatz hat ein Von und ein Bis.** Personal wird oft nicht für einen
+  Tag gebraucht, sondern für einen Messeaufbau über eine Woche. „Bis" darf
+  leer bleiben, dann ist alles wie vorher. Geprüft wird nicht mit einer
+  eigenen Routine, sondern mit `min` am zweiten Feld — dann meldet der
+  Browser selbst, und die Meldung läuft durch dieselbe Stelle wie jede
+  andere. Der Text dazu steht als `data-fehler` im Markup.
+
+  Der Zeitraum zieht sich durch: Beleg („Einsatz bis"), Dispositionsmail
+  („11.09.2026 bis 14.09.2026") und Angebotsentwurf (`assignment.dateTo`,
+  `assignment.days`). Dort prüft er auch, ob **irgendein** Tag des Zeitraums
+  ein Sonntag ist — vorher wurde nur der erste Tag angesehen, und bei einem
+  Einsatz von Freitag bis Montag fiel der Sonntag genau durch.
 - **Ein Feld ist eine Schreiblinie, kein Kasten.** Kein Grund, kein Rahmen
   ringsum, nur `border-bottom`. Sechzehn Kästen untereinander sind das Bild
   eines Antrags; sechzehn Linien sind ein gesetzter Bogen. Der Fokuszustand

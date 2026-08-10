@@ -4,7 +4,12 @@ NOTE
 Untertitel zum Imagefilm. Zeiten passen zum 45-Sekunden-Schnitt: neun Szenen
 à fünf Sekunden. Die ersten 0,8 Sekunden gehören dem Logo-Vorspann, deshalb
 setzt der erste Untertitel erst danach ein. Wird der Film ersetzt, müssen nur
-die Zeiten hier nachgezogen werden — der Text bleibt.
+die Zeiten hier nachgezogen werden, der Text bleibt.
+
+Dieser Text ist zugleich der Sprechtext der Ansage. Einzelne Woerter werden
+fuer die Stimme anders geschrieben, damit sie richtig klingen; diese Tabelle
+steht in tools/film-vertonen.py unter AUSSPRACHE. Hier bleibt die richtige
+Schreibweise stehen.
 
 1
 00:00:01.000 --> 00:00:04.600
@@ -24,7 +29,7 @@ Sicherheit: Einlass, Crowdmanagement, Personenschutz.
 
 5
 00:00:20.400 --> 00:00:24.600
-Promotion und Hostessen — der erste Eindruck zählt.
+Promotion und Hostessen, der erste Eindruck zählt.
 
 6
 00:00:25.400 --> 00:00:29.600

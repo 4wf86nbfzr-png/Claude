@@ -2416,6 +2416,10 @@ header.nav{ view-transition-name:kopfzeile; }
    still aushebeln und ein ausgeblendetes Feld wieder sichtbar machen. */
 [hidden]{ display:none !important; }
 
+/* Ein leiser Hinweis unter einem Feld, wenn die Beschriftung allein die
+   Frage nicht beantwortet: „Einsatz bis" fuellt man nur bei mehreren Tagen
+   aus. Er steht ueber aria-describedby am Feld, wird also mitgelesen. */
+.feld__hinweis{ color:var(--muted); font-size:.8rem; margin-top:7px; }
 .feld__fehler{ display:none; color:#F0A19D; font-size:.86rem; margin-top:7px; }
 .feld--fehler .feld__fehler{ display:block; }
 

@@ -68,6 +68,7 @@ const BAUPLAN = {
       { name: 'Einsatz', felder: [
         ['Bereich',      'Dienstleistung'],
         ['Datum',        'Einsatzdatum'],
+        ['Datum bis',    'Einsatz bis'],
         ['Uhrzeit von',  'Uhrzeit'],
         ['Ort',          'Einsatzort'],
         ['Personenzahl', 'Personen']
@@ -398,7 +399,7 @@ function baueBeleg(art, daten, eingang){
     for(const [feld, beschriftung] of gruppe.felder){
       gezeigt.add(feld);
       let wert = ZUSAMMEN[feld] ? ZUSAMMEN[feld](daten) : sauber(daten[feld]);
-      if(feld === 'Datum') wert = datumHuebsch(wert);
+      if(feld === 'Datum' || feld === 'Datum bis') wert = datumHuebsch(wert);
       if(wert) etwasDrin = true;
       zeilen.push([beschriftung, wert || '—']);
     }
