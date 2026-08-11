@@ -12,9 +12,14 @@
     if(!pre) return;
     let gesehen = false;
     try { gesehen = sessionStorage.getItem('hst-intro') === '1'; } catch(e){}
-    if(gesehen || reduce){ pre.classList.add('instant','done'); return; }
+    const los = ()=> document.documentElement.classList.replace('vorspann','los');
+    if(gesehen || reduce){ pre.classList.add('instant','done'); los(); return; }
     try { sessionStorage.setItem('hst-intro','1'); } catch(e){}
-    const fertig = ()=> pre.classList.add('done');
+    /* `los` und `.done` fallen im selben Moment: das Wortzeichen tritt
+       zurueck, waehrend die Kamera ins Bild faehrt. Zwei getrennte Schritte
+       waeren genau das, was sich vorher wie „Vorspann, dann Website"
+       angefuehlt hat. */
+    const fertig = ()=>{ pre.classList.add('done'); los(); };
     setTimeout(fertig, 1180);          // Ende der Aufbau-Animation
     setTimeout(fertig, 2400);          // Notausstieg, falls etwas hängt
   })();
@@ -327,6 +332,35 @@
       set(st, st.el,     'kapitel', p.toFixed(3));
     }
   }
+
+  /* ---- Wort für Wort ----
+     Eine Zeile, die beim Scrollen Wort für Wort entsteht, statt fertig
+     dazustehen. Das Zerlegen passiert hier, die Bewegung im Stylesheet:
+     jedes Wort bekommt seinen Index als --n, die Zeile ihre Anzahl als
+     --anz, und daraus rechnet CSS den eigenen Startpunkt jedes Wortes.
+
+     Die Leerzeichen bleiben echte Textknoten zwischen den Spans. Ohne sie
+     liest ein Vorlesewerkzeug die Zeile ohne Pausen als ein einziges Wort,
+     und markierter Text liesse sich nicht mehr sinnvoll kopieren.
+
+     Ohne Motor (reduzierte Bewegung, kein JavaScript) bleibt --lauf leer;
+     der Vorgabewert im Stylesheet ist deshalb 1, also „alles sichtbar". */
+  document.querySelectorAll('[data-worte]').forEach(el => {
+    const worte = el.textContent.trim().split(/\s+/);
+    if(worte.length < 2) return;
+    el.textContent = '';
+    worte.forEach((w, i) => {
+      const huelle = document.createElement('span');
+      huelle.className = 'wort';
+      huelle.style.setProperty('--n', i);
+      const innen = document.createElement('span');
+      innen.textContent = w;
+      huelle.appendChild(innen);
+      el.appendChild(huelle);
+      if(i < worte.length - 1) el.appendChild(document.createTextNode(' '));
+    });
+    el.style.setProperty('--anz', worte.length);
+  });
 
   /* ============================================================
      Motion-Motor
@@ -1067,6 +1101,35 @@
            + 'oder schreiben Sie an ' + empfaenger + '.', 'fehler');
     }
   });
+
+  /* ---- Magnetische Knöpfe ----
+     Ein Knopf, der der Maus ein Stück entgegenkommt. Das ist die kleinste
+     mögliche Rückmeldung: man merkt, dass das Ziel bemerkt hat, dass man
+     darauf zusteuert.
+
+     Nur mit einer echten Maus (`hover:hover` und `pointer:fine`) und nur
+     ohne reduzierte Bewegung. Auf einem Finger gibt es kein Zusteuern, dort
+     wäre die Bewegung nur ein Springen unter dem Daumen.
+
+     Der Weg ist bewusst klein: zehn Pixel waagerecht, sechs senkrecht. Wer
+     mehr nimmt, verschiebt die Trefferfläche gegen den sichtbaren Knopf —
+     dann klickt man daneben. Die Rückkehr macht eine kurze Überblendung im
+     Stylesheet, nicht JavaScript. */
+  if(!reduce && window.matchMedia('(hover:hover) and (pointer:fine)').matches){
+    document.querySelectorAll('.btn, .form__submit, .film__knopf').forEach(el => {
+      el.addEventListener('pointermove', (ev)=>{
+        const r = el.getBoundingClientRect();
+        const dx = (ev.clientX - (r.left + r.width  / 2)) / Math.max(1, r.width);
+        const dy = (ev.clientY - (r.top  + r.height / 2)) / Math.max(1, r.height);
+        el.style.setProperty('--mx', (dx * 10).toFixed(1) + 'px');
+        el.style.setProperty('--my', (dy * 6).toFixed(1)  + 'px');
+      });
+      el.addEventListener('pointerleave', ()=>{
+        el.style.setProperty('--mx', '0px');
+        el.style.setProperty('--my', '0px');
+      });
+    });
+  }
 
   /* ---- Zeiger ----
      Ein weicher Ring, der der Maus nachläuft: über Links wird er größer,

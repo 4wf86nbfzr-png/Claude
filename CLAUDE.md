@@ -132,6 +132,110 @@ alle Rechtecke in einem Zug, erst danach schreiben `updateStages()`,
 `updateMotion()` und `updateKino()`. Wer eine vierte Schleife dazunimmt,
 hängt ihre Messung mit in `messen()` — nicht in die eigene Schleife.
 
+### Der Einstieg ist eine Bewegung, nicht zwei
+
+Vorspann und Hero liefen früher unabhängig voneinander: der Vorspann blendete
+aus, und die Einfahrt des Heros war zu diesem Zeitpunkt längst vorbei — sie
+startete beim Laden der Seite. Man sah zwei Schritte statt einer Fahrt.
+
+Beides hängt jetzt an einer Klasse auf `<html>`:
+
+| Klasse | wann | was |
+|---|---|---|
+| `vorspann` | erster Aufruf, keine reduzierte Bewegung | Hero wartet |
+| `los` | sobald der Vorspann abgeht (oder sofort) | alle Einfahrten starten |
+
+Die Entscheidung fällt im **Inline-Skript im Kopf** von `index.html`, nicht in
+`main.js`. Stünde sie am Seitenende, liefe die Einfahrt schon, bevor die
+Klasse gesetzt ist — und man sähe ein Aufblitzen.
+
+Wer eine weitere Einfahrt dazunimmt, hängt sie an `.los` und trägt sie in den
+`.kein-js`-Block ein. Ohne Skript wird `los` nie gesetzt; was daran hängt,
+bliebe sonst unsichtbar.
+
+### Die Falle: ein Vorspann, der sich nicht wegnehmen lässt
+
+`#preloader` ist eine deckende schwarze Fläche über der ganzen Seite. Sie
+verschwindet, wenn `main.js` ihr `.done` gibt. Ohne JavaScript passiert das
+nie — dann steht das Wortzeichen auf Schwarz und **die Website ist nicht
+erreichbar**. Genau das war monatelang der Fall.
+
+```css
+.kein-js #preloader{ display:none; }
+```
+
+Der bisherige Test hat es nicht gefunden, weil er unsichtbare Elemente zählt:
+Was *darunter* liegt, hat weiterhin `opacity:1`. Deshalb gibt es jetzt
+`scratchpad/verdeckt.js` — er fragt mit `elementFromPoint`, was an der Stelle
+der Überschrift wirklich ganz oben liegt, und zwar in allen drei Lagen
+(normal, ohne JavaScript, reduzierte Bewegung).
+
+Die Regel dahinter gilt für jede Überlagerung: **Was eine Seite verdeckt, muss
+sich ohne die Technik wegnehmen lassen, die es aufgebaut hat.**
+
+### Die Falle: `position:sticky` braucht einen Weg
+
+Die linke Spalte des Intros bleibt beim Scrollen stehen, während rechts Text
+und Foto weiterlaufen. Beim ersten Versuch tat sie nichts — `position:sticky`
+stand da, wirkte aber nicht.
+
+Der Grund ist keine fehlende Eigenschaft, sondern fehlender Platz: die linke
+Spalte war mit 615 px **höher** als die rechte mit 524 px. Die Rasterzeile ist
+so hoch wie ihre höchste Zelle; das klebende Element füllte sie damit ganz aus
+und hatte keinen Weg, den es zurücklegen konnte.
+
+Zwei Bedingungen müssen deshalb zusammenkommen:
+
+1. `align-items:start` am Raster — bei `stretch` ist jede Zelle so hoch wie
+   die Zeile, und ein Kind, das die ganze Höhe füllt, kann nirgends kleben.
+2. Die klebende Spalte muss **kürzer** sein als die andere. Dafür ist das Foto
+   aus der linken in die rechte Spalte gewandert.
+
+Nachmessen lässt sich das in einer Zeile: klebt es wirklich, bleibt `top`
+konstant, während die andere Spalte weiterwandert.
+
+### Wort für Wort
+
+`[data-worte]` zerlegt `main.js` in `<span class="wort">`; jedes Wort bekommt
+seinen Index als `--n`, die Zeile ihre Anzahl als `--anz`. Daraus rechnet das
+Stylesheet einen eigenen Fortschritt je Wort aus `--lauf`.
+
+- **Kein `overflow:hidden` um ein Wort.** Eine Maske schneidet genau die
+  Umlautpunkte und Unterlängen ab, die in „TRÄGT." schon einmal gefehlt
+  haben. Das Wort hebt sich stattdessen aus der Tiefe: von unten, aus der
+  Unschärfe in die Schärfe.
+- **Die Leerzeichen bleiben echte Textknoten.** Ohne sie liest ein
+  Vorlesewerkzeug die Zeile ohne Pausen, und markierter Text lässt sich nicht
+  mehr sinnvoll kopieren.
+- **Der Vorgabewert von `--lauf` ist 1, nicht 0.** Ohne Motor (reduzierte
+  Bewegung, kein JavaScript) steht die Zeile damit vollständig da.
+- Die Unschärfe kostet gemessen 137 ms je Durchfahrt, rund 14 % der ganzen
+  Arbeit. Sie steht deshalb nur am Schreibtisch und nur an zwei Zeilen.
+  `filter` ist die teuerste der drei Eigenschaften; an einer Seite voller
+  Absätze wäre sie nicht zu bezahlen.
+
+### Warum hier kein GSAP und kein Lenis steht
+
+Der Auftrag nannte GSAP, ScrollTrigger und Lenis — mit dem Zusatz „falls mit
+dem bestehenden Tech-Stack kompatibel" und „vermeide unnötig schwere
+Libraries". Beides zusammen ergibt hier ein Nein:
+
+- Der Motor, der dafür da wäre, existiert bereits: eine `requestAnimationFrame`-
+  Schleife, die drei Zahlen schreibt, und ein Stylesheet, das daraus die
+  Bewegung macht. GSAP würde ihn nicht ergänzen, sondern ersetzen — und mit
+  ihm die gesamte gemessene Arbeit von vorn beginnen lassen.
+- Die Seite lädt **nichts** von fremden Servern. Keine Schriften, keine
+  Skripte, kein Tracking. Deshalb braucht sie kein Cookie-Banner. Ein CDN-
+  Skript wäre die erste Ausnahme, und sie stünde in der
+  Datenschutzerklärung.
+- Lenis ersetzt das Scrollen des Browsers durch eigenes. Auf einer Seite, die
+  zweimal wegen Ruckelns beanstandet wurde, ist das genau das falsche Werkzeug:
+  es macht jede Bildwiederholung von JavaScript abhängig, statt von der
+  Bildlaufsteuerung des Systems.
+
+Gemessen liegt die Seite bei 60 Bildern je Sekunde im Median. Was die
+Bibliotheken leisten würden, leistet der vorhandene Motor bereits.
+
 ### Die eine Falle, die man kennen muss
 
 > **Niemals `clip-path` auf ein Element legen, das der IntersectionObserver

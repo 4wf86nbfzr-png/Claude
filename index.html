@@ -55,7 +55,23 @@
 <link rel="stylesheet" href="assets/css/styles.css">
 <!-- Inhalte werden beim Scrollen eingeblendet. Ohne JavaScript bliebe die
      Seite sonst leer — diese Zeile nimmt die Sperre sofort zurück. -->
-<script>document.documentElement.classList.remove("kein-js")</script>
+<script>
+document.documentElement.classList.remove("kein-js");
+/* Der Vorspann und die Einfahrt des Heros sind EINE Bewegung: das Wortzeichen
+   tritt zurueck, waehrend die Kamera ins Bild faehrt. Damit das zusammenpasst,
+   duerfen die Hero-Animationen nicht beim Laden starten — sonst sind sie
+   vorbei, bevor der Vorspann weg ist. Sie haengen deshalb an `los`, und `los`
+   faellt erst, wenn der Vorspann geht (main.js).
+
+   Diese Entscheidung muss hier oben fallen, vor dem ersten Bild. Stuende sie
+   in main.js am Seitenende, gaebe es ein sichtbares Aufblitzen. */
+(function(){
+  var d = document.documentElement, erstesMal = true;
+  try { erstesMal = sessionStorage.getItem("hst-intro") !== "1"; } catch(e){}
+  var ruhig = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  d.classList.add(erstesMal && !ruhig ? "vorspann" : "los");
+})();
+</script>
 <!-- Strukturierte Daten für Suchmaschinen und Kartendienste -->
 <script type="application/ld+json">
 {
@@ -294,13 +310,7 @@
   <div class="wrap intro__grid">
     <div>
       <span class="eyebrow reveal-up">Moin, moin</span>
-      <h2 class="reveal-up" data-d="1">Wir stellen die Leute, die Ihr Event am Laufen halten.</h2>
-      <!-- Das Neon-H hat hier seinen Platz gefunden: als Beleg, dass es das
-           Büro in der Gertigstraße wirklich gibt — nicht als Titelbild. -->
-      <figure class="intro__bild reveal-up" data-d="2">
-        <picture><source type="image/webp" srcset="assets/img/hero.webp" /><img src="assets/img/hero.jpg" alt="Das Neon-Logo des HERM Service Team am Büro in der Gertigstraße in Hamburg" loading="lazy" width="1086" height="655" /></picture>
-        <figcaption>Büro Gertigstraße · Hamburg-Winterhude</figcaption>
-      </figure>
+      <h2 data-worte data-lauf>Wir stellen die Leute, die Ihr Event am Laufen halten.</h2>
     </div>
     <div class="intro__lead">
       <p class="reveal-up">Das HERM Service Team ist Ihr Ansprechpartner, wenn es um
@@ -318,6 +328,14 @@
         <span class="badge">Kurzfristig verfügbar</span>
         <span class="badge">Arbeitnehmerüberlassung (AÜG)</span>
       </div>
+      <!-- Das Neon-H steht jetzt in der rechten Spalte: die linke bleibt
+           dadurch kurz genug, dass die Überschrift beim Scrollen stehen
+           bleiben kann. Als Beleg, dass es das Büro in der Gertigstraße
+           wirklich gibt, nicht als Titelbild. -->
+      <figure class="intro__bild reveal-up" data-d="2">
+        <picture><source type="image/webp" srcset="assets/img/hero.webp" /><img src="assets/img/hero.jpg" alt="Das Neon-Logo des HERM Service Team am Büro in der Gertigstraße in Hamburg" loading="lazy" width="1086" height="655" /></picture>
+        <figcaption>Büro Gertigstraße · Hamburg-Winterhude</figcaption>
+      </figure>
     </div>
   </div>
 </section>
@@ -590,7 +608,7 @@
 <section class="cta" id="kontakt">
   <div class="wrap cta__inner">
     <span class="eyebrow reveal-up">Haben Sie noch Fragen?</span>
-    <h2 class="reveal-up u-caps" data-d="1">Lassen Sie uns Ihr Event tragen.</h2>
+    <h2 class="u-caps" data-worte data-lauf>Lassen Sie uns Ihr Event tragen.</h2>
     <p class="reveal-up" data-d="2">Schreiben Sie uns, was ansteht, wir erstellen Ihnen ein
       persönliches Angebot. Telefonisch, per E-Mail oder über das Formular.</p>
     <div class="cta__actions reveal-up" data-d="3">
