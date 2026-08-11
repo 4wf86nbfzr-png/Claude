@@ -634,7 +634,15 @@ Untertitel und Stimme nie auseinanderlaufen.
   | Fahrservice | Fahr-Söhrwis | „Fahr-serwiess" |
   | Crowdmanagement | Kraud Männitschment | „Krowd-manaageement" |
   | Barkeeper | Bar-Kieper | „Bar-keh-per" |
+  | Logistik, Messelogistik | Logistick | „Logistiek" |
   | diskret | diskreet | Schwa statt langem e |
+  | Deutschlandweit | Deutschlantweit | fehlende Auslautverhärtung |
+  | Moin | Meun | zweisilbig „Mo-in" statt „Moin" |
+
+  Geprüft wurde **jedes** der 60 Wörter des Films einzeln, so wie es im Satz
+  steht. Die Reihenfolge in der Tabelle ist nicht beliebig: das längere Wort
+  muss vor dem kürzeren stehen, sonst greift die Ersetzung im Wortinneren
+  und die Zusammensetzung geht leer aus (`Messelogistik` vor `Logistik`).
 
   Geändert wird **nur der Sprechtext**, nie der Untertitel. Die Tabelle steht
   in `tools/film-vertonen.py` unter `AUSSPRACHE`. Einzeln steht „Service"

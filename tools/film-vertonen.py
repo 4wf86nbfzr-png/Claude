@@ -73,13 +73,19 @@ TEMPO = 1.06
 #
 # Einzeln steht „Service" uebrigens richtig da (s ɜ ː v ɪ s) — der Fehler
 # entsteht erst in der Zusammensetzung. Deshalb steht das Wort hier nicht.
+# Reihenfolge: das laengere Wort zuerst, sonst greift die Ersetzung im
+# Wortinneren und das zusammengesetzte Wort geht leer aus.
 AUSSPRACHE = {
     "Servicekräfte":   "Söhrwis-Kräfte",      # z ø ː ɾ v ɪ s k r ɛ f t ə
     "Fahrservice":     "Fahr-Söhrwis",        # f ɑ ː ɾ z ø ː ɾ v ɪ s
     "Crowdmanagement": "Kraud Männitschment", # k r a ʊ t m ɛ n ɪ t ʃ m ɛ n t
     "Barkeeper":       "Bar-Kieper",          # b ɑ ː ɾ k i ː p ɜ
-    "diskret":         "diskreet",            # d ɪ s k r e ː t
+    "Messelogistik":   "Messelogistick",      # m ɛ s ə l oː ɡ ɪ s t ɪ k
+    "Logistik":        "Logistick",           # l oː ɡ ɪ s t ɪ k
+    "Deutschlandweit": "Deutschlantweit",     # d ɔø t ʃ l a n t v aɪ t
+    "diskret":         "diskreet",            # d ɪ s k r eː t
     "Auf- und Abbau":  "Auf und Ab-Bau",      # a ʊ f ʊ n t a p b a ʊ
+    "Moin":            "Meun",                # m ɔø n  — einsilbig, wie gesprochen
 }
 
 
