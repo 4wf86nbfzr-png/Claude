@@ -21,3 +21,6 @@ netlify.toml
 README.md
 CLAUDE.md
 .vorschau-stand
+
+# Werkzeugkonfiguration fuer die Entwicklung, gehoert nicht auf den Server
+.mcp.json

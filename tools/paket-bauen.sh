@@ -54,7 +54,7 @@ AUSSEN=(
   "*.md"            ".vorschau-stand"
   "vercel.json"     ".vercelignore"  ".htaccess"  ".nojekyll"
   "node_modules/*"  "package.json"   "package-lock.json"
-  "api/*"           "$ZIEL"
+  "api/*"           "$ZIEL"          ".mcp.json"
 )
 
 echo "→ Paket schnüren"
