@@ -1,0 +1,32 @@
+{
+  "name": "jarvis-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "description": "JARVIS – persoenlicher Desktop-KI-Agent (Monorepo)",
+  "workspaces": [
+    "packages/core",
+    "packages/ui",
+    "packages/desktop"
+  ],
+  "engines": {
+    "node": ">=20.11"
+  },
+  "scripts": {
+    "build": "npm run build -w @jarvis/core && npm run build -w @jarvis/ui && npm run build -w @jarvis/desktop",
+    "build:core": "npm run build -w @jarvis/core",
+    "start": "npm run build && npm run rebuild:electron && npm run start -w @jarvis/desktop",
+    "dev": "npm run rebuild:electron && npm run dev -w @jarvis/desktop",
+    "test": "npm run rebuild:node && npm run test -w @jarvis/core",
+    "test:watch": "npm run test:watch -w @jarvis/core",
+    "typecheck": "npm run typecheck -w @jarvis/core && npm run typecheck -w @jarvis/ui",
+    "setup": "npm run rebuild:node && npm run build:core && node packages/core/dist/cli/setup.js",
+    "jarvis": "npm run rebuild:node && node packages/core/dist/cli/jarvis-cli.js",
+    "migrations": "npm run migrations -w @jarvis/core",
+    "dist": "npm run build && npm run dist -w @jarvis/desktop",
+    "rebuild:node": "npm rebuild better-sqlite3",
+    "rebuild:electron": "electron-rebuild -f -w better-sqlite3 -m packages/desktop"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}
