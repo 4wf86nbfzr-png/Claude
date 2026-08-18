@@ -15,7 +15,7 @@ let t: TestJarvis;
 beforeEach(() => {
   t = makeJarvis();
 });
-afterEach(() => t.dispose());
+afterEach(() => t?.dispose());
 
 async function entwurf(): Promise<string> {
   const { company } = t.jarvis.repos.companies.upsert({ name: 'Muster Bau GmbH', website: 'https://muster-bau.de' });

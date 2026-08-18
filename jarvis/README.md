@@ -44,8 +44,8 @@ doppelklicken zum Entpacken, in den Ordner `jarvis` gehen und
 **„JARVIS starten.command"** doppelklicken. Beim allerersten Mal wehrt macOS
 die Datei ab, weil sie aus dem Netz kommt — dann einmal mit rechts anklicken
 → *Öffnen* → *Öffnen*. Node muss installiert sein
-([nodejs.org](https://nodejs.org), grüner „LTS"-Knopf); das Skript sagt es,
-falls nicht.
+([nodejs.org](https://nodejs.org) → **LTS** → macOS → *Prebuilt Installer*);
+das Skript sagt es, falls nicht.
 
 **Mit Terminal genügt ein Befehl.** Er prüft der Reihe nach, was fehlt,
 sagt jeweils wie groß der Download ist und was er tut, fragt nach — und
@@ -321,7 +321,7 @@ jarvis/
 │   │   ├── voice/          Whisper lokal, Segmentierung, Schnips-Erkennung
 │   │   ├── ipc/            Befehlsvertrag zwischen Kern und Fenster
 │   │   └── cli/            Einrichtungsassistent, Konsolen-JARVIS
-│   └── test/               161 Tests, ohne Netz und ohne echte Schlüssel
+│   └── test/               186 Tests, ohne Netz und ohne echte Schlüssel
 ├── packages/desktop/       Electron-Hauptprozess + Vorlade-Skript
 └── packages/ui/            React-Oberfläche
 ```
@@ -368,6 +368,44 @@ sondern als `PERMISSION_DENIED` zurückgemeldet — auch das ist getestet.
 **Sprache:** Leertaste halten und sprechen (wie eine Sprechtaste), oder auf
 den Orb klicken für Dauerbetrieb. Die Statuszeile zeigt
 `LISTENING` / `THINKING` / `EXECUTING` / `WAITING FOR APPROVAL`.
+
+### Immer erreichbar, nicht nur im Fenster
+
+JARVIS hört, solange er läuft — in jeder Ansicht und auch, wenn das Fenster zu
+ist. Das Fenster zu schließen beendet ihn nicht, es versteckt ihn nur; in der
+Menüleiste bleibt ein Symbol, über das er zurückkommt oder wirklich beendet
+wird. (Technisch nötig dafür: `backgroundThrottling: false`. Electron drosselt
+Zeitgeber in versteckten Fenstern sonst auf einen Takt pro Sekunde, und die
+Schnips-Erkennung misst alle 16 ms.)
+
+Drei Wege, ihn anzusprechen:
+
+| Weg | Wann |
+|---|---|
+| **Schnipsen** | Wenn die Hände voll sind. Akustisch, also mit Fehlauslösern. |
+| **Cmd + Alt + J** | Systemweit, aus jedem Programm heraus, ohne Fehlauslöser. |
+| **Menüleiste → JARVIS ansprechen** | Wenn man ohnehin die Maus in der Hand hat. |
+
+Bei Tastenkürzel und Menüleiste drängt sich das Fenster nicht in den
+Vordergrund — wer aus einem anderen Programm ruft, wollte genau das vermeiden.
+JARVIS antwortet gesprochen, das Fenster bleibt, wo es war.
+
+### Wie er klingt
+
+Anrede, Tonfall und Stimme stehen unter *Einrichtung → Stimme und Anrede*.
+Standard ist „Master" und ein trockener Ton; beides lässt sich ändern oder
+ganz abstellen.
+
+Er sagt nicht jedes Mal dasselbe. Beim ersten Ruf am Morgen klingt er anders
+als beim vierten in zehn Minuten — dann darf er es auch ansprechen
+(„Master, Sie schnipsen schon wieder. Was kann ich für Sie tun?").
+
+**Zur Stimmqualität:** macOS liefert ab Werk die kompakte Fassung aus, und die
+klingt nach 2005. Das ist kein Fehler im Programm, sondern eine fehlende
+Datei. Deutlich besser: *Systemeinstellungen → Bedienungshilfen → Gesprochene
+Inhalte → Systemstimme → Anpassen*, dort eine deutsche Stimme mit dem Zusatz
+„Premium" oder „Erweitert" laden. JARVIS sucht danach von selbst die beste
+verfügbare aus und weist auf den Download hin, solange nur die einfache da ist.
 
 ### Schnipsen und freies Gespräch
 
@@ -442,7 +480,7 @@ Löschen und Überschreiben brauchen zusätzlich eine Freigabe.
 ```bash
 npm run testversion       # Startklar machen und starten (fragt, was fehlt)
 npm run stimme            # Spracherkennung einrichten und wirklich prüfen
-npm test                  # 161 Tests, kein Netz, keine echten Schlüssel nötig
+npm test                  # 186 Tests, kein Netz, keine echten Schlüssel nötig
 npm run typecheck         # alle drei Pakete
 npm run build             # Kern, Oberfläche, Desktop
 npm run dist              # Installationspakete (electron-builder)

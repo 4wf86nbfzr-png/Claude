@@ -27,6 +27,7 @@ export default defineConfig({
       '@jarvis/core/schnips': resolve(__dirname, '../core/src/voice/schnips.ts'),
       '@jarvis/core/segmente': resolve(__dirname, '../core/src/voice/segmente.ts'),
       '@jarvis/core/nachhall': resolve(__dirname, '../core/src/voice/nachhall.ts'),
+      '@jarvis/core/stimmwahl': resolve(__dirname, '../core/src/voice/stimmwahl.ts'),
     },
   },
 });

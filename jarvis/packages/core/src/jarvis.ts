@@ -27,6 +27,7 @@ import type { JarvisContext } from './context.js';
 import { withAgentName } from './context.js';
 import { Agent, createAgents } from './agents/index.js';
 import { begruessung, gespraechsanlaesse, gespraechsPrompt, type Gespraechsanlass } from './agents/gespraech.js';
+import { PERSONA_STANDARD, type Persona, type Stil } from './agents/persona.js';
 import type { AgentRunResult } from './agents/base.js';
 import type { ApprovalRow } from './db/schema.js';
 
@@ -333,7 +334,7 @@ export class Jarvis {
         task: eingabe,
         history: verlauf,
         conversationId,
-        ...(options.gespraechsmodus ? { systemPrompt: (c: JarvisContext) => gespraechsPrompt(c, name) } : {}),
+        ...(options.gespraechsmodus ? { systemPrompt: (c: JarvisContext) => gespraechsPrompt(c, name, this.persona) } : {}),
       },
       ctx,
     );
@@ -676,9 +677,32 @@ export class Jarvis {
     return gespraechsanlaesse(this.baseContext, jetzt);
   }
 
+  /**
+   * Wie JARVIS klingt. Kommt aus den Einstellungen, damit die Anrede ohne
+   * Neubau änderbar ist.
+   */
+  get persona(): Persona {
+    return {
+      anrede: this.repos.settings.get<string>('persona.anrede', PERSONA_STANDARD.anrede),
+      stil: this.repos.settings.get<Stil>('persona.stil', PERSONA_STANDARD.stil),
+    };
+  }
+
+  /**
+   * Wann zuletzt gegrüßt wurde -- damit „schon wieder" nicht geraten ist.
+   * Absichtlich nur im Arbeitsspeicher: nach einem Neustart fängt die Zählung
+   * bei null an, und das ist auch richtig so.
+   */
+  private letzterGruss = 0;
+  private gruesseHintereinander = 0;
+
   /** Der Satz, mit dem er sich meldet. */
   async begruessung(jetzt = new Date()): Promise<string> {
-    return begruessung(this.baseContext, jetzt);
+    const t = jetzt.getTime();
+    // Innerhalb von zehn Minuten zählt es als derselbe Gesprächsfaden.
+    this.gruesseHintereinander = t - this.letzterGruss < 10 * 60_000 ? this.gruesseHintereinander + 1 : 0;
+    this.letzterGruss = t;
+    return begruessung(this.baseContext, jetzt, this.persona, this.gruesseHintereinander);
   }
 
   /** Kontext fuer Tests und fuer die IPC-Schicht. */

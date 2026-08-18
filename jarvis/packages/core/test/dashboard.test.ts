@@ -11,7 +11,7 @@ let t: TestJarvis;
 beforeEach(() => {
   t = makeJarvis({ env: { JARVIS_MAX_SENDS_PER_HOUR: '20', JARVIS_MIN_SEND_INTERVAL_SECONDS: '0' } });
 });
-afterEach(() => t.dispose());
+afterEach(() => t?.dispose());
 
 async function sendeAn(name: string, adresse: string): Promise<void> {
   const { company } = t.jarvis.repos.companies.upsert({ name, website: `https://${adresse.split('@')[1]}` });

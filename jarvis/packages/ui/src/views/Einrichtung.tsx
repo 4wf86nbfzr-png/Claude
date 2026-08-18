@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useDaten, useJarvis } from '../lib/store.js';
 import { Sprachmodell, Verzeichnisse } from './Sprachmodell.js';
+import { StimmeUndAnrede } from '../components/StimmeUndAnrede.js';
 
 interface Status {
   sprachmodell: { anbieter: string; modell: string; bereit: boolean; hinweis: string | null };
@@ -188,6 +189,8 @@ export function Einrichtung(): JSX.Element {
       </div>
 
       <Sprachmodell />
+
+      <StimmeUndAnrede />
 
       {/* --- Zugangsdaten ------------------------------------------------ */}
       <div className="abschnitt">

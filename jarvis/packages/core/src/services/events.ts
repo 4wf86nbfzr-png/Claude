@@ -24,6 +24,11 @@ export interface JarvisEvents {
   invalidate: { scope: 'companies' | 'emails' | 'campaigns' | 'approvals' | 'tasks' | 'memory' | 'alle' };
   /** JARVIS moechte etwas sagen (Text-to-Speech). */
   speak: { text: string; interrupt?: boolean };
+  /**
+   * Aus der Menüleiste oder per Tastenkürzel gerufen — das Fenster soll ein
+   * Gespräch beginnen, ohne dass jemand geschnipst hat.
+   */
+  wecken: Record<string, never>;
   /** Fehler, der dem Nutzer gezeigt werden muss. */
   error: { message: string; hint?: string; detail?: unknown };
 }

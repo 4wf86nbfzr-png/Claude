@@ -12,7 +12,8 @@
       "@jarvis/core/ipc": ["../core/src/ipc/contract.ts"],
       "@jarvis/core/schnips": ["../core/src/voice/schnips.ts"],
       "@jarvis/core/segmente": ["../core/src/voice/segmente.ts"],
-      "@jarvis/core/nachhall": ["../core/src/voice/nachhall.ts"]
+      "@jarvis/core/nachhall": ["../core/src/voice/nachhall.ts"],
+      "@jarvis/core/stimmwahl": ["../core/src/voice/stimmwahl.ts"]
     }
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "vite.config.ts"]

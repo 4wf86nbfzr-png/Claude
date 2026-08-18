@@ -1,5 +1,6 @@
 import type { JarvisContext } from '../context.js';
 import { grundregeln, gedaechtnisBlock } from './prompts.js';
+import { leerbegruessung, mitAnrede, personaPrompt, PERSONA_STANDARD, type Persona } from './persona.js';
 
 /**
  * Der Gesprächsmodus.
@@ -12,13 +13,19 @@ import { grundregeln, gedaechtnisBlock } from './prompts.js';
  * Deshalb bekommt JarvisCore im Gesprächsmodus diesen Zusatz -- kein anderes
  * Modell, keine andere Werkzeugliste, nur andere Sprechregeln.
  */
-export function gespraechsPrompt(ctx: JarvisContext, name: string | null): string {
+export function gespraechsPrompt(
+  ctx: JarvisContext,
+  name: string | null,
+  persona: Persona = PERSONA_STANDARD,
+): string {
   return [
     grundregeln(ctx),
     '',
     'DU SPRICHST GERADE — nicht schreiben, reden.',
     '',
-    name ? `Dein Gegenüber heißt ${name}. Sprich die Person gelegentlich mit Namen an, aber nicht in jedem Satz.` : '',
+    personaPrompt(persona),
+    '',
+    name ? `Dein Gegenüber heißt ${name}.` : '',
     '',
     'So klingst du:',
     '- Ein bis drei Sätze. Wer mehr wissen will, fragt nach.',
@@ -156,15 +163,15 @@ export async function gespraechsanlaesse(ctx: JarvisContext, jetzt = new Date())
  * Gibt es einen echten Anlass, nennt er ihn. Gibt es keinen, sagt er das
  * Kürzestmögliche und schweigt dann -- er soll kein Gespräch erfinden.
  */
-export async function begruessung(ctx: JarvisContext, jetzt = new Date()): Promise<string> {
+export async function begruessung(
+  ctx: JarvisContext,
+  jetzt = new Date(),
+  persona: Persona = PERSONA_STANDARD,
+  wievielterRuf = 0,
+): Promise<string> {
   const anlaesse = await gespraechsanlaesse(ctx, jetzt);
-  if (anlaesse.length > 0) return anlaesse[0]!.text;
-
-  const stunde = jetzt.getHours();
-  if (stunde < 5) return 'Ja?';
-  if (stunde < 11) return 'Moin. Was steht an?';
-  if (stunde < 18) return 'Ja?';
-  return 'Ja, bitte?';
+  if (anlaesse.length > 0) return mitAnrede(anlaesse[0]!.text, persona);
+  return leerbegruessung(persona, jetzt, wievielterRuf);
 }
 
 export { istEigenerNachhall } from '../voice/nachhall.js';

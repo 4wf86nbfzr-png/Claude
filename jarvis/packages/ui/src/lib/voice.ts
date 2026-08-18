@@ -1,3 +1,5 @@
+import { waehleStimme } from '@jarvis/core/stimmwahl';
+
 /**
  * Sprache im Fenster.
  *
@@ -114,6 +116,16 @@ export function starteDiktat(optionen: {
   };
 }
 
+/**
+ * Der Name der Stimme, die der Benutzer festgelegt hat. Wird beim Start aus
+ * den Einstellungen gesetzt; ohne Festlegung sucht {@link waehleStimme} selbst.
+ */
+let gewuenschteStimme: string | null = null;
+
+export function setStimme(name: string | null): void {
+  gewuenschteStimme = name;
+}
+
 /** Sprachausgabe über das Betriebssystem. */
 export function sprich(text: string, optionen: { unterbrechen?: boolean; sprache?: string } = {}): void {
   if (!sprachausgabeVerfuegbar() || !text.trim()) return;
@@ -124,10 +136,11 @@ export function sprich(text: string, optionen: { unterbrechen?: boolean; sprache
   aeusserung.rate = 1.02;
   aeusserung.pitch = 1;
 
-  const stimmen = window.speechSynthesis.getVoices();
-  const deutsch = stimmen.find((s) => s.lang.startsWith('de') && /google|siri|premium|natural/i.test(s.name))
-    ?? stimmen.find((s) => s.lang.startsWith('de'));
-  if (deutsch) aeusserung.voice = deutsch;
+  const gewaehlt = waehleStimme(window.speechSynthesis.getVoices(), {
+    sprache: optionen.sprache ?? 'de-DE',
+    wunsch: gewuenschteStimme,
+  });
+  if (gewaehlt) aeusserung.voice = gewaehlt as SpeechSynthesisVoice;
 
   window.speechSynthesis.speak(aeusserung);
 }

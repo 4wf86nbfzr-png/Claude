@@ -13,7 +13,7 @@ let t: TestJarvis;
 beforeEach(() => {
   t = makeJarvis({ llm: new FakeLlm([{ text: 'Verstanden.' }, { text: 'Verstanden.' }, { text: 'Verstanden.' }]) });
 });
-afterEach(() => t.dispose());
+afterEach(() => t?.dispose());
 
 async function entwurfMitFreigabe(name: string, adresse: string): Promise<string> {
   const { company } = t.jarvis.repos.companies.upsert({ name, website: `https://${adresse.split('@')[1]}` });

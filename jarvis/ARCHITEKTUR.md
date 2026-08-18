@@ -47,7 +47,7 @@ Alles andere ist Handwerk.
 
 Der Kern kennt weder Electron noch React. Das ist keine Stilfrage: dieselbe
 Logik läuft dadurch in der Desktop-App, in der Konsole (`npm run jarvis`) und
-in den Tests — und die 161 Tests brauchen weder Browser noch Netz.
+in den Tests — und die 186 Tests brauchen weder Browser noch Netz.
 
 ---
 
@@ -191,6 +191,10 @@ Der Gesprächsmodus verteilt sich bewusst auf beide Seiten der Grenze:
 | Audio-Anbindung | `ui/lib/schnipser.ts`, `ui/lib/diktat-lokal.ts` | Braucht Web Audio. Liefert Pegel an die Erkenner und die Abtastwerte an den Kern. |
 | Gesprächsschleife | `ui/lib/gespraech.ts` | Führt Zuhören, Antworten und Reinreden zusammen. |
 | Ton und Anlässe | `core/agents/gespraech.ts` | Was JARVIS im Gespräch sagen darf und was er von sich aus anspricht, ist Fachlogik. |
+| Anrede und Tonfall | `core/agents/persona.ts` | Einstellung, keine Konstante — und ohne Browser prüfbar. |
+| Stimmenauswahl | `core/voice/stimmwahl.ts` | Reine Sortierung nach Name und Sprache. |
+| Zuhören als Zustand der App | `ui/lib/gespraechskontext.tsx` | Oberhalb aller Ansichten, sonst hört nur die Konsole. |
+| Menüleiste, Kürzel, Verstecken | `desktop/src/main.ts` | Braucht Electron. |
 
 `Jarvis.ask(text, { gespraechsmodus: true })` tauscht nur den System-Prompt aus;
 Werkzeuge, Freigaben und Audit-Log bleiben dieselben. Der Gesprächsmodus ist
@@ -263,7 +267,7 @@ weiterer Transport oder als Werkzeuggruppe.
 
 ## Testaufbau
 
-`packages/core/test/` — 161 Tests, ohne Netz, ohne echte Schlüssel.
+`packages/core/test/` — 186 Tests, ohne Netz, ohne echte Schlüssel.
 
 | Datei | Prüft |
 |---|---|
@@ -284,6 +288,8 @@ weiterer Transport oder als Werkzeuggruppe.
 | `segmente.test.ts` | Satzgrenzen aus Pegelkurven: Atempause ja, Dauerlärm nein, Höchstlänge |
 | `whisper-lokal.test.ts` | Laden, Fehlerwege und Whispers Standfloskeln bei Stille |
 | `probe.test.ts` | Bewertung der Selbstprüfung nach der Einrichtung |
+| `persona.test.ts` | Anrede, Tonfall, und dass die Begrüßung nicht jedes Mal gleich lautet |
+| `stimmwahl.test.ts` | Stimmenauswahl aus dem echten macOS-Bestand, samt Spaßstimmen |
 
 Die Attrappen in `test/fakes.ts` (`FakeLlm`, `FakeTransport`, `fakeFetch`)
 verdrahten eine vollständige JARVIS-Instanz — es wird also der echte Code

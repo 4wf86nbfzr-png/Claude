@@ -1,4 +1,16 @@
-import { app, BrowserWindow, clipboard, dialog, ipcMain, Menu, safeStorage, shell } from 'electron';
+import {
+  app,
+  BrowserWindow,
+  clipboard,
+  dialog,
+  globalShortcut,
+  ipcMain,
+  Menu,
+  nativeImage,
+  safeStorage,
+  shell,
+  Tray,
+} from 'electron';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
@@ -32,6 +44,9 @@ const ENTWICKLUNG = process.env.NODE_ENV === 'development';
 const DEV_SERVER = process.env.JARVIS_DEV_SERVER ?? 'http://127.0.0.1:5173';
 
 let fenster: BrowserWindow | null = null;
+let ablage: Tray | null = null;
+/** Wird beim Beenden gesetzt, damit „Schließen" das Fenster nur versteckt. */
+let beendetSich = false;
 let jarvis: Jarvis | null = null;
 let handler: CommandHandler | null = null;
 let ereignisAbmelden: (() => void) | null = null;
@@ -104,10 +119,29 @@ function createWindow(): BrowserWindow {
       sandbox: true,
       webviewTag: false,
       spellcheck: true,
+      /*
+       * Ohne das hier ist der Hintergrundbetrieb wirkungslos: Electron
+       * drosselt Zeitgeber in versteckten Fenstern auf etwa einen Takt pro
+       * Sekunde. Die Schnips-Erkennung misst alle 16 ms -- damit wäre sie
+       * taub, sobald das Fenster nicht mehr zu sehen ist.
+       */
+      backgroundThrottling: false,
     },
   });
 
   win.once('ready-to-show', () => win.show());
+
+  /*
+   * Das Fenster zu schließen beendet JARVIS nicht -- es versteckt sich nur.
+   * Sonst wäre „hört immer auf Ihr Schnipsen" gelogen: die Erkennung läuft im
+   * Fenster, und ein geschlossenes Fenster hört nichts mehr. Zurück kommt es
+   * über die Menüleiste; beendet wird über deren Eintrag oder Cmd+Q.
+   */
+  win.on('close', (ereignis) => {
+    if (beendetSich) return;
+    ereignis.preventDefault();
+    win.hide();
+  });
 
   // Externe Links gehen in den Systembrowser, nicht in ein neues Fenster.
   win.webContents.setWindowOpenHandler(({ url }) => {
@@ -243,6 +277,97 @@ function buildMenu(): void {
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 }
 
+
+// ---------------------------------------------------------------------------
+// Hintergrundbetrieb
+// ---------------------------------------------------------------------------
+
+/**
+ * JARVIS soll erreichbar sein, ohne dass sein Fenster im Weg steht.
+ *
+ * Deshalb zwei Dinge: das Programm läuft weiter, wenn man das Fenster
+ * schließt (es versteckt sich nur), und in der Menüleiste sitzt ein Symbol,
+ * über das man es zurückholt oder wirklich beendet.
+ *
+ * Das ist der Punkt, an dem „hört auf mein Schnipsen" überhaupt erst stimmt:
+ * die Erkennung läuft im Fenster, und ein geschlossenes Fenster hört nichts.
+ * Versteckt hört es weiter -- sichtbar sein muss es dafür nicht.
+ */
+function baueAblage(): void {
+  if (ablage) return;
+
+  // Ein schlichtes Vorlagenbild: unter macOS färbt das System es passend zur
+  // Menüleiste ein, hell wie dunkel.
+  const symbol = nativeImage.createFromDataURL(ABLAGE_SYMBOL);
+  symbol.setTemplateImage(true);
+  ablage = new Tray(symbol);
+  ablage.setToolTip('JARVIS — hört auf Ihr Schnipsen');
+
+  const menue = Menu.buildFromTemplate([
+    { label: 'JARVIS zeigen', click: () => zeigeFenster() },
+    { type: 'separator' },
+    {
+      label: 'JARVIS ansprechen',
+      accelerator: 'CommandOrControl+Alt+J',
+      click: () => rufeJarvis(),
+    },
+    { type: 'separator' },
+    {
+      label: 'Beenden',
+      click: () => {
+        beendetSich = true;
+        app.quit();
+      },
+    },
+  ]);
+  ablage.setContextMenu(menue);
+  // Ein Klick auf das Symbol holt das Fenster -- das erwartet man so.
+  ablage.on('click', () => zeigeFenster());
+}
+
+function zeigeFenster(): void {
+  if (!fenster || fenster.isDestroyed()) {
+    fenster = createWindow();
+    applyContentSecurityPolicy(fenster);
+    return;
+  }
+  if (fenster.isMinimized()) fenster.restore();
+  fenster.show();
+  fenster.focus();
+}
+
+/**
+ * Startet ein Gespräch, ohne das Fenster in den Vordergrund zu zwingen.
+ *
+ * Wer per Tastenkürzel ruft, arbeitet gerade in einem anderen Programm. Ihm
+ * das Fenster vor die Nase zu setzen, wäre genau das, was er vermeiden wollte.
+ */
+function rufeJarvis(): void {
+  if (!fenster || fenster.isDestroyed()) {
+    zeigeFenster();
+    // Das frische Fenster braucht einen Moment, bis der Kern im Bild ist.
+    fenster?.webContents.once('did-finish-load', () => {
+      fenster?.webContents.send(IPC_EVENT_CHANNEL, { name: 'wecken', payload: {} });
+    });
+    return;
+  }
+  fenster.webContents.send(IPC_EVENT_CHANNEL, { name: 'wecken', payload: {} });
+}
+
+/**
+ * Ein einfarbiges Kreissymbol als Data-URL.
+ *
+ * Bewusst im Code und nicht als Datei: eine PNG-Datei müsste über den
+ * Paketbau mitgenommen werden und wäre der erste Kandidat, im gepackten
+ * Programm zu fehlen -- ein fehlendes Symbol lässt `new Tray()` werfen.
+ */
+const ABLAGE_SYMBOL =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAv0lEQVR4AZ3SsUoDQRRG4W9' +
+  'FSGGhYGFhYSNYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFj4Ai/gC7yAL+ALvIAv4Au8gC/wAr7AC/gC' +
+  'L+ALvIAv8AK+wAv4Ai/gC7yAL/ACvsAL+AIv4Au8gC/wAr7AC/gCL+ALvIAv8AK+wAv4Ai/gC7yAL/ACvsAL+AIv4Au8g' +
+  'C/wAr7AC/gCL+ALvIAv8AK+wAv4Ai/gC7yAL/ACvsAL+AIv4Au8gC/wAr7AC/gCL+ALvIAv8AK+wAvfAAAA//8DAFZTBv' +
+  'yGZ5PZAAAAAElFTkSuQmCC';
+
 // Nur eine Instanz -- sonst greifen zwei Prozesse auf dieselbe Datenbank zu.
 if (!app.requestSingleInstanceLock()) {
   app.quit();
@@ -275,6 +400,13 @@ if (!app.requestSingleInstanceLock()) {
     fenster = createWindow();
     applyContentSecurityPolicy(fenster);
     buildMenu();
+    baueAblage();
+
+    // Ein systemweites Kürzel als verlässliche Alternative zum Schnipsen:
+    // es kennt keine Fehlauslöser und funktioniert auch im lauten Büro.
+    if (!globalShortcut.register('CommandOrControl+Alt+J', () => rufeJarvis())) {
+      console.warn('[jarvis] Das Tastenkürzel Cmd+Alt+J war schon belegt.');
+    }
 
     fenster.on('closed', () => {
       fenster = null;
@@ -289,11 +421,21 @@ if (!app.requestSingleInstanceLock()) {
   });
 }
 
+/*
+ * Ohne Fenster wird nicht beendet: JARVIS soll weiter auf das Schnipsen
+ * hören. Beenden geht über die Menüleiste oder Cmd+Q -- und dort setzt
+ * `before-quit` das Flag, das dem Fenster erlaubt, sich wirklich zu schließen.
+ */
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit();
+  /* absichtlich leer -- die Ablage hält das Programm am Leben */
+});
+
+app.on('will-quit', () => {
+  globalShortcut.unregisterAll();
 });
 
 app.on('before-quit', () => {
+  beendetSich = true;
   ereignisAbmelden?.();
   jarvis?.close();
   jarvis = null;

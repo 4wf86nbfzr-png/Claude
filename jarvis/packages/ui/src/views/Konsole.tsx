@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Gespraechsschalter } from '../components/Gespraechsschalter.js';
 import { VoiceOrb } from '../components/VoiceOrb.js';
 import { useJarvis } from '../lib/store.js';
-import type { GespraechsZustand } from '../lib/gespraech.js';
+import { useGespraech } from '../lib/gespraechskontext.js';
 import { starteLokalesDiktat } from '../lib/diktat-lokal.js';
 import { spracherkennungVerfuegbar, starteDiktat, type Diktat } from '../lib/voice.js';
 
@@ -16,11 +16,12 @@ import { spracherkennungVerfuegbar, starteDiktat, type Diktat } from '../lib/voi
 export function Konsole(): JSX.Element {
   const jarvis = useJarvis();
   const [entwurf, setEntwurf] = useState('');
-  const [pegel, setPegel] = useState(0);
+  const [eigenerPegel, setEigenerPegel] = useState(0);
   const [hoert, setHoert] = useState(false);
-  const [zwischentext, setZwischentext] = useState('');
+  const [eigenerZwischentext, setEigenerZwischentext] = useState('');
   const [sprachfehler, setSprachfehler] = useState<string | null>(null);
-  const [gespraech, setGespraech] = useState<GespraechsZustand>('schlafend');
+  // Das Zuhören liegt eine Ebene höher, damit es in jeder Ansicht läuft.
+  const { zustand: gespraech, pegel: gespraechsPegel, zwischentext: gespraechsText } = useGespraech();
   /**
    * Womit die Sprechtaste hört. In der Desktop-App ist das die lokale
    * Erkennung -- die des Browsers antwortet dort nur mit „nicht erreichbar",
@@ -34,6 +35,7 @@ export function Konsole(): JSX.Element {
   const pegelTimer = useRef<number | null>(null);
 
   const verfuegbar = erkennung === 'lokal' || spracherkennungVerfuegbar();
+  const angezeigterText = gespraech === 'schlafend' ? eigenerZwischentext : gespraechsText;
 
   // Einmal beim Öffnen fragen, welche Erkennung der Kern vorsieht.
   useEffect(() => {
@@ -53,14 +55,14 @@ export function Konsole(): JSX.Element {
   // Verlauf immer unten halten.
   useEffect(() => {
     verlaufRef.current?.scrollTo({ top: verlaufRef.current.scrollHeight, behavior: 'smooth' });
-  }, [jarvis.beitraege.length, zwischentext]);
+  }, [jarvis.beitraege.length, angezeigterText]);
 
   const stoppeHoeren = useCallback(() => {
     diktatRef.current?.stop();
     diktatRef.current = null;
     setHoert(false);
-    setPegel(0);
-    setZwischentext('');
+    setEigenerPegel(0);
+    setEigenerZwischentext('');
     if (pegelTimer.current) {
       window.clearInterval(pegelTimer.current);
       pegelTimer.current = null;
@@ -74,10 +76,10 @@ export function Konsole(): JSX.Element {
 
     const aufText = ({ text, endgueltig }: { text: string; endgueltig: boolean }) => {
       if (endgueltig) {
-        setZwischentext('');
+        setEigenerZwischentext('');
         setEntwurf((alt) => (alt ? `${alt} ${text}` : text));
       } else {
-        setZwischentext(text);
+        setEigenerZwischentext(text);
       }
     };
     const aufFehler = (meldung: string) => {
@@ -122,7 +124,7 @@ export function Konsole(): JSX.Element {
             const d = (wert - 128) / 128;
             summe += d * d;
           }
-          setPegel(Math.min(1, Math.sqrt(summe / puffer.length) * 3.2));
+          setEigenerPegel(Math.min(1, Math.sqrt(summe / puffer.length) * 3.2));
         }, 60);
       })
       .catch(() => {
@@ -189,7 +191,7 @@ export function Konsole(): JSX.Element {
       <div className="orb-bereich">
         <VoiceOrb
           zustand={orbZustand}
-          pegel={pegel}
+          pegel={gespraech === 'schlafend' ? eigenerPegel : gespraechsPegel}
           aktiv={hoert || gespraech !== 'schlafend'}
           onKlick={() => (hoert ? stoppeHoeren() : starteHoeren())}
         />
@@ -245,22 +247,17 @@ export function Konsole(): JSX.Element {
           ),
         )}
 
-        {zwischentext && (
+        {angezeigterText && (
           <div className="beitrag beitrag--benutzer">
             <p className="beitrag__wer">Höre zu …</p>
-            <p className="beitrag__text leise">{zwischentext}</p>
+            <p className="beitrag__text leise">{angezeigterText}</p>
           </div>
         )}
       </div>
 
       {sprachfehler && <p className="hinweis hinweis--warn">{sprachfehler}</p>}
 
-      <Gespraechsschalter
-        onZustand={setGespraech}
-        onPegel={setPegel}
-        onGesagt={(wer, text) => jarvis.anhaengenVonAussen(wer, text)}
-        onZwischentext={setZwischentext}
-      />
+      <Gespraechsschalter />
 
       <div className="eingabe">
         <textarea
