@@ -99,6 +99,15 @@
   to = "/dienstleistungen/:name.html"
   status = 200
 
+# Der Ordner /jarvis enthaelt den Quelltext der Desktop-Anwendung und gehoert
+# nicht auf die Website. force = true, damit die Dateien auch dann nicht
+# ausgeliefert werden, wenn sie im Veroeffentlichungsordner liegen.
+[[redirects]]
+  from = "/jarvis/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
 # Alles Unbekannte auf die Fehlerseite, mit korrektem Statuscode.
 [[redirects]]
   from = "/*"

@@ -15,6 +15,11 @@ python3 -m http.server 8000     # oder: npx serve
 
 Ein Build ist nicht nötig. Was im Ordner liegt, ist die Website.
 
+> **Hinweis:** Der Ordner `jarvis/` gehört nicht zur Website. Dort liegt der
+> Quelltext einer eigenständigen Desktop-Anwendung (Recherche- und
+> Akquise-Assistent, Electron). Sie wird nicht mit ausgeliefert — `netlify.toml`
+> sperrt den Pfad. Eine eigene Anleitung steht in `jarvis/README.md`.
+
 ---
 
 ## Aufbau

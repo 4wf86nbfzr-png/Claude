@@ -1,0 +1,24 @@
+# Abhaengigkeiten und Bauergebnisse
+node_modules/
+out/
+release/
+dist/
+
+# Zugangsdaten — gehoeren nie ins Repository
+.env
+.env.local
+*.pem
+
+# Laufzeitdaten (liegen normalerweise im Datenverzeichnis des Systems,
+# beim Testen aber gern mal hier)
+*.db
+*.db-wal
+*.db-shm
+secrets.enc
+secret.key
+
+# Werkzeuge und Betriebssystem
+.vite/
+*.log
+.DS_Store
+Thumbs.db
