@@ -38,7 +38,16 @@ Sie:     „Ja."       → JETZT erst geht die Mail raus
 
 Voraussetzung: Node.js 20.11 oder neuer.
 
-**Zum Ausprobieren genügt ein Befehl.** Er prüft der Reihe nach, was fehlt,
+**Ohne Terminal (macOS):** das Projekt als
+[ZIP herunterladen](https://github.com/4wf86nbfzr-png/Claude/archive/refs/heads/claude/jarvis-desktop-ai-agent-urvrta.zip),
+doppelklicken zum Entpacken, in den Ordner `jarvis` gehen und
+**„JARVIS starten.command"** doppelklicken. Beim allerersten Mal wehrt macOS
+die Datei ab, weil sie aus dem Netz kommt — dann einmal mit rechts anklicken
+→ *Öffnen* → *Öffnen*. Node muss installiert sein
+([nodejs.org](https://nodejs.org), grüner „LTS"-Knopf); das Skript sagt es,
+falls nicht.
+
+**Mit Terminal genügt ein Befehl.** Er prüft der Reihe nach, was fehlt,
 sagt jeweils wie groß der Download ist und was er tut, fragt nach — und
 startet dann:
 
