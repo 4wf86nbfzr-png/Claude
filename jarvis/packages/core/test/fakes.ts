@@ -95,6 +95,9 @@ export function makeJarvis(
     fetchImpl?: typeof fetch;
     /** Standard: alle Domains gelten als erreichbar (kein echtes DNS im Test). */
     mxCheck?: (address: string) => Promise<boolean | null>;
+    /** Standard: jeder Programmstart „gelingt", ohne dass ein Prozess entsteht. */
+    systemLauncher?: (command: string, args: string[]) => Promise<Result<{ befehl: string }>>;
+    allowedRoots?: string[];
   } = {},
 ): TestJarvis {
   const dir = mkdtempSync(join(tmpdir(), 'jarvis-e2e-'));
@@ -121,6 +124,9 @@ export function makeJarvis(
       mailTransport: transport,
       mailReader: null,
       mxCheck: options.mxCheck ?? (async () => true),
+      systemLauncher:
+        options.systemLauncher ?? (async (befehl, args) => ok({ befehl: [befehl, ...args].join(' ') })),
+      allowedRoots: options.allowedRoots ?? [dir],
       ...(options.fetchImpl ? { fetchImpl: options.fetchImpl } : {}),
     },
   });

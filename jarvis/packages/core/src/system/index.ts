@@ -6,6 +6,7 @@ import { dirname, extname, isAbsolute, join, relative, resolve, sep } from 'node
 import { err, fromException, ok, type Result } from '../util/result.js';
 import { truncate } from '../util/text.js';
 import type { Logger } from '../util/logger.js';
+import { bekannteProgramme, istUnbedenklicherName, startbefehle } from './apps.js';
 
 /**
  * Zugriff auf den Rechner.
@@ -51,7 +52,7 @@ const TEXT_EXTENSIONS = new Set([
 const SKIP_DIRS = new Set(['node_modules', '.git', '.cache', 'Library', 'AppData', 'Windows', 'System32', '.Trash', 'venv', '.venv', 'dist', 'build']);
 
 export class SystemService {
-  private readonly allowedRoots: string[];
+  private allowedRoots: string[];
   private readonly logger: Logger;
   private clipboardBridge: ClipboardBridge | null;
   private readonly launcher: (command: string, args: string[]) => Promise<Result<{ befehl: string }>>;
@@ -65,6 +66,21 @@ export class SystemService {
 
   get roots(): string[] {
     return [...this.allowedRoots];
+  }
+
+  /** Programmnamen, die JARVIS ohne Umweg versteht. */
+  get bekannteProgramme(): string[] {
+    return bekannteProgramme();
+  }
+
+  /**
+   * Ersetzt die freigegebenen Verzeichnisse.
+   * Nur ueber die Einrichtung aufrufen -- ein Agent darf sich seinen
+   * eigenen Zugriff nicht erweitern.
+   */
+  setRoots(pfade: string[]): void {
+    this.allowedRoots = pfade.map((r) => resolve(r));
+    this.logger.warn('Freigegebene Verzeichnisse geändert', { anzahl: this.allowedRoots.length });
   }
 
   setClipboard(bridge: ClipboardBridge | null): void {
@@ -125,24 +141,34 @@ export class SystemService {
    * Anwendung an den Systemoeffner uebergeben, Argumente werden nicht
    * durch eine Shell interpretiert.
    */
-  async openApplication(name: string): Promise<Result<{ programm: string }>> {
+  async openApplication(name: string): Promise<Result<{ programm: string; gestartetAls: string }>> {
     const clean = name.trim();
-    if (!clean || /[;&|`$<>\n\r]/.test(clean)) {
+    if (!istUnbedenklicherName(clean)) {
       return err('INVALID_INPUT', 'Der Programmname enthält unzulässige Zeichen.');
     }
-    const os = platform();
-    let result: Result<{ befehl: string }>;
-    if (os === 'darwin') result = await this.launcher('open', ['-a', clean]);
-    else if (os === 'win32') result = await this.launcher('cmd', ['/c', 'start', '', clean]);
-    else result = await this.launcher(clean, []);
 
-    if (!result.ok) {
-      return err(result.error.code, `Das Programm "${clean}" ließ sich nicht starten: ${result.error.message}`, {
-        hint: 'Ist der Programmname korrekt geschrieben und das Programm installiert?',
-      });
+    const os = platform();
+    const kandidaten = startbefehle(clean, os === 'darwin' || os === 'win32' ? os : 'linux');
+
+    // Der Reihe nach probieren: „Browser" kann Chrome, Firefox oder Safari
+    // heissen -- wir nehmen den ersten, der wirklich startet.
+    const fehler: string[] = [];
+    for (const kandidat of kandidaten) {
+      const result = await this.launcher(kandidat.befehl, kandidat.args);
+      if (result.ok) {
+        this.logger.info('Programm gestartet', { angefragt: clean, gestartet: kandidat.anzeige });
+        return ok({ programm: clean, gestartetAls: kandidat.anzeige });
+      }
+      fehler.push(`${kandidat.anzeige}: ${result.error.message}`);
     }
-    this.logger.info('Programm gestartet', { programm: clean });
-    return ok({ programm: clean });
+
+    return err('NOT_FOUND', `"${clean}" ließ sich nicht starten.`, {
+      hint:
+        kandidaten.length > 1
+          ? `Probiert wurde: ${kandidaten.map((k) => k.anzeige).join(', ')}. Ist eines davon installiert?`
+          : 'Ist der Programmname korrekt geschrieben und das Programm installiert?',
+      detail: { versuche: fehler },
+    });
   }
 
   private async openWithDefaultHandler(target: string): Promise<Result<{ befehl: string }>> {

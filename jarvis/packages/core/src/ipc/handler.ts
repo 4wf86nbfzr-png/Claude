@@ -3,6 +3,7 @@ import { err, ok, type Result } from '../util/result.js';
 import { describeTools } from '../tools/index.js';
 import { AuditLogService } from '../services/audit.js';
 import type { Command, CommandResponse } from './contract.js';
+import { EMPFOHLENE_MODELLE, OllamaAdmin } from '../llm/ollama-admin.js';
 import { GmailTransport } from '../mail/gmail.js';
 import { GraphTransport } from '../mail/graph.js';
 import { EMAIL_STATUS, TARGET_STATUS, type EmailStatus } from '../db/schema.js';
@@ -291,6 +292,87 @@ export class CommandHandler {
       }
       case 'tools.list':
         return ok(describeTools(j.registry));
+
+      // --- Sprachmodell -------------------------------------------------------
+      case 'llm.status': {
+        const admin = new OllamaAdmin(j.env.OLLAMA_BASE_URL);
+        const laeuft = await admin.erreichbar();
+        const modelle = laeuft ? await admin.modelle() : null;
+        return ok({
+          aktiv: {
+            anbieter: j.context.llm.id,
+            modell: j.context.llm.defaultModel,
+            bereit: j.context.llm.isConfigured(),
+            hinweis: j.context.llm.missingConfigHint(),
+          },
+          // Eine gesetzte Umgebungsvariable schlaegt die Einstellung -- das
+          // muss die Oberflaeche wissen, sonst wirkt ein Klick folgenlos.
+          durchUmgebungFestgelegt: Boolean(process.env.JARVIS_LLM_PROVIDER),
+          lokal: {
+            adresse: j.env.OLLAMA_BASE_URL,
+            laeuft,
+            installiert: laeuft ? true : await OllamaAdmin.installiert(),
+            hinweis: laeuft ? null : OllamaAdmin.installationsHinweis(),
+            modelle: modelle?.ok ? modelle.data : [],
+          },
+          empfehlungen: EMPFOHLENE_MODELLE,
+        });
+      }
+      case 'llm.use': {
+        j.repos.settings.set('llm.provider', c.provider);
+        if (c.model) j.repos.settings.set('llm.model', c.model);
+        j.audit.log({
+          actor: 'benutzer',
+          action: 'einstellung.sprachmodell',
+          summary: `Sprachmodell umgestellt auf ${c.provider}${c.model ? ` (${c.model})` : ''}`,
+        });
+        return ok({
+          gespeichert: true,
+          neustartNoetig: true,
+          hinweis: process.env.JARVIS_LLM_PROVIDER
+            ? 'Achtung: JARVIS_LLM_PROVIDER ist in der Umgebung gesetzt und hat Vorrang. Bitte dort entfernen.'
+            : 'Bitte JARVIS neu starten, damit die Umstellung greift.',
+        });
+      }
+      case 'llm.pull': {
+        const admin = new OllamaAdmin(j.env.OLLAMA_BASE_URL);
+        if (!(await admin.erreichbar())) {
+          return err('NOT_CONFIGURED', 'Ollama läuft nicht.', { hint: OllamaAdmin.installationsHinweis() });
+        }
+        return admin.ziehe(c.model, (stand) => {
+          j.bus.emit('progress', {
+            task: `Modell ${c.model} wird geladen`,
+            done: stand.anteil !== null ? Math.round(stand.anteil * 100) : 0,
+            total: stand.anteil !== null ? 100 : null,
+            note: stand.status,
+          });
+        });
+      }
+      case 'llm.test': {
+        const admin = new OllamaAdmin(j.env.OLLAMA_BASE_URL);
+        if (!(await admin.erreichbar())) {
+          return err('NOT_CONFIGURED', 'Ollama läuft nicht.', { hint: OllamaAdmin.installationsHinweis() });
+        }
+        return admin.pruefeWerkzeugtauglichkeit(c.model ?? j.context.llm.defaultModel);
+      }
+
+      // --- Dateizugriff -------------------------------------------------------
+      case 'system.roots':
+        return ok({ pfade: j.system.roots });
+      case 'system.setRoots': {
+        const sauber = c.pfade.map((p) => p.trim()).filter(Boolean);
+        j.system.setRoots(sauber);
+        j.repos.settings.set('system.allowedRoots', sauber);
+        j.audit.log({
+          actor: 'benutzer',
+          action: 'einstellung.verzeichnisse',
+          summary: `Freigegebene Verzeichnisse geändert (${sauber.length})`,
+          detail: { pfade: sauber },
+        });
+        return ok({ pfade: j.system.roots });
+      }
+      case 'system.knownApps':
+        return ok({ programme: j.system.bekannteProgramme });
 
       // --- Sprache ------------------------------------------------------------
       case 'voice.transcribe':

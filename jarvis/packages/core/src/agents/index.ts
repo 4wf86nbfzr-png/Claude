@@ -95,6 +95,7 @@ export const SYSTEM_AGENT: AgentDefinition = {
   maxSteps: 10,
   temperature: 0.2,
   tools: [
+    'list_known_applications',
     'search_files',
     'open_file',
     'read_file',

@@ -79,9 +79,25 @@ Ohne Sprachmodell versteht JARVIS keine Anweisungen.
 |---|---|---|
 | **Anthropic** (Standard) | `ANTHROPIC_API_KEY` | console.anthropic.com → API Keys |
 | OpenAI | `OPENAI_API_KEY` | platform.openai.com → API Keys |
-| Ollama (lokal) | nichts — nur `ollama serve` | Modell muss Werkzeugaufrufe können, z. B. `qwen2.5:14b` |
+| **Lokal (Ollama)** | **keinen Schlüssel** | `npm run modell` richtet alles ein |
 
-Anbieter umstellen über `JARVIS_LLM_PROVIDER`.
+**Ganz ohne Schlüssel:** ein lokales Modell läuft auf Ihrem Rechner, kostet
+nichts, und kein Text verlässt das Gerät.
+
+```bash
+npm run modell            # installiert prüfen, Modell laden, Werkzeugtest
+```
+
+Der Assistent probiert am Ende tatsächlich aus, ob das Modell Werkzeuge
+aufrufen kann. Das ist der Knackpunkt: viele lokale Modelle schreiben
+stattdessen nur „Ich rufe jetzt search_web auf" als Fließtext — damit
+passiert in JARVIS nichts, und man sucht den Fehler bei sich. Modelle, die
+durchfallen, werden gar nicht erst eingetragen.
+
+Erwartungsmanagement: ein lokales 8-B-Modell ist spürbar langsamer und
+ungenauer als ein Cloud-Modell. Für „öffne mir X", Terminfragen und einfache
+Entwürfe reicht es; für mehrstufige Recherchen ist ein Cloud-Modell klar
+besser. Umstellen geht jederzeit unter *Einrichtung → Sprachmodell*.
 
 ### 2. Websuche — sehr empfohlen
 
@@ -256,7 +272,7 @@ jarvis/
 │   │   ├── voice/          Transkription und Sprachausgabe
 │   │   ├── ipc/            Befehlsvertrag zwischen Kern und Fenster
 │   │   └── cli/            Einrichtungsassistent, Konsolen-JARVIS
-│   └── test/               75 Tests, ohne Netz und ohne echte Schlüssel
+│   └── test/               110 Tests, ohne Netz und ohne echte Schlüssel
 ├── packages/desktop/       Electron-Hauptprozess + Vorlade-Skript
 └── packages/ui/            React-Oberfläche
 ```
@@ -322,12 +338,26 @@ den Orb klicken für Dauerbetrieb. Die Statuszeile zeigt
 **Konsolenbefehle** (`npm run jarvis`): `/status`, `/freigaben`,
 `/freigabe N`, `/ablehnen N`, `/entwuerfe`, `/versand`, `/protokoll`, `/ende`.
 
+### Sachen auf dem Rechner öffnen
+
+„Öffne den Browser", „mach Excel auf", „zeig mir den Kalender" — JARVIS löst
+allgemeine Bezeichnungen selbst auf und probiert die installierten Programme
+der Reihe nach durch. Unterstützt sind unter anderem Browser, Mail, Kalender,
+Kontakte, Dateien, Terminal, Notizen, Excel, Word, PowerPoint, Rechner,
+Vorschau, Spotify, Slack, Teams, Zoom, VS Code und die Systemeinstellungen.
+Andere Programme lassen sich mit ihrem installierten Namen starten.
+
+Für Dateien gilt die Grenze aus *Einrichtung → Zugriff auf den Rechner*:
+JARVIS liest und schreibt ausschließlich in den dort freigegebenen
+Verzeichnissen, standardmäßig Schreibtisch, Dokumente und Downloads.
+Löschen und Überschreiben brauchen zusätzlich eine Freigabe.
+
 ---
 
 ## Entwicklung
 
 ```bash
-npm test                  # 75 Tests, kein Netz, keine echten Schlüssel nötig
+npm test                  # 110 Tests, kein Netz, keine echten Schlüssel nötig
 npm run typecheck         # alle drei Pakete
 npm run build             # Kern, Oberfläche, Desktop
 npm run dist              # Installationspakete (electron-builder)

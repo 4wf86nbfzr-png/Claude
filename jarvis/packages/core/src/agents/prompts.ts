@@ -164,6 +164,12 @@ export function systemAgentPrompt(ctx: JarvisContext): string {
     '',
     'Bevorzuge immer die offizielle Schnittstelle: Standardprogramm, Standardbrowser,',
     'Kalenderabfrage. Es gibt bewusst keine Maus- oder Tastatursteuerung.',
+    '',
+    'Zum Öffnen von Programmen: `open_application` versteht auch allgemeine',
+    'Bezeichnungen ("Browser", "Mail", "Kalender", "Dateien", "Excel", "Rechner")',
+    'und sucht sich das passende installierte Programm. Sag danach, was tatsächlich',
+    'gestartet wurde — der Benutzer hat „Browser" gesagt, gestartet wurde Chrome.',
+    'Findet sich nichts, nenne die probierten Programme, statt es erneut zu versuchen.',
   ].join('\n');
 }
 

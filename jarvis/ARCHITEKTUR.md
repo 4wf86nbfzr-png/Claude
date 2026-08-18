@@ -47,7 +47,7 @@ Alles andere ist Handwerk.
 
 Der Kern kennt weder Electron noch React. Das ist keine Stilfrage: dieselbe
 Logik läuft dadurch in der Desktop-App, in der Konsole (`npm run jarvis`) und
-in den Tests — und die 75 Tests brauchen weder Browser noch Netz.
+in den Tests — und die 110 Tests brauchen weder Browser noch Netz.
 
 ---
 
@@ -201,7 +201,7 @@ weiterer Transport oder als Werkzeuggruppe.
 
 ## Testaufbau
 
-`packages/core/test/` — 75 Tests, ohne Netz, ohne echte Schlüssel.
+`packages/core/test/` — 110 Tests, ohne Netz, ohne echte Schlüssel.
 
 | Datei | Prüft |
 |---|---|
@@ -214,6 +214,9 @@ weiterer Transport oder als Werkzeuggruppe.
 | `db.test.ts` | Schema, Normalisierung, Dublettenschutz |
 | `migrations.test.ts` | Eingebettete Fassung stimmt mit den .sql-Dateien überein |
 | `dashboard.test.ts` | Die Kennzahlen der Kommandozentrale zählen echte Vorgänge, auch die Null |
+| `system.test.ts` | Programmnamen je System, Pfadgrenzen, echte Dateioperationen |
+| `anweisung-zu-tat.test.ts` | Anweisung → Delegation → Werkzeug → tatsächlicher Programmstart |
+| `lokales-modell.test.ts` | Ollama-Protokoll gegen einen echten HTTP-Server, inkl. Werkzeugtauglichkeit |
 
 Die Attrappen in `test/fakes.ts` (`FakeLlm`, `FakeTransport`, `fakeFetch`)
 verdrahten eine vollständige JARVIS-Instanz — es wird also der echte Code

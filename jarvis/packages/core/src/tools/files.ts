@@ -146,16 +146,39 @@ export const deleteFileTool = defineTool({
 
 export const openApplicationTool = defineTool({
   name: 'open_application',
-  description: 'Startet ein Programm auf dem Rechner über den Standardweg des Betriebssystems.',
+  description:
+    'Startet ein Programm auf dem Rechner. Versteht auch allgemeine Bezeichnungen wie "Browser", "Mail", "Kalender", "Dateien", "Excel" oder "Rechner" und wählt das passende installierte Programm.',
   category: 'system',
   readOnly: false,
-  input: z.object({ programm: z.string().min(1) }),
+  input: z.object({ programm: z.string().min(1).describe('z. B. "Chrome", "Browser", "Excel", "Kalender"') }),
   handler: async (input, ctx) => {
     const r = await ctx.system.openApplication(input.programm);
     if (!r.ok) return r;
-    ctx.audit.log({ actor: ctx.agent, action: 'system.programm', summary: `Programm gestartet: ${r.data.programm}` });
-    return ok({ gestartet: r.data.programm });
+    ctx.audit.log({
+      actor: ctx.agent,
+      action: 'system.programm',
+      summary: `Programm gestartet: ${r.data.gestartetAls}`,
+    });
+    return ok({ gestartet: r.data.gestartetAls, angefragt: r.data.programm });
   },
+  summarize: (input, r) =>
+    r.ok ? `${(r.data as { gestartet: string }).gestartet} gestartet` : `"${input.programm}": ${r.error.message}`,
+});
+
+export const listApplicationsTool = defineTool({
+  name: 'list_known_applications',
+  description:
+    'Zählt die Programmbezeichnungen auf, die ohne Umweg verstanden werden, und die Verzeichnisse, auf die zugegriffen werden darf.',
+  category: 'system',
+  readOnly: true,
+  input: z.object({}),
+  handler: async (_input, ctx) =>
+    ok({
+      bekannteBezeichnungen: ctx.system.bekannteProgramme,
+      hinweis:
+        'Andere Programme lassen sich mit ihrem installierten Namen starten — die Liste ist keine Grenze, nur eine Abkürzung.',
+      freigegebeneVerzeichnisse: ctx.system.roots,
+    }),
 });
 
 export const openWebsiteInBrowserTool = defineTool({
@@ -225,6 +248,7 @@ export const checkCalendarTool = defineTool({
 });
 
 export const fileTools: AnyTool[] = [
+  listApplicationsTool,
   searchFilesTool,
   openFileTool,
   readFileTool,

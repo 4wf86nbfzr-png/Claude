@@ -70,6 +70,17 @@ export type Command =
   | { kind: 'oauth.start'; provider: 'google' | 'microsoft' }
   | { kind: 'tools.list' }
 
+  // --- Sprachmodell ------------------------------------------------------
+  | { kind: 'llm.status' }
+  | { kind: 'llm.use'; provider: 'anthropic' | 'openai' | 'ollama'; model?: string }
+  | { kind: 'llm.pull'; model: string }
+  | { kind: 'llm.test'; model?: string }
+
+  // --- Dateizugriff ------------------------------------------------------
+  | { kind: 'system.roots' }
+  | { kind: 'system.setRoots'; pfade: string[] }
+  | { kind: 'system.knownApps' }
+
   // --- Sprache -----------------------------------------------------------
   | { kind: 'voice.transcribe'; audio: ArrayBuffer; filename?: string }
   | { kind: 'voice.speak'; text: string }

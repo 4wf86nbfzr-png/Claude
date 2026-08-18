@@ -48,6 +48,9 @@ export interface CreateJarvisOptions {
     research: ResearchService;
     fetchImpl: typeof fetch;
     mxCheck: (address: string) => Promise<boolean | null>;
+    /** Prozessstart abfangen -- damit Tests keine Fenster oeffnen. */
+    systemLauncher: (command: string, args: string[]) => Promise<Result<{ befehl: string }>>;
+    allowedRoots: string[];
   }>;
 }
 
@@ -151,7 +154,23 @@ export class Jarvis {
     };
     const compliance = new ComplianceGuard(repos.suppression, repos.emails, repos.companies, limits);
 
-    const llm = options.overrides?.llm ?? createLlmProvider(env, credentials);
+    // Anbieter und Modell duerfen aus den Einstellungen kommen. So laesst sich
+    // in der Oberflaeche auf ein lokales Modell umstellen, ohne eine .env zu
+    // bearbeiten -- die Umgebungsvariable bleibt aber die staerkere Vorgabe,
+    // damit ein bewusst gesetzter Start nicht still ueberschrieben wird.
+    const gespeicherterAnbieter = repos.settings.get<JarvisEnv['JARVIS_LLM_PROVIDER'] | null>('llm.provider', null);
+    const gespeichertesModell = repos.settings.get<string | null>('llm.model', null);
+    const llmEnv: JarvisEnv = {
+      ...env,
+      ...(gespeicherterAnbieter && !(options.env ?? process.env).JARVIS_LLM_PROVIDER
+        ? { JARVIS_LLM_PROVIDER: gespeicherterAnbieter }
+        : {}),
+      ...(gespeichertesModell && !(options.env ?? process.env).JARVIS_LLM_MODEL
+        ? { JARVIS_LLM_MODEL: gespeichertesModell }
+        : {}),
+    };
+
+    const llm = options.overrides?.llm ?? createLlmProvider(llmEnv, credentials);
 
     const mail = new MailService({
       env,
@@ -176,11 +195,14 @@ export class Jarvis {
         ...(options.overrides?.mxCheck ? { mxCheck: options.overrides.mxCheck } : {}),
       });
 
-    const allowedRoots = repos.settings.get<string[]>('system.allowedRoots', defaultAllowedRoots(paths.dataDir));
+    const allowedRoots =
+      options.overrides?.allowedRoots ??
+      repos.settings.get<string[]>('system.allowedRoots', defaultAllowedRoots(paths.dataDir));
     const system = new SystemService({
       allowedRoots,
       logger: logger.child('system'),
       clipboard: options.clipboard ?? null,
+      ...(options.overrides?.systemLauncher ? { launcher: options.overrides.systemLauncher } : {}),
     });
 
     const calendar =

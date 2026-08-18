@@ -20,6 +20,7 @@
     "test:watch": "npm run test:watch -w @jarvis/core",
     "typecheck": "npm run typecheck -w @jarvis/core && npm run typecheck -w @jarvis/ui",
     "setup": "npm run rebuild:node && npm run build:core && node packages/core/dist/cli/setup.js",
+    "modell": "npm run rebuild:node && npm run build:core && node packages/core/dist/cli/modell.js",
     "jarvis": "npm run rebuild:node && node packages/core/dist/cli/jarvis-cli.js",
     "migrations": "npm run migrations -w @jarvis/core",
     "dist": "npm run build && npm run dist -w @jarvis/desktop",

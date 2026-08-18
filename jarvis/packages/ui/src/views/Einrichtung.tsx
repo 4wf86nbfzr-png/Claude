@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useDaten, useJarvis } from '../lib/store.js';
+import { Sprachmodell, Verzeichnisse } from './Sprachmodell.js';
 
 interface Status {
   sprachmodell: { anbieter: string; modell: string; bereit: boolean; hinweis: string | null };
@@ -185,6 +186,8 @@ export function Einrichtung(): JSX.Element {
         </div>
         {pruefung && <p className="hinweis" style={{ marginTop: '0.75rem' }}>{pruefung}</p>}
       </div>
+
+      <Sprachmodell />
 
       {/* --- Zugangsdaten ------------------------------------------------ */}
       <div className="abschnitt">
@@ -406,6 +409,8 @@ export function Einrichtung(): JSX.Element {
           </table>
         )}
       </div>
+
+      <Verzeichnisse />
 
       {/* --- Ablageorte ---------------------------------------------------- */}
       {status && (
