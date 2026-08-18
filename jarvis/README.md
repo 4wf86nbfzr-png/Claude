@@ -165,9 +165,9 @@ Versandzentrale). Wird ausschließlich lesend verwendet.
 
 ### 5. Sprache — läuft ohne Schlüssel
 
-```bash
-npm run stimme            # einmalig: Modell laden und prüfen
-```
+**In der App:** *Einrichtung → Stimme und Anrede → **Spracherkennung
+einrichten***. Der Knopf lädt das Modell und prüft es anschließend wirklich.
+Wer lieber in der Konsole bleibt, nimmt `npm run stimme` — dasselbe.
 
 **Zuhören** übernimmt ein Whisper-Modell auf Ihrem Rechner. Kein Schlüssel,
 kein Ton verlässt das Gerät; einmalig rund 490 MB Download.
@@ -182,9 +182,11 @@ Oberfläche ausnahmsweise in einem echten Browser betreibt
 (`npm run dev -w @jarvis/ui`), kann mit `JARVIS_STT_PROVIDER=browser` deren
 Erkennung nehmen.
 
-Der Assistent behauptet am Ende nicht, dass es geht, sondern sieht nach: das
+Am Ende wird nicht behauptet, dass es geht, sondern nachgesehen: das
 Betriebssystem spricht einen Probesatz, der läuft durch die Erkennung, und es
-steht da, was zurückkam, wie gut es passte und wie schnell es ging.
+steht da, was zurückkam, wie gut es passte und wie schnell es ging. Bei unter
+40 % Übereinstimmung sagt es das auch — statt Sie im Gespräch raten zu lassen,
+warum nichts ankommt.
 
 | Modell | Größe | Wofür |
 |---|---|---|

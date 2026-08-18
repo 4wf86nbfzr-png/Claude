@@ -77,7 +77,18 @@ export type ErkennungsPipeline = (
   optionen: Record<string, unknown>,
 ) => Promise<{ text?: string } | Array<{ text?: string }>>;
 
-export type PipelineFabrik = (modell: string, cacheDir: string) => Promise<ErkennungsPipeline>;
+/** Meldet den Ladefortschritt einer einzelnen Datei. */
+export interface Ladefortschritt {
+  datei: string;
+  /** 0..100, oder null, solange die Größe noch unbekannt ist. */
+  prozent: number | null;
+}
+
+export type PipelineFabrik = (
+  modell: string,
+  cacheDir: string,
+  onFortschritt?: (f: Ladefortschritt) => void,
+) => Promise<ErkennungsPipeline>;
 
 export interface LokaleErkennungOptionen {
   modell?: string;
@@ -90,7 +101,7 @@ export interface LokaleErkennungOptionen {
 }
 
 /** Lädt transformers.js und baut die echte Pipeline. */
-const echteFabrik: PipelineFabrik = async (modell, cacheDir) => {
+const echteFabrik: PipelineFabrik = async (modell, cacheDir, onFortschritt) => {
   // Der dynamische Import ist Absicht (siehe Kopfkommentar) und muss vor
   // TypeScript verborgen bleiben, solange das Paket optional ist.
   const spezifizierer = '@huggingface/transformers';
@@ -100,7 +111,18 @@ const echteFabrik: PipelineFabrik = async (modell, cacheDir) => {
   };
   mod.env.cacheDir = cacheDir;
   mod.env.allowLocalModels = true;
-  return mod.pipeline('automatic-speech-recognition', modell, { dtype: 'q8' });
+  return mod.pipeline('automatic-speech-recognition', modell, {
+    dtype: 'q8',
+    // Der Download geht über mehrere hundert Megabyte. Ohne Rückmeldung sieht
+    // die Oberfläche dabei aus, als hinge sie.
+    progress_callback: (e: { status?: string; file?: string; progress?: number }) => {
+      if (!onFortschritt || e.status !== 'progress') return;
+      onFortschritt({
+        datei: e.file ?? '',
+        prozent: typeof e.progress === 'number' ? Math.round(e.progress) : null,
+      });
+    },
+  });
 };
 
 export class LokaleErkennung {
@@ -137,19 +159,19 @@ export class LokaleErkennung {
   }
 
   /** Lädt das Modell (beim ersten Mal inklusive Download). */
-  async laden(): Promise<Result<{ modell: string; dauerMs: number }>> {
+  async laden(onFortschritt?: (f: Ladefortschritt) => void): Promise<Result<{ modell: string; dauerMs: number }>> {
     const start = this.jetzt();
-    const r = await this.hole();
+    const r = await this.hole(onFortschritt);
     if (!r.ok) return r;
     return ok({ modell: this.modell, dauerMs: this.jetzt() - start });
   }
 
-  private async hole(): Promise<Result<ErkennungsPipeline>> {
+  private async hole(onFortschritt?: (f: Ladefortschritt) => void): Promise<Result<ErkennungsPipeline>> {
     if (this.pipeline) return ok(this.pipeline);
     if (!this.ladevorgang) {
       this.ladevorgang = (async (): Promise<Result<ErkennungsPipeline>> => {
         try {
-          const p = await this.fabrik(this.modell, this.modellDir);
+          const p = await this.fabrik(this.modell, this.modellDir, onFortschritt);
           this.pipeline = p;
           return ok(p);
         } catch (e) {

@@ -386,6 +386,15 @@ export class CommandHandler {
         return j.voice.transcribe(Buffer.from(c.audio), c.filename ?? 'aufnahme.webm');
       case 'voice.transcribePcm':
         return j.voice.transcribePcm(new Float32Array(c.pcm));
+      case 'voice.setupLocal':
+        return j.voice.richteLokalEin((f) => {
+          j.bus.emit('progress', {
+            task: 'Spracherkennung wird geladen',
+            done: f.prozent ?? 0,
+            total: 100,
+            note: f.datei,
+          });
+        });
       case 'voice.status':
         return ok(j.voice.status());
       case 'voice.warmup':

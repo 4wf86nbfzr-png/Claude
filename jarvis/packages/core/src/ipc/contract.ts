@@ -89,6 +89,8 @@ export type Command =
   | { kind: 'voice.transcribePcm'; pcm: ArrayBuffer }
   | { kind: 'voice.warmup' }
   | { kind: 'voice.status' }
+  /** Erkennung laden und mit einem Probesatz wirklich prüfen. */
+  | { kind: 'voice.setupLocal' }
   | { kind: 'voice.speak'; text: string }
 
   // --- System ------------------------------------------------------------

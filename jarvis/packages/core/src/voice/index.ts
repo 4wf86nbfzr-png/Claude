@@ -4,7 +4,8 @@ import type { JarvisEnv } from '../config/env.js';
 import type { CredentialService } from '../services/credentials.js';
 import { err, fromException, ok, type Result } from '../util/result.js';
 import { newId } from '../util/text.js';
-import { LokaleErkennung } from './whisper-lokal.js';
+import { LokaleErkennung, type Ladefortschritt } from './whisper-lokal.js';
+import { PROBESATZ, spracheVomSystem, trefferquote } from './probe.js';
 
 /**
  * Sprache ein und aus.
@@ -80,7 +81,7 @@ export class VoiceService {
         bereit: stt === 'lokal' ? lokalDa : stt === 'browser' || (stt === 'openai' && Boolean(openAiKey)),
         hinweis:
           stt === 'lokal' && !lokalDa
-            ? 'Das Spracherkennungsmodell ist noch nicht geladen — einmalig „npm run stimme" ausführen.'
+            ? 'Die Spracherkennung ist noch nicht eingerichtet. Unter „Einrichtung → Stimme und Anrede" auf „Spracherkennung einrichten" — das lädt einmalig das Modell und prüft es.'
             : stt === 'browser'
               ? 'Die Erkennung im Fenster (Web Speech) funktioniert in Electron nicht — Google beschränkt den Dienst auf Chrome selbst.'
               : stt === 'openai' && !openAiKey
@@ -123,6 +124,64 @@ export class VoiceService {
     const r = await this.lokaleErkennung().transkribiere(pcm);
     if (!r.ok) return r;
     return ok({ text: r.data.text, provider: `lokal (${r.data.modell})`, language: 'de' });
+  }
+
+  /**
+   * Richtet die lokale Erkennung ein und **prüft sie dann wirklich**.
+   *
+   * Der Knopf in der Oberfläche hängt hier dran, damit für die Spracheingabe
+   * niemand ein Terminal öffnen muss. Am Ende steht kein „fertig", sondern
+   * das Ergebnis einer echten Probe: das Betriebssystem spricht einen Satz,
+   * die Erkennung hört zu, und was sie verstanden hat, steht da.
+   */
+  async richteLokalEin(
+    onFortschritt?: (f: Ladefortschritt) => void,
+  ): Promise<
+    Result<{
+      modell: string;
+      ladeMs: number;
+      probe: null | {
+        gesprochen: string;
+        erkannt: string;
+        quote: number;
+        dauerMs: number;
+        faktorEchtzeit: number;
+        werkzeug: string;
+      };
+      probeHinweis: string | null;
+    }>
+  > {
+    const erkennung = this.lokaleErkennung();
+    const geladen = await erkennung.laden(onFortschritt);
+    if (!geladen.ok) return geladen;
+
+    const probe = await spracheVomSystem();
+    if (!probe.ok) {
+      return ok({
+        modell: geladen.data.modell,
+        ladeMs: geladen.data.dauerMs,
+        probe: null,
+        probeHinweis: `Die Probe entfällt: ${probe.error.message}`,
+      });
+    }
+
+    const erkannt = await erkennung.transkribiere(probe.data.pcm);
+    if (!erkannt.ok) return erkannt;
+
+    const sekunden = probe.data.pcm.length / 16_000;
+    return ok({
+      modell: geladen.data.modell,
+      ladeMs: geladen.data.dauerMs,
+      probe: {
+        gesprochen: PROBESATZ,
+        erkannt: erkannt.data.text,
+        quote: trefferquote(PROBESATZ, erkannt.data.text),
+        dauerMs: erkannt.data.dauerMs,
+        faktorEchtzeit: erkannt.data.dauerMs / (sekunden * 1000),
+        werkzeug: probe.data.werkzeug,
+      },
+      probeHinweis: null,
+    });
   }
 
   /** Lädt das lokale Modell vorab, damit die erste Äußerung nicht wartet. */
