@@ -31,7 +31,7 @@ if ! command -v node >/dev/null 2>&1; then
   echo "    JARVIS braucht Node, um zu laufen. Kostenlos und in zwei Minuten:"
   echo ""
   echo "      1. https://nodejs.org öffnen"
-  echo "      2. Den grünen Knopf mit „LTS\" anklicken"
+  echo "      2. Oben LTS wählen, dann macOS, dann Prebuilt Installer"
   echo "      3. Die geladene .pkg-Datei doppelklicken und durchklicken"
   echo "      4. Dieses Fenster schließen und hier wieder doppelklicken"
   echo ""
@@ -40,6 +40,30 @@ if ! command -v node >/dev/null 2>&1; then
 fi
 
 echo "  ✓ Node $(node -v)"
+
+# Aktualisierung holen, wenn das hier eine Git-Arbeitskopie ist.
+#
+# Ohne das müsste man für jede Verbesserung wieder ins Terminal -- und genau
+# das soll dieser Starter ersparen. Absichtlich nur, wenn nichts Eigenes
+# geändert wurde: fremde Änderungen wegzuräumen wäre eine Überraschung, die
+# ein Startknopf nicht machen darf.
+# `.git` liegt bei einer geklonten Fassung eine Ebene höher, nicht in diesem
+# Ordner -- deshalb git selbst fragen statt nach dem Verzeichnis zu sehen.
+if command -v git >/dev/null 2>&1 && git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  if [ -z "$(git status --porcelain 2>/dev/null)" ]; then
+    echo ""
+    echo "  Suche nach Aktualisierungen …"
+    if git pull --ff-only 2>&1 | sed 's/^/    /'; then
+      :
+    else
+      echo "    (nicht möglich -- es geht mit dem vorhandenen Stand weiter)"
+    fi
+  else
+    echo ""
+    echo "  Eigene Änderungen im Ordner -- es wird nichts aktualisiert."
+  fi
+fi
+
 echo ""
 
 node scripts/testversion.mjs
