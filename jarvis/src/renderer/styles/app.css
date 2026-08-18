@@ -1,0 +1,616 @@
+/*
+  Gestaltung: tiefes Schwarz, weiße Typografie, nichts, was ohne Anlass blinkt.
+  Farbe entsteht nur dort, wo sie eine Bedeutung trägt (Status, Warnung).
+*/
+:root {
+  --ink: #050506;
+  --ink-2: #0c0c0f;
+  --ink-3: #141419;
+  --paper: #f4f4f6;
+  --chrome: #b8b8c0;
+  --muted: #71717c;
+  --line: rgba(255, 255, 255, 0.09);
+  --line-hell: rgba(255, 255, 255, 0.18);
+  --gruen: #57d9a3;
+  --gelb: #e8c26a;
+  --rot: #e2695f;
+  --blau: #7aa7ff;
+
+  --r-s: 8px;
+  --r-m: 14px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+  --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, 'Helvetica Neue', Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#wurzel {
+  height: 100%;
+}
+
+body {
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+/* Bildlaufleisten dunkel halten – eine helle Leiste zerschneidet die Fläche. */
+* {
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+  scrollbar-width: thin;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+  background: var(--ink-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-s);
+  padding: 10px 12px;
+  width: 100%;
+}
+
+input:focus-visible,
+textarea:focus-visible,
+button:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--blau);
+  outline-offset: 2px;
+}
+
+.etikett {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ---------- Gerüst ---------- */
+
+.app {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  height: 100%;
+}
+
+.kopf {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 14px 28px;
+  border-bottom: 1px solid var(--line);
+  -webkit-app-region: drag;
+}
+
+.kopf__marke {
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+}
+
+.kopf nav {
+  display: flex;
+  gap: 4px;
+  -webkit-app-region: no-drag;
+}
+
+.kopf nav button {
+  padding: 6px 12px;
+  border-radius: var(--r-pill, 999px);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  transition: color 0.2s var(--ease), background 0.2s var(--ease);
+}
+
+.kopf nav button:hover {
+  color: var(--paper);
+}
+
+.kopf nav button[aria-current='true'] {
+  color: var(--ink);
+  background: var(--paper);
+}
+
+.inhalt {
+  overflow-y: auto;
+  padding: 32px 28px 40px;
+}
+
+.inhalt--mitte {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  overflow: hidden;
+  padding: 0;
+}
+
+/* ---------- Bühne mit Kugel ---------- */
+
+.buehne {
+  display: grid;
+  justify-items: center;
+  gap: 18px;
+  padding: 28px 28px 12px;
+  transition: padding 0.3s var(--ease), gap 0.3s var(--ease);
+}
+
+/* Wartet eine Freigabe, tritt die Bühne zurück. */
+.buehne--kompakt {
+  gap: 8px;
+  padding: 14px 28px 8px;
+}
+
+.buehne--kompakt .buehne__titel {
+  font-size: 22px;
+}
+
+.buehne__titel {
+  font-size: clamp(30px, 6vw, 46px);
+  font-weight: 300;
+  letter-spacing: 0.34em;
+  text-indent: 0.34em;
+  text-transform: uppercase;
+}
+
+.zustand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--chrome);
+}
+
+.zustand__punkt {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--muted);
+  transition: background 0.3s var(--ease);
+}
+
+.zustand--LISTENING .zustand__punkt {
+  background: var(--blau);
+}
+.zustand--THINKING .zustand__punkt,
+.zustand--EXECUTING .zustand__punkt {
+  background: var(--gelb);
+}
+.zustand--WAITING_FOR_APPROVAL .zustand__punkt {
+  background: var(--rot);
+}
+.zustand--SPEAKING .zustand__punkt {
+  background: var(--gruen);
+}
+
+.orb {
+  display: block;
+}
+
+/* ---------- Gespräch ---------- */
+
+.gespraech {
+  overflow-y: auto;
+  padding: 8px 28px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.beitrag {
+  max-width: 74ch;
+  animation: eintritt 0.35s var(--ease) both;
+}
+
+.beitrag--user {
+  align-self: flex-end;
+  text-align: right;
+}
+
+.beitrag__kopf {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.beitrag__text {
+  white-space: pre-wrap;
+}
+
+.beitrag--user .beitrag__text {
+  color: var(--chrome);
+}
+
+@keyframes eintritt {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.fortschritt {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+}
+
+/* ---------- Eingabe ---------- */
+
+.eingabe {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  padding: 16px 28px 22px;
+  border-top: 1px solid var(--line);
+}
+
+.eingabe textarea {
+  resize: none;
+  max-height: 140px;
+  min-height: 46px;
+  border-radius: var(--r-m);
+}
+
+.knopf {
+  border: 1px solid var(--line-hell);
+  border-radius: var(--r-m);
+  padding: 12px 18px;
+  white-space: nowrap;
+  transition: background 0.2s var(--ease), border-color 0.2s var(--ease), transform 0.2s var(--ease);
+}
+
+.knopf:hover:not(:disabled) {
+  background: var(--ink-3);
+  border-color: var(--paper);
+}
+
+.knopf:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.knopf:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Ein gesperrter Hauptknopf soll nicht wie eine graue Fläche wirken. */
+.knopf--stark:disabled {
+  background: none;
+  color: var(--muted);
+  border-color: var(--line);
+  opacity: 1;
+}
+
+.knopf--stark {
+  background: var(--paper);
+  color: var(--ink);
+  border-color: var(--paper);
+  font-weight: 600;
+}
+
+.knopf--stark:hover:not(:disabled) {
+  background: #fff;
+  color: var(--ink);
+}
+
+.knopf--gefahr {
+  border-color: rgba(226, 105, 95, 0.5);
+  color: var(--rot);
+}
+
+.knopf--mikro[aria-pressed='true'] {
+  background: var(--blau);
+  color: var(--ink);
+  border-color: var(--blau);
+}
+
+/* ---------- Freigabekarte ---------- */
+
+.freigabe {
+  border: 1px solid rgba(226, 105, 95, 0.45);
+  border-radius: var(--r-m);
+  background: var(--ink-2);
+  padding: 20px 22px;
+  animation: eintritt 0.35s var(--ease) both;
+  /* Steht im scrollbaren Verlauf, damit die Knöpfe immer erreichbar sind. */
+  scroll-margin-bottom: 24px;
+}
+
+.freigabe__titel {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--rot);
+  margin-bottom: 14px;
+}
+
+.freigabe dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 6px 16px;
+  margin-bottom: 14px;
+}
+
+.freigabe dt {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.freigabe dd {
+  word-break: break-word;
+}
+
+.freigabe__text {
+  white-space: pre-wrap;
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+  margin-bottom: 14px;
+  /* Begrenzt, damit die Entscheidungsknöpfe immer im Bild bleiben. */
+  max-height: min(240px, 26vh);
+  overflow-y: auto;
+  color: var(--chrome);
+}
+
+.freigabe__text textarea {
+  min-height: 220px;
+  resize: vertical;
+}
+
+.freigabe__hinweis {
+  border-left: 2px solid var(--gelb);
+  padding-left: 12px;
+  color: var(--gelb);
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+
+.freigabe__knoepfe {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* ---------- Tabellen ---------- */
+
+/*
+  Breite Tabellen scrollen in ihrer eigenen Hülle. Ohne das schiebt eine
+  einzige lange Spalte die gesamte Seite seitwärts.
+*/
+.tabelle-huelle {
+  overflow-x: auto;
+  border-radius: var(--r-s);
+}
+
+.tabelle {
+  width: 100%;
+  min-width: 1080px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.tabelle td:first-child,
+.tabelle th:first-child {
+  padding-left: 4px;
+}
+
+.spalte-firma {
+  min-width: 170px;
+}
+
+.spalte-grund {
+  min-width: 230px;
+}
+
+.spalte-aktion {
+  min-width: 130px;
+}
+
+.tabelle th {
+  text-align: left;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 400;
+  padding: 0 14px 10px 0;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+
+.tabelle td {
+  padding: 12px 14px 12px 0;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+.tabelle tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.marke {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--line-hell);
+  white-space: nowrap;
+}
+
+.marke--gruen {
+  color: var(--gruen);
+  border-color: rgba(87, 217, 163, 0.4);
+}
+.marke--gelb {
+  color: var(--gelb);
+  border-color: rgba(232, 194, 106, 0.4);
+}
+.marke--rot {
+  color: var(--rot);
+  border-color: rgba(226, 105, 95, 0.4);
+}
+.marke--grau {
+  color: var(--muted);
+}
+
+/* ---------- Abschnitte ---------- */
+
+.abschnitt {
+  max-width: 1100px;
+  margin: 0 auto 40px;
+}
+
+.abschnitt__kopf {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+.abschnitt h2 {
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+.karten {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.karte {
+  border: 1px solid var(--line);
+  border-radius: var(--r-m);
+  padding: 16px 18px;
+  background: var(--ink-2);
+}
+
+.karte h3 {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.karte p {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.leer {
+  color: var(--muted);
+  font-size: 14px;
+  padding: 24px 0;
+}
+
+.protokoll {
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.9;
+}
+
+.protokoll__zeile {
+  display: grid;
+  grid-template-columns: 60px 1fr auto;
+  gap: 14px;
+  border-bottom: 1px solid var(--line);
+  padding: 4px 0;
+}
+
+.protokoll__zeit {
+  color: var(--muted);
+}
+
+.formzeile {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: end;
+  margin-bottom: 10px;
+}
+
+.hinweisband {
+  border: 1px solid rgba(232, 194, 106, 0.35);
+  background: rgba(232, 194, 106, 0.06);
+  color: var(--gelb);
+  border-radius: var(--r-m);
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  font-size: 13px;
+}
+
+.meldung {
+  font-size: 13px;
+  color: var(--chrome);
+  margin-top: 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}

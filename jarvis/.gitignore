@@ -1,0 +1,17 @@
+node_modules/
+dist/
+release/
+
+# Konfiguration und Zugangsdaten gehören nicht ins Repository.
+.env
+.env.local
+tresor.json
+
+# Lokale Datenbank und Anhänge
+*.db
+*.db-wal
+*.db-shm
+anhaenge/
+
+.DS_Store
+*.log
