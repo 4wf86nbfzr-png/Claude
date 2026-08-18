@@ -4,16 +4,24 @@ import type { JarvisEnv } from '../config/env.js';
 import type { CredentialService } from '../services/credentials.js';
 import { err, fromException, ok, type Result } from '../util/result.js';
 import { newId } from '../util/text.js';
+import { LokaleErkennung } from './whisper-lokal.js';
 
 /**
  * Sprache ein und aus.
  *
- * Zwei Betriebsarten:
- *  - 'browser': Erkennung und Ausgabe laufen im Fenster ueber die Web-Speech-
- *    Schnittstelle. Kostet nichts, braucht keinen Schluessel, die Qualitaet
- *    haengt am Betriebssystem. Der Core hat dabei nichts zu tun -- er meldet
- *    das nur zurueck, damit die Oberflaeche weiss, dass sie selbst ran muss.
- *  - Anbieter mit Schluessel: die Audiodaten laufen durch den Core.
+ * Betriebsarten der Erkennung:
+ *  - 'lokal' (Standard): ein Whisper-Modell auf diesem Rechner. Kein
+ *    Schluessel, kein Ton verlaesst das Geraet. Kostet einen einmaligen
+ *    Download und etwas Rechenzeit je Aeusserung.
+ *  - 'browser': die Web-Speech-Schnittstelle des Fensters. Waere bequem,
+ *    faellt in Electron aber aus -- Google hat den Dienst dahinter auf Chrome
+ *    selbst beschraenkt. Bleibt nur fuer den Fall, dass die Oberflaeche in
+ *    einem echten Browser laeuft.
+ *  - 'openai': Whisper ueber die Schnittstelle von OpenAI, braucht Schluessel.
+ *
+ * Die Ausgabe laeuft standardmaessig ueber die Stimmen des Betriebssystems
+ * (SpeechSynthesis im Fenster) -- die funktionieren in Electron sehr wohl,
+ * weil sie nichts mit Googles Dienst zu tun haben.
  */
 
 export interface TranscriptionResult {
@@ -35,12 +43,27 @@ export interface VoiceStatus {
 }
 
 export class VoiceService {
+  private lokal: LokaleErkennung | null = null;
+
   constructor(
     private readonly env: JarvisEnv,
     private readonly credentials: CredentialService,
     private readonly audioDir: string,
     private readonly fetchImpl: typeof fetch = fetch,
-  ) {}
+    private readonly modelDir: string = audioDir,
+    erkennung?: LokaleErkennung,
+  ) {
+    if (erkennung) this.lokal = erkennung;
+  }
+
+  /** Die lokale Erkennung wird erst gebaut, wenn sie gebraucht wird. */
+  private lokaleErkennung(): LokaleErkennung {
+    this.lokal ??= new LokaleErkennung({
+      modell: this.env.JARVIS_STT_MODELL,
+      modellDir: this.modelDir,
+    });
+    return this.lokal;
+  }
 
   status(): VoiceStatus {
     const openAiKey = this.credentials.get('OPENAI_API_KEY');
@@ -48,18 +71,23 @@ export class VoiceService {
 
     const stt = this.env.JARVIS_STT_PROVIDER;
     const tts = this.env.JARVIS_TTS_PROVIDER;
+    const lokalDa = stt === 'lokal' && this.lokaleErkennung().heruntergeladen;
 
     return {
       stt: {
         provider: stt,
         imFenster: stt === 'browser',
-        bereit: stt === 'browser' || (stt === 'openai' && Boolean(openAiKey)),
+        bereit: stt === 'lokal' ? lokalDa : stt === 'browser' || (stt === 'openai' && Boolean(openAiKey)),
         hinweis:
-          stt === 'openai' && !openAiKey
-            ? 'OPENAI_API_KEY fehlt — ohne Schlüssel keine Transkription über OpenAI.'
-            : stt === 'none'
-              ? 'Spracheingabe ist abgeschaltet (JARVIS_STT_PROVIDER=none).'
-              : null,
+          stt === 'lokal' && !lokalDa
+            ? 'Das Spracherkennungsmodell ist noch nicht geladen — einmalig „npm run stimme" ausführen.'
+            : stt === 'browser'
+              ? 'Die Erkennung im Fenster (Web Speech) funktioniert in Electron nicht — Google beschränkt den Dienst auf Chrome selbst.'
+              : stt === 'openai' && !openAiKey
+                ? 'OPENAI_API_KEY fehlt — ohne Schlüssel keine Transkription über OpenAI.'
+                : stt === 'none'
+                  ? 'Spracheingabe ist abgeschaltet (JARVIS_STT_PROVIDER=none).'
+                  : null,
       },
       tts: {
         provider: tts,
@@ -80,12 +108,42 @@ export class VoiceService {
     };
   }
 
+  /**
+   * Wandelt rohe Abtastwerte in Text — der Weg, den die Oberfläche geht.
+   *
+   * Das Fenster hat die Audiodaten ohnehin schon als Float32 vorliegen und
+   * kann mit Web Audio sauber auf 16 kHz umrechnen. Sie hier noch einmal
+   * durch ein Containerformat zu schicken, wäre nur Verlust und Rechenzeit.
+   */
+  async transcribePcm(pcm: Float32Array): Promise<Result<TranscriptionResult>> {
+    const provider = this.env.JARVIS_STT_PROVIDER;
+    if (provider !== 'lokal') {
+      return err('NOT_CONFIGURED', `Rohe Abtastwerte kann nur die lokale Erkennung verarbeiten (eingestellt: ${provider}).`);
+    }
+    const r = await this.lokaleErkennung().transkribiere(pcm);
+    if (!r.ok) return r;
+    return ok({ text: r.data.text, provider: `lokal (${r.data.modell})`, language: 'de' });
+  }
+
+  /** Lädt das lokale Modell vorab, damit die erste Äußerung nicht wartet. */
+  async warmlaufen(): Promise<Result<{ modell: string; dauerMs: number }>> {
+    if (this.env.JARVIS_STT_PROVIDER !== 'lokal') {
+      return err('NOT_CONFIGURED', 'Es ist keine lokale Spracherkennung eingestellt.');
+    }
+    return this.lokaleErkennung().laden();
+  }
+
   /** Wandelt Audiodaten in Text. */
   async transcribe(audio: Buffer, filename = 'aufnahme.webm'): Promise<Result<TranscriptionResult>> {
     const provider = this.env.JARVIS_STT_PROVIDER;
     if (provider === 'browser') {
       return err('NOT_IMPLEMENTED', 'Die Spracherkennung läuft im Fenster (Web Speech API), nicht im Kern.', {
-        hint: 'Das ist kein Fehler — die Oberfläche übernimmt die Erkennung selbst.',
+        hint: 'In Electron funktioniert das nicht — dort „lokal" einstellen.',
+      });
+    }
+    if (provider === 'lokal') {
+      return err('INVALID_INPUT', 'Die lokale Erkennung erwartet rohe Abtastwerte, keine Audiodatei.', {
+        hint: 'Das Fenster rechnet die Aufnahme um und ruft transcribePcm auf.',
       });
     }
     if (provider === 'none') {

@@ -211,7 +211,24 @@ export class Jarvis {
       new IcsCalendar(repos.settings.get<string | null>('calendar.ics', null), system, fetchImpl);
 
     const outreach = new OutreachService({ repos, research, mail, llm, compliance, audit, memory, bus });
-    const voice = new VoiceService(env, credentials, paths.audioDir, fetchImpl);
+    // Dasselbe Spiel für die Spracherkennung: „npm run stimme" schreibt das
+    // gewählte Modell in die Einstellungen, eine Umgebungsvariable sticht.
+    const roheUmgebung = options.env ?? process.env;
+    const sttEnv: JarvisEnv = {
+      ...env,
+      ...(repos.settings.get<string | null>('voice.stt.modell', null) && !roheUmgebung.JARVIS_STT_MODELL
+        ? { JARVIS_STT_MODELL: repos.settings.get<string>('voice.stt.modell', env.JARVIS_STT_MODELL) }
+        : {}),
+      ...(repos.settings.get<string | null>('voice.stt.anbieter', null) && !roheUmgebung.JARVIS_STT_PROVIDER
+        ? {
+            JARVIS_STT_PROVIDER: repos.settings.get<JarvisEnv['JARVIS_STT_PROVIDER']>(
+              'voice.stt.anbieter',
+              env.JARVIS_STT_PROVIDER,
+            ),
+          }
+        : {}),
+    };
+    const voice = new VoiceService(sttEnv, credentials, paths.audioDir, fetchImpl, paths.modelDir);
 
     const mailReader =
       options.overrides?.mailReader !== undefined ? options.overrides.mailReader : new ImapReader(env, credentials);

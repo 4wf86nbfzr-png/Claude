@@ -85,6 +85,10 @@ export type Command =
 
   // --- Sprache -----------------------------------------------------------
   | { kind: 'voice.transcribe'; audio: ArrayBuffer; filename?: string }
+  /** Rohe 16-kHz-Abtastwerte (Float32) für die lokale Erkennung. */
+  | { kind: 'voice.transcribePcm'; pcm: ArrayBuffer }
+  | { kind: 'voice.warmup' }
+  | { kind: 'voice.status' }
   | { kind: 'voice.speak'; text: string }
 
   // --- System ------------------------------------------------------------

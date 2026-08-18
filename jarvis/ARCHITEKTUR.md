@@ -47,7 +47,7 @@ Alles andere ist Handwerk.
 
 Der Kern kennt weder Electron noch React. Das ist keine Stilfrage: dieselbe
 Logik läuft dadurch in der Desktop-App, in der Konsole (`npm run jarvis`) und
-in den Tests — und die 130 Tests brauchen weder Browser noch Netz.
+in den Tests — und die 161 Tests brauchen weder Browser noch Netz.
 
 ---
 
@@ -186,8 +186,10 @@ Der Gesprächsmodus verteilt sich bewusst auf beide Seiten der Grenze:
 | Teil | Wo | Warum dort |
 |---|---|---|
 | Schnips-Erkennung (Kurve → ja/nein) | `core/voice/schnips.ts` | Reine Rechnung auf Zahlen. Im Kern ist sie ohne Mikrofon testbar — `schnips.test.ts` spielt Kurven ab, statt zu schnipsen. |
-| Audio-Anbindung | `ui/lib/schnipser.ts` | Braucht Web Audio. Liefert je Rahmen Lautstärke und Hochanteil an den Erkenner. |
-| Gesprächsschleife | `ui/lib/gespraech.ts` | Braucht Erkennung und Sprachausgabe des Fensters. |
+| Satzgrenzen (wo fängt eine Äußerung an, wo hört sie auf) | `core/voice/segmente.ts` | Ebenfalls reine Rechnung, ebenfalls ohne Mikrofon prüfbar. |
+| Spracherkennung (Abtastwerte → Text) | `core/voice/whisper-lokal.ts` | Läuft in Node, wo die Modelldateien liegen und keine Inhaltsrichtlinie im Weg steht. |
+| Audio-Anbindung | `ui/lib/schnipser.ts`, `ui/lib/diktat-lokal.ts` | Braucht Web Audio. Liefert Pegel an die Erkenner und die Abtastwerte an den Kern. |
+| Gesprächsschleife | `ui/lib/gespraech.ts` | Führt Zuhören, Antworten und Reinreden zusammen. |
 | Ton und Anlässe | `core/agents/gespraech.ts` | Was JARVIS im Gespräch sagen darf und was er von sich aus anspricht, ist Fachlogik. |
 
 `Jarvis.ask(text, { gespraechsmodus: true })` tauscht nur den System-Prompt aus;
@@ -203,6 +205,33 @@ zählt nicht, Sprache hat den Hochanteil nicht, Dauerlärm hebt den Grundpegel u
 damit die Schwelle. Zwei Sperrzeiten verhindern, dass der Nachhall desselben
 Schnipsens als zweites Ereignis durchgeht — genau daran ist die Variante
 „zweimal schnipsen" beim ersten Anlauf gescheitert.
+
+**Warum eine eigene Erkennung.** Die Web-Speech-Schnittstelle wäre der
+bequeme Weg — kein Download, keine Rechenzeit. Sie funktioniert in Electron
+aber nicht: Chrome bezieht sie von einem Dienst bei Google, den Google auf
+Chrome selbst beschränkt hat (electron/electron#7749). Deshalb läuft ein
+Whisper-Modell lokal. Der Weg einer Äußerung:
+
+```
+Mikrofon ─► AnalyserNode ─► Sprachsegmentierer ─┐   (Fenster)
+                                                │ „Satz fertig"
+   ScriptProcessor sammelt Abtastwerte ◄────────┘
+             │ OfflineAudioContext: 48 kHz → 16 kHz
+             ▼
+       voice.transcribePcm  ──────────────────────►  (Kern)
+             │                       LokaleErkennung → Whisper
+             ▼
+          Text ─► Gesprächsschleife ─► JarvisCore
+```
+
+Zwei Dinge, die dabei nicht offensichtlich sind. Erstens laufen **zwei**
+Mikrofonströme: der Schnips-Erkenner braucht die Automatiken aus (sie bügeln
+die Transiente weg), die Spracherkennung braucht sie an (sonst hört JARVIS
+seinen eigenen Lautsprecher). Zweitens reicht die Echounterdrückung allein
+nicht — bei aufgedrehten Boxen kommt der letzte Satz zurück, wird erkannt und
+als neue Anweisung behandelt. Dagegen steht `istEigenerNachhall`, das Erkanntes
+mit dem eben Gesagten abgleicht; kurze Zurufe („ja", „senden") sind davon
+ausgenommen, damit nie eine echte Entscheidung verschluckt wird.
 
 **Wenn die Erkennung grundsätzlich nicht geht** (kein Mikrofon, Zugriff
 verweigert, keine Web-Speech-Schnittstelle), endet das Gespräch mit einer klaren
@@ -234,7 +263,7 @@ weiterer Transport oder als Werkzeuggruppe.
 
 ## Testaufbau
 
-`packages/core/test/` — 130 Tests, ohne Netz, ohne echte Schlüssel.
+`packages/core/test/` — 161 Tests, ohne Netz, ohne echte Schlüssel.
 
 | Datei | Prüft |
 |---|---|
@@ -251,7 +280,10 @@ weiterer Transport oder als Werkzeuggruppe.
 | `anweisung-zu-tat.test.ts` | Anweisung → Delegation → Werkzeug → tatsächlicher Programmstart |
 | `lokales-modell.test.ts` | Ollama-Protokoll gegen einen echten HTTP-Server, inkl. Werkzeugtauglichkeit |
 | `schnips.test.ts` | Schnips-Erkennung: Transiente ja, Sprache und Dauerlärm nein, Sperrzeiten |
-| `gespraech.test.ts` | Gesprächston, Auswahl und Gewichtung dessen, was JARVIS von sich aus anspricht |
+| `gespraech.test.ts` | Gesprächston, Anlässe, und dass JARVIS nicht sein eigenes Echo beantwortet |
+| `segmente.test.ts` | Satzgrenzen aus Pegelkurven: Atempause ja, Dauerlärm nein, Höchstlänge |
+| `whisper-lokal.test.ts` | Laden, Fehlerwege und Whispers Standfloskeln bei Stille |
+| `probe.test.ts` | Bewertung der Selbstprüfung nach der Einrichtung |
 
 Die Attrappen in `test/fakes.ts` (`FakeLlm`, `FakeTransport`, `fakeFetch`)
 verdrahten eine vollständige JARVIS-Instanz — es wird also der echte Code

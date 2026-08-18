@@ -38,11 +38,23 @@ Sie:     „Ja."       → JETZT erst geht die Mail raus
 
 Voraussetzung: Node.js 20.11 oder neuer.
 
+**Zum Ausprobieren genügt ein Befehl.** Er prüft der Reihe nach, was fehlt,
+sagt jeweils wie groß der Download ist und was er tut, fragt nach — und
+startet dann:
+
 ```bash
 cd jarvis
+npm run testversion
+```
+
+Von Hand geht es genauso:
+
+```bash
 npm install
 cp .env.example .env      # optional – geht auch über den Assistenten
 npm run setup             # fragt ab, was noch fehlt
+npm run modell            # lokales Sprachmodell (Denken), ohne Schlüssel
+npm run stimme            # lokale Spracherkennung (Zuhören), ohne Schlüssel
 npm start                 # Desktop-App
 ```
 
@@ -144,11 +156,39 @@ Versandzentrale). Wird ausschließlich lesend verwendet.
 
 ### 5. Sprache — läuft ohne Schlüssel
 
-Standardmäßig übernimmt das Fenster Erkennung und Ausgabe über die
-Web-Speech-Schnittstelle des Systems. Kostet nichts. Wer eine bessere Stimme
-möchte: `JARVIS_TTS_PROVIDER=openai` (braucht `OPENAI_API_KEY`) oder
-`elevenlabs` (`ELEVENLABS_API_KEY` + `ELEVENLABS_VOICE_ID`).
-Für Diktat über Whisper statt Systemerkennung: `JARVIS_STT_PROVIDER=openai`.
+```bash
+npm run stimme            # einmalig: Modell laden und prüfen
+```
+
+**Zuhören** übernimmt ein Whisper-Modell auf Ihrem Rechner. Kein Schlüssel,
+kein Ton verlässt das Gerät; einmalig rund 490 MB Download.
+
+Warum nicht die Erkennung des Browsers, die nichts kostet und nichts lädt?
+Weil sie in Electron nicht funktioniert. Chrome bekommt sie von einem Dienst
+bei Google, und den hat Google auf Chrome selbst beschränkt — in einer
+Electron-Anwendung antwortet er nur mit `network` bzw. `service-not-allowed`
+([electron#7749](https://github.com/electron/electron/issues/7749)). Das ist
+kein Fehler in JARVIS und lässt sich von außen auch nicht abstellen. Wer die
+Oberfläche ausnahmsweise in einem echten Browser betreibt
+(`npm run dev -w @jarvis/ui`), kann mit `JARVIS_STT_PROVIDER=browser` deren
+Erkennung nehmen.
+
+Der Assistent behauptet am Ende nicht, dass es geht, sondern sieht nach: das
+Betriebssystem spricht einen Probesatz, der läuft durch die Erkennung, und es
+steht da, was zurückkam, wie gut es passte und wie schnell es ging.
+
+| Modell | Größe | Wofür |
+|---|---|---|
+| Whisper base | 145 MB | Kurze Anweisungen. Bei Namen und Fachbegriffen ungenau. |
+| **Whisper small** | **490 MB** | **Empfohlen.** Versteht deutsche Sätze zuverlässig. |
+| Whisper large v3 turbo | 1,6 GB | Beste Erkennung, braucht reichlich Arbeitsspeicher. |
+
+**Sprechen** läuft über die Stimmen des Betriebssystems — die haben mit
+Googles Dienst nichts zu tun und funktionieren in Electron einwandfrei. Wer
+eine bessere Stimme möchte: `JARVIS_TTS_PROVIDER=openai` (braucht
+`OPENAI_API_KEY`) oder `elevenlabs` (`ELEVENLABS_API_KEY` +
+`ELEVENLABS_VOICE_ID`). Diktat über die Schnittstelle von OpenAI statt lokal:
+`JARVIS_STT_PROVIDER=openai`.
 
 ### 6. Kalender — optional
 
@@ -269,10 +309,10 @@ jarvis/
 │   │   ├── llm/            Anthropic / OpenAI / Ollama
 │   │   ├── system/         Dateien, Programme, Zwischenablage
 │   │   ├── calendar/       ICS
-│   │   ├── voice/          Transkription, Sprachausgabe, Schnips-Erkennung
+│   │   ├── voice/          Whisper lokal, Segmentierung, Schnips-Erkennung
 │   │   ├── ipc/            Befehlsvertrag zwischen Kern und Fenster
 │   │   └── cli/            Einrichtungsassistent, Konsolen-JARVIS
-│   └── test/               130 Tests, ohne Netz und ohne echte Schlüssel
+│   └── test/               161 Tests, ohne Netz und ohne echte Schlüssel
 ├── packages/desktop/       Electron-Hauptprozess + Vorlade-Skript
 └── packages/ui/            React-Oberfläche
 ```
@@ -391,11 +431,23 @@ Löschen und Überschreiben brauchen zusätzlich eine Freigabe.
 ## Entwicklung
 
 ```bash
-npm test                  # 130 Tests, kein Netz, keine echten Schlüssel nötig
+npm run testversion       # Startklar machen und starten (fragt, was fehlt)
+npm run stimme            # Spracherkennung einrichten und wirklich prüfen
+npm test                  # 161 Tests, kein Netz, keine echten Schlüssel nötig
 npm run typecheck         # alle drei Pakete
 npm run build             # Kern, Oberfläche, Desktop
 npm run dist              # Installationspakete (electron-builder)
 ```
+
+> **Zu den Abhängigkeiten:** `npm audit` meldet drei Funde, alle unterhalb der
+> lokalen Spracherkennung: `adm-zip` (entpackt beim Installieren die
+> onnxruntime-Binärdateien) und `sharp` bzw. dessen `libvips`. Beide erreicht
+> JARVIS im Betrieb nicht — `sharp` gehört zum Bildteil von transformers.js,
+> und der wird für Spracherkennung nicht angefasst. Wer das nicht in Kauf
+> nehmen will, entfernt `@huggingface/transformers` und stellt
+> `JARVIS_STT_PROVIDER=openai` oder `none` ein; alles außer der lokalen
+> Erkennung läuft dann weiter.
+> Behoben wird das dort, wo es hingehört — sobald transformers.js nachzieht.
 
 Für den Entwicklungsmodus zwei Terminals:
 
@@ -452,6 +504,11 @@ Ehrlichkeitshalber, damit niemand danach sucht:
   Heuristik auf der Lautstärkekurve, kein trainiertes Modell. „Hey JARVIS"
   bräuchte eine Weckwort-Erkennung; die Schleife hängt aber nur an einem
   Auslöser und ließe sich austauschen.
+- **Keine mitlaufende Erkennung beim Sprechen.** Die lokale Erkennung
+  versteht eine fertige Äußerung, nicht Silbe für Silbe. Zwischen dem Ende
+  eines Satzes und der Antwort liegt deshalb die Rechenzeit für die
+  Erkennung — auf einem Apple-Silicon-Mac mit `small` unter einer Sekunde,
+  auf älteren Maschinen spürbar mehr.
 - **ICS-Wiederholungsregeln** (`RRULE`) werden nicht aufgelöst. Serientermine
   erscheinen nur mit ihrem ersten Termin.
 - **Kein Google-/Outlook-Kalender über API** — nur ICS. Die Schnittstelle

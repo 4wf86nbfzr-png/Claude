@@ -15,6 +15,8 @@ export interface JarvisPaths {
   audioDir: string;
   cacheDir: string;
   logDir: string;
+  /** Lokale Sprachmodelle für die Erkennung (Whisper). */
+  modelDir: string;
 }
 
 export function resolvePaths(dataDirOverride?: string): JarvisPaths {
@@ -30,6 +32,7 @@ export function resolvePaths(dataDirOverride?: string): JarvisPaths {
     audioDir: join(dataDir, 'audio'),
     cacheDir: join(dataDir, 'cache'),
     logDir: join(dataDir, 'logs'),
+    modelDir: join(dataDir, 'modelle'),
   };
   return paths;
 }
@@ -41,6 +44,7 @@ export function ensurePaths(paths: JarvisPaths): JarvisPaths {
     paths.audioDir,
     paths.cacheDir,
     paths.logDir,
+    paths.modelDir,
   ]) {
     mkdirSync(dir, { recursive: true, mode: 0o700 });
   }

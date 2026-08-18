@@ -25,6 +25,8 @@ export default defineConfig({
     alias: {
       '@jarvis/core/ipc': resolve(__dirname, '../core/src/ipc/contract.ts'),
       '@jarvis/core/schnips': resolve(__dirname, '../core/src/voice/schnips.ts'),
+      '@jarvis/core/segmente': resolve(__dirname, '../core/src/voice/segmente.ts'),
+      '@jarvis/core/nachhall': resolve(__dirname, '../core/src/voice/nachhall.ts'),
     },
   },
 });

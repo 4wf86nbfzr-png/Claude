@@ -55,6 +55,13 @@ export function Gespraechsschalter({
 
   const schnipserRef = useRef<Schnipser | null>(null);
   const gespraechRef = useRef<Gespraech | null>(null);
+  /**
+   * Welche Erkennung zuhört, sagt der Kern. In der Desktop-App ist das die
+   * lokale — die des Browsers funktioniert dort nicht. Läuft die Oberfläche
+   * ausnahmsweise in einem echten Browser, darf sie dessen Erkennung nehmen.
+   */
+  const erkennungRef = useRef<'lokal' | 'browser'>('lokal');
+  const [sttHinweis, setSttHinweis] = useState<string | null>(null);
 
   const zustandSetzen = useCallback(
     (z: GespraechsZustand) => {
@@ -73,6 +80,7 @@ export function Gespraechsschalter({
   const gespraechStarten = useCallback(() => {
     if (gespraechRef.current) return; // läuft schon
     gespraechRef.current = starteGespraech({
+      erkennung: erkennungRef.current,
       frage: async (text) => {
         const r = await jarvis.senden({ kind: 'ask', text, gespraechsmodus: true });
         if (r.ok) {
@@ -147,6 +155,23 @@ export function Gespraechsschalter({
       schnipserRef.current = null;
     };
   }, [einstellungen.an, einstellungen.empfindlichkeit, einstellungen.doppelschnipsen]);
+
+  // Einmal beim Anzeigen fragen, womit erkannt wird.
+  useEffect(() => {
+    let abgebrochen = false;
+    void jarvis.senden({ kind: 'voice.status' }).then((r) => {
+      if (abgebrochen || !r.ok) return;
+      const stt = (r.data as { stt: { provider: string; bereit: boolean; hinweis: string | null } }).stt;
+      erkennungRef.current = stt.provider === 'browser' ? 'browser' : 'lokal';
+      setSttHinweis(stt.bereit ? null : stt.hinweis);
+    });
+    return () => {
+      abgebrochen = true;
+    };
+    // Absichtlich nur beim ersten Mal: die Einstellung ändert sich nicht
+    // mitten im Betrieb, und `jarvis` wird bei jeder Änderung neu gebaut.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Beim Verlassen alles abräumen.
   useEffect(() => () => {
@@ -244,6 +269,7 @@ export function Gespraechsschalter({
         </div>
       )}
 
+      {sttHinweis && !fehler && <p className="hinweis hinweis--warn">{sttHinweis}</p>}
       {fehler && <p className="hinweis hinweis--warn">{fehler}</p>}
     </div>
   );

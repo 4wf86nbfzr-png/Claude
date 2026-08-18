@@ -23,6 +23,7 @@
     "migrations": "node scripts/generate-migrations.mjs"
   },
   "dependencies": {
+    "@huggingface/transformers": "^4.2.0",
     "better-sqlite3": "^11.5.0",
     "imapflow": "^1.0.164",
     "mailparser": "^3.7.1",

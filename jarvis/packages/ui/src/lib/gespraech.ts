@@ -1,3 +1,5 @@
+import { istEigenerNachhall } from '@jarvis/core/nachhall';
+import { starteLokalesDiktat } from './diktat-lokal.js';
 import { schweig, sprich, starteDiktat, type Diktat } from './voice.js';
 
 /**
@@ -41,6 +43,11 @@ export interface GespraechsOptionen {
   onFehler: (meldung: string, endgueltig?: boolean) => void;
   /** Nach so vielen Millisekunden Stille endet das Gespräch. */
   stillePauseMs?: number;
+  /**
+   * Welche Erkennung zuhört. `lokal` ist der Normalfall in der Desktop-App --
+   * die Erkennung des Browsers funktioniert dort nicht (siehe voice.ts).
+   */
+  erkennung?: 'lokal' | 'browser';
 }
 
 export interface Gespraech {
@@ -62,6 +69,9 @@ export function starteGespraech(optionen: GespraechsOptionen): Gespraech {
   let leerstarts = 0;
   /** Laufende Nummer der Erkennung, um abgelöste Läufe zu erkennen. */
   let lauf = 0;
+  /** Was JARVIS zuletzt gesagt hat -- um sein eigenes Echo zu erkennen. */
+  let letzteAntwort = '';
+  const lokal = (optionen.erkennung ?? 'lokal') === 'lokal';
 
   const setze = (z: GespraechsZustand) => {
     zustand = z;
@@ -92,7 +102,9 @@ export function starteGespraech(optionen: GespraechsOptionen): Gespraech {
     gesagt = '';
     if (!text || beendet) return;
 
-    diktat?.stop();
+    // Die Browsererkennung wird angehalten, solange gedacht wird; die lokale
+    // läuft weiter, damit man JARVIS auch dabei ins Wort fallen kann.
+    if (!lokal) diktat?.stop();
     setze('denkt');
     optionen.onGesagt('benutzer', text);
 
@@ -101,11 +113,17 @@ export function starteGespraech(optionen: GespraechsOptionen): Gespraech {
 
     if (antwort) {
       setze('spricht');
+      letzteAntwort = antwort;
       optionen.onGesagt('jarvis', antwort);
       sprich(antwort, { unterbrechen: true });
     }
     // Direkt weiter zuhören -- das Gespräch läuft.
-    hoerenStarten();
+    if (lokal) {
+      if (!diktat?.laeuft()) hoerenStarten();
+      else stilleNeuStarten();
+    } else {
+      hoerenStarten();
+    }
   };
 
   const hoerenStarten = () => {
@@ -119,53 +137,74 @@ export function starteGespraech(optionen: GespraechsOptionen): Gespraech {
     const meiner = lauf;
     const veraltet = () => meiner !== lauf;
 
-    diktat = starteDiktat({
-      sprache: 'de-DE',
-      onText: ({ text, endgueltig }) => {
-        if (beendet || veraltet()) return;
-        leerstarts = 0;
-        stilleNeuStarten();
+    const aufText = ({ text, endgueltig }: { text: string; endgueltig: boolean }) => {
+      if (beendet || veraltet()) return;
+      leerstarts = 0;
+      stilleNeuStarten();
 
-        // Reinreden: sobald der Mensch spricht, hört JARVIS auf zu reden.
-        if (zustand === 'spricht') {
-          schweig();
-          setze('hoert');
-        }
+      // Reinreden: sobald der Mensch spricht, hört JARVIS auf zu reden.
+      if (zustand === 'spricht') {
+        schweig();
+        setze('hoert');
+      }
 
-        if (endgueltig) {
-          gesagt = gesagt ? `${gesagt} ${text}` : text;
-          optionen.onZwischentext?.('');
-          planeSenden();
-        } else {
-          optionen.onZwischentext?.(text);
-        }
-      },
-      // Kein `veraltet()` hier: die Erkennung meldet ihren Fehler oft erst,
-      // wenn der nächste Lauf schon steht. Ein endgültiger Fehler bleibt aber
-      // endgültig, egal welcher Lauf ihn gemeldet hat.
-      onFehler: (meldung, code) => {
-        if (beendet) return;
-        if (ENDGUELTIGE_FEHLER.has(code)) {
-          optionen.onFehler(`${meldung} Das Gespräch ist damit beendet.`, true);
-          beenden();
-          return;
-        }
-        // „Nichts gehört" ist im Gespräch der Normalfall und keine Meldung wert.
-        if (code !== 'no-speech' && meldung) optionen.onFehler(meldung);
-      },
-      onEnde: () => {
-        // Die Browsererkennung endet von selbst; im Gespräch fangen wir
-        // einfach wieder an -- aber nicht endlos, wenn dabei nie etwas ankommt.
-        if (beendet || veraltet() || zustand === 'denkt') return;
-        leerstarts += 1;
-        if (leerstarts > MAX_LEERSTARTS) {
-          optionen.onFehler('Die Spracherkennung liefert nichts. Bitte tippen Sie Ihre Anweisung.', true);
-          beenden();
-          return;
-        }
-        window.setTimeout(hoerenStarten, 150);
-      },
-    });
+      if (!endgueltig) {
+        optionen.onZwischentext?.(text);
+        return;
+      }
+
+      /*
+       * Der eigene Lautsprecher kommt bei der lokalen Erkennung mit ins
+       * Mikrofon. Was zu sehr nach dem klingt, was JARVIS gerade gesagt hat,
+       * wird verworfen -- sonst antwortet er auf sich selbst.
+       */
+      if (istEigenerNachhall(letzteAntwort, text)) {
+        optionen.onZwischentext?.('');
+        return;
+      }
+
+      gesagt = gesagt ? `${gesagt} ${text}` : text;
+      optionen.onZwischentext?.('');
+      planeSenden();
+    };
+
+    // Kein `veraltet()` in onFehler: die Erkennung meldet ihren Fehler oft
+    // erst, wenn der nächste Lauf schon steht. Ein endgültiger Fehler bleibt
+    // aber endgültig, egal welcher Lauf ihn gemeldet hat.
+    const aufFehler = (meldung: string, code: string) => {
+      if (beendet) return;
+      if (ENDGUELTIGE_FEHLER.has(code)) {
+        optionen.onFehler(`${meldung} Das Gespräch ist damit beendet.`, true);
+        beenden();
+        return;
+      }
+      // „Nichts gehört" ist im Gespräch der Normalfall und keine Meldung wert.
+      if (code !== 'no-speech' && meldung) optionen.onFehler(meldung);
+    };
+
+    if (lokal) {
+      // Die lokale Erkennung läuft durch, bis sie gestoppt wird -- sie muss
+      // nicht nach jeder Äußerung neu angeworfen werden.
+      diktat = starteLokalesDiktat({ onText: aufText, onFehler: aufFehler });
+    } else {
+      diktat = starteDiktat({
+        sprache: 'de-DE',
+        onText: aufText,
+        onFehler: aufFehler,
+        onEnde: () => {
+          // Die Browsererkennung endet von selbst; im Gespräch fangen wir
+          // einfach wieder an -- aber nicht endlos, wenn nie etwas ankommt.
+          if (beendet || veraltet() || zustand === 'denkt') return;
+          leerstarts += 1;
+          if (leerstarts > MAX_LEERSTARTS) {
+            optionen.onFehler('Die Spracherkennung liefert nichts. Bitte tippen Sie Ihre Anweisung.', true);
+            beenden();
+            return;
+          }
+          window.setTimeout(hoerenStarten, 150);
+        },
+      });
+    }
 
     if (!diktat) {
       optionen.onFehler('Dieses System bietet keine Spracherkennung im Fenster an.', true);
@@ -193,6 +232,7 @@ export function starteGespraech(optionen: GespraechsOptionen): Gespraech {
     setze('spricht');
     const eroeffnung = await optionen.eroeffnung();
     if (beendet) return;
+    letzteAntwort = eroeffnung;
     optionen.onGesagt('jarvis', eroeffnung);
     sprich(eroeffnung, { unterbrechen: true });
     // Kurz warten, damit die eigene Stimme nicht als Eingabe ankommt.

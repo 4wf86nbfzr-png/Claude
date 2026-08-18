@@ -39,7 +39,11 @@
         "dmg",
         "zip"
       ],
-      "hardenedRuntime": true
+      "hardenedRuntime": true,
+      "extendInfo": {
+        "NSMicrophoneUsageDescription": "JARVIS hört auf Ihr Schnipsen und auf gesprochene Anweisungen. Die Auswertung passiert auf diesem Rechner; es wird nichts aufgezeichnet und nichts verschickt.",
+        "NSSpeechRecognitionUsageDescription": "Gesprochene Anweisungen werden auf diesem Rechner in Text umgewandelt."
+      }
     },
     "win": {
       "target": [

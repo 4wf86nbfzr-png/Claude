@@ -384,6 +384,12 @@ export class CommandHandler {
       // --- Sprache ------------------------------------------------------------
       case 'voice.transcribe':
         return j.voice.transcribe(Buffer.from(c.audio), c.filename ?? 'aufnahme.webm');
+      case 'voice.transcribePcm':
+        return j.voice.transcribePcm(new Float32Array(c.pcm));
+      case 'voice.status':
+        return ok(j.voice.status());
+      case 'voice.warmup':
+        return j.voice.warmlaufen();
       case 'voice.speak':
         return j.voice.speak(c.text);
 

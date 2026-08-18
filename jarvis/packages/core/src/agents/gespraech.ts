@@ -166,3 +166,5 @@ export async function begruessung(ctx: JarvisContext, jetzt = new Date()): Promi
   if (stunde < 18) return 'Ja?';
   return 'Ja, bitte?';
 }
+
+export { istEigenerNachhall } from '../voice/nachhall.js';

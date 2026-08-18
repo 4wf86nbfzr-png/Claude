@@ -14,6 +14,7 @@
   "scripts": {
     "build": "npm run build -w @jarvis/core && npm run build -w @jarvis/ui && npm run build -w @jarvis/desktop",
     "build:core": "npm run build -w @jarvis/core",
+    "testversion": "node scripts/testversion.mjs",
     "start": "npm run build && npm run rebuild:electron && npm run start -w @jarvis/desktop",
     "dev": "npm run rebuild:electron && npm run dev -w @jarvis/desktop",
     "test": "npm run rebuild:node && npm run test -w @jarvis/core",
@@ -21,6 +22,7 @@
     "typecheck": "npm run typecheck -w @jarvis/core && npm run typecheck -w @jarvis/ui",
     "setup": "npm run rebuild:node && npm run build:core && node packages/core/dist/cli/setup.js",
     "modell": "npm run rebuild:node && npm run build:core && node packages/core/dist/cli/modell.js",
+    "stimme": "npm run rebuild:node && npm run build:core && node packages/core/dist/cli/stimme.js",
     "jarvis": "npm run rebuild:node && node packages/core/dist/cli/jarvis-cli.js",
     "migrations": "npm run migrations -w @jarvis/core",
     "dist": "npm run build && npm run dist -w @jarvis/desktop",

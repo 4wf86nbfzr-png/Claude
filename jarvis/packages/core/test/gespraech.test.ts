@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { FakeLlm, makeJarvis, type TestJarvis } from './fakes.js';
-import { gespraechsPrompt } from '../src/agents/gespraech.js';
+import { gespraechsPrompt, istEigenerNachhall } from '../src/agents/gespraech.js';
 import { ok } from '../src/util/result.js';
 import type { CalendarEvent, CalendarSource } from '../src/calendar/index.js';
 
@@ -150,5 +150,35 @@ describe('Sprechregeln im Gesprächsmodus', () => {
 
     // Die Werkzeugliste ist in beiden Fällen dieselbe.
     expect(gespraech.tools?.map((w) => w.name).sort()).toEqual(geschrieben.tools?.map((w) => w.name).sort());
+  });
+});
+
+describe('istEigenerNachhall', () => {
+  const gesagt =
+    'Eine Sache wartet noch auf Ihre Freigabe: E-Mail an die Eimsbüttel Bauträger GmbH. Soll ich sie Ihnen vorlesen?';
+
+  it('erkennt den eigenen Satz, auch wenn die Erkennung ihn verhunzt', () => {
+    // So kommt so ein Satz realistisch aus einem Mikrofon zurück.
+    expect(
+      istEigenerNachhall(gesagt, 'eine Sache wartet noch auf Ihre Freigabe E-Mail an die Eimsbüttel Bauträger'),
+    ).toBe(true);
+  });
+
+  it('hält eine echte Antwort des Menschen nicht für ein Echo', () => {
+    expect(istEigenerNachhall(gesagt, 'Ja, lies sie mir bitte vor und mach sie kürzer')).toBe(false);
+    expect(istEigenerNachhall(gesagt, 'Nein, lieber später')).toBe(false);
+  });
+
+  it('verschluckt niemals kurze Zurufe', () => {
+    // Genau die Wörter, die auch im eigenen Satz vorkommen -- und trotzdem
+    // eine Entscheidung des Menschen.
+    for (const kurz of ['Ja', 'Nein', 'Senden', 'Vorlesen', 'Freigabe']) {
+      expect(istEigenerNachhall(gesagt, kurz)).toBe(false);
+    }
+  });
+
+  it('bleibt ruhig, wenn nichts gesagt wurde', () => {
+    expect(istEigenerNachhall('', 'irgendein Satz von jemandem')).toBe(false);
+    expect(istEigenerNachhall(gesagt, '')).toBe(false);
   });
 });

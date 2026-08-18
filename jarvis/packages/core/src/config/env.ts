@@ -72,7 +72,9 @@ export const envSchema = z.object({
   OLLAMA_BASE_URL: z.string().default('http://127.0.0.1:11434'),
 
   // --- Sprache (STT/TTS) --------------------------------------------------
-  JARVIS_STT_PROVIDER: z.enum(['openai', 'browser', 'none']).default('browser'),
+  JARVIS_STT_PROVIDER: z.enum(['lokal', 'openai', 'browser', 'none']).default('lokal'),
+  /** Welches Whisper-Modell die lokale Erkennung nutzt. */
+  JARVIS_STT_MODELL: z.string().default('onnx-community/whisper-small'),
   JARVIS_TTS_PROVIDER: z.enum(['openai', 'elevenlabs', 'browser', 'none']).default('browser'),
   JARVIS_TTS_VOICE: z.string().default('alloy'),
   ELEVENLABS_API_KEY: z.string().optional(),
