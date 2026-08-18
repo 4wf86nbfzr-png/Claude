@@ -1,0 +1,12 @@
+node_modules/
+dist/
+release/
+*.log
+
+# Zugangsdaten gehören nicht in die Versionsverwaltung.
+.env
+.env.local
+
+# Lokale Daten (Datenbank, Schlüsseldatei, Arbeitsordner), falls jemand
+# JARVIS_DATA_DIR auf das Projekt zeigen lässt.
+data/

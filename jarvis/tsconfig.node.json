@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "lib": ["ES2023"],
+    "types": ["node"],
+    "noEmit": true,
+    "outDir": "dist/.tsbuild-node"
+  },
+  "include": ["src/main/**/*.ts", "src/core/**/*.ts", "src/shared/**/*.ts", "tests/**/*.ts", "scripts/**/*.mjs"],
+  "references": []
+}

@@ -1,0 +1,44 @@
+appId: com.hermserviceteam.jarvis
+productName: JARVIS
+copyright: HERM Service Team e.K.
+
+directories:
+  output: release
+  buildResources: build
+
+# Nur das Gebaute und die Laufzeitabhängigkeiten wandern ins Paket — kein
+# Quellcode, keine Testdaten, keine .env.
+files:
+  - dist/**/*
+  - package.json
+  - '!**/*.map'
+  - '!**/node_modules/*/{test,__tests__,tests,example,examples,doc,docs}/**'
+
+asar: true
+
+mac:
+  category: public.app-category.productivity
+  target:
+    - dmg
+    - zip
+  hardenedRuntime: true
+  # Mikrofon für die Spracheingabe; ohne diesen Text verweigert macOS den Zugriff.
+  extendInfo:
+    NSMicrophoneUsageDescription: JARVIS benötigt das Mikrofon für die Sprachsteuerung.
+
+win:
+  target:
+    - nsis
+  # Ohne Zertifikat wird unsigniert gebaut; SmartScreen warnt dann beim ersten Start.
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  perMachine: false
+
+linux:
+  target:
+    - AppImage
+    - deb
+  category: Office
+  synopsis: Lokaler Desktop-Assistent für Recherche und Akquise
