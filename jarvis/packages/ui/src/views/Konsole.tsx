@@ -3,6 +3,7 @@ import { Gespraechsschalter } from '../components/Gespraechsschalter.js';
 import { VoiceOrb } from '../components/VoiceOrb.js';
 import { useJarvis } from '../lib/store.js';
 import type { GespraechsZustand } from '../lib/gespraech.js';
+import { starteLokalesDiktat } from '../lib/diktat-lokal.js';
 import { spracherkennungVerfuegbar, starteDiktat, type Diktat } from '../lib/voice.js';
 
 /**
@@ -20,13 +21,34 @@ export function Konsole(): JSX.Element {
   const [zwischentext, setZwischentext] = useState('');
   const [sprachfehler, setSprachfehler] = useState<string | null>(null);
   const [gespraech, setGespraech] = useState<GespraechsZustand>('schlafend');
+  /**
+   * Womit die Sprechtaste hört. In der Desktop-App ist das die lokale
+   * Erkennung -- die des Browsers antwortet dort nur mit „nicht erreichbar",
+   * weil Google den Dienst dahinter auf Chrome selbst beschränkt hat.
+   */
+  const [erkennung, setErkennung] = useState<'lokal' | 'browser'>('lokal');
 
   const diktatRef = useRef<Diktat | null>(null);
   const verlaufRef = useRef<HTMLDivElement>(null);
   const feldRef = useRef<HTMLTextAreaElement>(null);
   const pegelTimer = useRef<number | null>(null);
 
-  const verfuegbar = spracherkennungVerfuegbar();
+  const verfuegbar = erkennung === 'lokal' || spracherkennungVerfuegbar();
+
+  // Einmal beim Öffnen fragen, welche Erkennung der Kern vorsieht.
+  useEffect(() => {
+    let abgebrochen = false;
+    void jarvis.senden({ kind: 'voice.status' }).then((r) => {
+      if (abgebrochen || !r.ok) return;
+      const stt = (r.data as { stt: { provider: string } }).stt;
+      setErkennung(stt.provider === 'browser' ? 'browser' : 'lokal');
+    });
+    return () => {
+      abgebrochen = true;
+    };
+    // Absichtlich nur einmal: die Einstellung ändert sich nicht im Betrieb.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Verlauf immer unten halten.
   useEffect(() => {
@@ -50,22 +72,23 @@ export function Konsole(): JSX.Element {
     if (hoert || jarvis.beschaeftigt) return;
     setSprachfehler(null);
 
-    const diktat = starteDiktat({
-      sprache: 'de-DE',
-      onText: ({ text, endgueltig }) => {
-        if (endgueltig) {
-          setZwischentext('');
-          setEntwurf((alt) => (alt ? `${alt} ${text}` : text));
-        } else {
-          setZwischentext(text);
-        }
-      },
-      onFehler: (meldung) => {
-        setSprachfehler(meldung);
-        stoppeHoeren();
-      },
-      onEnde: () => stoppeHoeren(),
-    });
+    const aufText = ({ text, endgueltig }: { text: string; endgueltig: boolean }) => {
+      if (endgueltig) {
+        setZwischentext('');
+        setEntwurf((alt) => (alt ? `${alt} ${text}` : text));
+      } else {
+        setZwischentext(text);
+      }
+    };
+    const aufFehler = (meldung: string) => {
+      setSprachfehler(meldung);
+      stoppeHoeren();
+    };
+
+    const diktat =
+      erkennung === 'lokal'
+        ? starteLokalesDiktat({ onText: aufText, onFehler: aufFehler })
+        : starteDiktat({ sprache: 'de-DE', onText: aufText, onFehler: aufFehler, onEnde: () => stoppeHoeren() });
 
     if (!diktat) {
       setSprachfehler('Dieses System bietet keine Spracherkennung im Fenster an. Bitte tippen.');
@@ -105,7 +128,7 @@ export function Konsole(): JSX.Element {
       .catch(() => {
         /* Ohne Pegelanzeige funktioniert die Erkennung trotzdem. */
       });
-  }, [hoert, jarvis, stoppeHoeren]);
+  }, [erkennung, hoert, jarvis, stoppeHoeren]);
 
   // Leertaste als Sprechtaste, solange man nicht im Textfeld ist.
   useEffect(() => {

@@ -62,23 +62,36 @@ export function starteLokalesDiktat(optionen: LokalesDiktatOptionen): Diktat {
     nimmtAuf = false;
   };
 
+  /**
+   * Beendet die Aufnahme — und schickt vorher weg, was noch im Puffer liegt.
+   *
+   * Ohne dieses Nachreichen verlöre die Sprechtaste jedes Wort: sie hält das
+   * Mikrofon nur, solange die Taste gedrückt ist, und die Segmentierung
+   * schneidet erst bei Stille. Wer loslässt, hat dann zwar gesprochen, aber
+   * nie ein Satzende erzeugt.
+   */
   const beenden = () => {
     if (!aktiv) return;
     aktiv = false;
+    const mindestens = 0.3 * abtastrate; // unter 300 ms ist kein Wort
+    const gesammelt = nimmtAuf ? aufnahme.reduce((n, x) => n + x.length, 0) : 0;
+    const rest = gesammelt >= mindestens ? aufnahme : [];
     aufraeumen();
+    if (rest.length > 0) void abschicken(rest, true);
     optionen.onEnde?.();
   };
 
-  const abschicken = async (stuecke: Float32Array[]) => {
+  const abschicken = async (stuecke: Float32Array[], nachZuschluss = false) => {
     const pcm = zusammenfuegen(stuecke);
     if (pcm.length === 0) return;
 
     const gerechnet = await aufTeilrate(pcm, abtastrate, WHISPER_ABTASTRATE);
-    if (!aktiv) return;
+    // Beim Nachreichen ist `aktiv` schon false -- das ist hier kein Abbruch.
+    if (!aktiv && !nachZuschluss) return;
 
     // Der Puffer geht als übertragbares Objekt an den Kern -- kein Kopieren.
     const antwort = await befehl({ kind: 'voice.transcribePcm', pcm: gerechnet.buffer as ArrayBuffer });
-    if (!aktiv) return;
+    if (!aktiv && !nachZuschluss) return;
 
     if (!antwort.ok) {
       optionen.onFehler(antwort.error.message, antwort.error.code === 'NOT_CONFIGURED' ? 'start' : 'erkennung');
