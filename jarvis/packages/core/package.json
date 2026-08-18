@@ -27,7 +27,7 @@
     "better-sqlite3": "^11.5.0",
     "imapflow": "^1.0.164",
     "mailparser": "^3.7.1",
-    "nodemailer": "^6.9.15",
+    "nodemailer": "^9.0.5",
     "zod": "^3.23.8",
     "zod-to-json-schema": "^3.25.2"
   },

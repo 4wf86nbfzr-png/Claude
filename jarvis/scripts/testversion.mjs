@@ -81,13 +81,14 @@ async function main() {
       return null;
     }
   };
-  const jaNein = async (text) => {
-    const antwort = await frage(`${text} [J/n] `);
+  const jaNein = async (text, standardJa = true) => {
+    const antwort = await frage(`${text} ${standardJa ? '[J/n]' : '[j/N]'} `);
     if (antwort === null) {
       zeile('\n  Abgebrochen.');
       return false;
     }
-    return antwort === '' || antwort.startsWith('j') || antwort.startsWith('y');
+    if (antwort === '') return standardJa;
+    return antwort.startsWith('j') || antwort.startsWith('y');
   };
 
   try {
@@ -129,26 +130,26 @@ async function main() {
     } else {
       const modelle = await ollamaLaeuft();
       if (modelle === null) {
-        nein('Kein Ollama erreichbar und kein API-Schlüssel gesetzt.');
-        matt('    Ohne Sprachmodell versteht JARVIS keine Anweisung.\n');
+        warn('Kein Sprachmodell eingerichtet.');
+        matt('    JARVIS startet trotzdem — Sie können alle Ansichten ansehen und');
+        matt('    sich umsehen. Auf Anweisungen antworten kann er erst mit Modell.\n');
         if (!vorhanden('ollama')) {
-          matt('    Ollama ist nicht installiert. Auf dem Mac:');
-          matt('        brew install ollama        (oder ollama.com/download)');
-          matt('    Danach in einem zweiten Fenster:  ollama serve\n');
+          matt('    Nachholen, ganz ohne Terminal:');
+          matt('      1. ollama.com/download öffnen, .dmg laden');
+          matt('      2. Ollama nach „Programme\" ziehen und einmal starten');
+          matt('      3. Hier wieder doppelklicken\n');
         } else {
-          matt('    Ollama ist da, läuft aber nicht. In einem zweiten Fenster:');
-          matt('        ollama serve\n');
+          matt('    Ollama ist installiert, läuft aber nicht.');
+          matt('    Einmal aus dem Ordner „Programme\" starten, dann hier wieder');
+          matt('    doppelklicken.\n');
         }
-        matt('    Anschließend hier weiter mit:  npm run modell');
-        return;
-      }
-      if (modelle.length === 0) {
+      } else if (modelle.length === 0) {
         warn('Ollama läuft, hat aber noch kein Modell.');
-        matt('    Der Assistent lädt eines und prüft, ob es Werkzeuge aufrufen kann:');
-        if (await jaNein('    Jetzt einrichten? (Download rund 5 GB)')) {
+        matt('    Der Assistent lädt eines und prüft, ob es Werkzeuge aufrufen kann.');
+        if (await jaNein('    Jetzt einrichten? (Download rund 5 GB)', false)) {
           laufen('npm', ['run', 'modell'], { stdio: 'inherit' });
         } else {
-          return;
+          matt('    Übersprungen — JARVIS startet, antwortet aber noch nicht.');
         }
       } else {
         ja(`Ollama läuft mit: ${modelle.slice(0, 3).join(', ')}`);
@@ -166,7 +167,7 @@ async function main() {
       matt('    Ohne das können Sie tippen, aber nicht sprechen. Die Erkennung');
       matt('    des Browsers scheidet aus: Google beschränkt sie auf Chrome selbst,');
       matt('    in Electron liefert sie nur einen Netzwerkfehler.\n');
-      if (await jaNein('    Jetzt einrichten? (Download rund 490 MB, mit Selbsttest)')) {
+      if (await jaNein('    Jetzt einrichten? (Download rund 490 MB, mit Selbsttest)', false)) {
         laufen('npm', ['run', 'stimme'], { stdio: 'inherit' });
       } else {
         matt('    Übersprungen — Sprache bleibt vorerst aus. Nachholen: npm run stimme');
