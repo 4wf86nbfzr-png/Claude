@@ -47,7 +47,7 @@ Alles andere ist Handwerk.
 
 Der Kern kennt weder Electron noch React. Das ist keine Stilfrage: dieselbe
 Logik läuft dadurch in der Desktop-App, in der Konsole (`npm run jarvis`) und
-in den Tests — und die 110 Tests brauchen weder Browser noch Netz.
+in den Tests — und die 130 Tests brauchen weder Browser noch Netz.
 
 ---
 
@@ -179,6 +179,38 @@ nicht als Erfolg ausgeben. Ein Fehler beim Versand landet zusätzlich als
 
 ---
 
+## Schnipsen und Gespräch
+
+Der Gesprächsmodus verteilt sich bewusst auf beide Seiten der Grenze:
+
+| Teil | Wo | Warum dort |
+|---|---|---|
+| Schnips-Erkennung (Kurve → ja/nein) | `core/voice/schnips.ts` | Reine Rechnung auf Zahlen. Im Kern ist sie ohne Mikrofon testbar — `schnips.test.ts` spielt Kurven ab, statt zu schnipsen. |
+| Audio-Anbindung | `ui/lib/schnipser.ts` | Braucht Web Audio. Liefert je Rahmen Lautstärke und Hochanteil an den Erkenner. |
+| Gesprächsschleife | `ui/lib/gespraech.ts` | Braucht Erkennung und Sprachausgabe des Fensters. |
+| Ton und Anlässe | `core/agents/gespraech.ts` | Was JARVIS im Gespräch sagen darf und was er von sich aus anspricht, ist Fachlogik. |
+
+`Jarvis.ask(text, { gespraechsmodus: true })` tauscht nur den System-Prompt aus;
+Werkzeuge, Freigaben und Audit-Log bleiben dieselben. Der Gesprächsmodus ist
+also kein zweiter Weg an der Sicherheitsregel vorbei, sondern ein anderer Ton
+auf demselben Weg.
+
+**Was die Erkennung von einem Klatschen unterscheidet:** ein Schnipsen ist ein
+sehr kurzer, heller Knall. Der Erkenner verlangt deshalb drei Dinge zugleich —
+einen Pegelsprung um das Mehrfache des Grundpegels, einen hohen Anteil über
+2 kHz und ein Abklingen innerhalb von etwa 130 ms. Ein „Klick" ohne Abklingen
+zählt nicht, Sprache hat den Hochanteil nicht, Dauerlärm hebt den Grundpegel und
+damit die Schwelle. Zwei Sperrzeiten verhindern, dass der Nachhall desselben
+Schnipsens als zweites Ereignis durchgeht — genau daran ist die Variante
+„zweimal schnipsen" beim ersten Anlauf gescheitert.
+
+**Wenn die Erkennung grundsätzlich nicht geht** (kein Mikrofon, Zugriff
+verweigert, keine Web-Speech-Schnittstelle), endet das Gespräch mit einer klaren
+Meldung *und* der Schnips-Schalter geht aus. Ohne das zweite würde jedes weitere
+Schnipsen ein Gespräch starten, das nicht funktionieren kann.
+
+---
+
 ## Erweiterungspunkte
 
 | Was | Wo ansetzen |
@@ -191,6 +223,7 @@ nicht als Erfolg ausgeben. Ein Fehler beim Versand landet zusätzlich als
 | Neues Werkzeug | `defineTool` in `tools/`, Agenten zuordnen |
 | Neuer Agent | `AgentDefinition` in `agents/index.ts` — Werkzeugliste knapp halten |
 | Neue Ansicht | `views/` + Eintrag in `App.tsx` |
+| Anderes Weckwort statt Schnipsen | `ui/lib/schnipser.ts` ersetzen — die Schleife hängt nur an `onSchnips` |
 | Neuer Befehl ans Fenster | `Command`-Union in `ipc/contract.ts`; der Compiler zeigt, wo er fehlt |
 
 Die Anbindungen aus dem Pflichtenheft (WhatsApp Business, Telefonie, CRM,
@@ -201,7 +234,7 @@ weiterer Transport oder als Werkzeuggruppe.
 
 ## Testaufbau
 
-`packages/core/test/` — 110 Tests, ohne Netz, ohne echte Schlüssel.
+`packages/core/test/` — 130 Tests, ohne Netz, ohne echte Schlüssel.
 
 | Datei | Prüft |
 |---|---|
@@ -217,6 +250,8 @@ weiterer Transport oder als Werkzeuggruppe.
 | `system.test.ts` | Programmnamen je System, Pfadgrenzen, echte Dateioperationen |
 | `anweisung-zu-tat.test.ts` | Anweisung → Delegation → Werkzeug → tatsächlicher Programmstart |
 | `lokales-modell.test.ts` | Ollama-Protokoll gegen einen echten HTTP-Server, inkl. Werkzeugtauglichkeit |
+| `schnips.test.ts` | Schnips-Erkennung: Transiente ja, Sprache und Dauerlärm nein, Sperrzeiten |
+| `gespraech.test.ts` | Gesprächston, Auswahl und Gewichtung dessen, was JARVIS von sich aus anspricht |
 
 Die Attrappen in `test/fakes.ts` (`FakeLlm`, `FakeTransport`, `fakeFetch`)
 verdrahten eine vollständige JARVIS-Instanz — es wird also der echte Code

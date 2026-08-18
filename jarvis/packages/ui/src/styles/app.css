@@ -55,6 +55,16 @@
   box-sizing: border-box;
 }
 
+/* Ankreuzfelder tragen die Schrift-, nicht die Systemfarbe -- ein blaues
+   Häkchen ist das einzige Blau, das die Oberfläche sonst nirgends kennt. */
+input[type='checkbox'],
+input[type='radio'] {
+  accent-color: var(--paper);
+  width: 0.95rem;
+  height: 0.95rem;
+  cursor: pointer;
+}
+
 html,
 body,
 #wurzel {
@@ -1051,4 +1061,86 @@ h3 {
 
 .bereit__detail {
   color: var(--muted);
+}
+
+/* -------------------------------------------------------- Gesprächsmodus */
+/*
+ * Der Schalter steht bewusst sichtbar über dem Verlauf und nicht in einem
+ * Untermenü: ein dauerhaft offenes Mikrofon gehört an eine Stelle, an der
+ * man es sieht und jederzeit ausschalten kann.
+ */
+
+.schnips {
+  border-top: 1px solid var(--line-soft);
+  padding-top: var(--gap-s);
+  display: grid;
+  gap: var(--gap-s);
+}
+
+.schnips__reihe {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-s);
+  flex-wrap: wrap;
+}
+
+.schnips__schalter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.88rem;
+}
+
+.schnips__hinweis {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+  max-width: var(--measure);
+}
+
+.schnips__details {
+  display: grid;
+  gap: var(--gap-s);
+  padding: var(--gap-s) 0 0;
+  border-top: 1px solid var(--line-soft);
+}
+
+.schnips__feld {
+  display: grid;
+  gap: 0.25rem;
+  max-width: 28rem;
+}
+
+.schnips__feld select {
+  /* Ohne `appearance: none` malt das System das Feld hell -- mitten in eine
+     schwarze Oberfläche. */
+  appearance: none;
+  background: var(--ink-2);
+  color: var(--paper);
+  font: inherit;
+  border: 1px solid var(--line);
+  border-radius: var(--r-s);
+  padding: 0.4rem 2rem 0.4rem 0.6rem;
+  cursor: pointer;
+  /* Chevron als Hintergrundbild, damit kein zusätzliches Markup nötig ist. */
+  background-image: linear-gradient(45deg, transparent 50%, var(--chrome) 50%),
+    linear-gradient(135deg, var(--chrome) 50%, transparent 50%);
+  background-position: calc(100% - 1.05rem) 55%, calc(100% - 0.75rem) 55%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+
+.schnips__feld select:focus-visible {
+  border-color: var(--chrome);
+  outline: 2px solid var(--chrome);
+  outline-offset: 2px;
+}
+
+/* Der Orb bekommt im Gespräch einen eigenen Zustand. */
+.orb[data-zustand='GESPRÄCH'] .orb__ring {
+  border-color: var(--ok);
+}
+.orb[data-zustand='GESPRÄCH'] .orb__kern {
+  background: var(--ok);
 }

@@ -41,7 +41,14 @@ export class CommandHandler {
     switch (c.kind) {
       // --- Gespraech -------------------------------------------------------
       case 'ask':
-        return j.ask(c.text, c.conversationId ? { conversationId: c.conversationId } : {});
+        return j.ask(c.text, {
+          ...(c.conversationId ? { conversationId: c.conversationId } : {}),
+          ...(c.gespraechsmodus ? { gespraechsmodus: true } : {}),
+        });
+      case 'conversation.openers':
+        return ok({ anlaesse: await j.anlaesse() });
+      case 'conversation.greeting':
+        return ok({ text: await j.begruessung() });
       case 'abort':
         return ok({ abgebrochen: j.abort() });
       case 'conversations':

@@ -21,6 +21,8 @@ export interface AgentDefinition {
 
 export interface AgentRunInput {
   task: string;
+  /** Ersetzt den System-Prompt fuer diesen Lauf (z. B. Gespraechsmodus). */
+  systemPrompt?: (ctx: JarvisContext) => string;
   /** Vorgeschichte aus dem Gespraech (nur beim Hauptagenten sinnvoll). */
   history?: LlmMessage[];
   conversationId?: string | null;
@@ -63,6 +65,9 @@ export class Agent {
     const ctx = withAgentName(baseCtx, this.definition.name);
     const maxSteps = this.definition.maxSteps ?? 12;
     const specs = ctx.registry.specs(this.definition.tools);
+    // Im Gespraechsmodus gelten andere Sprechregeln -- gleiche Werkzeuge,
+    // gleiches Modell, nur ein anderer System-Prompt.
+    const systemPrompt = input.systemPrompt ?? this.definition.systemPrompt;
 
     const messages: LlmMessage[] = [...(input.history ?? []), { role: 'user', content: input.task }];
     const laufNachrichten: LlmMessage[] = [{ role: 'user', content: input.task }];
@@ -84,7 +89,7 @@ export class Agent {
       let response: ChatResponse;
       try {
         response = await ctx.llm.chat({
-          system: this.definition.systemPrompt(ctx),
+          system: systemPrompt(ctx),
           messages,
           tools: specs,
           toolChoice: specs.length > 0 ? 'auto' : 'none',

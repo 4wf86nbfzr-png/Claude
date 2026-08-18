@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { Gespraechsschalter } from '../components/Gespraechsschalter.js';
 import { VoiceOrb } from '../components/VoiceOrb.js';
 import { useJarvis } from '../lib/store.js';
+import type { GespraechsZustand } from '../lib/gespraech.js';
 import { spracherkennungVerfuegbar, starteDiktat, type Diktat } from '../lib/voice.js';
 
 /**
@@ -17,6 +19,7 @@ export function Konsole(): JSX.Element {
   const [hoert, setHoert] = useState(false);
   const [zwischentext, setZwischentext] = useState('');
   const [sprachfehler, setSprachfehler] = useState<string | null>(null);
+  const [gespraech, setGespraech] = useState<GespraechsZustand>('schlafend');
 
   const diktatRef = useRef<Diktat | null>(null);
   const verlaufRef = useRef<HTMLDivElement>(null);
@@ -139,15 +142,32 @@ export function Konsole(): JSX.Element {
     void jarvis.frage(text);
   };
 
-  const statusText = hoert ? 'LISTENING' : jarvis.zustand;
+  // Im Gespräch führt dessen Zustand die Anzeige -- er ist der unmittelbarere.
+  const orbZustand =
+    gespraech === 'hoert'
+      ? 'LISTENING'
+      : gespraech === 'denkt'
+        ? 'THINKING'
+        : gespraech === 'spricht'
+          ? 'SPEAKING'
+          : hoert
+            ? 'LISTENING'
+            : jarvis.zustand;
+
+  const statusText =
+    gespraech !== 'schlafend'
+      ? { hoert: 'LISTENING', denkt: 'THINKING', spricht: 'SPEAKING', schlafend: '' }[gespraech]
+      : hoert
+        ? 'LISTENING'
+        : jarvis.zustand;
 
   return (
     <div className="konsole">
       <div className="orb-bereich">
         <VoiceOrb
-          zustand={hoert ? 'LISTENING' : jarvis.zustand}
+          zustand={orbZustand}
           pegel={pegel}
-          aktiv={hoert}
+          aktiv={hoert || gespraech !== 'schlafend'}
           onKlick={() => (hoert ? stoppeHoeren() : starteHoeren())}
         />
         <p className="statuszeile" aria-live="polite">
@@ -170,7 +190,7 @@ export function Konsole(): JSX.Element {
           <div className="leer">
             <p style={{ marginTop: 0 }}>
               {verfuegbar
-                ? 'Leertaste halten und sprechen — oder unten tippen.'
+                ? 'Leertaste halten und sprechen, schnipsen für ein freies Gespräch — oder unten tippen.'
                 : 'Unten tippen. Spracheingabe ist auf diesem System nicht verfügbar.'}
             </p>
             <p className="eyebrow" style={{ marginTop: '1.5rem' }}>Zum Beispiel</p>
@@ -211,6 +231,13 @@ export function Konsole(): JSX.Element {
       </div>
 
       {sprachfehler && <p className="hinweis hinweis--warn">{sprachfehler}</p>}
+
+      <Gespraechsschalter
+        onZustand={setGespraech}
+        onPegel={setPegel}
+        onGesagt={(wer, text) => jarvis.anhaengenVonAussen(wer, text)}
+        onZwischentext={setZwischentext}
+      />
 
       <div className="eingabe">
         <textarea

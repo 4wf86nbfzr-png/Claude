@@ -26,6 +26,7 @@ import { truncate } from './util/text.js';
 import type { JarvisContext } from './context.js';
 import { withAgentName } from './context.js';
 import { Agent, createAgents } from './agents/index.js';
+import { begruessung, gespraechsanlaesse, gespraechsPrompt, type Gespraechsanlass } from './agents/gespraech.js';
 import type { AgentRunResult } from './agents/base.js';
 import type { ApprovalRow } from './db/schema.js';
 
@@ -279,7 +280,7 @@ export class Jarvis {
    */
   async ask(
     text: string,
-    options: { conversationId?: string; actor?: string } = {},
+    options: { conversationId?: string; actor?: string; gespraechsmodus?: boolean } = {},
   ): Promise<Result<{ antwort: string; agent: string; konversationId: string; freigabeEntschieden?: string }>> {
     const eingabe = text.trim();
     if (!eingabe) return err('INVALID_INPUT', 'Es wurde nichts gesagt.');
@@ -309,7 +310,16 @@ export class Jarvis {
     };
 
     const verlauf = this.historyAsMessages(conversationId);
-    const result = await this.core.run({ task: eingabe, history: verlauf, conversationId }, ctx);
+    const name = this.memory.list('person').find((m) => m.key.toLowerCase() === 'name')?.value ?? null;
+    const result = await this.core.run(
+      {
+        task: eingabe,
+        history: verlauf,
+        conversationId,
+        ...(options.gespraechsmodus ? { systemPrompt: (c: JarvisContext) => gespraechsPrompt(c, name) } : {}),
+      },
+      ctx,
+    );
     this.laufenderAuftrag = null;
 
     if (!result.ok) {
@@ -639,6 +649,19 @@ export class Jarvis {
         fehler: r.outcome === 'fehler',
       })),
     };
+  }
+
+  /**
+   * Womit JARVIS ein Gespräch eröffnen kann -- ausschliesslich aus dem
+   * tatsaechlichen Zustand. Gibt es nichts, ist die Liste leer.
+   */
+  async anlaesse(jetzt = new Date()): Promise<Gespraechsanlass[]> {
+    return gespraechsanlaesse(this.baseContext, jetzt);
+  }
+
+  /** Der Satz, mit dem er sich meldet. */
+  async begruessung(jetzt = new Date()): Promise<string> {
+    return begruessung(this.baseContext, jetzt);
   }
 
   /** Kontext fuer Tests und fuer die IPC-Schicht. */

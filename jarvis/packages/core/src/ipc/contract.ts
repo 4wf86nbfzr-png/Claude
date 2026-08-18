@@ -14,7 +14,9 @@ export const IPC_EVENT_CHANNEL = 'jarvis:ereignis';
 
 export type Command =
   // --- Gespraech ---------------------------------------------------------
-  | { kind: 'ask'; text: string; conversationId?: string }
+  | { kind: 'ask'; text: string; conversationId?: string; gespraechsmodus?: boolean }
+  | { kind: 'conversation.openers' }
+  | { kind: 'conversation.greeting' }
   | { kind: 'abort' }
   | { kind: 'conversations' }
   | { kind: 'conversation.messages'; conversationId: string }

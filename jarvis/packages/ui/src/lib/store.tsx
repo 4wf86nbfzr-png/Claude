@@ -66,6 +66,8 @@ interface JarvisStore {
   setZustand(z: Zustand, detail?: string): void;
   senden(command: Command): Promise<CommandResponse>;
   neuLaden(): void;
+  /** Beitrag aus dem Gesprächsmodus in den Verlauf schreiben. */
+  anhaengenVonAussen(wer: 'benutzer' | 'jarvis', text: string): void;
 }
 
 const Kontext = createContext<JarvisStore | null>(null);
@@ -243,6 +245,7 @@ export function JarvisProvider({ children }: { children: ReactNode }): JSX.Eleme
       },
       senden: befehl,
       neuLaden,
+      anhaengenVonAussen: (wer, text) => anhaengen({ art: wer === 'benutzer' ? 'benutzer' : 'jarvis', text }),
     }),
     [
       bereit,
@@ -261,6 +264,7 @@ export function JarvisProvider({ children }: { children: ReactNode }): JSX.Eleme
       freigeben,
       ablehnen,
       neuLaden,
+      anhaengen,
     ],
   );
 

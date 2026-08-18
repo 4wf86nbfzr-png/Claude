@@ -30,6 +30,7 @@ export * from './outreach/service.js';
 export * from './system/index.js';
 export * from './calendar/index.js';
 export * from './voice/index.js';
+export * from './voice/schnips.js';
 export * from './tools/index.js';
 export * from './agents/index.js';
 

@@ -6,6 +6,7 @@ import type { ChatRequest, ChatResponse, LlmProvider } from '../src/llm/types.js
 import type { MailTransport, OutgoingMessage, SendOutcome } from '../src/mail/types.js';
 import { ok, err, type Result } from '../src/util/result.js';
 import { silentLogger } from '../src/util/logger.js';
+import type { CalendarSource } from '../src/calendar/index.js';
 
 /** Sprachmodell-Attrappe: liefert vorbereitete Antworten der Reihe nach. */
 export class FakeLlm implements LlmProvider {
@@ -98,6 +99,7 @@ export function makeJarvis(
     /** Standard: jeder Programmstart „gelingt", ohne dass ein Prozess entsteht. */
     systemLauncher?: (command: string, args: string[]) => Promise<Result<{ befehl: string }>>;
     allowedRoots?: string[];
+    calendar?: CalendarSource;
   } = {},
 ): TestJarvis {
   const dir = mkdtempSync(join(tmpdir(), 'jarvis-e2e-'));
@@ -127,6 +129,7 @@ export function makeJarvis(
       systemLauncher:
         options.systemLauncher ?? (async (befehl, args) => ok({ befehl: [befehl, ...args].join(' ') })),
       allowedRoots: options.allowedRoots ?? [dir],
+      ...(options.calendar ? { calendar: options.calendar } : {}),
       ...(options.fetchImpl ? { fetchImpl: options.fetchImpl } : {}),
     },
   });

@@ -47,7 +47,8 @@ export interface Diktat {
 /** Fortlaufendes Diktat mit Zwischenergebnissen. */
 export function starteDiktat(optionen: {
   onText: (e: ErkennungsEreignis) => void;
-  onFehler: (meldung: string) => void;
+  /** `code` ist der rohe Fehlerschlüssel der Erkennung, z. B. `no-speech`. */
+  onFehler: (meldung: string, code: string) => void;
   onEnde?: () => void;
   sprache?: string;
 }): Diktat | null {
@@ -80,12 +81,13 @@ export function starteDiktat(optionen: {
     const meldungen: Record<string, string> = {
       'not-allowed': 'Der Zugriff auf das Mikrofon wurde abgelehnt.',
       'service-not-allowed': 'Die Spracherkennung ist auf diesem System nicht freigegeben.',
+      'audio-capture': 'Es ist kein Mikrofon da, an das die Erkennung herankommt.',
       'no-speech': 'Es war nichts zu hören.',
       network: 'Die Spracherkennung ist nicht erreichbar.',
       aborted: '',
     };
     const meldung = meldungen[e.error] ?? `Spracherkennung fehlgeschlagen (${e.error}).`;
-    if (meldung) optionen.onFehler(meldung);
+    if (meldung) optionen.onFehler(meldung, e.error);
   };
 
   erkennung.onend = () => {
@@ -100,7 +102,7 @@ export function starteDiktat(optionen: {
         erkennung.start();
         aktiv = true;
       } catch (e) {
-        optionen.onFehler(e instanceof Error ? e.message : String(e));
+        optionen.onFehler(e instanceof Error ? e.message : String(e), 'start');
       }
     },
     stop() {

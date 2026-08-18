@@ -14,6 +14,7 @@ import {
 
 export * from './base.js';
 export * from './prompts.js';
+export * from './gespraech.js';
 
 /**
  * Die Fachagenten.

@@ -269,10 +269,10 @@ jarvis/
 │   │   ├── llm/            Anthropic / OpenAI / Ollama
 │   │   ├── system/         Dateien, Programme, Zwischenablage
 │   │   ├── calendar/       ICS
-│   │   ├── voice/          Transkription und Sprachausgabe
+│   │   ├── voice/          Transkription, Sprachausgabe, Schnips-Erkennung
 │   │   ├── ipc/            Befehlsvertrag zwischen Kern und Fenster
 │   │   └── cli/            Einrichtungsassistent, Konsolen-JARVIS
-│   └── test/               110 Tests, ohne Netz und ohne echte Schlüssel
+│   └── test/               130 Tests, ohne Netz und ohne echte Schlüssel
 ├── packages/desktop/       Electron-Hauptprozess + Vorlade-Skript
 └── packages/ui/            React-Oberfläche
 ```
@@ -320,6 +320,40 @@ sondern als `PERMISSION_DENIED` zurückgemeldet — auch das ist getestet.
 den Orb klicken für Dauerbetrieb. Die Statuszeile zeigt
 `LISTENING` / `THINKING` / `EXECUTING` / `WAITING FOR APPROVAL`.
 
+### Schnipsen und freies Gespräch
+
+Unter dem Verlauf steht *Auf Schnipsen hören*. Ist das an, öffnet ein Schnipsen
+das Gespräch: JARVIS meldet sich sofort von selbst — und zwar nicht mit einer
+Floskel, sondern mit dem, was gerade ansteht („Eine Sache wartet noch auf Ihre
+Freigabe: E-Mail an die Eimsbüttel Bauträger GmbH. Soll ich sie Ihnen
+vorlesen?"). Danach läuft es wie ein Gespräch: reden, antworten, weiterreden.
+Ins Wort fallen ist erlaubt — wer anfängt zu sprechen, während JARVIS spricht,
+bringt ihn zum Schweigen. Bleibt es zwölf Sekunden still, verabschiedet er sich
+von selbst. Ein zweites Schnipsen beendet ebenfalls.
+
+Im Gespräch antwortet JARVIS **kurz und gesprochen**: ein bis drei Sätze, keine
+Aufzählungen, keine Kennungen und keine Adressen zum Mitschreiben. Was er
+vorschlägt, fragt er auch — und zwar von sich aus, wenn eine Freigabe wartet,
+etwas fehlgeschlagen ist, eine Antwort eingegangen ist oder ein Termin ansteht.
+Der Text steht parallel im Verlauf; wer lieber liest, tippt einfach weiter.
+
+Drei Dinge, die man dazu wissen sollte:
+
+- **Das Mikrofon ist offen, solange „Auf Schnipsen hören" an ist.** Der Ton wird
+  ausschließlich im Fenster ausgewertet — nichts wird aufgezeichnet, nichts
+  gespeichert, nichts verschickt. Erst wenn Sie nach dem Schnipsen wirklich
+  sprechen, geht der erkannte Satz an das Sprachmodell.
+- **Der Schalter bleibt nicht über den Programmstart hinweg an.** Empfindlichkeit
+  und Doppelschnipsen werden gemerkt, das Anschalten bewusst nicht: ein Mikrofon,
+  das beim Start von allein aufgeht, ist nichts, was man erben sollte.
+- **Akustische Erkennung ist nicht perfekt.** Klatschen, ein zufallender Deckel
+  oder ein harter Tastenanschlag klingen ähnlich. Gegen Fehlauslöser helfen die
+  Stufe *streng* und die Option *zweimal schnipsen*.
+
+Die Freigaberegel gilt im Gespräch unverändert: „Senden" per Zuruf reicht nur,
+wenn genau eine Sache wartet und JARVIS unmittelbar davor danach gefragt hat.
+Ein bloßes „ja" ohne vorherige Rückfrage ist keine Freigabe.
+
 **Tastatur:** `Strg`/`Cmd` + `1`–`7` wechselt die Ansicht, `Enter` sendet,
 `Shift+Enter` macht einen Absatz, `Esc` schließt Dialoge.
 
@@ -357,7 +391,7 @@ Löschen und Überschreiben brauchen zusätzlich eine Freigabe.
 ## Entwicklung
 
 ```bash
-npm test                  # 110 Tests, kein Netz, keine echten Schlüssel nötig
+npm test                  # 130 Tests, kein Netz, keine echten Schlüssel nötig
 npm run typecheck         # alle drei Pakete
 npm run build             # Kern, Oberfläche, Desktop
 npm run dist              # Installationspakete (electron-builder)
@@ -414,6 +448,10 @@ Ehrlichkeitshalber, damit niemand danach sucht:
 - **Keine Antwort-Token im Fluss.** Antworten erscheinen als Ganzes, nicht Wort
   für Wort. Die Anbieter-Schnittstelle ist dafür vorbereitet, die
   Streaming-Auswertung fehlt.
+- **Kein gesprochenes Weckwort.** Geweckt wird per Schnipsen — das ist eine
+  Heuristik auf der Lautstärkekurve, kein trainiertes Modell. „Hey JARVIS"
+  bräuchte eine Weckwort-Erkennung; die Schleife hängt aber nur an einem
+  Auslöser und ließe sich austauschen.
 - **ICS-Wiederholungsregeln** (`RRULE`) werden nicht aufgelöst. Serientermine
   erscheinen nur mit ihrem ersten Termin.
 - **Kein Google-/Outlook-Kalender über API** — nur ICS. Die Schnittstelle
