@@ -4,13 +4,15 @@ import { useJarvis } from './lib/store.js';
 import { Einrichtung } from './views/Einrichtung.js';
 import { Firmen } from './views/Firmen.js';
 import { Freigaben } from './views/Freigaben.js';
+import { Kommandozentrale } from './views/Kommandozentrale.js';
 import { Konsole } from './views/Konsole.js';
 import { Protokoll } from './views/Protokoll.js';
 import { Versandzentrale } from './views/Versandzentrale.js';
 
-type Ansicht = 'konsole' | 'versand' | 'freigaben' | 'firmen' | 'protokoll' | 'einrichtung';
+type Ansicht = 'zentrale' | 'konsole' | 'versand' | 'freigaben' | 'firmen' | 'protokoll' | 'einrichtung';
 
 const ANSICHTEN: Array<{ id: Ansicht; titel: string }> = [
+  { id: 'zentrale', titel: 'Kommandozentrale' },
   { id: 'konsole', titel: 'Konsole' },
   { id: 'versand', titel: 'Versandzentrale' },
   { id: 'freigaben', titel: 'Freigaben' },
@@ -27,14 +29,14 @@ const ANSICHTEN: Array<{ id: Ansicht; titel: string }> = [
  */
 export function App(): JSX.Element {
   const jarvis = useJarvis();
-  const [ansicht, setAnsicht] = useState<Ansicht>('konsole');
+  const [ansicht, setAnsicht] = useState<Ansicht>('zentrale');
   const [dialogUnterdrueckt, setDialogUnterdrueckt] = useState<string | null>(null);
 
   const naechsteFreigabe = jarvis.freigaben[0];
   const zeigeDialog =
     naechsteFreigabe && naechsteFreigabe.id !== dialogUnterdrueckt && ansicht !== 'freigaben';
 
-  // Tastenkürzel: Strg/Cmd + 1..6 wechselt die Ansicht.
+  // Tastenkürzel: Strg/Cmd + Ziffer wechselt die Ansicht.
   useEffect(() => {
     const taste = (e: KeyboardEvent) => {
       if (!(e.metaKey || e.ctrlKey)) return;
@@ -113,6 +115,7 @@ export function App(): JSX.Element {
           </div>
         )}
 
+        {ansicht === 'zentrale' && <Kommandozentrale aufFreigaben={() => setAnsicht('freigaben')} />}
         {ansicht === 'konsole' && <Konsole />}
         {ansicht === 'versand' && <Versandzentrale />}
         {ansicht === 'freigaben' && <Freigaben />}

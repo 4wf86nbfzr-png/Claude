@@ -530,6 +530,95 @@ export class Jarvis {
     };
   }
 
+  /**
+   * Zahlen fuer die Kommandozentrale.
+   *
+   * Ausschliesslich echte Werte aus der Datenbank -- keine geschaetzten und
+   * keine hochgerechneten. Was nicht gemessen wurde, steht auf 0.
+   */
+  dashboard(): DashboardDaten {
+    const jetzt = Date.now();
+    const seit = (ms: number) => new Date(jetzt - ms).toISOString();
+    const limits = this.baseContext.compliance.currentLimits;
+    const db = this.repos.db;
+
+    const zaehle = (sql: string, ...params: unknown[]): number => {
+      const row = db.prepare(sql).get(...(params as [])) as { n: number } | undefined;
+      return row?.n ?? 0;
+    };
+
+    // Gesendete Mails je Tag, 14 Tage -- fehlende Tage werden mit 0 aufgefuellt,
+    // sonst staucht die Sparkline die Zeitachse und luegt ueber den Verlauf.
+    const proTag = new Map<string, number>();
+    for (
+      const row of db
+        .prepare(
+          `SELECT substr(sent_at, 1, 10) AS tag, COUNT(*) AS n
+             FROM emails WHERE status = 'gesendet' AND sent_at >= ?
+            GROUP BY tag`,
+        )
+        .all(seit(13 * 86_400_000)) as Array<{ tag: string; n: number }>
+    ) {
+      proTag.set(row.tag, row.n);
+    }
+    const verlauf: Array<{ tag: string; anzahl: number }> = [];
+    for (let i = 13; i >= 0; i -= 1) {
+      const tag = new Date(jetzt - i * 86_400_000).toISOString().slice(0, 10);
+      verlauf.push({ tag, anzahl: proTag.get(tag) ?? 0 });
+    }
+
+    const s = this.status();
+
+    return {
+      wartetAufFreigabe: this.approvals.pending().length,
+      kennzahlen: {
+        unternehmen: zaehle('SELECT COUNT(*) AS n FROM companies'),
+        mitVerifizierterAdresse: zaehle(
+          `SELECT COUNT(DISTINCT company_id) AS n FROM email_addresses
+            WHERE verification = 'VERIFIZIERT' AND company_id IS NOT NULL`,
+        ),
+        entwuerfe: zaehle(`SELECT COUNT(*) AS n FROM emails WHERE status = 'entwurf'`),
+        gesendetGesamt: zaehle(`SELECT COUNT(*) AS n FROM emails WHERE status = 'gesendet'`),
+        gesendet7Tage: zaehle(
+          `SELECT COUNT(*) AS n FROM emails WHERE status = 'gesendet' AND sent_at >= ?`,
+          seit(7 * 86_400_000),
+        ),
+        gesendetVorwoche: zaehle(
+          `SELECT COUNT(*) AS n FROM emails WHERE status = 'gesendet' AND sent_at >= ? AND sent_at < ?`,
+          seit(14 * 86_400_000),
+          seit(7 * 86_400_000),
+        ),
+        antworten: zaehle(`SELECT COUNT(*) AS n FROM emails WHERE direction = 'eingehend'`),
+        fehlgeschlagen: zaehle(`SELECT COUNT(*) AS n FROM emails WHERE status = 'fehlgeschlagen'`),
+        offeneAufgaben: zaehle(`SELECT COUNT(*) AS n FROM tasks WHERE status = 'offen'`),
+        kampagnen: zaehle('SELECT COUNT(*) AS n FROM outreach_campaigns'),
+      },
+      auslastung: {
+        stunde: {
+          verbraucht: this.repos.emails.countSentSince(seit(3_600_000)),
+          grenze: limits.maxPerHour,
+        },
+        tag: {
+          verbraucht: this.repos.emails.countSentSince(seit(86_400_000)),
+          grenze: limits.maxPerDay,
+        },
+      },
+      verlauf,
+      bereitschaft: [
+        { name: 'Sprachmodell', bereit: s.sprachmodell.bereit, detail: s.sprachmodell.modell },
+        { name: 'Websuche', bereit: !s.suche.hinweis, detail: s.suche.anbieter },
+        { name: 'Versandweg', bereit: s.versand.bereit, detail: s.versand.label },
+        { name: 'Posteingang', bereit: s.posteingang.bereit, detail: s.posteingang.anbieter },
+      ],
+      aktivitaet: this.audit.list({ limit: 12 }).map((r) => ({
+        id: r.id,
+        zeit: r.ts,
+        text: r.summary,
+        fehler: r.outcome === 'fehler',
+      })),
+    };
+  }
+
   /** Kontext fuer Tests und fuer die IPC-Schicht. */
   get context(): JarvisContext {
     return this.baseContext;
@@ -543,6 +632,33 @@ export class Jarvis {
     this.bus.removeAll();
     this.db.close();
   }
+}
+
+/** Was die Kommandozentrale anzeigt. */
+export interface DashboardDaten {
+  /** Die eine Zahl, mit der die Ansicht aufmacht. */
+  wartetAufFreigabe: number;
+  kennzahlen: {
+    unternehmen: number;
+    mitVerifizierterAdresse: number;
+    entwuerfe: number;
+    gesendetGesamt: number;
+    gesendet7Tage: number;
+    /** Die sieben Tage davor -- fuer den Vergleichswert der Kachel. */
+    gesendetVorwoche: number;
+    antworten: number;
+    fehlgeschlagen: number;
+    offeneAufgaben: number;
+    kampagnen: number;
+  };
+  auslastung: {
+    stunde: { verbraucht: number; grenze: number };
+    tag: { verbraucht: number; grenze: number };
+  };
+  /** 14 Tage, lueckenlos, aelteste zuerst. */
+  verlauf: Array<{ tag: string; anzahl: number }>;
+  bereitschaft: Array<{ name: string; bereit: boolean; detail: string }>;
+  aktivitaet: Array<{ id: string; zeit: string; text: string; fehler: boolean }>;
 }
 
 export interface ApprovalUtterance {

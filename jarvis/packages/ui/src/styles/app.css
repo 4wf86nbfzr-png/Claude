@@ -780,3 +780,275 @@ h3 {
 .protokoll__zeit {
   color: var(--muted);
 }
+
+/* ------------------------------------------------------ Kommandozentrale */
+/*
+ * Zahlen statt Zierrat. Die Ansicht führt mit genau einer Zahl (dem, was auf
+ * eine Entscheidung wartet), darunter Kennzahlen, Auslastung und Verlauf.
+ *
+ * Bewusst keine Rund-Gauges wie in den einschlägigen Videos: ein Wert gegen
+ * ein Limit ist ein Meter (Balken auf gleicher Bahn) — der lässt sich ablesen,
+ * ein Kreisbogen nicht. Und jeder Farbzustand trägt zusätzlich Text, weil
+ * Grün und Amber bei Rotgrünsehschwäche nah beieinanderliegen.
+ */
+
+.kz {
+  display: grid;
+  gap: var(--sec);
+  padding-bottom: var(--sec);
+}
+
+.kz__oben {
+  display: grid;
+  grid-template-columns: minmax(14rem, 22rem) 1fr;
+  gap: var(--gap-l);
+  align-items: start;
+}
+
+@media (max-width: 62rem) {
+  .kz__oben {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --- Hero: die eine Zahl ------------------------------------------------ */
+
+.hero {
+  border-left: 2px solid var(--line);
+  padding-left: var(--gap-m);
+}
+
+.hero--handeln {
+  border-left-color: var(--wait);
+}
+
+.hero__wert {
+  /* Proportionale Ziffern: tabular-nums ließe eine „7" bei 64px lose wirken. */
+  font-family: var(--font-body);
+  font-size: clamp(3rem, 7vw, 4.25rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  margin: 0.15rem 0 0.35rem;
+}
+
+.hero--handeln .hero__wert {
+  color: var(--wait);
+}
+
+.hero__zeile {
+  color: var(--chrome);
+  margin: 0;
+  max-width: 26ch;
+}
+
+/* --- Kachelreihe -------------------------------------------------------- */
+
+.kacheln {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: var(--gap-l) var(--gap-m);
+}
+
+.kachel__label {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 0.3rem;
+}
+
+.kachel__wert {
+  font-size: 1.65rem;
+  font-weight: 600;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.kachel__delta {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin: 0.2rem 0 0;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.kachel__pfeil {
+  font-family: var(--font-mono);
+}
+
+.kachel__delta--gut .kachel__pfeil {
+  color: var(--ok);
+}
+.kachel__delta--schlecht .kachel__pfeil {
+  color: var(--warn);
+}
+
+/* --- Meter: Wert gegen Limit -------------------------------------------- */
+
+.meter + .meter {
+  margin-top: var(--gap-m);
+}
+
+.meter__kopf {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--gap-s);
+  margin-bottom: 0.4rem;
+}
+
+.meter__name {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.meter__zahl {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.85rem;
+}
+
+.meter__bahn {
+  height: 8px;
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.meter__fuellung {
+  height: 100%;
+  border-radius: var(--r-pill);
+  background: var(--chrome);
+  transition: width 0.5s var(--ease-out);
+}
+
+.meter__fuellung--warn {
+  background: var(--warn);
+}
+.meter__fuellung--voll {
+  background: var(--danger);
+}
+
+.meter__lage {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin: 0.35rem 0 0;
+}
+
+/* --- Sparkline ---------------------------------------------------------- */
+
+.spark {
+  position: relative;
+}
+
+.spark__flaeche {
+  display: block;
+  width: 100%;
+  height: 120px;
+  overflow: visible;
+}
+
+.spark__gitter {
+  stroke: var(--line-soft);
+  stroke-width: 1;
+}
+
+.spark__linie {
+  fill: none;
+  stroke: var(--chrome);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.spark__wash {
+  fill: var(--chrome);
+  opacity: 0.1;
+}
+
+.spark__ende {
+  fill: var(--paper);
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+.spark__treffer {
+  fill: transparent;
+  cursor: crosshair;
+}
+
+.spark__faden {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+
+.spark__punkt {
+  fill: var(--paper);
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+.spark__achse {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  color: var(--muted);
+  margin-top: 0.35rem;
+}
+
+.spark__tooltip {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  background: var(--ink-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-s);
+  padding: 0.3rem 0.6rem;
+  font-size: 0.78rem;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.spark__tooltip b {
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Bereitschaft und Aktivität ----------------------------------------- */
+
+.bereit {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-s);
+}
+
+.bereit__punkt {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  padding: 0.25rem 0.75rem;
+  font-size: 0.82rem;
+}
+
+.bereit__zeichen {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+
+.bereit__punkt--ja .bereit__zeichen {
+  color: var(--ok);
+}
+.bereit__punkt--nein .bereit__zeichen {
+  color: var(--warn);
+}
+
+.bereit__detail {
+  color: var(--muted);
+}

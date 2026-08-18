@@ -60,6 +60,10 @@ export class CommandHandler {
       case 'conversation.delete':
         return ok({ geloescht: j.memory.deleteConversation(c.conversationId) });
 
+      // --- Uebersicht ------------------------------------------------------
+      case 'dashboard':
+        return ok(j.dashboard());
+
       // --- Freigaben -------------------------------------------------------
       case 'approvals.pending':
         return ok(

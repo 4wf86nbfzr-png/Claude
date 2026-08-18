@@ -21,6 +21,9 @@ export type Command =
   | { kind: 'conversation.new'; title?: string }
   | { kind: 'conversation.delete'; conversationId: string }
 
+  // --- Uebersicht --------------------------------------------------------
+  | { kind: 'dashboard' }
+
   // --- Freigaben ---------------------------------------------------------
   | { kind: 'approvals.pending' }
   | { kind: 'approvals.all'; limit?: number }

@@ -256,7 +256,7 @@ jarvis/
 │   │   ├── voice/          Transkription und Sprachausgabe
 │   │   ├── ipc/            Befehlsvertrag zwischen Kern und Fenster
 │   │   └── cli/            Einrichtungsassistent, Konsolen-JARVIS
-│   └── test/               69 Tests, ohne Netz und ohne echte Schlüssel
+│   └── test/               75 Tests, ohne Netz und ohne echte Schlüssel
 ├── packages/desktop/       Electron-Hauptprozess + Vorlade-Skript
 └── packages/ui/            React-Oberfläche
 ```
@@ -304,13 +304,14 @@ sondern als `PERMISSION_DENIED` zurückgemeldet — auch das ist getestet.
 den Orb klicken für Dauerbetrieb. Die Statuszeile zeigt
 `LISTENING` / `THINKING` / `EXECUTING` / `WAITING FOR APPROVAL`.
 
-**Tastatur:** `Strg`/`Cmd` + `1`–`6` wechselt die Ansicht, `Enter` sendet,
+**Tastatur:** `Strg`/`Cmd` + `1`–`7` wechselt die Ansicht, `Enter` sendet,
 `Shift+Enter` macht einen Absatz, `Esc` schließt Dialoge.
 
 **Ansichten**
 
 | Ansicht | Wozu |
 |---|---|
+| Kommandozentrale | Der Überblick: was auf Freigabe wartet, Kennzahlen, Versandlimits, Verlauf, Bereitschaft |
 | Konsole | Sprechen und tippen, Werkzeugschritte mitlesen |
 | Versandzentrale | Eine Zeile je Firma: Ansprechpartner, E-Mail, Quelle, Verifizierung, Akquisegrund, Mailstatus, letzter Kontakt, Freigabestatus |
 | Freigaben | Was auf Ihre Entscheidung wartet — mit vollem Mailtext |
@@ -326,7 +327,7 @@ den Orb klicken für Dauerbetrieb. Die Statuszeile zeigt
 ## Entwicklung
 
 ```bash
-npm test                  # 69 Tests, kein Netz, keine echten Schlüssel nötig
+npm test                  # 75 Tests, kein Netz, keine echten Schlüssel nötig
 npm run typecheck         # alle drei Pakete
 npm run build             # Kern, Oberfläche, Desktop
 npm run dist              # Installationspakete (electron-builder)
