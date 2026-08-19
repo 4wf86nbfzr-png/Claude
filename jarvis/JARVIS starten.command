@@ -53,8 +53,15 @@ if command -v git >/dev/null 2>&1 && git rev-parse --is-inside-work-tree >/dev/n
   if [ -z "$(git status --porcelain 2>/dev/null)" ]; then
     echo ""
     echo "  Suche nach Aktualisierungen …"
+    vorher=$(git rev-parse HEAD 2>/dev/null)
     if git pull --ff-only 2>&1 | sed 's/^/    /'; then
-      :
+      # Kam etwas Neues, können auch neue Bibliotheken dazugekommen sein.
+      # Ohne diesen Schritt fehlt genau die Bibliothek, die die neue Funktion
+      # braucht -- und der Fehler zeigt sich erst viel später.
+      if [ "$(git rev-parse HEAD 2>/dev/null)" != "$vorher" ]; then
+        echo "    Neuer Stand geladen. Pakete werden abgeglichen …"
+        npm install --silent 2>&1 | tail -3 | sed 's/^/    /'
+      fi
     else
       echo "    (nicht möglich -- es geht mit dem vorhandenen Stand weiter)"
     fi

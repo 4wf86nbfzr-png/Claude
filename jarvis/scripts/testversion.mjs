@@ -109,11 +109,29 @@ async function main() {
 
     // --- Pakete ------------------------------------------------------------
     schritt('2. Pakete');
-    if (existsSync(join(WURZEL, 'node_modules', 'electron'))) {
-      ja('Abhängigkeiten sind installiert.');
+    /*
+     * Nicht nur „ist überhaupt installiert" prüfen, sondern auch, ob alles da
+     * ist, was inzwischen dazugekommen ist. Wer vor einer Aktualisierung
+     * installiert hat, dem fehlt sonst genau die neue Bibliothek -- und der
+     * Fehler taucht erst auf, wenn er die Spracherkennung einrichten will.
+     */
+    const gebraucht = [
+      ['electron', 'die Oberfläche'],
+      ['@huggingface/transformers', 'die Spracherkennung'],
+      ['better-sqlite3', 'die Datenbank'],
+    ];
+    const fehlend = gebraucht.filter(([paket]) => !existsSync(join(WURZEL, 'node_modules', ...paket.split('/'))));
+
+    if (fehlend.length === 0) {
+      ja('Abhängigkeiten sind vollständig.');
     } else {
-      warn('Die Abhängigkeiten fehlen (rund 700 MB, überwiegend Electron).');
-      if (!(await jaNein('    Jetzt installieren?'))) return;
+      if (fehlend.length === gebraucht.length) {
+        warn('Die Abhängigkeiten fehlen (rund 700 MB, überwiegend Electron).');
+      } else {
+        warn(`Es fehlt etwas: ${fehlend.map(([, zweck]) => zweck).join(', ')}.`);
+        matt('    Das passiert nach einer Aktualisierung, die neue Bibliotheken mitbringt.');
+      }
+      if (!(await jaNein('    Jetzt nachinstallieren?'))) return;
       const r = laufen('npm', ['install'], { stdio: 'inherit' });
       if (r.code !== 0) {
         nein('npm install ist fehlgeschlagen. Siehe Ausgabe oben.');
