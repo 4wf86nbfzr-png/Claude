@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "noEmit": true,
+    "types": ["node", "electron"],
+    "paths": {
+      "@jarvis/core": ["../core/src/index.ts"],
+      "@jarvis/core/ipc": ["../core/src/ipc/contract.ts"]
+    }
+  },
+  "include": ["src/**/*.ts"]
+}

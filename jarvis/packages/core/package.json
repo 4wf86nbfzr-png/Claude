@@ -1,0 +1,42 @@
+{
+  "name": "@jarvis/core",
+  "version": "1.0.0",
+  "private": true,
+  "description": "JARVIS Core – Agenten, Tools, Datenbank, Mail, Recherche, Approval",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./ipc": "./dist/ipc/contract.js"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "node scripts/generate-migrations.mjs && tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "clean": "rm -rf dist",
+    "migrations": "node scripts/generate-migrations.mjs"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "^4.2.0",
+    "better-sqlite3": "^11.5.0",
+    "imapflow": "^1.0.164",
+    "mailparser": "^3.7.1",
+    "nodemailer": "^9.0.5",
+    "zod": "^3.23.8",
+    "zod-to-json-schema": "^3.25.2"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.11",
+    "@types/mailparser": "^3.4.4",
+    "@types/node": "^22.7.5",
+    "@types/nodemailer": "^6.4.16",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.3"
+  }
+}

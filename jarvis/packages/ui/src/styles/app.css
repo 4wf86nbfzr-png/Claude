@@ -1,0 +1,1146 @@
+/*
+ * JARVIS – Oberfläche.
+ *
+ * Gestaltungsregeln, die hier durchgehalten werden:
+ *   - Die Fläche ist schwarz, die Schrift weiß. Farbe gibt es nur, wo sie
+ *     eine Bedeutung trägt (Warnung, Fehler, Freigabe).
+ *   - Abstand statt Rahmen. Getrennt wird mit Weißraum oder einer 1-px-Linie,
+ *     nicht mit einem weiteren Kasten mit Radius.
+ *   - Bewegung hat einen Anlass: Eintritt, Hover, Sprachpegel. Nichts pulsiert
+ *     dauerhaft ohne Grund.
+ *   - Versalien sind eine Auszeichnung (Statuszeile, Spaltenköpfe), kein
+ *     Grundzustand. Fließtext bleibt gemischt gesetzt.
+ */
+
+:root {
+  --ink: #08080a;
+  --ink-2: #101014;
+  --ink-3: #17171d;
+  --paper: #f6f6f8;
+  --chrome: #c7c7cd;
+  --muted: #8b8b93;
+  --line: rgba(255, 255, 255, 0.13);
+  --line-soft: rgba(255, 255, 255, 0.07);
+
+  /* Bedeutungsfarben – sparsam eingesetzt. */
+  --ok: #7ee0a8;
+  --warn: #e8c37a;
+  --danger: #ef8b8b;
+  --wait: #9db8f0;
+
+  --sec: clamp(2rem, 4vw, 3.5rem);
+  --gap-xs: 0.375rem;
+  --gap-s: 0.75rem;
+  --gap-m: 1.25rem;
+  --gap-l: 2rem;
+
+  --measure: 68ch;
+  --r-s: 8px;
+  --r-m: 14px;
+  --r-pill: 999px;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-swift: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --font-display: 'Inter Tight', 'Helvetica Neue', system-ui, sans-serif;
+  --font-body: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'SF Mono', ui-monospace, 'JetBrains Mono', Menlo, Consolas, monospace;
+
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Ankreuzfelder tragen die Schrift-, nicht die Systemfarbe -- ein blaues
+   Häkchen ist das einzige Blau, das die Oberfläche sonst nirgends kennt. */
+input[type='checkbox'],
+input[type='radio'] {
+  accent-color: var(--paper);
+  width: 0.95rem;
+  height: 0.95rem;
+  cursor: pointer;
+}
+
+html,
+body,
+#wurzel {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--paper);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+::selection {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+/* Bildlaufleisten – dezent, aber sichtbar. */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: var(--r-pill);
+  border: 3px solid var(--ink);
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ------------------------------------------------------------------ Gerüst */
+
+.app {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  height: 100vh;
+}
+
+.app--schmal {
+  grid-template-columns: 1fr;
+}
+
+.seitenleiste {
+  border-right: 1px solid var(--line-soft);
+  padding: calc(env(titlebar-area-height, 28px) + 1.5rem) 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-l);
+  overflow-y: auto;
+  -webkit-app-region: drag;
+}
+
+.marke {
+  padding: 0 1.5rem;
+  -webkit-app-region: drag;
+}
+
+.marke__wort {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.marke__zusatz {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0.35rem 0 0;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  -webkit-app-region: no-drag;
+}
+
+.nav__eintrag {
+  appearance: none;
+  background: none;
+  border: 0;
+  border-left: 2px solid transparent;
+  padding: 0.55rem 1.5rem;
+  text-align: left;
+  color: var(--muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-s);
+  transition: color 0.18s var(--ease-swift), border-color 0.18s var(--ease-swift);
+}
+
+.nav__eintrag:hover {
+  color: var(--chrome);
+}
+
+.nav__eintrag[aria-current='page'] {
+  color: var(--paper);
+  border-left-color: var(--paper);
+}
+
+.nav__zaehler {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--ink);
+  background: var(--paper);
+  border-radius: var(--r-pill);
+  padding: 0.05rem 0.45rem;
+  min-width: 1.35rem;
+  text-align: center;
+}
+
+.nav__zaehler--warten {
+  background: var(--wait);
+}
+
+.seitenleiste__fuss {
+  margin-top: auto;
+  padding: 0 1.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  -webkit-app-region: no-drag;
+}
+
+.buehne {
+  overflow-y: auto;
+  padding: calc(env(titlebar-area-height, 28px) + 1.5rem) var(--sec) 3rem;
+  position: relative;
+}
+
+.buehne__kopf {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--gap-m);
+  padding-bottom: var(--gap-m);
+  border-bottom: 1px solid var(--line-soft);
+  margin-bottom: var(--gap-l);
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  hyphens: auto;
+  margin: 0;
+}
+
+h1 {
+  font-size: clamp(1.35rem, 2.4vw, 1.75rem);
+}
+h2 {
+  font-size: 1.1rem;
+}
+h3 {
+  font-size: 0.95rem;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.leise {
+  color: var(--muted);
+}
+
+/* ------------------------------------------------------------- Voice-Orb */
+
+.konsole {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  height: 100%;
+  gap: var(--gap-m);
+}
+
+.orb-bereich {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gap-s);
+  padding: 1rem 0 0.5rem;
+}
+
+.orb {
+  width: 128px;
+  height: 128px;
+  position: relative;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  border: 0;
+  background: none;
+  padding: 0;
+  border-radius: 50%;
+}
+
+.orb__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  transition: transform 0.12s var(--ease-swift), border-color 0.3s var(--ease-swift);
+}
+
+.orb__ring--zwei {
+  inset: 14px;
+  border-color: var(--line-soft);
+}
+
+.orb__kern {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: var(--paper);
+  transition: transform 0.1s var(--ease-swift), background 0.3s var(--ease-swift), opacity 0.3s;
+}
+
+.orb[data-zustand='LISTENING'] .orb__kern {
+  background: var(--paper);
+}
+.orb[data-zustand='THINKING'] .orb__kern,
+.orb[data-zustand='EXECUTING'] .orb__kern {
+  background: var(--chrome);
+  animation: atmen 2.4s var(--ease-swift) infinite;
+}
+.orb[data-zustand='WAITING FOR APPROVAL'] .orb__ring {
+  border-color: var(--wait);
+}
+.orb[data-zustand='WAITING FOR APPROVAL'] .orb__kern {
+  background: var(--wait);
+}
+.orb[data-zustand='ERROR'] .orb__kern {
+  background: var(--danger);
+}
+.orb[data-zustand='IDLE'] .orb__kern {
+  opacity: 0.5;
+}
+
+@keyframes atmen {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.82);
+  }
+}
+
+.statuszeile {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--chrome);
+  min-height: 1.2em;
+  text-align: center;
+}
+
+.statuszeile__detail {
+  display: block;
+  letter-spacing: 0.05em;
+  text-transform: none;
+  color: var(--muted);
+  font-size: 0.72rem;
+  margin-top: 0.2rem;
+}
+
+/* --------------------------------------------------------------- Verlauf */
+
+.verlauf {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-m);
+  padding-right: 0.5rem;
+  scroll-behavior: smooth;
+}
+
+.beitrag {
+  max-width: var(--measure);
+  animation: eintritt 0.4s var(--ease-out) both;
+}
+
+@keyframes eintritt {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+.beitrag--benutzer {
+  margin-left: auto;
+  text-align: right;
+}
+
+.beitrag__wer {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.25rem;
+}
+
+.beitrag__text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.beitrag--benutzer .beitrag__text {
+  color: var(--chrome);
+}
+
+.werkzeugspur {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: var(--gap-s);
+  animation: eintritt 0.3s var(--ease-out) both;
+}
+
+.werkzeugspur__punkt {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--muted);
+  flex: none;
+}
+.werkzeugspur--fehler .werkzeugspur__punkt {
+  background: var(--danger);
+}
+
+/* --------------------------------------------------------------- Eingabe */
+
+.eingabe {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--gap-s);
+  border-top: 1px solid var(--line-soft);
+  padding-top: var(--gap-m);
+}
+
+.eingabe__feld {
+  flex: 1;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  padding: 0.5rem 0;
+  resize: none;
+  max-height: 9rem;
+  transition: border-color 0.2s var(--ease-swift);
+}
+
+.eingabe__feld:focus {
+  outline: none;
+  border-bottom-color: var(--paper);
+}
+
+.eingabe__feld::placeholder {
+  color: var(--muted);
+}
+
+/* --------------------------------------------------------------- Knöpfe */
+
+.knopf {
+  appearance: none;
+  background: transparent;
+  color: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  padding: 0.4rem 1rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.18s var(--ease-swift), border-color 0.18s var(--ease-swift), color 0.18s;
+}
+
+.knopf:hover:not(:disabled) {
+  border-color: var(--paper);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.knopf:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.knopf--stark {
+  background: var(--paper);
+  color: var(--ink);
+  border-color: var(--paper);
+  font-weight: 600;
+}
+
+.knopf--stark:hover:not(:disabled) {
+  background: #fff;
+}
+
+.knopf--gefahr {
+  border-color: rgba(239, 139, 139, 0.5);
+  color: var(--danger);
+}
+.knopf--gefahr:hover:not(:disabled) {
+  border-color: var(--danger);
+  background: rgba(239, 139, 139, 0.08);
+}
+
+.knopf--klein {
+  padding: 0.2rem 0.7rem;
+  font-size: 0.8rem;
+}
+
+.knopfreihe {
+  display: flex;
+  gap: var(--gap-s);
+  flex-wrap: wrap;
+}
+
+/* -------------------------------------------------------------- Tabellen */
+
+.tabelle {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.tabelle th {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-align: left;
+  font-weight: 400;
+  padding: 0 0.75rem 0.5rem 0;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+
+.tabelle td {
+  padding: 0.65rem 0.75rem 0.65rem 0;
+  border-bottom: 1px solid var(--line-soft);
+  vertical-align: top;
+}
+
+.tabelle tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.tabelle__umbruch {
+  overflow-x: auto;
+}
+
+.merkmal {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.1rem 0.5rem;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--line);
+  color: var(--chrome);
+  white-space: nowrap;
+}
+
+.merkmal--ok {
+  color: var(--ok);
+  border-color: rgba(126, 224, 168, 0.35);
+}
+.merkmal--warn {
+  color: var(--warn);
+  border-color: rgba(232, 195, 122, 0.35);
+}
+.merkmal--gefahr {
+  color: var(--danger);
+  border-color: rgba(239, 139, 139, 0.35);
+}
+.merkmal--warten {
+  color: var(--wait);
+  border-color: rgba(157, 184, 240, 0.35);
+}
+
+/* -------------------------------------------------------------- Dialoge */
+
+.schleier {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 4, 6, 0.82);
+  display: grid;
+  place-items: center;
+  padding: var(--gap-l);
+  z-index: 50;
+  animation: einblenden 0.2s var(--ease-out) both;
+}
+
+@keyframes einblenden {
+  from {
+    opacity: 0;
+  }
+}
+
+.dialog {
+  background: var(--ink-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-m);
+  max-width: 680px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: var(--gap-l);
+  animation: dialogEintritt 0.28s var(--ease-out) both;
+}
+
+@keyframes dialogEintritt {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.99);
+  }
+}
+
+.dialog__marke {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--wait);
+  margin-bottom: var(--gap-s);
+}
+
+.dialog__zeile {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: var(--gap-s);
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.dialog__label {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding-top: 0.15rem;
+}
+
+.dialog__wert {
+  overflow-wrap: anywhere;
+}
+
+.dialog__block {
+  white-space: pre-wrap;
+  background: var(--ink);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r-s);
+  padding: var(--gap-s) var(--gap-m);
+  max-height: 40vh;
+  overflow-y: auto;
+  font-size: 0.9rem;
+}
+
+.dialog__aktionen {
+  display: flex;
+  gap: var(--gap-s);
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  margin-top: var(--gap-l);
+}
+
+/* ------------------------------------------------------------- Hinweise */
+
+.hinweis {
+  border-left: 2px solid var(--line);
+  padding: 0.4rem 0 0.4rem var(--gap-m);
+  color: var(--chrome);
+  font-size: 0.88rem;
+}
+
+.hinweis--warn {
+  border-left-color: var(--warn);
+}
+.hinweis--gefahr {
+  border-left-color: var(--danger);
+}
+.hinweis--ok {
+  border-left-color: var(--ok);
+}
+
+.leer {
+  color: var(--muted);
+  padding: var(--sec) 0;
+  text-align: center;
+  max-width: var(--measure);
+  margin: 0 auto;
+}
+
+/* --------------------------------------------------------- Einstellungen */
+
+.feld {
+  display: grid;
+  gap: var(--gap-xs);
+  margin-bottom: var(--gap-m);
+  max-width: 44rem;
+}
+
+.feld__label {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.feld__hilfe {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.feld input[type='text'],
+.feld input[type='password'],
+.feld textarea,
+.feld select {
+  background: var(--ink-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-s);
+  padding: 0.5rem 0.75rem;
+  width: 100%;
+  transition: border-color 0.18s var(--ease-swift);
+}
+
+.feld input:focus,
+.feld textarea:focus,
+.feld select:focus {
+  outline: none;
+  border-color: var(--paper);
+}
+
+.abschnitt {
+  padding: var(--gap-l) 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.abschnitt:last-child {
+  border-bottom: 0;
+}
+
+.abschnitt__kopf {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-s);
+  margin-bottom: var(--gap-m);
+}
+
+.zweispalt {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  gap: var(--gap-l);
+}
+
+.protokoll {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.protokoll__zeile {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr;
+  gap: var(--gap-s);
+  padding: 0.15rem 0;
+  color: var(--chrome);
+}
+
+.protokoll__zeile--fehler {
+  color: var(--danger);
+}
+
+.protokoll__zeit {
+  color: var(--muted);
+}
+
+/* ------------------------------------------------------ Kommandozentrale */
+/*
+ * Zahlen statt Zierrat. Die Ansicht führt mit genau einer Zahl (dem, was auf
+ * eine Entscheidung wartet), darunter Kennzahlen, Auslastung und Verlauf.
+ *
+ * Bewusst keine Rund-Gauges wie in den einschlägigen Videos: ein Wert gegen
+ * ein Limit ist ein Meter (Balken auf gleicher Bahn) — der lässt sich ablesen,
+ * ein Kreisbogen nicht. Und jeder Farbzustand trägt zusätzlich Text, weil
+ * Grün und Amber bei Rotgrünsehschwäche nah beieinanderliegen.
+ */
+
+.kz {
+  display: grid;
+  gap: var(--sec);
+  padding-bottom: var(--sec);
+}
+
+.kz__oben {
+  display: grid;
+  grid-template-columns: minmax(14rem, 22rem) 1fr;
+  gap: var(--gap-l);
+  align-items: start;
+}
+
+@media (max-width: 62rem) {
+  .kz__oben {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --- Hero: die eine Zahl ------------------------------------------------ */
+
+.hero {
+  border-left: 2px solid var(--line);
+  padding-left: var(--gap-m);
+}
+
+.hero--handeln {
+  border-left-color: var(--wait);
+}
+
+.hero__wert {
+  /* Proportionale Ziffern: tabular-nums ließe eine „7" bei 64px lose wirken. */
+  font-family: var(--font-body);
+  font-size: clamp(3rem, 7vw, 4.25rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  margin: 0.15rem 0 0.35rem;
+}
+
+.hero--handeln .hero__wert {
+  color: var(--wait);
+}
+
+.hero__zeile {
+  color: var(--chrome);
+  margin: 0;
+  max-width: 26ch;
+}
+
+/* --- Kachelreihe -------------------------------------------------------- */
+
+.kacheln {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: var(--gap-l) var(--gap-m);
+}
+
+.kachel__label {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 0.3rem;
+}
+
+.kachel__wert {
+  font-size: 1.65rem;
+  font-weight: 600;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.kachel__delta {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin: 0.2rem 0 0;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.kachel__pfeil {
+  font-family: var(--font-mono);
+}
+
+.kachel__delta--gut .kachel__pfeil {
+  color: var(--ok);
+}
+.kachel__delta--schlecht .kachel__pfeil {
+  color: var(--warn);
+}
+
+/* --- Meter: Wert gegen Limit -------------------------------------------- */
+
+.meter + .meter {
+  margin-top: var(--gap-m);
+}
+
+.meter__kopf {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--gap-s);
+  margin-bottom: 0.4rem;
+}
+
+.meter__name {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.meter__zahl {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.85rem;
+}
+
+.meter__bahn {
+  height: 8px;
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.meter__fuellung {
+  height: 100%;
+  border-radius: var(--r-pill);
+  background: var(--chrome);
+  transition: width 0.5s var(--ease-out);
+}
+
+.meter__fuellung--warn {
+  background: var(--warn);
+}
+.meter__fuellung--voll {
+  background: var(--danger);
+}
+
+.meter__lage {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin: 0.35rem 0 0;
+}
+
+/* --- Sparkline ---------------------------------------------------------- */
+
+.spark {
+  position: relative;
+}
+
+.spark__flaeche {
+  display: block;
+  width: 100%;
+  height: 120px;
+  overflow: visible;
+}
+
+.spark__gitter {
+  stroke: var(--line-soft);
+  stroke-width: 1;
+}
+
+.spark__linie {
+  fill: none;
+  stroke: var(--chrome);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.spark__wash {
+  fill: var(--chrome);
+  opacity: 0.1;
+}
+
+.spark__ende {
+  fill: var(--paper);
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+.spark__treffer {
+  fill: transparent;
+  cursor: crosshair;
+}
+
+.spark__faden {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+
+.spark__punkt {
+  fill: var(--paper);
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+.spark__achse {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  color: var(--muted);
+  margin-top: 0.35rem;
+}
+
+.spark__tooltip {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  background: var(--ink-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-s);
+  padding: 0.3rem 0.6rem;
+  font-size: 0.78rem;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.spark__tooltip b {
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Bereitschaft und Aktivität ----------------------------------------- */
+
+.bereit {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-s);
+}
+
+.bereit__punkt {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  padding: 0.25rem 0.75rem;
+  font-size: 0.82rem;
+}
+
+.bereit__zeichen {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+
+.bereit__punkt--ja .bereit__zeichen {
+  color: var(--ok);
+}
+.bereit__punkt--nein .bereit__zeichen {
+  color: var(--warn);
+}
+
+.bereit__detail {
+  color: var(--muted);
+}
+
+/* -------------------------------------------------------- Gesprächsmodus */
+/*
+ * Der Schalter steht bewusst sichtbar über dem Verlauf und nicht in einem
+ * Untermenü: ein dauerhaft offenes Mikrofon gehört an eine Stelle, an der
+ * man es sieht und jederzeit ausschalten kann.
+ */
+
+.schnips {
+  border-top: 1px solid var(--line-soft);
+  padding-top: var(--gap-s);
+  display: grid;
+  gap: var(--gap-s);
+}
+
+.schnips__reihe {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-s);
+  flex-wrap: wrap;
+}
+
+.schnips__schalter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.88rem;
+}
+
+.schnips__hinweis {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+  max-width: var(--measure);
+}
+
+.schnips__details {
+  display: grid;
+  gap: var(--gap-s);
+  padding: var(--gap-s) 0 0;
+  border-top: 1px solid var(--line-soft);
+}
+
+.schnips__feld {
+  display: grid;
+  gap: 0.25rem;
+  max-width: 28rem;
+}
+
+.schnips__feld select {
+  /* Ohne `appearance: none` malt das System das Feld hell -- mitten in eine
+     schwarze Oberfläche. */
+  appearance: none;
+  background: var(--ink-2);
+  color: var(--paper);
+  font: inherit;
+  border: 1px solid var(--line);
+  border-radius: var(--r-s);
+  padding: 0.4rem 2rem 0.4rem 0.6rem;
+  cursor: pointer;
+  /* Chevron als Hintergrundbild, damit kein zusätzliches Markup nötig ist. */
+  background-image: linear-gradient(45deg, transparent 50%, var(--chrome) 50%),
+    linear-gradient(135deg, var(--chrome) 50%, transparent 50%);
+  background-position: calc(100% - 1.05rem) 55%, calc(100% - 0.75rem) 55%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+
+.schnips__feld select:focus-visible {
+  border-color: var(--chrome);
+  outline: 2px solid var(--chrome);
+  outline-offset: 2px;
+}
+
+/* Der Orb bekommt im Gespräch einen eigenen Zustand. */
+.orb[data-zustand='GESPRÄCH'] .orb__ring {
+  border-color: var(--ok);
+}
+.orb[data-zustand='GESPRÄCH'] .orb__kern {
+  background: var(--ok);
+}
