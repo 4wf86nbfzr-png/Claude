@@ -5,7 +5,7 @@ import type { CredentialService } from '../services/credentials.js';
 import { err, fromException, ok, type Result } from '../util/result.js';
 import { newId } from '../util/text.js';
 import { LokaleErkennung, type Ladefortschritt } from './whisper-lokal.js';
-import { PROBESATZ, spracheVomSystem, trefferquote } from './probe.js';
+import { PROBESATZ, spracheVomSystem, trefferquote, wavAusPcm } from './probe.js';
 
 /**
  * Sprache ein und aus.
@@ -118,8 +118,18 @@ export class VoiceService {
    */
   async transcribePcm(pcm: Float32Array): Promise<Result<TranscriptionResult>> {
     const provider = this.env.JARVIS_STT_PROVIDER;
+
+    /*
+     * Mit einem Schlüssel geht es auch ohne den Modell-Download: die
+     * Abtastwerte werden in eine WAV-Datei verpackt und an den Anbieter
+     * geschickt. Der Ton verlässt dann allerdings den Rechner -- deshalb ist
+     * das nicht die Vorgabe, sondern eine Wahl.
+     */
+    if (provider === 'openai') {
+      return this.transcribe(wavAusPcm(pcm), 'aufnahme.wav');
+    }
     if (provider !== 'lokal') {
-      return err('NOT_CONFIGURED', `Rohe Abtastwerte kann nur die lokale Erkennung verarbeiten (eingestellt: ${provider}).`);
+      return err('NOT_CONFIGURED', `Diese Erkennung kann mit rohen Abtastwerten nichts anfangen (eingestellt: ${provider}).`);
     }
     const r = await this.lokaleErkennung().transkribiere(pcm);
     if (!r.ok) return r;

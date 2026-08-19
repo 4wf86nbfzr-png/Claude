@@ -156,3 +156,38 @@ function zerlege(text: string): string[] {
     .split(/\s+/)
     .filter((w) => w.length > 2);
 }
+
+/**
+ * Packt Abtastwerte in eine WAV-Datei.
+ *
+ * Gebraucht für den Weg über einen Anbieter: das Fenster liefert rohe
+ * Fließkommawerte, eine Schnittstelle im Netz will eine Datei mit Kopf. Die
+ * Umwandlung ist ein Dutzend Zeilen — eine Bibliothek dafür wäre mehr
+ * Abhängigkeit als Nutzen.
+ */
+export function wavAusPcm(pcm: Float32Array, abtastrate = WHISPER_ABTASTRATE): Buffer {
+  const datenBytes = pcm.length * 2;
+  const puffer = Buffer.alloc(44 + datenBytes);
+
+  puffer.write('RIFF', 0, 'ascii');
+  puffer.writeUInt32LE(36 + datenBytes, 4);
+  puffer.write('WAVE', 8, 'ascii');
+  puffer.write('fmt ', 12, 'ascii');
+  puffer.writeUInt32LE(16, 16); // Länge des fmt-Abschnitts
+  puffer.writeUInt16LE(1, 20); // 1 = unkomprimiertes PCM
+  puffer.writeUInt16LE(1, 22); // einkanalig
+  puffer.writeUInt32LE(abtastrate, 24);
+  puffer.writeUInt32LE(abtastrate * 2, 28); // Bytes je Sekunde
+  puffer.writeUInt16LE(2, 32); // Bytes je Abtastwert
+  puffer.writeUInt16LE(16, 34); // Bit je Abtastwert
+  puffer.write('data', 36, 'ascii');
+  puffer.writeUInt32LE(datenBytes, 40);
+
+  for (let i = 0; i < pcm.length; i += 1) {
+    // Begrenzen, bevor skaliert wird: ein Wert über 1 liefe sonst über und
+    // aus einem lauten Wort würde ein Knacken.
+    const wert = Math.max(-1, Math.min(1, pcm[i] ?? 0));
+    puffer.writeInt16LE(Math.round(wert * 32_767), 44 + i * 2);
+  }
+  return puffer;
+}
