@@ -178,7 +178,10 @@ export function GespraechProvider({ children }: { children: ReactNode }): JSX.El
       if (abgebrochen || !r.ok) return;
       const werte = r.data as Record<string, unknown>;
       const name = werte['voice.tts.stimme'];
-      if (typeof name === 'string' && name) setStimme(name);
+      const rohLage = werte['voice.tts.lage'];
+      const lage =
+        rohLage === 'weiblich' || rohLage === 'egal' || rohLage === 'maennlich' ? rohLage : 'maennlich';
+      setStimme(typeof name === 'string' && name ? name : null, lage);
     });
     return () => {
       abgebrochen = true;

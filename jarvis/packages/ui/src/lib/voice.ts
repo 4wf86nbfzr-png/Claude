@@ -1,4 +1,4 @@
-import { waehleStimme } from '@jarvis/core/stimmwahl';
+import { waehleStimme, type Stimmlage } from '@jarvis/core/stimmwahl';
 
 /**
  * Sprache im Fenster.
@@ -121,9 +121,11 @@ export function starteDiktat(optionen: {
  * den Einstellungen gesetzt; ohne Festlegung sucht {@link waehleStimme} selbst.
  */
 let gewuenschteStimme: string | null = null;
+let gewuenschteLage: Stimmlage = 'maennlich';
 
-export function setStimme(name: string | null): void {
+export function setStimme(name: string | null, lage?: Stimmlage): void {
   gewuenschteStimme = name;
+  if (lage) gewuenschteLage = lage;
 }
 
 /** Sprachausgabe über das Betriebssystem. */
@@ -133,12 +135,18 @@ export function sprich(text: string, optionen: { unterbrechen?: boolean; sprache
 
   const aeusserung = new SpeechSynthesisUtterance(vorlesbar(text));
   aeusserung.lang = optionen.sprache ?? 'de-DE';
-  aeusserung.rate = 1.02;
-  aeusserung.pitch = 1;
+  /*
+   * Etwas langsamer und eine Spur tiefer als die Vorgabe. Die Standardwerte
+   * klingen gehetzt; wer ruhig wirken soll, redet nicht schneller als sein
+   * Gegenüber zuhören mag.
+   */
+  aeusserung.rate = 0.94;
+  aeusserung.pitch = 0.92;
 
   const gewaehlt = waehleStimme(window.speechSynthesis.getVoices(), {
     sprache: optionen.sprache ?? 'de-DE',
     wunsch: gewuenschteStimme,
+    lage: gewuenschteLage,
   });
   if (gewaehlt) aeusserung.voice = gewaehlt as SpeechSynthesisVoice;
 

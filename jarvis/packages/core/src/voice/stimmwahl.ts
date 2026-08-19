@@ -37,15 +37,34 @@ const GUETE: readonly { muster: RegExp; punkte: number }[] = [
   { muster: /eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|bahh|bells|boing|bubbles|jester|organ|superstar|trinoids|whisper|wobble|zarvox|albert|bad news|good news|cellos|deranged|hysterical/i, punkte: -100 },
 ];
 
+export type Stimmlage = 'maennlich' | 'weiblich' | 'egal';
+
+/**
+ * Wer männlich oder weiblich klingt, steht in keiner Schnittstelle — die
+ * Stimmenliste des Systems kennt nur Namen. Also die bekannten Namen führen.
+ * Unbekannte Namen bleiben neutral und werden dadurch weder bevorzugt noch
+ * benachteiligt.
+ */
+const MAENNLICH = /\b(markus|yannick|martin|viktor|daniel|thomas|stefan|klaus|hans|felix|jonas|lars|oliver|alex(?!a)|ralph|fred|jorge|diego|luca|matteo|carlos|juan|google deutsch \(männlich\))\b/i;
+const WEIBLICH = /\b(anna|petra|helena|katrin|marlene|vicki|steffi|julia|lena|sarah|nicole|samantha|karen|moira|tessa|victoria|allison|ava|susan|zoe|google deutsch \(weiblich\))\b/i;
+
+export function stimmlageVon(name: string): Stimmlage {
+  if (MAENNLICH.test(name)) return 'maennlich';
+  if (WEIBLICH.test(name)) return 'weiblich';
+  return 'egal';
+}
+
 export interface StimmwahlOptionen {
   /** Bevorzugte Sprache, z. B. `de-DE`. */
   sprache?: string;
   /** Ein vom Benutzer festgelegter Name. Gewinnt, wenn er vorhanden ist. */
   wunsch?: string | null;
+  /** Männlich oder weiblich bevorzugt. */
+  lage?: Stimmlage;
 }
 
 /** Bewertet eine Stimme. Höher ist besser; negative Werte sind unbrauchbar. */
-export function bewerteStimme(stimme: StimmenEintrag, sprache = 'de'): number {
+export function bewerteStimme(stimme: StimmenEintrag, sprache = 'de', lage: Stimmlage = 'egal'): number {
   const sprachBasis = sprache.split('-')[0]!.toLowerCase();
   if (!stimme.lang?.toLowerCase().startsWith(sprachBasis)) return -1000;
 
@@ -56,6 +75,17 @@ export function bewerteStimme(stimme: StimmenEintrag, sprache = 'de'): number {
   // Genau passendes Land vor bloß passender Sprache: „de-DE" vor „de-AT".
   if (stimme.lang.toLowerCase() === sprache.toLowerCase()) punkte += 5;
   if (stimme.localService) punkte += 2;
+
+  /*
+   * Die Stimmlage wiegt schwer, aber nicht absolut: lieber eine gute weibliche
+   * als gar keine, wenn keine männliche installiert ist. Deshalb ein Zuschlag
+   * und kein Ausschluss.
+   */
+  if (lage !== 'egal') {
+    const ist = stimmlageVon(stimme.name);
+    if (ist === lage) punkte += 30;
+    else if (ist !== 'egal') punkte -= 25;
+  }
   return punkte;
 }
 
@@ -80,7 +110,7 @@ export function waehleStimme(
   let beste: StimmenEintrag | null = null;
   let bestwert = -Infinity;
   for (const stimme of stimmen) {
-    const wert = bewerteStimme(stimme, sprache);
+    const wert = bewerteStimme(stimme, sprache, optionen.lage ?? 'egal');
     if (wert <= -1000) continue;
     if (wert > bestwert) {
       bestwert = wert;

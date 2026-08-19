@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { bessereStimmeVerfuegbar, waehleStimme } from '@jarvis/core/stimmwahl';
+import { bessereStimmeVerfuegbar, stimmlageVon, waehleStimme, type Stimmlage } from '@jarvis/core/stimmwahl';
 import { setStimme, sprich } from '../lib/voice.js';
 import { useDaten, useJarvis } from '../lib/store.js';
 
@@ -67,6 +67,10 @@ export function StimmeUndAnrede(): JSX.Element {
   const anrede = typeof einstellungen['persona.anrede'] === 'string' ? einstellungen['persona.anrede'] : 'Master';
   const stil = typeof einstellungen['persona.stil'] === 'string' ? einstellungen['persona.stil'] : 'trocken';
   const stimmName = typeof einstellungen['voice.tts.stimme'] === 'string' ? einstellungen['voice.tts.stimme'] : '';
+  const lage: Stimmlage =
+    einstellungen['voice.tts.lage'] === 'weiblich' || einstellungen['voice.tts.lage'] === 'egal'
+      ? einstellungen['voice.tts.lage']
+      : 'maennlich';
 
   const [anredeEntwurf, setAnredeEntwurf] = useState(anrede);
   useEffect(() => setAnredeEntwurf(anrede), [anrede]);
@@ -80,7 +84,10 @@ export function StimmeUndAnrede(): JSX.Element {
   }, []);
 
   const deutsche = stimmen.filter((s) => s.lang.toLowerCase().startsWith('de'));
-  const automatisch = waehleStimme(stimmen, { sprache: 'de-DE' });
+  const automatisch = waehleStimme(stimmen, { sprache: 'de-DE', lage });
+
+  // Die Auswahl im Fenster sofort wirksam machen, nicht erst nach Neustart.
+  useEffect(() => setStimme(stimmName || null, lage), [stimmName, lage]);
   const ratZuBesserer = bessereStimmeVerfuegbar(stimmen, 'de-DE');
 
   const setzen = async (schluessel: string, wert: string) => {
@@ -193,9 +200,18 @@ export function StimmeUndAnrede(): JSX.Element {
         </label>
 
         <label className="schnips__feld">
+          <span className="feld__label">Stimmlage</span>
+          <select value={lage} onChange={(e) => void setzen('voice.tts.lage', e.target.value)}>
+            <option value="maennlich">männlich</option>
+            <option value="weiblich">weiblich</option>
+            <option value="egal">egal — nimm die beste</option>
+          </select>
+        </label>
+
+        <label className="schnips__feld">
           <span className="feld__label">Stimme</span>
           <select value={stimmName} onChange={(e) => {
-            setStimme(e.target.value || null);
+            setStimme(e.target.value || null, lage);
             void setzen('voice.tts.stimme', e.target.value);
           }}>
             <option value="">
@@ -204,6 +220,8 @@ export function StimmeUndAnrede(): JSX.Element {
             {deutsche.map((s) => (
               <option key={s.name} value={s.name}>
                 {s.name}
+                {stimmlageVon(s.name) === 'maennlich' ? ' — männlich' : ''}
+                {stimmlageVon(s.name) === 'weiblich' ? ' — weiblich' : ''}
               </option>
             ))}
           </select>

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { FakeLlm, makeJarvis, type TestJarvis } from './fakes.js';
-import { gespraechsPrompt, istEigenerNachhall } from '../src/agents/gespraech.js';
+import { berichtUeberGetanes, gespraechsPrompt, istEigenerNachhall } from '../src/agents/gespraech.js';
 import { ok } from '../src/util/result.js';
 import type { CalendarEvent, CalendarSource } from '../src/calendar/index.js';
 
@@ -180,5 +180,45 @@ describe('istEigenerNachhall', () => {
   it('bleibt ruhig, wenn nichts gesagt wurde', () => {
     expect(istEigenerNachhall('', 'irgendein Satz von jemandem')).toBe(false);
     expect(istEigenerNachhall(gesagt, '')).toBe(false);
+  });
+});
+
+describe('berichtUeberGetanes', () => {
+  it('fasst zusammen, statt aufzuzählen', () => {
+    const satz = berichtUeberGetanes([
+      { action: 'mail.entwurf' },
+      { action: 'mail.entwurf' },
+      { action: 'mail.entwurf' },
+      { action: 'firma.angelegt' },
+    ]);
+    expect(satz).toContain('3-mal entwurf angelegt');
+    expect(satz).toContain('einmal firma aufgenommen');
+    expect(satz).toMatch(/Soll ich ins Einzelne gehen\?$/);
+  });
+
+  it('nennt höchstens drei Dinge — mehr merkt sich gesprochen niemand', () => {
+    const satz = berichtUeberGetanes([
+      { action: 'mail.gesendet' },
+      { action: 'mail.entwurf' },
+      { action: 'firma.angelegt' },
+      { action: 'datei.geschrieben' },
+      { action: 'programm.gestartet' },
+    ]);
+    expect(satz.split(' und ').length).toBe(2);
+    expect(satz.split(',').length).toBeLessThanOrEqual(3);
+  });
+
+  it('schweigt über Belangloses', () => {
+    expect(berichtUeberGetanes([{ action: 'einstellung.geaendert' }, { action: 'ansicht.geoeffnet' }])).toBe('');
+  });
+
+  it('schweigt, wenn nichts passiert ist', () => {
+    expect(berichtUeberGetanes([])).toBe('');
+  });
+
+  it('setzt bei einer einzelnen Sache keine Aufzählung', () => {
+    const satz = berichtUeberGetanes([{ action: 'mail.gesendet' }]);
+    expect(satz).not.toContain(' und ');
+    expect(satz).toContain('einmal mail verschickt');
   });
 });

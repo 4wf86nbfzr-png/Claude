@@ -60,7 +60,7 @@ export interface Gespraechsanlass {
   text: string;
   /** Wie dringend; die höchste Zahl gewinnt. */
   gewicht: number;
-  art: 'freigabe' | 'termin' | 'antwort' | 'aufgabe' | 'fehler' | 'gruss';
+  art: 'freigabe' | 'termin' | 'antwort' | 'aufgabe' | 'fehler' | 'gruss' | 'bericht';
 }
 
 /**
@@ -140,6 +140,24 @@ export async function gespraechsanlaesse(ctx: JarvisContext, jetzt = new Date())
     }
   }
 
+  // --- Was seit dem letzten Gespräch passiert ist -------------------------
+  /*
+   * Ein Assistent, der nur antwortet, wenn man fragt, ist ein Nachschlagewerk.
+   * Ein Gegenüber erzählt, was in der Zwischenzeit war. Die Quelle ist das
+   * Protokoll -- also tatsächlich Getanes, nichts Behauptetes.
+   */
+  const seit = new Date(jetzt.getTime() - 12 * 3_600_000).toISOString();
+  const getan = ctx.audit
+    .list({ since: seit, limit: 50 })
+    .filter((e) => BERICHTENSWERT.has(e.action));
+  if (getan.length > 0) {
+    anlaesse.push({
+      text: berichtUeberGetanes(getan),
+      gewicht: 40,
+      art: 'bericht',
+    });
+  }
+
   // --- Fällige Aufgaben ----------------------------------------------------
   const aufgaben = ctx.repos.tasks.list({ status: 'offen', limit: 20 });
   const faellig = aufgaben.filter((a) => a.due_at && new Date(a.due_at).getTime() <= jetzt.getTime());
@@ -172,6 +190,45 @@ export async function begruessung(
   const anlaesse = await gespraechsanlaesse(ctx, jetzt);
   if (anlaesse.length > 0) return mitAnrede(anlaesse[0]!.text, persona);
   return leerbegruessung(persona, jetzt, wievielterRuf);
+}
+
+/**
+ * Handlungen, über die zu berichten sich lohnt. Bewusst eine kurze Liste:
+ * „Einstellung geändert" oder „Ansicht geöffnet" interessiert niemanden, und
+ * ein Assistent, der jede Kleinigkeit aufzählt, wird zur Last.
+ */
+const BERICHTENSWERT = new Map<string, string>([
+  ['mail.gesendet', 'Mail verschickt'],
+  ['mail.entwurf', 'Entwurf angelegt'],
+  ['mail.entwurf_geaendert', 'Entwurf überarbeitet'],
+  ['mail.antwort_erhalten', 'Antwort einsortiert'],
+  ['firma.angelegt', 'Firma aufgenommen'],
+  ['kampagne.angelegt', 'Kampagne vorbereitet'],
+  ['recherche.abgeschlossen', 'Recherche erledigt'],
+  ['datei.geschrieben', 'Datei geschrieben'],
+  ['programm.gestartet', 'Programm geöffnet'],
+]);
+
+/** Fasst zusammen, was JARVIS zuletzt getan hat — zum Vorlesen. */
+export function berichtUeberGetanes(eintraege: readonly { action: string }[]): string {
+  const gezaehlt = new Map<string, number>();
+  for (const e of eintraege) {
+    const bezeichnung = BERICHTENSWERT.get(e.action);
+    if (!bezeichnung) continue;
+    gezaehlt.set(bezeichnung, (gezaehlt.get(bezeichnung) ?? 0) + 1);
+  }
+  if (gezaehlt.size === 0) return '';
+
+  // Das Wichtigste zuerst, und höchstens drei Dinge -- gesprochen merkt sich
+  // niemand mehr.
+  const teile = [...gezaehlt.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([was, n]) => (n === 1 ? `einmal ${was.toLowerCase()}` : `${n}-mal ${was.toLowerCase()}`));
+
+  const aufzaehlung =
+    teile.length === 1 ? teile[0]! : `${teile.slice(0, -1).join(', ')} und ${teile.at(-1)!}`;
+  return `Ich habe in der Zwischenzeit ${aufzaehlung}. Soll ich ins Einzelne gehen?`;
 }
 
 export { istEigenerNachhall } from '../voice/nachhall.js';

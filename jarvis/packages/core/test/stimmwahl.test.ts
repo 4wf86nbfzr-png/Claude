@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   bessereStimmeVerfuegbar,
   bewerteStimme,
+  stimmlageVon,
   waehleStimme,
   type StimmenEintrag,
 } from '../src/voice/stimmwahl.js';
@@ -93,5 +94,41 @@ describe('bessereStimmeVerfuegbar', () => {
 
   it('schweigt, wenn es gar keine deutsche Stimme gibt — da hilft der Rat nicht', () => {
     expect(bessereStimmeVerfuegbar([{ name: 'Samantha', lang: 'en-US' }])).toBe(false);
+  });
+});
+
+describe('Stimmlage', () => {
+  const bestand: StimmenEintrag[] = [
+    { name: 'Anna', lang: 'de-DE', localService: true },
+    { name: 'Markus', lang: 'de-DE', localService: true },
+    { name: 'Petra (Premium)', lang: 'de-DE', localService: true },
+    { name: 'Yannick (Premium)', lang: 'de-DE', localService: true },
+  ];
+
+  it('nimmt eine männliche Stimme, wenn danach gefragt wird', () => {
+    expect(waehleStimme(bestand, { lage: 'maennlich' })?.name).toBe('Yannick (Premium)');
+  });
+
+  it('nimmt sonst die beste, unabhängig von der Lage', () => {
+    expect(waehleStimme(bestand, { lage: 'weiblich' })?.name).toBe('Petra (Premium)');
+  });
+
+  it('zieht Güte nicht der Lage vor, aber nimmt lieber irgendeine als keine', () => {
+    // Nur weibliche Stimmen installiert: dann eben die beste weibliche.
+    const nurWeiblich: StimmenEintrag[] = [
+      { name: 'Anna', lang: 'de-DE' },
+      { name: 'Petra (Premium)', lang: 'de-DE' },
+    ];
+    expect(waehleStimme(nurWeiblich, { lage: 'maennlich' })?.name).toBe('Petra (Premium)');
+  });
+
+  it('erkennt bekannte Namen, lässt unbekannte neutral', () => {
+    expect(stimmlageVon('Markus')).toBe('maennlich');
+    expect(stimmlageVon('Anna')).toBe('weiblich');
+    expect(stimmlageVon('Xyzzy')).toBe('egal');
+  });
+
+  it('hält „Alexa\" nicht für männlich, nur weil „Alex\" darin steckt', () => {
+    expect(stimmlageVon('Alexa')).not.toBe('maennlich');
   });
 });

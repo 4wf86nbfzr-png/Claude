@@ -45,6 +45,12 @@ export interface ModellWahl {
 
 export const WHISPER_MODELLE: readonly ModellWahl[] = [
   {
+    kennung: 'onnx-community/whisper-tiny',
+    name: 'Whisper tiny',
+    groesseMb: 45,
+    eignung: 'In Sekunden geladen. Versteht kurze Sätze, verhaspelt sich bei allem anderen — gut, um überhaupt erst einmal zu sprechen.',
+  },
+  {
     kennung: 'onnx-community/whisper-base',
     name: 'Whisper base',
     groesseMb: 145,
