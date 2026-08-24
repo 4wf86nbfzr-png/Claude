@@ -798,6 +798,45 @@ Untertitel und Stimme nie auseinanderlaufen.
 
 ---
 
+## Das Netlify-Paket ist keine Kopie des Repositorys
+
+`tools/paket-bauen.sh` liefert nicht einfach den Ordner als ZIP aus. Vier
+Dateiarten liegen im Repository absichtlich in einer Größe, die für die
+Auslieferung zu groß ist:
+
+| Was | Im Repository | Im Paket | Warum die Lücke |
+|---|---|---|---|
+| JPEG-Rückfallebene | Originalgröße (bis 1600 px) | auf 1100 px verkleinert | reine Rückfallebene für Browser vor 2020 — praktisch nie geholt |
+| `netlify/functions/formular.js` | ungekürzt gebündelt | `--minify` | Maschinenteil, kein Lesestoff |
+| `imagefilm.webm` | CRF 31, ein Durchgang | CRF 36, zwei Durchgänge | beim Bauen aus Einzelbildern ist CRF 31 richtig (siehe „Der Imagefilm"); für die Auslieferung packt CRF 36 dichter, ohne dass ein Auge den Unterschied sieht |
+| `logo-herm-original.png` | 157 KB | fehlt ganz | Quelldatei, keine Seite lädt sie |
+
+Das Repository bleibt dabei die Wahrheit: `bilder-vergroessern.py` und
+`bilder-menue.py` rechnen ihre WebP-Stufen aus den großen JPEGs. Läge dort
+schon die kleine Fassung, würde beim nächsten Lauf aus einer kleineren
+Vorlage hochgerechnet, und niemand sähe es — genau die Falle, die
+`KANTE = 2560` in „Die Obergrenze kommt nicht von der Dateigröße" vermeidet.
+Verkleinert wird deshalb erst auf dem Weg ins Paket, nie in der Quelle.
+
+**Der Film wird zwischengespeichert.** Zwei Durchgänge mit `-cpu-used 1`
+kosten rund vier Minuten — bei jedem Lauf von `paket-bauen.sh` neu zu
+rechnen wäre eine schlechte Iterationsgeschwindigkeit für eine Datei, die
+sich selten ändert. `.paket-cache/imagefilm.webm` hält das Ergebnis; ein
+Stempel aus Änderungszeit und Dateigröße der Vorlage entscheidet, ob neu
+gerechnet wird. Der Ordner ist in `.gitignore` — jede Maschine baut ihn sich
+selbst, einmal.
+
+**Nachgemessen (SSIM/PSNR gegen die Vorlage, `ffmpeg -lavfi ssim/psnr`):**
+CRF 36 bei zwei Durchgängen ergibt SSIM 0,9917 und PSNR 46,8 dB — beides
+jenseits dessen, was ein Auge unterscheidet — bei 4,7 statt 6,6 MB. Tonspur
+und Länge bleiben unangetastet (`-c:a copy`, weiterhin 44,92 s).
+
+Ergebnis: **21 MB → 16 MB.** Wer nachsehen will, dass dabei nichts fehlt:
+das Skript prüft am Ende selbst, ob jede Datei aus `assets/` im ZIP steht
+(bis auf die eine ausgenommene Quelldatei), und ein `unzip` in einen leeren
+Ordner mit anschließendem `git diff --stat` gegen das Original zeigt nur die
+JPEGs und den Film als geändert — nichts sonst.
+
 ## Der PDF-Beleg
 
 Jede Anfrage und jede Bewerbung wird als PDF ins Postfach zugestellt

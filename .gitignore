@@ -10,3 +10,4 @@ netlify/functions/
 
 # Sprachmodell fuer tools/film-vertonen.py — 110 MB, Bezug steht in README.md
 tools/stimme/
+.paket-cache/

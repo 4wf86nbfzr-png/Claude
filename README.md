@@ -552,19 +552,29 @@ Kein Konto bei GitHub nötig, kein Build, keine Kreditkarte.
 ### 1. Paket bauen
 
 ```bash
-bash 
-# → herm-website-netlify.zip  (rund 14 MB)
+bash tools/paket-bauen.sh
+# → herm-website-netlify.zip  (rund 16 MB)
 ```
+
+Der erste Lauf dauert ein paar Minuten (er packt den Imagefilm einmal
+dichter und legt das Ergebnis unter `.paket-cache/` ab); jeder weitere Lauf
+ist schnell, solange sich der Film nicht ändert.
 
 **Warum ein eigenes Skript?** Beim Ziehen-und-Ablegen führt Netlify keinen
 Build aus — es veröffentlicht, was im Paket liegt. Eine Funktion, die
 `require('pdfkit')` sagt, fände dort nichts vor.
 
 Das Skript bündelt sie deshalb vorher: aus `api/_netlify.js` samt aller
-Abhängigkeiten wird **eine einzige Datei** unter
-`netlify/functions/formular.js` (rund 3,8 MB). Die braucht kein
+Abhängigkeiten und minifiziert wird **eine einzige Datei** unter
+`netlify/functions/formular.js` (rund 2,1 MB). Die braucht kein
 `node_modules` und keinen Bündler auf der Gegenseite — sie läuft, wo immer
 sie landet.
+
+Außerdem verkleinert das Skript die JPEG-Rückfallebene (reine Absicherung
+für sehr alte Browser, praktisch nie geholt) und packt den Imagefilm dichter
+— beides nur im Paket, nie im Repository selbst. Details und die
+Messwerte dazu stehen in `CLAUDE.md` unter „Das Netlify-Paket ist keine
+Kopie des Repositorys".
 
 Zwei Kontrollen laufen dabei mit: das Bündel muss für sich allein starten,
 und es darf **nichts** außer eingebauten Node-Modulen nachladen. Schlägt eine
