@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>HERM Service Team — Personal für Events aus Hamburg</title>
-<meta name="description" content="HERM Service Team – Personaldienstleistung aus Hamburg. Servicekräfte, Sicherheit, Hostessen, Logistik, Fahrservice und Reinigung für Events. Über 20 Jahre Erfahrung, Erlaubnis zur Arbeitnehmerüberlassung." />
+<meta name="description" content="Personaldienstleistung aus Hamburg: Servicekräfte, Sicherheit, Hostessen, Logistik, Fahrservice und Reinigung für Events. Über 20 Jahre Erfahrung." />
 
 <!-- Fonts: Display = Bricolage Grotesque · Body = Instrument Sans · Utility = Space Mono -->
 <!-- Die beiden Schnitte, die auf jeder Seite sofort gebraucht werden.
@@ -21,6 +21,7 @@
      Diese Zeile haelt Suchmaschinen von der internen Vorschau fern.
      Solange sie hier steht, wird die Seite nicht indexiert.
      Zusaetzlich sperrt robots.txt und der Header X-Robots-Tag.
+     Umschalten: python3 tools/live-schalten.py --live
      ============================================================ -->
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
 <link rel="canonical" href="https://hermserviceteam.com/" />
@@ -30,7 +31,7 @@
 <meta property="og:site_name" content="HERM Service Team" />
 <meta property="og:locale" content="de_DE" />
 <meta property="og:title" content="HERM Service Team — Personal für Events aus Hamburg" />
-<meta property="og:description" content="HERM Service Team – Personaldienstleistung aus Hamburg. Servicekräfte, Sicherheit, Hostessen, Logistik, Fahrservice und Reinigung für Events. Über 20 Jahre Erfahrung, Erlaubnis zur Arbeitnehmerüberlassung." />
+<meta property="og:description" content="Personaldienstleistung aus Hamburg: Servicekräfte, Sicherheit, Hostessen, Logistik, Fahrservice und Reinigung für Events. Über 20 Jahre Erfahrung." />
 <meta property="og:url" content="https://hermserviceteam.com/" />
 <meta property="og:image" content="https://hermserviceteam.com/assets/img/og-bild.jpg" />
 <meta property="og:image:width" content="1200" />
@@ -85,6 +86,12 @@ document.documentElement.classList.remove("kein-js");
   "telephone": "+49-40-27075100",
   "faxNumber": "+49-40-6011769",
   "email": "info@hermserviceteam.com",
+  "openingHoursSpecification": {
+    "@type": "OpeningHoursSpecification",
+    "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    "opens": "10:00",
+    "closes": "17:00"
+  },
   "founder": {
     "@type": "Person",
     "name": "Maik Herm"
@@ -250,7 +257,7 @@ document.documentElement.classList.remove("kein-js");
      der erste Bildschirm soll zeigen, auf welchem Niveau gearbeitet wird. -->
 <section class="hero" id="hero" data-weg>
   <div class="hero__photo" aria-hidden="true">
-    <picture><source type="image/webp" srcset="assets/img/gastro.webp 1600w, assets/img/gastro-gross.webp 2560w" sizes="(max-width:980px) 100vw, 142vw" /><img src="assets/img/gastro.jpg" alt="" fetchpriority="high" width="1600" height="1600" /></picture>
+    <picture><source type="image/webp" srcset="assets/img/gastro.webp 1600w, assets/img/gastro-gross.webp 2560w" sizes="(max-width:980px) 200vw, 142vw" /><img src="assets/img/gastro.jpg" alt="" fetchpriority="high" width="1600" height="1600" /></picture>
   </div>
 
   <div class="wrap hero__inner">
@@ -413,7 +420,11 @@ document.documentElement.classList.remove("kein-js");
 <section class="services-grid">
   <div class="svc-grid">
       <a class="svc" href="dienstleistungen/gastro-personal.html" data-lauf>
-        <span class="svc__bild"><picture><source type="image/webp" srcset="assets/img/gastro.webp 1600w, assets/img/gastro-gross.webp 2560w" sizes="(max-width:980px) 100vw, 142vw" /><img class="svc__img" src="assets/img/gastro.jpg" alt="" loading="lazy" width="1600" height="1600" /></picture></span>
+        <!-- Nicht gastro.jpg: dasselbe Motiv traegt schon den Hero weiter oben.
+             Zweimal dasselbe Foto auf einer Seite liest als Vorlage, nicht als
+             Auftritt. Die Barkeeper zeigen ausserdem, worum es in der Reihe
+             geht — Menschen bei der Arbeit, wie in den fuenf Szenen daneben. -->
+        <span class="svc__bild"><picture><source type="image/webp" srcset="assets/img/gastro-detail.webp 1600w, assets/img/gastro-detail-gross.webp 2560w" sizes="(max-width:980px) 100vw, 142vw" /><img class="svc__img" src="assets/img/gastro-detail.jpg" alt="" loading="lazy" width="1600" height="1600" /></picture></span>
         <span class="svc__inner">
           <span class="svc__num">01</span>
           <span class="svc__body">
@@ -627,17 +638,24 @@ document.documentElement.classList.remove("kein-js");
         <span class="ansprech__kopf"><picture><source type="image/webp" srcset="assets/img/team/noah-benkhofer.webp" /><img src="assets/img/team/noah-benkhofer.jpg" alt="" loading="lazy" width="1000" height="1250" /></picture></span>
         <span class="ansprech__kopf ansprech__kopf--leer">VO</span>
       </div>
+      <!-- Hier standen Telefonnummer und E-Mail ein zweites Mal — zwischen dem
+           Knopf zwanzig Pixel darueber und den Karten zwanzig Pixel darunter.
+           Dreimal dieselbe Nummer auf einem Bildschirm hilft niemandem beim
+           Anrufen. Dieser Block sagt jetzt nur noch, WER die Anfrage bekommt;
+           WIE man ihn erreicht, steht darunter. -->
       <div class="ansprech__txt">
         <small>Ihre Anfrage landet hier</small>
         <b>Unsere Disposition</b>
-        <a href="mailto:info@hermserviceteam.com">info@hermserviceteam.com</a>
-        <a href="tel:+494027075100">+49 (40) 27075100</a>
       </div>
     </div>
 
     <div class="contact-cards reveal-up" data-d="4" data-stagger>
       <div class="ccard"><small>Telefon &amp; Fax</small><a href="tel:+494027075100">+49 (40) 27075100</a><br><span style="color:var(--muted)">Fax +49 (40) 6011769</span></div>
       <div class="ccard"><small>E-Mail</small><a href="mailto:info@hermserviceteam.com">info@hermserviceteam.com</a></div>
+      <!-- Wann jemand ans Telefon geht, ist die haeufigste Frage vor dem ersten
+           Anruf. Dieselbe Angabe steht auf kontakt.html und als
+           openingHoursSpecification in den strukturierten Daten. -->
+      <div class="ccard"><small>B&uuml;ro erreichbar</small>Mo&ndash;Fr 10&ndash;17 Uhr<br><span style="color:var(--muted)">Sonst per E-Mail oder Formular</span></div>
       <div class="ccard"><small>Adresse</small><address>HERM Service Team e.K.<br>Maik Herm<br>Gertigstraße 12–14 · 22303 Hamburg</address></div>
     </div>
   </div>
@@ -698,6 +716,10 @@ document.documentElement.classList.remove("kein-js");
           <li><a href="kontakt.html">Anfrage &amp; Kontakt</a></li>
           <li><a href="tel:+494027075100">+49 (40) 27075100</a></li>
           <li><a href="mailto:info@hermserviceteam.com">info@hermserviceteam.com</a></li>
+          <!-- Keine Linie unter dieser Zeile: sie fuehrt nirgendwohin. Die
+               Aufzaehlung im Fuss besteht sonst aus Links; eine Angabe ohne
+               Ziel bekommt deshalb die Klasse .foot__fakt. -->
+          <li class="foot__fakt">B&uuml;ro Mo&ndash;Fr 10&ndash;17 Uhr</li>
           <li><a href="impressum.html">Impressum</a></li>
           <li><a href="datenschutz.html">Datenschutz</a></li>
         </ul>

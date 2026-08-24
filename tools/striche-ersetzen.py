@@ -107,6 +107,33 @@ def bearbeiten(text):
     return arbeit, treffer
 
 
+def javascript_pruefen():
+    """Meldet Striche in Zeichenketten, die auf der Seite landen.
+
+    Der Ersetzer laesst `<script>` bewusst in Ruhe — dort steht Programm,
+    kein Satz. Nur: drei Meldungen des Formulars stehen als Zeichenkette in
+    `assets/js/main.js`, und die liest der Benutzer sehr wohl. Genau diese
+    drei sind einmal durchgerutscht („Das ging schnell — bitte noch einmal
+    auf Senden klicken").
+
+    Umgeschrieben wird hier nichts: eine Zeichenkette automatisch zu
+    veraendern ist zu riskant. Gemeldet wird sie.
+    """
+    pfad = os.path.join(ROOT, "assets", "js", "main.js")
+    if not os.path.exists(pfad):
+        return []
+    befunde = []
+    for nr, zeile in enumerate(open(pfad, encoding="utf-8"), 1):
+        ohne = re.sub(r"/\*.*?\*/", "", zeile)          # Kommentar im Satz
+        if ohne.lstrip().startswith(("*", "//", "/*")):
+            continue
+        for m in re.finditer(r"'([^'\n]*)'|\"([^\"\n]*)\"", ohne):
+            wert = m.group(1) or m.group(2) or ""
+            if re.search(r"(?:^|\s)[—–](?:\s|$)", wert):
+                befunde.append((nr, wert.strip()))
+    return befunde
+
+
 def main():
     probe = "--probe" in sys.argv
     dateien = sorted(glob.glob(os.path.join(ROOT, "*.html")) +
@@ -122,6 +149,14 @@ def main():
         if not probe:
             open(pfad, "w", encoding="utf-8").write(neu)
     print(f"\n{gesamt} Striche ersetzt" + ("  (nur Probe)" if probe else ""))
+
+    js = javascript_pruefen()
+    if js:
+        print("\nNoch von Hand in assets/js/main.js (Meldungen des Formulars):")
+        for nr, wert in js:
+            print(f"  Zeile {nr}: {wert}")
+    else:
+        print("assets/js/main.js: keine Striche in sichtbaren Meldungen.")
 
 
 if __name__ == "__main__":

@@ -858,8 +858,8 @@
       }
       if(v.typeMismatch && feld.type === 'email') return 'Bitte eine gültige E-Mail-Adresse angeben, z. B. name@firma.de';
       if(v.typeMismatch && feld.type === 'tel')   return 'Bitte eine gültige Telefonnummer angeben.';
-      if(v.tooShort)  return 'Bitte etwas ausführlicher — mindestens ' + feld.minLength + ' Zeichen.';
-      if(v.tooLong)   return 'Das ist zu lang — höchstens ' + feld.maxLength + ' Zeichen.';
+      if(v.tooShort)  return 'Bitte etwas ausführlicher: mindestens ' + feld.minLength + ' Zeichen.';
+      if(v.tooLong)   return 'Das ist zu lang: höchstens ' + feld.maxLength + ' Zeichen.';
       if(v.patternMismatch) return feld.dataset.fehler || 'Diese Eingabe passt nicht ins Format.';
       if(v.rangeUnderflow || v.rangeOverflow) return feld.dataset.fehler || 'Dieser Wert liegt außerhalb des erlaubten Bereichs.';
       if(v.badInput) return 'Diese Eingabe können wir nicht lesen.';
@@ -1003,7 +1003,7 @@
          ersten Versuch. */
       if(!schnellBestaetigt && (Date.now() - geladen) < MINDESTZEIT){
         schnellBestaetigt = true;
-        melden('Das ging schnell — bitte noch einmal auf Senden klicken, dann geht es raus.');
+        melden('Das ging schnell. Bitte noch einmal auf Senden klicken, dann geht es raus.');
         return;
       }
       melden('');

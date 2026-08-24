@@ -15,7 +15,7 @@
        → Angebotsentwurf bauen, nur bei Anfragen  (_angebot.js)
        → Word-Datei daraus                        (_angebot.js)
        → eine Mail an die Disposition, beides im Anhang
-       → eine Eingangsbestätigung an den Kunden
+       → eine Eingangsbestätigung an den Absender (Kunde oder Bewerber)
        → Erfolgsmeldung an die Website
 
    **Das Angebot geht nie von allein an den Kunden.** Es liegt ausschließlich
@@ -39,7 +39,8 @@
                      Hier steht auch das Postfach, das auf der Website nicht
                      auftauchen soll — als Variable bleibt es auf dem Server.
      MAIL_VON      optional; sonst wird SMTP_USER genommen
-     MAIL_BESTAETIGUNG   optional; "aus" schaltet die Kundenbestätigung ab
+     MAIL_BESTAETIGUNG   optional; "aus" schaltet die Eingangsbestätigung ab
+                         (Anfrage wie Bewerbung)
 
    Fehlt eine der ersten vier, antwortet die Funktion mit 503 — die Website
    fällt dann von selbst auf ihren bisherigen Weg zurück (Netlify-Formular
@@ -305,8 +306,10 @@ async function verarbeite(daten){
         kein Grund, dem Absender „hat nicht geklappt" zu melden und ihn die
         Anfrage ein zweites Mal schicken zu lassen. */
   let bestaetigt = false;
-  if(art === 'anfrage' && beleg.absender && process.env.MAIL_BESTAETIGUNG !== 'aus'){
-    const b = MAILS.bestaetigungsMail(daten, beleg);
+  if(beleg.absender && process.env.MAIL_BESTAETIGUNG !== 'aus'){
+    const b = art === 'bewerbung'
+      ? MAILS.bewerbungsBestaetigung(daten, beleg)   /* geduzt, wie jobs.html */
+      : MAILS.bestaetigungsMail(daten, beleg);
     try {
       await kanal.sendMail({
         from:    `"HERM Service Team" <${von}>`,

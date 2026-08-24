@@ -44,13 +44,17 @@ tools/bilder-einhaengen.py    haengt sie ins Markup ein
 tools/film-bauen.js           baut den Imagefilm neu (Bild fuer Bild)
 tools/film-vertonen.py        spricht die Untertitel und mischt sie unter die Musik
 tools/striche-ersetzen.py     Gedankenstriche im Text durch Kommas ersetzen
+tools/strukturdaten.py        schreibt Breadcrumb-, FAQ- und Service-Daten
+                              aus dem, was auf der Seite steht
+tools/live-schalten.py        schaltet die Sperre gegen Suchmaschinen
+                              an neunzehn Stellen um (--live / --test / --stand)
 
 api/_vorgang.js         der Ablauf — Beleg, Angebot, zwei Mails
 api/formular.js         Hülle für Vercel
 api/_netlify.js         Hülle für Netlify (wird vorher gebündelt)
 api/_beleg.js           Aussehen des PDF-Belegs
 api/_angebot.js         Angebotsbogen: Datensatz, Word-Datei und PDF
-api/_mails.js           Wortlaut aller drei Mails
+api/_mails.js           Wortlaut aller vier Mails
 api/_logo.js            Wortzeichen hell — für das dunkle Band im PDF
 api/_logo_dunkel.js     Wortzeichen schwarz — für den weissen Angebotsbogen
 package.json            die drei Pakete, die nur die Funktion braucht
@@ -654,9 +658,11 @@ Diese Punkte müssen erledigt sein. Erst danach die Sperren lösen.
 - [ ] Datenschutzerklärung: Hoster mit Name und Anschrift eintragen,
       Auftragsverarbeitungsvertrag abschließen.
 - [ ] Beide Rechtstexte anwaltlich prüfen lassen.
-- [ ] Telefonische Erreichbarkeit eintragen (`kontakt.html`, als
-      `bitte ergänzen` markiert). Danach dieselbe Angabe als
-      `openingHours` in die strukturierten Daten der Startseite.
+- [x] ~~Telefonische Erreichbarkeit eintragen.~~ Mo–Fr 10–17 Uhr steht auf
+      `kontakt.html`, in den Kontaktkarten der Startseite, im Fuß jeder
+      Seite, im Einleitungssatz der Teamseite, als
+      `openingHoursSpecification` in den strukturierten Daten und in der
+      Fußzeile beider Bestätigungsmails. `grep -rn "10–17"` findet alle.
 - [ ] Bewertungen oder benannte Referenzkunden ergänzen, sobald eine
       Freigabe vorliegt — derzeit stehen dort nur Branchenangaben.
 - [ ] Porträts von Maik Herm und Valeria Occhipinto ergänzen
@@ -692,11 +698,14 @@ Diese Punkte müssen erledigt sein. Erst danach die Sperren lösen.
       kein echtes Material.
       Am Schreibtisch ist damit alles unter 1,3-fach; nur `promotion-messe`
       bleibt bei 1,4, weil das Original nur 1129 px hat.
-      **Am Telefon bleibt es bei 2,3- bis 3,5-fach.** Das ist kein Versehen:
-      dort bekämen die randlosen Fotos sonst die grosse Stufe, und die
-      Startseite würde von 2,4 auf rund 3,5 MB wachsen. Sobald echtes
-      Material in 2400 px vorliegt, löst sich das von selbst — dann kann
-      die kleine Stufe grösser werden, ohne dass etwas hochgerechnet wird.
+      **Am Telefon** bekommt seitdem das eine Kopfbild je Seite die grosse
+      Stufe (`sizes` beginnt dort mit `200vw`): der Hochrechnungsfaktor fällt
+      von 2,3 auf 1,36, und gemessen kostet das nichts — je drei
+      Durchfahrten mit und ohne grosse Stufe ergaben denselben Median,
+      dasselbe p95 und dieselbe Zahl Ruckler. Die **sechs Bühnen** bleiben
+      auf der kleinen Stufe und damit bei rund 1,6-fach; an ihnen hängt die
+      Rasterarbeit, die einmal geruckelt hat. Sobald echtes Material in
+      2400 px vorliegt, löst sich auch das von selbst.
 
 **Technisch**
 
@@ -704,15 +713,35 @@ Diese Punkte müssen erledigt sein. Erst danach die Sperren lösen.
       damit die Formulare den PDF-Beleg verschicken (siehe **Der PDF-Beleg →
       Einrichten**). `MAIL_AN` danach von der Testadresse auf die endgültige
       umstellen.
-- [ ] `robots.txt`: oberen Block löschen, unteren einkommentieren.
-- [ ] In allen 14 Seiten den Block `TESTBETRIEB` samt
-      `<meta name="robots" content="noindex, …">` entfernen.
-- [ ] In `netlify.toml` **und** `vercel.json` die Zeile `X-Robots-Tag` entfernen.
+- [ ] Sperre gegen Suchmaschinen lösen. Das sind neunzehn Stellen —
+      fünfzehn Seitenköpfe, `robots.txt` und drei Kopfzeilen-Dateien.
+      Nicht von Hand, sondern:
+
+      ```bash
+      python3 tools/live-schalten.py --stand    # zeigt, wie es steht
+      python3 tools/live-schalten.py --live     # freigeben
+      python3 tools/live-schalten.py --test     # wieder sperren
+      ```
+
+      `404.html` bleibt dabei bewusst auf `noindex`.
 - [ ] Domain verbinden, HTTPS-Zertifikat erzeugen lassen.
 - [ ] `sitemap.xml` in der Google Search Console einreichen.
 - [ ] Passwortschutz aufheben.
+- [ ] **Adressen der bisherigen Website prüfen.** Der alte Auftritt liegt
+      unter `/kontakt/`, `/jobs/`, `/ueber-uns/`, `/news/` und
+      `/dienstleistungen/<name>/` — also mit Schrägstrich am Ende und ohne
+      `.html`. Die Regeln dafür stehen in `vercel.json`, `netlify.toml` und
+      `.htaccess`; `/ueber-uns` zeigt jetzt dauerhaft auf `team.html`,
+      `/news` auf die Startseite. Nach dem Umschalten einmal von Hand
+      nachfassen: jede alte Adresse aufrufen und sehen, dass sie mit 301
+      am richtigen Ort landet. Was hier fehlt, kostet Platzierungen, die
+      seit Jahren stehen.
+- [ ] Mitarbeiter-Login gegenprüfen: der Knopf auf `jobs.html` führt auf
+      `https://hst.secplan.net`. Ändert sich die Adresse des Dienstplans,
+      steht sie an zwei Stellen (`jobs.html` und die Aufzählung in
+      `datenschutz.html`).
 
-Suchbefehl für alle drei Sperren auf einmal:
+Zur Kontrolle von Hand:
 
 ```bash
 grep -rn "TESTBETRIEB\|X-Robots-Tag" . --include="*.html" --include="*.toml" \
@@ -733,6 +762,15 @@ Die Testskripte liegen nicht im Repository; geprüft wurde vor der Übergabe:
   Honigtopf, Übermittlung, Bestätigung — auf Desktop und Smartphone
 - keine JavaScript-Fehler, keine fehlenden Dateien
 - `prefers-reduced-motion` und Betrieb ohne JavaScript
+- Seitenrand und waagerechter Überlauf zusätzlich bei 1024, 1920, 2560 und
+  3840 px — der Satzspiegel bleibt ab 1280 px stehen, statt mitzuwachsen
+- LCP und CLS je Seite: CLS überall ≤ 0,0002
+- wie stark jedes Foto wirklich hochgerechnet wird, `object-fit:cover`
+  eingerechnet, am Laptop (1440 @2×) und am Telefon (390 @3×)
+- Bewerbungsformular vollständig: Pflichtfelder, Spamschutz, Übermittlung,
+  Beleg im Anhang und die Eingangsbestätigung an die Bewerberin
+- der Wechsel Testbetrieb ↔ Live-Betrieb, hin und zurück, mit leerem
+  `git diff` danach
 
 ---
 

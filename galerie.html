@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Galerie — HERM Service Team</title>
+<title>Galerie: Einsätze in Hamburg — HERM Service Team</title>
 <meta name="description" content="Aufnahmen von Einsätzen des HERM Service Team: Service, Sicherheit, Hostessen, Logistik und Fahrservice bei Veranstaltungen in Hamburg." />
 <!-- Die beiden Schnitte, die auf jeder Seite sofort gebraucht werden.
      crossorigin ist auch bei eigenen Dateien Pflicht, sonst laedt der
@@ -18,6 +18,7 @@
      Diese Zeile haelt Suchmaschinen von der internen Vorschau fern.
      Solange sie hier steht, wird die Seite nicht indexiert.
      Zusaetzlich sperrt robots.txt und der Header X-Robots-Tag.
+     Umschalten: python3 tools/live-schalten.py --live
      ============================================================ -->
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
 <link rel="canonical" href="https://hermserviceteam.com/galerie.html" />
@@ -26,7 +27,7 @@
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="HERM Service Team" />
 <meta property="og:locale" content="de_DE" />
-<meta property="og:title" content="Galerie — HERM Service Team" />
+<meta property="og:title" content="Galerie: Einsätze in Hamburg — HERM Service Team" />
 <meta property="og:description" content="Aufnahmen von Einsätzen des HERM Service Team: Service, Sicherheit, Hostessen, Logistik und Fahrservice bei Veranstaltungen in Hamburg." />
 <meta property="og:url" content="https://hermserviceteam.com/galerie.html" />
 <meta property="og:image" content="https://hermserviceteam.com/assets/img/og-bild.jpg" />
@@ -53,6 +54,28 @@
 <!-- Inhalte werden beim Scrollen eingeblendet. Ohne JavaScript bliebe die
      Seite sonst leer — diese Zeile nimmt die Sperre sofort zurück. -->
 <script>document.documentElement.classList.remove("kein-js")</script>
+<!-- strukturdaten:anfang (tools/strukturdaten.py) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://hermserviceteam.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Galerie",
+      "item": "https://hermserviceteam.com/galerie.html"
+    }
+  ]
+}
+</script>
+<!-- strukturdaten:ende -->
 </head>
 <body>
 <!-- Erstes Element im Tabulator-Lauf: wer mit der Tastatur arbeitet,
@@ -114,10 +137,13 @@
 <main id="inhalt" tabindex="-1">
   <section class="subhero subhero--band">
     <div class="subhero__photo" aria-hidden="true" data-lauf>
-      <picture><source type="image/webp" srcset="assets/img/logistik-detail.webp 1400w, assets/img/logistik-detail-gross.webp 2560w" sizes="(max-width:980px) 100vw, 135vw" /><img src="assets/img/logistik-detail.jpg" alt="" fetchpriority="high" width="1400" height="1400" /></picture>
+      <!-- Nicht logistik-detail.jpg: dasselbe Motiv steht weiter unten als
+           Kachel im Raster. Ein Kopfbild, das man drei Bildschirme spaeter
+           noch einmal sieht, entwertet beide Stellen. -->
+      <picture><source type="image/webp" srcset="assets/img/sicherheit-einsatzleitung.webp 1400w, assets/img/sicherheit-einsatzleitung-gross.webp 2560w" sizes="(max-width:980px) 200vw, 135vw" /><img src="assets/img/sicherheit-einsatzleitung.jpg" alt="" fetchpriority="high" width="1400" height="933" /></picture>
     </div>
     <div class="wrap">
-      <div class="breadcrumb"><a href="index.html">Home</a> / <span>Galerie</span></div>
+      <nav class="breadcrumb" aria-label="Brotkrumenpfad"><a href="index.html">Home</a> / <span>Galerie</span></nav>
       <span class="eyebrow">Einblicke</span>
       <h1 class="u-caps">Galerie</h1>
       <span class="tag">Aufnahmen von Einsätzen, Service, Sicherheit, Messe, Aufbau.</span>
@@ -186,7 +212,7 @@
       </div>
 
       <p style="margin-top:var(--gap-l);color:var(--muted);max-width:56ch">Sie haben mit uns
-        gearbeitet und dürfen Aufnahmen weitergeben? Über neue Bilder freuen wir uns,         <a href="mailto:info@hermserviceteam.com" style="color:var(--paper)">info@hermserviceteam.com</a>.</p>
+        gearbeitet und dürfen Aufnahmen weitergeben? Über neue Bilder freuen wir uns, <a href="mailto:info@hermserviceteam.com" style="color:var(--paper)">info@hermserviceteam.com</a>.</p>
     </div>
   </section>
 </main>
@@ -267,6 +293,10 @@
           <li><a href="kontakt.html">Anfrage &amp; Kontakt</a></li>
           <li><a href="tel:+494027075100">+49 (40) 27075100</a></li>
           <li><a href="mailto:info@hermserviceteam.com">info@hermserviceteam.com</a></li>
+          <!-- Keine Linie unter dieser Zeile: sie fuehrt nirgendwohin. Die
+               Aufzaehlung im Fuss besteht sonst aus Links; eine Angabe ohne
+               Ziel bekommt deshalb die Klasse .foot__fakt. -->
+          <li class="foot__fakt">B&uuml;ro Mo&ndash;Fr 10&ndash;17 Uhr</li>
           <li><a href="impressum.html">Impressum</a></li>
           <li><a href="datenschutz.html">Datenschutz</a></li>
         </ul>

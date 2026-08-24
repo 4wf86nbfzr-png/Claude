@@ -33,8 +33,13 @@ IMG = os.path.join(ROOT, "assets/img")
 # tools/bilder-vergroessern.py
 ANTEIL = {
     "gastro": 142, "sicherheit": 142, "logistik": 142, "reinigung": 142,
-    "promotion-messe": 142, "gastro-detail": 135, "promotion": 135,
+    # gastro-detail steht seit der Doppelungspruefung auch als randlose Szene
+    # auf der Startseite — dort gilt derselbe Anteil wie fuer die uebrigen
+    # fuenf Szenen. Ein etwas zu grosszuegiges `sizes` schadet nicht; ein zu
+    # knappes holt die kleine Datei fuer eine grosse Flaeche.
+    "promotion-messe": 142, "gastro-detail": 142, "promotion": 135,
     "sicherheit-detail": 135, "logistik-detail": 135, "reinigung-detail": 135,
+    "sicherheit-einsatzleitung": 135,
     "fahrservice-door": 133, "team-herm": 125, "halle45": 113,
     "fahrservice-detail": 112, "promotion-team": 112, "reinigung-boden": 112,
 }
@@ -46,6 +51,21 @@ QUELLE = re.compile(r'(<source type="image/webp" srcset=")([^"]*?)([\w-]+)\.webp
 NACHZIEHEN = re.compile(
     r'(srcset=")([^"]*?)([\w-]+)\.webp \d+w, \2\3-gross\.webp \d+w("\s+sizes=")'
     r'\(max-width:980px\) 100vw, \d+vw(")')
+
+# Die Kopfbaender (.subhero__photo) stehen bewusst auf 200vw statt 100vw.
+# ---------------------------------------------------------------------------
+# `sizes` ist eine Breitenangabe, `object-fit:cover` richtet sich aber nach der
+# LAENGEREN relativen Kante. Am Telefon ist das Fenster hochkant, das Foto
+# meist quadratisch oder quer: gedeckt wird ueber die HOEHE. Gemessen bei
+# 390 x 776 und dreifacher Pixeldichte rechnete der Browser die 1600er Datei
+# auf das 1,46- bis 2,27-fache hoch — das Kopfbild war sichtbar weich, obwohl
+# `sizes` rechnerisch stimmte.
+#
+# 200vw laesst ihn dort die grosse Stufe holen (Faktor faellt auf rund 1,36).
+# Das gilt NUR fuer das eine Kopfbild je Seite, nicht fuer die sechs Buehnen —
+# dort haengt genau die Rasterarbeit dran, die einmal geruckelt hat.
+KOPFBAND = re.compile(
+    r'(class="(?:subhero__photo|hero__photo)"[^>]*>(?:.|\n){0,700}?</picture>)')
 KACHEL = re.compile(r'<a class="gal__item([^"]*)" href="([^"]*?)([\w-]+)\.jpg"(?! data-gross)')
 
 
@@ -117,6 +137,19 @@ def main():
             rest = m.end()
         neu.append(text[rest:])
         text = "".join(neu)
+
+        # --- 1b) Kopfbaender wieder auf 200vw setzen ---------------------
+        # Der Durchgang oben schreibt ueberall 100vw. Fuer das eine Foto im
+        # Kopfband ist das zu wenig (siehe Kommentar bei KOPFBAND).
+        def kopfband(m):
+            nonlocal n
+            neu_block = re.sub(r'sizes="\(max-width:980px\) 100vw, (\d+)vw"',
+                               r'sizes="(max-width:980px) 200vw, \1vw"',
+                               m.group(1), count=1)
+            if neu_block != m.group(1):
+                n += 1
+            return neu_block
+        text = KOPFBAND.sub(kopfband, text)
 
         # --- 2) Galerie: grosse Fassung fuer die Lightbox ----------------
         def kachel(m):

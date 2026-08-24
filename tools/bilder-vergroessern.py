@@ -59,6 +59,7 @@ BEDARF = {
     "reinigung-boden":    3325,
     "promotion-team":     3328,
     "halle45":            3254,
+    "sicherheit-einsatzleitung": 3254,
     "fahrservice-detail": 3226,
 }
 

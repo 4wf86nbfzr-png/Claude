@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Seite nicht gefunden &mdash; HERM Service Team</title>
-<meta name="description" content="Diese Seite gibt es nicht (mehr)." />
+<meta name="description" content="Diese Seite gibt es nicht oder nicht mehr. Über die Navigation kommen Sie zu den Dienstleistungen, zu den Jobs und zum Kontakt des HERM Service Team." />
 <!-- Die beiden Schnitte, die auf jeder Seite sofort gebraucht werden.
      crossorigin ist auch bei eigenen Dateien Pflicht, sonst laedt der
      Browser die Schrift ein zweites Mal. -->
@@ -18,6 +18,7 @@
      Diese Zeile haelt Suchmaschinen von der internen Vorschau fern.
      Solange sie hier steht, wird die Seite nicht indexiert.
      Zusaetzlich sperrt robots.txt und der Header X-Robots-Tag.
+     Umschalten: python3 tools/live-schalten.py --live
      ============================================================ -->
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
 <link rel="canonical" href="https://hermserviceteam.com/404.html" />
@@ -27,7 +28,7 @@
 <meta property="og:site_name" content="HERM Service Team" />
 <meta property="og:locale" content="de_DE" />
 <meta property="og:title" content="Seite nicht gefunden — HERM Service Team" />
-<meta property="og:description" content="Diese Seite gibt es nicht (mehr)." />
+<meta property="og:description" content="Diese Seite gibt es nicht oder nicht mehr. Über die Navigation kommen Sie zu den Dienstleistungen, zu den Jobs und zum Kontakt des HERM Service Team." />
 <meta property="og:url" content="https://hermserviceteam.com/404.html" />
 <meta property="og:image" content="https://hermserviceteam.com/assets/img/og-bild.jpg" />
 <meta property="og:image:width" content="1200" />
@@ -181,6 +182,10 @@
           <li><a href="kontakt.html">Anfrage &amp; Kontakt</a></li>
           <li><a href="tel:+494027075100">+49 (40) 27075100</a></li>
           <li><a href="mailto:info@hermserviceteam.com">info@hermserviceteam.com</a></li>
+          <!-- Keine Linie unter dieser Zeile: sie fuehrt nirgendwohin. Die
+               Aufzaehlung im Fuss besteht sonst aus Links; eine Angabe ohne
+               Ziel bekommt deshalb die Klasse .foot__fakt. -->
+          <li class="foot__fakt">B&uuml;ro Mo&ndash;Fr 10&ndash;17 Uhr</li>
           <li><a href="impressum.html">Impressum</a></li>
           <li><a href="datenschutz.html">Datenschutz</a></li>
         </ul>

@@ -144,7 +144,8 @@ function bestaetigungsMail(daten, beleg){
         + '— — —\n'
         + `Referenz: ${beleg.referenz}\n`
         + 'HERM Service Team e.K.  ·  Gertigstraße 12–14  ·  22303 Hamburg\n'
-        + 'Telefon +49 (40) 27075100  ·  info@hermserviceteam.com\n\n'
+        + 'Telefon +49 (40) 27075100  ·  Büro Mo–Fr 10–17 Uhr\n'
+        + 'info@hermserviceteam.com\n\n'
         + 'Diese Nachricht wurde automatisch versendet, weil über\n'
         + 'hermserviceteam.com eine Anfrage mit dieser Adresse abgeschickt wurde.'
   };
@@ -178,5 +179,45 @@ function bewerbungsMail(daten, beleg){
   };
 }
 
+/* Eingangsbestaetigung an die Bewerberin oder den Bewerber.
+   Wer sich bewirbt, bekam bisher gar nichts zurueck — waehrend ein
+   Kunde nach einer Anfrage sofort eine Bestaetigung erhielt. Genau bei
+   einer Bewerbung ist die Unsicherheit aber am groessten: „ist das
+   ueberhaupt angekommen?"
+
+   Geduzt wird hier, wie auf der ganzen Jobseite. Und es steht nichts
+   drin, was nicht schon auf jobs.html steht: dass wir uns die Bewerbung
+   ansehen und uns zurueckmelden. */
+function bewerbungsBestaetigung(daten, beleg){
+  return {
+    betreff: `Deine Bewerbung bei HERM Service Team [${beleg.referenz}]`,
+    text: [
+      'Danke für deine Bewerbung.',
+      '',
+      'Sie ist bei uns angekommen. Wir schauen sie uns an und melden uns',
+      'bei dir zurück, meist innerhalb weniger Tage.',
+      '',
+      'Zeugnisse und Lebenslauf kannst du später nachreichen, für den',
+      'ersten Kontakt brauchen wir sie nicht.',
+      '',
+      'Wenn du in der Zwischenzeit etwas ergänzen möchtest, antworte',
+      'einfach auf diese Mail oder ruf uns an.',
+      '',
+      'Viele Grüße',
+      '',
+      'Herm Service Team',
+      '',
+      '— — —',
+      `Referenz: ${beleg.referenz}`,
+      'HERM Service Team e.K.  ·  Gertigstraße 12–14  ·  22303 Hamburg',
+      'Telefon +49 (40) 27075100  ·  Büro Mo–Fr 10–17 Uhr',
+      'info@hermserviceteam.com',
+      '',
+      'Diese Nachricht wurde automatisch versendet, weil über',
+      'hermserviceteam.com eine Bewerbung mit dieser Adresse abgeschickt wurde.'
+    ].join('\n')
+  };
+}
+
 module.exports = { dispositionsMail, bestaetigungsMail, bewerbungsMail,
-                   BESTAETIGUNG, kopfsicher };
+                   bewerbungsBestaetigung, BESTAETIGUNG, kopfsicher };

@@ -18,6 +18,7 @@
      Diese Zeile haelt Suchmaschinen von der internen Vorschau fern.
      Solange sie hier steht, wird die Seite nicht indexiert.
      Zusaetzlich sperrt robots.txt und der Header X-Robots-Tag.
+     Umschalten: python3 tools/live-schalten.py --live
      ============================================================ -->
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
 <link rel="canonical" href="https://hermserviceteam.com/kontakt.html" />
@@ -53,6 +54,28 @@
 <!-- Inhalte werden beim Scrollen eingeblendet. Ohne JavaScript bliebe die
      Seite sonst leer — diese Zeile nimmt die Sperre sofort zurück. -->
 <script>document.documentElement.classList.remove("kein-js")</script>
+<!-- strukturdaten:anfang (tools/strukturdaten.py) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://hermserviceteam.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Kontakt",
+      "item": "https://hermserviceteam.com/kontakt.html"
+    }
+  ]
+}
+</script>
+<!-- strukturdaten:ende -->
 </head>
 <body>
 <!-- Erstes Element im Tabulator-Lauf: wer mit der Tastatur arbeitet,
@@ -114,10 +137,10 @@
 <main id="inhalt" tabindex="-1">
   <section class="subhero" data-weg>
     <div class="subhero__photo" aria-hidden="true">
-      <picture><source type="image/webp" srcset="assets/img/promotion.webp 1600w, assets/img/promotion-gross.webp 2560w" sizes="(max-width:980px) 100vw, 135vw" /><img src="assets/img/promotion.jpg" alt="Briefing des HERM Service Team vor einer Veranstaltung" fetchpriority="high" width="1600" height="1600" /></picture>
+      <picture><source type="image/webp" srcset="assets/img/promotion.webp 1600w, assets/img/promotion-gross.webp 2560w" sizes="(max-width:980px) 200vw, 135vw" /><img src="assets/img/promotion.jpg" alt="Briefing des HERM Service Team vor einer Veranstaltung" fetchpriority="high" width="1600" height="1600" /></picture>
     </div>
     <div class="wrap">
-      <div class="breadcrumb"><a href="index.html">Home</a> / <span>Kontakt</span></div>
+      <nav class="breadcrumb" aria-label="Brotkrumenpfad"><a href="index.html">Home</a> / <span>Kontakt</span></nav>
       <span class="eyebrow">Anfrage</span>
       <h1 class="u-caps">Lassen Sie uns Ihr Event tragen.</h1>
       <span class="tag">Sagen Sie uns, was ansteht, wir erstellen Ihnen ein pers&ouml;nliches Angebot.</span>
@@ -357,10 +380,10 @@
           <li><a href="mailto:info@hermserviceteam.com">info@hermserviceteam.com</a></li>
           <li>Fax +49 (40) 6011769</li>
           <!-- Wann jemand ans Telefon geht, ist die haeufigste Frage vor dem
-               ersten Anruf. Die Zeiten liegen uns nicht vor und duerfen nicht
-               geraten werden — bitte eintragen. -->
-          <li><span>Telefonisch erreichbar: <span class="offen">bitte erg&auml;nzen</span><br>
-            <span style="color:var(--muted)">z.&nbsp;B. Mo&ndash;Fr 8&ndash;18 Uhr</span></span></li>
+               ersten Anruf. Dieselbe Angabe steht als openingHours in den
+               strukturierten Daten der Startseite. -->
+          <li><span>B&uuml;ro erreichbar: Mo&ndash;Fr 10&ndash;17 Uhr<br>
+            <span style="color:var(--muted)">Au&szlig;erhalb der Zeiten per E-Mail oder &uuml;ber das Formular.</span></span></li>
           <li>HERM Service Team e.K.<br>Maik Herm<br>Gertigstra&szlig;e 12&ndash;14<br>22303 Hamburg</li>
         </ul>
         <a class="btn" href="tel:+494027075100">Jetzt anrufen</a>
@@ -378,11 +401,12 @@
           <span class="ansprech__kopf"><picture><source type="image/webp" srcset="assets/img/team/noah-benkhofer.webp" /><img src="assets/img/team/noah-benkhofer.jpg" alt="" loading="lazy" width="1000" height="1250" /></picture></span>
           <span class="ansprech__kopf ansprech__kopf--leer">VO</span>
         </div>
+        <!-- Ohne Telefonnummer und E-Mail: beide stehen auf dieser Seite schon
+             in der Spalte „Direkt erreichbar". Dieser Block sagt, WER die
+             Anfrage bekommt, nicht noch einmal, WIE man ihn erreicht. -->
         <div class="ansprech__txt">
           <small>Ihre Anfrage landet hier</small>
           <b>Unsere Disposition</b>
-          <a href="mailto:info@hermserviceteam.com">info@hermserviceteam.com</a>
-          <a href="tel:+494027075100">+49 (40) 27075100</a>
         </div>
       </div>
 
@@ -455,6 +479,10 @@
           <li><a href="kontakt.html">Anfrage &amp; Kontakt</a></li>
           <li><a href="tel:+494027075100">+49 (40) 27075100</a></li>
           <li><a href="mailto:info@hermserviceteam.com">info@hermserviceteam.com</a></li>
+          <!-- Keine Linie unter dieser Zeile: sie fuehrt nirgendwohin. Die
+               Aufzaehlung im Fuss besteht sonst aus Links; eine Angabe ohne
+               Ziel bekommt deshalb die Klasse .foot__fakt. -->
+          <li class="foot__fakt">B&uuml;ro Mo&ndash;Fr 10&ndash;17 Uhr</li>
           <li><a href="impressum.html">Impressum</a></li>
           <li><a href="datenschutz.html">Datenschutz</a></li>
         </ul>

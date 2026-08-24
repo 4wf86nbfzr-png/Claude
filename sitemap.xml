@@ -5,71 +5,72 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://hermserviceteam.com/</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-24</lastmod>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://hermserviceteam.com/kontakt.html</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-24</lastmod>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://hermserviceteam.com/jobs.html</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-24</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://hermserviceteam.com/team.html</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-24</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://hermserviceteam.com/galerie.html</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-24</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://hermserviceteam.com/impressum.html</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-24</lastmod>
     <priority>0.2</priority>
   </url>
   <url>
     <loc>https://hermserviceteam.com/datenschutz.html</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-24</lastmod>
     <priority>0.2</priority>
   </url>
   <url>
     <loc>https://hermserviceteam.com/dienstleistungen.html</loc>
+    <lastmod>2026-08-24</lastmod>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://hermserviceteam.com/dienstleistungen/gastro-personal.html</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-24</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://hermserviceteam.com/dienstleistungen/sicherheit.html</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-24</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://hermserviceteam.com/dienstleistungen/promotion-hostess.html</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-24</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://hermserviceteam.com/dienstleistungen/logistik.html</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-24</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://hermserviceteam.com/dienstleistungen/fahrservice.html</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-24</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://hermserviceteam.com/dienstleistungen/reinigung.html</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-24</lastmod>
     <priority>0.8</priority>
   </url>
 </urlset>

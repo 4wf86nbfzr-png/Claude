@@ -92,6 +92,20 @@
 # ---- Adressen ohne .html ----
 # /kontakt statt /kontakt.html — schöner und nach dem Live-Gang
 # die Adressen, die man weitergibt.
+# ---- Adressen der bisherigen Website ----
+# Der alte Auftritt hatte /ueber-uns/ und /news/. Beide gibt es hier nicht
+# mehr. Ohne diese beiden Zeilen liefe jeder Treffer aus einer Suchmaschine
+# und jeder fremde Link darauf ins 404 — 301 gibt die Bewertung an die neue
+# Adresse weiter.
+[[redirects]]
+  from = "/ueber-uns"
+  to = "/team.html"
+  status = 301
+[[redirects]]
+  from = "/news"
+  to = "/"
+  status = 301
+
 [[redirects]]
   from = "/kontakt"
   to = "/kontakt.html"

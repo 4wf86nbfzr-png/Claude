@@ -71,6 +71,18 @@
       ]
     }
   ],
+  "redirects": [
+    {
+      "source": "/ueber-uns",
+      "destination": "/team.html",
+      "permanent": true
+    },
+    {
+      "source": "/news",
+      "destination": "/",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/dienstleistungen",

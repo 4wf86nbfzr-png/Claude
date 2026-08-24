@@ -17,7 +17,8 @@
      SMTP_PASS     dessen Kennwort
      MAIL_AN       Empfänger der Belege, mehrere durch Komma getrennt
      MAIL_VON      optional; sonst wird SMTP_USER genommen
-     MAIL_BESTAETIGUNG   optional; "aus" schaltet die Kundenbestätigung ab
+     MAIL_BESTAETIGUNG   optional; "aus" schaltet die Eingangsbestätigung ab
+                         (Anfrage wie Bewerbung)
 
    Fehlt eine der ersten vier, antwortet die Funktion mit 503 — die Website
    fällt dann von selbst auf ihren bisherigen Weg zurück. Es geht also nie

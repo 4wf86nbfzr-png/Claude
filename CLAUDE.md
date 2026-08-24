@@ -50,6 +50,12 @@ Die Seite soll nach Handwerk aussehen, nicht nach Baukasten. Konkret heißt das:
   nur Bereichsangaben (`12–14`, `Mo–Fr`, `8–18 Uhr`), Bindestriche in
   Wörtern (`Gastro-Personal`, `Auf- und Abbau`) und die Trennung in `<title>`
   — die steht im Reiter des Browsers, nicht auf der Seite.
+  **Auch `main.js` zählt.** Der Ersetzer lässt `<script>` in Ruhe, weil dort
+  Programm steht und kein Satz. Drei Meldungen des Formulars stehen aber als
+  Zeichenkette in `assets/js/main.js` — und die liest der Benutzer sehr wohl
+  („Das ging schnell — bitte noch einmal auf Senden klicken"). Sie sind
+  ersetzt; `striche-ersetzen.py` meldet solche Stellen jetzt am Ende jedes
+  Laufs, umgeschrieben werden sie von Hand.
 - **Unterstrichen heißt: hier geht es weiter.** Eine Linie unter einem
   kurzen Eintrag liest im Netz als Link. Wo nichts dahintersteckt, darf
   deshalb keine Linie stehen — die Aufzählungen der Leistungsseiten
@@ -675,6 +681,33 @@ wegfällt"), das Foto nimmt also genau die Fensterbreite ein und nicht das
 1,42-fache. Ohne sie holt ein iPhone die 3400-px-Datei für eine Darstellung,
 die 1170 px breit ist.
 
+### …und warum beim Kopfbild trotzdem 200vw steht
+
+Die Rechnung oben stimmt für die Breite. `object-fit:cover` richtet sich aber
+nach der **längeren relativen Kante**, und am Telefon steht das Fenster
+hochkant, während die Fotos quadratisch oder quer sind: gedeckt wird über die
+**Höhe**. Gemessen bei 390 × 844 und dreifacher Pixeldichte:
+
+| Kopfbild | Datei | Faktor mit `100vw` | mit `200vw` |
+|---|---|---|---|
+| `halle45` | 1536 × 1024 | 2,27× | 1,36× |
+| `fahrservice-door` | 1536 × 1024 | 2,27× | 1,36× |
+| `sicherheit` | 1600 × 1600 | 1,46× | unter 1,25× |
+| Hero `gastro` | 1600 × 1600 | 1,62× | unter 1,25× |
+
+Ein Kopfbild, das um mehr als das Doppelte hochgerechnet wird, sieht auf einem
+guten Telefon weich aus — und es ist das erste, was jemand von der Seite sieht.
+
+**200vw gilt nur für das eine Kopfbild je Seite** (`.hero__photo`,
+`.subhero__photo`), nicht für die sechs Bühnen. Dort hängt genau die
+Rasterarbeit dran, die einmal geruckelt hat. Nachgemessen kostet der Schritt
+am Telefon nichts: je drei Durchfahrten mit und ohne große Stufe ergaben
+denselben Median (16,7 ms), dasselbe p95 (33,4 ms) und dieselbe Zahl Ruckler.
+
+`tools/bilder-einhaengen.py` setzt beides von selbst — der Regelfall auf
+`100vw`, die Kopfbilder danach auf `200vw` (`KOPFBAND`). Wer eine Zeile von
+Hand ändert, verliert sie beim nächsten Lauf.
+
 ### Der Imagefilm
 
 Der Film ist ein Platzhalter: neun der vorhandenen Fotos, je fünf Sekunden,
@@ -1166,6 +1199,111 @@ Seitenrand (`left:clamp(20px,5vw,64px)`), nicht in der Ecke.
 Der Sprunglink bleibt dabei erhalten. Er ist keine zweite Ausgabe des Logos,
 sondern die einzige Möglichkeit, mit der Tastatur an Navigation und Menü
 vorbei in den Inhalt zu kommen.
+
+---
+
+## Suchmaschinen: Testbetrieb und Live-Gang
+
+Die Sperre gegen Suchmaschinen steht an **neunzehn** Stellen: fünfzehn
+`<meta name="robots">` in den Seitenköpfen, `robots.txt`, und je eine
+Kopfzeile in `vercel.json`, `netlify.toml` und `.htaccess`. Drei Sperren sind
+Absicht — wer eine übersieht, hat die Vorschau trotzdem noch zugedeckt.
+
+Neunzehn Handgriffe am Tag des Live-Gangs sind dagegen keine Absicht, sondern
+eine Fehlerquelle. Deshalb:
+
+```bash
+python3 tools/live-schalten.py --stand    # wie steht es gerade?
+python3 tools/live-schalten.py --live     # freigeben
+python3 tools/live-schalten.py --test     # wieder sperren
+```
+
+Zwei Dinge, die das Skript bewusst anders macht als „alles ersetzen":
+
+- **`404.html` bleibt immer auf `noindex`.** Eine Fehlerseite gehört in keinen
+  Index, auch im Live-Betrieb nicht.
+- **In `netlify.toml` und `.htaccess` wird die Zeile auskommentiert, nicht
+  gelöscht.** Beim Zurückschalten muss sie niemand aus dem Gedächtnis
+  wiederherstellen. In `vercel.json` geht das nicht — JSON kennt keine
+  Kommentare —, dort wird der Eintrag wirklich entfernt und beim
+  Zurückschalten wieder eingesetzt.
+
+**Die Falle dabei:** `s.replace("", block)` schiebt den Block zwischen *jedes
+Zeichen* der Datei. Genau das ist beim ersten Entwurf passiert und hat aus
+`vercel.json` 10 000 Zeilen gemacht. Für JSON steht deshalb je eine eigene
+Regel für Entfernen und Einsetzen da, und der Anker beim Einsetzen ist
+`X-Content-Type-Options` — nicht das äußere `"headers": [`, denn dort stehen
+Quellen, keine Kopfzeilen.
+
+Nachprüfen lässt sich der ganze Vorgang in einem Zug: einmal `--live`, einmal
+`--test`, danach muss `git diff` bis auf `robots.txt` leer sein.
+
+## Strukturierte Daten kommen aus der Seite, nicht daneben
+
+Strukturierte Daten sind eine zweite Fassung dessen, was ohnehin im Markup
+steht. Von Hand gepflegt laufen die beiden Fassungen auseinander, sobald
+jemand einen Brotkrumen umbenennt — und Google meldet dann einen Fehler, den
+auf der Seite selbst niemand sieht.
+
+`tools/strukturdaten.py` liest deshalb die Quelle und schreibt das Ergebnis
+zwischen zwei Marken (`strukturdaten:anfang` / `:ende`):
+
+| Was | woraus |
+|---|---|
+| `BreadcrumbList` | dem sichtbaren `.breadcrumb` |
+| `FAQPage` | den `<details>`/`<summary>` der Jobseite |
+| `Service` | Name und `<meta name="description">` der sechs Leistungsseiten |
+
+Die Startseite bleibt außen vor: sie hat keinen Brotkrumenpfad (sie ist das
+Ziel), und ihr `EmploymentAgency`-Block steht von Hand im Kopf — dort stehen
+Angaben, die auf keiner Seite sichtbar sind (Fax, Netzwerke, Öffnungszeiten).
+
+Der Pfad steht seitdem als `<nav class="breadcrumb" aria-label="Brotkrumenpfad">`
+da, nicht als `<div>`. Die CSS-Regeln hängen an der Klasse, es ändert sich
+also nichts am Aussehen — aber Vorlesewerkzeuge bekommen einen Bereich, den
+sie ansteuern können.
+
+## Doppelt ist nicht gleich doppelt
+
+Beim Aufräumen der Wiederholungen ist der Unterschied wichtig:
+
+- **Ein System ist keine Doppelung.** Jede der sechs Szenen auf der Startseite
+  zeigt dasselbe Foto wie das Kopfband der Seite, auf die sie führt. Das ist
+  Absicht: man landet dort, wo man hingeklickt hat. Wer das „vereinheitlicht",
+  macht es kaputt.
+- **Zweimal dasselbe Foto auf *einer* Seite ist eine.** Der Hero der
+  Startseite zeigte `gastro.jpg`, und vier Bildschirme später stand dasselbe
+  Bild noch einmal als Szene 01. Ebenso auf der Galerie: `logistik-detail.jpg`
+  als Kopfband und weiter unten als Kachel. Beide Stellen sind getauscht.
+- **Dreimal dieselbe Telefonnummer auf einem Bildschirm hilft niemandem beim
+  Anrufen.** Im Schlussblock der Startseite stand sie im Knopf, im
+  Ansprechpartner-Block und in der Kontaktkarte. Der mittlere Block sagt
+  seitdem nur noch, **wer** die Anfrage bekommt; **wie** man ihn erreicht,
+  steht darunter.
+
+## Öffnungszeiten stehen an vier Stellen — und das ist richtig
+
+Mo–Fr 10–17 Uhr steht auf `kontakt.html`, in den Kontaktkarten der Startseite,
+im Fuß jeder Seite und im Einleitungssatz der Teamseite. Das widerspricht dem
+Absatz darüber nur scheinbar: eine Handlungsaufforderung dreimal zu
+wiederholen ist Lärm, eine Tatsache dort hinzuschreiben, wo jemand sie sucht,
+ist Service. Wer wissen will, ob jetzt jemand rangeht, schaut in den Fuß.
+
+Dieselbe Angabe steht als `openingHoursSpecification` in den strukturierten
+Daten der Startseite und in der Fußzeile beider Bestätigungsmails. Wer sie
+ändert, muss alle sechs Stellen anfassen — `grep -rn "10–17"` findet sie.
+
+## Der Mitarbeiter-Login gehört nicht zur Bewerbung
+
+`hst.secplan.net` ist der Dienstplan für Leute, die schon im Team sind. Er
+steht deshalb **abgesetzt unter** dem Bewerbungsknopf, nicht daneben: wer sich
+gerade bewirbt, soll ihn nicht für den nächsten Schritt halten. Getrennt wird
+wie überall, durch eine Haarlinie und Abstand.
+
+Es ist der einzige Link auf einen fremden Dienst außerhalb der Fußzeile.
+Deshalb `target="_blank" rel="noopener"`, ein Hinweis darauf im
+`aria-label` — und ein Satz in der Datenschutzerklärung, dass es ein
+einfacher Link ist und dort die Erklärung des anderen Anbieters gilt.
 
 ---
 

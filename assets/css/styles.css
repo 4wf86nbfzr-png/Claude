@@ -1501,8 +1501,12 @@ body.menu-open #mobileMenu > a{ opacity:1; translate:0 0; }
 
 /* Telefon, Mail, Adresse: drei Spalten mit Haarlinie oben statt drei Kästen.
    Sie stehen jetzt über die volle Breite, nicht mehr auf 960 px zentriert. */
+/* Vier Angaben: Telefon, E-Mail, Erreichbarkeit, Anschrift. `auto-fit` statt
+   einer festen Spaltenzahl — bei drei Karten stehen sie zu dritt, bei vier zu
+   viert, und auf einem schmalen Laptop bricht die Reihe von selbst um, ohne
+   dass jemand die Zahl im Stylesheet nachzieht. */
 .contact-cards{
-  display:grid; grid-template-columns:repeat(3,1fr);
+  display:grid; grid-template-columns:repeat(auto-fit, minmax(212px, 1fr));
   gap:clamp(24px,3vw,48px); margin:clamp(48px,6vw,88px) 0 0; text-align:left;
 }
 .ccard{ padding:clamp(18px,2vw,24px) 0 0; border-top:1px solid var(--line); }
@@ -1567,6 +1571,10 @@ body > footer h2{ font-family:var(--font-mono); font-size:.64rem; letter-spacing
 body > footer ul{ list-style:none; display:flex; flex-direction:column; gap:11px; }
 body > footer ul a{ color:var(--chrome); font-size:.92rem; transition:color var(--t-fast) var(--ease-swift); }
 body > footer ul a:hover{ color:var(--paper); }
+/* Eine Angabe ohne Ziel in einer Liste aus Links. Sie steht leiser als die
+   Links darueber und darunter — und ohne Linie, denn unterstrichen hiesse:
+   hier geht es weiter. */
+body > footer ul li.foot__fakt{ color:var(--muted); font-size:.92rem; }
 .foot__brand p{ color:var(--muted); font-size:.9rem; max-width:34ch; margin-top:18px; }
 /* Vorher standen hier die Buchstaben f, ◎, in und X als Ersatz für Icons —
    auf jeder Seite der Fußzeile, gut sichtbar. Jetzt dieselben SVG, die das
@@ -2123,6 +2131,12 @@ header.nav{ view-transition-name:kopfzeile; }
 .side h2{ font-family:var(--font-mono); font-size:.64rem; letter-spacing:.22em; text-transform:uppercase; color:var(--muted); margin-bottom:20px; }
 .side .btn{ width:100%; justify-content:space-between; margin-top:26px; }
 .side__hinweis{ color:var(--muted); font-size:.84rem; margin-top:14px; }
+/* Der Mitarbeiter-Login sitzt in derselben Spalte wie die Bewerbung, gehoert
+   aber jemand anderem. Getrennt wird wie ueberall auf dieser Seite: durch eine
+   Haarlinie und Abstand, nicht durch einen Kasten. */
+.side__login{ margin-top:clamp(30px,3.4vw,44px); padding-top:clamp(20px,2.2vw,28px); border-top:1px solid var(--line); }
+.side__loginlabel{ display:block; font-family:var(--font-mono); font-size:.64rem; letter-spacing:.22em; text-transform:uppercase; color:var(--muted); }
+.side__login .btn{ margin-top:16px; }
 .ticklist{ list-style:none; display:flex; flex-direction:column; gap:12px; }
 .ticklist li{ display:flex; gap:12px; align-items:flex-start; color:var(--chrome); font-size:.98rem; }
 /* Ein Flex-Kasten rechnet seine Mindestbreite aus der Summe seiner Teile.

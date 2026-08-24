@@ -18,6 +18,7 @@
      Diese Zeile haelt Suchmaschinen von der internen Vorschau fern.
      Solange sie hier steht, wird die Seite nicht indexiert.
      Zusaetzlich sperrt robots.txt und der Header X-Robots-Tag.
+     Umschalten: python3 tools/live-schalten.py --live
      ============================================================ -->
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
 <link rel="canonical" href="https://hermserviceteam.com/jobs.html" />
@@ -53,6 +54,76 @@
 <!-- Inhalte werden beim Scrollen eingeblendet. Ohne JavaScript bliebe die
      Seite sonst leer — diese Zeile nimmt die Sperre sofort zurück. -->
 <script>document.documentElement.classList.remove("kein-js")</script>
+<!-- strukturdaten:anfang (tools/strukturdaten.py) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://hermserviceteam.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Jobs",
+      "item": "https://hermserviceteam.com/jobs.html"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Brauche ich Erfahrung?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Für viele Einsätze nicht. Wichtiger sind Pünktlichkeit, ein gepflegtes Auftreten und die Bereitschaft, dich einzuarbeiten. Wo Erfahrung nötig ist, etwa hinter der Bar oder im Sicherheitsbereich, sagen wir das vorher."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Wie viel muss ich arbeiten?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Das entscheidest du. Manche sind einmal im Monat dabei, andere jede Woche. Du sagst uns deine Verfügbarkeit, wir fragen passende Einsätze an."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Wie werde ich bezahlt?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Nach Stunden, auf Basis eines Arbeitsvertrags, wir haben die Erlaubnis zur Arbeitnehmerüberlassung. Die Konditionen besprechen wir im Gespräch, bevor du den ersten Einsatz übernimmst."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Muss ich aus Hamburg kommen?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Die meisten Einsätze sind in Hamburg und Umgebung. Für Fahrservice und Logistik geht es nach Absprache auch darüber hinaus."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Wie läuft die Bewerbung ab?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Kurze Mail oder Anruf genügt. Danach lernen wir uns kennen, persönlich im Büro in der Gertigstraße oder am Telefon. Ein aufwendiges Anschreiben brauchst du nicht."
+      }
+    }
+  ]
+}
+</script>
+<!-- strukturdaten:ende -->
 </head>
 <body>
 <!-- Erstes Element im Tabulator-Lauf: wer mit der Tastatur arbeitet,
@@ -114,10 +185,10 @@
 <main id="inhalt" tabindex="-1">
   <section class="subhero" data-weg>
     <div class="subhero__photo" aria-hidden="true">
-      <picture><source type="image/webp" srcset="assets/img/gastro-detail.webp 1600w, assets/img/gastro-detail-gross.webp 2560w" sizes="(max-width:980px) 100vw, 135vw" /><img src="assets/img/gastro-detail.jpg" alt="Zwei Mitarbeiter des HERM Service Team an der Bar" fetchpriority="high" width="1600" height="1600" /></picture>
+      <picture><source type="image/webp" srcset="assets/img/gastro-detail.webp 1600w, assets/img/gastro-detail-gross.webp 2560w" sizes="(max-width:980px) 200vw, 135vw" /><img src="assets/img/gastro-detail.jpg" alt="Zwei Mitarbeiter des HERM Service Team an der Bar" fetchpriority="high" width="1600" height="1600" /></picture>
     </div>
     <div class="wrap">
-      <div class="breadcrumb"><a href="index.html">Home</a> / <span>Jobs</span></div>
+      <nav class="breadcrumb" aria-label="Brotkrumenpfad"><a href="index.html">Home</a> / <span>Jobs</span></nav>
       <span class="eyebrow">Karriere</span>
       <h1 class="u-caps">Werd Teil des Teams.</h1>
       <span class="tag">Flexible Eins&auml;tze rund um Hamburg und deutschlandweit, wenn du magst.</span>
@@ -149,6 +220,20 @@
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </a>
         <p class="side__hinweis">oder anrufen: <a href="tel:+494027075100" style="color:var(--paper)">+49 (40) 27075100</a></p>
+
+        <!-- Der Login ist nicht fuer Bewerber, sondern fuer alle, die schon
+             hier arbeiten. Er steht deshalb abgesetzt unter der Bewerbung und
+             nicht daneben: wer sich bewirbt, soll ihn nicht fuer den naechsten
+             Schritt halten. Ziel ist ein fremder Dienst, deshalb neues Fenster
+             und ein Hinweis darauf im zugaenglichen Namen. -->
+        <div class="side__login">
+          <span class="side__loginlabel">Schon im Team?</span>
+          <a class="btn btn--ghost" href="https://hst.secplan.net" target="_blank" rel="noopener"
+             aria-label="Mitarbeiter-Login, öffnet hst.secplan.net in einem neuen Fenster">Mitarbeiter-Login
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M14 5h5v5M19 5l-8 8M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <p class="side__hinweis">Dienstplan, Einsätze und Zeiten unter hst.secplan.net.</p>
+        </div>
       </aside>
     </div>
   </section>
@@ -224,7 +309,7 @@
         <details>
           <summary>Brauche ich Erfahrung?</summary>
           <p>F&uuml;r viele Eins&auml;tze nicht. Wichtiger sind P&uuml;nktlichkeit, ein gepflegtes
-            Auftreten und die Bereitschaft, dich einzuarbeiten. Wo Erfahrung n&ouml;tig ist,             etwa hinter der Bar oder im Sicherheitsbereich, sagen wir das vorher.</p>
+            Auftreten und die Bereitschaft, dich einzuarbeiten. Wo Erfahrung n&ouml;tig ist, etwa hinter der Bar oder im Sicherheitsbereich, sagen wir das vorher.</p>
         </details>
         <details>
           <summary>Wie viel muss ich arbeiten?</summary>
@@ -368,7 +453,7 @@
           <li><a href="mailto:info@hermserviceteam.com?subject=Bewerbung">info@hermserviceteam.com</a></li>
           <li>Pers&ouml;nlich nach Absprache:<br>Gertigstra&szlig;e 12&ndash;14<br>22303 Hamburg</li>
         </ul>
-        <p class="side__hinweis" style="text-align:left;margin-top:18px">Ruf einfach an,           das geht oft schneller als jede Mail.</p>
+        <p class="side__hinweis" style="text-align:left;margin-top:18px">Ruf einfach an, das geht oft schneller als jede Mail.</p>
       </aside>
     </div>
   </section>
@@ -434,6 +519,10 @@
           <li><a href="kontakt.html">Anfrage &amp; Kontakt</a></li>
           <li><a href="tel:+494027075100">+49 (40) 27075100</a></li>
           <li><a href="mailto:info@hermserviceteam.com">info@hermserviceteam.com</a></li>
+          <!-- Keine Linie unter dieser Zeile: sie fuehrt nirgendwohin. Die
+               Aufzaehlung im Fuss besteht sonst aus Links; eine Angabe ohne
+               Ziel bekommt deshalb die Klasse .foot__fakt. -->
+          <li class="foot__fakt">B&uuml;ro Mo&ndash;Fr 10&ndash;17 Uhr</li>
           <li><a href="impressum.html">Impressum</a></li>
           <li><a href="datenschutz.html">Datenschutz</a></li>
         </ul>
