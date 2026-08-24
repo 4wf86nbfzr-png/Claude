@@ -25,6 +25,7 @@ index.html              Startseite: Hero, Einstieg, Film, Ablauf,
 dienstleistungen.html   die sechs Bereiche als Kamerafahrt (Buehnen).
                         Erreichbar ueber den Menuepunkt „Dienstleistungen",
                         der einen Balken mit allen sechs aufklappt.
+referenzen.html         Kundenstimmen (eigene Seite, kein Sprungziel)
 kontakt.html            Anfrageformular
 jobs.html               Stellen, FAQ, Bewerbungsformular
 team.html               Büroteam
@@ -789,6 +790,8 @@ Die Testskripte liegen nicht im Repository; geprüft wurde vor der Übergabe:
 - der Balken unter der Kopfzeile auf fünf Seiten: öffnen, sechs Bereiche,
   sechs Fotos, Escape, Tastaturbedienung, ohne JavaScript, im Vollbildmenü
   und am Telefon
+- jeder Menüpunkt führt auf eine eigene Datei und beginnt dort oben —
+  kein Sprungziel innerhalb der Startseite
 
 ---
 

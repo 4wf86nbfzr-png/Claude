@@ -137,8 +137,9 @@ def einsetzen(roh, block):
 
 
 def main():
-    seiten = ["index.html", "dienstleistungen.html", "team.html", "galerie.html",
-              "jobs.html", "kontakt.html", "impressum.html", "datenschutz.html"]
+    seiten = ["index.html", "dienstleistungen.html", "referenzen.html",
+              "team.html", "galerie.html", "jobs.html", "kontakt.html",
+              "impressum.html", "datenschutz.html"]
     seiten += list(LEISTUNGEN)
 
     geaendert = 0

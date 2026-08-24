@@ -545,7 +545,7 @@ Start
 │   ├── Logistik
 │   ├── Fahrservice
 │   └── Reinigung
-├── Team · Galerie · Jobs · Kontakt
+├── Referenzen · Team · Galerie · Jobs · Kontakt
 └── Impressum · Datenschutz
 ```
 
@@ -1396,6 +1396,34 @@ ist Service. Wer wissen will, ob jetzt jemand rangeht, schaut in den Fuß.
 Dieselbe Angabe steht als `openingHoursSpecification` in den strukturierten
 Daten der Startseite und in der Fußzeile beider Bestätigungsmails. Wer sie
 ändert, muss alle sechs Stellen anfassen — `grep -rn "10–17"` findet sie.
+
+## Ein Reiter ist eine Seite, kein Sprungziel
+
+„Referenzen" war der letzte Menüpunkt, der auf einen **Abschnitt der
+Startseite** zeigte (`index.html#referenzen`). Das fällt nicht beim Klicken
+auf, sondern eine Bewegung später: man scrollt ein Stück zurück und steht
+mitten in der Startseite. Genau daran liest sich eine Website als One-Page,
+auch wenn sie technisch aus fünfzehn Dateien besteht.
+
+Seitdem gilt ohne Ausnahme: **jeder Punkt der Hauptnavigation ist eine
+eigene Datei.** Sprungmarken bleiben, wo sie hingehören — innerhalb einer
+Seite (`#inhalt`, `#bewerbung`), nie als Menüpunkt.
+
+Die Aufteilung folgt dabei demselben Muster wie bei den Dienstleistungen:
+
+| | Startseite | eigene Seite |
+|---|---|---|
+| Referenzen | das grosse Zitat und die fünf Zeichen (`.reflogos`) | alle Stimmen einzeln (`referenzen.html`) |
+| Dienstleistungen | nichts, der Weg führt über den Balken | die sechs Bühnen |
+
+Beides zu zeigen wäre die Doppelung, die an anderer Stelle schon
+aufgeräumt wurde. Die Startseite zeigt, **dass** mit uns gearbeitet wird;
+**wer** das sagt, steht auf der Seite dahinter.
+
+**Wer einen Menüpunkt dazunimmt**, legt eine Datei an und trägt sie an fünf
+Stellen ein: Kopfnavigation und Vollbildmenü (auf allen Seiten),
+`sitemap.xml`, die Liste in `tools/strukturdaten.py`, die Sitemap-Spalte im
+Fuss und die Adressregel ohne `.html` in `vercel.json` und `netlify.toml`.
 
 ## Der Balken unter der Kopfzeile
 

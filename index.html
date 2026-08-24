@@ -208,7 +208,7 @@ document.documentElement.classList.remove("kein-js");
   </a>
   <nav class="nav__links" aria-label="Hauptnavigation">
     <a href="dienstleistungen.html">Dienstleistungen</a>
-    <a href="#referenzen">Referenzen</a>
+    <a href="referenzen.html">Referenzen</a>
     <a href="team.html">Team</a>
     <a href="galerie.html">Galerie</a>
     <a href="jobs.html">Jobs</a>
@@ -225,7 +225,7 @@ document.documentElement.classList.remove("kein-js");
 
 <nav id="mobileMenu" aria-label="Mobile Navigation">
   <a href="dienstleistungen.html">Dienstleistungen</a>
-  <a href="#referenzen">Referenzen</a>
+  <a href="referenzen.html">Referenzen</a>
   <a href="team.html">Team</a>
   <a href="galerie.html">Galerie</a>
   <a href="jobs.html">Jobs</a>
@@ -452,7 +452,7 @@ document.documentElement.classList.remove("kein-js");
 <!-- ============ REFERENZEN ============ -->
 <!-- Die Stimmen standen vorher in zwei Endlosbändern und liefen am Auge vorbei.
      Jetzt lesbar: ein Zitat als Anker, die übrigen als ruhiges Raster. -->
-<section class="testi" id="referenzen">
+<section class="testi">
   <div class="wrap">
     <div class="testi__head">
       <span class="eyebrow reveal-up">Referenzen</span>
@@ -472,13 +472,24 @@ document.documentElement.classList.remove("kein-js");
       </figure>
     </div>
 
-    <div class="tgrid reveal-up" data-stagger>
-      <article class="tcard"><p>„Ein zuverlässiger Typ, der auch mal spontan ‚einen Brand‘ löschen kann.“</p><div class="who"><picture class="who__logo"><source type="image/webp" srcset="assets/img/referenzen/henssler.webp" /><img src="assets/img/referenzen/henssler.png" alt="" loading="lazy" width="258" height="200" /></picture><b>Steffen Henssler</b><small>Hensslers Küche</small></div></article>
-      <article class="tcard"><p>„Das Personal ist für uns kein Leihpersonal, sondern Teil unseres Teams, wir arbeiten wahnsinnig gerne zusammen.“</p><div class="who"><picture class="who__logo"><source type="image/webp" srcset="assets/img/referenzen/am-kai.webp" /><img src="assets/img/referenzen/am-kai.png" alt="" loading="lazy" width="166" height="200" /></picture><b>Au Quai</b><small>Restaurant Hamburg</small></div></article>
-      <article class="tcard"><p>„Immer freundlich, kompetent und lösungsorientiert. Der perfekte Partner in Zeiten des Personalmangels.“</p><div class="who"><picture class="who__logo"><source type="image/webp" srcset="assets/img/referenzen/kitchen-guerilla.webp" /><img src="assets/img/referenzen/kitchen-guerilla.png" alt="" loading="lazy" width="139" height="200" /></picture><b>kitchen guerilla</b><small>Catering</small></div></article>
-      <article class="tcard"><p>„Super schnelle Reaktionszeit im Koordinieren und Disponieren von Mitarbeitern, wenn es mal brennt. Riesige Hilfe!“</p><div class="who"><picture class="who__logo"><source type="image/webp" srcset="assets/img/referenzen/hobenkoeoek.webp" /><img src="assets/img/referenzen/hobenkoeoek.png" alt="" loading="lazy" width="228" height="200" /></picture><b>Hobenköök</b><small>Markthalle &amp; Restaurant</small></div></article>
-      <article class="tcard"><p>„Stets pünktlich, zuverlässig, unkompliziert und kurzfristig, unser gesamter Bedarf an Servicekräften.“</p><div class="who"><picture class="who__logo"><source type="image/webp" srcset="assets/img/referenzen/bugenhagen.webp" /><img src="assets/img/referenzen/bugenhagen.png" alt="" loading="lazy" width="266" height="200" /></picture><b>Bugenhagen Catering</b><small>Catering</small></div></article>
-      <article class="tcard"><p>„Seit Jahren ein unverzichtbarer Partner bei unseren Produktionen.“</p><div class="who"><b>Markus Heidemanns</b><small>Fernsehmacher</small></div></article>
+    <!-- Auf der Startseite stehen nur noch das grosse Zitat und die Zeichen
+         derer, die mit uns arbeiten. Die einzelnen Stimmen stehen auf
+         referenzen.html — sie hier UND dort zu zeigen waere dieselbe
+         Doppelung, die bei den Dienstleistungen schon einmal aufgeraeumt
+         wurde. Die Zeichen tragen alt-Texte: hier steht kein Name als Text
+         daneben, anders als in den Karten auf der eigenen Seite. -->
+    <div class="reflogos reveal-up" data-d="2">
+      <ul class="reflogos__reihe">
+        <li><picture><source type="image/webp" srcset="assets/img/referenzen/henssler.webp" /><img src="assets/img/referenzen/henssler.png" alt="Hensslers Küche" loading="lazy" /></picture></li>
+        <li><picture><source type="image/webp" srcset="assets/img/referenzen/am-kai.webp" /><img src="assets/img/referenzen/am-kai.png" alt="Au Quai" loading="lazy" /></picture></li>
+        <li><picture><source type="image/webp" srcset="assets/img/referenzen/kitchen-guerilla.webp" /><img src="assets/img/referenzen/kitchen-guerilla.png" alt="kitchen guerilla" loading="lazy" /></picture></li>
+        <li><picture><source type="image/webp" srcset="assets/img/referenzen/hobenkoeoek.webp" /><img src="assets/img/referenzen/hobenkoeoek.png" alt="Hobenköök" loading="lazy" /></picture></li>
+        <li><picture><source type="image/webp" srcset="assets/img/referenzen/bugenhagen.webp" /><img src="assets/img/referenzen/bugenhagen.png" alt="Bugenhagen Catering" loading="lazy" /></picture></li>
+      </ul>
+      <a class="btn reflogos__mehr" href="referenzen.html">Alle Referenzen ansehen
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
     </div>
   </div>
 </section>
@@ -596,6 +607,7 @@ document.documentElement.classList.remove("kein-js");
         <ul>
           <li><a href="#top">Home</a></li>
           <li><a href="dienstleistungen.html">Dienstleistungen</a></li>
+          <li><a href="referenzen.html">Referenzen</a></li>
           <li><a href="team.html">Team</a></li>
           <li><a href="galerie.html">Galerie</a></li>
           <li><a href="jobs.html">Jobs</a></li>

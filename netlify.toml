@@ -115,6 +115,10 @@
   to = "/jobs.html"
   status = 200
 [[redirects]]
+  from = "/referenzen"
+  to = "/referenzen.html"
+  status = 200
+[[redirects]]
   from = "/team"
   to = "/team.html"
   status = 200

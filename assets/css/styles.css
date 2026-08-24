@@ -1604,6 +1604,36 @@ body.megabar-auf header.nav{
   .tlead{ grid-template-columns:1fr; }
 }
 
+/* ---- Die Zeichenreihe auf der Startseite ----
+   Nur die Zeichen derer, die mit uns arbeiten, dahinter der Weg auf die
+   eigene Seite. Keine Kaesten, keine Rahmen: getrennt wird durch Abstand,
+   oben und unten je eine Haarlinie ueber die volle Breite — das ist ein
+   Trenner, kein Unterstrich.
+
+   `auto-fit` statt einer festen Spaltenzahl: kommt ein sechstes Zeichen
+   dazu, ordnet sich die Reihe von selbst neu. */
+.reflogos{
+  margin-top:var(--gap-l);
+  padding-block:clamp(28px,3.4vw,48px);
+  border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+}
+.reflogos__reihe{
+  list-style:none; display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(120px, 1fr));
+  gap:clamp(24px,3.4vw,56px); align-items:center;
+}
+.reflogos__reihe img{
+  /* Dieselbe Hoehe und dieselbe Deckkraft wie in den Karten auf
+     referenzen.html — die Zeichen sollen ueberall gleich gross wirken. */
+  height:clamp(52px,5.4vw,72px); width:auto; max-width:100%;
+  object-fit:contain; object-position:center;
+  opacity:.92;
+  transition:opacity var(--t-base) var(--ease-swift);
+}
+.reflogos__reihe li:hover img{ opacity:1; }
+.reflogos__mehr{ margin-top:clamp(26px,3vw,40px); }
+
 /* ============================================================
    EXPECT / qualities strip
    ============================================================ */

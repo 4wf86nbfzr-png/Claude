@@ -97,6 +97,10 @@
       "destination": "/jobs.html"
     },
     {
+      "source": "/referenzen",
+      "destination": "/referenzen.html"
+    },
+    {
       "source": "/team",
       "destination": "/team.html"
     },
