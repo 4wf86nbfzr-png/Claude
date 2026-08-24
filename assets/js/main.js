@@ -4,9 +4,20 @@
 (function(){
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* Preloader: Linie zieht auf, Logo baut sich auf, dann sofort die Seite.
+  /* Preloader: Lichtbahn, das Wortzeichen taucht aus der Unschärfe auf, ein
+     Glanz läuft durch die Buchstaben — dann der direkte Sprung auf die Seite.
      Nur beim ersten Öffnen — wer im selben Besuch zurück auf die Startseite
-     kommt, soll nicht jedes Mal warten. */
+     kommt, soll nicht jedes Mal warten.
+
+     Die Zeiten hängen an den Animationen in styles.css und müssen mit ihnen
+     zusammen geändert werden:
+        0,30 s  das Zeichen beginnt aufzutauchen
+        2,10 s  es ist scharf, steht aber erst auf 66 % Helligkeit
+        2,70 s  der Glanz ist durch (1,85 + 0,85) und das Zeichen
+                gleichzeitig auf vollem Weiss (2,10 + 0,60)
+     Der Schnitt kommt bei 2,75 s, also erst danach. Ein Vorspann, der
+     mitten in seiner eigenen Bewegung abgeschnitten wird, liest als Fehler
+     und nicht als Tempo. */
   (function(){
     const pre = document.getElementById('preloader');
     if(!pre) return;
@@ -15,13 +26,23 @@
     const los = ()=> document.documentElement.classList.replace('vorspann','los');
     if(gesehen || reduce){ pre.classList.add('instant','done'); los(); return; }
     try { sessionStorage.setItem('hst-intro','1'); } catch(e){}
-    /* `los` und `.done` fallen im selben Moment: das Wortzeichen tritt
-       zurueck, waehrend die Kamera ins Bild faehrt. Zwei getrennte Schritte
-       waeren genau das, was sich vorher wie „Vorspann, dann Website"
-       angefuehlt hat. */
-    const fertig = ()=>{ pre.classList.add('done'); los(); };
-    setTimeout(fertig, 1180);          // Ende der Aufbau-Animation
-    setTimeout(fertig, 2400);          // Notausstieg, falls etwas hängt
+    /* `los` und `.done` fallen im selben Moment. Anders als vorher ist das
+       kein Übergang mehr, sondern ein Schnitt: der Vorspann ist zu Ende,
+       und die Startseite steht da.
+
+       `sofort` schaltet dabei die Einfahrt des Heros ab. Ohne das liefen
+       zwei Vorspänne hintereinander — erst das Zeichen, dann eine Seite,
+       die sich auch noch aufbaut. Beim zweiten Aufruf im selben Besuch
+       (oben, `gesehen`) wird `sofort` nicht gesetzt: dort IST die Einfahrt
+       der Einstieg. */
+    const fertig = ()=>{
+      if(pre.classList.contains('done')) return;   // der Notausstieg kommt nur, wenn nötig
+      document.documentElement.classList.add('sofort');
+      pre.classList.add('done');
+      los();
+    };
+    setTimeout(fertig, 2750);          // nach dem Glanz: Schnitt
+    setTimeout(fertig, 4400);          // Notausstieg, falls etwas hängt
   })();
 
   /* Year */

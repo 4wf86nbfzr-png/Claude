@@ -138,26 +138,87 @@ alle Rechtecke in einem Zug, erst danach schreiben `updateStages()`,
 `updateMotion()` und `updateKino()`. Wer eine vierte Schleife dazunimmt,
 hängt ihre Messung mit in `messen()` — nicht in die eigene Schleife.
 
-### Der Einstieg ist eine Bewegung, nicht zwei
+### Der Vorspann: auftauchen, polieren, schneiden
 
-Vorspann und Hero liefen früher unabhängig voneinander: der Vorspann blendete
-aus, und die Einfahrt des Heros war zu diesem Zeitpunkt längst vorbei — sie
-startete beim Laden der Seite. Man sah zwei Schritte statt einer Fahrt.
+Beim ersten Öffnen läuft ein Einstieg in drei Schritten, alles in
+Schwarzweiss und alles in CSS — kein Video, keine Bibliothek:
 
-Beides hängt jetzt an einer Klasse auf `<html>`:
+| ab | was | wie |
+|---|---|---|
+| 0,10 s | eine Lichtbahn zieht quer durch das dunkle Bild | `#preloader::before`, `preLicht` |
+| 0,30 s | das Wortzeichen taucht auf: Unschärfe → Schärfe, bis auf **66 %** Helligkeit | `.pre-logo__img`, `preAuftauchen` |
+| 1,85 s | ein Glanz läuft **durch die Buchstaben** | `.pre-glanz`, `preGlanz` |
+| 2,10 s | das Zeichen geht auf volles Weiss | `preVoll` |
+| 2,75 s | **Schnitt** auf die Startseite | `main.js` |
+
+**Warum das Zeichen zwischendurch nur bei 66 % steht.** Das Wortzeichen ist
+selbst weiss. Ein weisser Glanz auf Weiss ist nichts — der erste Versuch sah
+aus, als wäre der Glanz gar nicht da. Er wird erst sichtbar, wenn das Zeichen
+dunkler ist als er: dann ist er die hellste Stelle im Bild, und hinter ihm
+bleibt volles Weiss zurück. Das liest man als „das Zeichen wird poliert",
+nicht als „da wandert ein Balken".
+
+**Der Glanz liegt in einer Maske, nicht über einem Kasten.** `.pre-glanz`
+trägt das Logo als `mask` über einem hellen Verlauf; sichtbar wird der
+Verlauf nur dort, wo das Zeichen deckt. Ein Balken über dem Bildkasten wäre
+das offensichtliche, aber deutlich billigere Bild.
+
+**Der Abgang ist ein Schnitt, kein Übergang.** Die 0,16 s in `#preloader.done`
+sind kein Ausblenden, sondern nehmen nur das Flackern eines harten
+Einzelbild-Wechsels weg; unterhalb von etwa 0,2 s liest das Auge einen
+Schnitt. Vorher fuhr das Zeichen der Kamera entgegen und überblendete in den
+Hero — das ist auf Wunsch dem direkten Sprung gewichen.
+
+**Danach steht die Seite einfach da: `.sofort`.** Liefe nach dem Schnitt noch
+die Einfahrt des Heros, wären es zwei Vorspänne hintereinander — erst das
+Zeichen, dann eine Seite, die sich auch noch aufbaut. `main.js` setzt deshalb
+`sofort` auf `<html>`, und der Block dazu in `styles.css` schaltet die
+Einfahrt ab.
+
+Die Einfahrt bleibt aber im Markup, denn sie wird noch gebraucht:
 
 | Klasse | wann | was |
 |---|---|---|
 | `vorspann` | erster Aufruf, keine reduzierte Bewegung | Hero wartet |
 | `los` | sobald der Vorspann abgeht (oder sofort) | alle Einfahrten starten |
+| `sofort` | nur wenn der Vorspann wirklich lief | Einfahrt des Heros entfällt |
 
-Die Entscheidung fällt im **Inline-Skript im Kopf** von `index.html`, nicht in
-`main.js`. Stünde sie am Seitenende, liefe die Einfahrt schon, bevor die
-Klasse gesetzt ist — und man sähe ein Aufblitzen.
+Beim **zweiten Aufruf im selben Besuch** gibt es keinen Vorspann
+(`sessionStorage`) — dort ist die Einfahrt der Einstieg, und `sofort` wird
+nicht gesetzt. Dasselbe bei reduzierter Bewegung.
 
-Wer eine weitere Einfahrt dazunimmt, hängt sie an `.los` und trägt sie in den
-`.kein-js`-Block ein. Ohne Skript wird `los` nie gesetzt; was daran hängt,
-bliebe sonst unsichtbar.
+Die Entscheidung `vorspann`/`los` fällt im **Inline-Skript im Kopf** von
+`index.html`, nicht in `main.js`. Stünde sie am Seitenende, liefe die
+Einfahrt schon, bevor die Klasse gesetzt ist — und man sähe ein Aufblitzen.
+
+Wer eine weitere Einfahrt dazunimmt, hängt sie an `.los`, trägt sie in den
+`.kein-js`-Block ein und prüft, ob sie auch in den `.sofort`-Block gehört.
+
+**Wer an den Zeiten dreht, muss zwei Stellen anfassen:** die Animationen in
+`styles.css` und die beiden `setTimeout` in `main.js`. Der Schnitt muss nach
+dem letzten Bild der letzten Animation kommen — ein Vorspann, der mitten in
+seiner eigenen Bewegung abgeschnitten wird, liest als Fehler und nicht als
+Tempo.
+
+### Die Falle: Tests, die blind warten
+
+Der Vorspann ist zweimal länger geworden, und zweimal fielen dadurch Tests
+um, die eine feste Zahl abwarteten: einmal meldete `treffer.js` jede
+Trefferfläche als zu klein, einmal `verdeckt.js` die Startseite als verdeckt.
+Beide Male war die Website in Ordnung — gemessen wurde die schwarze Fläche
+des Vorspanns.
+
+Wer auf den **Inhalt** einer Seite schaut, wartet deshalb nicht auf eine
+Zahl, sondern auf den Zustand (`scratchpad/_warten.js`):
+
+```js
+await p.waitForFunction(() => {
+  const v = document.getElementById('preloader');
+  if(!v) return true;
+  const cs = getComputedStyle(v);
+  return cs.display === 'none' || cs.visibility === 'hidden';
+});
+```
 
 ### Die Falle: ein Vorspann, der sich nicht wegnehmen lässt
 
