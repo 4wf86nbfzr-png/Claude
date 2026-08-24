@@ -20,8 +20,11 @@ Ein Build ist nicht nötig. Was im Ordner liegt, ist die Website.
 ## Aufbau
 
 ```
-index.html              Startseite, zehn abgegrenzte Bloecke
-dienstleistungen.html   die sechs Bereiche als Kamerafahrt (Buehnen)
+index.html              Startseite: Hero, Einstieg, Film, Ablauf,
+                        Referenzen, Anspruch, Anfrage
+dienstleistungen.html   die sechs Bereiche als Kamerafahrt (Buehnen).
+                        Erreichbar ueber den Menuepunkt „Dienstleistungen",
+                        der einen Balken mit allen sechs aufklappt.
 kontakt.html            Anfrageformular
 jobs.html               Stellen, FAQ, Bewerbungsformular
 team.html               Büroteam
@@ -41,6 +44,8 @@ assets/video/           Imagefilm + Untertitel
 
 tools/bilder-vergroessern.py  erzeugt die grosse Bildstufe
 tools/bilder-einhaengen.py    haengt sie ins Markup ein
+tools/bilder-menue.py         die sechs Miniaturen fuer den Balken
+                              unter der Kopfzeile
 tools/film-bauen.js           baut den Imagefilm neu (Bild fuer Bild)
 tools/film-vertonen.py        spricht die Untertitel und mischt sie unter die Musik
 tools/striche-ersetzen.py     Gedankenstriche im Text durch Kommas ersetzen
@@ -771,6 +776,9 @@ Die Testskripte liegen nicht im Repository; geprüft wurde vor der Übergabe:
   Beleg im Anhang und die Eingangsbestätigung an die Bewerberin
 - der Wechsel Testbetrieb ↔ Live-Betrieb, hin und zurück, mit leerem
   `git diff` danach
+- der Balken unter der Kopfzeile auf fünf Seiten: öffnen, sechs Bereiche,
+  sechs Fotos, Escape, Tastaturbedienung, ohne JavaScript, im Vollbildmenü
+  und am Telefon
 
 ---
 

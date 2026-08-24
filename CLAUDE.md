@@ -33,7 +33,7 @@ Die Seite soll nach Handwerk aussehen, nicht nach Baukasten. Konkret heißt das:
   aber auch er hat keine Fläche im Ruhezustand.
 - **Keine Dauerbewegung.** Nichts pulsiert, nichts wandert von allein.
 - **Nicht alles auf die Mittelachse.** Überschriften stehen links, Text sitzt
-  unten links im Bild, die sechs Szenen der Startseite wechseln die Seite.
+  unten links im Bild, die sechs Bühnen wechseln die Seite.
   Zentrierter Satz stellt nichts in ein Verhältnis.
 - **Keine Zeichen vor dem Text.** Kein Strich vor der Auszeichnungszeile, kein
   Punkt vor dem Merkmal, keine Nummer vor dem Menüpunkt, kein Gedankenstrich
@@ -345,7 +345,7 @@ Prüfen lässt sich das in einer Zeile:
 |---|---|
 | Hero, Kopf der Unterseiten | Bild läuft langsamer mit als der Text (`--weg`) |
 | Hero, Titelzeilen | Jede Zeile fährt aus ihrer eigenen Maske nach oben (`.line`) |
-| Sechs Szenen der Startseite | Ken Burns: Foto von 1,12 auf 1,0 über die ganze Vorbeifahrt (`--lauf`) |
+| Balken unter der Kopfzeile | fährt heraus, die sechs Einträge kommen versetzt nach (`.megabar`) |
 | Sechs Bühnen (`dienstleistungen.html`) | Kamerafahrt aus `--zoom`, `--detail`, `--panel`, `--door` |
 | Bühnen, Rand | Kinobalken und Lichtabfall (`.kino`, über `--kino`) |
 | Bühnen, oben links | Kapitelmarke mit Fortschrittslinie (`--kapitel`) |
@@ -507,7 +507,7 @@ Deshalb liegen die Ebenen jetzt so:
 
 | Seite | Aufgabe | Länge |
 |---|---|---|
-| Startseite | abgegrenzte Blöcke, jeder mit einer Aussage, plus sechs Szenen als Verweis | rund 14 Bildschirmhöhen |
+| Startseite | Hero, Einstiegstext, Film, Ablauf, Referenzen, Anspruch, Anfrage | rund 10 Bildschirmhöhen |
 | Dienstleistungen | die sechs Bühnen als Kamerafahrt, jede führt weiter | rund 15 |
 | Sechs Detailseiten | alles im Einzelnen | je 7 bis 8 |
 
@@ -515,26 +515,29 @@ Deshalb liegen die Ebenen jetzt so:
 zu lang gewesen, sondern am falschen Ort: eine Startseite ordnet und
 verweist, die Tiefe steht dahinter.
 
-### Szene ≠ Bühne
+### Die Bereiche stehen im Menü, nicht auf der Startseite
 
-Auf der Startseite steht seit dem Redesign an dieser Stelle **kein
-Kachelraster mehr**, sondern sechs **Szenen** (`.svc`) — jede eine randlose
-Fläche von rund 76 svh mit Foto, Nummer und einer sehr großen Zeile. Der
-Unterschied zu den Bühnen auf `dienstleistungen.html` ist der Punkt:
+Zwischenzeitlich standen die sechs Bereiche als **Szenen** (`.svc`) auf der
+Startseite: sechs randlose Flächen von je rund 76 svh, zusammen etwa 4700
+Pixel. Das war die Zwischenstufe zwischen dem alten Kachelraster und dem, was
+jetzt da steht — und es war immer noch ein Drittel der Startseite für etwas,
+das nur verweist.
 
-|  | Szene (Startseite) | Bühne (Dienstleistungen) |
-|---|---|---|
-| Höhe | ~0,8 Bildschirmhöhen | 2,3 Bildschirmhöhen, sticky |
-| Bewegung | eine Kamerafahrt beim Vorbeiscrollen (`--lauf`) | Zoom, Detailwechsel, Tor, Panel (`--kapitel`) |
-| Inhalt | Name, ein Satz, ein Link | ganze Leistungsbeschreibung |
-| Aufgabe | verweisen | erzählen |
+Seitdem hängen sie am Menüpunkt **Dienstleistungen**: ein Klick, und ein
+Balken fährt unter der Kopfzeile heraus, in dem alle sechs mit Foto, Nummer
+und Namen stehen, dazu ein Weg auf die Übersicht (siehe „Der Balken unter der
+Kopfzeile"). Die Startseite zeigt jetzt, was nur sie zeigen kann: den
+Einstieg, den Film und die Referenzen.
 
-Eine Szene kostet also gut ein Achtel dessen, was eine Bühne kostet, und
-verweist trotzdem mit vollem Gewicht. Genau deshalb ist die Startseite
-weiterhin keine One-Page: **jede Szene ist ein Link auf ihre eigene
-Unterseite**, dieselben sechs Adressen wie vorher. Wer die Szenen zu Bühnen
-ausbaut, macht aus der Startseite wieder das, was das Team schon einmal
-zu Recht bemängelt hat.
+Was dabei **nicht** passiert ist: die sechs Adressen sind unverändert, sie
+stehen weiter im Fuß jeder Seite, und `dienstleistungen.html` mit den sechs
+Bühnen ist unangetastet. Es ist ein Weg weniger auf der Startseite, kein
+Inhalt weniger auf der Website.
+
+**Die Szenen gehören nicht zurück.** Wer sie wiederhaben will, hat einen
+Grund zu nennen, der über „da war mehr los" hinausgeht: die Startseite hatte
+mit ihnen vierzehn Bildschirmhöhen und ohne sie zehn, und der Weg zu den
+Bereichen ist mit dem Balken kürzer als mit vier Bildschirmen Scrollen.
 
 **Achtung bei Adressen:** `dienstleistungen.html` liegt neben dem Ordner
 `dienstleistungen/`. Die Adresse `/dienstleistungen` ohne Endung ist
@@ -548,7 +551,7 @@ Unterseiten.
 
 - Auszeichnung: Bricolage Grotesque · Fließtext: Instrument Sans ·
   Technisches: Space Mono. Alle drei liegen lokal unter `assets/fonts/`.
-- **Fünf Stufen, sonst nichts:** `--fs-mega` (Hero, Szenentitel, Schluss,
+- **Fünf Stufen, sonst nichts:** `--fs-mega` (Hero, Schluss,
   Fußzeile), `--fs-display` (Titel der Unterseiten), `--fs-h2`, `--fs-h3`,
   `--fs-h4`. Wer eine sechste clamp-Formel schreibt, hat eine Stufe zu viel.
 - **`--fs-mega` ist keine Schriftgröße, sondern eine Fläche.** Eine Zeile
@@ -556,7 +559,7 @@ Unterseiten.
   steht deshalb nur dort, wo eine Aussage den ganzen Bildschirm tragen darf,
   und immer mit `line-height` um 0,9 — die Zeilen müssen einander berühren.
 - **Versalien nur da, wo sie etwas leisten** (`.u-caps`, Eyebrows,
-  Kapitelmarken, Szenentitel). Ein ganzer Satz in gesperrten Versalien wird
+  Kapitelmarken, Bühnentitel). Ein ganzer Satz in gesperrten Versalien wird
   entziffert, nicht gelesen.
 - Alle Überschriften haben `hyphens:auto` und `overflow-wrap:break-word` —
   ohne das sprengt „Datenschutzerklärung“ ein 320-px-Fenster.
@@ -1267,13 +1270,14 @@ sie ansteuern können.
 
 Beim Aufräumen der Wiederholungen ist der Unterschied wichtig:
 
-- **Ein System ist keine Doppelung.** Jede der sechs Szenen auf der Startseite
-  zeigt dasselbe Foto wie das Kopfband der Seite, auf die sie führt. Das ist
-  Absicht: man landet dort, wo man hingeklickt hat. Wer das „vereinheitlicht",
-  macht es kaputt.
+- **Ein System ist keine Doppelung.** Jeder Eintrag im Balken unter der
+  Kopfzeile zeigt dasselbe Foto wie das Kopfband der Seite, auf die er führt.
+  Das ist Absicht: man landet dort, wo man hingeklickt hat. Wer das
+  „vereinheitlicht", macht es kaputt.
 - **Zweimal dasselbe Foto auf *einer* Seite ist eine.** Der Hero der
   Startseite zeigte `gastro.jpg`, und vier Bildschirme später stand dasselbe
-  Bild noch einmal als Szene 01. Ebenso auf der Galerie: `logistik-detail.jpg`
+  Bild noch einmal als Szene 01 (die Szenen stehen inzwischen nicht mehr
+  dort, der Tausch bleibt). Ebenso auf der Galerie: `logistik-detail.jpg`
   als Kopfband und weiter unten als Kachel. Beide Stellen sind getauscht.
 - **Dreimal dieselbe Telefonnummer auf einem Bildschirm hilft niemandem beim
   Anrufen.** Im Schlussblock der Startseite stand sie im Knopf, im
@@ -1292,6 +1296,77 @@ ist Service. Wer wissen will, ob jetzt jemand rangeht, schaut in den Fuß.
 Dieselbe Angabe steht als `openingHoursSpecification` in den strukturierten
 Daten der Startseite und in der Fußzeile beider Bestätigungsmails. Wer sie
 ändert, muss alle sechs Stellen anfassen — `grep -rn "10–17"` findet sie.
+
+## Der Balken unter der Kopfzeile
+
+Die sechs Bereiche stehen nicht mehr auf der Startseite. Ihr Weg führt über
+den Menüpunkt **Dienstleistungen**: ein Klick, und `.megabar` fährt unter der
+Kopfzeile heraus — sechs Fotos, sechs Nummern, sechs Namen, dazu „Alle
+Dienstleistungen ansehen".
+
+Vier Entscheidungen, die man kennen muss, bevor man daran etwas ändert:
+
+**1. Der Menüpunkt bleibt ein Link.** Er heißt weiterhin
+`dienstleistungen.html`. Ohne JavaScript wird er ganz normal aufgerufen und
+man landet auf der Übersicht, auf der dieselben sechs Bereiche ausführlich
+stehen. Erst wenn das Skript läuft, fängt es den Klick ab. Es gibt damit keine
+Lage, in der jemand vor einem Menüpunkt steht, der nichts tut — genau das
+wäre der schlechteste Zustand, und genau so enden die meisten Aufklappmenüs.
+
+**2. Gebaut wird in `main.js`, nicht im Markup.** Der Balken steht auf allen
+fünfzehn Seiten gleich; als Markup wären das fünfzehn Kopien, die beim
+nächsten Namenswechsel auseinanderlaufen. Die sechs Adressen stehen ohnehin im
+Fuß jeder Seite — Suchmaschinen und Leser ohne Skript finden sie dort. Der
+Balken trägt deshalb bewusst **keinen Beschreibungssatz**: was dort steht, ist
+Navigation. Sobald ein Satz hineinkäme, wäre es Inhalt, und Inhalt gehört ins
+Markup, wo ihn `striche-ersetzen.py` und das Korrekturlesen erreichen.
+
+**3. Er liegt über der Seite, nicht darin.** Ein Balken, der Platz wegnimmt,
+schöbe beim Öffnen alles darunter nach unten. Deshalb `position:fixed`, und
+bewegt werden nur `transform` und `opacity`.
+
+**4. `visibility` bekommt keine Dauer, sondern eine Verzögerung.** Das ist die
+Falle dabei:
+
+```css
+/* falsch */ transition:opacity .42s, transform .42s, visibility .42s;
+/* richtig */ transition:opacity .42s, transform .42s, visibility 0s linear .42s;
+.megabar.auf{ transition:opacity .42s, transform .42s, visibility 0s; }
+```
+
+Steht `visibility` mit einer Dauer in der Übergangsliste, meldet Chromium noch
+**zwei Bilder lang** `hidden` — und ein Element, das `hidden` ist, nimmt keinen
+Fokus an. Wer den Menüpunkt mit Enter öffnete, blieb deshalb auf dem Menüpunkt
+stehen, statt im Balken zu landen. Nachgemessen mit vier aufeinanderfolgenden
+`requestAnimationFrame`:
+
+| Bild | `visibility` | Fokus angenommen |
+|---|---|---|
+| 0 | hidden | nein |
+| 1 | hidden | nein |
+| 2 | visible | ja |
+
+`visibility` ganz wegzulassen ist keine Lösung: dann stünden sechs unsichtbare
+Links im Tabulatorlauf jeder Seite.
+
+**Am Telefon gibt es den Balken nicht.** Dort bietet die Leiste unten mit
+„Leistungen" denselben Weg schon an; ein zweiter wäre die Doppelung, die
+einmal zu Recht beanstandet wurde. Der Menüpunkt und alles, was daran hängt,
+wird deshalb im selben Block ausgeblendet — `#mobileMenu .menu__unter` muss
+dort **mitgenannt** werden, sonst steht die Liste als herrenloser Block unter
+einer Überschrift, die es nicht mehr gibt.
+
+Im Vollbildmenü auf Tablets und in schmalen Fenstern am Rechner klappen die
+sechs stattdessen unter dem Menüpunkt auf (`.menu__unter`). Das ist die eine
+Stelle im ganzen Projekt, an der eine **Layout-Eigenschaft** bewegt wird
+(`grid-template-rows` von `0fr` auf `1fr`): es geht um wenige Zeilen Text ohne
+Bild, und ein Aufklappen ohne Höhe gibt es nicht.
+
+**Die Falle im Vollbildmenü:** dort schließt jeder Klick auf einen Link das
+Menü. Der Menüpunkt, der nur aufklappt, darf das nicht auslösen.
+`stopPropagation()` hilft dabei **nicht** — der schließende Zuhörer hängt am
+selben Element und wurde früher angemeldet. Erkennbar ist der Punkt stattdessen
+an `aria-controls`; nur wer etwas aufklappt, setzt das.
 
 ## Der Mitarbeiter-Login gehört nicht zur Bewerbung
 

@@ -489,6 +489,156 @@ body.menu-open #mobileMenu > a{ opacity:1; translate:0 0; }
   display:inline-flex; align-items:center; min-height:44px; padding:0;
 }
 
+/* ============================================================
+   DER BALKEN UNTER DER KOPFZEILE
+   ------------------------------------------------------------
+   Die sechs Bereiche stehen nicht mehr auf der Startseite. Ihr Weg führt
+   jetzt über den Menüpunkt „Dienstleistungen": ein Klick, und dieser Balken
+   fährt unter der Kopfzeile heraus. Gebaut wird er von main.js, damit er
+   nicht fünfzehnmal im Markup steht.
+
+   Er liegt ÜBER der Seite, nicht darin. Ein Balken, der Platz wegnimmt,
+   schöbe beim Öffnen alles darunter nach unten — das liest sich als Sprung,
+   nicht als Bewegung. Deshalb `position:fixed`, und bewegt werden nur
+   `transform` und `opacity`.
+
+   Keine Karten, kein Rahmen um die sechs Einträge: getrennt wird durch
+   Abstand und eine Haarlinie an der Unterkante des Balkens.
+   ============================================================ */
+.megabar{
+  position:fixed; top:0; left:0; right:0; z-index:880;
+  padding-top:calc(var(--nav-h, 78px) + clamp(14px,2vh,28px));
+  padding-bottom:clamp(20px,3vh,40px);
+  background:rgba(0,0,0,.94);
+  backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--line);
+  /* Zu: nach oben geschoben und durchsichtig. `visibility` nimmt ihn
+     zusätzlich aus Tabulator und Vorlesewerkzeug — ohne das stünden sechs
+     unsichtbare Links im Tabulatorlauf jeder Seite. */
+  opacity:0; visibility:hidden; transform:translateY(-12px);
+  /* `visibility` bekommt keine Dauer, sondern eine Verzögerung — und die nur
+     beim Schließen. Steht es mit in der Übergangsliste, meldet Chromium noch
+     zwei Bilder lang `hidden`, und ein Element, das `hidden` ist, nimmt
+     keinen Fokus an: wer mit Enter öffnete, blieb auf dem Menüpunkt stehen.
+     So schaltet es beim Öffnen sofort um und beim Schließen erst, wenn die
+     Ausblende durch ist. */
+  transition:opacity .42s var(--ease-out), transform .42s var(--ease-out),
+             visibility 0s linear .42s;
+}
+.megabar.auf{
+  opacity:1; visibility:visible; transform:none;
+  transition:opacity .42s var(--ease-out), transform .42s var(--ease-out), visibility 0s;
+}
+/* Solange der Balken offen ist, bekommt die Kopfzeile denselben Grund. Sonst
+   steht am Seitenanfang eine durchsichtige Leiste vor einem deckenden Balken,
+   und die beiden lesen als zwei Dinge statt als eines. */
+body.megabar-auf header.nav{
+  background:rgba(0,0,0,.94);
+  backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+  border-bottom-color:transparent;
+}
+
+.megabar__zeile{ display:block; color:var(--muted); }
+.megabar__liste{
+  list-style:none; display:grid; grid-template-columns:repeat(6, minmax(0,1fr));
+  gap:clamp(14px,1.6vw,26px); margin-top:clamp(14px,2vh,22px);
+}
+.megabar__liste a{
+  display:block; color:var(--paper);
+  /* Die Einträge kommen versetzt herein: eine Bewegung, sechsmal um einen
+     Wimpernschlag versetzt, liest als ein Aufbauen statt als Aufblitzen. */
+  opacity:0; transform:translateY(10px);
+  transition:opacity .38s var(--ease-out), transform .38s var(--ease-out);
+}
+.megabar.auf .megabar__liste a{ opacity:1; transform:none; }
+.megabar__liste li:nth-child(1) a{ transition-delay:.04s }
+.megabar__liste li:nth-child(2) a{ transition-delay:.08s }
+.megabar__liste li:nth-child(3) a{ transition-delay:.12s }
+.megabar__liste li:nth-child(4) a{ transition-delay:.16s }
+.megabar__liste li:nth-child(5) a{ transition-delay:.20s }
+.megabar__liste li:nth-child(6) a{ transition-delay:.24s }
+
+.megabar__bild{
+  display:block; overflow:hidden; aspect-ratio:4/3; background:#0A0A0A;
+}
+.megabar__bild img{
+  width:100%; height:100%; object-fit:cover; display:block;
+  /* Im Ruhezustand zurückgenommen: der Balken ist Navigation, keine Galerie.
+     Beim Ansteuern kommt das Bild nach vorn. */
+  opacity:.5; transform:scale(1.04);
+  transition:opacity var(--t-base) var(--ease-swift), transform .6s var(--ease-out);
+}
+.megabar__liste a:hover .megabar__bild img,
+.megabar__liste a:focus-visible .megabar__bild img{ opacity:1; transform:none; }
+
+.megabar__num{
+  display:block; margin-top:12px;
+  font-family:var(--font-mono); font-size:.6rem; letter-spacing:.2em; color:var(--muted);
+}
+.megabar__name{
+  display:block; margin-top:5px;
+  font-family:var(--font-display); font-weight:700;
+  font-size:clamp(.86rem,1.05vw,1.02rem); line-height:1.15;
+  text-transform:uppercase; letter-spacing:-.005em;
+  position:relative;
+  /* Platz für zwei Zeilen, auch wo nur eine steht: „Promotion & Hostess"
+     bricht um, die anderen fünf nicht. Ohne das wäre die Unterkante des
+     Balkens von einem einzigen Namen abhängig. */
+  min-height:2.3em;
+}
+/* Unterstrichen heißt: hier geht es weiter. Die Linie läuft beim Ansteuern
+   durch, wie bei jedem anderen Textlink der Seite. */
+.megabar__name::after{
+  content:""; position:absolute; left:0; right:0; bottom:-4px; height:1px;
+  background:currentColor; transform:scaleX(0); transform-origin:right;
+  transition:transform var(--t-base) var(--ease-out);
+}
+.megabar__liste a:hover .megabar__name::after,
+.megabar__liste a:focus-visible .megabar__name::after{ transform:scaleX(1); transform-origin:left; }
+
+.megabar__alle{ margin-top:clamp(18px,2.4vh,30px); }
+
+/* Unter 981 px ist der Menüpunkt gar nicht sichtbar — dort übernimmt das
+   Vollbildmenü. Der Balken wird trotzdem ausdrücklich abgeschaltet: wer das
+   Fenster mit geöffnetem Balken schmal zieht, hätte sonst eine Fläche über
+   der Seite, die niemand mehr schließen kann. */
+@media (max-width:980px){
+  .megabar{ display:none; }
+}
+@media (prefers-reduced-motion:reduce){
+  .megabar, .megabar__liste a, .megabar__bild img{ transition:none; }
+  .megabar__liste a{ transform:none; }
+}
+
+/* Dieselben sechs im Vollbildmenü. Kein Balken, sondern eine Liste, die
+   unter dem Menüpunkt aufklappt. `grid-template-rows` von 0fr auf 1fr ist
+   der eine Fall, in dem eine Layout-Eigenschaft bewegt wird: es geht um
+   wenige Zeilen Text ohne Bild, und ein Aufklappen ohne Höhe gibt es
+   nicht. */
+.menu__unter{
+  display:grid; grid-template-rows:0fr;
+  transition:grid-template-rows .4s var(--ease-out);
+}
+.menu__unter.auf{ grid-template-rows:1fr; }
+.menu__unter > *{ overflow:hidden; }
+.menu__unter a{
+  display:flex; align-items:baseline; gap:14px;
+  font-family:var(--font-body); font-size:1.02rem; color:var(--chrome);
+  min-height:44px; padding:0 0 0 clamp(10px,2vw,26px);
+  border-left:1px solid var(--line);
+  transition:color var(--t-fast) var(--ease-swift);
+}
+.menu__unter a:hover, .menu__unter a:focus-visible{ color:var(--paper); }
+.menu__unternum{ font-family:var(--font-mono); font-size:.6rem; letter-spacing:.2em; color:var(--muted); }
+.menu__unteralle{ font-family:var(--font-mono) !important; font-size:.68rem !important; letter-spacing:.16em; text-transform:uppercase; }
+/* Der Menüpunkt zeigt, dass etwas darunter liegt. Ein Zeichen davor gibt es
+   nicht — was hier steht, ist eine Drehung des Punktes selbst. */
+#mobileMenu > a[aria-expanded]{ }
+#mobileMenu > a[aria-expanded="true"]{ color:var(--paper); }
+@media (prefers-reduced-motion:reduce){
+  .menu__unter{ transition:none; }
+}
+
 /* Soziale Netzwerke: nur noch die Zeichen, keine Kästen darum — die
    Trefferfläche bleibt trotzdem 44 px, sie ist nur unsichtbar. */
 .menu__socials{ display:flex; gap:clamp(6px,1.4vw,14px); margin-top:clamp(10px,2vh,20px); margin-left:-10px; }
@@ -1364,9 +1514,14 @@ body.menu-open #mobileMenu > a{ opacity:1; translate:0 0; }
 .tcard .who__logo img{
   /* Alle Dateien haben denselben Kasten (200 px hoch); die Zeichnung sitzt
      darin optisch ausgeglichen. Deshalb genuegt hier eine Hoehe fuer alle. */
-  height:clamp(38px,4vw,52px); width:auto; max-width:min(78%,210px);
+  /* Groesser und heller als zuvor (38–52 px bei .66). Seit die sechs
+     Bereiche nicht mehr auf der Startseite stehen, tragen die Referenzen
+     einen groesseren Teil der Seite — und ein Zeichen, das man erst beim
+     Ansteuern erkennt, belegt nichts. Es bleibt einfarbig weiss: fuenf
+     Hausfarben nebeneinander kippten den Auftritt. */
+  height:clamp(52px,5.4vw,72px); width:auto; max-width:min(88%,260px);
   object-fit:contain; object-position:left center;
-  opacity:.66;
+  opacity:.92;
   transition:opacity var(--t-base) var(--ease-swift);
 }
 .tcard:hover .who__logo img,
@@ -1989,6 +2144,11 @@ header.nav{ view-transition-name:kopfzeile; }
   #mobileMenu > a[href$="dienstleistungen.html"],
   #mobileMenu > a[href$="jobs.html"],
   #mobileMenu > a[href$="kontakt.html"],
+  /* Mit dem Menuepunkt verschwindet auch, was daran haengt. Ohne diese Zeile
+     stuenden die sechs Bereiche als herrenlose Liste im Menue — unter einer
+     Ueberschrift, die es dort nicht mehr gibt, und mit einem zweiten Weg auf
+     dienstleistungen.html neben dem Reiter „Leistungen" der Leiste. */
+  #mobileMenu .menu__unter,
   #mobileMenu .menu__aktion a.btn{ display:none; }
   /* Übrig bleibt im Fuß des Menüs die Telefonnummer — der einzige Weg, den
      die Leiste nicht anbietet. Sie steht dann allein und braucht keine

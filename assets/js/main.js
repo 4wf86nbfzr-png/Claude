@@ -103,13 +103,19 @@
   }
 
   burger.addEventListener('click', ()=> menueSetzen(!document.body.classList.contains('menu-open')));
-  document.querySelectorAll('#mobileMenu a').forEach(a=> a.addEventListener('click', ()=>{
+  menue.addEventListener('click', (ev)=>{
+    const a = ev.target.closest('a');
+    if(!a || !menue.contains(a)) return;
+    /* „Dienstleistungen" wechselt die Seite nicht, sondern klappt die sechs
+       Bereiche darunter auf. Das Menü muss dafür stehen bleiben. Erkennbar
+       ist der Punkt an aria-controls — das setzt nur, wer etwas aufklappt. */
+    if(a.hasAttribute('aria-controls')) return;
     /* Beim Wechsel auf eine andere Seite den Fokus nicht zurückholen — das
        Dokument wird ohnehin ersetzt. */
     document.body.classList.remove('menu-open','locked');
     burger.setAttribute('aria-expanded', false);
     dahinter.forEach(el => { if(el) el.removeAttribute('inert'); });
-  }));
+  });
   document.addEventListener('keydown', (ev)=>{
     if(ev.key === 'Escape' && document.body.classList.contains('menu-open')) menueSetzen(false);
   });
@@ -139,6 +145,179 @@
   /* Die Punkte des Vollbildmenüs kommen nacheinander herein. Der Index steht
      im Stylesheet als --i; hier wird er nur einmal geschrieben. */
   document.querySelectorAll('#mobileMenu > a').forEach((a, i)=> a.style.setProperty('--i', i));
+
+  /* ---- Der Balken unter der Kopfzeile ----
+     Seit die sechs Bereiche nicht mehr auf der Startseite stehen, führt der
+     Weg zu ihnen über diesen Menüpunkt. Ein Klick auf „Dienstleistungen"
+     fährt einen Balken unter der Kopfzeile heraus, in dem alle sechs stehen,
+     jeder mit seinem Foto. Von dort geht es entweder in einen Bereich oder
+     auf die Übersicht.
+
+     Drei Entscheidungen dahinter:
+
+     1. **Der Menüpunkt bleibt ein Link.** Er heißt weiterhin
+        `dienstleistungen.html`. Ohne JavaScript wird er ganz normal
+        aufgerufen — dann landet man auf der Übersicht, wo dieselben sechs
+        Bereiche ausführlich stehen. Es gibt also keine Lage, in der jemand
+        vor einem Menüpunkt steht, der nichts tut. Erst wenn das Skript
+        läuft, fängt es den Klick ab.
+     2. **Gebaut wird hier, nicht im Markup.** Der Balken steht auf allen
+        fünfzehn Seiten gleich; als Markup wären das fünfzehn Kopien, die
+        beim nächsten Namenswechsel auseinanderlaufen. Die sechs Adressen
+        stehen ohnehin im Fuß jeder Seite — Suchmaschinen und Leser ohne
+        Skript finden sie dort.
+     3. **Er liegt über der Seite, nicht darin.** Ein Balken, der Platz
+        wegnimmt, schöbe beim Öffnen die halbe Seite nach unten. Deshalb
+        `position:fixed` und eine Bewegung aus `transform` und `opacity` —
+        das Layout bleibt in Ruhe.                                          */
+  (function(){
+    const punkt = document.querySelector('.nav__links a[href$="dienstleistungen.html"]');
+    if(!punkt) return;
+
+    /* Wo liegt die Seite? Auf den sechs Detailseiten steht „../" davor.
+       Aus demselben Link, den wir gerade gefunden haben, lässt sich das
+       ablesen — geraten wird nichts. */
+    const vor = punkt.getAttribute('href').replace(/dienstleistungen\.html$/, '');
+
+    const BEREICHE = [
+      ['01', 'Gastro-Personal',     'gastro-personal',   'gastro-detail'],
+      ['02', 'Sicherheit',          'sicherheit',        'sicherheit'],
+      ['03', 'Promotion & Hostess', 'promotion-hostess', 'promotion-messe'],
+      ['04', 'Logistik',            'logistik',          'logistik'],
+      ['05', 'Fahrservice',         'fahrservice',       'fahrservice-door'],
+      ['06', 'Reinigung',           'reinigung',         'reinigung']
+    ];
+
+    const balken = document.createElement('div');
+    balken.className = 'megabar';
+    balken.id = 'megabar';
+    balken.setAttribute('aria-label', 'Dienstleistungen');
+    balken.innerHTML =
+      '<div class="wrap megabar__inner">' +
+        '<span class="eyebrow megabar__zeile">Sechs Bereiche &middot; ein Team</span>' +
+        '<ul class="megabar__liste">' +
+          BEREICHE.map(([nr, name, datei, bild]) =>
+            '<li><a href="' + vor + 'dienstleistungen/' + datei + '.html">' +
+              /* Der Kasten steht sofort, das Bild kommt erst beim ersten
+                 Öffnen (siehe `bilderNachziehen`). Sonst holte jede der
+                 fünfzehn Seiten sechs Fotos, die die meisten Besucher nie
+                 zu sehen bekommen — gemessen 300 KB pro Seite. */
+              '<span class="megabar__bild" data-bild="' + vor + 'assets/img/' + bild + '-mini.webp"></span>' +
+              '<span class="megabar__num">' + nr + '</span>' +
+              '<span class="megabar__name">' + name + '</span>' +
+            '</a></li>').join('') +
+        '</ul>' +
+        '<a class="btn megabar__alle" href="' + vor + 'dienstleistungen.html">Alle Dienstleistungen ansehen' +
+          '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">' +
+          '<path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+        '</a>' +
+      '</div>';
+    /* Direkt hinter die Kopfzeile, nicht ans Ende des Rumpfes: mit dem
+       Tabulator kommt man dann von der Navigation aus hinein statt erst
+       hinter dem Fuß. */
+    const kopf = document.querySelector('header.nav');
+    if(kopf) kopf.after(balken); else document.body.appendChild(balken);
+
+    punkt.setAttribute('aria-expanded', 'false');
+    punkt.setAttribute('aria-controls', 'megabar');
+
+    /* Beim ersten Öffnen die sechs Bilder nachziehen — einmal, danach nie
+       wieder. `decoding="async"` hält das Einsetzen aus dem Bild heraus. */
+    let bilderDa = false;
+    function bilderNachziehen(){
+      if(bilderDa) return;
+      bilderDa = true;
+      balken.querySelectorAll('.megabar__bild[data-bild]').forEach(k => {
+        const img = document.createElement('img');
+        img.alt = '';
+        img.decoding = 'async';
+        /* Keine width/height-Attribute: die drei Motive haben drei
+           Seitenverhältnisse, und der Kasten steht ohnehin schon
+           (`aspect-ratio:4/3` auf `.megabar__bild`). Eine geratene Angabe
+           wäre hier eine Falschaussage ohne Nutzen. */
+        img.src = k.dataset.bild;
+        k.appendChild(img);
+        k.removeAttribute('data-bild');
+      });
+    }
+
+    let offen = false;
+    function setzen(auf, mitTastatur){
+      if(offen === auf) return;
+      if(auf) bilderNachziehen();
+      offen = auf;
+      balken.classList.toggle('auf', auf);
+      document.body.classList.toggle('megabar-auf', auf);
+      punkt.setAttribute('aria-expanded', String(auf));
+      /* Nur bei Tastaturbedienung hineinspringen. Mit der Maus wäre es eine
+         Bevormundung: der Zeiger steht ohnehin schon dort, wo geklickt
+         werden soll. */
+      /* Ein Bild später: solange `visibility:hidden` noch im gerechneten Stil
+         steht, nimmt das Element keinen Fokus an. Die Klasse ist zwar sofort
+         gesetzt, der Browser hat den Stil aber noch nicht neu gerechnet. */
+      if(auf && mitTastatur) requestAnimationFrame(()=>{
+        const erster = balken.querySelector('a');
+        if(erster) erster.focus();
+      });
+    }
+
+    punkt.addEventListener('click', (ev)=>{
+      /* Wer den Link bewusst in einem neuen Reiter oeffnet, will die
+         Uebersicht und keinen Balken. */
+      if(ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.button) return;
+      ev.preventDefault();
+      /* detail === 0 heisst: der Klick kam von der Tastatur (Enter oder
+         Leertaste), nicht von der Maus. */
+      setzen(!offen, ev.detail === 0);
+    });
+
+    document.addEventListener('keydown', (ev)=>{
+      if(ev.key === 'Escape' && offen){ setzen(false); punkt.focus(); }
+    });
+    /* Ein Klick daneben schließt. Der Menüpunkt selbst ist ausgenommen,
+       sonst schlösse er im selben Zug, in dem er öffnet. */
+    document.addEventListener('click', (ev)=>{
+      if(offen && !balken.contains(ev.target) && ev.target !== punkt && !punkt.contains(ev.target))
+        setzen(false);
+    });
+    /* Verlässt der Tabulator den Balken, ist er erledigt. */
+    balken.addEventListener('focusout', ()=>{
+      setTimeout(()=>{ if(offen && !balken.contains(document.activeElement) && document.activeElement !== punkt) setzen(false); }, 0);
+    });
+    addEventListener('scroll', ()=>{ if(offen) setzen(false); }, { passive:true });
+
+    /* Dasselbe im Vollbildmenü: dort ist kein Platz für einen Balken, aber
+       die sechs Bereiche gehören genauso dazu. Sie klappen unter dem
+       Menüpunkt auf.
+
+       Am Telefon greift das nicht — dort blendet das Stylesheet
+       „Dienstleistungen" im Menü aus, weil die Leiste unten denselben Weg
+       schon anbietet (siehe „Nichts steht doppelt"). Ein Tipp auf
+       „Leistungen" führt dort direkt auf die Übersicht, auf der alle sechs
+       stehen: ein Schritt, dasselbe Ziel. Gebraucht wird das Aufklappen
+       also auf Tablets und in schmalen Fenstern am Rechner. */
+    const mPunkt = document.querySelector('#mobileMenu > a[href$="dienstleistungen.html"]');
+    if(mPunkt){
+      const unter = document.createElement('div');
+      unter.className = 'menu__unter';
+      unter.id = 'menu-unter';
+      unter.innerHTML = BEREICHE.map(([nr, name, datei]) =>
+        '<a href="' + vor + 'dienstleistungen/' + datei + '.html">' +
+          '<span class="menu__unternum">' + nr + '</span>' + name + '</a>').join('') +
+        '<a class="menu__unteralle" href="' + vor + 'dienstleistungen.html">Alle ansehen</a>';
+      mPunkt.after(unter);
+      mPunkt.setAttribute('aria-expanded', 'false');
+      mPunkt.setAttribute('aria-controls', 'menu-unter');
+      mPunkt.addEventListener('click', (ev)=>{
+        if(ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.button) return;
+        ev.preventDefault();
+        ev.stopPropagation();          /* nicht das ganze Menue schliessen */
+        const auf = mPunkt.getAttribute('aria-expanded') !== 'true';
+        mPunkt.setAttribute('aria-expanded', String(auf));
+        unter.classList.toggle('auf', auf);
+      });
+    }
+  })();
 
   /* ---- App-Leiste ----
      Ein Tipp auf den Reiter, auf dem man ohnehin schon steht, lädt die
