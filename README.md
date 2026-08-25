@@ -529,6 +529,40 @@ keine Fehlermeldung, die ihn ein zweites Mal schicken ließe.
 
 ---
 
+## Die ganze Website in einer Datei
+
+Zum Herumzeigen ohne Server, ohne Hoster und ohne Internet:
+
+```bash
+python3 tools/testdatei-bauen.py          # herm-website-testdatei.html, rund 12 MB
+python3 tools/testdatei-bauen.py --ohne-film   # ohne Imagefilm, rund 5 MB
+```
+
+Die Datei doppelklicken, fertig. Alle sechzehn Seiten sind darin, die
+Navigation funktioniert, Schriften, Fotos und der Imagefilm sind
+eingebettet. Nachgemessen holt sie über einen Durchgang durch alle Seiten
+**keine einzige** Datei von außen.
+
+Wie das geht: jede Datei liegt genau einmal darin — Stylesheet, Skript und
+jedes Bild als `data:`-Adresse. Zusammengesetzt wird erst im Browser, und
+jede Seite läuft in einem eigenen Rahmen. Damit ist sie ein echtes,
+frisches Dokument, und `main.js` startet so, wie es auf der Website
+startet.
+
+**Drei Dinge können darin nicht funktionieren, weil ein Server dazugehört:**
+
+| | was passiert |
+|---|---|
+| Bestandskundenbereich | bleibt verborgen — er zeigt sich erst, wenn `/api/konto` antwortet |
+| Anfrageformular | prüft alle Eingaben wie gewohnt, meldet beim Absenden einen Fehler |
+| Bewerbung | dasselbe |
+
+Das ist Absicht. Eine vorgetäuschte Erfolgsmeldung wäre eine Funktion, die
+es nicht gibt.
+
+Die Datei steht **nicht** im Repository (`.gitignore`) — sie ist ein
+Ergebnis, keine Quelle, und in einer Minute neu gebaut.
+
 ## Interne Vorschau — Link für die Kollegen
 
 Drei Wege. Der erste ist der schnellste und der einzige, bei dem der

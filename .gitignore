@@ -8,6 +8,11 @@ herm-website-netlify.zip
 # Die Quelle steht in api/_netlify.js.
 netlify/functions/
 
+# Die Website als eine Datei zum Durchklicken ohne Server — Ergebnis von
+# tools/testdatei-bauen.py, 12 MB, jederzeit neu zu bauen. Keine Quelle.
+herm-website-testdatei.html
+
 # Sprachmodell fuer tools/film-vertonen.py — 110 MB, Bezug steht in README.md
 tools/stimme/
 .paket-cache/
+tools/__pycache__/
