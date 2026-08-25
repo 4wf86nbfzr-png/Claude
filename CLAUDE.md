@@ -795,24 +795,82 @@ wählt. Geratene Werte machen es schlimmer, nicht besser.
 
 Die Seite lebt von randlosen Fotos. Ein randloses Foto hat aber keine feste
 Größe — es ist so groß wie das Fenster, mal Gerätepixelverhältnis, mal
-Kamerafahrt. Deshalb liegt jedes großflächige Motiv in **zwei Stufen** vor:
+Kamerafahrt. Deshalb liegt jedes großflächige Motiv in **zwei Stufen** vor,
+und jede Stufe in **zwei Formaten**:
 
 ```
-gastro.webp        1600 px   Telefon, Tablet, Rückfallebene
-gastro-gross.webp  3464 px   Schreibtisch und Retina
+gastro.avif        1600 px   AVIF, das leichteste
+gastro.webp        1600 px   WebP, wenn AVIF nicht geht
+gastro-gross.avif  2560 px   dasselbe für Retina
+gastro-gross.webp  2560 px
+gastro.jpg         1600 px   Rückfallebene im <img>
 ```
 
-Welche geholt wird, entscheidet der Browser aus der Kandidatenliste:
+Welche geholt wird, entscheidet der Browser: er nimmt die erste Zeile, die
+er versteht.
 
 ```html
-<source type="image/webp"
-        srcset="assets/img/gastro.webp 1600w, assets/img/gastro-gross.webp 3464w"
-        sizes="(max-width:980px) 100vw, 142vw" />
+<picture>
+  <source type="image/avif" srcset="…gastro.avif 1600w, …gastro-gross.avif 2560w"
+          sizes="(max-width:980px) 100vw, 142vw" />
+  <source type="image/webp" srcset="…gastro.webp 1600w, …gastro-gross.webp 2560w"
+          sizes="(max-width:980px) 100vw, 142vw" />
+  <img src="assets/img/gastro.jpg" … />
+</picture>
 ```
 
-Die große Stufe erzeugt `tools/bilder-vergroessern.py`, eingehängt wird sie
-von `tools/bilder-einhaengen.py`. Beide sind mehrfach ausführbar; das zweite
-meldet dann null Änderungen.
+Gemessen an der Seite, nicht an der einzelnen Datei, holt der Browser damit
+zwischen 6 und 34 % weniger Bild-Bytes:
+
+| Seite | mit AVIF | ohne |
+|---|---|---|
+| Startseite | 760 K | 1157 K |
+| Dienstleistungen | 1245 K | 1682 K |
+| Galerie | 677 K | 791 K |
+| Sicherheit | 158 K | 168 K |
+
+Alle vier Dateien erzeugt `tools/bilder-vergroessern.py`, eingehängt werden
+sie von `tools/bilder-einhaengen.py`. Beide sind mehrfach ausführbar; das
+zweite meldet dann null Änderungen.
+
+### Warum AVIF dazukam — und warum es nicht der Bytes wegen war
+
+Der Einwand kam zuerst: `dienstleistungen.html` hat schon einmal geruckelt,
+und ein Format, das der Rechner mühsamer auspackt, wäre genau dort falsch.
+Gemessen über `createImageBitmap()` aus einem Blob im Speicher — also reines
+Dekodieren, ohne Netz und ohne Cache —, 2560 px, Median aus neun Läufen:
+
+| | WebP | AVIF | |
+|---|---|---|---|
+| sicherheit-gross | 71,3 ms | 60,1 ms | −16 % |
+| gastro-gross | 75,7 ms | 63,4 ms | −16 % |
+| logistik-gross | 93,1 ms | 63,2 ms | −32 % |
+
+AVIF ist hier **schneller**, nicht langsamer. Chromium packt es mit dav1d
+aus, und das ist auf breite Bilder besser abgestimmt als der WebP-Dekoder.
+Damit fiel der einzige Grund weg, der dagegen sprach.
+
+**Zwei Fallen beim Erzeugen:**
+
+- **AVIF wird aus dem JPEG gerechnet, nie aus dem WebP.** Aus dem WebP
+  heraus kodiert man dessen Artefakte mit: bei gleicher Güte bleiben dann
+  2 % Ersparnis statt 14 %.
+- **Nicht jedes Motiv wird kleiner.** Bei weichen Verläufen mit wenig Kante
+  ist WebP im Vorteil; zwei von 39 Dateien kamen als AVIF größer heraus. Sie
+  werden deshalb wieder gelöscht, und `bilder-einhaengen.py` schreibt eine
+  Kandidatenliste nur, wenn **jede** Datei darin auch auf der Platte liegt.
+  Eine größere Datei anzubieten wäre das Gegenteil des Zwecks — und niemand
+  würde es bemerken, denn der Browser nimmt einfach das erste Format, das er
+  kann.
+
+Kein AVIF bekommen `og-bild` (dort greifen soziale Netzwerke selbst zu, und
+nicht alle können es) und die `…-mini`-Kacheln des Balkens (wenige Kilobyte,
+da ist nichts zu holen).
+
+**Auf Apache muss der Dateityp angemeldet werden.** `.htaccess` setzt
+`X-Content-Type-Options: nosniff`; ohne `AddType image/avif .avif` käme die
+Datei als `application/octet-stream` an, und der Browser dürfte sie dann
+nicht als Bild verwenden. Netlify und Vercel bringen den Typ mit.
 
 **Was das leistet und was nicht.** Hochrechnen erzeugt keine Bilddetails. Es
 verlagert nur die Arbeit: einmal hier mit Lanczos und gemessener
@@ -1008,13 +1066,14 @@ Untertitel und Stimme nie auseinanderlaufen.
 
 ## Das Netlify-Paket ist keine Kopie des Repositorys
 
-`tools/paket-bauen.sh` liefert nicht einfach den Ordner als ZIP aus. Vier
+`tools/paket-bauen.sh` liefert nicht einfach den Ordner als ZIP aus. Fünf
 Dateiarten liegen im Repository absichtlich in einer Größe, die für die
 Auslieferung zu groß ist:
 
 | Was | Im Repository | Im Paket | Warum die Lücke |
 |---|---|---|---|
-| JPEG-Rückfallebene | Originalgröße (bis 1600 px) | auf 1100 px verkleinert | reine Rückfallebene für Browser vor 2020 — praktisch nie geholt |
+| JPEG-Rückfallebene | Originalgröße (bis 1600 px) | auf 900 px verkleinert | seit AVIF die vierte Ebene, nicht mehr die zweite — geholt nur von Browsern ohne WebP, also von vor 2020 |
+| `…-gross.webp` | vollständig, 3,04 MB | fehlt ganz, Markup wird mitgezogen | siehe unten |
 | `netlify/functions/formular.js` | ungekürzt gebündelt | `--minify` | Maschinenteil, kein Lesestoff |
 | `imagefilm.webm` | CRF 31, ein Durchgang | CRF 36, zwei Durchgänge | beim Bauen aus Einzelbildern ist CRF 31 richtig (siehe „Der Imagefilm"); für die Auslieferung packt CRF 36 dichter, ohne dass ein Auge den Unterschied sieht |
 | `logo-herm-original.png` | 157 KB | fehlt ganz | Quelldatei, keine Seite lädt sie |
@@ -1039,11 +1098,37 @@ CRF 36 bei zwei Durchgängen ergibt SSIM 0,9917 und PSNR 46,8 dB — beides
 jenseits dessen, was ein Auge unterscheidet — bei 4,7 statt 6,6 MB. Tonspur
 und Länge bleiben unangetastet (`-c:a copy`, weiterhin 44,92 s).
 
-Ergebnis: **21 MB → 16 MB.** Wer nachsehen will, dass dabei nichts fehlt:
+Ergebnis: **21 MB → 15,4 MiB** (16.149.781 Bytes) — und das mit AVIF, das für sich genommen 4,1 MB hinzugefügt hätte. Wer nachsehen will, dass dabei nichts fehlt:
 das Skript prüft am Ende selbst, ob jede Datei aus `assets/` im ZIP steht
 (bis auf die eine ausgenommene Quelldatei), und ein `unzip` in einen leeren
 Ordner mit anschließendem `git diff --stat` gegen das Original zeigt nur die
 JPEGs und den Film als geändert — nichts sonst.
+
+### Die zweite WebP-Stufe fehlt im Paket — und das Markup weiß davon
+
+Seit AVIF dazugekommen ist, liegt jedes randlose Foto vierfach vor. Wer holt
+dann noch `…-gross.webp`? Nur ein Browser, der WebP kann, AVIF aber nicht,
+und der zugleich an einem Bildschirm mit hoher Pixeldichte sitzt — Safari 15
+bis 16.3, Firefox 88 bis 92. Für diese Gruppe fällt die Darstellung auf die
+1600er Stufe zurück: genau der Zustand, in dem die Website vor der zweiten
+Stufe ausgeliefert wurde.
+
+Dafür 3,04 MB im Paket — und die Paketgröße ist genau das, woran der erste
+Netlify-Versuch gescheitert ist. **Auf Vercel und im Repository bleibt die
+Stufe vollständig**; dort gibt es keine Grenze.
+
+**Das Markup muss dabei mit.** Bliebe die Kandidatin im `srcset` stehen,
+forderte ein Browser ohne AVIF eine Datei an, die es nicht gibt, und bekäme
+ein leeres Bild. `paket-bauen.sh` schreibt deshalb die HTML-Dateien in die
+Bühne um: die Kandidatin fällt aus dem `srcset`, und `data-gross` der
+Galerie zeigt auf die Grundstufe.
+
+**Und weil eine Regex-Ersetzung genau hier still danebengehen kann**, prüft
+das Skript hinterher nicht mehr nur, ob jede Datei im Paket ist, sondern
+zusätzlich die Gegenrichtung: **jede Bildadresse, die im Markup des Pakets
+steht, muss im Paket auch liegen.** Das ist eine Prüfung ohne Browser und
+ohne Zufall — sie findet die eine durchgeschlüpfte Zeile, die im Test nie
+auffiele, weil Chromium ohnehin AVIF nimmt.
 
 ### Der Bau bricht bei jeder Warnung ab
 

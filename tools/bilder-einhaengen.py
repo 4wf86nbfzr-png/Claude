@@ -77,6 +77,44 @@ def breiten(stamm):
     return klein, gross
 
 
+WEBPQUELLE = re.compile(r'<source type="image/webp"[^>]*?/>')
+AVIFQUELLE = re.compile(r'<source type="image/avif"[^>]*?/>\s*')
+
+
+def avif_einhaengen(text):
+    """Setzt vor jede WebP-Quelle dieselbe Quelle als AVIF.
+
+    Der Browser nimmt die erste Zeile, die er versteht — also AVIF, wo es
+    geht, sonst WebP, sonst das JPEG aus dem `<img>`. Drei Stufen, eine
+    Reihenfolge, keine Weiche im Skript.
+
+    Geschrieben wird nur, was auch auf der Platte liegt: erzeugt eine
+    Vorlage kein kleineres AVIF, verwirft `bilder-vergroessern.py` es —
+    und dann darf es hier auch nicht im Markup stehen. Deshalb wird jede
+    Datei der Kandidatenliste einzeln nachgesehen, nicht nur die erste.
+
+    Mehrfach ausfuehrbar: eine bereits vorhandene AVIF-Zeile wird zuerst
+    entfernt und dann neu geschrieben, damit nachgezogene Breitenangaben
+    nicht auseinanderlaufen.
+    """
+    text = AVIFQUELLE.sub("", text)
+    n = 0
+
+    def ersetzen(m):
+        nonlocal n
+        webp = m.group(0)
+        avif = webp.replace(".webp", ".avif").replace('image/webp', 'image/avif')
+        dateien = re.findall(r'([\w-]+)\.avif', avif)
+        if not dateien:
+            return webp
+        if not all(os.path.exists(os.path.join(IMG, d + ".avif")) for d in dateien):
+            return webp
+        n += 1
+        return avif + webp
+
+    return WEBPQUELLE.sub(ersetzen, text), n
+
+
 def seiten():
     for ordner, _, dateien in os.walk(ROOT):
         if any(t in ordner for t in ("node_modules", ".git", "netlify")):
@@ -150,6 +188,10 @@ def main():
                 n += 1
             return neu_block
         text = KOPFBAND.sub(kopfband, text)
+
+        # --- 1c) AVIF vor WebP haengen -----------------------------------
+        text, na = avif_einhaengen(text)
+        n += na
 
         # --- 2) Galerie: grosse Fassung fuer die Lightbox ----------------
         def kachel(m):

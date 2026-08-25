@@ -39,8 +39,12 @@ assets/css/styles.css   einzige Design-Quelle (Tokens ganz oben)
 assets/css/fonts.css    @font-face für die lokalen Schriften
 assets/js/main.js       alle Interaktionen
 assets/fonts/           Schriftdateien (woff2)
-assets/img/             Fotos, je einmal als .jpg und .webp
-                        …-gross.webp: zweite Stufe für Retina-Bildschirme
+assets/img/             Fotos, je als .avif, .webp und .jpg
+                        (der Browser nimmt das erste Format, das er kann)
+                        …-gross.*: zweite Stufe für Retina-Bildschirme.
+                        …-gross.webp fehlt im Netlify-Paket (3 MB, und nur
+                        Safari 15–16.3 holt sie) — im Repository und auf
+                        Vercel ist sie da.
 assets/video/           Imagefilm + Untertitel
 
 tools/bilder-vergroessern.py  erzeugt die grosse Bildstufe

@@ -100,7 +100,13 @@ buehne = sys.argv[1]
 ECHT = {"assets/img/og-bild.jpg",
         "assets/img/imagefilm-poster.jpg",
         "assets/img/imagefilm-poster-gross.jpg"}
-KANTE, QUALITAET = 1100, 70
+# 1100 px war richtig, solange das JPEG die ZWEITE Ebene war. Seit es AVIF
+# gibt, ist es die vierte: AVIF, WebP, JPEG — und geholt wird es nur von
+# Browsern ohne WebP, also von vor 2020. Die stolpern ohnehin ueber
+# `clamp()`, `svh` und die Masken. 900 px reichen dort; gespart sind
+# dadurch 0,73 MB, und das Paket bleibt so gross wie das, das Netlify
+# angenommen hat.
+KANTE, QUALITAET = 900, 66
 
 vorher = nachher = 0
 for wurzel, _, dateien in os.walk("assets/img"):
@@ -199,6 +205,60 @@ for p in ("assets/css/styles.css", "assets/js/main.js"):
           f"   ({(1-nach/vor)*100:.0f} % gespart)")
 PY2
 
+# ---------------------------------------------------------------------------
+#  Die zweite WebP-Stufe aus dem Paket nehmen
+# ---------------------------------------------------------------------------
+#  Seit es AVIF gibt, liegt jedes randlose Foto vierfach vor: AVIF in zwei
+#  Stufen, WebP in zwei Stufen, JPEG als Rueckfallebene. Der Browser nimmt
+#  die erste Zeile, die er versteht.
+#
+#  Wer holt dann noch `…-gross.webp`? Nur ein Browser, der WebP kann, AVIF
+#  aber nicht — und der zugleich an einem Bildschirm mit hoher Pixeldichte
+#  sitzt. Das sind Safari 15 bis 16.3 und Firefox 88 bis 92. Fuer diese
+#  Gruppe faellt die Darstellung auf die 1600er Stufe zurueck: genau der
+#  Zustand, in dem die Website vor der zweiten Stufe ausgeliefert wurde.
+#
+#  Dafuer 3,04 MB im Paket — und die Paketgroesse ist genau das, woran der
+#  erste Netlify-Versuch gescheitert ist. Im Repository bleibt die Stufe
+#  vollstaendig: dort gibt es keine Groessengrenze, und auf Vercel wird sie
+#  ausgeliefert.
+#
+#  Damit kein Browser eine Datei anfordert, die nicht da ist, wird das
+#  Markup mitgezogen: die Kandidatin verschwindet aus dem `srcset`, und
+#  `data-gross` der Galerie zeigt auf die Grundstufe. Die Pruefung unten
+#  geht anschliessend jede Bildadresse im Markup durch.
+# ---------------------------------------------------------------------------
+echo "→ Die zweite WebP-Stufe aus dem Paket nehmen"
+python3 - "$BUEHNE" <<'PY3'
+import os, re, sys
+
+buehne = sys.argv[1]
+KANDIDAT = re.compile(r',\s*[^"\s,]*?-gross\.webp \d+w')
+GALERIE  = re.compile(r'(data-gross=")([^"]*?)-gross\.webp(")')
+
+n = gross = 0
+for wurzel, ordner, dateien in os.walk("."):
+    ordner[:] = [o for o in ordner if o not in
+                 (".git", "node_modules", "tools", "docs", "api", ".paket-cache")]
+    for datei in sorted(dateien):
+        if not datei.endswith(".html"):
+            continue
+        p = os.path.normpath(os.path.join(wurzel, datei))
+        s = open(p, encoding="utf-8").read()
+        neu = GALERIE.sub(r'\1\2.webp\3', KANDIDAT.sub("", s))
+        ziel = os.path.join(buehne, p)
+        os.makedirs(os.path.dirname(ziel), exist_ok=True)
+        open(ziel, "w", encoding="utf-8").write(neu)
+        if neu != s:
+            n += 1
+
+for datei in os.listdir("assets/img"):
+    if datei.endswith("-gross.webp"):
+        gross += os.path.getsize(os.path.join("assets/img", datei))
+print(f"   {n} Seiten umgeschrieben, {gross/1048576:.2f} MB gespart")
+PY3
+AUSSEN+=("assets/img/*-gross.webp")
+
 echo "→ Paket schnüren"
 rm -f "$ZIEL"
 # Erst alles ohne JPEGs, dann die verkleinerten aus der Bühne nachlegen.
@@ -207,8 +267,9 @@ rm -f "$ZIEL"
 # spiegelt die Buehne oben den ganzen Ordnerbaum, und genau deshalb steht
 # unten die Vollstaendigkeitspruefung.
 zip -qr "$ZIEL" . -x "${AUSSEN[@]}" "assets/img/*.jpg" \
-  "assets/css/styles.css" "assets/js/main.js"
+  "assets/css/styles.css" "assets/js/main.js" "*.html"
 ( cd "$BUEHNE" && zip -qr "$OLDPWD/$ZIEL" assets )
+( cd "$BUEHNE" && zip -qr "$OLDPWD/$ZIEL" . -i "*.html" )
 # Der dichter gepackte Film kommt unter seinem richtigen Namen ins Paket.
 if [ -f "$FILM_KLEIN" ]; then
   mkdir -p "$BUEHNE/assets/video"
@@ -218,21 +279,46 @@ fi
 
 echo "→ Nachsehen, dass wirklich alles drin ist"
 python3 - "$ZIEL" <<'PY'
-import os, sys, zipfile
+import os, posixpath, re, sys, zipfile
+
 z = zipfile.ZipFile(sys.argv[1])
 drin = set(z.namelist())
-fehlt = []
-for wurzel, _, dateien in os.walk("assets"):
-    for d in dateien:
-        p = os.path.join(wurzel, d)
-        if p == "assets/logo/logo-herm-original.png":
-            continue
-        if p not in drin:
-            fehlt.append(p)
+
+# 1) Jede Datei aus assets/ muss im Paket sein — bis auf das, was
+#    absichtlich draussen bleibt.
+AUSGENOMMEN = ("assets/logo/logo-herm-original.png",)
+fehlt = [os.path.join(w, d)
+         for w, _, ds in os.walk("assets") for d in ds
+         if os.path.join(w, d) not in drin
+         and os.path.join(w, d) not in AUSGENOMMEN
+         and not os.path.join(w, d).endswith("-gross.webp")]
 if fehlt:
     print("   FEHLT im Paket:", *fehlt, sep="\n     ")
     sys.exit(1)
-print(f"   {len(drin)} Dateien, keine Lücke in assets/")
+
+# 2) Und umgekehrt: jede Bildadresse, die im Markup des PAKETS steht, muss
+#    im Paket auch liegen. Das ist die eigentliche Sicherung gegen die
+#    Streichung der zweiten WebP-Stufe — schluepft eine Kandidatin durch,
+#    fordert ein Browser sie an und bekommt nichts.
+ADRESSE = re.compile(r'(?:src|href|data-gross)="([^"]+\.(?:avif|webp|jpe?g|png))"'
+                     r'|([\w./-]+\.(?:avif|webp))\s+\d+w')
+tot = []
+for name in sorted(n for n in drin if n.endswith(".html")):
+    text = z.read(name).decode("utf-8")
+    ordner = posixpath.dirname(name)
+    for m in ADRESSE.finditer(text):
+        adresse = m.group(1) or m.group(2)
+        if adresse.startswith(("http:", "https:", "data:", "#", "mailto:", "tel:")):
+            continue
+        ziel = posixpath.normpath(posixpath.join(ordner, adresse))
+        if ziel not in drin:
+            tot.append(f"{name}: {adresse}")
+if tot:
+    print("   Adresse im Markup ohne Datei im Paket:", *sorted(set(tot)), sep="\n     ")
+    sys.exit(1)
+
+print(f"   {len(drin)} Dateien, keine Lücke in assets/,"
+      f" keine tote Bildadresse im Markup")
 PY
 
 echo

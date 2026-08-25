@@ -48,6 +48,7 @@
   AddType font/woff2 .woff2
   AddType video/webm .webm
   AddType image/webp .webp
+  AddType image/avif .avif
   AddType text/vtt   .vtt
 </IfModule>
 
@@ -64,6 +65,7 @@
   ExpiresActive On
   ExpiresByType image/jpeg              "access plus 1 year"
   ExpiresByType image/webp              "access plus 1 year"
+  ExpiresByType image/avif              "access plus 1 year"
   ExpiresByType image/png               "access plus 1 year"
   ExpiresByType font/woff2              "access plus 1 year"
   ExpiresByType video/webm              "access plus 1 year"
