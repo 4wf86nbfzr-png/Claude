@@ -1,9 +1,10 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import type { Ingredient } from "@/types/domain";
 import { Piece, PieceDefs, PIECE_SIZE } from "./renderers/pieces";
 import type { Placement } from "./renderers/geometry";
+import { useReducedMotionSafe } from "@/hooks/useReducedMotionSafe";
 
 /**
  * Eine Zutatenebene.
@@ -39,7 +40,7 @@ export function PieceLayer({
   /** Umrechnung der normierten Stueckgroesse in die ViewBox des Renderers. */
   sizeUnit?: number;
 }) {
-  const reduced = useReducedMotion();
+  const reduced = useReducedMotionSafe();
   const { shape, palette, scale = 1 } = ingredient.visual;
   const entry = ENTRY[shape] ?? ENTRY.slice!;
   const size = PIECE_SIZE[shape] * scale * sizeUnit;
@@ -97,7 +98,7 @@ export function SpreadLayer({
   radius: number;
   texture?: React.ReactNode;
 }) {
-  const reduced = useReducedMotion();
+  const reduced = useReducedMotionSafe();
   const maskId = `mask-${ingredient.id}`;
   const [base = "#ccc", dark = "#999", light = "#fff"] = ingredient.visual.palette;
 
@@ -142,7 +143,7 @@ export function DrizzleLayer({
   /** Ungefaehre Pfadlaenge fuer die Zeichen-Animation. */
   length: number;
 }) {
-  const reduced = useReducedMotion();
+  const reduced = useReducedMotionSafe();
   const [base = "#fff", dark = "#ccc", light = "#fff", speck] = ingredient.visual.palette;
 
   return (

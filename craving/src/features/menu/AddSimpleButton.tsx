@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { Plus } from "lucide-react";
 import { useCartStore } from "@/stores/cart-store";
 import { useUiStore } from "@/stores/ui-store";
+import { cartTargetPoint } from "@/lib/flight";
 import type { Product } from "@/types/domain";
 
 /**
@@ -23,12 +24,15 @@ export function AddSimpleButton({ product, label = "Hinzufuegen" }: { product: P
       disabled={!product.available}
       onClick={() => {
         const rect = ref.current?.getBoundingClientRect();
-        if (rect) {
+        const target = cartTargetPoint();
+        if (rect && target) {
           launchFlight({
             x: rect.left,
             y: rect.top,
             width: rect.width,
             height: rect.height,
+            targetX: target.x,
+            targetY: target.y,
             categoryId: product.categoryId,
           });
         }

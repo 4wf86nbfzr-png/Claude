@@ -1,10 +1,11 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import { Check, Flame, Info, Leaf } from "lucide-react";
 import clsx from "clsx";
 import { formatSurcharge } from "@/lib/format";
 import type { ChoiceView } from "@/lib/catalog";
+import { useReducedMotionSafe } from "@/hooks/useReducedMotionSafe";
 
 /**
  * Eine Auswahl. Bewusst kein Kontrollkaestchen: die Karte selbst ist der
@@ -27,7 +28,7 @@ export function ChoiceCard({
   onToggle: () => void;
   onInfo?: () => void;
 }) {
-  const reduced = useReducedMotion();
+  const reduced = useReducedMotionSafe();
   const soldOut = !choice.available;
   const blocked = soldOut || disabled;
   const tags = choice.ingredient?.tags ?? [];

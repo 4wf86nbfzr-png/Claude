@@ -2,11 +2,13 @@
 
 import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { motion, useMotionValueEvent, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
+import { motion, useMotionValueEvent, useScroll, useSpring, useTransform } from "framer-motion";
 import { ArrowRight } from "lucide-react";
-import { rendererFor } from "@/features/builder/renderers";
+import { FoodRender } from "@/features/builder/renderers";
+import { Cinematic } from "./Cinematic";
 import { optionEffects, selectedIngredients } from "@/lib/catalog";
 import type { Category, Product } from "@/types/domain";
+import { useReducedMotionSafe } from "@/hooks/useReducedMotionSafe";
 
 /**
  * Die Erzaehl-Bahn der Startseite.
@@ -28,7 +30,7 @@ export function ScrollStory({
   product: Product;
   index: number;
 }) {
-  const reduced = useReducedMotion();
+  const reduced = useReducedMotionSafe();
   const ref = useRef<HTMLDivElement>(null);
   const [step, setStep] = useState(0);
 
@@ -39,7 +41,6 @@ export function ScrollStory({
     [category, product.preset],
   );
   const effects = useMemo(() => optionEffects(category, product.preset), [category, product.preset]);
-  const Renderer = rendererFor(category.id);
 
   // Ebene fuer Ebene: 0 -> nur die Basis, 1 -> alles.
   useMotionValueEvent(scrollYProgress, "change", (value) => {
@@ -120,7 +121,14 @@ export function ScrollStory({
               index % 2 === 1 ? "lg:order-1" : ""
             }`}
           >
-            <Renderer ingredients={visible} effects={effects} label={`${category.name} wird zusammengestellt`} />
+            <Cinematic categoryId={category.id} className="size-full">
+              <FoodRender
+                categoryId={category.id}
+                ingredients={visible}
+                effects={effects}
+                label={`${category.name} wird zusammengestellt`}
+              />
+            </Cinematic>
           </motion.div>
         </div>
 

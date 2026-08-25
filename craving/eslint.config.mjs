@@ -1,10 +1,12 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
+import next from "eslint-config-next/core-web-vitals";
+import nextTs from "eslint-config-next/typescript";
 
-const compat = new FlatCompat({ baseDirectory: dirname(fileURLToPath(import.meta.url)) });
-
+/**
+ * Flat Config. eslint-config-next ab Version 16 exportiert die Regelsaetze
+ * bereits als Flat-Config-Array — der Umweg ueber FlatCompat entfaellt.
+ */
 export default [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
-  { ignores: [".next/**", "node_modules/**"] },
+  ...next,
+  ...nextTs,
+  { ignores: [".next/**", "node_modules/**", "*.mjs", "public/**"] },
 ];

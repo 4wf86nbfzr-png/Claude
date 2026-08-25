@@ -8,7 +8,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "smoke": "node tools/smoke.mjs",
+    "icons": "node tools/icon-gen.mjs",
+    "qa": "node tools/qa.mjs",
+    "perf": "node tools/perf.mjs"
   },
   "dependencies": {
     "clsx": "^2.1.1",

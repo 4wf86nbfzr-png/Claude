@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { DrizzleLayer, PieceLayer, SpreadLayer } from "../IngredientLayer";
 import { bandPlacements, blobPath, drizzlePath } from "./geometry";
 import { hasPieceRenderer } from "./pieces";
@@ -8,6 +8,7 @@ import { GrainOverlay, TextureDefs } from "./texture";
 import { between, randomFor, round } from "@/lib/rng";
 import type { Ingredient } from "@/types/domain";
 import type { RendererProps } from "./types";
+import { useReducedMotionSafe } from "@/hooks/useReducedMotionSafe";
 
 /**
  * Doener von vorn.
@@ -97,7 +98,7 @@ function Defs() {
 }
 
 export function DonerRenderer({ ingredients, effects, label }: RendererProps) {
-  const reduced = useReducedMotion();
+  const reduced = useReducedMotionSafe();
   const duerum = effects.variants.includes("duerum");
   const vollkorn = effects.variants.includes("vollkorn");
 

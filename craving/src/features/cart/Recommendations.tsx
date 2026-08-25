@@ -38,7 +38,7 @@ export function Recommendations({
             <h3 id={`rec-${block.id}`} className="kicker mb-3">
               {block.title}
             </h3>
-            <ul className="no-scrollbar -mx-1 flex gap-3 overflow-x-auto px-1 pb-1">
+            <ul className="no-scrollbar edge-scroll -mx-1 flex gap-3 overflow-x-auto px-1 pb-1">
               {products.map((product) => {
                 const category = getCategory(product.categoryId);
                 return (

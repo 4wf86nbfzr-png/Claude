@@ -23,6 +23,7 @@ import { hasErrors, preflight, validateAddress, validateCustomer } from "@/lib/v
 import { useAccountStore } from "@/stores/account-store";
 import { useCartStore } from "@/stores/cart-store";
 import { useUiStore } from "@/stores/ui-store";
+import { playTone } from "@/lib/sound";
 import type { Address, Customer, Order, PaymentMethodId } from "@/types/domain";
 import { ShoppingBag } from "lucide-react";
 
@@ -50,6 +51,7 @@ export function CheckoutScreen() {
   const saveAddress = useAccountStore((s) => s.saveAddress);
   const addOrder = useAccountStore((s) => s.addOrder);
   const toast = useUiStore((s) => s.toast);
+  const soundEnabled = useAccountStore((s) => s.soundEnabled);
 
   const [customer, setLocalCustomer] = useState<Partial<Customer>>(storedCustomer);
   const [address, setAddress] = useState<Partial<Address>>({ postalCode });
@@ -165,6 +167,7 @@ export function CheckoutScreen() {
       etaMinutes: etaFor(fulfillment, findZone(address.postalCode ?? postalCode)),
     };
 
+    playTone("done", soundEnabled);
     addOrder(order);
     setCustomer(customer);
     if (fulfillment === "delivery" && address.street) saveAddress(address as Address);

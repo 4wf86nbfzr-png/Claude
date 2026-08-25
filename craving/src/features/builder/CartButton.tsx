@@ -5,6 +5,9 @@ import { ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useCartStore } from "@/stores/cart-store";
 import { useUiStore } from "@/stores/ui-store";
+import { cartTargetPoint } from "@/lib/flight";
+import { playTone } from "@/lib/sound";
+import { useAccountStore } from "@/stores/account-store";
 import type { NewCartItem } from "@/stores/cart-store";
 
 /**
@@ -32,10 +35,12 @@ export function CartButton({
   const launchFlight = useUiStore((s) => s.launchFlight);
   const toast = useUiStore((s) => s.toast);
   const router = useRouter();
+  const soundEnabled = useAccountStore((s) => s.soundEnabled);
 
   const onClick = () => {
     const node = previewRef.current;
-    if (node) {
+    const target = cartTargetPoint();
+    if (node && target) {
       const rect = node.getBoundingClientRect();
       const size = Math.min(rect.width, rect.height) * 0.55;
       launchFlight({
@@ -43,12 +48,15 @@ export function CartButton({
         y: rect.top + rect.height / 2 - size / 2,
         width: size,
         height: size,
+        targetX: target.x,
+        targetY: target.y,
         categoryId: item.categoryId,
       });
     }
 
     add({ ...item, quantity });
     navigator.vibrate?.(12);
+    playTone("add", soundEnabled);
     toast({
       title: `${quantity} × ${item.name} liegt im Korb`,
       description: "Weiter bauen oder zur Kasse.",

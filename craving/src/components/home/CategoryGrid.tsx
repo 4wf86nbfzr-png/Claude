@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
-import { rendererFor } from "@/features/builder/renderers";
+import { FoodRender } from "@/features/builder/renderers";
 import { optionEffects, selectedIngredients } from "@/lib/catalog";
 import { productsOfCategory } from "@/data/products";
 import { formatPrice } from "@/lib/format";
 import type { Category } from "@/types/domain";
+import { useReducedMotionSafe } from "@/hooks/useReducedMotionSafe";
 
 /**
  * Die Kategorie-Karten sind keine Shop-Kacheln: jede zeigt das echte
@@ -16,7 +17,7 @@ import type { Category } from "@/types/domain";
  * Zeigen kippt die Szene leicht mit — dieselbe Lichtachse wie im Builder.
  */
 function CategoryCard({ category, index }: { category: Category; index: number }) {
-  const reduced = useReducedMotion();
+  const reduced = useReducedMotionSafe();
   const cardRef = useRef<HTMLAnchorElement>(null);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [hover, setHover] = useState(false);
@@ -32,7 +33,6 @@ function CategoryCard({ category, index }: { category: Category; index: number }
     };
   }, [category]);
 
-  const Renderer = rendererFor(category.id);
 
   const onMove = (e: React.MouseEvent) => {
     if (reduced || !cardRef.current) return;
@@ -88,7 +88,12 @@ function CategoryCard({ category, index }: { category: Category; index: number }
           transition={{ type: "spring", stiffness: 160, damping: 18 }}
           style={{ transformStyle: "preserve-3d" }}
         >
-          <Renderer ingredients={ingredients} effects={effects} label={`${category.name} Vorschau`} />
+          <FoodRender
+            categoryId={category.id}
+            ingredients={ingredients}
+            effects={effects}
+            label={`${category.name} Vorschau`}
+          />
         </motion.div>
 
         <div className="relative">

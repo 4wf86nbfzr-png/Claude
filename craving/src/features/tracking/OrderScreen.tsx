@@ -14,7 +14,7 @@ import { useHydrated } from "@/hooks/useHydrated";
 import { BRAND } from "@/data/config";
 import { formatMinutes, formatPrice, formatTime } from "@/lib/format";
 import { minutesLeft, statusFor } from "@/lib/orders";
-import { rendererFor } from "@/features/builder/renderers";
+import { FoodRender } from "@/features/builder/renderers";
 import { getCategory, selectedIngredients, optionEffects } from "@/lib/catalog";
 import { useAccountStore } from "@/stores/account-store";
 
@@ -92,7 +92,7 @@ export function OrderScreen({ orderId }: { orderId: string }) {
   const status = statusFor(order, now);
   const left = minutesLeft(order, now);
   const category = getCategory(order.items[0]?.categoryId ?? "");
-  const Renderer = category && !category.simple ? rendererFor(category.id) : null;
+  const showRender = Boolean(category && !category.simple);
   const firstSelections = order.items[0]?.selections ?? {};
 
   return (
@@ -147,12 +147,13 @@ export function OrderScreen({ orderId }: { orderId: string }) {
         </div>
 
         <aside className="space-y-6">
-          {Renderer && (
+          {showRender && category && (
             <div className="card relative overflow-hidden p-6">
               <div className="mx-auto aspect-square w-full max-w-[18rem]">
-                <Renderer
-                  ingredients={category ? selectedIngredients(category, firstSelections) : []}
-                  effects={category ? optionEffects(category, firstSelections) : { sizeScale: 1, spice: 0, variants: [] }}
+                <FoodRender
+                  categoryId={category.id}
+                  ingredients={selectedIngredients(category, firstSelections)}
+                  effects={optionEffects(category, firstSelections)}
                   label={order.items[0]?.name ?? "Bestellung"}
                 />
               </div>
@@ -176,6 +177,12 @@ export function OrderScreen({ orderId }: { orderId: string }) {
                 <dt className="text-muted">Zwischensumme</dt>
                 <dd className="num">{formatPrice(order.totals.subtotal)}</dd>
               </div>
+              {order.totals.discount > 0 && (
+                <div className="flex justify-between gap-4 text-basil">
+                  <dt>Rabatt{order.couponCode ? ` (${order.couponCode})` : ""}</dt>
+                  <dd className="num">−{formatPrice(order.totals.discount)}</dd>
+                </div>
+              )}
               {order.totals.deliveryFee > 0 && (
                 <div className="flex justify-between gap-4">
                   <dt className="text-muted">Lieferung</dt>

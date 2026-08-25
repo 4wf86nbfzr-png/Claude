@@ -20,6 +20,7 @@ import { priceBuild } from "@/lib/pricing";
 import { missingRequirements } from "@/lib/validation";
 import { productsOfCategory } from "@/data/products";
 import { useAccountStore } from "@/stores/account-store";
+import { playTone } from "@/lib/sound";
 import { useCartStore } from "@/stores/cart-store";
 import { useUiStore } from "@/stores/ui-store";
 import type { Category, Product, Selections } from "@/types/domain";
@@ -58,6 +59,7 @@ export function FoodBuilder({
   const activeStep = useScrollSpy(stepIds);
 
   const saveFavorite = useAccountStore((s) => s.saveFavorite);
+  const soundEnabled = useAccountStore((s) => s.soundEnabled);
   const updateLine = useCartStore((s) => s.update);
   const toast = useUiStore((s) => s.toast);
 
@@ -85,6 +87,7 @@ export function FoodBuilder({
     const group = getGroup(category, groupId);
     if (!group) return;
     navigator.vibrate?.(6);
+    playTone("tick", soundEnabled);
 
     setSelections((prev) => {
       const current = prev[groupId] ?? [];

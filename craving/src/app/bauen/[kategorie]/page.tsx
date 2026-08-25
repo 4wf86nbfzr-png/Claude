@@ -58,7 +58,9 @@ export default async function BuilderPage({ params }: { params: Promise<{ katego
 
       <Suspense
         fallback={
-          <div className="grid gap-8 py-10 lg:grid-cols-2">
+          // Gleiche Mindesthoehe wie der fertige Builder — sonst springt
+          // die Seite in dem Moment, in dem er erscheint.
+          <div className="grid min-h-[calc(100dvh-9rem)] gap-8 py-10 lg:grid-cols-2">
             <Skeleton className="aspect-square w-full rounded-full" />
             <div className="space-y-4">
               <Skeleton className="h-10 w-1/2" />

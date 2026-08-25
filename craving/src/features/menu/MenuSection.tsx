@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
-import { rendererFor } from "@/features/builder/renderers";
+import { FoodRender } from "@/features/builder/renderers";
 import { optionEffects, selectedIngredients } from "@/lib/catalog";
 import { formatPrice } from "@/lib/format";
 import type { Category, Product } from "@/types/domain";
@@ -16,7 +16,6 @@ import type { Category, Product } from "@/types/domain";
  * vierzehn kleine und ist deutlich guenstiger zu zeichnen.
  */
 export function MenuSection({ category, products }: { category: Category; products: Product[] }) {
-  const Renderer = rendererFor(category.id);
   const hero = useMemo(() => {
     const lead = products.find((p) => !p.freestyle) ?? products[0];
     const selections = lead?.preset ?? {};
@@ -46,7 +45,12 @@ export function MenuSection({ category, products }: { category: Category; produc
               className="absolute inset-0 -z-10"
               style={{ background: `radial-gradient(55% 50% at 50% 45%, ${category.accent}1C, transparent 70%)` }}
             />
-            <Renderer ingredients={hero.ingredients} effects={hero.effects} label={`${category.name} Vorschau`} />
+            <FoodRender
+              categoryId={category.id}
+              ingredients={hero.ingredients}
+              effects={hero.effects}
+              label={`${category.name} Vorschau`}
+            />
           </motion.div>
 
           <Link

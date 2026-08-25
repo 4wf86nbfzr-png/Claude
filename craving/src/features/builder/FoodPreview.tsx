@@ -1,10 +1,11 @@
 "use client";
 
-import { forwardRef, useEffect, useMemo, useRef, useState } from "react";
-import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion";
+import { forwardRef, useEffect, useRef, useState } from "react";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { Maximize2, Minus, Plus, RotateCcw } from "lucide-react";
-import { rendererFor } from "./renderers";
+import { FoodRender } from "./renderers";
 import type { Ingredient } from "@/types/domain";
+import { useReducedMotionSafe } from "@/hooks/useReducedMotionSafe";
 
 /**
  * Die Buehne des Builders.
@@ -21,8 +22,7 @@ export const FoodPreview = forwardRef<HTMLDivElement, {
   accent: string;
   compact?: boolean;
 }>(function FoodPreview({ categoryId, ingredients, effects, label, accent, compact = false }, ref) {
-  const Renderer = useMemo(() => rendererFor(categoryId), [categoryId]);
-  const reduced = useReducedMotion();
+  const reduced = useReducedMotionSafe();
   const stageRef = useRef<HTMLDivElement>(null);
   const [zoom, setZoom] = useState(1);
   const flat = categoryId === "pizza";
@@ -115,7 +115,7 @@ export const FoodPreview = forwardRef<HTMLDivElement, {
           animate={{ scale: zoom * effects.sizeScale * (compact ? 0.86 : 1) }}
           transition={{ type: "spring", stiffness: 180, damping: 22 }}
         >
-          <Renderer ingredients={ingredients} effects={effects} label={label} />
+          <FoodRender categoryId={categoryId} ingredients={ingredients} effects={effects} label={label} />
         </motion.div>
       </div>
 

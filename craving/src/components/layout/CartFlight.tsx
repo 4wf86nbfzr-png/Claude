@@ -1,11 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useUiStore } from "@/stores/ui-store";
 import { CATEGORY_INDEX } from "@/data/categories";
-
-interface Target { x: number; y: number }
 
 /**
  * Der "In den Warenkorb"-Moment: das Produkt schrumpft und fliegt zum
@@ -16,17 +14,11 @@ interface Target { x: number; y: number }
 export function CartFlight() {
   const flight = useUiStore((s) => s.flight);
   const endFlight = useUiStore((s) => s.endFlight);
-  const [target, setTarget] = useState<Target | null>(null);
 
+  // Start und Ziel stehen bereits fest (im Klick-Handler ermittelt),
+  // hier laeuft nur noch die Uhr bis zum Aufraeumen.
   useEffect(() => {
     if (!flight) return;
-    const node = document.querySelector("[data-cart-target]");
-    if (!node) {
-      endFlight();
-      return;
-    }
-    const rect = node.getBoundingClientRect();
-    setTarget({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
     const timer = setTimeout(endFlight, 750);
     return () => clearTimeout(timer);
   }, [flight, endFlight]);
@@ -35,7 +27,7 @@ export function CartFlight() {
 
   return (
     <AnimatePresence>
-      {flight && target && (
+      {flight && (
         <motion.div
           key={flight.key}
           className="pointer-events-none fixed z-[85] rounded-full"
@@ -49,8 +41,8 @@ export function CartFlight() {
           }}
           initial={{ scale: 1, opacity: 0.95, x: 0, y: 0 }}
           animate={{
-            x: target.x - flight.x - flight.width / 2,
-            y: target.y - flight.y - flight.height / 2,
+            x: flight.targetX - flight.x - flight.width / 2,
+            y: flight.targetY - flight.y - flight.height / 2,
             scale: 0.12,
             opacity: 0.85,
           }}

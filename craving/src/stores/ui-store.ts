@@ -12,12 +12,15 @@ export interface Toast {
   duration: number;
 }
 
-/** Startpunkt der Flugbahn beim "In den Warenkorb"-Moment. */
+/** Flugbahn beim "In den Warenkorb"-Moment: Start, Ziel, Groesse. */
 export interface FlightOrigin {
   x: number;
   y: number;
   width: number;
   height: number;
+  /** Mittelpunkt des Warenkorb-Symbols. */
+  targetX: number;
+  targetY: number;
   categoryId: string;
   key: string;
 }

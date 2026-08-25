@@ -17,6 +17,21 @@ Ein Build ist nicht nötig. Was im Ordner liegt, ist die Website.
 
 ---
 
+## Zweites Projekt im Repository: `craving/`
+
+Neben dieser statischen Website liegt unter `craving/` eine eigenstaendige
+Bestell-Anwendung (Next.js): **CRAVING** — Doener, Pizza und Croque mit
+sichtbarem Baukasten. Sie hat einen eigenen Build, eigene Abhaengigkeiten
+und beruehrt die Dateien der HERM-Website nicht.
+
+```bash
+cd craving && npm install && npm run dev
+```
+
+Details: `craving/README.md`, Architektur und Uebergabe in `craving/docs/`.
+
+---
+
 ## Aufbau
 
 ```

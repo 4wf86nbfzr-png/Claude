@@ -3,6 +3,7 @@ import { Anton, Manrope, JetBrains_Mono } from "next/font/google";
 import { BRAND } from "@/data/config";
 import { StoreHydrator } from "@/components/providers/StoreHydrator";
 import { SmoothScroll } from "@/components/providers/SmoothScroll";
+import { ServiceWorker } from "@/components/providers/ServiceWorker";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { BottomNav } from "@/components/layout/BottomNav";
@@ -64,6 +65,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-dvh text-paper antialiased">
         <StoreHydrator />
         <SmoothScroll />
+        <ServiceWorker />
         <a
           href="#inhalt"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-ember focus:px-5 focus:py-3 focus:text-sm focus:font-semibold focus:text-white"

@@ -1,10 +1,11 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import { Bike, ChefHat, Check, Flame, MapPin, Receipt } from "lucide-react";
 import { ORDER_STATUS_FLOW } from "@/data/config";
 import { statusIndex } from "@/lib/orders";
 import type { OrderStatus } from "@/types/domain";
+import { useReducedMotionSafe } from "@/hooks/useReducedMotionSafe";
 
 const ICONS = [Receipt, ChefHat, Flame, Bike, MapPin, Check];
 
@@ -14,7 +15,7 @@ const ICONS = [Receipt, ChefHat, Flame, Bike, MapPin, Check];
  * "haengt" aussehen statt nach "laeuft".
  */
 export function OrderTimeline({ status, pickup }: { status: OrderStatus; pickup: boolean }) {
-  const reduced = useReducedMotion();
+  const reduced = useReducedMotionSafe();
   const steps = pickup
     ? ORDER_STATUS_FLOW.filter((s) => s.id !== "on_the_way" && s.id !== "nearby")
     : ORDER_STATUS_FLOW;

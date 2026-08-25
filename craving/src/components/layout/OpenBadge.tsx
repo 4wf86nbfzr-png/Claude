@@ -18,24 +18,24 @@ export function OpenBadge({ className = "" }: { className?: string }) {
     return () => clearInterval(timer);
   }, []);
 
-  if (!state) return <span className={`h-9 w-28 ${className}`} aria-hidden />;
-
+  // Die Huelle steht immer und hat eine Mindestbreite: sonst springt die
+  // Kopfzeile in dem Moment, in dem der Zustand feststeht (Layout Shift).
   return (
     <span
-      className={`items-center gap-2 rounded-full border border-line bg-ink-2 px-3 py-2 text-[0.6875rem] font-medium ${className}`}
+      className={`min-w-[10.5rem] items-center justify-center gap-2 rounded-full border border-line bg-ink-2 px-3 py-2 text-[0.6875rem] font-medium ${className}`}
     >
-      <span
-        className={`size-1.5 rounded-full ${state.open ? "bg-basil" : "bg-danger"}`}
-        aria-hidden
-      />
-      {state.open ? (
-        <span className="text-chrome">
-          Geoeffnet{state.closesAt ? ` bis ${formatTime(state.closesAt)}` : ""}
-        </span>
-      ) : (
-        <span className="text-chrome">
-          Geschlossen{state.opensAt ? ` · ab ${formatTime(state.opensAt)}` : ""}
-        </span>
+      {state && (
+        <>
+          <span
+            className={`size-1.5 rounded-full ${state.open ? "bg-basil" : "bg-danger"}`}
+            aria-hidden
+          />
+          <span className="text-chrome">
+            {state.open
+              ? `Geoeffnet${state.closesAt ? ` bis ${formatTime(state.closesAt)}` : ""}`
+              : `Geschlossen${state.opensAt ? ` · ab ${formatTime(state.opensAt)}` : ""}`}
+          </span>
+        </>
       )}
     </span>
   );

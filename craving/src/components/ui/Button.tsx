@@ -2,8 +2,9 @@
 
 import { forwardRef, useRef, useState } from "react";
 import Link from "next/link";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import clsx from "clsx";
+import { useReducedMotionSafe } from "@/hooks/useReducedMotionSafe";
 
 type Variant = "primary" | "ghost" | "outline" | "quiet";
 type Size = "sm" | "md" | "lg";
@@ -40,7 +41,7 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 function useMagnet(enabled: boolean) {
   const ref = useRef<HTMLElement | null>(null);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
-  const reduced = useReducedMotion();
+  const reduced = useReducedMotionSafe();
   const active = enabled && !reduced;
 
   const onMove = (e: React.MouseEvent) => {
@@ -59,17 +60,20 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
   { variant = "primary", size = "md", magnetic = false, className, children, ...props },
   forwardedRef,
 ) {
-  const magnet = useMagnet(magnetic);
+  const { ref: magnetRef, offset, onMove, onLeave, active } = useMagnet(magnetic);
+
+  const setRef = (node: HTMLButtonElement | null) => {
+    magnetRef.current = node;
+    if (typeof forwardedRef === "function") forwardedRef(node);
+    else if (forwardedRef) forwardedRef.current = node;
+  };
+
   return (
     <motion.button
-      ref={(node) => {
-        magnet.ref.current = node;
-        if (typeof forwardedRef === "function") forwardedRef(node);
-        else if (forwardedRef) forwardedRef.current = node;
-      }}
-      onMouseMove={magnet.onMove}
-      onMouseLeave={magnet.onLeave}
-      animate={magnet.active ? { x: magnet.offset.x, y: magnet.offset.y } : undefined}
+      ref={setRef}
+      onMouseMove={onMove}
+      onMouseLeave={onLeave}
+      animate={active ? { x: offset.x, y: offset.y } : undefined}
       transition={{ type: "spring", stiffness: 260, damping: 18, mass: 0.4 }}
       className={clsx(base, variants[variant], sizes[size], className)}
       {...(props as React.ComponentProps<typeof motion.button>)}

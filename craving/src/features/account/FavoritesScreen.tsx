@@ -7,7 +7,7 @@ import { Heart, Pencil, ShoppingBag, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Skeleton } from "@/components/ui/Skeleton";
-import { rendererFor } from "@/features/builder/renderers";
+import { FoodRender } from "@/features/builder/renderers";
 import { useHydrated } from "@/hooks/useHydrated";
 import { diffSelections, getCategory, getProduct, optionEffects, selectedIngredients } from "@/lib/catalog";
 import { formatPrice } from "@/lib/format";
@@ -38,7 +38,6 @@ function FavoriteCard({ favorite }: { favorite: SavedBuild }) {
   }, [category, product, favorite.selections]);
 
   if (!category || !product || !data) return null;
-  const Renderer = rendererFor(category.id);
 
   return (
     <motion.li
@@ -55,7 +54,12 @@ function FavoriteCard({ favorite }: { favorite: SavedBuild }) {
           style={{ background: `radial-gradient(55% 60% at 50% 45%, ${category.accent}1A, transparent 70%)` }}
         />
         <div className="absolute inset-0 flex items-center justify-center p-3">
-          <Renderer ingredients={data.ingredients} effects={data.effects} label={favorite.label} />
+          <FoodRender
+            categoryId={category.id}
+            ingredients={data.ingredients}
+            effects={data.effects}
+            label={favorite.label}
+          />
         </div>
       </div>
 

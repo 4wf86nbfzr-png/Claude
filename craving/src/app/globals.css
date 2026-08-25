@@ -211,6 +211,37 @@
     mask-image: linear-gradient(to bottom, #000 60%, transparent 100%);
   }
 
+  /* Zeilenweiser Einzug der grossen Titelzeile.
+     Bewusst als CSS-Animation statt ueber JavaScript: die Schrift ist das
+     groesste Element der Startseite. Wuerde sie erst nach dem Hydrieren
+     sichtbar, verschiebt das die groesste sichtbare Ausgabe (LCP) um rund
+     eine Sekunde. Als CSS laeuft sie schon beim ersten Bildaufbau. */
+  .reveal-line {
+    display: block;
+    overflow: hidden;
+  }
+
+  .reveal-line > span {
+    display: block;
+    animation: reveal-up 0.62s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  @keyframes reveal-up {
+    from { transform: translateY(108%); }
+    to { transform: translateY(0); }
+  }
+
+  /* Sanftes Aufsteigen fuer die uebrigen Hero-Elemente — aus demselben
+     Grund als CSS: sie sind beim ersten Bildaufbau schon da. */
+  .rise {
+    animation: rise-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  @keyframes rise-in {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
   .num {
     font-family: var(--font-mono);
     font-variant-numeric: tabular-nums;

@@ -2,6 +2,11 @@
 
 Projektregeln für Claude Code. Bitte vor jeder Änderung lesen.
 
+> **Hinweis:** Diese Regeln gelten für die statische HERM-Website im
+> Wurzelverzeichnis. Der Ordner `craving/` enthält ein zweites,
+> unabhängiges Projekt (Next.js-Bestell-App „CRAVING") mit eigenen
+> Regeln — siehe `craving/README.md` und `craving/docs/`.
+
 ## Was das ist
 Neuer, moderner Webauftritt für die **HERM Service Team e.K.** — Personaldienstleistung
 aus Hamburg (Sicherheit, Gastro-Personal, Promotion/Hostess, Logistik, Fahrservice,

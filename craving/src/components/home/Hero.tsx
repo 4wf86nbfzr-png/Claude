@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
+import { motion, useScroll, useSpring, useTransform } from "framer-motion";
 import { ArrowDown, ArrowRight } from "lucide-react";
 import { ButtonLink } from "@/components/ui/Button";
-import { rendererFor } from "@/features/builder/renderers";
+import { FoodRender } from "@/features/builder/renderers";
 import { getCategory, optionEffects, selectedIngredients } from "@/lib/catalog";
 import { getProduct } from "@/lib/catalog";
 import { BRAND } from "@/data/config";
+import { useReducedMotionSafe } from "@/hooks/useReducedMotionSafe";
 
 /**
  * Der Hero.
@@ -18,7 +19,7 @@ import { BRAND } from "@/data/config";
  * einem Effekt.
  */
 export function Hero() {
-  const reduced = useReducedMotion();
+  const reduced = useReducedMotionSafe();
   const ref = useRef<HTMLElement>(null);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
 
@@ -30,7 +31,6 @@ export function Hero() {
 
   const category = getCategory("pizza");
   const product = getProduct("pizza-salami");
-  const Renderer = rendererFor("pizza");
   const selections = product?.preset ?? {};
 
   useEffect(() => {
@@ -90,7 +90,8 @@ export function Hero() {
           transition={{ type: "spring", stiffness: 60, damping: 18 }}
           style={{ transformStyle: "preserve-3d" }}
         >
-          <Renderer
+          <FoodRender
+            categoryId="pizza"
             ingredients={selectedIngredients(category, selections)}
             effects={optionEffects(category, selections)}
             label=""
@@ -99,36 +100,17 @@ export function Hero() {
       </motion.div>
 
       <motion.div style={{ y: textY }} className="shell relative z-[3]">
-        <motion.p
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="kicker"
-        >
-          {BRAND.subline}
-        </motion.p>
+        <p className="kicker rise">{BRAND.subline}</p>
 
         <h1 id="hero-title" className="display display-xl mt-5 max-w-[16ch]">
           {["Build", "your", "craving."].map((word, i) => (
-            <span key={word} className="block overflow-hidden">
-              <motion.span
-                className="block"
-                initial={{ y: "110%" }}
-                animate={{ y: 0 }}
-                transition={{ duration: 0.9, delay: 0.08 * i, ease: [0.16, 1, 0.3, 1] }}
-              >
-                {word}
-              </motion.span>
+            <span key={word} className="reveal-line">
+              <span style={{ animationDelay: `${i * 0.06}s` }}>{word}</span>
             </span>
           ))}
         </h1>
 
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.45 }}
-          className="mt-8 flex flex-col gap-5 sm:flex-row sm:items-center"
-        >
+        <div className="rise mt-8 flex flex-col gap-5 sm:flex-row sm:items-center" style={{ animationDelay: "0.2s" }}>
           <ButtonLink href="/bauen" size="lg" className="w-full sm:w-auto">
             Jetzt bauen
             <ArrowRight className="size-[18px]" aria-hidden />
@@ -136,17 +118,12 @@ export function Hero() {
           <ButtonLink href="/menue" variant="outline" size="lg" className="w-full sm:w-auto">
             Karte ansehen
           </ButtonLink>
-        </motion.div>
+        </div>
 
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.7 }}
-          className="mt-10 max-w-sm text-sm leading-relaxed text-muted"
-        >
+        <p className="rise mt-10 max-w-sm text-sm leading-relaxed text-muted" style={{ animationDelay: "0.28s" }}>
           Jede Zutat, die du auswaehlst, landet sichtbar auf deinem Essen.
           Kein Kreuzchen-Formular — du siehst, was du bekommst.
-        </motion.p>
+        </p>
       </motion.div>
 
       <motion.div

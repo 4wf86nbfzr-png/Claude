@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { PieceLayer, SpreadLayer } from "../IngredientLayer";
 import { bandPlacements, slabPath } from "./geometry";
 import { hasPieceRenderer } from "./pieces";
@@ -8,6 +8,7 @@ import { between, randomFor, round } from "@/lib/rng";
 import type { Ingredient } from "@/types/domain";
 import { GrainOverlay, TextureDefs } from "./texture";
 import type { RendererProps } from "./types";
+import { useReducedMotionSafe } from "@/hooks/useReducedMotionSafe";
 
 /**
  * Croque von der Seite: gepresste Scheiben, Fuellung dazwischen.
@@ -67,7 +68,7 @@ function Toast({ y, rotate = 0, id }: { y: number; rotate?: number; id: string }
 }
 
 export function CroqueRenderer({ ingredients, effects, label }: RendererProps) {
-  const reduced = useReducedMotion();
+  const reduced = useReducedMotionSafe();
   const double = effects.variants.includes("double");
   const vollkorn = effects.variants.includes("vollkorn");
   const sauerteig = effects.variants.includes("sauerteig");

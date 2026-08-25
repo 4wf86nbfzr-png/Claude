@@ -1,12 +1,13 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { PieceLayer, SpreadLayer } from "../IngredientLayer";
 import { blobPath, discPlacements, shift } from "./geometry";
 import { hasPieceRenderer } from "./pieces";
 import { randomFor, between, round } from "@/lib/rng";
 import { GrainOverlay, TextureDefs } from "./texture";
 import type { RendererProps } from "./types";
+import { useReducedMotionSafe } from "@/hooks/useReducedMotionSafe";
 
 const R_CRUST = 172;
 const R_DOUGH = 150;
@@ -81,7 +82,7 @@ function BakeSpots({ seed, radius, color, count, opacity }: {
 }
 
 export function PizzaRenderer({ ingredients, effects, label }: RendererProps) {
-  const reduced = useReducedMotion();
+  const reduced = useReducedMotionSafe();
   const thin = effects.variants.includes("thin");
   const stuffed = effects.variants.includes("stuffed");
   const crust = thin ? R_CRUST - 8 : R_CRUST;
