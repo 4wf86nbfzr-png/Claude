@@ -70,7 +70,14 @@ document.documentElement.classList.remove("kein-js");
   var d = document.documentElement, erstesMal = true;
   try { erstesMal = sessionStorage.getItem("hst-intro") !== "1"; } catch(e){}
   var ruhig = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  d.classList.add(erstesMal && !ruhig ? "vorspann" : "los");
+  /* Kommt ein Vorspann, steht der Hero von der ersten Zeichnung an fertig
+     da — der Vorspann liegt ja ohnehin deckend darueber. Frueher wartete
+     er in seiner Startposition und sprang erst beim Schnitt hinein; damit
+     hatte die Seite bis dahin kein einziges sichtbares Element, und der
+     LCP lag bei 3,0 statt 0,35 Sekunden.
+     Ohne Vorspann (zweiter Aufruf, reduzierte Bewegung) faehrt der Hero
+     ein — dort IST die Einfahrt der Einstieg. */
+  d.classList.add(erstesMal && !ruhig ? "sofort" : "los");
 })();
 </script>
 <!-- Strukturierte Daten für Suchmaschinen und Kartendienste -->
@@ -190,7 +197,6 @@ document.documentElement.classList.remove("kein-js");
 <div id="preloader" aria-hidden="true">
   <div class="pre-logo">
     <img class="pre-logo__img" src="assets/logo/logo-herm.png" alt="HERM Service Team" width="800" height="305" />
-    <span class="pre-glanz" aria-hidden="true"></span>
   </div>
 </div>
 

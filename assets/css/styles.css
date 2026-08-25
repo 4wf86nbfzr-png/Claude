@@ -161,9 +161,6 @@ h1,h2,h3,h4{ font-family:var(--font-display); font-weight:800; line-height:1.06;
 h1{ letter-spacing:-.03em; }
 .u-caps{ text-transform:uppercase; letter-spacing:-.005em; }
 h1.u-caps{ letter-spacing:-.012em; }
-/* Vorspann: eine Stufe über dem Fließtext, aber mit ruhigerem Durchschuss als
-   die Überschrift — der Übergang von Titel zu Text soll nicht springen. */
-.lead{ font-size:var(--fs-lead); color:var(--chrome); line-height:1.58; max-width:var(--measure-lead); }
 .reveal-up{
   opacity:0; transform:translateY(28px);
   transition:opacity var(--t-slow) var(--ease-out),
@@ -176,6 +173,13 @@ h1.u-caps{ letter-spacing:-.012em; }
 .kein-js [data-stagger] > *,
 .kein-js .panel,
 .kein-js .panel > *{ opacity:1 !important; transform:none !important; }
+/* Das Einsatzband braucht eine eigene Zeile: die Regel darueber setzt
+   `transform:none` und schoebe damit jeden Punkt um seinen halben
+   Durchmesser nach rechts — und die Linie selbst ist ein Pseudoelement,
+   das von `> *` gar nicht getroffen wird. Ohne das hier waere sie
+   dauerhaft auf Breite null. */
+.kein-js .einsatzband::before{ transform:none !important; }
+.kein-js .einsatzband i{ transform:translateX(-50%) !important; }
 /* Die Einfahrt des Heros haengt an `los`, und `los` setzt ein Skript. Ohne
    Skript muss deshalb hier alles auf seinen Endzustand. */
 .kein-js .hero h1 .line span{ transform:none; }
@@ -240,18 +244,12 @@ h1.u-caps{ letter-spacing:-.012em; }
    also unterscheidet sich die zweite Aktion nur noch im Ton — leiser. */
 .btn--ghost{ color:var(--chrome); }
 .btn--ghost:hover{ color:var(--paper); }
-/* Wo eine Aktion wirklich hervorstechen muss, steht sie in der Marke.
-   Das ist die einzige Stelle im Betrieb, an der Lila eine Fläche bekommt —
-   und sie ist keine zwei Zentimeter breit. */
-.btn--marke::before{ opacity:.55; }
-.btn--marke::after{ background:var(--orchid); }
-.btn--marke:hover{ color:var(--glow); }
-/* Der Absendeknopf ist die einzige Aktion, die nicht leise sein darf: sie ist
-   das Ziel der ganzen Seite. Er bleibt trotzdem ohne Pille und ohne Fläche —
-   stattdessen wird er groß und bekommt eine Linie oben und unten. Beim
-   Ansteuern füllt sich die Zeile von unten weiß und der Text kippt ins
-   Schwarze; das ist derselbe Vorgang wie die durchlaufende Linie, nur über
-   die ganze Höhe. */
+/* Der Absendeknopf eines Formulars ist die einzige Ausnahme von „keine
+   Pillen": er ist das Ziel der ganzen Seite. Er bleibt trotzdem ohne Pille
+   und ohne Fläche — stattdessen wird er groß und bekommt eine Linie oben und
+   unten. Beim Ansteuern füllt sich die Zeile von unten weiß und der Text
+   kippt ins Schwarze; das ist derselbe Vorgang wie die durchlaufende Linie,
+   nur über die ganze Höhe. */
 button.btn{
   width:100%; justify-content:space-between;
   font-family:var(--font-display); font-weight:800; text-transform:uppercase;
@@ -297,7 +295,7 @@ button.btn:disabled::after{ transform:scaleY(0); }
 .kein-js #preloader{ display:none; }
 #preloader.instant{ transition:none; }
 #preloader.instant::before,
-#preloader.instant .pre-glanz,
+#preloader.instant .pre-logo::after,
 #preloader.instant .pre-logo__img{ animation:none; }
 .pre-logo{ position:relative; display:grid; place-items:center; }
 
@@ -359,8 +357,12 @@ button.btn:disabled::after{ transform:scaleY(0); }
    auf 66 % Helligkeit (oben) — der Glanz ist die hellste Stelle im Bild,
    und hinter ihm bleibt volles Weiss zurück. Genau das liest man als
    „das Zeichen wird poliert" statt als „da wandert ein Balken". */
-.pre-glanz{
-  position:absolute; inset:0; pointer-events:none;
+.pre-logo::after{
+  /* Pseudoelement, nicht <span>: ein eigenes Element mit einem Verlauf als
+     Hintergrund zaehlt fuer Chromium als LCP-Kandidat — der Glanz war
+     dadurch mit 44 200 px² das „groesste Element" der Startseite und schob
+     den LCP auf 2,2 Sekunden. Ein Pseudoelement zaehlt nicht mit. */
+  content:""; position:absolute; inset:0; pointer-events:none;
   -webkit-mask:url("../logo/logo-herm.png") center / contain no-repeat;
   mask:url("../logo/logo-herm.png") center / contain no-repeat;
   background:linear-gradient(112deg,
@@ -385,7 +387,13 @@ button.btn:disabled::after{ transform:scaleY(0); }
    Die Einfahrt bleibt aber fuer den Fall, dass es gar keinen Vorspann gab:
    beim zweiten Aufruf im selben Besuch ist SIE der Einstieg. Deshalb haengt
    das an einer eigenen Klasse und nicht daran, dass die Regeln entfernt
-   wuerden. main.js setzt `sofort` nur, wenn der Vorspann wirklich lief. */
+   wuerden.
+
+   Gesetzt wird `sofort` im Inline-Skript im Kopf von index.html, nicht in
+   main.js — und zwar sofort, nicht erst beim Abgang des Vorspanns. Stuende
+   es am Seitenende, liefe die Einfahrt schon, bevor die Klasse da ist, und
+   man saehe ein Aufblitzen; kaeme es erst beim Schnitt, haette die Seite
+   bis dahin kein sichtbares Element (LCP 2996 ms statt 356 ms). */
 .sofort .hero__photo img,
 .sofort .hero h1 .line span,
 .sofort .hero__sub,
@@ -1141,176 +1149,11 @@ body.megabar-auf header.nav{
 @media (prefers-reduced-motion: reduce){
   .film__untertitel{ transition:none; }
 }
-
-/* ============================================================
-   SERVICES — cinematic scroll-zoom stages
-   ============================================================ */
-.services-head{ padding:var(--sec) 0 0; }
-.services-head h2{ font-size:var(--fs-h2); max-width:16ch; margin-top:var(--gap-s); }
-/* Ein ganzer Satz gehört nicht in die Auszeichnungsschrift — versal und
-   gesperrt lief er über drei Zeilen und las sich wie ein Etikett. */
-.services-head p{ color:var(--chrome); font-size:1.02rem; margin-top:var(--gap-s); max-width:52ch; }
-
-/* ---- Die sechs Szenen ----
-   Jede Dienstleistung bekommt eine eigene, fast bildschirmhohe Fläche.
-   Aufbau je Szene:
-
-     .svc         die Fläche, gleichzeitig der Link auf die Unterseite
-     .svc__bild   Hülle um das Foto — hier liegt der Beschnitt, NIE auf .svc
-     .svc__inner  der Satzspiegel darin: Nummer und Text
-     .svc--rechts schiebt den Text nach rechts; die Szenen wechseln sich ab
-
-   Der Beschnitt (mask) liegt bewusst auf .svc__bild und nicht auf .svc:
-   ein beschnittenes Element hat für den IntersectionObserver eine leere
-   Schnittfläche. Die ausführliche Fassung dieser Falle steht in CLAUDE.md. */
-.services-grid{ padding:clamp(30px,4vw,56px) 0 0; }
-.svc-grid{ display:block; }
-
-.svc{
-  --accent:#FFFFFF;
-  position:relative; display:flex; align-items:flex-end;
-  min-height:clamp(440px, 76svh, 860px);
-  padding:clamp(28px,5vh,64px) 0;
-  overflow:hidden; isolation:isolate;
-  background:var(--ink);
-  border-top:1px solid var(--line);
-}
-.svc:first-child{ border-top:0; }
-
-/* Das Foto füllt die ganze Szene. Es startet eine Spur zu groß und läuft
-   während des Vorbeiscrollens in seine Lage zurück — die langsame
-   Kamerafahrt, die den Fotos Bewegung gibt, ohne dass etwas von allein
-   läuft. --lauf schreibt main.js, siehe Abschnitt BEWEGUNG. */
-.svc__bild{ position:absolute; inset:0; z-index:0; overflow:hidden; display:block; background:var(--ink-2); }
-.svc__bild picture{ display:block; height:100%; }
-.svc__img{
-  width:100%; height:100%; object-fit:cover;
-  transform:scale(1.06);
-  transition:transform 1.2s var(--ease-soft);
-}
-/* Reinigung: stehende Person in einer sehr breiten Fläche. Der Anschnitt
-   nimmt oben nur wenig weg, damit der Kopf im Bild bleibt. */
-.svc[data-bereich="reinigung"] .svc__img{ object-position:50% 14%; }
-
-/* Zwei Verläufe: einer von unten, der den Text trägt, und einer von der
-   Textseite her, damit die große Zeile auch auf hellen Motiven steht.
-   Bei den rechtsbündigen Szenen dreht der zweite die Richtung. */
-.svc::before{
-  content:""; position:absolute; inset:0; z-index:1; pointer-events:none;
-  background:
-    linear-gradient(180deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,.1) 26%, rgba(0,0,0,0) 46%),
-    linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(0,0,0,.5) 68%, rgba(0,0,0,.88) 100%),
-    linear-gradient(90deg, rgba(0,0,0,.62) 0%, rgba(0,0,0,.2) 44%, rgba(0,0,0,0) 74%);
-}
-.svc--rechts::before{
-  background:
-    linear-gradient(180deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,.1) 26%, rgba(0,0,0,0) 46%),
-    linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(0,0,0,.5) 68%, rgba(0,0,0,.88) 100%),
-    linear-gradient(270deg, rgba(0,0,0,.62) 0%, rgba(0,0,0,.2) 44%, rgba(0,0,0,0) 74%);
-}
-
-/* Der Satzspiegel. Er trägt denselben Seitenrand wie alles andere — nicht
-   über .wrap, weil .svc selbst randlos bleiben muss. */
-.svc__inner{
-  position:relative; z-index:3; width:100%;
-  max-width:var(--maxw-weit); margin-inline:auto;
-  padding-inline:clamp(20px,5vw,64px);
-  display:flex; flex-direction:column; align-items:flex-start; gap:clamp(10px,1.4vh,18px);
-}
-.svc--rechts .svc__inner{ align-items:flex-end; text-align:right; }
-
-/* Tor auf der Szene — dieselbe Mechanik wie auf der Bühne, hier vom Klick
-   ausgelöst statt vom Scroll. */
-.svc__gate{ position:absolute; inset:0; z-index:1; overflow:hidden; }
-.svc__leaf{
-  position:absolute; top:0; bottom:0; width:50%;
-  /* Als CSS-Hintergrund gibt es kein <picture>. image-set() uebernimmt die
-     Aushandlung: moderne Browser nehmen WebP, aeltere die erste Zeile.
-     Die Datei ist auf 1200 Pixel gerechnet — mehr sieht man an dieser
-     Stelle auch auf einem dichten Bildschirm nicht. */
-  background-image:url("../img/logistik-tor-flaeche.jpg");
-  background-image:image-set(url("../img/logistik-tor-flaeche.webp") type("image/webp"),
-                             url("../img/logistik-tor-flaeche.jpg") type("image/jpeg"));
-  background-repeat:no-repeat; background-size:200% 100%;
-  transition:transform .75s var(--ease);
-}
-.svc__leaf--l{ left:0;  background-position:left center; }
-.svc__leaf--r{ right:0; background-position:right center; }
-
-.svc__num{
-  font-family:var(--font-mono); font-size:.66rem; letter-spacing:.26em;
-  color:var(--muted); text-shadow:0 1px 10px rgba(0,0,0,.9);
-  display:flex; align-items:center; gap:.9em;
-  transition:color var(--t-base) var(--ease-swift);
-}
-/* Der Strich neben der Nummer ist entfallen. Dass die ganze Flaeche ein Link
-   ist, sagt schon „Ansehen" darunter — und die Nummer soll eine Nummer sein,
-   kein Zeichen. */
-.svc--rechts .svc__num{ flex-direction:row-reverse; }
-.svc__body{ display:flex; flex-direction:column; gap:clamp(8px,1.2vh,14px); align-items:inherit; }
-/* Die Zeile, die die Szene trägt. Sie steht in derselben Größenordnung wie
-   die Hero-Zeile, damit ein Bereich beim Vorbeiscrollen genauso viel Gewicht
-   bekommt wie die Startaussage. */
-.svc__name{
-  font-family:var(--font-display); font-weight:800; text-transform:uppercase;
-  letter-spacing:-.035em; line-height:.92;
-  font-size:clamp(2.3rem,7.4vw,6.6rem);
-  text-shadow:0 2px 34px rgba(0,0,0,.6);
-  max-width:14ch;
-}
-/* Der Beschreibungssatz stand vorher nur beim Ansteuern da und war auf
-   Touch-Geräten dauerhaft eingeblendet — zwei Zustände für dieselbe Zeile.
-   Jetzt steht er immer: auf einer Fläche dieser Größe ist Platz genug, und
-   was man liest, sollte nicht davon abhängen, ob man eine Maus hat. */
-.svc__txt{
-  color:var(--chrome); font-size:var(--fs-lead); line-height:1.45;
-  max-width:34ch;
-  text-shadow:0 1px 14px rgba(0,0,0,.85);
-}
-.svc__go{
-  display:inline-flex; align-items:center; gap:.5em; margin-top:clamp(6px,1.4vh,16px);
-  font-family:var(--font-body); font-weight:600; font-size:.95rem;
-  color:var(--paper); position:relative; padding-bottom:.45em;
-}
-.svc__go::after{
-  content:""; position:absolute; left:0; right:0; bottom:0; height:1px;
-  background:currentColor; transform:scaleX(0); transform-origin:right;
-  transition:transform .55s var(--ease-out);
-}
-.svc--rechts .svc__go::after{ transform-origin:left; }
-.svc__go svg{ transition:transform .5s var(--ease-out); }
-
-/* Beim Ansteuern fährt die Kamera eine Spur weiter hinein, die Nummer wird
-   hell und die Linie unter „Ansehen" läuft durch. Kein Anheben, kein
-   Schlagschatten — die Fläche bleibt, wo sie ist. */
-.svc:hover .svc__img, .svc:focus-visible .svc__img{ transform:scale(1.1); }
-.svc:hover .svc__num, .svc:focus-visible .svc__num{ color:var(--paper); }
-.svc:hover .svc__go::after, .svc:focus-visible .svc__go::after{ transform:scaleX(1); transform-origin:left; }
-.svc--rechts:hover .svc__go::after{ transform-origin:right; }
-.svc:hover .svc__go svg, .svc:focus-visible .svc__go svg{ transform:translateX(5px); }
-
-/* Auf schmalen Geräten stehen alle Szenen links: ein Wechsel der Seite
-   braucht Breite, sonst liest er als Versehen. */
-@media (max-width:760px){
-  .svc{ min-height:clamp(400px,66svh,600px); }
-  .svc--rechts .svc__inner{ align-items:flex-start; text-align:left; }
-  .svc--rechts .svc__num{ flex-direction:row; }
-  .svc--rechts::before{
-    background:
-      linear-gradient(180deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,.1) 26%, rgba(0,0,0,0) 46%),
-      linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(0,0,0,.5) 68%, rgba(0,0,0,.88) 100%),
-      linear-gradient(90deg, rgba(0,0,0,.62) 0%, rgba(0,0,0,.2) 44%, rgba(0,0,0,0) 74%);
-  }
-  .svc--rechts .svc__go::after{ transform-origin:right; }
-}
-@media (max-width:900px){
-  .svc-grid{ grid-template-columns:repeat(2,minmax(0,1fr)); }
-  .svc--gross,.svc--hoch,.svc--breit{ grid-column:span 1; aspect-ratio:4/3; }
-}
-@media (max-width:520px){
-  .svc-grid{ grid-template-columns:1fr; }
-  .svc--gross,.svc--hoch,.svc--breit{ aspect-ratio:16/10; }
-}
+/* Hier stand das CSS der sechs Szenen (.svc, .services-grid) — rund 170
+   Zeilen fuer Markup, das seit dem Umbau der Startseite nicht mehr
+   existiert. Die Bereiche haengen jetzt am Balken unter der Kopfzeile
+   (.megabar). Die Buehnen auf dienstleistungen.html sind etwas anderes
+   und stehen unmittelbar darunter. */
 
 .stage{ position:relative; height:230vh; }
 /* Der Text der Bühne stand mittig im Bild. Zentriert wirkt eine Aussage
@@ -1692,16 +1535,6 @@ body.megabar-auf header.nav{
 .versprechen p{ color:var(--chrome); font-size:.95rem; }
 @media (max-width:620px){ .versprechen{ grid-template-columns:1fr; } }
 
-/* Die Merkmalsliste lebt weiter — aber nur einmal, als ruhige Aufzählung am
-   Fuß des Abschnitts statt als Kachelwand auf jeder zweiten Seite. */
-.q{
-  font-family:var(--font-mono); font-size:.66rem; letter-spacing:.16em;
-  text-transform:uppercase; color:var(--muted);
-  padding:7px 0; display:inline-flex; align-items:center; gap:.7em;
-  transition:color var(--t-fast) var(--ease-swift);
-}
-
-.q:hover{ color:var(--paper); }
 
 /* ============================================================
    CONTACT / CTA
@@ -2089,12 +1922,9 @@ header.nav{ view-transition-name:kopfzeile; }
   /* Die Kamerafahrt der sechs Szenen faellt am Telefon weg. Sie kostet dort
      mehr, als sie einbringt: zwei Drittel der ausgelassenen Bilder auf der
      Startseite gingen auf ihr Konto (gemessen bei sechsfach gedrosselter
-     Rechenleistung, 5 Ruckler mit, 1 ohne). Das Foto steht randlos wie
-     vorher — nur die langsame Annaeherung entfaellt. Aus demselben Grund
-     steht auch die Gegenbewegung des Textes still. */
-  .svc[data-lauf] .svc__bild picture,
-  .svc[data-lauf].live .svc__bild picture{ transform:none; will-change:auto; }
-  .svc[data-lauf] .svc__inner{ transform:none; }
+     Rechenleistung, 5 Ruckler mit, 1 ohne). Die Szenen selbst gibt es
+     inzwischen nicht mehr; die Messung steht hier, weil sie fuer die
+     Buehnen auf dienstleistungen.html unveraendert gilt. */
 }
 
 /* Abgelegt auf dem Startbildschirm: dann gibt es keine Adresszeile mehr,
@@ -2289,12 +2119,6 @@ header.nav{ view-transition-name:kopfzeile; }
   /* Die Bühne beginnt jetzt randlos statt als 560-px-Quadrat — ein
      Vorabmaßstab ist dadurch nicht mehr nötig. */
   .scene{ transform:none; }
-  /* Ohne Motor bleibt --lauf auf 0 stehen. Die Szenen der Startseite stünden
-     dann dauerhaft um 12 % vergrößert und um eine halbe Bildschirmhöhe
-     versetzt da — beides sind Zwischenstände einer Fahrt, die hier gar nicht
-     stattfindet. */
-  .svc[data-lauf] .svc__bild picture,
-  .svc[data-lauf] .svc__inner{ transform:none; }
   /* Der Ring am Zeiger wird gar nicht erst angelegt; die Regel steht im
      Zeiger-Abschnitt und ist hier nur der Vollständigkeit halber erwähnt. */
 }
@@ -2906,31 +2730,176 @@ header.nav{ view-transition-name:kopfzeile; }
 }
 
 
-/* ---- Übergang beim Klick auf eine Kachel ----
-   Die Szene öffnet sich, die Kachel wächst über den Bildschirm und fährt ins
-   Bild hinein; danach übernimmt die Detailseite, deren Kopfbild leicht
-   vergrößert startet. So liest der Wechsel als eine durchgehende Fahrt. */
-body.svc-transit{ overflow:hidden; }
-body.svc-transit::after{
-  content:""; position:fixed; inset:0; z-index:9500; background:#000;
-  opacity:0; pointer-events:none; animation:svcVeil .9s ease forwards;
-}
-@keyframes svcVeil{ 0%,60%{ opacity:0 } 100%{ opacity:1 } }
+/* Der Uebergang beim Klick auf eine Szene ist entfallen: es gibt keine
+   Szenen mehr, von denen aus er starten koennte. */
 
-.svc--going{
-  position:fixed; z-index:9400; margin:0; pointer-events:none;
-  aspect-ratio:auto; border-color:transparent;
-  animation:svcDive .9s var(--ease) forwards;
-}
-@keyframes svcDive{ to{ top:0; left:0; width:100vw; height:100vh; border-radius:0 } }
-.svc--going .svc__img{ animation:svcZoomIn .9s var(--ease) forwards; }
-@keyframes svcZoomIn{ to{ transform:scale(1.5) } }
-.svc--going .svc__leaf--l{ transform:translateX(-100%); }
-.svc--going .svc__leaf--r{ transform:translateX(100%); }
-.svc--going .svc__body,
-.svc--going .svc__num{ animation:svcFade .3s ease forwards; }
-@keyframes svcFade{ to{ opacity:0 } }
 
+/* ============================================================
+   DIE EINSATZLINIE — das Zeichen, das die Website traegt
+   ------------------------------------------------------------
+   Jeder groessere Abschnitt beginnt mit einer Haarlinie ueber die volle
+   Breite. Diese Linie bekommt eine Position: ein kurzes helles Stueck mit
+   einem Punkt an der Spitze, das beim Scrollen von links nach rechts
+   wandert. Wie weit, sagt `--lauf`.
+
+   Das Bild dahinter ist die Arbeit des Unternehmens: Menschen stehen an
+   Positionen, und die Position bewegt sich. Punkt und Linie sind dafuer
+   das knappste Zeichen, das es gibt.
+
+   Vier Regeln, damit es Zeichen bleibt und nicht Effekt wird:
+
+   1. **Es kommt nichts hinzu.** Die Linie war schon da. Sie bekommt nur
+      eine Richtung. Kein zweites Element, kein Kasten, kein Muster.
+   2. **Bewegt wird nur `transform`.** Der Punkt faehrt auf der eigenen
+      Ebene; das Zeichnen der Seite bleibt unberuehrt.
+   3. **Violett nur als Punkt.** Vier Pixel, mehr nicht — genau die Dosis,
+      die die Marke vertraegt (siehe „95 % schwarzweiss, 5 % Marke").
+   4. **Keine Dauerbewegung.** Steht das Scrollen still, steht der Punkt.
+      Bei reduzierter Bewegung wird er gar nicht erst angemeldet.
+   ============================================================ */
+[data-spur]{ position:relative; }
+[data-spur]::before{
+  content:"";
+  position:absolute; top:-1px; left:0;
+  width:clamp(38px, 5vw, 64px); height:1px;
+  /* Das helle Stueck laeuft nach vorn aus und traegt an der Spitze den
+     Punkt der Marke. Ein Verlauf statt eines harten Balkens: sonst liest
+     es als Fortschrittsanzeige, und die verspricht etwas, was hier nicht
+     gemeint ist. */
+  background:linear-gradient(90deg, transparent, var(--paper));
+  /* 100cqw waere schoener, kostet aber einen Container — die Breite des
+     Abschnitts ist ohnehin die des Satzspiegels. */
+  transform:translateX(calc(var(--lauf, 0) * (100vw - clamp(38px, 5vw, 64px))));
+  will-change:auto;
+  opacity:.5;
+}
+[data-spur].live::before{ will-change:transform; }
+/* Der Punkt an der Spitze: das einzige Violett in der Flaeche. */
+[data-spur]::after{
+  content:"";
+  position:absolute; top:-2.5px; left:0;
+  width:4px; height:4px; border-radius:50%;
+  background:var(--violet);
+  transform:translateX(calc(var(--lauf, 0) * (100vw - clamp(38px, 5vw, 64px)) + clamp(38px, 5vw, 64px) - 4px));
+  will-change:auto;
+}
+[data-spur].live::after{ will-change:transform; }
+/* Der Fuss traegt das Zeichen ebenfalls, dort aber ruhiger: er ist das
+   Ende der Seite, nicht ein weiterer Abschnitt. */
+body > footer[data-spur]::before{ opacity:.3; }
+
+@media (prefers-reduced-motion:reduce){
+  /* Ohne Motor bliebe `--lauf` auf 0 — der Punkt staende dann dauerhaft
+     links am Rand und saehe aus wie ein Fehler. Dann lieber gar nichts. */
+  [data-spur]::before,
+  [data-spur]::after{ display:none; }
+}
+
+/* ------------------------------------------------------------
+   DAS EINSATZBAND — dasselbe Zeichen im Stillstand
+   ------------------------------------------------------------
+   Die Einsatzlinie oben zeigt eine Position, die sich bewegt. Das
+   Einsatzband zeigt eine Aufstellung: mehrere Positionen auf einer
+   Linie, wie sie fuer diesen Bereich typisch ist. Gleiche Sprache,
+   gleiche Masse — eine Haarlinie, Punkte von fuenf Pixeln, ein
+   einziges Violett. Es ist kein zweites Zeichen, sondern die zweite
+   Haelfte desselben.
+
+   Es steht genau einmal je Leistungsseite, an der Kante zwischen
+   Kopfbild und Text — also dort, wo ohnehin ein Trenner hingehoert.
+   Es kommt damit kein Element hinzu, das sich rechtfertigen muesste;
+   die vorhandene Kante bekommt eine Form.
+
+   Warum je Seite eine andere Figur: die sechs Bereiche sehen im
+   Markup gleich aus, weil sie denselben Bauplan teilen. Was sie
+   unterscheidet, ist die Art, wie Personal steht — in einer Reihe
+   am Pass, auf Posten ueber ein Gelaende verteilt, paarweise am
+   Stand, als Kette zum Tor hin, als Fahrt von A nach B, als Bahn
+   ueber eine Flaeche. Genau das zeigt die Figur.
+
+   **Sie zaehlt nichts.** Fuenf Punkte heissen nicht fuenf Leute und
+   sollen es nicht heissen — sonst waere es eine Behauptung ueber den
+   Betrieb, und die duerfen hier nicht erfunden werden. Die Figur
+   zeigt eine Form, keine Zahl. Wer sie als Zahl liest, hat zu viele
+   Punkte gesetzt; mehr als sechs gehoeren deshalb nicht hinein.
+
+   **Violett steht dort, wo die Leitung steht.** Am Pass in der Mitte,
+   bei der Sicherheit in der Mitte (von dort geht der Funk an alle
+   Posten), bei Promotion vorn am Stand, bei der Logistik am Tor,
+   beim Fahrservice unterwegs, bei der Reinigung am Anfang der Bahn.
+   Ein Punkt je Seite, nicht zwei.
+
+   Aufgedeckt wird ueber `data-stagger`: der vorhandene Beobachter
+   setzt `.in` und gibt jedem Kind sein `--i`. Kein Zeile JavaScript
+   kommt dafuer hinzu.
+   ------------------------------------------------------------ */
+.einsatzband{ position:relative; height:1px; margin:0; }
+.einsatzband::before{
+  content:""; position:absolute; inset:0;
+  background:var(--line);
+  transform:scaleX(0); transform-origin:0 50%;
+  transition:transform .9s var(--ease-out);
+}
+.einsatzband.in::before{ transform:scaleX(1); }
+.einsatzband i{
+  position:absolute; top:-2px;
+  width:5px; height:5px; border-radius:50%;
+  background:var(--paper); opacity:.55;
+  transform:translateX(-50%) scale(0);
+  transition:transform .5s var(--ease-out);
+  transition-delay:calc(.28s + var(--i, 0) * .07s);
+}
+.einsatzband.in i{ transform:translateX(-50%) scale(1); }
+/* Der eine Punkt der Marke. Welcher es ist, sagt die Figur. */
+.einsatzband i.leitung{ background:var(--violet); opacity:1; }
+
+/* Die sechs Figuren. Nur Positionen — Farbe, Groesse und Takt stehen oben. */
+[data-figur="reihe"]  i:nth-child(1){ left:10% }
+[data-figur="reihe"]  i:nth-child(2){ left:24% }
+[data-figur="reihe"]  i:nth-child(3){ left:38% }
+[data-figur="reihe"]  i:nth-child(4){ left:52% }
+[data-figur="reihe"]  i:nth-child(5){ left:66% }
+[data-figur="reihe"]  i:nth-child(6){ left:80% }
+
+[data-figur="posten"] i:nth-child(1){ left:4%  }
+[data-figur="posten"] i:nth-child(2){ left:21% }
+[data-figur="posten"] i:nth-child(3){ left:50% }
+[data-figur="posten"] i:nth-child(4){ left:79% }
+[data-figur="posten"] i:nth-child(5){ left:96% }
+
+[data-figur="paare"]  i:nth-child(1){ left:13% }
+[data-figur="paare"]  i:nth-child(2){ left:20% }
+[data-figur="paare"]  i:nth-child(3){ left:45% }
+[data-figur="paare"]  i:nth-child(4){ left:52% }
+[data-figur="paare"]  i:nth-child(5){ left:77% }
+[data-figur="paare"]  i:nth-child(6){ left:84% }
+
+[data-figur="kette"]  i:nth-child(1){ left:6%  }
+[data-figur="kette"]  i:nth-child(2){ left:24% }
+[data-figur="kette"]  i:nth-child(3){ left:39% }
+[data-figur="kette"]  i:nth-child(4){ left:51% }
+[data-figur="kette"]  i:nth-child(5){ left:60% }
+[data-figur="kette"]  i:nth-child(6){ left:66% }
+
+[data-figur="fahrt"]  i:nth-child(1){ left:8%  }
+[data-figur="fahrt"]  i:nth-child(2){ left:57% }
+[data-figur="fahrt"]  i:nth-child(3){ left:92% }
+
+[data-figur="bahn"]   i:nth-child(1){ left:8%  }
+[data-figur="bahn"]   i:nth-child(2){ left:29% }
+[data-figur="bahn"]   i:nth-child(3){ left:50% }
+[data-figur="bahn"]   i:nth-child(4){ left:71% }
+[data-figur="bahn"]   i:nth-child(5){ left:92% }
+
+@media (prefers-reduced-motion:reduce){
+  /* Anders als bei der Einsatzlinie bleibt das Band stehen: es haengt
+     nicht am Scrollmotor, sondern ist eine Figur, die einmal erscheint.
+     Ohne Bewegung steht sie eben sofort da. */
+  .einsatzband::before,
+  .einsatzband.in::before{ transform:none; transition:none; }
+  .einsatzband i,
+  .einsatzband.in i{ transform:translateX(-50%); transition:none; }
+}
 
 /* ============================================================
    BEWEGUNG — Scrollytelling, Kamerafahrten, Kinofassung
@@ -2983,26 +2952,6 @@ body.svc-transit::after{
   opacity:clamp(0, calc((.92 - var(--weg,0)) / .38), 1);
 }
 
-/* ---- 1b. Die sechs Szenen der Startseite ----
-   Kamerafahrt über die ganze Vorbeifahrt: das Foto steht beim Hereinkommen
-   eine Spur zu groß und leicht versetzt und läuft in seine Lage, während man
-   daran vorbeiscrollt. Das ist der Ken-Burns-Effekt, nur vom Scrollen geführt
-   statt von einer Uhr — er endet, wenn das Scrollen endet.
-
-   Die Fahrt liegt auf <picture>, nicht auf dem <img>: das Bild selbst trägt
-   die Hover-Vergrößerung. Zwei Bewegungen auf derselben Eigenschaft desselben
-   Elements schlagen einander sonst gegenseitig aus. */
-.svc[data-lauf] .svc__bild picture{
-  transform:scale(calc(1.12 - var(--lauf,0) * .12))
-            translate3d(0, calc((var(--lauf,0) - .5) * -4vh), 0);
-}
-/* Wie bei den Bühnen: nur die Szene, die gerade vorbeifährt, wird zur Ebene. */
-.svc[data-lauf].live .svc__bild picture{ will-change:transform; }
-/* Der Text zieht leicht gegen die Bildbewegung an — derselbe
-   Geschwindigkeitsunterschied wie im Hero, nur kleiner dosiert. */
-.svc[data-lauf] .svc__inner{
-  transform:translate3d(0, calc((.5 - var(--lauf,0)) * 5vh), 0);
-}
 
 /* ---- 2. Kapitelmarke auf den Bühnen ----
    Aus der stummen Zeile „01 / 06" wird eine mitlaufende Marke: sie

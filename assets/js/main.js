@@ -23,8 +23,7 @@
     if(!pre) return;
     let gesehen = false;
     try { gesehen = sessionStorage.getItem('hst-intro') === '1'; } catch(e){}
-    const los = ()=> document.documentElement.classList.replace('vorspann','los');
-    if(gesehen || reduce){ pre.classList.add('instant','done'); los(); return; }
+    if(gesehen || reduce){ pre.classList.add('instant','done'); return; }
     try { sessionStorage.setItem('hst-intro','1'); } catch(e){}
     /* `los` und `.done` fallen im selben Moment. Anders als vorher ist das
        kein Übergang mehr, sondern ein Schnitt: der Vorspann ist zu Ende,
@@ -36,10 +35,8 @@
        (oben, `gesehen`) wird `sofort` nicht gesetzt: dort IST die Einfahrt
        der Einstieg. */
     const fertig = ()=>{
-      if(pre.classList.contains('done')) return;   // der Notausstieg kommt nur, wenn nötig
-      document.documentElement.classList.add('sofort');
+      if(pre.classList.contains('done')) return;   // der Notausstieg kommt nur, wenn noetig
       pre.classList.add('done');
-      los();
     };
     setTimeout(fertig, 2750);          // nach dem Glanz: Schnitt
     setTimeout(fertig, 4400);          // Notausstieg, falls etwas hängt
@@ -577,6 +574,39 @@
      rAF), geschrieben nur bei echter Änderung — sonst stößt jedes
      setProperty Style-Arbeit für nichts an.
      ============================================================ */
+  /* ---- Die Einsatzlinie ----------------------------------------------
+     Das eine Zeichen, das sich durch die ganze Website zieht.
+
+     Die Seite trennt ihre Abschnitte ohnehin durch eine Haarlinie über die
+     volle Breite. Genau diese Linie bekommt eine Position: ein kurzes helles
+     Stück mit einem Punkt an der Spitze, das beim Scrollen von links nach
+     rechts wandert. Wie weit, sagt `--lauf` — dieselbe Zahl, die auch die
+     Bilder führt.
+
+     Warum das und nicht ein Muster oder ein Raster: das Unternehmen stellt
+     Menschen an Positionen. Punkt und Linie sind dafür das knappste Bild,
+     das es gibt, und die Linie war ohnehin schon da. Es kommt also nichts
+     hinzu, was vorher nicht da war — es bekommt nur eine Richtung.
+
+     Angemeldet wird hier statt im Markup: die Linie ist Zierde, und Zierde
+     gehört nicht in sechzehn Dateien geschrieben. Ausgenommen ist alles,
+     was schon eine eigene Bewegung hat (Bühnen, Kopfbilder), und alles,
+     was zu schmal ist, um eine Fahrt zu zeigen. */
+  if(!reduce){
+    const KEINE_SPUR = '.stage, .hero, .subhero, .schritt, .tcard, .ccard, .trust__item, .feld';
+    document.querySelectorAll(
+      '.ablauf, .expect, .cta, .testi, .section-soft, .content, body > footer'
+    ).forEach(el => {
+      if(el.closest(KEINE_SPUR) || el.hasAttribute('data-lauf')) return;
+      const cs = getComputedStyle(el);
+      /* Nur dort, wo wirklich eine Haarlinie oben sitzt — sonst schwebte
+         das Zeichen im Nichts. */
+      if(parseFloat(cs.borderTopWidth) < 0.5) return;
+      el.setAttribute('data-spur', '');
+      el.setAttribute('data-lauf', '');
+    });
+  }
+
   const spuren = [];
   if(!reduce){
     document.querySelectorAll('[data-weg]').forEach(el => spuren.push({ el, art:'weg',  wert:null, live:null }));
@@ -915,39 +945,9 @@
     knopfStand();
   })();
 
-  /* ---- Übergang von der Übersicht auf die Detailseite ----
-     Beim Klick öffnet sich die Szene (bei Logistik das Tor), die Kachel wächst
-     über den Bildschirm und fährt ins Bild hinein; erst danach wird gewechselt.
-     Animiert wird eine Kopie, damit das Raster darunter nicht umbricht. */
-  document.querySelectorAll('.svc').forEach(karte=>{
-    karte.addEventListener('click', (ev)=>{
-      /* Modifiertasten, mittlere Maustaste und reduzierte Bewegung: normal folgen */
-      if(reduce || ev.button !== 0 || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey) return;
-      const ziel = karte.getAttribute('href');
-      if(!ziel) return;
-      ev.preventDefault();
-
-      const r = karte.getBoundingClientRect();
-      const klon = karte.cloneNode(true);
-      klon.classList.add('svc--going');
-      klon.style.top = r.top + 'px';
-      klon.style.left = r.left + 'px';
-      klon.style.width = r.width + 'px';
-      klon.style.height = r.height + 'px';
-      document.body.appendChild(klon);
-      document.body.classList.add('svc-transit');
-
-      setTimeout(()=>{
-        window.location.href = ziel;
-        /* Nur für die Einzeldatei-Vorschau nötig; im echten Mehrseiten-Aufbau
-           ist das Dokument hier bereits ersetzt. */
-        setTimeout(()=>{
-          klon.remove();
-          document.body.classList.remove('svc-transit');
-        }, 300);
-      }, 900);
-    });
-  });
+  /* Hier stand der Uebergang von einer Szene der Startseite auf ihre
+     Detailseite. Die Szenen gibt es nicht mehr — der Weg fuehrt jetzt
+     ueber den Balken unter der Kopfzeile. */
 
   /* ---- Galerie-Lightbox ----
      <dialog> statt eigenem Overlay: Fokusfalle, Escape und der Rückweg zum
@@ -1384,7 +1384,7 @@
     document.addEventListener('pointerover', (ev)=>{
       const el = ev.target.closest ? ev.target : ev.target.parentElement;
       if(!el || !el.closest) return;
-      ring.classList.toggle('zeiger--sehen', !!el.closest('.svc, .gal__item, .film__buehne'));
+      ring.classList.toggle('zeiger--sehen', !!el.closest('.gal__item, .film__buehne'));
       ring.classList.toggle('zeiger--aktiv',
         !!el.closest('a, button, [role="button"], input, select, textarea, summary, label'));
     }, true);

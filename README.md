@@ -75,6 +75,25 @@ sitemap.xml             für später
 
 Gestaltungsregeln stehen in `CLAUDE.md`.
 
+### Das Zeichen
+
+Die Website hat ein eigenes Zeichen, und es ist bewusst so knapp wie
+möglich: **ein Punkt ist eine Position, eine Linie ist die Verbindung
+dazwischen.** Mehr braucht es nicht, um zu sagen, was der Betrieb tut.
+
+Es tritt an zwei Stellen auf:
+
+- **Auf den Kanten größerer Abschnitte** wandert ein violetter Punkt beim
+  Scrollen nach rechts. Er läuft nicht von allein — steht das Scrollen
+  still, steht er.
+- **Auf jeder der sechs Leistungsseiten** steht unter dem Kopfbild eine
+  Aufstellung: mehrere Punkte auf einer Linie, je Bereich in einer anderen
+  Figur — Reihe am Pass, Posten über ein Gelände, Paare am Stand, Kette zum
+  Tor, Fahrt von A nach B, Bahn über eine Fläche.
+
+Die Punkte **zählen nichts.** Fünf Punkte heißen nicht fünf Leute; das wäre
+eine Angabe über den Betrieb, und die steht hier nur, wo sie belegt ist.
+
 ---
 
 ## Formulare
@@ -780,7 +799,11 @@ Die Testskripte liegen nicht im Repository; geprüft wurde vor der Übergabe:
 - `prefers-reduced-motion` und Betrieb ohne JavaScript
 - Seitenrand und waagerechter Überlauf zusätzlich bei 1024, 1920, 2560 und
   3840 px — der Satzspiegel bleibt ab 1280 px stehen, statt mitzuwachsen
-- LCP und CLS je Seite: CLS überall ≤ 0,0002
+- LCP und CLS je Seite. Der Hero der Startseite gilt seit dem Umbau des
+  Vorspanns nach **356 ms** als gezeichnet statt nach 2996 ms. CLS liegt in
+  zehn von zwölf Ladevorgängen bei 0,00008, in zweien bei 0,0099 — beides
+  weit unter der Schwelle von 0,1; der Rest ist der Schriftwechsel des
+  Heros (siehe CLAUDE.md, „der vierte Preload")
 - wie stark jedes Foto wirklich hochgerechnet wird, `object-fit:cover`
   eingerechnet, am Laptop (1440 @2×) und am Telefon (390 @3×)
 - Bewerbungsformular vollständig: Pflichtfelder, Spamschutz, Übermittlung,
@@ -792,6 +815,16 @@ Die Testskripte liegen nicht im Repository; geprüft wurde vor der Übergabe:
   und am Telefon
 - jeder Menüpunkt führt auf eine eigene Datei und beginnt dort oben —
   kein Sprungziel innerhalb der Startseite
+- das Einsatzband auf allen sechs Leistungsseiten, in drei Lagen (normal,
+  reduzierte Bewegung, ohne JavaScript): Linie über die volle Breite, jeder
+  Punkt sichtbar und auf der Linie, genau ein violetter Punkt je Seite
+
+**Nicht geprüft werden konnte Safari.** WebKit lässt sich in der
+Bauumgebung nicht nachinstallieren; geprüft wurde stattdessen jede
+Eigenschaft, an der WebKit abweicht (`-webkit-`-Präfixe für alle Masken und
+alle `backdrop-filter`, `:has()`, Ansichtsübergänge, `sessionStorage` in
+`try`/`catch`). Ein Durchgang auf einem echten iPhone und einem Mac steht
+vor dem Live-Gang noch aus.
 
 ---
 

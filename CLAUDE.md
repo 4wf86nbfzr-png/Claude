@@ -179,9 +179,13 @@ Die Einfahrt bleibt aber im Markup, denn sie wird noch gebraucht:
 
 | Klasse | wann | was |
 |---|---|---|
-| `vorspann` | erster Aufruf, keine reduzierte Bewegung | Hero wartet |
-| `los` | sobald der Vorspann abgeht (oder sofort) | alle Einfahrten starten |
-| `sofort` | nur wenn der Vorspann wirklich lief | Einfahrt des Heros entfällt |
+| `sofort` | erster Aufruf, keine reduzierte Bewegung — also: es kommt ein Vorspann | Hero steht von der ersten Zeichnung an fertig da |
+| `los` | zweiter Aufruf oder reduzierte Bewegung — also: es kommt keiner | alle Einfahrten starten |
+
+Beide werden im selben Moment gesetzt, im Kopf der Seite, und schließen
+einander aus. Eine dritte Klasse `vorspann` gab es einmal; sie ließ den
+Hero warten, bis der Vorspann abging — genau die Wartezeit, die den LCP auf
+2996 ms hob.
 
 Beim **zweiten Aufruf im selben Besuch** gibt es keinen Vorspann
 (`sessionStorage`) — dort ist die Einfahrt der Einstieg, und `sofort` wird
@@ -193,6 +197,18 @@ Einfahrt schon, bevor die Klasse gesetzt ist — und man sähe ein Aufblitzen.
 
 Wer eine weitere Einfahrt dazunimmt, hängt sie an `.los`, trägt sie in den
 `.kein-js`-Block ein und prüft, ob sie auch in den `.sofort`-Block gehört.
+
+**`sofort` wird beim ersten Aufruf sofort gesetzt, nicht erst beim Abgang
+des Vorspanns — und daran hing die Ladezeit.** Zuerst bekam der Hero seine
+Einfahrt, und `sofort` kam erst, wenn der Vorspann fertig war. Der Hero
+stand damit die ganzen 2,75 Sekunden auf `opacity:0`, und das größte
+sichtbare Element der Seite galt dem Browser erst danach als gezeichnet:
+**LCP 2996 ms.** Da der Vorspann ohnehin deckend darüber liegt, sieht
+niemand, ob der Hero darunter einfährt oder schon steht. Also steht er von
+der ersten Zeichnung an fertig da — **LCP 356 ms**, bei unverändertem Bild.
+
+Die Lehre ist allgemeiner als der Fall: **eine Einfahrt unter einer
+deckenden Fläche ist keine Gestaltung, sondern nur eine späte Messung.**
 
 **Wer an den Zeiten dreht, muss zwei Stellen anfassen:** die Animationen in
 `styles.css` und die beiden `setTimeout` in `main.js`. Der Schnitt muss nach
@@ -417,6 +433,8 @@ Prüfen lässt sich das in einer Zeile:
 | Fußzeile | Schlusszeile fährt zeilenweise auf (`.foot__claim`, gleiche Technik wie der Hero) |
 | Einsatzleitung (Sicherheit) | Aufdecken von unten, Beschriftung im selben Rahmen unter dem Foto |
 | Zeiger (nur Maus) | Ring läuft nach, wird über Links größer, zeigt über Bildern „Ansehen" |
+| Abschnittskanten | Einsatzlinie: ein violetter Punkt wandert mit `--lauf` nach rechts |
+| Leistungsseiten, unter dem Kopfbild | Einsatzband: die Linie zieht sich auf, die Punkte kommen versetzt nach |
 
 Die Kinobalken überbrücken die feste Navigationsleiste — ihre Höhe misst
 `main.js` und legt sie als `--nav-h` ab. Wer an der Navigation etwas ändert,
@@ -468,6 +486,89 @@ Die Lösung ist banal, muss einem aber einfallen: **die beiden Bewegungen auf
 zwei Elemente legen.** Die Einblendung liegt auf den Kindern
 (`.scrollcue > *`), die Ausblendung beim Scrollen auf der Hülle
 (`.hero[data-weg] .scrollcue`).
+
+---
+
+## Das Zeichen: Punkt und Linie
+
+Die Website hat ein eigenes Zeichen, und es besteht aus genau zwei Formen:
+**ein Punkt ist eine Position, eine Linie ist die Verbindung dazwischen.**
+Das ist das Geschäft dieses Betriebs, auf das Knappste gebracht: Menschen
+stehen an Stellen, und jemand hält sie zusammen.
+
+Es tritt in zwei Zuständen auf, und beide benutzen dieselben Maße: eine
+Haarlinie, Punkte von vier bis fünf Pixeln, genau ein Violett.
+
+| | wo | was es zeigt |
+|---|---|---|
+| **Einsatzlinie** (`[data-spur]`) | Kante über größeren Abschnitten | eine Position, die sich bewegt |
+| **Einsatzband** (`.einsatzband`) | einmal je Leistungsseite, zwischen Kopfbild und Text | eine Aufstellung, die steht |
+
+### Die Einsatzlinie
+
+Auf der Kante eines Abschnitts läuft ein kurzes helles Stück mit einem
+violetten Punkt an der Spitze von links nach rechts. Wie weit, sagt
+`--lauf` — es ist also scrollgeführt und steht still, wenn das Scrollen
+still steht.
+
+Vier Regeln, damit es Zeichen bleibt und nicht Effekt wird:
+
+1. **Es kommt nichts hinzu.** Die Linie war schon da. Sie bekommt nur eine
+   Richtung. Kein zweites Element, kein Kasten, kein Muster.
+2. **Bewegt wird nur `transform`.** Der Punkt fährt auf einer eigenen Ebene,
+   und die Ebene gibt es nur, solange der Abschnitt `.live` trägt.
+3. **Violett nur als Punkt.** Vier Pixel, mehr nicht.
+4. **Bei reduzierter Bewegung gar nicht.** Ohne Motor bliebe `--lauf` auf 0,
+   der Punkt stünde dauerhaft links am Rand und sähe aus wie ein Fehler.
+
+Angemeldet wird sie in `main.js`, und zwar nur an Abschnitten, die
+**ohnehin schon eine Oberkante haben** (`borderTopWidth ≥ 0.5`). Wer eine
+Linie zeichnet, wo vorher keine war, hat das erste Prinzip gebrochen.
+
+### Das Einsatzband
+
+Die sechs Leistungsseiten teilen einen Bauplan: dieselben Überschriften,
+dieselbe Reihenfolge, dieselben Bausteine. Das ist richtig — sechs
+Geschwisterseiten sollen ein System sein. Falsch war nur, dass sie sich
+**vollständig** glichen und dadurch austauschbar wirkten.
+
+Das Band ist die Antwort darauf. Es sitzt an der Kante zwischen Kopfbild
+und Text — also dort, wo ohnehin ein Trenner hingehört — und trägt je Seite
+eine andere Figur:
+
+| Seite | Figur | Bild dahinter |
+|---|---|---|
+| Gastro-Personal | `reihe` | Servicelinie am Pass |
+| Sicherheit | `posten` | über ein Gelände verteilt |
+| Promotion & Hostess | `paare` | paarweise am Stand |
+| Logistik | `kette` | verdichtet sich zum Tor hin |
+| Fahrservice | `fahrt` | zwei Punkte, eine Fahrt dazwischen |
+| Reinigung | `bahn` | Bahn für Bahn über die Fläche |
+
+Drei Regeln:
+
+- **Es zählt nichts.** Fünf Punkte heißen nicht fünf Leute. Eine Zahl wäre
+  eine Behauptung über den Betrieb, und die darf hier nicht erfunden werden
+  (siehe „Erfinde keine Informationen über das Unternehmen"). Die Figur
+  zeigt eine Form. Wer sie als Zahl liest, hat zu viele Punkte gesetzt —
+  **mehr als sechs gehören nicht hinein.**
+- **Violett steht dort, wo die Leitung steht.** Ein Punkt je Seite, nie
+  zwei.
+- **Die Positionen stehen im Stylesheet, nicht im Markup.** Das Markup
+  trägt nur den Namen der Figur und die Zahl der Punkte
+  (`data-figur="posten"`); wo sie sitzen, sagt `:nth-child()`. Sonst
+  stünden Einzelmaße im Markup, und das ist genau das, was „Ein Stylesheet,
+  eine Wahrheit" verbietet.
+
+Aufgedeckt wird über das vorhandene `data-stagger`: der Beobachter setzt
+`.in` und gibt jedem Kind sein `--i`. **Keine Zeile JavaScript kommt dafür
+hinzu.**
+
+**Die Falle dabei:** `.kein-js [data-stagger] > *{ transform:none !important }`
+trifft auch die Punkte des Bandes — und schöbe jeden um seinen halben
+Durchmesser nach rechts. Die Linie selbst ist ein Pseudoelement und wird von
+`> *` gar nicht erst erreicht, stünde also ohne Skript dauerhaft auf Breite
+null. Beides braucht im `.kein-js`-Block eine eigene Zeile.
 
 ---
 
@@ -641,6 +742,52 @@ Unterseiten.
   einem Knopf ist das deutlichste Erkennungszeichen fertiger Dark-Templates.
   In der Kopfzeile ist sie dagegen richtig: dort sind es Wegmarken, keine
   Sätze.
+
+### Die Falle: der vierte Preload verdrängt die drei, die zuerst gebraucht werden
+
+Im Kopf jeder Seite stehen zwei `rel="preload"` für Schriften: Bricolage
+und Instrument Sans. Space Mono steht dort **nicht**, und das ist kein
+Versehen.
+
+Der naheliegende Gedanke war das Gegenteil. Der letzte verbliebene
+Layoutsprung der Startseite kam vom Nachladen einer Schrift, und Space Mono
+war die einzige der drei ohne Preload — Kopfnavigation und
+Auszeichnungszeilen stehen in ihr. Also eingetragen, in alle sechzehn
+Seiten. Gemessen wurde danach ein *schlechterer* Wert, und die erste
+Messung über fünf Läufe legte sogar nahe, der Sprung sei dadurch von selten
+auf ständig gewechselt.
+
+Über je zwölf Ladevorgänge sieht es so aus:
+
+| | Läufe mit Sprung | Mittel | Quellen |
+|---|---|---|---|
+| **mit** Space-Mono-Preload | 5 von 12 (0,00949) | 0,00395 | eyebrow, h1, hero__fuss, scrollcue |
+| **ohne** | 2 von 12 (0,00985) | 0,00171 | nav__links, nav__cta |
+
+Der Preload hat getan, was er sollte — der Sprung der Kopfnavigation ist in
+der unteren Zeile die einzige verbliebene Quelle und in der oberen ganz
+verschwunden. Dafür ist der Hero häufiger umgesprungen: eine vierte Datei
+in derselben Warteschlange verzögert die drei, die für das erste Bild
+wirklich gebraucht werden. Eingetauscht wurde ein Sprung von 0,00008 gegen
+einen von 0,00949.
+
+Zwei Dinge sind daran allgemein:
+
+- **Preload ist keine Verbesserung, sondern eine Umverteilung.** Er nimmt
+  einer Datei Wartezeit weg und gibt sie allen anderen. Wer eine dritte,
+  vierte, fünfte Datei einträgt, muss nachmessen, wem er sie wegnimmt.
+- **Fünf Läufe reichen für so etwas nicht.** Bei 5 von 12 gegen 2 von 12
+  liefert eine Stichprobe von fünf mit ansehnlicher Wahrscheinlichkeit
+  „immer" oder „nie". Die erste Messung sagte „5 von 5" und war schlicht
+  eine schlechte Stichprobe.
+
+Beide Werte liegen weit unter der Schwelle von 0,1 — es geht hier um den
+Faktor zwischen zwei sehr guten Zuständen, nicht um einen Mangel. Die
+eigentliche Ursache ist der Schriftwechsel selbst (`font-display:swap`).
+Sauber beheben ließe er sich nur mit metrisch angepassten Ersatzschriften
+(`size-adjust`, `ascent-override`) — und dafür müssten die Maße der
+Ersatzschrift bekannt sein, die der Browser des Besuchers tatsächlich
+wählt. Geratene Werte machen es schlimmer, nicht besser.
 
 ---
 
@@ -897,6 +1044,34 @@ das Skript prüft am Ende selbst, ob jede Datei aus `assets/` im ZIP steht
 (bis auf die eine ausgenommene Quelldatei), und ein `unzip` in einen leeren
 Ordner mit anschließendem `git diff --stat` gegen das Original zeigt nur die
 JPEGs und den Film als geändert — nichts sonst.
+
+### Der Bau bricht bei jeder Warnung ab
+
+`paket-bauen.sh` minifiziert Stylesheet und Skript mit esbuild, und **jede
+Warnung von esbuild lässt den Lauf scheitern.** Das ist keine Strenge um
+ihrer selbst willen, sondern kommt aus einem Fehler: eine Ersetzung per
+regulärem Ausdruck hatte beim Aufräumen einer toten Klasse das `*/` eines
+Kommentars mitgenommen. Das Stylesheet sah danach richtig aus, deutscher
+Fließtext stand aber als CSS in Zeile 243, und der Browser überging ihn
+stillschweigend. Gefunden hat es erst esbuild — beim Paketbau, lange nach
+der Änderung.
+
+Eine Warnung, die beim Bauen durchgeht, geht auch in die Auslieferung
+durch. Deshalb steht dort `--log-level=warning` und ein Abbruch, sobald die
+Ausgabe nicht leer ist.
+
+### Die Falle: `zip -x` läuft über Ordnergrenzen
+
+`zip -x "assets/img/*.jpg"` schließt nicht nur die Bilder aus, sondern
+alles, was auf das Muster passt — der Stern überspringt auch Schrägstriche.
+Die vier Porträts der Teamseite fielen dadurch aus dem Paket, ohne dass eine
+Meldung kam. Gefunden hat es die Vollständigkeitsprüfung am Ende des
+Skripts, nicht das Auge.
+
+Seitdem wird nicht mehr ausgeschlossen, sondern **der ganze Baum in einen
+Zwischenordner gespiegelt** und dort verändert. Was im Paket landen soll,
+liegt dann vorher vollständig da; ausgelassen wird nur, was ausdrücklich in
+der Ausnahmeliste steht.
 
 ## Der PDF-Beleg
 
@@ -1507,6 +1682,32 @@ Es ist der einzige Link auf einen fremden Dienst außerhalb der Fußzeile.
 Deshalb `target="_blank" rel="noopener"`, ein Hinweis darauf im
 `aria-label` — und ein Satz in der Datenschutzerklärung, dass es ein
 einfacher Link ist und dort die Erklärung des anderen Anbieters gilt.
+
+---
+
+## Toter Code: drei Messungen, zwei davon falsch
+
+Beim Aufräumen sollte beantwortet werden, welche CSS-Klassen im Stylesheet
+stehen und nirgends benutzt werden. Zwei naheliegende Wege haben Unsinn
+geliefert, und beide sahen dabei überzeugend aus:
+
+1. **Selektoren mit einem regulären Ausdruck zählen.** Ergebnis: 1373 von
+   1373 Regeln ungenutzt. Der Ausdruck traf auch Kommentare, und das
+   Stylesheet besteht zu 49 % aus Kommentaren.
+2. **`CSS.startRuleUsageTracking` über das Chrome-Protokoll.** Das meldet,
+   was der Browser *tatsächlich* angewandt hat — und damit alles als tot,
+   was an einem Zustand hängt: `:hover`, `:focus-visible`, `.in`, `.auf`,
+   `.live`, jede `@media`-Regel, die gerade nicht greift.
+
+Was funktioniert hat, ist der langweilige Weg: **die Klassennamen aus dem
+Stylesheet gegen die Vereinigung aller HTML-Dateien und `main.js` halten.**
+`main.js` gehört zwingend dazu — der Balken unter der Kopfzeile, die
+Kapitelrail und die App-Leiste werden dort gebaut, ihre Klassen stehen in
+keiner HTML-Datei. Ergebnis: **23 wirklich tote Klassen**, rund 230 Zeilen.
+
+Die Regel dahinter: **eine Messung, die alles oder nichts meldet, misst
+nicht das, wonach gefragt war.** Beide Fehlversuche hätten bei einem Blick
+auf ihr eigenes Ergebnis auffallen müssen.
 
 ---
 

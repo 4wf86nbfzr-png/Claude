@@ -163,6 +163,42 @@ if [ -f "$FILM" ]; then
   AUSSEN+=("$FILM" "$LAGER/*")
 fi
 
+# ---------------------------------------------------------------------------
+#  Stylesheet und Skript fuer das Paket verdichten
+# ---------------------------------------------------------------------------
+#  `styles.css` ist zu 49 % Kommentar, `main.js` zu einem grossen Teil auch.
+#  Im Repository ist das genau richtig: dort steht die Begruendung neben der
+#  Regel, und ohne sie waere das Stylesheet in einem halben Jahr nicht mehr
+#  wartbar (siehe CLAUDE.md). Ausgeliefert werden muss sie nicht — der
+#  Browser liest keine Kommentare.
+#
+#  esbuild ist ohnehin schon da (die Funktion wird damit gebuendelt).
+# ---------------------------------------------------------------------------
+echo "→ Stylesheet und Skript für das Paket verdichten"
+mkdir -p "$BUEHNE/assets/css" "$BUEHNE/assets/js"
+# Eine Warnung von esbuild ist hier ein Abbruchgrund, kein Hinweis: sie
+# bedeutet, dass im Stylesheet etwas steht, was keine gueltige Regel ist.
+# Genau so ist einmal beim Aufraeumen das Ende eines Kommentars verloren
+# gegangen — im Browser sah man nichts davon, weil er den kaputten Block
+# einfach uebersprang, und die Seite haette den Fehler still ausgeliefert.
+for QUELLE in assets/css/styles.css assets/js/main.js; do
+  MELDUNG="$(npx --no-install esbuild "$QUELLE" --minify --target=es2020 \
+              --outfile="$BUEHNE/$QUELLE" 2>&1 | grep -c "WARNING" || true)"
+  if [ "$MELDUNG" != "0" ]; then
+    echo "   ABBRUCH: esbuild meldet $MELDUNG Warnung(en) in $QUELLE"
+    npx --no-install esbuild "$QUELLE" --minify --target=es2020 --outfile=/dev/null 2>&1 | head -20
+    exit 1
+  fi
+done
+python3 - "$BUEHNE" <<'PY2'
+import os, sys
+b = sys.argv[1]
+for p in ("assets/css/styles.css", "assets/js/main.js"):
+    vor, nach = os.path.getsize(p), os.path.getsize(os.path.join(b, p))
+    print(f"   {p:24s} {vor/1024:6.1f} KB  ->  {nach/1024:6.1f} KB"
+          f"   ({(1-nach/vor)*100:.0f} % gespart)")
+PY2
+
 echo "→ Paket schnüren"
 rm -f "$ZIEL"
 # Erst alles ohne JPEGs, dann die verkleinerten aus der Bühne nachlegen.
@@ -170,7 +206,8 @@ rm -f "$ZIEL"
 # "assets/img/*.jpg" trifft also auch assets/img/team/*.jpg. Genau deshalb
 # spiegelt die Buehne oben den ganzen Ordnerbaum, und genau deshalb steht
 # unten die Vollstaendigkeitspruefung.
-zip -qr "$ZIEL" . -x "${AUSSEN[@]}" "assets/img/*.jpg"
+zip -qr "$ZIEL" . -x "${AUSSEN[@]}" "assets/img/*.jpg" \
+  "assets/css/styles.css" "assets/js/main.js"
 ( cd "$BUEHNE" && zip -qr "$OLDPWD/$ZIEL" assets )
 # Der dichter gepackte Film kommt unter seinem richtigen Namen ins Paket.
 if [ -f "$FILM_KLEIN" ]; then
