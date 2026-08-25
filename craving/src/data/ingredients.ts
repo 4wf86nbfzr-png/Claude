@@ -68,7 +68,7 @@ export const PIZZA_INGREDIENTS: Ingredient[] = [
     { allergens: ["senf"], nutrition: n(210, 13, 2, 17), tags: ["scharf", "halal"] }),
 
   ing("pz-haehnchen", "Haehnchen", 190,
-    { z: 39, shape: "dice", palette: ["#E0BC86", "#B8925C", "#F5DCB4"], density: 1 },
+    { z: 39, shape: "strip", palette: ["#CFA05F", "#9A6C2E", "#E9C892", "#7E5320"], density: 1.05, scale: 0.7 },
     { nutrition: n(130, 22, 0, 4), tags: ["halal"] }),
 
   ing("pz-champignons", "Champignons", 120,
@@ -76,7 +76,8 @@ export const PIZZA_INGREDIENTS: Ingredient[] = [
     { nutrition: n(22, 3, 1, 0), tags: ["vegan"] }),
 
   ing("pz-paprika", "Paprika", 120,
-    { z: 43, shape: "ring", palette: ["#C6372B", "#8E1F16", "#E4695A"], density: 0.9, scale: 0.85 },
+    // Streifen statt Ringe: so wird Paprika auf der Pizza tatsaechlich geschnitten.
+    { z: 43, shape: "shred", palette: ["#C6372B", "#8E1F16", "#E4695A"], density: 0.9, scale: 0.9 },
     { nutrition: n(26, 1, 5, 0), tags: ["vegan"] }),
 
   ing("pz-zwiebeln", "Zwiebeln", 90,
@@ -92,11 +93,12 @@ export const PIZZA_INGREDIENTS: Ingredient[] = [
     { nutrition: n(28, 1, 4, 0), tags: ["scharf", "vegan"] }),
 
   ing("pz-mais", "Mais", 90,
-    { z: 47, shape: "dice", palette: ["#F2B830", "#CE9016", "#FFD971"], density: 1.4, scale: 0.42 },
+    { z: 47, shape: "dice", palette: ["#F2B830", "#CE9016", "#FFD971"], density: 1.3, scale: 0.52 },
     { nutrition: n(86, 3, 19, 1), tags: ["vegan"] }),
 
   ing("pz-mozzarella", "Mozzarella", 170,
-    { z: 48, shape: "dice", palette: ["#F7F4EC", "#D9D3C4", "#FFFFFF"], density: 0.8, scale: 1.05 },
+    // Scheiben statt Wuerfel — Wuerfel lasen sich wie Marshmallows.
+    { z: 48, shape: "slice", palette: ["#F2EDDF", "#CFC7B4", "#FBF8F0"], density: 0.9, scale: 0.74 },
     { allergens: ["milch"], nutrition: n(240, 18, 2, 18), tags: ["vegetarisch"] }),
 
   ing("pz-extra-kaese", "Extra Kaese", 150,
@@ -118,19 +120,19 @@ export const PIZZA_INGREDIENTS: Ingredient[] = [
 
 export const DONER_INGREDIENTS: Ingredient[] = [
   ing("dn-kalb", "Kalbfleisch", 0,
-    { z: 30, shape: "strip", palette: ["#7E4A2A", "#4A2614", "#AC754C", "#33190C"], slot: "inside", density: 1.1 },
+    { z: 24, shape: "strip", palette: ["#7E4A2A", "#4A2614", "#AC754C", "#33190C"], slot: "inside", density: 1.1 },
     { nutrition: n(215, 26, 2, 11), tags: ["halal", "beliebt"], description: "Vom Spiess geschnitten, nicht vorgegart." }),
 
   ing("dn-haehnchen", "Haehnchen", 0,
-    { z: 30, shape: "strip", palette: ["#CE9B5C", "#96683A", "#E9C48D", "#6E4520"], slot: "inside", density: 1.1 },
+    { z: 24, shape: "strip", palette: ["#CE9B5C", "#96683A", "#E9C48D", "#6E4520"], slot: "inside", density: 1.1 },
     { nutrition: n(180, 28, 1, 7), tags: ["halal"] }),
 
   ing("dn-mix", "Mix (Kalb & Haehnchen)", 80,
-    { z: 30, shape: "strip", palette: ["#9A6A3C", "#5E3820", "#C9945F", "#4A2513"], slot: "inside", density: 1.2 },
+    { z: 24, shape: "strip", palette: ["#9A6A3C", "#5E3820", "#C9945F", "#4A2513"], slot: "inside", density: 1.2 },
     { nutrition: n(198, 27, 2, 9), tags: ["halal"] }),
 
   ing("dn-falafel", "Falafel", 0,
-    { z: 30, shape: "dice", palette: ["#8C7A34", "#5C4E1C", "#B7A45A"], slot: "inside", density: 1.1, scale: 1.1 },
+    { z: 24, shape: "dice", palette: ["#8C7A34", "#5C4E1C", "#B7A45A"], slot: "inside", density: 1.1, scale: 1.1 },
     { allergens: ["sesam", "gluten"], nutrition: n(190, 8, 18, 9), tags: ["vegan"] }),
 
   ing("dn-salat", "Eisbergsalat", 0,
@@ -138,11 +140,11 @@ export const DONER_INGREDIENTS: Ingredient[] = [
     { nutrition: n(14, 1, 3, 0), tags: ["vegan"] }),
 
   ing("dn-rotkohl", "Rotkohl", 0,
-    { z: 23, shape: "shred", palette: ["#7A3B6B", "#4A2040", "#A96096"], slot: "inside", density: 1 },
+    { z: 22, shape: "shred", palette: ["#7A3B6B", "#4A2040", "#A96096"], slot: "inside", density: 1 },
     { nutrition: n(31, 1, 7, 0), tags: ["vegan"] }),
 
   ing("dn-weisskohl", "Weisskohl", 0,
-    { z: 24, shape: "shred", palette: ["#EDE7D3", "#C7BEA2", "#FBF8EC"], slot: "inside", density: 1 },
+    { z: 23, shape: "shred", palette: ["#EDE7D3", "#C7BEA2", "#FBF8EC"], slot: "inside", density: 1 },
     { nutrition: n(28, 1, 6, 0), tags: ["vegan"] }),
 
   ing("dn-tomate", "Tomate", 0,
@@ -154,7 +156,7 @@ export const DONER_INGREDIENTS: Ingredient[] = [
     { nutrition: n(12, 1, 2, 0), tags: ["vegan"] }),
 
   ing("dn-zwiebel", "Zwiebeln", 0,
-    { z: 27, shape: "ring", palette: ["#E6DCE6", "#B3A0B6", "#F7F2F7"], slot: "inside", scale: 0.8, density: 1.1 },
+    { z: 27, shape: "ring", palette: ["#DCD2DC", "#A294A6", "#EFE9EF"], slot: "inside", scale: 0.68, density: 1.2 },
     { nutrition: n(30, 1, 6, 0), tags: ["vegan"] }),
 
   ing("dn-mais", "Mais", 60,
@@ -162,19 +164,19 @@ export const DONER_INGREDIENTS: Ingredient[] = [
     { nutrition: n(86, 3, 19, 1), tags: ["vegan"] }),
 
   ing("dn-jalapenos", "Jalapenos", 70,
-    { z: 33, shape: "ring", palette: ["#4E8F2F", "#2C551A", "#82C258"], slot: "inside", scale: 0.45, density: 0.9 },
+    { z: 28, shape: "ring", palette: ["#4E8F2F", "#2C551A", "#82C258"], slot: "inside", scale: 0.45, density: 0.9 },
     { nutrition: n(28, 1, 4, 0), tags: ["scharf", "vegan"] }),
 
   ing("dn-kaese", "Kaese", 100,
-    { z: 34, shape: "sheet", palette: ["#E9B845", "#A2701A", "#F3CE74"], slot: "inside" },
+    { z: 29, shape: "sheet", palette: ["#E9B845", "#A2701A", "#F3CE74"], slot: "inside" },
     { allergens: ["milch"], nutrition: n(280, 20, 3, 22), tags: ["vegetarisch"] }),
 
   ing("dn-feta", "Feta", 120,
-    { z: 34, shape: "dice", palette: ["#F7F4EC", "#D6D0C0", "#FFFFFF"], slot: "inside", scale: 0.8, density: 0.9 },
+    { z: 29, shape: "dice", palette: ["#F7F4EC", "#D6D0C0", "#FFFFFF"], slot: "inside", scale: 0.8, density: 0.9 },
     { allergens: ["milch"], nutrition: n(260, 14, 4, 21), tags: ["vegetarisch"] }),
 
   ing("dn-extra-fleisch", "Extra Fleisch", 250,
-    { z: 31, shape: "strip", palette: ["#83502F", "#4E2917", "#B07A50", "#33190C"], slot: "inside", density: 0.9 },
+    { z: 24, shape: "strip", palette: ["#83502F", "#4E2917", "#B07A50", "#33190C"], slot: "inside", density: 0.9 },
     { nutrition: n(215, 26, 2, 11), tags: ["halal", "beliebt"] }),
 
   ing("dn-sosse-kraeuter", "Kraeutersosse", 0,

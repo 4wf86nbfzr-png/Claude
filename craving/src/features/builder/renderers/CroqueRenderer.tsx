@@ -21,11 +21,11 @@ const SLICE_H = 46;
 const BOTTOM_Y = 54;
 const MIN_GAP = 24;
 /** Zutatenstuecke sind hier kleiner als auf der Pizza. */
-const SIZE_UNIT = 0.72;
+const SIZE_UNIT = 0.82;
 
 function pieceCount(shape: string, density: number): number {
   const base: Record<string, number> = {
-    slice: 6, ring: 8, dice: 22, strip: 7, shred: 16, leaf: 8,
+    slice: 9, ring: 11, dice: 26, strip: 10, shred: 20, leaf: 11,
   };
   return Math.max(3, Math.round((base[shape] ?? 8) * density));
 }

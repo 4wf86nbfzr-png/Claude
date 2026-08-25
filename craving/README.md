@@ -154,6 +154,22 @@ waehlbar („Heute ausverkauft") — der Kunde soll wissen, dass es sie gibt.
 
 ---
 
+## Werkzeuge
+
+Kleine Skripte fuer die Abnahme (brauchen einen laufenden Server):
+
+```bash
+npm run smoke   # Bestellstrecke einmal komplett durchklicken
+npm run qa      # Layout auf 375/768/1440/2560 px pruefen (Ueberlauf, Fehler)
+npm run perf    # LCP, CLS und uebertragene Bytes messen
+npm run icons   # Symbole und Startbildschirm-Grafiken neu erzeugen
+```
+
+`SMOKE_BASE` bzw. `PERF_BASE` setzen, wenn der Server nicht auf Port 3000
+laeuft.
+
+---
+
 ## Weiterlesen
 
 - `docs/ARCHITEKTUR.md` — Datenfluss, Renderer-Vertrag, Erweiterung auf 3D

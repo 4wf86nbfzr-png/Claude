@@ -23,8 +23,12 @@ import { useReducedMotionSafe } from "@/hooks/useReducedMotionSafe";
  *   5. vordere Brotwand — erst dadurch liegt die Fuellung sichtbar "drin"
  */
 
-const FILL_ANCHOR = 2;
-const FILL_TOP = -74;
+/**
+ * Sichtbarer Fuellbereich. Die oberste Lage endet bewusst AUF Hoehe des
+ * Brotrands: liegt sie darueber, schwebt sie sichtbar in der Luft.
+ */
+const FILL_ANCHOR = 10;
+const FILL_TOP = -46;
 /** Zutatenstuecke sind hier kleiner als auf der Pizza. */
 const SIZE_UNIT = 0.8;
 
@@ -41,7 +45,7 @@ function Sesame({ seed, count }: { seed: string; count: number }) {
     <g opacity="0.5">
       {Array.from({ length: count }).map((_, i) => {
         const x = round(between(rnd, -128, 128));
-        const y = round(between(rnd, 22, 96));
+        const y = round(between(rnd, 20, 86));
         return (
           <ellipse
             key={i}
@@ -88,7 +92,7 @@ function Defs() {
         <path d="M -136 -170 L 136 -170 L 136 2 C 100 38, -100 38, -136 2 Z" />
       </clipPath>
       <clipPath id="dn-bread-clip">
-        <path d="M -152 -18 C -156 44, -112 104, 0 104 C 112 104, 156 44, 152 -18 C 152 -36, 96 -48, 0 -48 C -96 -48, -152 -36, -152 -18 Z" />
+        <path d="M -152 -18 C -156 40, -112 96, 0 96 C 112 96, 156 40, 152 -18 C 152 -36, 96 -48, 0 -48 C -96 -48, -152 -36, -152 -18 Z" />
       </clipPath>
       <clipPath id="dn-wrap-clip">
         <path d="M -70 -132 L 70 -100 L 70 44 L -70 44 Z" />
@@ -105,12 +109,12 @@ export function DonerRenderer({ ingredients, effects, label }: RendererProps) {
   const layered = ingredients.filter((i) => i.visual.shape !== "sauce");
   const sauces = ingredients.filter((i) => i.visual.shape === "sauce");
   const span = FILL_ANCHOR - FILL_TOP;
-  const step = Math.min(16, span / Math.max(layered.length, 1));
+  const step = Math.min(12, span / Math.max(layered.length, 1));
 
   const bandFor = (index: number, height: number) => ({
-    x: duerum ? -54 : -118,
+    x: duerum ? -54 : -124,
     y: FILL_ANCHOR - index * step,
-    width: duerum ? 108 : 236,
+    width: duerum ? 108 : 248,
     height,
     arc: duerum ? 10 : 26,
   });
@@ -154,7 +158,7 @@ export function DonerRenderer({ ingredients, effects, label }: RendererProps) {
     <svg viewBox="-200 -180 400 360" className="h-full w-full overflow-visible" role="img" aria-label={label}>
       <Defs />
 
-      <ellipse cx="0" cy="114" rx="150" ry="22" fill="url(#dn-shadow)" />
+      <ellipse cx="0" cy="106" rx="150" ry="20" fill="url(#dn-shadow)" />
 
       {duerum ? (
         <>
@@ -184,7 +188,7 @@ export function DonerRenderer({ ingredients, effects, label }: RendererProps) {
           {/* 1. Rueckwand */}
           <g filter={reduced ? undefined : "url(#dn-rough)"}>
             <path
-              d="M -152 -18 C -156 44, -112 104, 0 104 C 112 104, 156 44, 152 -18 C 152 -36, 96 -48, 0 -48 C -96 -48, -152 -36, -152 -18 Z"
+              d="M -152 -18 C -156 40, -112 96, 0 96 C 112 96, 156 40, 152 -18 C 152 -36, 96 -48, 0 -48 C -96 -48, -152 -36, -152 -18 Z"
               fill={vollkorn ? "#AE7E42" : "url(#dn-bread)"}
             />
           </g>
@@ -218,8 +222,8 @@ export function DonerRenderer({ ingredients, effects, label }: RendererProps) {
                   <motion.g key={ing.id}>
                     <DrizzleLayer
                       ingredient={ing}
-                      path={drizzlePath(`doener-sauce-${ing.id}`, { ...band, height: 22 }, 6)}
-                      width={7}
+                      path={drizzlePath(`doener-sauce-${ing.id}`, { ...band, height: 15 }, 7)}
+                      width={6}
                       length={520}
                     />
                   </motion.g>
@@ -231,7 +235,7 @@ export function DonerRenderer({ ingredients, effects, label }: RendererProps) {
           {/* 5. Vordere Brotwand */}
           <g filter={reduced ? undefined : "url(#dn-rough)"}>
             <path
-              d="M -150 -14 C -148 52, -104 106, 0 106 C 104 106, 148 52, 150 -14 C 100 26, -100 26, -150 -14 Z"
+              d="M -150 -14 C -148 48, -104 98, 0 98 C 104 98, 148 48, 150 -14 C 100 26, -100 26, -150 -14 Z"
               fill={vollkorn ? "#A9793F" : "url(#dn-bread-front)"}
             />
           </g>
