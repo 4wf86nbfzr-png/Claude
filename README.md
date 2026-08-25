@@ -779,6 +779,47 @@ Mails ankommen:
 
 Kommt nichts an: **Logs → Functions → formular**. Dort steht der Grund.
 
+### Der Ordner, den Netlify veröffentlicht
+
+`netlify.toml` sagt `publish = "."` — veröffentlicht wird also **alles, was
+neben `netlify.toml` liegt**. Für das Paket stimmt das: darin liegen genau
+die 168 Dateien, die auf den Server gehören.
+
+**Für das Repository stimmt es nicht.** Wer die Seite in Netlify mit
+GitHub verbindet statt das Paket hochzuladen, veröffentlicht damit den
+ganzen Baum: `api/`, `db/`, `tools/`, `package.json` — und Netlify findet
+die `package.json`, installiert rund 3000 Dateien nach `node_modules` und
+legt sie am Ende in den Zwischenspeicher. Genau das ist der Schritt, der im
+Protokoll **Cleanup** heißt: *Caching artifacts · Started saving node
+modules.* Bei einem Paket-Deploy gibt es dort nichts zu tun und der Schritt
+ist in Sekunden vorbei; bei einem Repository-Deploy dauert er Minuten.
+
+Der zweite, schwerere Punkt: **`netlify/functions/` steht in `.gitignore`.**
+Bei einem Deploy aus dem Repository gibt es die beiden Funktionen also gar
+nicht, und `/api/formular` wie `/api/konto` laufen ins Leere.
+
+Ein Aufruf entscheidet, welcher Fall vorliegt:
+
+| `https://…/api/formular` zeigt | Deploy kam aus | |
+|---|---|---|
+| `{"ok":false,"grund":"nur POST"}` | dem Paket | richtig |
+| die 404-Seite | dem Repository | umstellen: **Site configuration → Build & deploy → Unlink repository**, danach das Paket unter **Deploys → Deploy manually** ablegen |
+
+**Warum das Paket und nicht das Repository?** Weil `paket-bauen.sh` fünf
+Dinge tut, die Netlify nicht tun kann: die Funktionen zu je einer Datei
+bündeln, die JPEG-Rückfallebene verkleinern, den Film dichter packen,
+Stylesheet und Skript verdichten und die zweite WebP-Stufe weglassen. Aus
+21 MB werden so 15,4 MiB — und die Paketgröße ist genau das, woran der erste
+Netlify-Versuch gescheitert ist.
+
+Wer trotzdem aus dem Repository bauen will, braucht einen eigenen
+Veröffentlichungsordner: `paket-bauen.sh` schriebe die fertige Seite nach
+`dist/`, `netlify.toml` bekäme `publish = "dist"` und `command =
+"bash tools/paket-bauen.sh"`. Dann läge auch `netlify/functions/` außerhalb
+des veröffentlichten Ordners und die Regel `/netlify/*` → 404 wäre
+überflüssig. Solange das Paket von Hand hochgeladen wird, ist der Umbau
+Aufwand ohne Gegenwert.
+
 ### Wenn die Formulare ins Mailprogramm führen
 
 Dann ist die Funktion nicht erreichbar, und die Seite ist auf ihren letzten

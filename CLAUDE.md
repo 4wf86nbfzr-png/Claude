@@ -1077,6 +1077,8 @@ Auslieferung zu groß ist:
 | `netlify/functions/formular.js` | ungekürzt gebündelt | `--minify` | Maschinenteil, kein Lesestoff |
 | `imagefilm.webm` | CRF 31, ein Durchgang | CRF 36, zwei Durchgänge | beim Bauen aus Einzelbildern ist CRF 31 richtig (siehe „Der Imagefilm"); für die Auslieferung packt CRF 36 dichter, ohne dass ein Auge den Unterschied sieht |
 | `logo-herm-original.png` | 157 KB | fehlt ganz | Quelldatei, keine Seite lädt sie |
+| `db/001_kundenbereich.sql` | 12,7 KB | fehlt ganz | läuft einmal von Hand gegen die Datenbank; auf dem Webserver lag der Bauplan der Tabellen sonst öffentlich aus |
+| `herm-website-testdatei.html` | 12 MB | fehlt ganz | die Website als eine Datei zum Durchklicken, ein Werkzeug für uns |
 
 Das Repository bleibt dabei die Wahrheit: `bilder-vergroessern.py` und
 `bilder-menue.py` rechnen ihre WebP-Stufen aus den großen JPEGs. Läge dort

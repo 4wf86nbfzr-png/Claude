@@ -48,6 +48,26 @@
   status = 200
   force = true
 
+# ---- Der Quelltext der Funktionen bleibt drinnen ----
+# `functions` zeigt auf einen Ordner INNERHALB von `publish`. Netlify macht
+# daraus beides: es buendelt die zwei Dateien als Funktionen — und liefert
+# sie zusaetzlich als gewoehnliche Dateien aus. Ohne diese Regel laege der
+# gesamte Serverteil unter https://…/netlify/functions/formular.js offen im
+# Netz, 2,1 MB gebuendelter Code samt Mailversand und Datenbankzugriff.
+#
+# Geheimnisse stehen keine darin — die kommen aus der Umgebung —, aber
+# Serverquelltext gehoert nicht auf die oeffentliche Seite. `force` ist hier
+# entscheidend: ohne das Wort gewinnt die vorhandene Datei gegen die Regel.
+#
+# Sauberer waere, den Ordner gar nicht erst zu veroeffentlichen. Das ginge
+# nur mit einem eigenen Veroeffentlichungsordner — siehe README,
+# „Der Ordner, den Netlify veroeffentlicht".
+[[redirects]]
+  from = "/netlify/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
 # ---- Netlify Forms ----
 # Die Formulare tragen data-netlify="true"; Netlify erkennt sie beim Deploy
 # und sammelt die Eingänge unter "Forms". Das ist der Auffangweg: Solange die

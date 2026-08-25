@@ -133,6 +133,15 @@ AUSSEN=(
   "vercel.json"     ".vercelignore"  ".htaccess"  ".nojekyll"
   "node_modules/*"  "package.json"   "package-lock.json"
   "api/*"           "$ZIEL"          ".mcp.json"
+  # Das Datenbankschema. Es lag bisher im Paket und damit unter
+  # https://…/db/001_kundenbereich.sql oeffentlich im Netz. Gebraucht wird
+  # es dort von niemandem: es laeuft einmal von Hand gegen die Datenbank
+  # (siehe README, „Eine Datenbank besorgen"). Ein Bauplan der Tabellen ist
+  # kein Geheimnis, aber er gehoert nicht auf den Webserver.
+  "db/*"
+  # Die Website als eine Datei zum Durchklicken — ein Werkzeug fuer uns,
+  # 12 MB, keine Seite verweist darauf.
+  "herm-website-testdatei.html"
   # Quelldatei des Wortzeichens, 157 KB. Sie gehoert ins Repository, aber
   # keine Seite laedt sie.
   "assets/logo/logo-herm-original.png"
@@ -311,12 +320,19 @@ buehne = sys.argv[1]
 KANDIDAT = re.compile(r',\s*[^"\s,]*?-gross\.webp \d+w')
 GALERIE  = re.compile(r'(data-gross=")([^"]*?)-gross\.webp(")')
 
+# Erzeugnisse, die zufaellig auch auf .html enden. Diese Schleife nimmt
+# sonst JEDE HTML-Datei im Baum mit — und die Testfassung der ganzen
+# Website ist eine davon: 12 MB, die niemand auf dem Server braucht. Die
+# Ausschlussliste weiter oben half nicht, denn die gilt nur fuer den
+# ersten Durchgang von `zip`; die Seiten kommen aus der Buehne.
+ERZEUGNIS = {"herm-website-testdatei.html"}
+
 n = gross = 0
 for wurzel, ordner, dateien in os.walk("."):
     ordner[:] = [o for o in ordner if o not in
                  (".git", "node_modules", "tools", "docs", "api", ".paket-cache")]
     for datei in sorted(dateien):
-        if not datei.endswith(".html"):
+        if not datei.endswith(".html") or datei in ERZEUGNIS:
             continue
         p = os.path.normpath(os.path.join(wurzel, datei))
         s = open(p, encoding="utf-8").read()
@@ -392,8 +408,23 @@ if tot:
     print("   Adresse im Markup ohne Datei im Paket:", *sorted(set(tot)), sep="\n     ")
     sys.exit(1)
 
+# 3) Keine erzeugte Seite im Paket.
+#    Die groesste echte Seite ist kontakt.html mit 44 KB. Alles jenseits
+#    von 200 KB ist keine Seite mehr, sondern ein Erzeugnis, das auf .html
+#    endet — die Testfassung der ganzen Website war einmal genau das und
+#    hat das Paket von 16 auf 25 MB gehoben, ohne dass eine Meldung kam.
+#    Geprueft wird die Groesse und nicht der Name: die naechste erzeugte
+#    Datei wird anders heissen.
+dick = [(n, z.getinfo(n).file_size) for n in drin
+        if n.endswith(".html") and z.getinfo(n).file_size > 200 * 1024]
+if dick:
+    print("   Zu grosse HTML-Datei im Paket — vermutlich ein Erzeugnis:")
+    for n, g in dick:
+        print(f"     {n}  ({g/1048576:.1f} MB)")
+    sys.exit(1)
+
 print(f"   {len(drin)} Dateien, keine Lücke in assets/,"
-      f" keine tote Bildadresse im Markup")
+      f" keine tote Bildadresse im Markup, keine erzeugte Seite")
 PY
 
 echo
