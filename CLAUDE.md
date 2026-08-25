@@ -1145,6 +1145,48 @@ Eine Warnung, die beim Bauen durchgeht, geht auch in die Auslieferung
 durch. Deshalb steht dort `--log-level=warning` und ein Abbruch, sobald die
 Ausgabe nicht leer ist.
 
+### Die Falle: eine Ausnahme in der eigenen Prüfung gilt nur dort
+
+`pg` bringt neben dem Treiber in JavaScript einen zweiten in Maschinensprache
+mit (`pg-native`). Geladen wird der nur, wenn jemand `pg.native` anfasst —
+das tut hier niemand, und mitbündeln ließe er sich ohnehin nicht. Also stand
+im Bau `--external:pg-native`, und weil meine eigene Prüfung „nichts
+Externes im Bündel" daran gescheitert wäre, stand dort eine Ausnahme:
+*steht in einem `try`/`catch` von `pg`, wird nie ausgeführt.*
+
+Das Argument stimmt — und hat trotzdem den Deploy zerlegt:
+
+```
+A Netlify Function failed to require one of its dependencies.
+In file "/opt/build/repo/netlify/functions/konto.js"
+Cannot find module 'pg-native'
+```
+
+Netlify liest die fertige Funktionsdatei selbst noch einmal und sucht nach
+Abhängigkeiten. Diese Prüfung liest den **Text**, nicht den Ablauf; von einem
+`try`/`catch` weiß sie nichts. **Eine Ausnahme, die man in die eigene Prüfung
+schreibt, gilt eben nur in der eigenen Prüfung.**
+
+Deshalb wird das Modul jetzt nicht extern gestellt, sondern **ersetzt**:
+`api/_pg_native_fehlt.js` wirft beim Laden einen Fehler mit
+`code = 'MODULE_NOT_FOUND'` — genau den einen Code, den `pg/lib/index.js`
+abfängt. Im Bündel steht danach kein `require` auf ein fremdes Modul mehr,
+und die Prüfung im Bau hat **keine Ausnahmen**.
+
+**Die zweite Hälfte des Fehlers war die Prüfung selbst.** Sie hat bestätigt,
+dass sich das Bündel *laden* lässt — und das ließ es sich, denn ein
+Datenbanktreiber wird erst beim ersten Verbinden gebraucht. Steht
+`DATABASE_URL` in der Umgebung, verbindet der Bau deshalb jetzt einmal
+wirklich:
+
+```
+→ Prüfen, dass das Bündel wirklich an die Datenbank kommt
+   Verbindung steht: 200 bereit
+```
+
+Ohne die Variable wird der Schritt übersprungen und sagt es auch — eine
+Prüfung, die stillschweigend ausfällt, ist schlimmer als keine.
+
 ### Die Falle: `zip -x` läuft über Ordnergrenzen
 
 `zip -x "assets/img/*.jpg"` schließt nicht nur die Bilder aus, sondern

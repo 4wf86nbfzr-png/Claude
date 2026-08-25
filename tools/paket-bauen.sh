@@ -42,12 +42,21 @@ npx --no-install esbuild api/_netlify.js \
 #  statt Argon2id zu nehmen: ein Modul mit eigener Maschinensprache liesse
 #  sich hier nicht in eine Datei packen (siehe api/_sicher.js).
 echo "→ Bestandskundenbereich zu einer Datei bündeln"
-# `pg-native` bleibt draussen: `pg` bietet daneben einen Treiber in
-# Maschinensprache an, laedt ihn aber nur, wenn jemand `pg.native` anfasst —
-# und das tut hier niemand. Mitgebuendelt werden koennte er ohnehin nicht.
+# `pg-native` wird ERSETZT, nicht extern gestellt.
+# ---------------------------------------------------------------------------
+# `pg` bringt neben dem Treiber in JavaScript einen zweiten in
+# Maschinensprache mit. Geladen wird der nur ueber `pg.native`, und das ruft
+# hier niemand auf.
+#
+# Mit `--external:pg-native` blieb `require("pg-native")` im Bundle stehen.
+# Netlify liest die fertige Funktionsdatei aber selbst noch einmal, findet
+# den Aufruf und bricht den Deploy ab — dass er in einem try/catch steht,
+# sieht diese Pruefung nicht. Deshalb wird das Modul durch einen Platzhalter
+# ersetzt, der sich wie ein nicht installiertes verhaelt
+# (api/_pg_native_fehlt.js).
 npx --no-install esbuild api/_konto_netlify.js \
   --bundle --platform=node --target=node20 --format=cjs --minify \
-  --external:pg-native \
+  --alias:pg-native=./api/_pg_native_fehlt.js \
   --outfile="$GEBAUT_KONTO" --log-level=warning
 
 echo "→ Prüfen, dass auch dieses Bündel nichts nachlädt"
@@ -55,12 +64,16 @@ node -e "
   const q = require('fs').readFileSync('./$GEBAUT_KONTO','utf8');
   const offen = [...q.matchAll(/require\(['\"]([^'\".][^'\"]*)['\"]\)/g)]
     .map(m => m[1])
-    .filter(m => !require('module').builtinModules.includes(m.replace(/^node:/,'')))
-    /* Die eine erlaubte Ausnahme, siehe oben. Sie steht in einem
-       try/catch von `pg` und wird nie ausgefuehrt. */
-    .filter(m => m !== 'pg-native');
+    .filter(m => !require('module').builtinModules.includes(m.replace(/^node:/,'')));
+  /* KEINE Ausnahmen mehr. Hier stand einmal eine fuer pg-native, weil der
+     Aufruf in einem try/catch steht und nie ausgefuehrt wird. Netlify sieht
+     das anders und brach den Deploy ab: eine Ausnahme, die man in die
+     eigene Pruefung schreibt, gilt eben nur in der eigenen Pruefung.
+     (Ohne Schraegstriche-Anfuehrung hier — der Text steht in einer
+     doppelt gequoteten Shell-Zeichenkette, und die Shell liest Backticks
+     als Befehl.) */
   if(offen.length){ console.error('   noch offen:', [...new Set(offen)]); process.exit(1); }
-  console.log('   nur eingebaute Node-Module — nichts Externes (ausser pg-native, ungenutzt)');
+  console.log('   nur eingebaute Node-Module — nichts Externes');
 "
 
 echo "→ Prüfen, dass auch der Kundenbereich für sich allein läuft"
@@ -71,6 +84,29 @@ node -e "
     console.log('   Antwort auf GET:', a.statusCode, a.body);
   });
 "
+
+# Dass das Buendel LAEDT, war schon vorher geprueft — und genau diese Pruefung
+# hat den pg-native-Fehler durchgelassen: geladen hat es ja, der Treiber wird
+# erst beim ersten Verbinden gebraucht. Steht eine Datenbank bereit, wird
+# deshalb zusaetzlich einmal wirklich verbunden.
+if [ -n "${DATABASE_URL:-}" ]; then
+  echo "→ Prüfen, dass das Bündel wirklich an die Datenbank kommt"
+  node -e "
+    const h = require('./$GEBAUT_KONTO').handler;
+    h({ httpMethod:'POST', path:'/api/konto',
+        headers:{ 'content-type':'application/json',
+                  'x-hst-bereich':'kundenbereich',
+                  origin:'http://localhost', host:'localhost' },
+        body: JSON.stringify({ aktion:'stand' }) }).then(a => {
+      const j = JSON.parse(a.body);
+      if(a.statusCode !== 200 || !j.bereit){ console.error('unerwartet:', a); process.exit(1); }
+      console.log('   Verbindung steht:', a.statusCode, 'bereit');
+      process.exit(0);
+    }).catch(e => { console.error('   Verbindung fehlgeschlagen:', e.message); process.exit(1); });
+  "
+else
+  echo "   (ohne DATABASE_URL keine Datenbankprobe — das Bündel wurde nur geladen)"
+fi
 
 echo "→ Prüfen, dass das Bündel für sich allein läuft"
 node -e "
