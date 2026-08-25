@@ -147,6 +147,248 @@
     </div>
   </section>
 
+  <!-- ============================================================
+       BESTANDSKUNDEN
+       ------------------------------------------------------------
+       Zwei Wege auf einer Seite. Wer noch kein Konto hat, geht an dieser
+       einen Zeile vorbei zum vollstaendigen Formular darunter — es ist
+       unveraendert und bleibt der Regelweg. Wer eines hat, ist von hier
+       aus in wenigen Sekunden fertig.
+
+       Der ganze Abschnitt steht auf `hidden`, bis `main.js` beim Server
+       nachgefragt hat, ob es den Bereich ueberhaupt gibt (`aktion:stand`).
+       Ohne Datenbank antwortet der mit 503, und dann bleibt hier nichts
+       stehen — es gibt keinen Knopf, hinter dem nichts ist.
+
+       Zwei Dinge, die hier bewusst NICHT neu erfunden werden:
+
+       * **Die Klassen sind die des bestehenden Formulars** — `form`,
+         `fgruppe`, `feld`, `form__fuss`, `form__status`. Der Bereich sieht
+         damit nicht aehnlich aus wie das Formular darunter, er ist
+         dasselbe. Neu ist nur, was es vorher nicht gab: die Tuer, der
+         Kundenkopf, die Mengensteuerung, die Uebersicht.
+       * **Der sichtbare Text steht hier und nicht in main.js.** Sonst
+         kaeme er weder durch das Korrekturlesen noch durch
+         `striche-ersetzen.py`. Gebaut wird im Skript nur, was sich
+         wiederholt: die Personalzeilen (sie kommen aus
+         `api/_personal.js`) und die Tage.
+       ============================================================ -->
+  <section class="content kundentuer" id="bestandskunde" hidden>
+    <div class="wrap">
+
+      <div class="kundentuer__zeile">
+        <div class="kundentuer__wort">
+          <span class="eyebrow">Bereits Kunde?</span>
+          <p>Ihre Unternehmensdaten sind hinterlegt. Einloggen und die Anfrage
+             in wenigen Sekunden senden.</p>
+        </div>
+        <button class="btn btn--zeile kundentuer__knopf" type="button"
+                aria-expanded="false" aria-controls="kundenbereich">
+          Als Bestandskunde anmelden
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+
+      <div class="kundenbereich" id="kundenbereich" hidden>
+
+        <!-- ---------- Anmelden ---------- -->
+        <div class="kb-schritt" data-schritt="anmelden">
+          <form class="form kb-anmeldung" novalidate>
+            <div class="feld">
+              <label for="kb-name">Anmeldename oder E-Mail</label>
+              <input id="kb-name" name="anmeldename" type="text"
+                     autocomplete="username" autocapitalize="none"
+                     spellcheck="false" required />
+              <p class="feld__fehler"></p>
+            </div>
+            <div class="feld">
+              <label for="kb-pass">Passwort</label>
+              <input id="kb-pass" name="passwort" type="password"
+                     autocomplete="current-password" required />
+              <p class="feld__fehler"></p>
+            </div>
+
+            <div class="full form__fuss">
+              <!-- Dieselbe Bauform wie die Einwilligung im grossen Formular:
+                   Kaestchen und Beschriftung als Geschwister, nicht
+                   ineinander. Ein <label>, das ein <input> umschliesst,
+                   bekaeme von `.form label` das Aussehen einer Feld-
+                   beschriftung und braeche aus der Zeile. -->
+              <div class="zustimmung kb-bleiben">
+                <input id="kb-bleiben" type="checkbox" name="bleiben" value="ja" />
+                <label for="kb-bleiben">Angemeldet bleiben</label>
+              </div>
+              <button class="btn" type="submit">Anmelden</button>
+              <!-- Steht nur da, wenn das Ger&auml;t es kann. main.js
+                   entfernt den Knopf sonst ganz — ein Angebot, das ins
+                   Leere f&uuml;hrt, ist schlechter als keins. -->
+              <button class="btn btn--zeile kb-passkey" type="button" hidden>
+                Mit Face ID oder Passkey anmelden
+              </button>
+              <p class="form__status" role="alert"></p>
+              <p class="form__hinweis">
+                <button class="kb-textknopf" type="button" data-vergessen>Passwort vergessen?</button>
+                Noch kein Zugang? Ihr Ansprechpartner richtet ihn ein:
+                <a href="tel:+494027075100">+49 (40) 27075100</a>
+              </p>
+            </div>
+          </form>
+
+          <form class="form kb-vergessen" novalidate hidden>
+            <div class="feld full">
+              <label for="kb-vmail">Ihre E-Mail-Adresse</label>
+              <input id="kb-vmail" name="email" type="email"
+                     autocomplete="email" required />
+              <p class="feld__fehler"></p>
+            </div>
+            <div class="full form__fuss">
+              <button class="btn" type="submit">Link anfordern</button>
+              <p class="form__status" role="alert"></p>
+              <p class="form__hinweis">
+                <button class="kb-textknopf" type="button" data-zurueck>Zur&uuml;ck zur Anmeldung</button>
+              </p>
+            </div>
+          </form>
+        </div>
+
+        <!-- ---------- Neues Passwort vergeben ----------
+             Erscheint nur, wenn die Adresse eine Marke tr&auml;gt
+             (#passwort-neu=…). Den Link verschickt der Server per Mail. -->
+        <div class="kb-schritt" data-schritt="passwort-neu" hidden>
+          <h2 class="kb-titel u-caps">Neues Passwort vergeben</h2>
+          <form class="form kb-neu" novalidate>
+            <div class="feld full">
+              <label for="kb-neu1">Neues Passwort</label>
+              <input id="kb-neu1" name="passwort" type="password"
+                     autocomplete="new-password" minlength="10" required />
+              <p class="feld__hinweis">Mindestens zehn Zeichen.</p>
+              <p class="feld__fehler"></p>
+            </div>
+            <div class="full form__fuss">
+              <button class="btn" type="submit">Passwort speichern</button>
+              <p class="form__status" role="alert"></p>
+            </div>
+          </form>
+        </div>
+
+        <!-- ---------- Angemeldet: der Kundenkopf und die Anfrage ---------- -->
+        <div class="kb-schritt" data-schritt="anfrage" hidden>
+
+          <div class="kb-kopf">
+            <div class="kb-kopf__wer">
+              <span class="eyebrow">Anfrage f&uuml;r</span>
+              <p class="kb-kopf__firma" data-firma></p>
+              <p class="kb-kopf__zeile"><span data-person></span><span class="kb-kopf__nummer" data-kundennummer></span></p>
+            </div>
+            <div class="kb-kopf__aktionen">
+              <!-- Erscheint nur nach der Anmeldung mit Passwort und nur auf
+                   Ger&auml;ten, die es k&ouml;nnen. -->
+              <button class="kb-textknopf" type="button" data-passkey-anbieten hidden>
+                Schnelle Anmeldung mit Face ID einrichten
+              </button>
+              <button class="kb-textknopf" type="button" data-abmelden>Abmelden</button>
+            </div>
+          </div>
+
+          <p class="kb-stammhinweis">
+            Stimmen Firma, Anschrift oder Ansprechpartner nicht mehr?
+            <a href="tel:+494027075100">Rufen Sie uns an</a> oder schreiben Sie an
+            <a href="mailto:info@hermserviceteam.com">info@hermserviceteam.com</a>,
+            wir ziehen die Stammdaten nach.
+          </p>
+
+          <form class="form form--gruppen kb-formular" novalidate>
+
+            <fieldset class="fgruppe">
+              <legend class="fgruppe__titel"><span class="fgruppe__nr">01</span> Was ben&ouml;tigen Sie?</legend>
+              <!-- Die Tage baut main.js. Jeder Tag tr&auml;gt ein Datum, eine
+                   Zeitspanne und die Mengen je Personalart. Ein weiterer Tag
+                   &uuml;bernimmt die Aufstellung des vorigen — ein
+                   mehrt&auml;giger Einsatz ist damit ein Klick und keine
+                   zweite Anfrage. -->
+              <div class="kb-tage" data-tage></div>
+              <button class="kb-textknopf kb-tagplus" type="button" data-tag-plus>
+                Weiteren Tag hinzuf&uuml;gen
+              </button>
+            </fieldset>
+
+            <fieldset class="fgruppe">
+              <legend class="fgruppe__titel"><span class="fgruppe__nr">02</span> Wo und wof&uuml;r?</legend>
+              <div class="fgruppe__felder">
+                <div class="feld full">
+                  <label for="kb-projekt">Veranstaltung oder Projekt *</label>
+                  <input id="kb-projekt" name="projekt" type="text" required
+                         placeholder="Sommerfest 2026" />
+                  <p class="feld__fehler"></p>
+                </div>
+                <div class="feld">
+                  <label for="kb-ort">Einsatzort *</label>
+                  <input id="kb-ort" name="einsatzort" type="text" required
+                         placeholder="Hamburg" />
+                  <p class="feld__fehler"></p>
+                </div>
+                <div class="feld">
+                  <label for="kb-adresse">Genaue Adresse</label>
+                  <input id="kb-adresse" name="adresse" type="text"
+                         placeholder="Gro&szlig;e Elbstra&szlig;e 1, 22767 Hamburg" />
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset class="fgruppe">
+              <legend class="fgruppe__titel"><span class="fgruppe__nr">03</span> Noch etwas?</legend>
+              <div class="fgruppe__felder">
+                <div class="feld full">
+                  <label for="kb-hinweise">Hinweise zum Einsatz</label>
+                  <textarea id="kb-hinweise" name="hinweise" rows="4"
+                            placeholder="Dresscode, gew&uuml;nschte Qualifikation, Treffpunkt, Akkreditierung, Parkplatz, Ansprechpartner vor Ort, besondere Aufgaben"></textarea>
+                </div>
+              </div>
+            </fieldset>
+
+            <div class="form__fuss kb-fuss">
+              <button class="btn" type="submit">Anfrage pr&uuml;fen
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+              <p class="form__status" role="alert"></p>
+              <p class="form__hinweis">Mit * gekennzeichnete Felder brauchen wir.</p>
+            </div>
+          </form>
+        </div>
+
+        <!-- ---------- Zusammenfassung ---------- -->
+        <div class="kb-schritt" data-schritt="pruefen" hidden>
+          <span class="eyebrow">Letzter Blick</span>
+          <h2 class="kb-titel u-caps">Ihre Anfrage</h2>
+          <div class="kb-uebersicht" data-uebersicht></div>
+          <div class="form__fuss kb-fuss">
+            <button class="btn" type="button" data-senden>Anfrage senden</button>
+            <p class="form__status" role="alert"></p>
+            <p class="form__hinweis">
+              <button class="kb-textknopf" type="button" data-zurueck-bearbeiten>Zur&uuml;ck zum Bearbeiten</button>
+              Wir melden uns nach Eingang bei Ihnen. Eine Buchung entsteht
+              dadurch noch nicht.
+            </p>
+          </div>
+        </div>
+
+        <!-- ---------- Fertig ---------- -->
+        <div class="kb-schritt" data-schritt="fertig" hidden>
+          <div class="danke kb-danke">
+            <span class="danke__haken" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <h2 class="u-caps">Anfrage &uuml;bermittelt</h2>
+            <p class="kb-nummer" data-nummer></p>
+            <p data-fertig-satz></p>
+            <div class="kb-uebersicht" data-uebersicht-fertig></div>
+            <button class="btn btn--zeile" type="button" data-neue-anfrage>Neue Anfrage erstellen</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
   <section class="content">
     <div class="wrap content__grid">
       <div class="content__lead">

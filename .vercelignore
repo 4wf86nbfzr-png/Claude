@@ -10,6 +10,9 @@
 
 tools/
 docs/
+# Das Schema wird von Hand eingespielt (tools/kunden.js einrichten);
+# ausgeliefert werden muss es nicht.
+db/
 .github/
 
 # Konfiguration anderer Anbieter — auf Vercel wirkungslos

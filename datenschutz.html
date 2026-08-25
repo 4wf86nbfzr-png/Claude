@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Datenschutzerkl&auml;rung &mdash; HERM Service Team</title>
-<meta name="description" content="Datenschutzerklärung der HERM Service Team e.K. nach Art. 13 DSGVO: keine Cookies, kein Tracking, keine externen Schriften. Was mit Ihren Daten geschieht." />
+<meta name="description" content="Datenschutzerklärung der HERM Service Team e.K. nach Art. 13 DSGVO: kein Tracking, keine externen Schriften, keine Werbe-Cookies. Was mit Ihren Daten geschieht." />
 <!-- Die beiden Schnitte, die auf jeder Seite sofort gebraucht werden.
      crossorigin ist auch bei eigenen Dateien Pflicht, sonst laedt der
      Browser die Schrift ein zweites Mal. -->
@@ -28,7 +28,7 @@
 <meta property="og:site_name" content="HERM Service Team" />
 <meta property="og:locale" content="de_DE" />
 <meta property="og:title" content="Datenschutzerklärung — HERM Service Team" />
-<meta property="og:description" content="Datenschutzerklärung der HERM Service Team e.K. nach Art. 13 DSGVO: keine Cookies, kein Tracking, keine externen Schriften. Was mit Ihren Daten geschieht." />
+<meta property="og:description" content="Datenschutzerklärung der HERM Service Team e.K. nach Art. 13 DSGVO: kein Tracking, keine externen Schriften, keine Werbe-Cookies. Was mit Ihren Daten geschieht." />
 <meta property="og:url" content="https://hermserviceteam.com/datenschutz.html" />
 <meta property="og:image" content="https://hermserviceteam.com/assets/img/og-bild.jpg" />
 <meta property="og:image:width" content="1200" />
@@ -162,7 +162,10 @@
         <h2>2. Was diese Website nicht tut</h2>
         <p>Wir halten die Datenverarbeitung bewusst klein. Diese Website setzt:</p>
         <ul>
-          <li>keine Cookies,</li>
+          <li>keine Cookies, solange Sie sich nicht als Bestandskunde anmelden.
+              Erst mit der Anmeldung wird ein einziges, technisch notwendiges
+              Cookie gesetzt, damit Sie angemeldet bleiben (siehe Abschnitt&nbsp;6).
+              Es dient keiner Analyse und keiner Werbung,</li>
           <li>keine Analyse- oder Tracking-Werkzeuge,</li>
           <li>keine Werbenetzwerke,</li>
           <li>keine Social-Media-Plugins, die Symbole in der Fu&szlig;zeile sind
@@ -219,7 +222,76 @@
         allein der Abwehr automatisierter Eintr&auml;ge; es werden dabei keine zus&auml;tzlichen
         personenbezogenen Daten erhoben und keine Dritten eingebunden.</p>
 
-        <h2>6. Speicherdauer</h2>
+        <!-- ============================================================
+             HINWEIS AN DEN BETREIBER
+             Dieser Abschnitt beschreibt, was das Kundenkonto technisch
+             wirklich tut — nicht mehr und nicht weniger. Zwei Angaben
+             fehlen und koennen hier nicht erfunden werden:
+
+               * die Rechtsgrundlage, auf die sich der Betrieb stuetzt
+                 (Vertragsanbahnung, Art. 6 Abs. 1 b DSGVO, liegt nahe,
+                 ist aber eine juristische Bewertung),
+               * die Loeschfrist fuer ruhende Kundenkonten.
+
+             Beides gehoert vor dem Live-Gang von einem Anwalt bestaetigt.
+             Die Stellen sind unten mit „noch zu ergaenzen" markiert.
+             ============================================================ -->
+        <h2>6. Kundenkonto f&uuml;r Bestandskunden</h2>
+        <p>Bestandskunden k&ouml;nnen auf der Seite &bdquo;Kontakt&ldquo; ein Konto nutzen,
+        um Personalanfragen zu stellen, ohne ihre Firmendaten jedes Mal neu einzugeben.
+        Das Konto wird nicht selbst angelegt: wir richten es ein, wenn eine
+        Gesch&auml;ftsbeziehung besteht.</p>
+
+        <p><strong>Welche Daten dabei verarbeitet werden:</strong></p>
+        <ul>
+          <li><strong>Stammdaten:</strong> Firmenname, Kundennummer, Rechnungsanschrift,
+              Umsatzsteuer-Identifikationsnummer, Telefonnummer sowie Name, Position,
+              E-Mail-Adresse und Telefonnummer der Ansprechpartner.</li>
+          <li><strong>Zugangsdaten:</strong> Anmeldename und E-Mail-Adresse. Das Passwort
+              wird ausschlie&szlig;lich als kryptografischer Pr&uuml;fwert
+              (scrypt) gespeichert und ist aus diesem nicht wiederherstellbar.
+              Wir kennen Ihr Passwort nicht.</li>
+          <li><strong>Passkey (optional):</strong> Wenn Sie die Anmeldung mit Face&nbsp;ID,
+              Touch&nbsp;ID, Windows&nbsp;Hello oder Ihrem Ger&auml;tecode einrichten,
+              speichern wir den &ouml;ffentlichen Schl&uuml;ssel Ihres Ger&auml;ts und eine
+              Kennung. <strong>Biometrische Daten erhalten wir dabei nicht.</strong> Ihr
+              Fingerabdruck oder Gesichtsscan verl&auml;sst Ihr Ger&auml;t nicht; das
+              Ger&auml;t best&auml;tigt uns lediglich, dass es Sie erkannt hat.</li>
+          <li><strong>Anmeldung und Sitzung:</strong> ein technisch notwendiges Cookie
+              (<code>hst_sitzung</code>) mit einer Zufallskennung. Es enth&auml;lt keine
+              personenbezogenen Daten und dient allein dazu, Sie w&auml;hrend Ihres Besuchs
+              angemeldet zu halten. Es wird nicht zur Analyse verwendet und nicht an
+              Dritte weitergegeben.</li>
+          <li><strong>Anmeldeversuche:</strong> Zeitpunkt, Anmeldename und IP-Adresse
+              fehlgeschlagener wie erfolgreicher Anmeldungen, um das Durchprobieren von
+              Passw&ouml;rtern zu unterbinden. Diese Eintr&auml;ge werden nach zwei Tagen
+              automatisch gel&ouml;scht.</li>
+          <li><strong>Protokoll sicherheitsrelevanter Vorg&auml;nge:</strong> Anmeldung,
+              Abmeldung, Passwort&auml;nderung, Hinzuf&uuml;gen oder Entfernen eines
+              Passkeys sowie der Eingang einer Anfrage, jeweils mit Zeitpunkt und
+              IP-Adresse. Passw&ouml;rter, Sitzungskennungen und Links zum Zur&uuml;cksetzen
+              werden dabei <strong>nicht</strong> protokolliert.</li>
+          <li><strong>Anfragen:</strong> Projektname, Einsatzort, Adresse, Daten und
+              Uhrzeiten, Anzahl und Art des angefragten Personals sowie Ihre Hinweise.</li>
+        </ul>
+
+        <p><strong>Rechtsgrundlage:</strong> <em>&mdash; noch zu erg&auml;nzen &mdash;</em>
+        Diese Angabe muss vor dem Live-Gang juristisch gepr&uuml;ft und hier eingetragen
+        werden.</p>
+
+        <p><strong>Passwort vergessen:</strong> Fordern Sie ein neues Passwort an, erzeugen
+        wir eine einmalig verwendbare Kennung, die nach einer Stunde verf&auml;llt, und
+        senden Ihnen einen Link an die hinterlegte E-Mail-Adresse. Aus Sicherheitsgr&uuml;nden
+        teilen wir dabei nicht mit, ob zu einer Adresse ein Konto besteht.</p>
+
+        <p><strong>L&ouml;schung und Sperrung:</strong> Sie k&ouml;nnen Ihr Konto jederzeit
+        sperren oder l&ouml;schen lassen, eine Nachricht an
+        <a href="mailto:info@hermserviceteam.com">info@hermserviceteam.com</a> oder ein
+        Anruf gen&uuml;gen. Mit der L&ouml;schung des Kontos entfallen auch die hinterlegten
+        Passkeys, Sitzungen und Protokolleintr&auml;ge. Anfragen, die bereits zu einem
+        Auftrag gef&uuml;hrt haben, unterliegen den gesetzlichen Aufbewahrungsfristen.</p>
+
+        <h2>7. Speicherdauer</h2>
         <ul>
           <li><strong>Server-Logfiles:</strong> in der Regel 7 bis 30 Tage, danach automatische
               L&ouml;schung.</li>
@@ -231,17 +303,17 @@
               Auswahlverfahrens, sofern Sie einer l&auml;ngeren Speicherung nicht zustimmen.</li>
         </ul>
 
-        <h2>7. Empf&auml;nger der Daten</h2>
+        <h2>8. Empf&auml;nger der Daten</h2>
         <p>Ihre Daten geben wir nicht an Dritte weiter, au&szlig;er an den oben genannten
         Hoster als Auftragsverarbeiter sowie in F&auml;llen, in denen wir gesetzlich dazu
         verpflichtet sind. Eine &Uuml;bermittlung in Drittl&auml;nder findet nicht statt.</p>
 
-        <h2>8. Verschl&uuml;sselung</h2>
+        <h2>9. Verschl&uuml;sselung</h2>
         <p>Diese Website nutzt eine SSL- bzw. TLS-Verschl&uuml;sselung. Sie erkennen das an
         &bdquo;https://&ldquo; in der Adresszeile und am Schlosssymbol Ihres Browsers. Daten,
         die Sie an uns &uuml;bermitteln, k&ouml;nnen dabei nicht von Dritten mitgelesen werden.</p>
 
-        <h2>9. Ihre Rechte</h2>
+        <h2>10. Ihre Rechte</h2>
         <p>Sie haben jederzeit das Recht auf</p>
         <ul>
           <li>Auskunft &uuml;ber die zu Ihrer Person gespeicherten Daten (Art.&nbsp;15 DSGVO),</li>
@@ -255,7 +327,7 @@
         <p>Wenden Sie sich daf&uuml;r formlos an
         <a href="mailto:info@hermserviceteam.com">info@hermserviceteam.com</a>.</p>
 
-        <h2>10. Beschwerderecht</h2>
+        <h2>11. Beschwerderecht</h2>
         <p>Sie haben das Recht, sich bei einer Datenschutz-Aufsichtsbeh&ouml;rde zu beschweren.
         F&uuml;r uns zust&auml;ndig ist:</p>
         <address>
@@ -264,7 +336,7 @@
           <a href="https://datenschutz-hamburg.de" target="_blank" rel="noopener">datenschutz-hamburg.de</a>
         </address>
 
-        <h2>11. &Auml;nderungen</h2>
+        <h2>12. &Auml;nderungen</h2>
         <p>Wir passen diese Erkl&auml;rung an, sobald sich die Datenverarbeitung auf dieser
         Website &auml;ndert, etwa wenn wir weitere Dienste einbinden.</p>
       </div>

@@ -20,6 +20,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 ZIEL="herm-website-netlify.zip"
 GEBAUT="netlify/functions/formular.js"
+GEBAUT_KONTO="netlify/functions/konto.js"
 
 echo "→ Abhängigkeiten sicherstellen"
 [ -d node_modules/esbuild ] || npm ci --no-audit --no-fund >/dev/null
@@ -32,6 +33,44 @@ mkdir -p netlify/functions
 npx --no-install esbuild api/_netlify.js \
   --bundle --platform=node --target=node20 --format=cjs --minify \
   --outfile="$GEBAUT" --log-level=warning
+
+# ---------------------------------------------------------------------------
+#  Die zweite Funktion: der Bestandskundenbereich
+# ---------------------------------------------------------------------------
+#  Sie zieht `pg` und `@simplewebauthn/server` mit herein. Beide sind reines
+#  JavaScript und lassen sich buendeln — das war der Grund, `scrypt` aus Node
+#  statt Argon2id zu nehmen: ein Modul mit eigener Maschinensprache liesse
+#  sich hier nicht in eine Datei packen (siehe api/_sicher.js).
+echo "→ Bestandskundenbereich zu einer Datei bündeln"
+# `pg-native` bleibt draussen: `pg` bietet daneben einen Treiber in
+# Maschinensprache an, laedt ihn aber nur, wenn jemand `pg.native` anfasst —
+# und das tut hier niemand. Mitgebuendelt werden koennte er ohnehin nicht.
+npx --no-install esbuild api/_konto_netlify.js \
+  --bundle --platform=node --target=node20 --format=cjs --minify \
+  --external:pg-native \
+  --outfile="$GEBAUT_KONTO" --log-level=warning
+
+echo "→ Prüfen, dass auch dieses Bündel nichts nachlädt"
+node -e "
+  const q = require('fs').readFileSync('./$GEBAUT_KONTO','utf8');
+  const offen = [...q.matchAll(/require\(['\"]([^'\".][^'\"]*)['\"]\)/g)]
+    .map(m => m[1])
+    .filter(m => !require('module').builtinModules.includes(m.replace(/^node:/,'')))
+    /* Die eine erlaubte Ausnahme, siehe oben. Sie steht in einem
+       try/catch von `pg` und wird nie ausgefuehrt. */
+    .filter(m => m !== 'pg-native');
+  if(offen.length){ console.error('   noch offen:', [...new Set(offen)]); process.exit(1); }
+  console.log('   nur eingebaute Node-Module — nichts Externes (ausser pg-native, ungenutzt)');
+"
+
+echo "→ Prüfen, dass auch der Kundenbereich für sich allein läuft"
+node -e "
+  const h = require('./$GEBAUT_KONTO').handler;
+  h({ httpMethod:'GET', headers:{}, body:'' }).then(a => {
+    if(a.statusCode !== 405) { console.error('unerwartet:', a); process.exit(1); }
+    console.log('   Antwort auf GET:', a.statusCode, a.body);
+  });
+"
 
 echo "→ Prüfen, dass das Bündel für sich allein läuft"
 node -e "
@@ -323,6 +362,7 @@ PY
 
 echo
 echo "Fertig: $ZIEL  ($(du -h "$ZIEL" | cut -f1))"
-echo "Die Funktion darin: $GEBAUT ($(du -h "$GEBAUT" | cut -f1), eine Datei)"
+echo "Die Funktionen darin: $GEBAUT ($(du -h "$GEBAUT" | cut -f1))"
+echo "                      $GEBAUT_KONTO ($(du -h "$GEBAUT_KONTO" | cut -f1))"
 echo
 echo "Weiter geht es in README.md unter „Auf Netlify veröffentlichen“."

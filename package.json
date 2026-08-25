@@ -8,9 +8,11 @@
     "node": ">=20"
   },
   "dependencies": {
+    "@simplewebauthn/server": "^13.3.2",
     "docx": "^9.7.1",
     "nodemailer": "^9.0.5",
-    "pdfkit": "^0.19.1"
+    "pdfkit": "^0.19.1",
+    "pg": "^8.23.0"
   },
   "devDependencies": {
     "esbuild": "^0.28.1"

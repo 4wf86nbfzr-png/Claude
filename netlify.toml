@@ -38,6 +38,16 @@
   status = 200
   force = true
 
+# ---- Der Bestandskundenbereich ----
+# Dieselbe Mechanik, zweite Funktion. Sie braucht zusaetzlich DATABASE_URL;
+# fehlt die, antwortet sie mit 503 und die Website blendet den Bereich gar
+# nicht erst ein.
+[[redirects]]
+  from = "/api/konto"
+  to = "/.netlify/functions/konto"
+  status = 200
+  force = true
+
 # ---- Netlify Forms ----
 # Die Formulare tragen data-netlify="true"; Netlify erkennt sie beim Deploy
 # und sammelt die Eingänge unter "Forms". Das ist der Auffangweg: Solange die

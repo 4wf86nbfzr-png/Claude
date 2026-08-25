@@ -7,6 +7,9 @@
   "functions": {
     "api/formular.js": {
       "maxDuration": 20
+    },
+    "api/konto.js": {
+      "maxDuration": 20
     }
   },
   "headers": [

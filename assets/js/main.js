@@ -1565,6 +1565,717 @@
   }
   function alles(){ navHoehe(); messen(); updateStages(); updateMotion(); updateKino(); }
   window.addEventListener('scroll', onScroll, { passive:true });
+
+  /* ---- Der Bestandskundenbereich ----
+     Auf `kontakt.html` steht über dem gewöhnlichen Anfrageformular eine
+     Zeile für Bestandskunden. Von dort geht es: anmelden → Bedarf →
+     Übersicht → gesendet.
+
+     Fünf Entscheidungen, die man kennen muss:
+
+     1. **Der Bereich fragt zuerst, ob es ihn gibt.** Ohne Datenbank
+        antwortet `/api/konto` mit 503, und dann bleibt der ganze Abschnitt
+        auf `hidden`. Es gibt also nie einen Knopf, hinter dem nichts ist —
+        und ohne JavaScript ebenso wenig, denn gebaut wird hier gar nichts.
+     2. **Nichts wird im Browser gespeichert.** Wer angemeldet ist, sagt
+        allein der Keks, den der Server gesetzt hat und den kein Skript
+        lesen kann (HttpOnly). Im `localStorage` steht kein Wort — eine
+        Anmeldung, die dort läge, wäre mit einem einzigen XSS zu holen.
+     3. **Der Text kommt aus dem Markup.** Hier stehen nur Zustände und
+        Zahlen. Was ein Mensch liest, steht in `kontakt.html` — sonst käme
+        es weder durch das Korrekturlesen noch durch die Werkzeuge.
+     4. **Die Personalarten kommen vom Server** (`api/_personal.js`). Wer
+        eine Art umbenennt, ändert eine Datei; hier ist nichts nachzuziehen.
+     5. **Jeder Absendeversuch trägt denselben Schlüssel.** Zweimal auf
+        „Senden" ergibt deshalb eine Anfrage, nicht zwei — auch dann, wenn
+        die erste Antwort unterwegs verloren geht.                        */
+  (function(){
+    const tuer = document.getElementById('bestandskunde');
+    if(!tuer) return;
+
+    const bereich  = document.getElementById('kundenbereich');
+    const knopf    = tuer.querySelector('.kundentuer__knopf');
+    const schritte = [...bereich.querySelectorAll('.kb-schritt')];
+    const zeigen   = name => schritte.forEach(s => { s.hidden = s.dataset.schritt !== name; });
+    const teil     = name => bereich.querySelector(`[data-schritt="${name}"]`);
+
+    /* Standardzeiten eines Einsatzes. Ein Startwert, kein Versprechen — er
+       steht in zwei Feldern, die man überschreibt. Abende sind der
+       häufigste Fall; wer tagsüber aufbaut, ändert zwei Zahlen. */
+    const VON = '18:00', BIS = '23:00';
+
+    let arten = [];        /* vom Server */
+    let kunde = null;      /* nach der Anmeldung */
+    let tage  = [];        /* der Bedarf */
+    let entwurf = null;    /* was in der Übersicht steht */
+    let schluessel = '';   /* gegen Doppelabsenden */
+
+    /* ---- Verbindung ---- */
+
+    async function ruf(aktion, daten){
+      let a;
+      try {
+        a = await fetch('/api/konto', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json',
+                     'X-HST-Bereich': 'kundenbereich' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ aktion, ...(daten || {}) })
+        });
+      } catch(e){
+        /* Kein Netz, Flugmodus, Funkloch. Der Unterschied zu einem
+           Serverfehler ist für den Benutzer wesentlich: das eine kann er
+           selbst beheben. */
+        return { code: 0, rumpf: { ok: false, offline: true,
+          grund: 'Keine Verbindung. Bitte prüfen Sie Ihr Netz und versuchen Sie es noch einmal.' } };
+      }
+      let rumpf = {};
+      try { rumpf = await a.json(); } catch(e){}
+      return { code: a.status, rumpf };
+    }
+
+    function melde(wo, text, stand){
+      const p = wo.querySelector('.form__status');
+      if(!p) return;
+      p.textContent = text || '';
+      if(stand) p.setAttribute('data-stand', stand); else p.removeAttribute('data-stand');
+    }
+
+    function feldFehler(feld, text){
+      const kasten = feld.closest('.feld');
+      if(!kasten) return;
+      kasten.classList.toggle('feld--fehler', !!text);
+      const p = kasten.querySelector('.feld__fehler');
+      if(p) p.textContent = text || '';
+    }
+
+    /* Eine abgelaufene Sitzung führt zurück zur Anmeldung — und nicht in
+       eine Seite, auf der nichts mehr geht. */
+    function abgelaufen(){
+      kunde = null;
+      zeigen('anmelden');
+      melde(teil('anmelden'), 'Ihre Anmeldung ist abgelaufen. Bitte melden Sie sich neu an.', 'fehler');
+      bereich.scrollIntoView({ block:'nearest', behavior: reduce ? 'auto' : 'smooth' });
+    }
+
+    /* ---- Die Tür ---- */
+
+    function tuerAuf(auf){
+      knopf.setAttribute('aria-expanded', String(auf));
+      if(auf){
+        bereich.hidden = false;
+        requestAnimationFrame(()=> bereich.classList.add('auf'));
+        const erstes = bereich.querySelector('.kb-schritt:not([hidden]) input:not([type=checkbox]), .kb-schritt:not([hidden]) button');
+        if(erstes && !reduce) setTimeout(()=> erstes.focus({ preventScroll:true }), 60);
+      } else {
+        bereich.classList.remove('auf');
+        setTimeout(()=>{ if(knopf.getAttribute('aria-expanded') !== 'true') bereich.hidden = true; }, 420);
+      }
+    }
+
+    knopf.addEventListener('click', ()=> tuerAuf(knopf.getAttribute('aria-expanded') !== 'true'));
+
+    /* ---- Anmelden ---- */
+
+    const anmeldeteil = teil('anmelden');
+    const anmeldung   = anmeldeteil.querySelector('.kb-anmeldung');
+    const vergessen   = anmeldeteil.querySelector('.kb-vergessen');
+
+    anmeldung.addEventListener('submit', async (ev)=>{
+      ev.preventDefault();
+      const name = anmeldung.anmeldename, pass = anmeldung.passwort;
+      feldFehler(name, ''); feldFehler(pass, '');
+      if(!name.value.trim()){ feldFehler(name, 'Bitte tragen Sie Ihren Anmeldenamen ein.'); name.focus(); return; }
+      if(!pass.value){ feldFehler(pass, 'Bitte tragen Sie Ihr Passwort ein.'); pass.focus(); return; }
+
+      const senden = anmeldung.querySelector('button[type=submit]');
+      senden.setAttribute('aria-busy', 'true');
+      melde(anmeldung, 'Wird geprüft …', 'laeuft');
+
+      const a = await ruf('anmelden', {
+        anmeldename: name.value.trim(),
+        passwort: pass.value,
+        bleiben: anmeldung.bleiben.checked
+      });
+      senden.removeAttribute('aria-busy');
+
+      if(!a.rumpf.ok){
+        melde(anmeldung, a.rumpf.grund || 'Anmeldung nicht möglich.', 'fehler');
+        pass.value = '';
+        pass.focus();
+        return;
+      }
+      melde(anmeldung, '', null);
+      pass.value = '';
+      angemeldet(a.rumpf.kunde, true, true);
+    });
+
+    anmeldeteil.querySelector('[data-vergessen]').addEventListener('click', ()=>{
+      anmeldung.hidden = true; vergessen.hidden = false;
+      vergessen.email.focus();
+    });
+    vergessen.querySelector('[data-zurueck]').addEventListener('click', ()=>{
+      vergessen.hidden = true; anmeldung.hidden = false;
+      melde(vergessen, '', null);
+    });
+
+    vergessen.addEventListener('submit', async (ev)=>{
+      ev.preventDefault();
+      const feld = vergessen.email;
+      feldFehler(feld, '');
+      if(!feld.value.includes('@')){ feldFehler(feld, 'Bitte tragen Sie Ihre E-Mail-Adresse ein.'); return; }
+      const senden = vergessen.querySelector('button[type=submit]');
+      senden.setAttribute('aria-busy', 'true');
+      const a = await ruf('passwort-vergessen', { email: feld.value.trim() });
+      senden.removeAttribute('aria-busy');
+      melde(vergessen, a.rumpf.hinweis || a.rumpf.grund || '', a.rumpf.ok ? null : 'fehler');
+    });
+
+    /* ---- Neues Passwort aus einem Link ----
+       Der Link aus der Mail trägt die Marke hinter dem Doppelkreuz. Dort
+       steht sie richtig: was hinter `#` steht, schickt der Browser nicht an
+       den Server und es landet in keinem Zugriffsprotokoll. */
+    const neuform = teil('passwort-neu').querySelector('.kb-neu');
+    let resetMarke = '';
+    (function ausDerAdresse(){
+      const m = /(?:^|#|&)passwort-neu=([A-Za-z0-9_-]{20,})/.exec(location.hash || '');
+      if(!m) return;
+      resetMarke = m[1];
+      /* Aus der Adresse nehmen, damit sie nicht im Verlauf stehen bleibt. */
+      history.replaceState(null, '', location.pathname + location.search);
+      tuer.hidden = false;
+      tuerAuf(true);
+      zeigen('passwort-neu');
+      setTimeout(()=> neuform.passwort.focus({ preventScroll:true }), 80);
+      tuer.scrollIntoView({ block:'start', behavior:'auto' });
+    })();
+
+    neuform.addEventListener('submit', async (ev)=>{
+      ev.preventDefault();
+      const feld = neuform.passwort;
+      feldFehler(feld, '');
+      if(feld.value.length < 10){ feldFehler(feld, 'Bitte mindestens zehn Zeichen wählen.'); return; }
+      const senden = neuform.querySelector('button[type=submit]');
+      senden.setAttribute('aria-busy', 'true');
+      const a = await ruf('passwort-neu', { marke: resetMarke, passwort: feld.value });
+      senden.removeAttribute('aria-busy');
+      if(!a.rumpf.ok){ melde(neuform, a.rumpf.grund || 'Das hat nicht geklappt.', 'fehler'); return; }
+      feld.value = '';
+      zeigen('anmelden');
+      melde(anmeldung, a.rumpf.hinweis || 'Das Passwort wurde geändert.', null);
+      anmeldung.anmeldename.focus();
+    });
+
+    /* ---- Passkeys ----
+       Auf Face ID greift hier nichts zu. WebAuthn fragt das Gerät, und das
+       Gerät entscheidet selbst, wie es seinen Besitzer erkennt — auf einem
+       iPhone ist das Face ID, auf einem Windows-Rechner Hello oder die PIN.
+       Angeboten wird es nur, wenn der Browser es kann; sonst wird der Knopf
+       entfernt statt abgeblendet. */
+    const kannPasskey = typeof window.PublicKeyCredential !== 'undefined'
+                     && !!(navigator.credentials && navigator.credentials.create);
+
+    const b64 = {
+      ein(s){
+        const t = String(s).replace(/-/g, '+').replace(/_/g, '/');
+        const b = atob(t + '='.repeat((4 - t.length % 4) % 4));
+        const u = new Uint8Array(b.length);
+        for(let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i);
+        return u.buffer;
+      },
+      aus(b){
+        const u = new Uint8Array(b); let s = '';
+        for(let i = 0; i < u.length; i++) s += String.fromCharCode(u[i]);
+        return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      }
+    };
+
+    /* Wie das Gerät heißt, in einem Satz. Nur zur Wiedererkennung in der
+       Liste — es wird nichts ausgewertet und nichts weitergegeben. */
+    function geraetName(){
+      const u = navigator.userAgent || '';
+      if(/iPhone/.test(u)) return 'iPhone';
+      if(/iPad/.test(u)) return 'iPad';
+      if(/Android/.test(u)) return 'Android-Gerät';
+      if(/Macintosh/.test(u)) return 'Mac';
+      if(/Windows/.test(u)) return 'Windows-Gerät';
+      return 'Dieses Gerät';
+    }
+
+    const passkeyKnopf = anmeldung.querySelector('.kb-passkey');
+    if(!kannPasskey) passkeyKnopf.remove();
+
+    passkeyKnopf && passkeyKnopf.addEventListener('click', async ()=>{
+      passkeyKnopf.setAttribute('aria-busy', 'true');
+      melde(anmeldung, '', null);
+      try {
+        const s = await ruf('passkey-anmelden-start', {
+          anmeldename: anmeldung.anmeldename.value.trim() || undefined });
+        if(!s.rumpf.ok) throw new Error(s.rumpf.grund || 'Passkeys stehen nicht zur Verfügung.');
+
+        const o = s.rumpf.optionen;
+        const zeugnis = await navigator.credentials.get({ publicKey: {
+          ...o,
+          challenge: b64.ein(o.challenge),
+          allowCredentials: (o.allowCredentials || []).map(c => ({ ...c, id: b64.ein(c.id) }))
+        }});
+
+        const a = await ruf('passkey-anmelden-ende', {
+          marke: s.rumpf.marke,
+          bleiben: anmeldung.bleiben.checked,
+          antwort: {
+            id: zeugnis.id, rawId: b64.aus(zeugnis.rawId), type: zeugnis.type,
+            clientExtensionResults: zeugnis.getClientExtensionResults(),
+            response: {
+              clientDataJSON:    b64.aus(zeugnis.response.clientDataJSON),
+              authenticatorData: b64.aus(zeugnis.response.authenticatorData),
+              signature:         b64.aus(zeugnis.response.signature),
+              userHandle: zeugnis.response.userHandle ? b64.aus(zeugnis.response.userHandle) : null
+            }
+          }
+        });
+        if(!a.rumpf.ok) throw new Error(a.rumpf.grund || 'Anmeldung nicht möglich.');
+        angemeldet(a.rumpf.kunde, false, true);
+      } catch(e){
+        /* Abgebrochen ist kein Fehler — wer Face ID wegwischt, will das
+           Passwort. Alles andere bekommt eine Meldung. */
+        const abgebrochen = e && (e.name === 'NotAllowedError' || e.name === 'AbortError');
+        melde(anmeldung, abgebrochen ? '' : (e.message || 'Die Anmeldung mit Passkey hat nicht geklappt.'),
+              abgebrochen ? null : 'fehler');
+        if(abgebrochen) anmeldung.anmeldename.focus();
+      } finally {
+        passkeyKnopf.removeAttribute('aria-busy');
+      }
+    });
+
+    const anbieten = teil('anfrage').querySelector('[data-passkey-anbieten]');
+    anbieten.addEventListener('click', async ()=>{
+      anbieten.setAttribute('aria-busy', 'true');
+      try {
+        const s = await ruf('passkey-einrichten-start');
+        if(!s.rumpf.ok) throw new Error(s.rumpf.grund || 'Das geht hier nicht.');
+        const o = s.rumpf.optionen;
+        const neu = await navigator.credentials.create({ publicKey: {
+          ...o,
+          challenge: b64.ein(o.challenge),
+          user: { ...o.user, id: b64.ein(o.user.id) },
+          excludeCredentials: (o.excludeCredentials || []).map(c => ({ ...c, id: b64.ein(c.id) }))
+        }});
+        const a = await ruf('passkey-einrichten-ende', {
+          marke: s.rumpf.marke, geraet: geraetName(),
+          antwort: {
+            id: neu.id, rawId: b64.aus(neu.rawId), type: neu.type,
+            clientExtensionResults: neu.getClientExtensionResults(),
+            response: {
+              clientDataJSON:    b64.aus(neu.response.clientDataJSON),
+              attestationObject: b64.aus(neu.response.attestationObject),
+              transports: neu.response.getTransports ? neu.response.getTransports() : []
+            }
+          }
+        });
+        if(!a.rumpf.ok) throw new Error(a.rumpf.grund || 'Der Passkey konnte nicht gespeichert werden.');
+        kunde = a.rumpf.kunde;
+        anbieten.hidden = true;
+        melde(teil('anfrage').querySelector('.kb-formular'),
+              'Beim nächsten Mal genügt Face ID oder Ihr Gerätecode.', null);
+      } catch(e){
+        const abgebrochen = e && (e.name === 'NotAllowedError' || e.name === 'AbortError');
+        if(!abgebrochen) melde(teil('anfrage').querySelector('.kb-formular'),
+          e.message || 'Das hat nicht geklappt.', 'fehler');
+      } finally {
+        anbieten.removeAttribute('aria-busy');
+      }
+    });
+
+    /* ---- Angemeldet ---- */
+
+    const anfrageteil = teil('anfrage');
+    const formular    = anfrageteil.querySelector('.kb-formular');
+
+    function angemeldet(daten, mitPasswort, oeffnen){
+      kunde = daten;
+      const person = (kunde.ansprechpartner || []).find(p => p.haupt) || (kunde.ansprechpartner || [])[0];
+      anfrageteil.querySelector('[data-firma]').textContent = kunde.firma || '';
+      anfrageteil.querySelector('[data-person]').textContent =
+        person ? [person.vorname, person.nachname].filter(Boolean).join(' ') : '';
+      anfrageteil.querySelector('[data-kundennummer]').textContent =
+        'Kundennummer ' + (kunde.kundennummer || '');
+
+      /* Der Passkey wird erst angeboten, wenn jemand sein Passwort eingegeben
+         hat: nach einer Anmeldung MIT Passkey wäre die Frage sinnlos, und
+         ohne Passwort davor wäre sie eine Einladung an jeden, der gerade am
+         offenen Rechner sitzt. */
+      anbieten.hidden = !(mitPasswort && kannPasskey && kunde.passkeyMoeglich
+                          && (kunde.passkeys || []).length === 0);
+
+      tageZuruecksetzen();
+      zeigen('anfrage');
+      /* Beim Anmelden aufmachen und hinspringen. Beim stillen Wiederfinden
+         einer laufenden Sitzung nicht: dort soll die Seite ruhig stehen
+         bleiben, bis jemand die Tuer selbst oeffnet. */
+      if(oeffnen !== false){
+        tuerAuf(true);
+        anfrageteil.scrollIntoView({ block:'start', behavior: reduce ? 'auto' : 'smooth' });
+      }
+    }
+
+    anfrageteil.querySelector('[data-abmelden]').addEventListener('click', async ()=>{
+      await ruf('abmelden');
+      kunde = null;
+      anmeldung.hidden = false; vergessen.hidden = true;
+      melde(anmeldung, '', null);
+      zeigen('anmelden');
+    });
+
+    /* ---- Der Bedarf: Tage und Mengen ---- */
+
+    const tageKasten = anfrageteil.querySelector('[data-tage]');
+
+    function heutePlus(n){
+      const d = new Date();
+      d.setDate(d.getDate() + n);
+      return d.toISOString().slice(0, 10);
+    }
+    function tagDanach(datum){
+      if(!datum) return '';
+      const d = new Date(datum + 'T12:00:00');
+      d.setDate(d.getDate() + 1);
+      return d.toISOString().slice(0, 10);
+    }
+    function datumHuebsch(w){
+      const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(w || '');
+      if(!m) return '';
+      const TAGE = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+      const d = new Date(w + 'T12:00:00');
+      return `${TAGE[d.getDay()]}, ${m[3]}.${m[2]}.${m[1]}`;
+    }
+
+    function leererTag(vorbild){
+      const mengen = {};
+      arten.forEach(a => { mengen[a.schluessel] = vorbild ? vorbild.mengen[a.schluessel] : 0; });
+      return {
+        datum: vorbild ? tagDanach(vorbild.datum) : '',
+        von: vorbild ? vorbild.von : VON,
+        bis: vorbild ? vorbild.bis : BIS,
+        mengen
+      };
+    }
+
+    function tageZuruecksetzen(){
+      tage = [leererTag(null)];
+      schluessel = '';
+      tageMalen();
+      formular.reset();
+      melde(formular, '', null);
+    }
+
+    function tageMalen(){
+      tageKasten.textContent = '';
+      tage.forEach((tag, i) => tageKasten.appendChild(tagBauen(tag, i)));
+      anfrageteil.querySelector('[data-tag-plus]').hidden = tage.length >= 14;
+    }
+
+    function tagBauen(tag, i){
+      const wurzel = document.createElement('div');
+      wurzel.className = 'kb-tag';
+
+      const kopf = document.createElement('div');
+      kopf.className = 'kb-tag__kopf';
+
+      if(tage.length > 1){
+        const marke = document.createElement('span');
+        marke.className = 'kb-tag__marke';
+        marke.textContent = 'Tag ' + (i + 1);
+        kopf.appendChild(marke);
+      }
+
+      kopf.appendChild(tagFeld('Datum', 'date', tag.datum, w => { tag.datum = w; }, 'kb-datum-' + i, heutePlus(0), 'datum'));
+      kopf.appendChild(tagFeld('Von',  'time', tag.von,   w => { tag.von = w; },   'kb-von-' + i, null, 'zeit'));
+      kopf.appendChild(tagFeld('Bis',  'time', tag.bis,   w => { tag.bis = w; },   'kb-bis-' + i, null, 'zeit'));
+
+      if(tage.length > 1){
+        const weg = document.createElement('button');
+        weg.type = 'button';
+        weg.className = 'kb-textknopf kb-tag__weg';
+        weg.textContent = 'Tag entfernen';
+        weg.addEventListener('click', ()=>{ tage.splice(i, 1); tageMalen(); });
+        kopf.appendChild(weg);
+      }
+      wurzel.appendChild(kopf);
+
+      const liste = document.createElement('div');
+      liste.className = 'kb-arten';
+      arten.forEach(art => liste.appendChild(artZeile(art, tag)));
+      wurzel.appendChild(liste);
+      return wurzel;
+    }
+
+    function tagFeld(beschriftung, typ, wert, setzen, id, min, art){
+      const kasten = document.createElement('div');
+      kasten.className = 'kb-tag__feld' + (art ? ' kb-tag__feld--' + art : '');
+      const label = document.createElement('label');
+      label.setAttribute('for', id);
+      label.textContent = beschriftung;
+      const feld = document.createElement('input');
+      feld.type = typ; feld.id = id; feld.value = wert || '';
+      if(min) feld.min = min;
+      feld.addEventListener('input', ()=> setzen(feld.value));
+      kasten.appendChild(label); kasten.appendChild(feld);
+      return kasten;
+    }
+
+    function artZeile(art, tag){
+      const zeile = document.createElement('div');
+      zeile.className = 'kb-art';
+
+      const wort = document.createElement('div');
+      wort.className = 'kb-art__wort';
+      const name = document.createElement('span');
+      name.className = 'kb-art__name';
+      name.textContent = art.name;
+      const hinweis = document.createElement('span');
+      hinweis.className = 'kb-art__hinweis';
+      hinweis.textContent = art.hinweis || '';
+      wort.appendChild(name); wort.appendChild(hinweis);
+
+      const menge = document.createElement('div');
+      menge.className = 'kb-menge';
+      const zahl = document.createElement('span');
+      zahl.className = 'kb-menge__zahl';
+
+      const weniger = mengenKnopf('−', 'Eine Person weniger ' + art.name);
+      const mehr    = mengenKnopf('+', 'Eine Person mehr ' + art.name);
+
+      function schreiben(stups){
+        const n = tag.mengen[art.schluessel] || 0;
+        zahl.textContent = String(n);
+        zeile.classList.toggle('kb-art--an', n > 0);
+        weniger.disabled = n <= 0;
+        mehr.disabled = n >= 999;
+        if(stups && !reduce){
+          zahl.classList.add('stups');
+          setTimeout(()=> zahl.classList.remove('stups'), 200);
+        }
+      }
+      function aendern(um){
+        const n = Math.min(999, Math.max(0, (tag.mengen[art.schluessel] || 0) + um));
+        tag.mengen[art.schluessel] = n;
+        schreiben(true);
+      }
+      weniger.addEventListener('click', ()=> aendern(-1));
+      mehr.addEventListener('click', ()=> aendern(+1));
+
+      menge.appendChild(weniger); menge.appendChild(zahl); menge.appendChild(mehr);
+      zeile.appendChild(wort); zeile.appendChild(menge);
+      schreiben(false);
+      return zeile;
+    }
+
+    function mengenKnopf(zeichen, name){
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = zeichen;
+      b.setAttribute('aria-label', name);
+      return b;
+    }
+
+    anfrageteil.querySelector('[data-tag-plus]').addEventListener('click', ()=>{
+      tage.push(leererTag(tage[tage.length - 1]));
+      tageMalen();
+      const letzte = tageKasten.lastElementChild;
+      if(letzte) letzte.scrollIntoView({ block:'nearest', behavior: reduce ? 'auto' : 'smooth' });
+    });
+
+    /* ---- Prüfen ---- */
+
+    function positionenBauen(){
+      const raus = [];
+      tage.forEach(tag => {
+        arten.forEach(art => {
+          const n = tag.mengen[art.schluessel] || 0;
+          if(n > 0) raus.push({
+            art: art.schluessel, artName: art.name, anzahl: n,
+            datum: tag.datum, von: tag.von, bis: tag.bis,
+            ueberNacht: tag.bis <= tag.von
+          });
+        });
+      });
+      return raus;
+    }
+
+    formular.addEventListener('submit', (ev)=>{
+      ev.preventDefault();
+      melde(formular, '', null);
+      ['projekt','einsatzort'].forEach(n => feldFehler(formular[n], ''));
+
+      if(!formular.projekt.value.trim()){
+        feldFehler(formular.projekt, 'Bitte geben Sie an, worum es geht.');
+        formular.projekt.focus(); return;
+      }
+      if(!formular.einsatzort.value.trim()){
+        feldFehler(formular.einsatzort, 'Bitte geben Sie den Einsatzort an.');
+        formular.einsatzort.focus(); return;
+      }
+      const ohneDatum = tage.findIndex(t => !t.datum);
+      if(ohneDatum >= 0){
+        melde(formular, `Bitte tragen Sie beim ${tage.length > 1 ? (ohneDatum + 1) + '. Tag' : 'Einsatz'} ein Datum ein.`, 'fehler');
+        const feld = tageKasten.querySelector(`#kb-datum-${ohneDatum}`);
+        if(feld) feld.focus();
+        return;
+      }
+      const positionen = positionenBauen();
+      if(!positionen.length){
+        melde(formular, 'Bitte wählen Sie mindestens eine Personalart aus.', 'fehler');
+        tageKasten.scrollIntoView({ block:'nearest', behavior: reduce ? 'auto' : 'smooth' });
+        return;
+      }
+
+      entwurf = {
+        projekt:    formular.projekt.value.trim(),
+        einsatzort: formular.einsatzort.value.trim(),
+        adresse:    formular.adresse.value.trim(),
+        hinweise:   formular.hinweise.value.trim(),
+        positionen
+      };
+      /* Ein Schlüssel je Entwurf, nicht je Klick: zweimal auf „Senden"
+         ergibt dieselbe Anfrage. Neu wird er erst bei der nächsten
+         Anfrage. */
+      if(!schluessel) schluessel = 'a-' + Date.now().toString(36) + '-'
+        + Math.floor(Math.random() * 1e9).toString(36);
+
+      uebersichtMalen(teil('pruefen').querySelector('[data-uebersicht]'), entwurf);
+      zeigen('pruefen');
+      teil('pruefen').scrollIntoView({ block:'start', behavior: reduce ? 'auto' : 'smooth' });
+    });
+
+    function uebersichtMalen(wo, d){
+      wo.textContent = '';
+
+      const zeile = (was, wert) => {
+        if(!wert) return;
+        const z = document.createElement('div'); z.className = 'kb-ueber__zeile';
+        const a = document.createElement('span'); a.className = 'kb-ueber__was'; a.textContent = was;
+        const b = document.createElement('span'); b.className = 'kb-ueber__wert'; b.textContent = wert;
+        z.appendChild(a); z.appendChild(b); wo.appendChild(z);
+      };
+      zeile('Firma', kunde ? kunde.firma : '');
+      zeile('Projekt', d.projekt);
+      zeile('Einsatzort', d.einsatzort);
+      zeile('Adresse', d.adresse);
+
+      /* Nach Tagen gruppiert — so liest es die Disposition, und so steht es
+         auch in der Mail. */
+      const proTag = new Map();
+      d.positionen.forEach(p => {
+        if(!proTag.has(p.datum)) proTag.set(p.datum, []);
+        proTag.get(p.datum).push(p);
+      });
+      [...proTag.entries()].sort((a, b) => a[0] < b[0] ? -1 : 1).forEach(([datum, liste]) => {
+        const kasten = document.createElement('div'); kasten.className = 'kb-ueber__tag';
+        const marke = document.createElement('span'); marke.className = 'kb-ueber__tagmarke';
+        marke.textContent = datumHuebsch(datum);
+        kasten.appendChild(marke);
+        liste.forEach(p => {
+          const z = document.createElement('div'); z.className = 'kb-ueber__posten';
+          const n = document.createElement('span'); n.className = 'kb-ueber__anzahl';
+          n.textContent = p.anzahl + ' ×';
+          const a = document.createElement('span'); a.className = 'kb-ueber__art';
+          a.textContent = p.artName;
+          const t = document.createElement('span'); t.className = 'kb-ueber__zeit';
+          t.textContent = `${p.von}–${p.bis} Uhr` + (p.ueberNacht ? ' (über Nacht)' : '');
+          z.appendChild(n); z.appendChild(a); z.appendChild(t);
+          kasten.appendChild(z);
+        });
+        wo.appendChild(kasten);
+      });
+
+      if(d.hinweise){
+        const kasten = document.createElement('div'); kasten.className = 'kb-ueber__tag';
+        const marke = document.createElement('span'); marke.className = 'kb-ueber__tagmarke';
+        marke.textContent = 'Hinweise zum Einsatz';
+        const p = document.createElement('p'); p.className = 'kb-ueber__wert';
+        p.textContent = d.hinweise;
+        kasten.appendChild(marke); kasten.appendChild(p);
+        wo.appendChild(kasten);
+      }
+    }
+
+    teil('pruefen').querySelector('[data-zurueck-bearbeiten]').addEventListener('click', ()=>{
+      zeigen('anfrage');
+      anfrageteil.scrollIntoView({ block:'start', behavior: reduce ? 'auto' : 'smooth' });
+    });
+
+    /* ---- Senden ---- */
+
+    const sendeKnopf = teil('pruefen').querySelector('[data-senden]');
+    let laeuft = false;
+
+    sendeKnopf.addEventListener('click', async ()=>{
+      if(laeuft) return;                 /* zweimal tippen ändert nichts */
+      laeuft = true;
+      sendeKnopf.setAttribute('aria-busy', 'true');
+      melde(teil('pruefen'), 'Wird gesendet …', 'laeuft');
+
+      const a = await ruf('anfrage', {
+        ...entwurf,
+        positionen: entwurf.positionen.map(p => ({
+          art: p.art, anzahl: p.anzahl, datum: p.datum,
+          von: p.von, bis: p.bis, ueberNacht: p.ueberNacht
+        })),
+        vorgangsschluessel: schluessel
+      });
+
+      laeuft = false;
+      sendeKnopf.removeAttribute('aria-busy');
+
+      if(a.code === 401 && a.rumpf.abgelaufen){
+        /* Die Anfrage ist nicht verloren: der Entwurf steht noch, und nach
+           der Anmeldung geht es an derselben Stelle weiter. */
+        abgelaufen();
+        return;
+      }
+      if(!a.rumpf.ok){
+        melde(teil('pruefen'), a.rumpf.grund || 'Die Anfrage konnte nicht gespeichert werden.', 'fehler');
+        return;
+      }
+
+      melde(teil('pruefen'), '', null);
+      const fertig = teil('fertig');
+      fertig.querySelector('[data-nummer]').textContent = a.rumpf.anfragenummer || '';
+      fertig.querySelector('[data-fertig-satz]').textContent = a.rumpf.benachrichtigt
+        ? 'Ihre Anfrage liegt unserem Dispositionsteam vor. Sie erhalten gleich eine Bestätigung per E-Mail.'
+        : 'Ihre Anfrage ist gespeichert. Die Bestätigung per E-Mail konnte gerade nicht zugestellt werden: melden Sie sich im Zweifel unter +49 (40) 27075100 mit Ihrer Anfragenummer.';
+      uebersichtMalen(fertig.querySelector('[data-uebersicht-fertig]'), entwurf);
+      zeigen('fertig');
+      fertig.scrollIntoView({ block:'start', behavior: reduce ? 'auto' : 'smooth' });
+    });
+
+    teil('fertig').querySelector('[data-neue-anfrage]').addEventListener('click', ()=>{
+      entwurf = null;
+      tageZuruecksetzen();
+      zeigen('anfrage');
+      anfrageteil.scrollIntoView({ block:'start', behavior: reduce ? 'auto' : 'smooth' });
+    });
+
+    /* ---- Los: erst fragen, ob es den Bereich gibt ---- */
+
+    (async function anfangen(){
+      const a = await ruf('stand');
+      if(a.code === 503 || !a.rumpf || a.rumpf.bereit !== true) return;   /* Tür bleibt zu */
+      arten = a.rumpf.personal || [];
+      if(!arten.length) return;
+      tuer.hidden = false;
+      if(passkeyKnopf && a.rumpf.passkeyMoeglich) passkeyKnopf.hidden = false;
+      /* Wer schon angemeldet ist (langlebige Sitzung), landet gleich in der
+         Anfrage — ohne zweite Anmeldung und ohne dass etwas aufblitzt. */
+      if(a.rumpf.angemeldet && a.rumpf.kunde){
+        angemeldet(a.rumpf.kunde, false, true);
+        tuerAuf(false);
+        knopf.setAttribute('aria-expanded', 'false');
+      }
+    })();
+  })();
+
   /* navHoehe() hing bis hierher an `alles()`, und das lief nur `if(!reduce)`.
      Bei reduzierter Bewegung stand `--nav-h` deshalb nie — überall galt der
      Rückfallwert 78 px, während die Kopfzeile bei 1440 px 98 px hoch ist.

@@ -1908,6 +1908,108 @@ auf ihr eigenes Ergebnis auffallen müssen.
 
 ---
 
+## Der Bestandskundenbereich
+
+Er sitzt auf `kontakt.html` zwischen Kopfbild und Anfrageformular, und er ist
+die erste Stelle im Projekt, an der die Website etwas **speichert**. Bis
+dahin war sie vollständig zustandslos: Dateien plus eine Funktion, die eine
+Mail verschickt.
+
+Sieben Entscheidungen, die man kennen muss, bevor man daran etwas ändert:
+
+**1. Kein Menüpunkt, keine eigene Seite.** Der Bereich ist eine Zeile über
+dem vorhandenen Formular. Ein sichtbares Kundenportal wäre ein zweiter
+Auftritt neben der Website; hier ist es eine Abkürzung innerhalb der Seite,
+die es ohnehin gibt. Das Formular darunter ist unverändert und bleibt der
+Regelweg.
+
+**2. Die Klassen sind die des bestehenden Formulars.** `form`, `fgruppe`,
+`feld`, `form__fuss`, `form__status` — der Bereich sieht nicht *ähnlich* aus
+wie das Formular darunter, er ist dasselbe. Eigene Klassen (`kb-…`) gibt es
+nur für das, was es vorher nicht gab: die Tür, den Kundenkopf, die
+Mengensteuerung, die Übersicht.
+
+**3. Der sichtbare Text steht im Markup, nicht in `main.js`.** Sonst käme er
+weder durch das Korrekturlesen noch durch `striche-ersetzen.py`. Das Skript
+baut nur, was sich wiederholt: die Personalzeilen und die Tage.
+
+**4. Ohne Datenbank bleibt die Tür zu.** Beim Laden fragt die Seite einmal
+bei `/api/konto` nach (`aktion:stand`). Fehlt `DATABASE_URL`, antwortet der
+Endpunkt mit 503, und der ganze Abschnitt bleibt auf `hidden`. Es gibt nie
+einen Knopf, hinter dem nichts ist — und ohne JavaScript ebenso wenig.
+
+**5. Wer der Kunde ist, sagt allein die Sitzung.** Keine Abfrage im
+Kundenbereich nimmt eine Kundennummer aus dem Rumpf entgegen. Jede Abfrage,
+die etwas Kundeneigenes anfasst, trägt `AND kunde_id = $n` — auch dort, wo es
+überflüssig aussieht. Das ist der Punkt, an dem Kundenportale reihenweise
+scheitern.
+
+**6. Zwei Riegel gegen fremde Seiten.** Der Sitzungskeks ist
+`SameSite=Strict`, und jeder POST muss den Kopf `X-HST-Bereich` tragen. Einer
+allein reicht nicht: `SameSite` kennt nicht jeder alte Browser, und der Kopf
+allein hülfe nichts gegen ein abgeschicktes Formular.
+
+**7. Speichern hat Vorrang vor dem Mailversand.** Eine Anfrage, die in der
+Datenbank steht, ist angekommen — auch wenn der Mailserver gerade nicht
+erreichbar ist. Der Versand kommt danach und wird nur vermerkt
+(`mail_disposition`, `mail_kunde`). Andersherum wäre die Anfrage weg.
+
+### Warum scrypt und nicht Argon2id
+
+Argon2id wäre die erste Wahl, braucht aber ein Modul mit eigener
+Maschinensprache. Das Netlify-Paket wird zu **einer** Datei gebündelt (siehe
+„Das Netlify-Paket ist keine Kopie des Repositorys"), und eine `.node`-Datei
+lässt sich nicht mitbündeln. `scrypt` steht in Node selbst und ist als
+speicherhartes Verfahren gegen Grafikkarten gebaut.
+
+Die Wahl ist also eine Folge der Auslieferung, nicht der Bequemlichkeit — und
+sie ist umkehrbar: **das Verfahren steht im Hash mit drin**
+(`scrypt$N$r$p$salz$hash`). Wer den Betrieb später auf einen eigenen Server
+hebt, kann ein zweites Verfahren daneben stellen, ohne einen einzigen
+bestehenden Hash anzufassen.
+
+### Die Falle: WebAuthn nimmt keine IP-Adresse
+
+Die Kennung der Gegenstelle (`rpID`) muss ein registrierbarer Name sein.
+Gegen `127.0.0.1` antwortet Chromium mit „This is an invalid domain", und man
+sucht den Fehler zuerst im eigenen Code. `localhost` ist ausdrücklich
+erlaubt — zum Ausprobieren also `http://localhost:…`, nicht die Zahlen.
+
+Im Betrieb darf die Kennung **nicht** aus dem Host-Kopf kommen: wer den
+fälschen kann, bekäme eine Signatur, die auf seiner eigenen Adresse gilt. Sie
+steht deshalb in `WEBAUTHN_RP_ID`; nur auf dem eigenen Rechner wird sie
+abgeleitet.
+
+### Die Falle: `button.btn` ist der Absendeknopf
+
+Die Regel hängt am Element: `a.btn` ist die leise Aktion, `button.btn` die
+große mit voller Breite, Linien oben und unten und weißer Füllung beim
+Ansteuern. Das ging auf, solange jeder `<button class="btn">` auch wirklich
+etwas abschickte.
+
+Der Bestandskundenbereich hat Knöpfe, die ein `<button>` sein **müssen**,
+weil sie auf- und zuklappen (`aria-expanded`), aber nicht das Ziel der Seite
+sind. Sie riefen sonst lauter als der Absendeknopf des Formulars darunter.
+Dafür gibt es jetzt `.btn--zeile`.
+
+### Die Falle: `.form label` trifft auch ein Häkchen
+
+Ein `<label>`, das ein `<input type="checkbox">` umschließt, bekommt von
+`.form label` das Aussehen einer Feldbeschriftung — Versalien,
+Schreibmaschinenschrift, `display:block`. Das Kästchen stand dadurch mitten
+in der Zeile und der Text darunter. Die Lösung steht schon im Projekt:
+`.zustimmung` setzt Kästchen und Beschriftung als **Geschwister**, nicht
+ineinander. Wer ein weiteres Häkchen braucht, nimmt dieselbe Bauform.
+
+### Was der Betrieb dafür braucht
+
+Eine PostgreSQL-Datenbank (`DATABASE_URL`) und zwei Angaben für WebAuthn.
+Ohne die Datenbank ist der Bereich unsichtbar, ohne die WebAuthn-Angaben gibt
+es keine Passkeys und die Anmeldung läuft über Passwort. Angelegt werden
+Kunden mit `tools/kunden.js`; eine Selbstregistrierung gibt es bewusst nicht.
+
+---
+
 ## Was bewusst fehlt
 
 Keine Cookies, kein Tracking, keine externen Schriften, keine

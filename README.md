@@ -67,7 +67,19 @@ api/_angebot.js         Angebotsbogen: Datensatz, Word-Datei und PDF
 api/_mails.js           Wortlaut aller vier Mails
 api/_logo.js            Wortzeichen hell — für das dunkle Band im PDF
 api/_logo_dunkel.js     Wortzeichen schwarz — für den weissen Angebotsbogen
-package.json            die drei Pakete, die nur die Funktion braucht
+
+api/_kundenbereich.js   der Bestandskundenbereich — der ganze Ablauf
+api/konto.js            Hülle für Vercel
+api/_konto_netlify.js   Hülle für Netlify (wird vorher gebündelt)
+api/_db.js              PostgreSQL, angesprochen über DATABASE_URL
+api/_sicher.js          Passwörter, Sitzungen, Sperre, Prüfspur
+api/_passkey.js         WebAuthn: Face ID, Touch ID, Windows Hello
+api/_personal.js        die Personalarten — eine Quelle für Server und Seite
+api/_kundenmails.js     Disposition und Eingangsbestätigung
+db/001_kundenbereich.sql  das Schema, einmal einzuspielen
+tools/kunden.js         Bestandskunden anlegen, ändern, sperren, löschen
+
+package.json            die Pakete, die nur die Funktionen brauchen
 
 tools/paket-bauen.sh    baut das ZIP zum Hochladen bei Netlify
 netlify.toml            Hosting-Konfiguration Netlify
@@ -97,6 +109,100 @@ Es tritt an zwei Stellen auf:
 
 Die Punkte **zählen nichts.** Fünf Punkte heißen nicht fünf Leute; das wäre
 eine Angabe über den Betrieb, und die steht hier nur, wo sie belegt ist.
+
+---
+
+## Der Bestandskundenbereich
+
+Auf `kontakt.html` steht über dem gewöhnlichen Anfrageformular eine Zeile
+**„Bereits Kunde?"**. Wer dort angemeldet ist, stellt eine Personalanfrage
+in etwa einer Minute: Stammdaten stehen schon, es bleiben Datum, Uhrzeit,
+Ort und die Mengen je Personalart.
+
+Es gibt **keinen** neuen Menüpunkt und keine eigene Portalseite. Der Bereich
+sitzt in der Anfrageseite, und wer kein Konto hat, geht an der einen Zeile
+vorbei zum vollständigen Formular darunter — das ist unverändert.
+
+### Was dafür gebraucht wird
+
+| Variable | Wofür |
+|---|---|
+| `DATABASE_URL` | PostgreSQL, z. B. `postgres://…?sslmode=require` |
+| `ANFRAGE_MAIL_AN` | Empfänger der Bestandskunden-Anfragen (fehlt sie, gilt `MAIL_AN`) |
+| `WEBAUTHN_RP_ID` | die Domain ohne Schema, z. B. `hermserviceteam.com` |
+| `WEBAUTHN_ORIGIN` | `https://hermserviceteam.com` (mehrere durch Komma) |
+
+Dazu die SMTP-Angaben, die das Anfrageformular ohnehin braucht.
+
+**Ohne `DATABASE_URL` bleibt der Bereich unsichtbar.** Der Endpunkt antwortet
+dann mit 503, und die Seite blendet die Zeile gar nicht erst ein. Es gibt nie
+einen Knopf, hinter dem nichts ist. Dasselbe gilt ohne JavaScript.
+
+**Ohne `WEBAUTHN_RP_ID` und `WEBAUTHN_ORIGIN` gibt es keine Passkeys**,
+Anmeldung mit Passwort funktioniert weiter. Beide dürfen nicht aus dem
+Host-Kopf abgeleitet werden — wer den fälschen kann, bekäme sonst eine
+Signatur, die auf seiner eigenen Adresse gilt.
+
+### Eine Datenbank besorgen
+
+Die Website war bis hierher vollständig zustandslos. Passwörter, Sitzungen,
+Passkeys und Anfragen brauchen einen Ort. Jedes verwaltete PostgreSQL
+genügt — Neon, Supabase, Vercel Postgres, ein eigener Server. Es ist keine
+Anbieterbindung: gesprochen wird reines SQL.
+
+```bash
+export DATABASE_URL=postgres://benutzer:kennwort@host:5432/datenbank?sslmode=require
+node tools/kunden.js einrichten          # legt das Schema an, einmal
+```
+
+### Kunden anlegen und pflegen
+
+Es gibt **keine Selbstregistrierung**: wer hineinkommt, ist ein Kunde, mit dem
+schon gearbeitet wird. Angelegt wird er auf der Kommandozeile.
+
+```bash
+node tools/kunden.js anlegen  --firma "Muster GmbH" \
+                              --anmeldename firma-muster \
+                              --email einkauf@muster.de \
+                              --vorname Max --nachname Mustermann \
+                              --position Einkauf --telefon "040 1234567" \
+                              --strasse Kaiserkai --hausnummer 10 \
+                              --plz 20457 --ort Hamburg
+
+node tools/kunden.js liste                       # alle Kunden
+node tools/kunden.js zeigen    firma-muster      # Stammdaten und Passkeys
+node tools/kunden.js aendern   firma-muster --telefon "040 999"
+node tools/kunden.js passwort  firma-muster      # neues erzeugen
+node tools/kunden.js person    firma-muster --vorname Eva --nachname Klar
+node tools/kunden.js sperren   firma-muster      # Konto stilllegen
+node tools/kunden.js anfragen  firma-muster      # was der Kunde angefragt hat
+node tools/kunden.js loeschen  firma-muster --wirklich ja
+```
+
+Das Passwort wird beim Anlegen einmal erzeugt und einmal angezeigt. Danach
+steht es nirgends mehr im Klartext — auch nicht in der Datenbank. Bitte auf
+einem sicheren Weg übergeben, nicht per einfacher Mail; der Kunde kann es
+über „Passwort vergessen" jederzeit selbst ändern.
+
+### Face ID, Touch ID, Windows Hello
+
+Nach der ersten Anmeldung mit Passwort bietet der Bereich an, eine schnelle
+Anmeldung einzurichten. Technisch ist das **WebAuthn**: das Gerät entscheidet
+selbst, wie es seinen Besitzer erkennt, und bestätigt der Website nur, dass
+es geklappt hat. **Biometrische Daten erreichen den Server nie** — dort liegt
+allein ein öffentlicher Schlüssel, mit dem sich niemand anmelden kann.
+
+Angeboten wird es nur, wo der Browser es kann. Der Rückfall auf Anmeldename
+und Passwort bleibt immer.
+
+### Was der Bereich nicht tut
+
+- Er speichert nichts im Browser. Die Anmeldung hängt allein an einem
+  `HttpOnly`-Cookie, das kein Skript lesen kann.
+- Er nimmt keine Kundennummer aus dem Rumpf einer Anfrage entgegen. Wer der
+  Kunde ist, sagt ausschließlich die Sitzung.
+- Er verrät nicht, ob es zu einer E-Mail-Adresse ein Konto gibt — weder bei
+  der Anmeldung noch bei „Passwort vergessen".
 
 ---
 

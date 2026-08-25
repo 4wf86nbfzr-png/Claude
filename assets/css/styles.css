@@ -278,6 +278,39 @@ button.btn:focus-visible:not(:disabled)::after{ transform:scaleY(1); }
 button.btn:disabled{ color:var(--muted); cursor:progress; }
 button.btn:disabled::after{ transform:scaleY(0); }
 
+/* Ein Knopf, der KEIN Absendeknopf ist.
+   ------------------------------------------------------------
+   Die Regel darüber hängt am Element: `a.btn` ist die leise Aktion,
+   `button.btn` die große. Das ging auf, solange jeder `<button class="btn">`
+   auch wirklich ein Formular abschickte.
+
+   Mit dem Bestandskundenbereich gibt es Aktionen, die ein `<button>` sein
+   MÜSSEN, weil sie etwas auf- und zuklappen statt zu navigieren (sie tragen
+   `aria-expanded`), aber nicht das Ziel der Seite sind. Sie bekämen sonst
+   die volle Breite und die weiße Füllung — und riefen damit lauter als der
+   Absendeknopf des Formulars darunter.
+
+   `.btn--zeile` nimmt sie auf die Zeile zurück. Alles andere am Knopf
+   bleibt, wie es ist. */
+button.btn--zeile{
+  width:auto; justify-content:flex-start;
+  font-family:var(--font-body); font-weight:600; text-transform:none;
+  font-size:clamp(.92rem,1.05vw,1.02rem); letter-spacing:.01em;
+  padding:.7em 0; min-height:44px;
+  border-top:0; border-bottom:0; overflow:visible;
+}
+button.btn--zeile::before{ display:block; opacity:.34;
+  inset:auto 0 .28em 0; height:1px; background:currentColor; }
+button.btn--zeile::after{
+  inset:auto 0 .28em 0; height:1px; background:currentColor;
+  transform:scaleX(0); transform-origin:right; z-index:auto;
+  transition:transform .5s var(--ease-out);
+}
+button.btn--zeile:hover:not(:disabled),
+button.btn--zeile:focus-visible:not(:disabled){ color:var(--paper); }
+button.btn--zeile:hover:not(:disabled)::after,
+button.btn--zeile:focus-visible:not(:disabled)::after{ transform:scaleX(1); transform-origin:left; }
+
 :focus-visible{ outline:2px solid #FFF; outline-offset:4px; border-radius:var(--r-s); }
 
 /* ============================================================
@@ -1763,6 +1796,303 @@ body > footer ul li.foot__fakt{ color:var(--muted); font-size:.92rem; }
 }
 #toTop::after{ content:"Nach oben"; }
 @media (max-width:560px){ #toTop::after{ content:"Oben"; } }
+
+
+/* ============================================================
+   DER BESTANDSKUNDENBEREICH
+   ------------------------------------------------------------
+   Er sitzt auf `kontakt.html` zwischen Kopfbild und Anfrageformular. Alles,
+   was hier steht, ist entweder eine der vorhandenen Klassen (`form`,
+   `fgruppe`, `feld`, `form__fuss`) oder etwas, das es vorher nicht gab: die
+   Tuer, der Kundenkopf, die Mengensteuerung, die Uebersicht.
+
+   Die Regeln der Seite gelten unveraendert weiter:
+
+   * Keine Karten. Getrennt wird durch Haarlinien und Abstand — auch hier,
+     obwohl ein Kundenbereich der Ort ist, an dem sonst zuerst Kaesten
+     auftauchen.
+   * Violett nur als Punkt. Er markiert die Personalarten, die wirklich
+     bestellt sind — dieselbe Sprache wie die Einsatzlinie und das
+     Einsatzband: ein Punkt ist eine Position.
+   * Bewegt werden nur `transform` und `opacity`.
+   ============================================================ */
+
+/* ---- Die Tuer ----
+   Eine Zeile, kein Kasten. Wer kein Konto hat, liest sie in zwei Sekunden
+   und geht weiter; sie darf ihm nicht den Weg verstellen. */
+.kundentuer{ padding:clamp(34px,4.6vw,60px) 0 0; }
+.kundentuer__zeile{
+  display:flex; flex-wrap:wrap; align-items:end;
+  gap:clamp(16px,2.4vw,40px);
+  border-top:1px solid var(--line);
+  padding-top:clamp(24px,3vw,38px);
+}
+.kundentuer__wort{ flex:1 1 22rem; min-width:0; }
+.kundentuer__wort p{ color:var(--chrome); max-width:44ch; margin-top:10px; }
+.kundentuer__knopf{ flex:0 0 auto; }
+
+/* Der Bereich selbst. `hidden` nimmt ihn aus dem Fluss; die Klasse `.auf`
+   blendet den Inhalt ein. Bewusst KEINE Hoehenbewegung: die einzige Stelle
+   im Projekt, an der eine Layout-Eigenschaft bewegt wird, ist das
+   Untermenue, und dabei soll es bleiben. */
+/* Der Bereich haelt dieselbe Spaltenbreite wie das Anfrageformular
+   darunter (`.content__grid`, erste Spalte). Ueber die volle Fensterbreite
+   gesetzt lagen Bezeichnung und Mengensteuerung einer Personalzeile mehr
+   als tausend Pixel auseinander — man haette bei jeder Zeile den Kopf
+   gedreht. */
+.kundenbereich{
+  max-width:min(100%, 46rem);
+  padding-top:clamp(26px,3.4vw,44px);
+  opacity:0; transform:translateY(10px);
+  transition:opacity .4s var(--ease-out), transform .4s var(--ease-out);
+}
+.kundenbereich.auf{ opacity:1; transform:none; }
+
+.kb-titel{ font-size:var(--fs-h3); margin:8px 0 clamp(18px,2.4vw,28px); }
+
+/* ---- Textknopf ----
+   Ein Knopf, der wie ein Textlink aussieht, weil er einer ist: er fuehrt
+   weiter, er bestaetigt nichts. Dieselbe durchlaufende Linie wie ueberall. */
+.kb-textknopf{
+  background:none; border:0; padding:0; cursor:pointer;
+  font-family:inherit; font-size:inherit; color:var(--chrome);
+  position:relative; text-align:left;
+  /* Die Trefferflaeche kommt aus der Hoehe, nicht aus der Schrift — dieselbe
+     Regel wie ueberall auf der Seite. 24 px ist das Mass fuer etwas, das in
+     einem Satz steht; wer allein steht, bekommt unten 44. */
+  display:inline-flex; align-items:center; min-height:24px;
+}
+/* Alles, was fuer sich allein steht und mit dem Daumen getroffen werden
+   muss. Am Telefon sind das die einzigen Bedienelemente neben den
+   Mengenknoepfen. */
+.kb-kopf__aktionen .kb-textknopf,
+.kb-tagplus,
+.kb-tag__weg,
+.kb-vergessen [data-zurueck]{ min-height:44px; }
+/* Links, die mitten in einem Satz stehen: die Zeile darf nicht auf 44 px
+   aufgehen, die Flaeche aber auch nicht 16 px hoch sein. */
+.kb-stammhinweis a{ display:inline-block; min-height:24px; }
+.kb-textknopf::after{
+  content:""; position:absolute; left:0; right:0; bottom:-2px; height:1px;
+  background:currentColor; transform:scaleX(0); transform-origin:right;
+  transition:transform var(--t-base) var(--ease-out);
+}
+.kb-textknopf:hover{ color:var(--paper); }
+.kb-textknopf:hover::after{ transform:scaleX(1); transform-origin:left; }
+/* Wo ein Textknopf mitten in einem Hinweissatz steht, braucht er Luft nach
+   rechts — sonst klebt er am naechsten Wort. */
+.form__hinweis .kb-textknopf{ margin-right:.6em; }
+
+/* ---- „Angemeldet bleiben" ----
+   Uebernimmt `.zustimmung` aus dem grossen Formular vollstaendig; hier steht
+   nur, was dort nicht passt: die Zeile ist kurz und braucht keine
+   Schrumpfbreite, dafuer eine Trefferflaeche von 44 px. */
+.form .zustimmung.kb-bleiben{ align-items:center; min-height:44px; }
+.form .zustimmung.kb-bleiben label{ flex:0 1 auto; cursor:pointer; }
+
+/* ---- Der Kundenkopf ----
+   Das erste, was nach der Anmeldung dasteht: fuer wen die Anfrage geht.
+   Gross gesetzt, weil es die Antwort auf „bin ich richtig hier" ist. */
+.kb-kopf{
+  display:flex; flex-wrap:wrap; align-items:flex-start;
+  justify-content:space-between; gap:clamp(14px,2vw,30px) clamp(24px,4vw,60px);
+  border-bottom:1px solid var(--line);
+  padding-bottom:clamp(18px,2.4vw,28px);
+}
+.kb-kopf__firma{
+  font-family:var(--font-display); font-weight:800;
+  font-size:clamp(1.4rem,3vw,2.2rem); line-height:1.06;
+  text-transform:uppercase; letter-spacing:-.02em;
+  color:var(--paper); margin-top:10px;
+}
+.kb-kopf__zeile{
+  display:flex; flex-wrap:wrap; align-items:baseline; gap:.4em 1.2em;
+  color:var(--chrome); margin-top:8px;
+}
+.kb-kopf__nummer{
+  font-family:var(--font-mono); font-size:.7rem; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--muted);
+}
+.kb-kopf__aktionen{
+  display:flex; flex-direction:column; align-items:flex-start; gap:10px;
+  font-size:.9rem; padding-top:6px;
+}
+.kb-stammhinweis{
+  color:var(--muted); font-size:.86rem; margin:16px 0 clamp(30px,4vw,48px);
+  max-width:62ch;
+}
+.kb-stammhinweis a{ color:var(--chrome); text-decoration:underline; text-underline-offset:2px; }
+
+/* ---- Ein Einsatztag ----
+   Datum und Zeitspanne oben, darunter die Personalarten. Getrennt wird
+   zwischen zwei Tagen durch eine Haarlinie — dasselbe Mittel wie zwischen
+   zwei Gruppen im Formular. */
+.kb-tag + .kb-tag{
+  margin-top:clamp(26px,3.2vw,40px);
+  padding-top:clamp(24px,3vw,36px);
+  position:relative;
+}
+.kb-tag + .kb-tag::before{
+  content:""; position:absolute; top:0; left:0; right:0; height:1px;
+  background:var(--line);
+}
+.kb-tag__kopf{
+  display:flex; flex-wrap:wrap; align-items:end; gap:clamp(14px,2vw,26px);
+  margin-bottom:clamp(18px,2.4vw,26px);
+}
+/* Datum, Von und Bis sind nicht gleich wichtig. Zu dritt gleich breit
+   gesetzt stehen sie ueber die volle Satzbreite auseinander, und zwei
+   Uhrzeiten brauchen keine 380 Pixel. */
+.kb-tag__feld--datum{ flex:2 1 12rem; }
+.kb-tag__feld--zeit{ flex:0 1 7rem; }
+.kb-tag__marke{
+  font-family:var(--font-mono); font-size:.66rem; letter-spacing:.2em;
+  text-transform:uppercase; color:var(--muted);
+  flex:0 0 100%;
+}
+.kb-tag__feld{ flex:1 1 9rem; min-width:0; }
+.kb-tag__feld label{
+  font-family:var(--font-mono); font-size:.62rem; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--muted);
+  display:block; margin-bottom:8px;
+}
+.kb-tag__feld input{
+  width:100%; background:none; border:0; border-bottom:1px solid var(--line-stark);
+  border-radius:0; padding:9px 0; color:var(--paper);
+  font-family:var(--font-body); font-size:1.02rem;
+  transition:border-color var(--t-fast) var(--ease-swift),
+             box-shadow var(--t-fast) var(--ease-swift);
+}
+.kb-tag__feld input:focus{
+  outline:none; border-bottom-color:var(--paper); box-shadow:0 1px 0 0 var(--paper);
+}
+/* Der Knopf zum Entfernen steht am rechten Rand der Kopfzeile und erst ab
+   dem zweiten Tag. */
+.kb-tag__weg{ flex:0 0 auto; font-size:.86rem; padding-bottom:11px; }
+
+/* ---- Eine Personalzeile ----
+   Getrennt durch Abstand, nicht durch Linien: sieben Linien untereinander
+   waeren eine Tabelle, und eine Linie unter einem kurzen Eintrag liest im
+   Netz als Link. */
+.kb-arten{ display:flex; flex-direction:column; gap:clamp(6px,1vw,12px); }
+.kb-art{
+  display:flex; align-items:center; gap:clamp(12px,2vw,24px);
+  padding:6px 0;
+}
+.kb-art__wort{ flex:1 1 auto; min-width:0; }
+.kb-art__name{
+  display:block; color:var(--chrome);
+  font-size:clamp(.98rem,1.2vw,1.08rem);
+  transition:color var(--t-fast) var(--ease-swift);
+  position:relative;
+}
+/* Der Punkt der Marke: er steht nur an einer Art, die wirklich bestellt ist.
+   Ein Punkt ist eine Position — dieselbe Sprache wie die Einsatzlinie. */
+.kb-art__name::before{
+  content:""; position:absolute; left:-14px; top:calc(50% - 2px);
+  width:4px; height:4px; border-radius:50%; background:var(--violet);
+  opacity:0; transform:scale(.4);
+  transition:opacity var(--t-base) var(--ease-out), transform var(--t-base) var(--ease-out);
+}
+.kb-art--an .kb-art__name{ color:var(--paper); }
+.kb-art--an .kb-art__name::before{ opacity:1; transform:none; }
+.kb-art__hinweis{
+  display:block; color:var(--muted); font-size:.8rem; margin-top:3px;
+}
+
+/* ---- Die Mengensteuerung ----
+   Kein Kasten, keine Pille: zwei Zeichen und eine Zahl. Die Trefferflaeche
+   ist trotzdem 44 px hoch und breit — sie kommt aus dem Innenabstand, nicht
+   aus der Schriftgroesse. */
+.kb-menge{ display:flex; align-items:center; flex:0 0 auto; }
+.kb-menge button{
+  background:none; border:0; cursor:pointer; color:var(--muted);
+  width:44px; height:44px; display:grid; place-items:center;
+  font-family:var(--font-body); font-size:1.5rem; line-height:1;
+  transition:color var(--t-fast) var(--ease-swift), transform .18s var(--ease-out);
+}
+.kb-menge button:hover{ color:var(--paper); }
+.kb-menge button:active{ transform:scale(.86); }
+.kb-menge button[disabled]{ opacity:.3; cursor:default; }
+.kb-menge button[disabled]:hover{ color:var(--muted); }
+.kb-menge__zahl{
+  font-family:var(--font-mono); font-variant-numeric:tabular-nums;
+  font-size:1.05rem; color:var(--paper);
+  min-width:3ch; text-align:center;
+  /* Die Zahl bekommt beim Aendern einen kurzen Stups. Mehr Rueckmeldung
+     braucht es nicht, und mehr waere Dauerbewegung. */
+  transition:transform .2s var(--ease-out);
+}
+.kb-menge__zahl.stups{ transform:scale(1.22); }
+.kb-art:not(.kb-art--an) .kb-menge__zahl{ color:var(--muted); }
+
+.kb-tagplus{ margin-top:clamp(22px,2.8vw,32px); font-size:.94rem; }
+
+/* ---- Die Uebersicht vor dem Absenden ----
+   Kein Kasten, sondern eine Aufstellung mit Haarlinien zwischen den Tagen —
+   so, wie sie auch in der Mail an die Disposition steht. */
+.kb-uebersicht{ margin:clamp(6px,1vw,14px) 0 clamp(26px,3.4vw,40px); }
+.kb-ueber__zeile{
+  display:flex; flex-wrap:wrap; gap:.3em 1.4em;
+  padding:9px 0; color:var(--chrome);
+}
+.kb-ueber__was{
+  font-family:var(--font-mono); font-size:.64rem; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--muted);
+  flex:0 0 11rem;
+}
+.kb-ueber__wert{ flex:1 1 14rem; min-width:0; color:var(--paper); overflow-wrap:break-word; }
+.kb-ueber__tag{
+  border-top:1px solid var(--line);
+  margin-top:clamp(18px,2.2vw,26px); padding-top:clamp(14px,1.8vw,20px);
+}
+.kb-ueber__tagmarke{
+  font-family:var(--font-mono); font-size:.66rem; letter-spacing:.2em;
+  text-transform:uppercase; color:var(--muted); display:block; margin-bottom:10px;
+}
+.kb-ueber__posten{
+  display:flex; flex-wrap:wrap; align-items:baseline; gap:.3em 1.2em;
+  padding:5px 0;
+}
+.kb-ueber__anzahl{
+  font-family:var(--font-mono); font-variant-numeric:tabular-nums;
+  color:var(--paper); flex:0 0 4rem;
+}
+.kb-ueber__art{ flex:1 1 12rem; color:var(--paper); }
+.kb-ueber__zeit{ font-family:var(--font-mono); font-size:.86rem; color:var(--chrome); }
+
+.kb-nummer{
+  font-family:var(--font-mono); font-size:1.05rem; letter-spacing:.12em;
+  color:var(--paper);
+}
+.kb-danke{ border-top:0; padding-top:0; }
+
+/* ---- Fehler an einem einzelnen Feld ----
+   Dieselbe Farbe und dieselbe Mechanik wie im grossen Formular. */
+.kundenbereich .feld--fehler input,
+.kundenbereich .feld--fehler textarea{
+  border-bottom-color:#E4736F; box-shadow:0 1px 0 0 #E4736F;
+}
+
+/* ---- Am Telefon ----
+   Der Bereich ist gerade dort wichtig: eine Anfrage vom Einsatzort aus,
+   mit dem Daumen. Die Mengensteuerung bleibt deshalb gross, und die
+   Anmeldung wird einspaltig. */
+@media (max-width:700px){
+  .kb-anmeldung, .kb-vergessen, .kb-neu{ grid-template-columns:1fr; }
+  .kb-kopf{ flex-direction:column; }
+  .kb-kopf__aktionen{ flex-direction:row; flex-wrap:wrap; gap:18px; }
+  .kb-art{ flex-wrap:wrap; }
+  .kb-art__wort{ flex:1 1 60%; }
+  .kb-ueber__was{ flex:0 0 100%; }
+  .kb-menge button{ width:48px; height:48px; }
+}
+
+@media (prefers-reduced-motion:reduce){
+  .kundenbereich, .kb-art__name, .kb-art__name::before,
+  .kb-menge button, .kb-menge__zahl{ transition:none; }
+  .kundenbereich{ opacity:1; transform:none; }
+}
 
 /* ============================================================
    APP-ANSICHT — was am Telefon anders ist
