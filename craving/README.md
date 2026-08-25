@@ -76,8 +76,17 @@ Alles kommt aus `src/data` und wird ueber `src/lib` ausgewertet.
 
 ## Der Food-Builder
 
-Jede Zutat traegt eine Darstellungsanweisung (`visual`), keine fertige
-Grafik:
+Die Produkte bestehen aus **echtem Fotomaterial**: Zutaten sind
+freigestellte Fotostuecke, Kaese, Teig und Brot sind grosse Fotoflaechen.
+Geschnitten werden sie einmalig aus den Vorlagenfotos in `tools/source/`
+(`python3 tools/build-sprites.py`, `python3 tools/build-fields.py`),
+Details in `docs/ASSETS.md`.
+
+Form, Stapelung und Bewegung kommen weiterhin aus dem Code — dadurch
+faellt jede Zutat einzeln aufs Produkt, laesst sich abwaehlen und wieder
+hinzufuegen, ohne dass es dafuer fertige Produktbilder braeuchte.
+
+Jede Zutat traegt eine Darstellungsanweisung (`visual`):
 
 ```ts
 {
@@ -86,14 +95,19 @@ Grafik:
   price: 150,                        // Cent
   visual: {
     z: 40,                           // Stapelebene
-    shape: "slice",                  // Grundform
+    shape: "slice",                  // Grundform (steuert die Bewegung)
     palette: ["#A83A2E", "#6E1F16", "#C75A4B", "#EFD9C6"],
-    density: 1, scale: 0.92,
+    sprites: [...SPRITES.salami],    // echte Fotostuecke
+    density: 0.85, scale: 1.7,
   },
   allergens: ["senf"],
   nutrition: { kcal: 190, protein: 11, carbs: 1, fat: 16 },
 }
 ```
+
+Zutaten ohne eigenes Foto bekommen entweder eine Fotoflaeche als Fuellung
+(`texture`) oder eine Farbkorrektur eines verwandten Fotos (`tint`) —
+`tint: TINT.sucuk` macht aus der Salamischeibe eine Sucukscheibe.
 
 Der Renderer der Kategorie setzt daraus die Szene zusammen: Verteilung,
 Schattierung, Textur und die Bewegung beim Hinzufuegen (Scheiben fallen,
@@ -159,6 +173,8 @@ waehlbar („Heute ausverkauft") — der Kunde soll wissen, dass es sie gibt.
 Kleine Skripte fuer die Abnahme (brauchen einen laufenden Server):
 
 ```bash
+python3 tools/build-sprites.py   # Zutaten-Freisteller aus den Fotos
+python3 tools/build-fields.py    # Kaese-, Teig- und Brotflaechen
 npm run smoke   # Bestellstrecke einmal komplett durchklicken
 npm run qa      # Layout auf 375/768/1440/2560 px pruefen (Ueberlauf, Fehler)
 npm run perf    # LCP, CLS und uebertragene Bytes messen

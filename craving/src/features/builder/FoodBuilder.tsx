@@ -139,7 +139,7 @@ export function FoodBuilder({
   return (
     <div className="lg:grid lg:min-h-[calc(100dvh-5rem)] lg:grid-cols-[minmax(0,1fr)_minmax(30rem,42%)] xl:grid-cols-[minmax(0,1fr)_minmax(34rem,38%)]">
       {/* Buehne */}
-      <div className="sticky top-16 z-30 -mx-[clamp(1.25rem,4vw,4.5rem)] bg-ink/85 px-[clamp(1.25rem,4vw,4.5rem)] pb-3 pt-4 backdrop-blur-lg lg:static lg:mx-0 lg:flex lg:h-[calc(100dvh-5rem)] lg:flex-col lg:justify-center lg:bg-transparent lg:px-0 lg:pb-0 lg:pt-0 lg:backdrop-blur-none">
+      <div className="sticky top-16 z-30 -mx-[clamp(1.25rem,4vw,4.5rem)] bg-ink/85 px-[clamp(1.25rem,4vw,4.5rem)] pb-3 pt-4 backdrop-blur-lg lg:sticky lg:top-20 lg:mx-0 lg:flex lg:h-[calc(100dvh-6rem)] lg:flex-col lg:justify-center lg:self-start lg:bg-transparent lg:px-0 lg:pb-0 lg:pt-0 lg:backdrop-blur-none">
         <div className="h-[30vh] sm:h-[34vh] lg:h-auto lg:flex-1">
           <FoodPreview
             ref={previewRef}

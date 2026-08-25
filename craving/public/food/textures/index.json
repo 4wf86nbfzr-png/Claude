@@ -1,0 +1,77 @@
+{
+ "kaese": {
+  "file": "/food/textures/kaese.webp",
+  "size": 320,
+  "bytes": 22796
+ },
+ "teig": {
+  "file": "/food/textures/teig.webp",
+  "size": 320,
+  "bytes": 7014
+ },
+ "tomatensosse": {
+  "file": "/food/textures/tomatensosse.webp",
+  "size": 256,
+  "bytes": 12758
+ },
+ "salami": {
+  "file": "/food/textures/salami.webp",
+  "size": 256,
+  "bytes": 9426
+ },
+ "olive": {
+  "file": "/food/textures/olive.webp",
+  "size": 192,
+  "bytes": 11394
+ },
+ "paprika": {
+  "file": "/food/textures/paprika.webp",
+  "size": 192,
+  "bytes": 11010
+ },
+ "zwiebel": {
+  "file": "/food/textures/zwiebel.webp",
+  "size": 192,
+  "bytes": 10976
+ },
+ "champignon": {
+  "file": "/food/textures/champignon.webp",
+  "size": 192,
+  "bytes": 6700
+ },
+ "hackfleisch": {
+  "file": "/food/textures/hackfleisch.webp",
+  "size": 192,
+  "bytes": 5638
+ },
+ "schinken": {
+  "file": "/food/textures/schinken.webp",
+  "size": 192,
+  "bytes": 7896
+ },
+ "fladenbrot": {
+  "file": "/food/textures/fladenbrot.webp",
+  "size": 256,
+  "bytes": 23242
+ },
+ "doenerfleisch": {
+  "file": "/food/textures/doenerfleisch.webp",
+  "size": 256,
+  "bytes": 28308
+ },
+ "salat": {
+  "file": "/food/textures/salat.webp",
+  "size": 192,
+  "bytes": 17184
+ },
+ "tomate": {
+  "file": "/food/textures/tomate.webp",
+  "size": 192,
+  "bytes": 12430
+ },
+ "rotzwiebel": {
+  "file": "/food/textures/rotzwiebel.webp",
+  "size": 192,
+  "bytes": 13108
+ }
+}

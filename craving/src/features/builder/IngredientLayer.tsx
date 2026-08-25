@@ -1,18 +1,24 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useReducedMotionSafe } from "@/hooks/useReducedMotionSafe";
+import { textureUrl } from "@/data/assets";
 import type { Ingredient } from "@/types/domain";
 import { Piece, PieceDefs, PIECE_SIZE } from "./renderers/pieces";
 import type { Placement } from "./renderers/geometry";
-import { useReducedMotionSafe } from "@/hooks/useReducedMotionSafe";
 
 /**
  * Eine Zutatenebene.
  *
- * Zutaten "erscheinen" nicht, sie kommen an: Scheiben fallen von oben,
- * Salat streut, Streifen schieben sich seitlich hinein, Sosse wird gezogen.
- * Beim Abwaehlen laeuft dieselbe Bewegung rueckwaerts (AnimatePresence im
- * Renderer). Bei prefers-reduced-motion bleibt nur ein Ein-/Ausblenden.
+ * Zwei Darstellungsarten, je nachdem was die Zutat mitbringt:
+ *   1. Foto-Freisteller (`visual.sprites`) — echte Stuecke aus dem
+ *      Produktfoto, abwechselnd, gedreht, mit eigenem Schatten.
+ *   2. Gezeichnete Form, gefuellt mit einer Fototextur (`visual.texture`)
+ *      oder ersatzweise mit dem Farbverlauf aus der Palette.
+ *
+ * Die Bewegung ist in beiden Faellen dieselbe: Scheiben fallen, Salat
+ * streut, Streifen schieben sich hinein. Beim Abwaehlen laeuft sie
+ * rueckwaerts. Ohne Bewegungswunsch bleibt ein Ein- und Ausblenden.
  */
 
 interface EntryMotion {
@@ -30,6 +36,55 @@ const ENTRY: Record<string, EntryMotion> = {
   strip: { from: { x: -2.2, scale: 0.8, rotate: -12, opacity: 0 }, delayStep: 0.05, duration: 0.5 },
 };
 
+/**
+ * Fotoflaeche als Fuellung fuer eine gezeichnete Form.
+ *
+ * `tileSize` ist so gross gewaehlt, dass die Flaeche die Form in einem
+ * Durchgang abdeckt — eine sichtbare Wiederholung wuerde die Illusion
+ * sofort zerstoeren.
+ */
+export function TexturePattern({
+  id,
+  texture,
+  tileSize = 90,
+}: {
+  id: string;
+  texture: string;
+  tileSize?: number;
+}) {
+  const url = textureUrl(texture);
+  if (!url) return null;
+  return (
+    <pattern
+      id={id}
+      width={tileSize}
+      height={tileSize}
+      x={-tileSize / 2}
+      y={-tileSize / 2}
+      patternUnits="userSpaceOnUse"
+    >
+      <image href={url} width={tileSize} height={tileSize} preserveAspectRatio="xMidYMid slice" />
+    </pattern>
+  );
+}
+
+/** Fototextur, die genau die Flaeche eines einzelnen Stuecks ausfuellt. */
+function PieceTexture({ id, texture }: { id: string; texture: string }) {
+  const url = textureUrl(texture);
+  if (!url) return null;
+  return (
+    <pattern
+      id={id}
+      patternUnits="objectBoundingBox"
+      patternContentUnits="objectBoundingBox"
+      width="1"
+      height="1"
+    >
+      <image href={url} width="1" height="1" preserveAspectRatio="xMidYMid slice" />
+    </pattern>
+  );
+}
+
 export function PieceLayer({
   ingredient,
   placements,
@@ -41,75 +96,135 @@ export function PieceLayer({
   sizeUnit?: number;
 }) {
   const reduced = useReducedMotionSafe();
-  const { shape, palette, scale = 1 } = ingredient.visual;
+  const { shape, palette, scale = 1, sprites, texture, tint } = ingredient.visual;
   const entry = ENTRY[shape] ?? ENTRY.slice!;
   const size = PIECE_SIZE[shape] * scale * sizeUnit;
+  const usePhoto = Boolean(sprites?.length);
+  const pieceTextureId = `pt-${ingredient.id}`;
 
   return (
     <g>
       <defs>
-        <PieceDefs id={ingredient.id} palette={palette} />
+        {/* einmal pro Ebene: der weiche Schatten der Fotostuecke */}
+        <radialGradient id="piece-shadow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#000" stopOpacity="0.34" />
+          <stop offset="55%" stopColor="#000" stopOpacity="0.18" />
+          <stop offset="100%" stopColor="#000" stopOpacity="0" />
+        </radialGradient>
       </defs>
-      {placements.map((p, index) => (
-        <g key={index} transform={`translate(${p.x.toFixed(2)} ${p.y.toFixed(2)}) scale(${(size * p.scale).toFixed(3)})`}>
-          <motion.g
-            initial={reduced ? { opacity: 0 } : { ...entry.from }}
-            animate={{ x: 0, y: 0, scale: 1, rotate: 0, opacity: 1 }}
-            exit={reduced ? { opacity: 0 } : { ...entry.from, transition: { duration: 0.22, delay: p.order * 0.08 } }}
-            transition={
-              reduced
-                ? { duration: 0.18 }
-                : {
-                    type: "spring",
-                    stiffness: 300,
-                    damping: 20,
-                    mass: 0.6,
-                    delay: p.order * entry.delayStep * placements.length * 0.35,
-                  }
-            }
-            style={{ originX: 0, originY: 0 }}
+      {!usePhoto && (
+        <defs>
+          <PieceDefs id={ingredient.id} palette={palette} />
+          {texture && <PieceTexture id={pieceTextureId} texture={texture} />}
+        </defs>
+      )}
+      {placements.map((p, index) => {
+        const src = sprites?.[index % sprites.length];
+        return (
+          <g
+            key={index}
+            transform={`translate(${p.x.toFixed(2)} ${p.y.toFixed(2)}) scale(${(size * p.scale).toFixed(3)})`}
           >
-            <g
-              transform={`rotate(${p.rot.toFixed(1)})`}
-              style={{ filter: `brightness(${(1 + p.shade * 0.5).toFixed(3)})` }}
+            <motion.g
+              initial={reduced ? { opacity: 0 } : { ...entry.from }}
+              animate={{ x: 0, y: 0, scale: 1, rotate: 0, opacity: 1 }}
+              exit={reduced ? { opacity: 0 } : { ...entry.from, transition: { duration: 0.22, delay: p.order * 0.08 } }}
+              transition={
+                reduced
+                  ? { duration: 0.18 }
+                  : {
+                      type: "spring",
+                      stiffness: 300,
+                      damping: 20,
+                      mass: 0.6,
+                      delay: p.order * entry.delayStep * placements.length * 0.35,
+                    }
+              }
+              style={{ originX: 0, originY: 0 }}
             >
-              <Piece shape={shape} id={ingredient.id} palette={palette} />
-            </g>
-          </motion.g>
-        </g>
-      ))}
+              <g transform={`rotate(${p.rot.toFixed(1)})`}>
+                {src ? (
+                  <>
+                    {/* Weicher Schatten unter dem Stueck — sonst klebt das
+                        Foto flach auf der Flaeche. */}
+                    <ellipse cx="0.05" cy="0.12" rx="0.85" ry="0.66" fill="url(#piece-shadow)" />
+                    <image
+                      href={src}
+                      x={-1}
+                      y={-1}
+                      width={2}
+                      height={2}
+                      preserveAspectRatio="xMidYMid meet"
+                      style={{
+                        filter: tint
+                          ? `${tint} brightness(${(1 + p.shade * 0.35).toFixed(3)})`
+                          : `brightness(${(1 + p.shade * 0.35).toFixed(3)})`,
+                      }}
+                    />
+                  </>
+                ) : (
+                  <g
+                    style={{
+                      filter: tint
+                        ? `${tint} brightness(${(1 + p.shade * 0.5).toFixed(3)})`
+                        : `brightness(${(1 + p.shade * 0.5).toFixed(3)})`,
+                    }}
+                  >
+                    <Piece
+                      shape={shape}
+                      id={ingredient.id}
+                      palette={palette}
+                      fill={texture ? `url(#${pieceTextureId})` : undefined}
+                    />
+                  </g>
+                )}
+              </g>
+            </motion.g>
+          </g>
+        );
+      })}
     </g>
   );
 }
 
 /**
- * Flaechige Ebene (Sosse, Kaesedecke). Wird von der Mitte nach aussen
- * "aufgezogen" — eine wachsende Maske statt eines simplen Fade.
+ * Flaechige Ebene (Sosse, Kaesedecke, Brot). Wird von der Mitte nach
+ * aussen "aufgezogen" — eine wachsende Maske statt eines simplen Fade.
+ * Ist eine Fototextur hinterlegt, fuellt sie die Flaeche; die Palette
+ * liefert dann nur noch die Schattierung darueber.
  */
 export function SpreadLayer({
   ingredient,
   path,
   radius,
   texture,
+  tileSize = 90,
 }: {
   ingredient: Ingredient;
   path: string;
   /** Radius der Aufziehmaske. */
   radius: number;
   texture?: React.ReactNode;
+  tileSize?: number;
 }) {
   const reduced = useReducedMotionSafe();
   const maskId = `mask-${ingredient.id}`;
+  const patternId = `tex-${ingredient.id}`;
   const [base = "#ccc", dark = "#999", light = "#fff"] = ingredient.visual.palette;
+  const photo = ingredient.visual.texture;
 
   return (
     <g>
       <defs>
-        <radialGradient id={`sg-${ingredient.id}`} cx="38%" cy="32%" r="76%">
-          <stop offset="0%" stopColor={light} />
-          <stop offset="55%" stopColor={base} />
-          <stop offset="100%" stopColor={dark} />
-        </radialGradient>
+        {photo ? (
+          <TexturePattern id={patternId} texture={photo} tileSize={tileSize} />
+        ) : (
+          <radialGradient id={`sg-${ingredient.id}`} cx="38%" cy="32%" r="76%">
+            <stop offset="0%" stopColor={light} />
+            <stop offset="55%" stopColor={base} />
+            <stop offset="100%" stopColor={dark} />
+          </radialGradient>
+        )}
         <mask id={maskId}>
           <motion.circle
             cx="0"
@@ -122,8 +237,8 @@ export function SpreadLayer({
           />
         </mask>
       </defs>
-      <g mask={`url(#${maskId})`}>
-        <path d={path} fill={`url(#sg-${ingredient.id})`} />
+      <g mask={`url(#${maskId})`} style={ingredient.visual.tint ? { filter: ingredient.visual.tint } : undefined}>
+        <path d={path} fill={photo ? `url(#${patternId})` : `url(#sg-${ingredient.id})`} />
         {texture}
       </g>
     </g>

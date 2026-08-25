@@ -70,10 +70,23 @@ export interface IngredientVisual {
   /** Wo die Ebene sitzt — beim Doener innen im Brot, beim Croque aussen. */
   slot?: "inside" | "outside" | "top";
   /**
-   * Optionale Fotoebene. Ist `sprite` gesetzt UND die Datei vorhanden,
-   * ersetzt sie die prozedurale Darstellung (siehe docs/ASSETS.md).
+   * Foto-Freisteller der Zutat. Sind welche hinterlegt, zeichnet der
+   * Builder echte Fotostuecke statt der SVG-Form — abwechselnd, damit
+   * nicht alle Stuecke identisch aussehen. Erzeugt mit tools/build-sprites.py.
    */
-  sprite?: { src: string; width: number; height: number };
+  sprites?: string[];
+  /**
+   * Fototextur als Fuellung der gezeichneten Form. Greift dort, wo ein
+   * Freisteller nicht sinnvoll ist (Kaesedecke, Teig, Brot, Sosse).
+   * Name aus public/food/textures/index.json.
+   */
+  texture?: string;
+  /**
+   * Farbkorrektur auf Foto-Ebenen (CSS-Filter). Damit lassen sich
+   * verwandte Zutaten aus demselben Foto ableiten — Sucuk ist dunkler und
+   * roter als Salami, Jalapenos gruener und blasser als Paprika.
+   */
+  tint?: string;
 }
 
 /* ------------------------------------------------------------------ *

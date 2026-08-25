@@ -38,17 +38,23 @@ interface PieceProps {
   shape: LayerShape;
   id: string;
   palette: string[];
+  /**
+   * Fuellung der Hauptflaeche. Ist eine Fototextur hinterlegt, kommt hier
+   * deren Muster-Referenz an — Form, Kante und Glanz bleiben gezeichnet.
+   */
+  fill?: string;
 }
 
 /** Runde Scheibe: Salami, Tomate, Gurke, Champignon. */
-function Slice({ id, palette }: PieceProps) {
+function Slice({ id, palette, fill }: PieceProps) {
   const speck = palette[3];
+  const body = fill ?? `url(#g-${id})`;
   return (
     <g>
       <ellipse cx="0.06" cy="0.12" rx="1" ry="0.98" fill={palette[1]} opacity="0.34" />
-      <circle r="1" fill={`url(#g-${id})`} />
-      <circle r="1" fill="none" stroke={palette[1]} strokeWidth="0.07" opacity="0.75" />
-      {speck && (
+      <circle r="1" fill={body} />
+      <circle r="1" fill="none" stroke={palette[1]} strokeWidth="0.07" opacity={fill ? 0.28 : 0.75} />
+      {speck && !fill && (
         <g fill={`url(#gs-${id})`} opacity="0.9">
           <circle cx="-0.36" cy="-0.22" r="0.15" />
           <circle cx="0.28" cy="-0.4" r="0.11" />
@@ -57,20 +63,20 @@ function Slice({ id, palette }: PieceProps) {
           <circle cx="0.02" cy="0.02" r="0.09" />
         </g>
       )}
-      <ellipse cx="-0.3" cy="-0.36" rx="0.34" ry="0.22" fill="#fff" opacity="0.16" transform="rotate(-24)" />
+      <ellipse cx="-0.3" cy="-0.36" rx="0.34" ry="0.22" fill="#fff" opacity={fill ? 0.07 : 0.16} transform="rotate(-24)" />
     </g>
   );
 }
 
 /** Ring: Zwiebel, Jalapeno, Olive, Paprika. Mitte bleibt durchsichtig. */
-function Ring({ id, palette }: PieceProps) {
+function Ring({ id, palette, fill }: PieceProps) {
   const d =
     "M -1 0 A 1 1 0 1 0 1 0 A 1 1 0 1 0 -1 0 Z " +
     "M -0.52 0 A 0.52 0.52 0 1 1 0.52 0 A 0.52 0.52 0 1 1 -0.52 0 Z";
   return (
     <g>
       <path d={d} fillRule="evenodd" fill={palette[1]} opacity="0.35" transform="translate(0.05 0.12)" />
-      <path d={d} fillRule="evenodd" fill={`url(#g-${id})`} />
+      <path d={d} fillRule="evenodd" fill={fill ?? `url(#g-${id})`} />
       <path
         d="M -0.86 -0.34 A 0.92 0.92 0 0 1 -0.1 -0.9"
         fill="none"
@@ -84,7 +90,7 @@ function Ring({ id, palette }: PieceProps) {
 }
 
 /** Geschnittener Salat, Kraut, Fleischstreifen — leicht gedrehte Sichel. */
-function Shred({ id, palette }: PieceProps) {
+function Shred({ id, palette, fill }: PieceProps) {
   return (
     <g>
       <path
@@ -93,7 +99,7 @@ function Shred({ id, palette }: PieceProps) {
         opacity="0.3"
         transform="translate(0.03 0.1)"
       />
-      <path d="M -1 0.06 Q -0.2 -0.62 1 -0.1 Q 0.1 0.42 -1 0.06 Z" fill={`url(#gl-${id})`} />
+      <path d="M -1 0.06 Q -0.2 -0.62 1 -0.1 Q 0.1 0.42 -1 0.06 Z" fill={fill ?? `url(#gl-${id})`} />
       <path
         d="M -0.72 -0.02 Q -0.1 -0.4 0.74 -0.12"
         fill="none"
@@ -107,29 +113,29 @@ function Shred({ id, palette }: PieceProps) {
 }
 
 /** Wuerfel/Korn: Mais, Feta, Haehnchenwuerfel. */
-function Dice({ id, palette }: PieceProps) {
+function Dice({ id, palette, fill }: PieceProps) {
   return (
     <g>
       <rect x="-0.92" y="-0.78" width="1.9" height="1.7" rx="0.5" fill={palette[1]} opacity="0.32" transform="translate(0.06 0.14)" />
-      <rect x="-1" y="-0.86" width="2" height="1.72" rx="0.55" fill={`url(#g-${id})`} />
+      <rect x="-1" y="-0.86" width="2" height="1.72" rx="0.55" fill={fill ?? `url(#g-${id})`} />
       <ellipse cx="-0.28" cy="-0.34" rx="0.42" ry="0.26" fill="#fff" opacity="0.22" transform="rotate(-18)" />
     </g>
   );
 }
 
 /** Blatt: Rucola, Spinat. */
-function Leaf({ id, palette }: PieceProps) {
+function Leaf({ id, palette, fill }: PieceProps) {
   return (
     <g>
       <path d="M -1 0 Q -0.2 -0.86 1 -0.12 Q 0 0.86 -1 0 Z" fill={palette[1]} opacity="0.3" transform="translate(0.04 0.12)" />
-      <path d="M -1 0 Q -0.2 -0.86 1 -0.12 Q 0 0.86 -1 0 Z" fill={`url(#gl-${id})`} />
+      <path d="M -1 0 Q -0.2 -0.86 1 -0.12 Q 0 0.86 -1 0 Z" fill={fill ?? `url(#gl-${id})`} />
       <path d="M -0.86 -0.02 Q 0 -0.1 0.9 -0.12" fill="none" stroke={palette[2]} strokeWidth="0.07" opacity="0.6" />
     </g>
   );
 }
 
 /** Streifen: Fleisch vom Spiess, Bacon, Schinken. */
-function Strip({ id, palette }: PieceProps) {
+function Strip({ id, palette, fill }: PieceProps) {
   const fat = palette[3];
   return (
     <g>
@@ -141,7 +147,7 @@ function Strip({ id, palette }: PieceProps) {
       />
       <path
         d="M -1 -0.3 Q -0.3 -0.52 0.2 -0.28 Q 0.7 -0.06 1 -0.24 L 1 0.28 Q 0.6 0.5 0.1 0.28 Q -0.4 0.06 -1 0.3 Z"
-        fill={`url(#gl-${id})`}
+        fill={fill ?? `url(#gl-${id})`}
       />
       {fat && (
         <path

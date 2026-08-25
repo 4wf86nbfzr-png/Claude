@@ -1,67 +1,119 @@
-# Assets — was noch fehlt
+# Bildmaterial
 
-Die Anwendung laeuft vollstaendig ohne Fotomaterial: Produkte werden
-prozedural gezeichnet. Fuer den Live-Betrieb ist echtes Material trotzdem
-der groesste Qualitaetssprung. Diese Liste sagt, was gebraucht wird.
+Die Produktdarstellung besteht aus **echtem Fotomaterial**. Es wird nicht
+zur Laufzeit erzeugt, sondern einmalig aus Vorlagenfotos geschnitten und
+als Datei ausgeliefert.
 
-## 1. Produktfotos als Ebenen (optional, empfohlen)
+## Woher das Material kommt
 
-Pro Zutat ein freigestelltes Bild, aufgenommen aus **derselben Perspektive
-wie die Zeichnung**:
+Grundlage sind die beiden Vorlagenfotos unter `tools/source/`:
 
-| Kategorie | Perspektive | Bildgroesse |
+| Datei | Aufloesung | liefert |
 | --- | --- | --- |
-| Pizza | senkrecht von oben, mittig | 1024 × 1024 |
-| Doener | frontal, leicht ueber Augenhoehe | 1024 × 900 |
-| Croque | seitlich, Schnittkante zur Kamera | 1024 × 768 |
+| `pizza.webp` | 3840 × 2160 | Kaese, Teig, Sosse, Salami, Oliven, Paprika, Pilze |
+| `doener.jpg` | 643 × 360 | Doenerfleisch, Salat, Tomate, rote Zwiebel |
 
-Anforderungen:
+> **Vor dem Live-Gang klaeren:** Beide Fotos wurden fuer diese Umsetzung
+> bereitgestellt. Die Nutzungsrechte muessen fuer den oeffentlichen Betrieb
+> nachgewiesen sein (Fotograf, Stock-Lizenz oder eigene Aufnahme). Ohne
+> geklaerte Rechte gehoert das Material ausgetauscht — die Pipeline unten
+> macht das zu einer Sache von Minuten.
 
-- transparenter Hintergrund (PNG mit Alpha), Ausgabe als **AVIF + WebP**
-- gleiche Lichtrichtung fuer alle Ebenen: Hauptlicht oben links
-- kein eingebrannter Schlagschatten (der Renderer setzt ihn selbst)
-- Dateiname = Zutaten-ID, z. B. `salami.avif` fuer `pz-salami`
+## Drei Arten von Bilddateien
 
-Einbinden in `src/data/ingredients.ts`:
+### 1. Freisteller — `public/food/sprites/*.webp`
 
-```ts
-visual: { z: 40, shape: "slice", palette: [...],
-          sprite: { src: "/food/pizza/salami.avif", width: 1024, height: 1024 } }
+Einzelne Zutatenstuecke mit weich auslaufender Alphakante. Sie liegen im
+Builder als Ebene auf dem Produkt und dienen gleichzeitig als runde
+Auswahl-Chips in der Wischleiste.
+
+```bash
+python3 tools/build-sprites.py
 ```
 
-`palette` bitte trotzdem gepflegt lassen — sie faerbt Flugbahn, Kacheln
-und die Rueckfallebene.
+Die Koordinaten stehen im Skript (`SPRITES`). Je Zutat sind mehrere
+Varianten hinterlegt, damit nicht alle Stuecke identisch aussehen.
 
-## 2. Bewegtbild (optional)
+### 2. Flaechen — `public/food/fields/*.webp`
 
-Drei kurze, tonlose Schleifen fuer die Startseite:
+Grosse, vorgemischte Materialflaechen (Kaese, Teig, Fladenbrot, Sosse,
+Fleisch). Sie fuellen im SVG die gezeichneten Formen.
 
-| Slot | Inhalt | Laenge |
+```bash
+python3 tools/build-fields.py
+```
+
+Wichtig: **keine kleinen Kacheln.** Ein wiederholtes Muster verraet sich im
+Produkt sofort als Textur. Die Felder sind deshalb so gross, dass sie die
+Form in einem Durchgang abdecken. Zwei Mischverfahren stehen zur Wahl:
+
+- `blend` — viele gedrehte Ausschnitte uebereinander (unregelmaessiges
+  Material wie Kaese oder Fleisch)
+- `smooth` — ein Ausschnitt gross gezogen, weitere sanft daruebergeblendet
+  (gleichmaessiges Material wie Teig oder Brot)
+
+### 3. Marke — `public/icons/*`, `public/og.png`
+
+```bash
+node tools/icon-gen.mjs
+```
+
+## Wie eine Zutat an ihr Bild kommt
+
+Alles laeuft ueber `src/data/assets.ts` und das Feld `visual` der Zutat:
+
+```ts
+ing("pz-oliven", "Oliven", 120,
+  { z: 45, shape: "ring", palette: [...], sprites: [...SPRITES.olive] })
+
+ing("pz-kaese", "Kaese", 0,
+  { z: 20, shape: "sheet", palette: [...], texture: "kaese" })
+
+ing("pz-sucuk", "Sucuk", 190,
+  { z: 41, shape: "slice", palette: [...],
+    sprites: [...SPRITES.salami], tint: TINT.sucuk })
+```
+
+- `sprites` — Foto-Freisteller, bevorzugt vor allem anderen
+- `texture` — Fotoflaeche als Fuellung der gezeichneten Form
+- `tint` — CSS-Filter, um verwandte Zutaten aus demselben Foto abzuleiten
+  (Sucuk ist dunkler als Salami, Rotkohl violetter Salat)
+- ohne beides bleibt die gezeichnete Form mit Farbverlauf — sichtbar noch
+  bei Mais, Feta, Ei, Artischocken und den Sossen
+
+Die Bewegung (Fallen, Streuen, Aufziehen) haengt nicht am Bildmaterial:
+sie kommt aus `visual.shape` und laeuft mit Foto genauso wie ohne.
+
+## Eigenes Material einsetzen
+
+1. Fotos nach `tools/source/` legen.
+2. Koordinaten in `tools/build-sprites.py` / `tools/build-fields.py`
+   eintragen. Hilfsmittel:
+   ```bash
+   python3 tools/grid.py tools/source/foto.jpg /tmp/gitter.png 200   # Koordinatengitter
+   python3 tools/sheet.py tools/source/foto.jpg /tmp/probe.png '[["test",100,100,300,200]]'
+   ```
+3. Beide Skripte laufen lassen, Ergebnis in `public/food/` pruefen.
+4. Zutat in `src/data/ingredients.ts` auf `sprites`/`texture` umstellen.
+
+## Ideal: eine eigene Aufnahmeserie
+
+Das Beste, was der Darstellung passieren kann, sind Aufnahmen aus **einer**
+Perspektive und **einem** Licht:
+
+| Kategorie | Perspektive | Motive |
 | --- | --- | --- |
-| Pizza | Kaese wird ueber die Pizza gezogen | 3–5 s |
-| Doener | Fleisch wird vom Spiess geschnitten | 3–5 s |
-| Croque | Kaesefaden beim Auseinanderziehen | 3–5 s |
+| Pizza | senkrecht von oben | Kaesepizza ohne Belag; jede Zutat einzeln auf neutralem Grund |
+| Doener | frontal, leicht ueber Augenhoehe | offenes Fladenbrot leer; Fleisch, Salat, Gemuese einzeln |
+| Croque | seitlich, Schnittkante zur Kamera | Toastscheibe; Kaese, Schinken, Gemuese einzeln |
 
-- Format: WebM (VP9) **und** MP4 (H.264) fuer aeltere Geraete
-- Zielgroesse je Datei unter 1,5 MB, kurze Schleife statt langer Szene
-- Standbild als AVIF im selben Ausschnitt (`poster`)
-- Ablage unter `public/video/`, Eintrag in `src/data/media.ts`
+Anforderungen: transparenter Hintergrund oder freistellbar, Hauptlicht
+oben links, kein eingebrannter Schlagschatten (den setzt der Builder
+selbst), Ausgabe als AVIF **und** WebP.
 
-Solange nichts eingetragen ist, zeigt der Slot die prozedurale
-Darstellung — es entsteht kein Loch. Musik braucht eine Lizenz; die Slots
-laufen bewusst stumm.
+## Bewegtbild
 
-## 3. Marke
-
-- Wortmarke und Logo: aktuell ist die Wortmarke reine Typografie (Anton).
-  Ein gesetztes Logo kann in `components/layout/Header.tsx` und
-  `Footer.tsx` eingesetzt werden.
-- Icons/Startbildschirm: `public/icons/*` wurden aus `src/app/icon.svg`
-  erzeugt (`icon-gen.mjs`). Nach einer Logo-Aenderung neu erzeugen.
-- Vorschaubild fuer geteilte Links: `public/og.png` (1200 × 630).
-
-## 4. Nicht noetig
-
-Kein Icon-Set, keine Illustrationen, keine Stockfotos: Kategorie-Karten,
-Menue und Tracking benutzen dieselbe Produktdarstellung wie der Builder.
-Das haelt die Anwendung schlank und die Bildsprache einheitlich.
+Drei Slots auf der Startseite sind vorbereitet (`src/data/media.ts`):
+Kaese ueber die Pizza, Fleisch vom Spiess, Kaesefaden beim Croque.
+Je 3–5 s, stumm, WebM + MP4, unter 1,5 MB, Standbild als AVIF. Solange
+nichts eingetragen ist, zeigt der Slot die normale Produktdarstellung.

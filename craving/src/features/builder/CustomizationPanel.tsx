@@ -1,5 +1,6 @@
 "use client";
 
+import { Hand } from "lucide-react";
 import { IngredientSelector } from "./IngredientSelector";
 import { getGroup } from "@/lib/catalog";
 import type { Category, Product, Selections } from "@/types/domain";
@@ -62,6 +63,11 @@ export function CustomizationPanel({
           </p>
         </section>
       )}
+
+      <p className="flex items-center gap-2 rounded-full border border-line bg-ink-2 px-4 py-2.5 text-[0.8125rem] text-muted">
+        <Hand className="size-4 shrink-0 text-chrome" aria-hidden />
+        Zutat antippen — oder mit dem Finger aufs Produkt ziehen.
+      </p>
 
       {category.builder.steps.map((step) => (
         <section key={step.id} id={step.id} className="scroll-mt-40 space-y-8 lg:scroll-mt-32">

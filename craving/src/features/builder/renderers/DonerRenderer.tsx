@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { DrizzleLayer, PieceLayer, SpreadLayer } from "../IngredientLayer";
+import { DrizzleLayer, PieceLayer, SpreadLayer, TexturePattern } from "../IngredientLayer";
 import { bandPlacements, blobPath, drizzlePath } from "./geometry";
 import { hasPieceRenderer } from "./pieces";
 import { GrainOverlay, TextureDefs } from "./texture";
@@ -28,13 +28,13 @@ import { useReducedMotionSafe } from "@/hooks/useReducedMotionSafe";
  * Brotrands: liegt sie darueber, schwebt sie sichtbar in der Luft.
  */
 const FILL_ANCHOR = 10;
-const FILL_TOP = -46;
+const FILL_TOP = -54;
 /** Zutatenstuecke sind hier kleiner als auf der Pizza. */
 const SIZE_UNIT = 0.8;
 
 function pieceCount(shape: string, density: number): number {
   const base: Record<string, number> = {
-    shred: 34, slice: 9, ring: 11, dice: 38, strip: 12, leaf: 11,
+    shred: 34, slice: 11, ring: 13, dice: 38, strip: 15, leaf: 13,
   };
   return Math.max(5, Math.round((base[shape] ?? 12) * density));
 }
@@ -66,15 +66,18 @@ function Defs() {
   return (
     <defs>
       <TextureDefs prefix="dn" />
-      <linearGradient id="dn-bread" x1="25%" y1="0%" x2="70%" y2="100%">
-        <stop offset="0%" stopColor="#EFCE96" />
-        <stop offset="45%" stopColor="#DDB068" />
-        <stop offset="100%" stopColor="#B07C3B" />
+      {/* Das Brot ist eine echte Fotoflaeche; Form und Licht kommen aus
+          den Verlaeufen darueber. */}
+      <TexturePattern id="dn-brot" texture="fladenbrot" tileSize={420} />
+      <linearGradient id="dn-bread-shade" x1="25%" y1="0%" x2="70%" y2="100%">
+        <stop offset="0%" stopColor="#fff" stopOpacity="0.10" />
+        <stop offset="45%" stopColor="#000" stopOpacity="0.02" />
+        <stop offset="100%" stopColor="#2A1B08" stopOpacity="0.34" />
       </linearGradient>
-      <linearGradient id="dn-bread-front" x1="30%" y1="0%" x2="60%" y2="100%">
-        <stop offset="0%" stopColor="#E7C186" />
-        <stop offset="55%" stopColor="#CE9E55" />
-        <stop offset="100%" stopColor="#9E6C2F" />
+      <linearGradient id="dn-front-shade" x1="30%" y1="0%" x2="60%" y2="100%">
+        <stop offset="0%" stopColor="#fff" stopOpacity="0.14" />
+        <stop offset="40%" stopColor="#000" stopOpacity="0.06" />
+        <stop offset="100%" stopColor="#1E1305" stopOpacity="0.44" />
       </linearGradient>
       <linearGradient id="dn-inner" x1="0%" y1="0%" x2="0%" y2="100%">
         <stop offset="0%" stopColor="#5B3A1E" />
@@ -129,7 +132,7 @@ export function DonerRenderer({ ingredients, effects, label }: RendererProps) {
       // Decke ueber der ganzen Breite — sonst wird er zur zweiten Brothaelfte.
       const cx = band.x + band.width / 2;
       const cy = band.y + band.height / 2;
-      const sx = (band.width * 0.62) / 180;
+      const sx = (band.width * 0.5) / 180;
       return (
         <motion.g key={ing.id} transform={`translate(${cx} ${cy}) scale(${sx.toFixed(3)} 0.17)`}>
           <SpreadLayer ingredient={ing} path={blobPath(seed, 90, 0.16, 14)} radius={104} />
@@ -166,7 +169,8 @@ export function DonerRenderer({ ingredients, effects, label }: RendererProps) {
           <g filter={reduced ? undefined : "url(#dn-rough)"}>
             <path
               d="M -76 -104 L 76 -74 L 76 104 C 76 128, 38 140, 0 140 C -38 140, -76 128, -76 104 Z"
-              fill={vollkorn ? "#A9793F" : "url(#dn-bread)"}
+              fill="url(#dn-brot)"
+              style={{ filter: vollkorn ? "saturate(0.9) brightness(0.72)" : "saturate(0.62) brightness(1.02)" }}
             />
           </g>
           <path d="M -76 -104 L 76 -74 L 58 -58 L -60 -86 Z" fill="url(#dn-inner)" opacity="0.9" />
@@ -189,7 +193,12 @@ export function DonerRenderer({ ingredients, effects, label }: RendererProps) {
           <g filter={reduced ? undefined : "url(#dn-rough)"}>
             <path
               d="M -152 -18 C -156 40, -112 96, 0 96 C 112 96, 156 40, 152 -18 C 152 -36, 96 -48, 0 -48 C -96 -48, -152 -36, -152 -18 Z"
-              fill={vollkorn ? "#AE7E42" : "url(#dn-bread)"}
+              fill="url(#dn-brot)"
+              style={{ filter: vollkorn ? "saturate(0.9) brightness(0.72)" : "saturate(0.62) brightness(1.02)" }}
+            />
+            <path
+              d="M -152 -18 C -156 40, -112 96, 0 96 C 112 96, 156 40, 152 -18 C 152 -36, 96 -48, 0 -48 C -96 -48, -152 -36, -152 -18 Z"
+              fill="url(#dn-bread-shade)"
             />
           </g>
           <g clipPath="url(#dn-bread-clip)">
@@ -223,7 +232,7 @@ export function DonerRenderer({ ingredients, effects, label }: RendererProps) {
                     <DrizzleLayer
                       ingredient={ing}
                       path={drizzlePath(`doener-sauce-${ing.id}`, { ...band, height: 15 }, 7)}
-                      width={6}
+                      width={5}
                       length={520}
                     />
                   </motion.g>
@@ -236,7 +245,12 @@ export function DonerRenderer({ ingredients, effects, label }: RendererProps) {
           <g filter={reduced ? undefined : "url(#dn-rough)"}>
             <path
               d="M -150 -14 C -148 48, -104 98, 0 98 C 104 98, 148 48, 150 -14 C 100 26, -100 26, -150 -14 Z"
-              fill={vollkorn ? "#A9793F" : "url(#dn-bread-front)"}
+              fill="url(#dn-brot)"
+              style={{ filter: vollkorn ? "saturate(0.9) brightness(0.68)" : "saturate(0.58) brightness(0.96)" }}
+            />
+            <path
+              d="M -150 -14 C -148 48, -104 98, 0 98 C 104 98, 148 48, 150 -14 C 100 26, -100 26, -150 -14 Z"
+              fill="url(#dn-front-shade)"
             />
           </g>
           <path

@@ -1,0 +1,97 @@
+{
+ "olive-1": {
+  "file": "/food/sprites/olive-1.webp",
+  "width": 240,
+  "height": 228
+ },
+ "olive-2": {
+  "file": "/food/sprites/olive-2.webp",
+  "width": 239,
+  "height": 228
+ },
+ "olive-3": {
+  "file": "/food/sprites/olive-3.webp",
+  "width": 220,
+  "height": 209
+ },
+ "paprika-1": {
+  "file": "/food/sprites/paprika-1.webp",
+  "width": 239,
+  "height": 149
+ },
+ "paprika-2": {
+  "file": "/food/sprites/paprika-2.webp",
+  "width": 260,
+  "height": 173
+ },
+ "paprika-3": {
+  "file": "/food/sprites/paprika-3.webp",
+  "width": 240,
+  "height": 160
+ },
+ "salami-1": {
+  "file": "/food/sprites/salami-1.webp",
+  "width": 300,
+  "height": 273
+ },
+ "salami-2": {
+  "file": "/food/sprites/salami-2.webp",
+  "width": 300,
+  "height": 272
+ },
+ "salami-3": {
+  "file": "/food/sprites/salami-3.webp",
+  "width": 300,
+  "height": 272
+ },
+ "dnfleisch-1": {
+  "file": "/food/sprites/dnfleisch-1.webp",
+  "width": 200,
+  "height": 133
+ },
+ "dnfleisch-2": {
+  "file": "/food/sprites/dnfleisch-2.webp",
+  "width": 200,
+  "height": 123
+ },
+ "dnfleisch-3": {
+  "file": "/food/sprites/dnfleisch-3.webp",
+  "width": 200,
+  "height": 133
+ },
+ "dnsalat-1": {
+  "file": "/food/sprites/dnsalat-1.webp",
+  "width": 200,
+  "height": 152
+ },
+ "dnsalat-2": {
+  "file": "/food/sprites/dnsalat-2.webp",
+  "width": 200,
+  "height": 154
+ },
+ "dnsalat-3": {
+  "file": "/food/sprites/dnsalat-3.webp",
+  "width": 200,
+  "height": 153
+ },
+ "dntomate-1": {
+  "file": "/food/sprites/dntomate-1.webp",
+  "width": 200,
+  "height": 117
+ },
+ "dntomate-2": {
+  "file": "/food/sprites/dntomate-2.webp",
+  "width": 200,
+  "height": 117
+ },
+ "dnzwiebel-1": {
+  "file": "/food/sprites/dnzwiebel-1.webp",
+  "width": 200,
+  "height": 123
+ },
+ "dnzwiebel-2": {
+  "file": "/food/sprites/dnzwiebel-2.webp",
+  "width": 200,
+  "height": 125
+ }
+}

@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { PieceLayer, SpreadLayer } from "../IngredientLayer";
+import { PieceLayer, SpreadLayer, TexturePattern } from "../IngredientLayer";
 import { blobPath, discPlacements, shift } from "./geometry";
 import { hasPieceRenderer } from "./pieces";
 import { randomFor, between, round } from "@/lib/rng";
@@ -10,10 +10,9 @@ import type { RendererProps } from "./types";
 import { useReducedMotionSafe } from "@/hooks/useReducedMotionSafe";
 
 const R_CRUST = 172;
-const R_DOUGH = 150;
-const R_SAUCE = 141;
-const R_CHEESE = 136;
-const R_TOPPING = 126;
+const R_SAUCE = 154;
+const R_CHEESE = 150;
+const R_TOPPING = 138;
 
 /** Wie viele Stuecke eine Zutat bekommt — Dichte x Flaeche. */
 function pieceCount(shape: string, density: number): number {
@@ -86,7 +85,6 @@ export function PizzaRenderer({ ingredients, effects, label }: RendererProps) {
   const thin = effects.variants.includes("thin");
   const stuffed = effects.variants.includes("stuffed");
   const crust = thin ? R_CRUST - 8 : R_CRUST;
-  const dough = thin ? R_DOUGH + 6 : R_DOUGH;
 
   return (
     <svg
@@ -104,17 +102,23 @@ export function PizzaRenderer({ ingredients, effects, label }: RendererProps) {
           <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="3" seed="11" result="noise" />
           <feDisplacementMap in="SourceGraphic" in2="noise" scale="7" xChannelSelector="R" yChannelSelector="G" />
         </filter>
-        <radialGradient id="pz-crust" cx="42%" cy="36%" r="74%">
-          <stop offset="0%" stopColor="#E7BE76" />
-          <stop offset="62%" stopColor="#D9A85E" />
-          <stop offset="86%" stopColor="#BB8237" />
-          <stop offset="100%" stopColor="#8F5F24" />
+        {/* Teig und Rand bestehen aus einer echten Fototextur. Form und
+            Licht kommen aus der Schattierung darueber. */}
+        <TexturePattern id="pz-teig" texture="teig" tileSize={2 * R_CRUST} />
+        <radialGradient id="pz-crust-form" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#2A1503" stopOpacity="0.42" />
+          <stop offset="80%" stopColor="#2A1503" stopOpacity="0.42" />
+          <stop offset="85%" stopColor="#180C01" stopOpacity="0.58" />
+          <stop offset="90%" stopColor="#fff" stopOpacity="0.06" />
+          <stop offset="95%" stopColor="#150A01" stopOpacity="0.34" />
+          <stop offset="99%" stopColor="#0D0600" stopOpacity="0.72" />
+          <stop offset="100%" stopColor="#000" stopOpacity="0.85" />
         </radialGradient>
-        <radialGradient id="pz-dough" cx="45%" cy="40%" r="70%">
-          <stop offset="0%" stopColor="#E2B978" />
-          <stop offset="70%" stopColor="#D3A75F" />
-          <stop offset="100%" stopColor="#BC8C45" />
-        </radialGradient>
+        <linearGradient id="pz-key-light" x1="16%" y1="6%" x2="80%" y2="94%">
+          <stop offset="0%" stopColor="#fff" stopOpacity="0.07" />
+          <stop offset="45%" stopColor="#fff" stopOpacity="0.01" />
+          <stop offset="100%" stopColor="#000" stopOpacity="0.26" />
+        </linearGradient>
         <radialGradient id="pz-shadow" cx="50%" cy="50%" r="50%">
           <stop offset="0%" stopColor="rgba(0,0,0,0.75)" />
           <stop offset="100%" stopColor="rgba(0,0,0,0)" />
@@ -130,20 +134,17 @@ export function PizzaRenderer({ ingredients, effects, label }: RendererProps) {
       {/* Schatten auf der Unterlage */}
       <ellipse cx="6" cy={crust * 0.82} rx={crust * 0.98} ry={crust * 0.3} fill="url(#pz-shadow)" opacity="0.85" />
 
-      {/* Teig */}
+      {/* Teig: Fototextur, darueber die Form des aufgegangenen Randes */}
       <g filter={reduced ? undefined : "url(#pz-rough)"}>
-        <circle r={crust} fill="url(#pz-crust)" />
-        <circle r={dough} fill="url(#pz-dough)" />
+        <circle r={crust} fill="url(#pz-teig)" />
       </g>
       <g clipPath="url(#pz-crust-clip)">
-        <BakeSpots seed="pz-crust-spots" radius={crust - 4} color="#7A4A18" count={40} opacity={0.34} />
-        <BakeSpots seed="pz-crust-blister" radius={crust - 10} color="#F2DAA8" count={16} opacity={0.2} />
-        <GrainOverlay prefix="pz" box={{ x: -crust, y: -crust, width: crust * 2, height: crust * 2 }} opacity={0.2} />
-        <GrainOverlay prefix="pz" box={{ x: -crust, y: -crust, width: crust * 2, height: crust * 2 }} opacity={0.13} variant="clouds" />
+        <circle r={crust} fill="url(#pz-crust-form)" />
+        <circle r={crust} fill="url(#pz-key-light)" />
+        <BakeSpots seed="pz-crust-spots" radius={crust - 6} color="#6B3E10" count={34} opacity={0.3} />
+        <BakeSpots seed="pz-crust-blister" radius={crust - 12} color="#F6E3B8" count={14} opacity={0.16} />
       </g>
-      {/* Kante des Randes: der Teig faellt nach aussen ab */}
-      <circle r={crust - 1} fill="none" stroke="#6E4514" strokeWidth="3" opacity="0.35" />
-      <circle r={dough} fill="none" stroke="#A97634" strokeWidth="4" opacity="0.4" />
+      <circle r={crust - 1} fill="none" stroke="#5E3A0F" strokeWidth="3" opacity="0.4" />
       {stuffed && (
         <circle
           r={crust - 12}
@@ -167,11 +168,15 @@ export function PizzaRenderer({ ingredients, effects, label }: RendererProps) {
                   ingredient={ing}
                   path={blobPath(seed, R_SAUCE, 0.022, 28)}
                   radius={R_SAUCE + 10}
+                  tileSize={2 * R_SAUCE}
                   texture={
-                    <>
-                      <BakeSpots seed={`${seed}-t`} radius={R_SAUCE - 12} color={shift(ing.visual.palette[1] ?? "#000", -0.3)} count={22} opacity={0.4} />
-                      <GrainOverlay prefix="pz" box={{ x: -R_SAUCE, y: -R_SAUCE, width: R_SAUCE * 2, height: R_SAUCE * 2 }} opacity={0.24} />
-                    </>
+                    // Nur wenn keine Fotoflaeche vorliegt: Struktur zeichnen.
+                    ing.visual.texture ? null : (
+                      <>
+                        <BakeSpots seed={`${seed}-t`} radius={R_SAUCE - 12} color={shift(ing.visual.palette[1] ?? "#000", -0.3)} count={22} opacity={0.4} />
+                        <GrainOverlay prefix="pz" box={{ x: -R_SAUCE, y: -R_SAUCE, width: R_SAUCE * 2, height: R_SAUCE * 2 }} opacity={0.24} />
+                      </>
+                    )
                   }
                 />
               </motion.g>
@@ -185,19 +190,26 @@ export function PizzaRenderer({ ingredients, effects, label }: RendererProps) {
                   ingredient={ing}
                   path={blobPath(`${seed}-cheese`, R_CHEESE, 0.028, 26)}
                   radius={R_CHEESE + 12}
+                  tileSize={2 * R_CHEESE}
                   texture={
-                    <>
-                      {/* Backfarbe: erst Schmelzflecken, dann Blasen und Braeune */}
-                      <MeltPatches seed={`${seed}-melt`} radius={R_CHEESE} />
-                      <GrainOverlay prefix="pz" box={{ x: -R_CHEESE, y: -R_CHEESE, width: R_CHEESE * 2, height: R_CHEESE * 2 }} opacity={0.5} variant="clouds" />
-                      <BakeSpots seed={`${seed}-brown`} radius={R_CHEESE - 10} color="#98520E" count={40} opacity={0.5} />
-                      <BakeSpots seed={`${seed}-dark`} radius={R_CHEESE - 18} color="#5E2E04" count={16} opacity={0.36} />
-                      <BakeSpots seed={`${seed}-light`} radius={R_CHEESE - 24} color="#FCE3A4" count={16} opacity={0.24} />
-                      {/* Fettglanz: zwei weiche Streifen, mehr braucht es nicht */}
-                      <ellipse cx={-38} cy={-52} rx={54} ry={16} fill="#fff" opacity="0.07" transform="rotate(-24 -38 -52)" />
-                      <ellipse cx={44} cy={38} rx={38} ry={11} fill="#fff" opacity="0.05" transform="rotate(-14 44 38)" />
-                      <GrainOverlay prefix="pz" box={{ x: -R_CHEESE, y: -R_CHEESE, width: R_CHEESE * 2, height: R_CHEESE * 2 }} opacity={0.22} />
-                    </>
+                    ing.visual.texture ? (
+                      // Das Foto bringt Braeune und Blasen schon mit; hier
+                      // kommt nur noch der Fettglanz dazu.
+                      <>
+                        <ellipse cx={-38} cy={-52} rx={54} ry={16} fill="#fff" opacity="0.06" transform="rotate(-24 -38 -52)" />
+                        <ellipse cx={44} cy={38} rx={38} ry={11} fill="#fff" opacity="0.04" transform="rotate(-14 44 38)" />
+                      </>
+                    ) : (
+                      <>
+                        <MeltPatches seed={`${seed}-melt`} radius={R_CHEESE} />
+                        <GrainOverlay prefix="pz" box={{ x: -R_CHEESE, y: -R_CHEESE, width: R_CHEESE * 2, height: R_CHEESE * 2 }} opacity={0.5} variant="clouds" />
+                        <BakeSpots seed={`${seed}-brown`} radius={R_CHEESE - 10} color="#98520E" count={40} opacity={0.5} />
+                        <BakeSpots seed={`${seed}-dark`} radius={R_CHEESE - 18} color="#5E2E04" count={16} opacity={0.36} />
+                        <BakeSpots seed={`${seed}-light`} radius={R_CHEESE - 24} color="#FCE3A4" count={16} opacity={0.24} />
+                        <ellipse cx={-38} cy={-52} rx={54} ry={16} fill="#fff" opacity="0.07" transform="rotate(-24 -38 -52)" />
+                        <ellipse cx={44} cy={38} rx={38} ry={11} fill="#fff" opacity="0.05" transform="rotate(-14 44 38)" />
+                      </>
+                    )
                   }
                 />
               </motion.g>

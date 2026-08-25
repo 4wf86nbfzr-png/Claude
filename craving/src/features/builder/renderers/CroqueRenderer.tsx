@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { PieceLayer, SpreadLayer } from "../IngredientLayer";
+import { PieceLayer, SpreadLayer, TexturePattern } from "../IngredientLayer";
 import { bandPlacements, slabPath } from "./geometry";
 import { hasPieceRenderer } from "./pieces";
 import { between, randomFor, round } from "@/lib/rng";
@@ -30,11 +30,20 @@ function pieceCount(shape: string, density: number): number {
   return Math.max(3, Math.round((base[shape] ?? 8) * density));
 }
 
-function Toast({ y, rotate = 0, id }: { y: number; rotate?: number; id: string }) {
+function Toast({ y, rotate = 0, id, tone }: { y: number; rotate?: number; id: string; tone: string }) {
   const rnd = randomFor(`croque-toast-${id}`);
   return (
     <g transform={`translate(0 ${y}) rotate(${rotate})`}>
       <g filter="url(#cq-edge)">
+        <rect
+          x={-SLICE_W / 2}
+          y={0}
+          width={SLICE_W}
+          height={SLICE_H}
+          rx={15}
+          fill="url(#cq-brot)"
+          style={{ filter: tone }}
+        />
         <rect x={-SLICE_W / 2} y={0} width={SLICE_W} height={SLICE_H} rx={15} fill="url(#cq-toast)" />
       </g>
       <rect x={-SLICE_W / 2} y={0} width={SLICE_W} height={SLICE_H} rx={15} fill="none" stroke="#96631F" strokeWidth="3" opacity="0.55" />
@@ -78,6 +87,12 @@ export function CroqueRenderer({ ingredients, effects, label }: RendererProps) {
   const fillHeight = Math.max(MIN_GAP, layered.length * step + 12);
   const topSliceY = BOTTOM_Y - fillHeight - SLICE_H;
   const hasCheese = ingredients.some((i) => i.visual.shape === "sheet");
+  // Brotsorte faerbt die Fotoflaeche ein statt sie auszutauschen.
+  const breadTone = vollkorn
+    ? "saturate(0.8) brightness(0.66)"
+    : sauerteig
+      ? "saturate(0.85) brightness(0.86)"
+      : "saturate(0.78) brightness(0.98)";
 
   const bandFor = (index: number) => ({
     x: -SLICE_W / 2 + 30,
@@ -127,10 +142,13 @@ export function CroqueRenderer({ ingredients, effects, label }: RendererProps) {
           <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" seed="21" result="n" />
           <feDisplacementMap in="SourceGraphic" in2="n" scale="4" xChannelSelector="R" yChannelSelector="G" />
         </filter>
+        {/* Der Toast ist eine echte Fotoflaeche; die Form kommt aus dem
+            Verlauf darueber. */}
+        <TexturePattern id="cq-brot" texture="fladenbrot" tileSize={420} />
         <linearGradient id="cq-toast" x1="10%" y1="0%" x2="60%" y2="100%">
-          <stop offset="0%" stopColor={vollkorn ? "#C79B5E" : sauerteig ? "#EBCB92" : "#F3D9A4"} />
-          <stop offset="50%" stopColor={vollkorn ? "#A9793F" : "#DFB670"} />
-          <stop offset="100%" stopColor={vollkorn ? "#8A5F2C" : "#BE8B42"} />
+          <stop offset="0%" stopColor="#fff" stopOpacity="0.16" />
+          <stop offset="55%" stopColor="#000" stopOpacity="0.04" />
+          <stop offset="100%" stopColor="#2A1B06" stopOpacity="0.42" />
         </linearGradient>
         <radialGradient id="cq-shadow" cx="50%" cy="50%" r="50%">
           <stop offset="0%" stopColor="rgba(0,0,0,0.7)" />
@@ -151,7 +169,7 @@ export function CroqueRenderer({ ingredients, effects, label }: RendererProps) {
 
       <ellipse cx="0" cy={BOTTOM_Y + SLICE_H + 16} rx="150" ry="20" fill="url(#cq-shadow)" />
 
-      <Toast y={BOTTOM_Y} id="bottom" />
+      <Toast y={BOTTOM_Y} id="bottom" tone={breadTone} />
 
       {/* Fuellraum: dunkle Masse hinter den Lagen. Ohne sie scheint der
           Hintergrund zwischen den Schichten durch und alles schwebt. */}
@@ -175,7 +193,7 @@ export function CroqueRenderer({ ingredients, effects, label }: RendererProps) {
           initial={false}
           transition={reduced ? { duration: 0.2 } : { type: "spring", stiffness: 210, damping: 24 }}
         >
-          <Toast y={0} rotate={-0.6} id="middle" />
+          <Toast y={0} rotate={-0.6} id="middle" tone={breadTone} />
         </motion.g>
       )}
 
@@ -206,7 +224,7 @@ export function CroqueRenderer({ ingredients, effects, label }: RendererProps) {
         initial={false}
         transition={reduced ? { duration: 0.2 } : { type: "spring", stiffness: 200, damping: 22 }}
       >
-        <Toast y={0} rotate={0.8} id="top" />
+        <Toast y={0} rotate={0.8} id="top" tone={breadTone} />
       </motion.g>
 
       {effects.spice > 0 && (

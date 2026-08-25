@@ -1,0 +1,30 @@
+{
+ "kaese": {
+  "file": "/food/fields/kaese.webp",
+  "size": 1024
+ },
+ "teig": {
+  "file": "/food/fields/teig.webp",
+  "size": 1024
+ },
+ "sosse": {
+  "file": "/food/fields/sosse.webp",
+  "size": 768
+ },
+ "champignon": {
+  "file": "/food/fields/champignon.webp",
+  "size": 512
+ },
+ "fladenbrot": {
+  "file": "/food/fields/fladenbrot.webp",
+  "size": 1024
+ },
+ "doenerfleisch": {
+  "file": "/food/fields/doenerfleisch.webp",
+  "size": 768
+ },
+ "hackfleisch": {
+  "file": "/food/fields/hackfleisch.webp",
+  "size": 512
+ }
+}
