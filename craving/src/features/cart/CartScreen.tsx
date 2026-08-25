@@ -93,8 +93,13 @@ export function CartScreen() {
         <div>
           <ul className="border-t border-line">
             <AnimatePresence initial={false}>
-              {items.map((item) => (
-                <CartLine key={item.id} item={item} flagged={soldOutIds.includes(item.id)} />
+              {items.map((item, index) => (
+                <CartLine
+                  key={item.id}
+                  item={item}
+                  flagged={soldOutIds.includes(item.id)}
+                  showSwipeHint={index === 0}
+                />
               ))}
             </AnimatePresence>
           </ul>

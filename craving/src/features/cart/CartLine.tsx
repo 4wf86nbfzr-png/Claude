@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, useMotionValue, useTransform } from "framer-motion";
 import { Pencil, Trash2 } from "lucide-react";
 import { QuantityStepper } from "@/components/ui/QuantityStepper";
 import { getCategory, labelFor } from "@/lib/catalog";
 import { formatPrice } from "@/lib/format";
 import { useCartStore } from "@/stores/cart-store";
+import { useCoarsePointer } from "@/hooks/useCoarsePointer";
 import type { CartItem } from "@/types/domain";
 
 /**
@@ -14,11 +15,26 @@ import type { CartItem } from "@/types/domain";
  * "ohne Zwiebeln" ist fuer den Kunden genauso wichtig wie "mit Kaese"
  * und fuer die Kueche sowieso.
  */
-export function CartLine({ item, flagged }: { item: CartItem; flagged?: boolean }) {
+export function CartLine({
+  item,
+  flagged,
+  showSwipeHint,
+}: {
+  item: CartItem;
+  flagged?: boolean;
+  /** Nur an der ersten Zeile — einmal erklaeren reicht. */
+  showSwipeHint?: boolean;
+}) {
   const setQuantity = useCartStore((s) => s.setQuantity);
   const remove = useCartStore((s) => s.remove);
   const category = getCategory(item.categoryId);
   const editable = Boolean(category && !category.simple);
+
+  // Wischen zum Entfernen — nur auf Touch-Geraeten. Mit Maus wuerde die
+  // Geste das Markieren von Text stoeren, dort gibt es den Papierkorb.
+  const touch = useCoarsePointer();
+  const x = useMotionValue(0);
+  const revealOpacity = useTransform(x, [-96, -32, 0], [1, 0.4, 0]);
 
   return (
     <motion.li
@@ -27,9 +43,30 @@ export function CartLine({ item, flagged }: { item: CartItem; flagged?: boolean 
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, height: 0, marginTop: 0, marginBottom: 0 }}
       transition={{ duration: 0.25 }}
-      className={`overflow-hidden border-b border-line py-5 ${flagged ? "bg-danger/5" : ""}`}
+      className={`relative overflow-hidden border-b border-line py-5 ${flagged ? "bg-danger/5" : ""}`}
     >
-      <div className="flex items-start gap-4">
+      {touch && (
+        <motion.div
+          style={{ opacity: revealOpacity }}
+          className="pointer-events-none absolute inset-y-0 right-0 flex w-24 items-center justify-center bg-danger/15 text-danger"
+          aria-hidden
+        >
+          <Trash2 className="size-5" />
+        </motion.div>
+      )}
+
+      <motion.div
+        style={{ x }}
+        drag={touch ? "x" : false}
+        dragDirectionLock
+        dragConstraints={{ left: -96, right: 0 }}
+        dragElastic={{ left: 0.12, right: 0 }}
+        dragSnapToOrigin
+        onDragEnd={(_, info) => {
+          if (info.offset.x < -72 || info.velocity.x < -600) remove(item.id);
+        }}
+        className="relative flex items-start gap-4 bg-ink"
+      >
         <span
           className="mt-1 size-2.5 shrink-0 rounded-full"
           style={{ background: category?.accent ?? "var(--color-ember)" }}
@@ -88,7 +125,10 @@ export function CartLine({ item, flagged }: { item: CartItem; flagged?: boolean 
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
+      {touch && showSwipeHint && (
+        <p className="mt-2 pl-6 text-[0.6875rem] text-muted">Nach links wischen zum Entfernen</p>
+      )}
     </motion.li>
   );
 }
