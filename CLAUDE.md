@@ -1685,41 +1685,105 @@ Stellen ein: Kopfnavigation und Vollbildmenü (auf allen Seiten),
 `sitemap.xml`, die Liste in `tools/strukturdaten.py`, die Sitemap-Spalte im
 Fuss und die Adressregel ohne `.html` in `vercel.json` und `netlify.toml`.
 
-## Der Balken unter der Kopfzeile
+## Die Unterleisten unter der Kopfzeile
 
-Die sechs Bereiche stehen nicht mehr auf der Startseite. Ihr Weg führt über
-den Menüpunkt **Dienstleistungen**: ein Klick, und `.megabar` fährt unter der
-Kopfzeile heraus — sechs Fotos, sechs Nummern, sechs Namen, dazu „Alle
-Dienstleistungen ansehen".
+Zwei Menüpunkte haben mehr als ein Ziel. Fährt man mit der Maus darüber,
+kommt unter der Kopfzeile eine Leiste heraus, in der die Ziele stehen:
 
-Vier Entscheidungen, die man kennen muss, bevor man daran etwas ändert:
+| Reiter | was darin steht | Klasse |
+|---|---|---|
+| Dienstleistungen | sechs Fotos, sechs Nummern, sechs Namen, dazu „Alle Dienstleistungen ansehen" | `.megabar` |
+| Jobs | Direkt bewerben · Freie Stellen · Häufige Fragen | `.megabar .megabar--text` |
 
-**1. Der Menüpunkt bleibt ein Link.** Er heißt weiterhin
-`dienstleistungen.html`. Ohne JavaScript wird er ganz normal aufgerufen und
-man landet auf der Übersicht, auf der dieselben sechs Bereiche ausführlich
-stehen. Erst wenn das Skript läuft, fängt es den Klick ab. Es gibt damit keine
-Lage, in der jemand vor einem Menüpunkt steht, der nichts tut — genau das
-wäre der schlechteste Zustand, und genau so enden die meisten Aufklappmenüs.
+Die anderen vier Reiter haben keine. Das ist kein Rest, sondern eine
+Entscheidung — siehe „Wer nichts zu zeigen hat, zeigt nichts".
 
-**2. Gebaut wird in `main.js`, nicht im Markup.** Der Balken steht auf allen
-fünfzehn Seiten gleich; als Markup wären das fünfzehn Kopien, die beim
-nächsten Namenswechsel auseinanderlaufen. Die sechs Adressen stehen ohnehin im
-Fuß jeder Seite — Suchmaschinen und Leser ohne Skript finden sie dort. Der
-Balken trägt deshalb bewusst **keinen Beschreibungssatz**: was dort steht, ist
-Navigation. Sobald ein Satz hineinkäme, wäre es Inhalt, und Inhalt gehört ins
-Markup, wo ihn `striche-ersetzen.py` und das Korrekturlesen erreichen.
+Sechs Entscheidungen, die man kennen muss, bevor man daran etwas ändert:
 
-**3. Er liegt über der Seite, nicht darin.** Ein Balken, der Platz wegnimmt,
+**1. Der Menüpunkt ist in jeder Lage ein Link.** Mit Maus, mit Finger, mit
+Tastatur, mit und ohne JavaScript führt er auf seine Seite. Bis zur
+Hover-Fassung fing das Skript den Klick ab und klappte statt dessen auf; das
+ging, solange nur ein Klick öffnete. Sobald aber das Zeigen öffnet, nähme ein
+Klick dem Benutzer weg, was er gerade vor sich hat. Damit entfallen
+`ev.preventDefault()`, der Meta/Ctrl/Shift-Sonderfall und die
+`ev.detail === 0`-Tastaturerkennung — drei Sonderfälle weniger.
+
+**2. Geöffnet wird beim Darüberfahren — aber der Zustand liegt in `.auf`,
+niemals in CSS `:hover`.** Mit `:hover` hätten Escape, das Schließen beim
+Scrollen, `aria-expanded` und der ganze Tastaturweg keinen Angriffspunkt
+mehr, und auf einem Tablet im Querformat klebte die Leiste, bis man woanders
+hin tippt.
+
+**3. Kopfzeile und Leiste sind eine Zone.** Die Leiste beginnt bei `top:0`
+und wird nur von der Kopfzeile überdeckt (z-index 880 gegen 900). Zwischen
+Reiter und Leiste gibt es deshalb **keine tote Strecke**, die man mit einem
+langen Nachlauf überbrücken müsste. Die Zeiten:
+
+| | ms | warum |
+|---|---|---|
+| Öffnen | 120 | verschluckt jede Durchfahrt: wer die Navigation nur überquert, löst nichts aus |
+| Wechseln | 0 | die Absicht ist geklärt, sobald eine Leiste offen ist |
+| Schließen | 180 | reicht, weil keine Lücke zu überbrücken ist |
+
+Nach Escape und nach dem Scrollen ist der Reiter **gesperrt**, bis der Zeiger
+die Zone einmal verlassen hat. Ohne das spränge die Leiste unter dem
+stehenden Zeiger sofort wieder auf, und Escape hätte keine sichtbare Wirkung.
+
+**4. Pfeil ab öffnet, Enter navigiert.** Der Tabulator allein öffnet nichts:
+wer zum Anfrage-Knopf tabbt, streift sechs Reiter. Innerhalb der Leiste gibt
+es keine Pfeiltastensteuerung — es ist kein `role="menu"`, sondern eine Liste
+von Links. Die Leiste selbst trägt `role="group"`; ein `aria-label` an einem
+nackten `<div>` gibt kein Vorlesewerkzeug aus.
+
+**5. Wer nichts zu zeigen hat, zeigt nichts.** Referenzen, Team, Galerie und
+Kontakt tragen weder `aria-expanded` noch `aria-controls`: ein Attribut,
+hinter dem nie etwas kommt, ist eine Falschaussage. Beim Darüberfahren
+schließen sie eine offene Leiste, statt eine leere zu öffnen. Die Begründung
+je Reiter:
+
+- **Team** hat genau eine Gruppe („Büroteam"). Ein Eintrag ist kein Menü, und
+  sechs Einträge, die alle auf dieselbe Adresse zeigen, sind auch keins.
+- **Galerie** ist eine flache Wand aus dreizehn Kacheln ohne Kategorien. Jede
+  Gliederung müsste erfunden werden. Wer eine will, versieht zuerst die
+  Kacheln mit `data-bereich` — das ist eine Inhaltsänderung, keine
+  Navigationsfrage.
+- **Kontakt** hätte „Anrufen" und „Anfrage stellen" anzubieten. Beides steht
+  zwei Zentimeter weiter rechts in derselben Kopfzeile: die dritte Kopie auf
+  einem Bildschirm, genau die Doppelung aus „Dreimal dieselbe Telefonnummer".
+- **Referenzen** hätte ein Inhaltsverzeichnis über zwei Blöcke, das länger
+  dauert als das Scrollen.
+
+**6. Gebaut wird in `main.js`, nicht im Markup.** Die Leisten stehen auf
+allen sechzehn Seiten gleich; als Markup wären das sechzehn Kopien, die beim
+nächsten Namenswechsel auseinanderlaufen. Die Adressen stehen ohnehin im Fuß
+jeder Seite — Suchmaschinen und Leser ohne Skript finden sie dort. Die
+Leisten tragen deshalb bewusst **keinen Beschreibungssatz**: was dort steht,
+ist Navigation. Sobald ein Satz hineinkäme, wäre es Inhalt, und Inhalt gehört
+ins Markup, wo ihn `striche-ersetzen.py` und das Korrekturlesen erreichen.
+
+**Sie liegen über der Seite, nicht darin.** Eine Leiste, die Platz wegnimmt,
 schöbe beim Öffnen alles darunter nach unten. Deshalb `position:fixed`, und
 bewegt werden nur `transform` und `opacity`.
 
-**4. `visibility` bekommt keine Dauer, sondern eine Verzögerung.** Das ist die
+**Eine Leiste ohne Fotos bekommt auch keine Nummern.** Bei Jobs zeigen alle
+drei Einträge auf dieselbe Seite; ein Bild wäre dreimal dasselbe Motiv, und
+„01 02 03" vor drei Wegmarken ist genau der Zierrat aus „Keine Zeichen vor
+dem Text". `.megabar--text` erbt alles Übrige von `.megabar` — das Abschalten
+unter 981 px, die reduzierte Bewegung, die visibility-Falle —, ohne dass eine
+Media-Query verdoppelt wird.
+
+**Der Versatz beim Aufbauen kommt aus `--n`, nicht aus `:nth-child()`.**
+Vorher standen dort sechs Zeilen, und die galten für genau sechs Einträge.
+`main.js` schreibt den Index beim Bauen, das Stylesheet rechnet daraus die
+Zeit — dasselbe Muster wie `--i` im Vollbildmenü.
+
+**`visibility` bekommt keine Dauer, sondern eine Verzögerung.** Das ist die
 Falle dabei:
 
 ```css
-/* falsch */ transition:opacity .42s, transform .42s, visibility .42s;
-/* richtig */ transition:opacity .42s, transform .42s, visibility 0s linear .42s;
-.megabar.auf{ transition:opacity .42s, transform .42s, visibility 0s; }
+/* falsch */ transition:opacity .24s, transform .24s, visibility .24s;
+/* richtig */ transition:opacity .24s, transform .24s, visibility 0s linear .24s;
+.megabar.auf{ transition:opacity .24s, transform .24s, visibility 0s; }
 ```
 
 Steht `visibility` mit einer Dauer in der Übergangsliste, meldet Chromium noch
@@ -1734,8 +1798,13 @@ stehen, statt im Balken zu landen. Nachgemessen mit vier aufeinanderfolgenden
 | 1 | hidden | nein |
 | 2 | visible | ja |
 
-`visibility` ganz wegzulassen ist keine Lösung: dann stünden sechs unsichtbare
+`visibility` ganz wegzulassen ist keine Lösung: dann stünden neun unsichtbare
 Links im Tabulatorlauf jeder Seite.
+
+Die Dauer selbst hat sich mit dem Zeigen geändert: **0,42 s waren die Antwort
+auf einen Klick, den man abwartet.** Beim Darüberfahren ist die Leiste die
+Fortsetzung einer Zeigerbewegung, die schon läuft; dort liest dieselbe Dauer
+als Zögern. Sie steht deshalb auf **0,24 s**.
 
 **Am Telefon gibt es den Balken nicht.** Dort bietet die Leiste unten mit
 „Leistungen" denselben Weg schon an; ein zweiter wäre die Doppelung, die
@@ -1755,6 +1824,49 @@ Menü. Der Menüpunkt, der nur aufklappt, darf das nicht auslösen.
 `stopPropagation()` hilft dabei **nicht** — der schließende Zuhörer hängt am
 selben Element und wurde früher angemeldet. Erkennbar ist der Punkt stattdessen
 an `aria-controls`; nur wer etwas aufklappt, setzt das.
+
+Jobs bekommt im Vollbildmenü bewusst **keinen** Aufklapper: am Telefon ist der
+Punkt ohnehin ausgeblendet, weil die Leiste unten „Jobs" schon anbietet, und
+auf dem Tablet sind drei Sprungmarken weniger wert als ein Tipp auf die Seite.
+Damit muss `#mobileMenu .menu__unter` im Telefon-Block auch nicht aufgeteilt
+werden.
+
+### Die Falle: `--nav-h` stand nicht immer
+
+An der Höhe der Kopfzeile hängen die Unterleisten, die Kinobalken und seit
+neuestem jedes Sprungziel. Geschrieben wurde sie von `navHoehe()` — aber nur
+aus `alles()` heraus, und das lief nur `if(!reduce)`. **Bei reduzierter
+Bewegung galt deshalb überall der Rückfallwert 78 px**, während die Kopfzeile
+bei 1440 px 101 px hoch ist.
+
+Und sie lief nur bei `resize`, nicht beim Scrollen — obwohl `.scrolled` die
+Leiste flacher macht. Solange die Unterleiste bei jedem Scrollen zuging, fiel
+das nicht auf; seit das Zeigen öffnet, öffnet man viel häufiger im gescrollten
+Zustand.
+
+Die Höhe ist keine Frage der Bewegung, sondern eine Tatsache über das Layout.
+Sie wird jetzt in jeder Lage geschrieben. Nachgezogen wird sie beim Scrollen
+aber **nur, wenn `.scrolled` wirklich umschlägt** — ein
+`getBoundingClientRect()` in jedem Scrollbild wäre ein erzwungenes Layout je
+Bild, und genau davor warnt „Erst messen, dann schreiben".
+
+### Die Falle: `scroll-padding-top` gehört zu jeder festen Kopfzeile
+
+Ohne diese eine Zeile an `html` landet jedes Sprungziel **hinter** der festen
+Leiste: man sieht mitten in einen Absatz und hält es für die falsche Stelle.
+
+```css
+html{ scroll-padding-top:calc(var(--nav-h, 78px) + clamp(12px,2vh,28px)); }
+```
+
+Das fehlte im Stylesheet vollständig, und es war schon vorher falsch — die
+Knöpfe auf `jobs.html`, die auf `#bewerbung` zeigen, sind genauso gelandet.
+Aufgefallen ist es erst mit den Untereinträgen der Unterleiste, weil dort drei
+Sprungziele nebeneinander stehen und man den Fehler dreimal hintereinander
+sieht.
+
+Nachmessen lässt es sich ohne Auge: nach dem Sprung darf `elementFromPoint` an
+der Mitte der Zielüberschrift nicht die Kopfzeile liefern.
 
 ## Der Mitarbeiter-Login gehört nicht zur Bewerbung
 

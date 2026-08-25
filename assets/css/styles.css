@@ -100,6 +100,13 @@
 
 *{ box-sizing:border-box; margin:0; padding:0; }
 html{ scroll-behavior:smooth; -webkit-text-size-adjust:100%; }
+/* Jedes Sprungziel muss unter der festen Kopfzeile anfangen, nicht dahinter.
+   Ohne diese Zeile landet „Zum Inhalt springen" und jeder Knopf, der auf
+   #bewerbung zeigt, mit der Ueberschrift hinter der Leiste — man sieht dann
+   mitten in einen Absatz und haelt es fuer die falsche Stelle. Aufgefallen
+   ist es erst mit den Untereintraegen der Unterleiste, falsch war es schon
+   vorher. Der Wert kommt aus der gemessenen Hoehe der Kopfzeile. */
+html{ scroll-padding-top:calc(var(--nav-h, 78px) + clamp(12px,2vh,28px)); }
 body{
   background:var(--ink);
   color:var(--paper);
@@ -456,6 +463,12 @@ body > footer .brand__logo{ height:44px; }
 }
 .nav__links a:hover{ color:var(--paper); }
 .nav__links a:hover::after{ transform:scaleX(1); transform-origin:left; }
+/* Der Reiter, dessen Unterleiste offen steht, sieht aus wie ein angesteuerter
+   Reiter — dieselbe Linie, sonst nichts. Kein Pfeil, kein Dreieck, kein
+   Zeichen dahinter: was die Leiste anzeigt, steht ja darunter. Nötig ist die
+   Regel trotzdem, denn beim Öffnen mit der Tastatur greift `:hover` nicht. */
+.nav__links a[aria-expanded="true"]{ color:var(--paper); }
+.nav__links a[aria-expanded="true"]::after{ transform:scaleX(1); transform-origin:left; }
 /* Die Seite, auf der man steht. Das ist einer der wenigen Orte, an denen die
    Marke Farbe geben darf: ein Punkt, kein Feld. */
 .nav__links a[aria-current="page"]{ color:var(--paper); }
@@ -569,12 +582,18 @@ body.menu-open #mobileMenu > a{ opacity:1; translate:0 0; }
 }
 
 /* ============================================================
-   DER BALKEN UNTER DER KOPFZEILE
+   DIE UNTERLEISTEN UNTER DER KOPFZEILE
    ------------------------------------------------------------
-   Die sechs Bereiche stehen nicht mehr auf der Startseite. Ihr Weg führt
-   jetzt über den Menüpunkt „Dienstleistungen": ein Klick, und dieser Balken
-   fährt unter der Kopfzeile heraus. Gebaut wird er von main.js, damit er
-   nicht fünfzehnmal im Markup steht.
+   Zwei Menüpunkte haben mehr als ein Ziel: „Dienstleistungen" führt auf
+   sechs Seiten, „Jobs" auf drei Stellen derselben Seite. Fährt man mit der
+   Maus darüber, kommt unter der Kopfzeile eine Leiste heraus, in der sie
+   stehen. Gebaut werden sie von main.js, damit sie nicht sechzehnmal im
+   Markup stehen.
+
+   Geöffnet wird beim Darüberfahren, geschlossen mit Escape, beim Scrollen
+   oder beim Wegfahren — der Zustand liegt in der Klasse `.auf`, niemals in
+   CSS `:hover`. Mit `:hover` hätten Escape, das Schließen beim Scrollen,
+   `aria-expanded` und der ganze Tastaturweg keinen Angriffspunkt mehr.
 
    Er liegt ÜBER der Seite, nicht darin. Ein Balken, der Platz wegnimmt,
    schöbe beim Öffnen alles darunter nach unten — das liest sich als Sprung,
@@ -600,13 +619,17 @@ body.menu-open #mobileMenu > a{ opacity:1; translate:0 0; }
      zwei Bilder lang `hidden`, und ein Element, das `hidden` ist, nimmt
      keinen Fokus an: wer mit Enter öffnete, blieb auf dem Menüpunkt stehen.
      So schaltet es beim Öffnen sofort um und beim Schließen erst, wenn die
-     Ausblende durch ist. */
-  transition:opacity .42s var(--ease-out), transform .42s var(--ease-out),
-             visibility 0s linear .42s;
+     Ausblende durch ist.
+
+     0,42 s war die Antwort auf einen Klick, den man abwartet. Beim
+     Darüberfahren ist die Leiste die Fortsetzung einer Zeigerbewegung, die
+     schon läuft — dort liest dieselbe Dauer als Zögern. Deshalb 0,24 s. */
+  transition:opacity .24s var(--ease-out), transform .24s var(--ease-out),
+             visibility 0s linear .24s;
 }
 .megabar.auf{
   opacity:1; visibility:visible; transform:none;
-  transition:opacity .42s var(--ease-out), transform .42s var(--ease-out), visibility 0s;
+  transition:opacity .24s var(--ease-out), transform .24s var(--ease-out), visibility 0s;
 }
 /* Solange der Balken offen ist, bekommt die Kopfzeile denselben Grund. Sonst
    steht am Seitenanfang eine durchsichtige Leiste vor einem deckenden Balken,
@@ -630,12 +653,10 @@ body.megabar-auf header.nav{
   transition:opacity .38s var(--ease-out), transform .38s var(--ease-out);
 }
 .megabar.auf .megabar__liste a{ opacity:1; transform:none; }
-.megabar__liste li:nth-child(1) a{ transition-delay:.04s }
-.megabar__liste li:nth-child(2) a{ transition-delay:.08s }
-.megabar__liste li:nth-child(3) a{ transition-delay:.12s }
-.megabar__liste li:nth-child(4) a{ transition-delay:.16s }
-.megabar__liste li:nth-child(5) a{ transition-delay:.20s }
-.megabar__liste li:nth-child(6) a{ transition-delay:.24s }
+/* Der Versatz kommt aus dem Index, den main.js beim Bauen schreibt — genau
+   wie beim Vollbildmenü (--i). Vorher standen hier sechs nth-child-Zeilen,
+   und die galten für genau sechs Einträge: die Jobs-Leiste hat drei. */
+.megabar__liste a{ transition-delay:calc(var(--n, 0) * .04s + .04s); }
 
 .megabar__bild{
   display:block; overflow:hidden; aspect-ratio:4/3; background:#0A0A0A;
@@ -676,6 +697,38 @@ body.megabar-auf header.nav{
 .megabar__liste a:focus-visible .megabar__name::after{ transform:scaleX(1); transform-origin:left; }
 
 .megabar__alle{ margin-top:clamp(18px,2.4vh,30px); }
+
+/* ------------------------------------------------------------
+   Die Leiste ohne Fotos (Jobs)
+   ------------------------------------------------------------
+   Drei Wegmarken auf eine Seite. Ein Foto wäre dort dreimal dasselbe Motiv,
+   und „01 02 03" vor drei Wegmarken ist genau der Zierrat aus „Keine Zeichen
+   vor dem Text". Bleibt: Schrift, Abstand, und die Linie, die beim Ansteuern
+   durchläuft.
+
+   Sie sind größer gesetzt als die sechs Bereichsnamen. Das ist kein
+   Geschmack, sondern Arithmetik: sechs Namen teilen sich die Breite, drei
+   haben sie übrig. In der Größe der sechs sähen drei Wörter auf einer
+   bildschirmbreiten Fläche verloren aus.
+
+   Alles Übrige erbt `.megabar--text` von `.megabar` — das Abschalten unter
+   981 px, die reduzierte Bewegung und die visibility-Falle. Keine zweite
+   Media-Query.
+   ------------------------------------------------------------ */
+.megabar--text .megabar__liste{
+  display:flex; flex-wrap:wrap;
+  gap:clamp(26px,4vw,68px);
+  /* Versalien haben keine Unterlängen: die sichtbare Masse sitzt oben im
+     Rahmenkasten. Gleiche Luft oben und unten liest deshalb kopflastig.
+     Gemessen bei 1440 px: 36 über und 28 unter der Zeile sahen falsch aus,
+     31 und 35 sehen mittig aus. */
+  margin-top:clamp(10px,1.4vh,16px);
+}
+.megabar--text{ padding-bottom:clamp(26px,3.9vh,50px); }
+.megabar--text .megabar__name{
+  margin-top:0; min-height:0;
+  font-size:clamp(1.05rem,1.7vw,1.45rem);
+}
 
 /* Unter 981 px ist der Menüpunkt gar nicht sichtbar — dort übernimmt das
    Vollbildmenü. Der Balken wird trotzdem ausdrücklich abgeschaltet: wer das

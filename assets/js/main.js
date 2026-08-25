@@ -52,10 +52,18 @@
   const toTop = document.getElementById('toTop');
   function onScrollTop(){
     const y = window.scrollY;
+    const warGescrollt = nav.classList.contains('scrolled');
     nav.classList.toggle('scrolled', y > 40);
     const h = document.documentElement.scrollHeight - window.innerHeight;
     bar.style.width = (h>0 ? (y/h*100) : 0) + '%';
     toTop.classList.toggle('show', y > window.innerHeight * 0.9);
+    /* Die Kopfzeile wird beim Scrollen flacher, und an ihrer Höhe hängen die
+       Unterleiste, die Kinobalken und jedes Sprungziel (--nav-h). Gemessen
+       wird aber nur, wenn sich wirklich etwas geändert hat: ein
+       getBoundingClientRect in jedem Scrollbild wäre ein erzwungenes Layout
+       je Bild, und genau davor warnt „Erst messen, dann schreiben". */
+    if(nav.classList.contains('scrolled') !== warGescrollt)
+      requestAnimationFrame(navHoehe);
   }
   /* Instant jump to top — bypasses the scroll-scrubbed effects entirely */
   toTop.addEventListener('click', ()=>{
@@ -164,38 +172,53 @@
      im Stylesheet als --i; hier wird er nur einmal geschrieben. */
   document.querySelectorAll('#mobileMenu > a').forEach((a, i)=> a.style.setProperty('--i', i));
 
-  /* ---- Der Balken unter der Kopfzeile ----
-     Seit die sechs Bereiche nicht mehr auf der Startseite stehen, führt der
-     Weg zu ihnen über diesen Menüpunkt. Ein Klick auf „Dienstleistungen"
-     fährt einen Balken unter der Kopfzeile heraus, in dem alle sechs stehen,
-     jeder mit seinem Foto. Von dort geht es entweder in einen Bereich oder
-     auf die Übersicht.
+  /* ---- Die Unterleisten unter der Kopfzeile ----
+     Zwei Menüpunkte haben mehr als ein Ziel. Fährt man mit der Maus darüber,
+     kommt unter der Kopfzeile eine Leiste heraus, in der diese Ziele stehen:
 
-     Drei Entscheidungen dahinter:
+       Dienstleistungen   die sechs Bereiche, jeder mit seinem Foto,
+                          dazu der Weg auf die Übersicht
+       Jobs               direkt bewerben, freie Stellen, häufige Fragen
 
-     1. **Der Menüpunkt bleibt ein Link.** Er heißt weiterhin
-        `dienstleistungen.html`. Ohne JavaScript wird er ganz normal
-        aufgerufen — dann landet man auf der Übersicht, wo dieselben sechs
-        Bereiche ausführlich stehen. Es gibt also keine Lage, in der jemand
-        vor einem Menüpunkt steht, der nichts tut. Erst wenn das Skript
-        läuft, fängt es den Klick ab.
-     2. **Gebaut wird hier, nicht im Markup.** Der Balken steht auf allen
-        fünfzehn Seiten gleich; als Markup wären das fünfzehn Kopien, die
-        beim nächsten Namenswechsel auseinanderlaufen. Die sechs Adressen
-        stehen ohnehin im Fuß jeder Seite — Suchmaschinen und Leser ohne
-        Skript finden sie dort.
-     3. **Er liegt über der Seite, nicht darin.** Ein Balken, der Platz
-        wegnimmt, schöbe beim Öffnen die halbe Seite nach unten. Deshalb
-        `position:fixed` und eine Bewegung aus `transform` und `opacity` —
-        das Layout bleibt in Ruhe.                                          */
+     Sechs Entscheidungen dahinter:
+
+     1. **Der Menüpunkt ist in jeder Lage ein Link.** Mit Maus, mit Finger,
+        mit Tastatur, mit und ohne JavaScript führt er auf seine Seite.
+        Früher fing das Skript den Klick ab und klappte statt dessen auf —
+        das ging, solange nur ein Klick öffnete. Sobald das Zeigen öffnet,
+        nähme ein Klick dem Benutzer weg, was er gerade vor sich hat.
+     2. **Geöffnet wird beim Darüberfahren, nicht per `:hover` im
+        Stylesheet.** Der Zustand liegt in der Klasse `.auf`. Mit `:hover`
+        hätten Escape, das Schließen beim Scrollen, `aria-expanded` und der
+        Tastaturweg keinen Angriffspunkt, und auf einem Tablet im Querformat
+        klebte die Leiste, bis man woanders hin tippt.
+     3. **Kopfzeile und Leiste sind eine Zone.** Die Leiste beginnt bei
+        `top:0` und wird nur von der Kopfzeile überdeckt (z-index 880 gegen
+        900). Zwischen Reiter und Leiste gibt es deshalb keine tote Strecke,
+        die man mit einem langen Nachlauf überbrücken müsste.
+     4. **Pfeil ab öffnet, Enter navigiert.** Der Tabulator allein öffnet
+        nichts: wer zum Anfrage-Knopf tabbt, streift sechs Reiter. Innerhalb
+        der Leiste gibt es keine Pfeiltastensteuerung — es ist kein
+        `role="menu"`, sondern eine Liste von Links.
+     5. **Wer nichts zu zeigen hat, zeigt nichts.** Referenzen, Team,
+        Galerie und Kontakt bekommen keine Leiste und tragen deshalb weder
+        `aria-expanded` noch `aria-controls`: ein Attribut, hinter dem nie
+        etwas kommt, ist eine Falschaussage. Beim Darüberfahren schließen
+        sie eine offene Leiste, statt eine leere zu öffnen.
+     6. **Gebaut wird hier, nicht im Markup.** Die Leisten stehen auf allen
+        sechzehn Seiten gleich; als Markup wären das sechzehn Kopien, die
+        beim nächsten Namenswechsel auseinanderlaufen. Die Adressen stehen
+        ohnehin im Fuß jeder Seite — Suchmaschinen und Leser ohne Skript
+        finden sie dort.                                                    */
   (function(){
-    const punkt = document.querySelector('.nav__links a[href$="dienstleistungen.html"]');
-    if(!punkt) return;
+    const kopf = document.querySelector('header.nav');
+    const dlPunkt = document.querySelector('.nav__links a[href$="dienstleistungen.html"]');
+    if(!kopf || !dlPunkt) return;
 
     /* Wo liegt die Seite? Auf den sechs Detailseiten steht „../" davor.
        Aus demselben Link, den wir gerade gefunden haben, lässt sich das
        ablesen — geraten wird nichts. */
-    const vor = punkt.getAttribute('href').replace(/dienstleistungen\.html$/, '');
+    const vor = dlPunkt.getAttribute('href').replace(/dienstleistungen\.html$/, '');
 
     const BEREICHE = [
       ['01', 'Gastro-Personal',     'gastro-personal',   'gastro-detail'],
@@ -206,50 +229,105 @@
       ['06', 'Reinigung',           'reinigung',         'reinigung']
     ];
 
-    const balken = document.createElement('div');
-    balken.className = 'megabar';
-    balken.id = 'megabar';
-    balken.setAttribute('aria-label', 'Dienstleistungen');
-    balken.innerHTML =
-      '<div class="wrap megabar__inner">' +
-        '<span class="eyebrow megabar__zeile">Sechs Bereiche &middot; ein Team</span>' +
-        '<ul class="megabar__liste">' +
-          BEREICHE.map(([nr, name, datei, bild]) =>
-            '<li><a href="' + vor + 'dienstleistungen/' + datei + '.html">' +
-              /* Der Kasten steht sofort, das Bild kommt erst beim ersten
-                 Öffnen (siehe `bilderNachziehen`). Sonst holte jede der
-                 fünfzehn Seiten sechs Fotos, die die meisten Besucher nie
-                 zu sehen bekommen — gemessen 300 KB pro Seite. */
-              '<span class="megabar__bild" data-bild="' + vor + 'assets/img/' + bild + '-mini.webp"></span>' +
-              '<span class="megabar__num">' + nr + '</span>' +
-              '<span class="megabar__name">' + name + '</span>' +
-            '</a></li>').join('') +
-        '</ul>' +
-        '<a class="btn megabar__alle" href="' + vor + 'dienstleistungen.html">Alle Dienstleistungen ansehen' +
-          '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">' +
-          '<path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
-        '</a>' +
-      '</div>';
+    /* Die Reihenfolge bei Jobs ist die der Absicht, nicht die der Seite:
+       auf jobs.html stehen die Stellen vor dem Formular, aber wer aus dem
+       Menü kommt, will sich meistens bewerben. */
+    const LEISTEN = [
+      {
+        id:     'megabar-dienstleistungen',
+        reiter: 'dienstleistungen.html',
+        name:   'Dienstleistungen',
+        zeile:  'Sechs Bereiche &middot; ein Team',
+        eintraege: BEREICHE.map(([nr, name, datei, bild]) => ({
+          nr:   nr,
+          name: name,
+          href: vor + 'dienstleistungen/' + datei + '.html',
+          /* Der Kasten steht sofort, das Bild kommt erst beim ersten Öffnen
+             (siehe `bilderNachziehen`). Sonst holte jede der sechzehn Seiten
+             sechs Fotos, die die meisten Besucher nie zu sehen bekommen —
+             gemessen 300 KB pro Seite. */
+          bild: vor + 'assets/img/' + bild + '-mini.webp'
+        })),
+        alle: { text: 'Alle Dienstleistungen ansehen', href: vor + 'dienstleistungen.html' }
+      },
+      {
+        id:     'megabar-jobs',
+        reiter: 'jobs.html',
+        name:   'Jobs',
+        text:   true,
+        eintraege: [
+          { name: 'Direkt bewerben',      href: vor + 'jobs.html#bewerbung' },
+          { name: 'Freie Stellen',        href: vor + 'jobs.html#stellen'   },
+          { name: 'H&auml;ufige Fragen',  href: vor + 'jobs.html#fragen'    }
+        ]
+      }
+    ];
+
+    const PFEIL = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">'
+      + '<path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2"'
+      + ' stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+    function bauen(l){
+      const el = document.createElement('div');
+      el.className = 'megabar' + (l.text ? ' megabar--text' : '');
+      el.id = l.id;
+      /* `aria-label` an einem nackten <div> gibt kein Vorlesewerkzeug aus —
+         es braucht vorher eine Rolle. */
+      el.setAttribute('role', 'group');
+      el.setAttribute('aria-label', l.name);
+      el.innerHTML =
+        '<div class="wrap megabar__inner">' +
+          (l.zeile ? '<span class="eyebrow megabar__zeile">' + l.zeile + '</span>' : '') +
+          '<ul class="megabar__liste">' +
+            l.eintraege.map(e =>
+              '<li><a href="' + e.href + '">' +
+                (e.bild ? '<span class="megabar__bild" data-bild="' + e.bild + '"></span>' : '') +
+                (e.nr   ? '<span class="megabar__num">' + e.nr + '</span>' : '') +
+                '<span class="megabar__name">' + e.name + '</span>' +
+              '</a></li>').join('') +
+          '</ul>' +
+          (l.alle ? '<a class="btn megabar__alle" href="' + l.alle.href + '">'
+                    + l.alle.text + PFEIL + '</a>' : '') +
+        '</div>';
+      /* Der Versatz beim Aufbauen steht als Index am Element, die Zeiten
+         rechnet das Stylesheet — dasselbe Muster wie beim Vollbildmenü. */
+      el.querySelectorAll('.megabar__liste a')
+        .forEach((a, i)=> a.style.setProperty('--n', i));
+      return el;
+    }
+
+    /* Alle Leisten in EINEM Zug einhängen. Zweimal `kopf.after()`
+       hintereinander kehrte die Reihenfolge um, und der Tabulator liefe
+       dann rückwärts durch die Leisten. */
+    const stapel = document.createDocumentFragment();
+    const alle = [];
+    LEISTEN.forEach(l => {
+      const punkt = document.querySelector('.nav__links a[href$="' + l.reiter + '"]');
+      if(!punkt) return;
+      const el = bauen(l);
+      stapel.appendChild(el);
+      punkt.setAttribute('aria-expanded', 'false');
+      punkt.setAttribute('aria-controls', l.id);
+      alle.push({ punkt: punkt, el: el, bilderDa: false });
+    });
+    if(!alle.length) return;
     /* Direkt hinter die Kopfzeile, nicht ans Ende des Rumpfes: mit dem
        Tabulator kommt man dann von der Navigation aus hinein statt erst
        hinter dem Fuß. */
-    const kopf = document.querySelector('header.nav');
-    if(kopf) kopf.after(balken); else document.body.appendChild(balken);
+    kopf.after(stapel);
 
-    punkt.setAttribute('aria-expanded', 'false');
-    punkt.setAttribute('aria-controls', 'megabar');
+    const vonPunkt = new Map(alle.map(l => [l.punkt, l]));
 
-    /* Beim ersten Öffnen die sechs Bilder nachziehen — einmal, danach nie
-       wieder. `decoding="async"` hält das Einsetzen aus dem Bild heraus. */
-    let bilderDa = false;
-    function bilderNachziehen(){
-      if(bilderDa) return;
-      bilderDa = true;
-      balken.querySelectorAll('.megabar__bild[data-bild]').forEach(k => {
+    /* Beim ersten Öffnen die Bilder nachziehen — einmal, danach nie wieder.
+       `decoding="async"` hält das Einsetzen aus dem Bild heraus. */
+    function bilderNachziehen(l){
+      if(l.bilderDa) return;
+      l.bilderDa = true;
+      l.el.querySelectorAll('.megabar__bild[data-bild]').forEach(k => {
         const img = document.createElement('img');
         img.alt = '';
         img.decoding = 'async';
-        /* Keine width/height-Attribute: die drei Motive haben drei
+        /* Keine width/height-Attribute: die Motive haben verschiedene
            Seitenverhältnisse, und der Kasten steht ohnehin schon
            (`aspect-ratio:4/3` auf `.megabar__bild`). Eine geratene Angabe
            wäre hier eine Falschaussage ohne Nutzen. */
@@ -259,61 +337,134 @@
       });
     }
 
-    let offen = false;
-    function setzen(auf, mitTastatur){
-      if(offen === auf) return;
-      if(auf) bilderNachziehen();
-      offen = auf;
-      balken.classList.toggle('auf', auf);
-      document.body.classList.toggle('megabar-auf', auf);
-      punkt.setAttribute('aria-expanded', String(auf));
+    /* Es ist immer höchstens eine Leiste offen. Daran hängt, dass
+       `body.megabar-auf` eine einfache Klasse bleiben kann und kein Zähler
+       werden muss. */
+    let offen = null;
+    function zeigen(l, mitFokus){
+      if(offen === l) return;
+      if(offen){
+        offen.el.classList.remove('auf');
+        offen.punkt.setAttribute('aria-expanded', 'false');
+      }
+      offen = l || null;
+      document.body.classList.toggle('megabar-auf', !!offen);
+      if(!offen) return;
+      bilderNachziehen(offen);
+      offen.el.classList.add('auf');
+      offen.punkt.setAttribute('aria-expanded', 'true');
       /* Nur bei Tastaturbedienung hineinspringen. Mit der Maus wäre es eine
-         Bevormundung: der Zeiger steht ohnehin schon dort, wo geklickt
-         werden soll. */
-      /* Ein Bild später: solange `visibility:hidden` noch im gerechneten Stil
-         steht, nimmt das Element keinen Fokus an. Die Klasse ist zwar sofort
-         gesetzt, der Browser hat den Stil aber noch nicht neu gerechnet. */
-      if(auf && mitTastatur) requestAnimationFrame(()=>{
-        const erster = balken.querySelector('a');
+         Bevormundung: der Zeiger steht ohnehin schon dort.
+         Ein Bild später, denn solange `visibility:hidden` noch im
+         gerechneten Stil steht, nimmt das Element keinen Fokus an. */
+      if(mitFokus) requestAnimationFrame(()=>{
+        const erster = offen && offen.el.querySelector('a');
         if(erster) erster.focus();
       });
     }
 
-    punkt.addEventListener('click', (ev)=>{
-      /* Wer den Link bewusst in einem neuen Reiter oeffnet, will die
-         Uebersicht und keinen Balken. */
-      if(ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.button) return;
-      ev.preventDefault();
-      /* detail === 0 heisst: der Klick kam von der Tastatur (Enter oder
-         Leertaste), nicht von der Maus. */
-      setzen(!offen, ev.detail === 0);
+    /* 120 ms zum Öffnen verschlucken jede Durchfahrt: wer die Navigation nur
+       überquert, um zum Anfrage-Knopf zu kommen, löst nichts aus. Beim
+       Wechsel von einem Reiter zum nächsten ist die Absicht dagegen schon
+       geklärt, deshalb 0. Und 180 ms zum Schließen reichen, weil es keine
+       tote Strecke zu überbrücken gibt (siehe Entscheidung 3). */
+    const AUF = 120, ZU = 180;
+    let uhr = 0;
+    /* Nach Escape und nach dem Scrollen bleibt der Reiter gesperrt, bis der
+       Zeiger die Zone einmal verlassen hat. Ohne das spränge die Leiste
+       unter dem stehenden Zeiger sofort wieder auf, und Escape hätte keine
+       sichtbare Wirkung. */
+    let sperre = false;
+
+    function planen(ziel, ms){
+      clearTimeout(uhr);
+      if(ziel === offen) return;
+      uhr = setTimeout(()=> zeigen(ziel), ms);
+    }
+
+    const feinerZeiger = matchMedia('(hover:hover) and (pointer:fine)');
+    if(feinerZeiger.matches){
+      /* Ein einziger Zuhörer am Dokument statt je einer an sechs Reitern und
+         zwei Leisten. Er beantwortet dieselbe Frage für jeden Ort der Seite:
+         bin ich in der Zone, und wenn ja, über welchem Reiter. */
+      document.addEventListener('pointerover', (ev)=>{
+        /* Ein Finger löst auf manchen Geräten ebenfalls `pointerover` aus,
+           unmittelbar vor dem Tippen. Dann öffnete die Leiste und der
+           folgende Klick ginge ins Leere. */
+        if(ev.pointerType && ev.pointerType !== 'mouse') return;
+        const ziel = ev.target;
+        if(!ziel || !ziel.closest) return;
+        const zone = ziel.closest('header.nav, .megabar');
+        if(!zone){ sperre = false; planen(null, ZU); return; }
+        /* In der Leiste selbst: offen halten, sonst nichts. */
+        if(zone.classList.contains('megabar')){ clearTimeout(uhr); return; }
+        const punkt = ziel.closest('.nav__links a');
+        const l = punkt ? vonPunkt.get(punkt) : null;
+        if(l){ if(!sperre) planen(l, offen ? 0 : AUF); }
+        else planen(null, ZU);   /* Wortzeichen, Telefonnummer, Anfrage-Knopf */
+      });
+      /* Verlässt der Zeiger das Fenster nach oben, kommt kein `pointerover`
+         mehr — die Leiste bliebe stehen. */
+      document.documentElement.addEventListener('pointerleave', ()=>{
+        sperre = false; planen(null, ZU);
+      });
+    }
+
+    alle.forEach(l => {
+      l.punkt.addEventListener('keydown', (ev)=>{
+        if(ev.key !== 'ArrowDown') return;
+        ev.preventDefault();          /* sonst scrollt die Seite mit */
+        sperre = false;
+        zeigen(l, true);
+      });
+      /* Verlässt der Tabulator die Leiste, ist sie erledigt. */
+      l.el.addEventListener('focusout', ()=>{
+        setTimeout(()=>{
+          if(offen === l && !l.el.contains(document.activeElement)
+             && document.activeElement !== l.punkt) zeigen(null);
+        }, 0);
+      });
     });
 
     document.addEventListener('keydown', (ev)=>{
-      if(ev.key === 'Escape' && offen){ setzen(false); punkt.focus(); }
+      if(ev.key !== 'Escape' || !offen) return;
+      const punkt = offen.punkt;
+      zeigen(null);
+      sperre = true;
+      punkt.focus();
     });
-    /* Ein Klick daneben schließt. Der Menüpunkt selbst ist ausgenommen,
-       sonst schlösse er im selben Zug, in dem er öffnet. */
+
+    /* Ein Klick daneben schließt. Gebraucht wird das für den Weg über die
+       Tastatur — mit der Maus erledigt das Wegfahren es schon. */
     document.addEventListener('click', (ev)=>{
-      if(offen && !balken.contains(ev.target) && ev.target !== punkt && !punkt.contains(ev.target))
-        setzen(false);
+      if(offen && !offen.el.contains(ev.target) && !offen.punkt.contains(ev.target))
+        zeigen(null);
     });
-    /* Verlässt der Tabulator den Balken, ist er erledigt. */
-    balken.addEventListener('focusout', ()=>{
-      setTimeout(()=>{ if(offen && !balken.contains(document.activeElement) && document.activeElement !== punkt) setzen(false); }, 0);
-    });
-    addEventListener('scroll', ()=>{ if(offen) setzen(false); }, { passive:true });
 
-    /* Dasselbe im Vollbildmenü: dort ist kein Platz für einen Balken, aber
-       die sechs Bereiche gehören genauso dazu. Sie klappen unter dem
-       Menüpunkt auf.
+    addEventListener('scroll', ()=>{
+      if(offen){ zeigen(null); sperre = true; }
+    }, { passive:true });
 
-       Am Telefon greift das nicht — dort blendet das Stylesheet
-       „Dienstleistungen" im Menü aus, weil die Leiste unten denselben Weg
-       schon anbietet (siehe „Nichts steht doppelt"). Ein Tipp auf
-       „Leistungen" führt dort direkt auf die Übersicht, auf der alle sechs
-       stehen: ein Schritt, dasselbe Ziel. Gebraucht wird das Aufklappen
-       also auf Tablets und in schmalen Fenstern am Rechner. */
+    /* Zieht jemand das Fenster unter 981 px, nimmt das Stylesheet die Leiste
+       weg — die Klasse `megabar-auf` bliebe aber stehen, und mit ihr der
+       deckende Grund der Kopfzeile und ein `aria-expanded="true"` hinter
+       einer Leiste, die es nicht mehr gibt. Chromium schiebt unter dem
+       stehenden Zeiger meist ein `pointerover` nach, das aufräumt; das ist
+       aber ein Zufall der Umschichtung und keine Zusicherung. */
+    const schmal = matchMedia('(max-width:980px)');
+    const aufraeumen = ()=> zeigen(null);
+    if(schmal.addEventListener) schmal.addEventListener('change', aufraeumen);
+    else if(schmal.addListener) schmal.addListener(aufraeumen);   /* Safari vor 14 */
+
+    /* Dasselbe im Vollbildmenü, aber nur für die sechs Bereiche: dort ist
+       kein Platz für eine Leiste, und die sechs gehören genauso dazu. Sie
+       klappen unter dem Menüpunkt auf.
+
+       Jobs bekommt dort bewusst keinen Aufklapper. Am Telefon blendet das
+       Stylesheet den Punkt ohnehin aus, weil die Leiste unten „Jobs" schon
+       anbietet; auf dem Tablet sind drei Sprungmarken weniger wert als ein
+       Tipp auf die Seite. Damit muss `#mobileMenu .menu__unter` im
+       Telefon-Block auch nicht aufgeteilt werden. */
     const mPunkt = document.querySelector('#mobileMenu > a[href$="dienstleistungen.html"]');
     if(mPunkt){
       const unter = document.createElement('div');
@@ -1414,6 +1565,11 @@
   }
   function alles(){ navHoehe(); messen(); updateStages(); updateMotion(); updateKino(); }
   window.addEventListener('scroll', onScroll, { passive:true });
-  window.addEventListener('resize', ()=>{ onScrollTop(); if(!reduce) alles(); });
-  onScrollTop(); if(!reduce) alles();
+  /* navHoehe() hing bis hierher an `alles()`, und das lief nur `if(!reduce)`.
+     Bei reduzierter Bewegung stand `--nav-h` deshalb nie — überall galt der
+     Rückfallwert 78 px, während die Kopfzeile bei 1440 px 98 px hoch ist.
+     Die Höhe ist aber keine Frage der Bewegung, sondern eine Tatsache über
+     das Layout. Sie wird jetzt in jeder Lage geschrieben. */
+  window.addEventListener('resize', ()=>{ navHoehe(); onScrollTop(); if(!reduce) alles(); });
+  navHoehe(); onScrollTop(); if(!reduce) alles();
 })();
