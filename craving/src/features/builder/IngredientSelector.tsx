@@ -90,7 +90,8 @@ export function IngredientSelector({
       <div className="relative">
         <div
           ref={railRef}
-          className="no-scrollbar edge-scroll -mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-1"
+          data-rail
+          className="no-scrollbar edge-scroll -mx-1 flex gap-3 overflow-x-auto px-1 pb-1"
         >
           {members.map((choice) => {
             const ingredient = choice.ingredient;
