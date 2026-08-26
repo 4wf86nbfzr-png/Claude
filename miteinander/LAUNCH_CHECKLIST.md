@@ -1,0 +1,90 @@
+# Vor dem Live-Gang
+
+Nichts hiervon ist optional. Punkte mit **[Sperre]** verhindern den Start.
+
+## 1. Recht
+
+- [ ] **[Sperre]** Datenschutz-Folgenabschätzung nach Art. 35 DSGVO. Verarbeitet
+      werden Daten besonderer Kategorien von Menschen in verletzlicher Lage.
+- [ ] **[Sperre]** Prüfung durch eine Datenschutzfachperson.
+- [ ] **[Sperre]** Anwaltliche Klärung des Geschäftsmodells: Vermittlung oder
+      Arbeitgeberrolle, Haftung, AGB, Widerrufsrecht.
+- [ ] **[Sperre]** Festlegung, welche Nachweise verpflichtend sind: erweitertes
+      Führungszeugnis, Haftpflichtversicherung, Gewerbeanmeldung, steuerliche
+      und sozialversicherungsrechtliche Einordnung. Der Prüfprozess ist
+      konfigurierbar angelegt und wartet auf diese Festlegung.
+- [ ] **[Sperre]** Klärung, ob das Produkt unter das BFSG fällt, und ab wann.
+- [ ] Verzeichnis von Verarbeitungstätigkeiten (Art. 30).
+- [ ] Auftragsverarbeitungsverträge mit allen Dienstleistern.
+- [ ] Verfahren für Datenschutzverletzungen (Art. 33/34), erprobt.
+- [ ] Impressum, AGB, Datenschutzhinweise – auch in Leichter Sprache.
+
+## 2. Barrierefreiheit
+
+- [ ] **[Sperre]** DGS-Videos für alle 18 Kernabläufe produziert und von
+      DGS-Muttersprachler:innen oder qualifizierten Fachleuten geprüft.
+      Stand heute: 0 von 18.
+- [ ] **[Sperre]** Leichte-Sprache-Texte von einer Prüfgruppe aus Menschen mit
+      Lernschwierigkeiten geprüft. Stand heute: 0 von 12.
+- [ ] **[Sperre]** Unabhängiges Barrierefreiheits-Audit gegen WCAG 2.2 AA und
+      EN 301 549.
+- [ ] **[Sperre]** Manueller Testdurchlauf nach [`TESTPLAN.md`](TESTPLAN.md) mit
+      VoiceOver, TalkBack, Tastatur, Switch Control, großer Schrift, Zoom,
+      hohem Kontrast und reduzierter Bewegung.
+- [ ] Nutzungstests mit Betroffenen nach [`docs/RESEARCH.md`](docs/RESEARCH.md);
+      Erkenntnisse priorisiert und eingeplant.
+- [ ] Barrierefreiheits-Erklärung um die gesetzlich vorgeschriebenen Angaben
+      ergänzt; Bearbeitungszusage für Rückmeldungen verbindlich festgelegt.
+- [ ] Schriftdateien (Atkinson Hyperlegible) lokal eingebunden und lizenziert.
+
+## 3. Sicherheit und Schutz
+
+- [ ] **[Sperre]** Schriftliches Schutzkonzept, geprüft von einer Fachperson für
+      Gewaltschutz in der Eingliederungshilfe.
+- [ ] **[Sperre]** Sicherheitsteam besetzt: Zeiten, Vertretung, Eskalationsweg.
+      Ohne Besetzung sind die Bearbeitungszusagen (1 Stunde bei kritischen
+      Fällen) nicht haltbar.
+- [ ] **[Sperre]** Penetrationstest, Befunde behoben.
+- [ ] Rate Limits für Anmeldung, Nachrichten und Meldungen.
+- [ ] Upload-Scanning für Nachweise und Medien.
+- [ ] Mehrfaktor-Anmeldung für alle Verwaltungskonten erzwungen.
+- [ ] Signierte URLs mit kurzer Gültigkeit für Dokumente.
+- [ ] Prozess für die tägliche Ausführung von `expire_verifications()`.
+- [ ] Wiederherstellung aus dem Backup einmal geprobt.
+
+## 4. Inhalte und Betrieb
+
+- [ ] Betreiber, Support-, Datenschutz- und Barrierefreiheitsadresse in
+      `.env` eingetragen (stehen aktuell als Platzhalter).
+- [ ] Alle Demo-Daten aus der Produktionsumgebung entfernt. Sie sind an
+      „(Demo)" und `.invalid`-Adressen erkennbar.
+- [ ] Notrufnummern für den tatsächlichen Betriebsraum geprüft.
+- [ ] Hilfetexte und Kategorien redaktionell durchgesehen.
+- [ ] Onboarding-Material für das Prüf- und Sicherheitsteam.
+
+## 5. Technik
+
+- [ ] **[Sperre]** Supabase-Adapter für `DataContext` implementiert. Die App
+      läuft derzeit gegen die In-Memory-Schicht.
+- [ ] **[Sperre]** Row-Level-Security auf einer echten Instanz verifiziert:
+      für jede Rolle prüfen, dass nur das Erlaubte lesbar ist.
+- [ ] WebRTC-Anbieter gewählt, EU-Verarbeitung, keine Aufzeichnung ohne
+      Einwilligung.
+- [ ] Karten-/Geokodierungsanbieter gewählt oder selbst gehostet.
+- [ ] Spracherkennung angebunden; Verarbeitung auf dem Gerät bevorzugt.
+- [ ] Push-Benachrichtigungen eingerichtet, Vorschauen bleiben inhaltsarm.
+- [ ] Biometrische Anmeldung über die Betriebssystemfunktionen umgesetzt.
+- [ ] CI: Lint, Typecheck, Unit-, Integrations-, Accessibility- und
+      End-to-End-Tests bei jedem Pull Request.
+- [ ] Fehlerüberwachung ohne personenbezogene Daten.
+- [ ] Ladezeit und Flüssigkeit auf Mittelklassegeräten gemessen.
+- [ ] Verhalten bei schlechter Verbindung geprüft: Entwürfe bleiben erhalten,
+      keine doppelten Buchungen.
+
+## 6. Erst nach dem Start
+
+- [ ] Rückmeldungen zur Barrierefreiheit haben Vorrang; Status wird
+      nachvollziehbar dokumentiert.
+- [ ] Regressionstests für jede behobene Barriere.
+- [ ] Regelmäßige Nutzungstests mit Betroffenen.
+- [ ] Jährliche Überprüfung der Barrierefreiheits-Erklärung.

@@ -1,0 +1,33 @@
+{
+  "name": "miteinander",
+  "private": true,
+  "version": "0.1.0",
+  "description": "MITEINANDER – barrierefreie App zur Vermittlung von Unterstuetzung",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "npm run test --workspaces --if-present",
+    "test:watch": "npm run test:watch --workspace @miteinander/core",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "eslint .",
+    "build": "npm run build --workspaces --if-present",
+    "mobile": "npm run start --workspace @miteinander/mobile",
+    "mobile:web": "npm run web --workspace @miteinander/mobile",
+    "admin": "npm run dev --workspace @miteinander/admin",
+    "db:reset": "supabase db reset",
+    "verify": "npm run lint && npm run typecheck && npm test",
+    "e2e": "npm run e2e --workspace @miteinander/mobile"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.9.1",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.68.0",
+    "vitest": "^2.1.8"
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "expo": {
+    "name": "MITEINANDER",
+    "slug": "miteinander",
+    "version": "0.1.0",
+    "orientation": "default",
+    "scheme": "miteinander",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "Die App nutzt das Mikrofon nur, wenn Sie die Spracheingabe starten. Es wird nichts dauerhaft aufgenommen.",
+        "NSSpeechRecognitionUsageDescription": "Ihre Spracheingabe wird in Text umgewandelt, damit Sie Felder ohne Tippen ausfüllen können.",
+        "NSCameraUsageDescription": "Die Kamera wird für Videoanrufe und für ein freiwilliges Profilbild genutzt.",
+        "NSLocationWhenInUseUsageDescription": "Wir verwenden nur eine ungefähre Region, um Unterstützung in Ihrer Nähe zu finden. Ihre genaue Adresse wird nie angezeigt.",
+        "NSFaceIDUsageDescription": "Sie können sich mit Face ID anmelden. Es werden keine biometrischen Daten in der App gespeichert."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0E1116"
+      },
+      "permissions": [
+        "RECORD_AUDIO",
+        "CAMERA",
+        "ACCESS_COARSE_LOCATION",
+        "USE_BIOMETRIC"
+      ]
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "experiments": {
+      "typedRoutes": false
+    }
+  }
+}

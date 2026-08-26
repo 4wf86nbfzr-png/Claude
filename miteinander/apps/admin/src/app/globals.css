@@ -1,0 +1,144 @@
+/*
+ * Der Adminbereich nutzt dieselben Farbwerte wie die App
+ * (packages/ui/src/tokens/color.ts). Sie sind hier als CSS-Variablen
+ * gespiegelt, weil ein Web-Frontend keine React-Native-Tokens laden kann.
+ * Aendert sich ein Wert, muss er an beiden Stellen gepflegt werden --
+ * darauf weist der Kommentar in color.ts hin.
+ */
+:root {
+  --background: #ffffff;
+  --surface: #f4f5f7;
+  --surface-raised: #e9ebef;
+  --text: #14181f;
+  --text-muted: #4a5260;
+  --accent: #8a4200;
+  --text-on-accent: #ffffff;
+  --border: #b9bec7;
+  --input-border: #5c6470;
+  --focus: #0b4fa8;
+  --success: #1b5e20;
+  --danger: #a31515;
+  --warning: #7a4a00;
+  --radius: 14px;
+  --space: 16px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0e1116;
+    --surface: #171c24;
+    --surface-raised: #222933;
+    --text: #f2f4f7;
+    --text-muted: #b7bfcc;
+    --accent: #ffb35c;
+    --text-on-accent: #1a1200;
+    --border: #3a424e;
+    --input-border: #8b95a5;
+    --focus: #7fb8ff;
+    --success: #7bd98a;
+    --danger: #ff9c93;
+    --warning: #ffc46b;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  /* 18px Grundschrift -- der Adminbereich wird lange gelesen. */
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+/* Fokus ist immer sichtbar. Kein outline: none, nirgends. */
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Sprungmarke fuer Tastaturnutzende. */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--accent);
+  color: var(--text-on-accent);
+  padding: 12px 20px;
+  z-index: 100;
+}
+.skip-link:focus { left: 0; }
+
+a { color: inherit; }
+
+main { padding: 24px; max-width: 1100px; margin: 0 auto; }
+
+h1, h2, h3 { line-height: 1.25; text-wrap: balance; }
+
+.card {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  display: grid;
+  gap: 8px;
+}
+
+.grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.muted { color: var(--text-muted); }
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 2px solid var(--border);
+  border-radius: 999px;
+  padding: 2px 12px;
+  font-size: 0.85em;
+}
+
+/* Zustand nie nur ueber Farbe: jedes Abzeichen traegt zusaetzlich ein Zeichen. */
+.badge--critical { border-color: var(--danger); color: var(--danger); }
+.badge--ok { border-color: var(--success); color: var(--success); }
+.badge--warn { border-color: var(--warning); color: var(--warning); }
+
+nav ul { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; padding: 0; margin: 0; }
+
+nav a {
+  display: inline-block;
+  /* 48px Mindestflaeche, auch mit der Maus. */
+  min-height: 48px;
+  padding: 10px 18px;
+  border: 2px solid var(--border);
+  border-radius: 999px;
+  text-decoration: none;
+}
+
+nav a[aria-current='page'] {
+  background: var(--accent);
+  color: var(--text-on-accent);
+  border-color: var(--accent);
+}
+
+table { border-collapse: collapse; width: 100%; }
+caption { text-align: left; padding-bottom: 8px; color: var(--text-muted); }
+th, td { text-align: left; padding: 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+th { font-weight: 600; }
+
+/* Breite Tabellen scrollen in sich, die Seite selbst nie waagerecht. */
+.table-scroll { overflow-x: auto; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

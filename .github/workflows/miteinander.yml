@@ -1,0 +1,104 @@
+# CI für die MITEINANDER-App.
+#
+# Läuft nur, wenn sich etwas im Ordner miteinander/ ändert – die
+# HERM-Website im selben Repository bleibt davon unberührt.
+name: MITEINANDER
+
+on:
+  push:
+    branches: ['**']
+    paths: ['miteinander/**', '.github/workflows/miteinander.yml']
+  pull_request:
+    paths: ['miteinander/**', '.github/workflows/miteinander.yml']
+
+defaults:
+  run:
+    working-directory: miteinander
+
+jobs:
+  pruefen:
+    name: Lint, Typecheck und Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: miteinander/package-lock.json
+
+      - name: Abhängigkeiten installieren
+        run: npm ci
+
+      - name: Linting
+        run: npm run lint
+
+      - name: Typecheck (alle vier Pakete)
+        run: npm run typecheck
+
+      # Enthält Unit-, Integrations- und Barrierefreiheitstests:
+      # Kontrast aller Farbtokens, Tippflächen, Vorrang der
+      # Systemeinstellungen, Fehler am Feld, Sprachbefehle.
+      - name: Tests
+        run: npm test
+
+      - name: Adminbereich bauen
+        run: npm run build --workspace @miteinander/admin
+
+  e2e:
+    name: End-to-End im Browser
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: miteinander/package-lock.json
+
+      - name: Abhängigkeiten installieren
+        run: npm ci
+
+      - name: Chromium bereitstellen
+        run: npx playwright install --with-deps chromium
+
+      - name: Web-Fassung erzeugen
+        run: npm run web:export --workspace @miteinander/mobile
+
+      # Prüft den Kernablauf (Anfrage bis Buchung) und die Bedienhilfen
+      # in einem echten Browser. Ersetzt keine manuellen Tests mit
+      # Screenreader – siehe miteinander/TESTPLAN.md.
+      - name: Kernablauf und Bedienhilfen
+        run: npm run e2e --workspace @miteinander/mobile
+
+  datenbank:
+    name: Migrationen prüfen
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: SQL-Parser installieren
+        run: pip install pglast
+
+      # Prüft die Migrationen gegen die echte PostgreSQL-Grammatik.
+      - name: Migrationen und Seed parsen
+        run: |
+          python - <<'PY'
+          import glob, sys
+          import pglast
+          fehler = 0
+          for datei in sorted(glob.glob('supabase/migrations/*.sql') + glob.glob('supabase/seed/*.sql')):
+              try:
+                  pglast.parse_sql(open(datei, encoding='utf-8').read())
+                  print(f'OK   {datei}')
+              except Exception as e:
+                  fehler += 1
+                  print(f'FEHLER {datei}: {e}')
+          sys.exit(1 if fehler else 0)
+          PY
