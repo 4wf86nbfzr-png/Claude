@@ -20,6 +20,7 @@ import {
 } from '@miteinander/ui';
 import { useAppState } from '../../src/state/app-state';
 import { useReadAloud } from '../../src/state/speech';
+import { DgsAbschnitt } from '../../src/components/DgsAbschnitt';
 
 /**
  * Screen 4: Profil für Unterstützungssuchende.
@@ -74,6 +75,7 @@ export default function SeekerProfile() {
       intro="Sie müssen nur wenig angeben. Alles Weitere ist freiwillig."
       easyIntro="Hier stehen ein paar Sachen über Sie."
       onSpeak={speak}
+      dgs={<DgsAbschnitt schluessel="profile.create" />}
     >
       <View style={{ flexDirection: 'row', gap: theme.spacing.m, alignItems: 'center' }}>
         <Avatar name="Ihr Profil" size={80} />

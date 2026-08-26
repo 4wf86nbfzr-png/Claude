@@ -11,6 +11,7 @@ import {
 import { Button, Callout, Screen, Text, useTheme } from '@miteinander/ui';
 import { useAppState } from '../../src/state/app-state';
 import { useReadAloud } from '../../src/state/speech';
+import { DgsAbschnitt } from '../../src/components/DgsAbschnitt';
 
 const STATUS_TEXT: Record<string, string> = {
   proposed: 'Vorgeschlagen – noch nicht fest',
@@ -52,6 +53,7 @@ export default function Appointments() {
       intro="Hier stehen alle Termine. Sie können jederzeit absagen."
       easyIntro="Hier sehen Sie Ihre Termine."
       onSpeak={speak}
+      dgs={<DgsAbschnitt schluessel="booking.cancellation" />}
     >
       {bookings.length === 0 ? <Text muted>Sie haben noch keine Termine.</Text> : null}
 

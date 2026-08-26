@@ -87,7 +87,9 @@ durchgängig, ohne dass eine Komponente sie einzeln berücksichtigen muss.
 | `VerificationBadge` | drei Rollenstufen mit Zeichen und Wort |
 | `VerifiedClaim` | ein einzelner geprüfter Nachweis im Klartext |
 | `ProgressSteps` | „Schritt x von y" als Text, Balken nur ergänzend |
-| `DgsVideo` | Video mit Untertiteln und Transkript – oder der ehrliche Hinweis, dass es fehlt |
+| `DgsVideo` | Hülle für Gebärdensprache: ehrlicher Stand, Abspieler, Transkript |
+| `Screen` mit `hero` | randloses Bild über der Überschrift, Beschreibung ist Pflicht, Höhe gedeckelt |
+| `Screen` mit `dgs` | fester Platz für Gebärdensprache direkt unter der Überschrift |
 | `Avatar` | Foto nur mit Beschreibung; sonst neutraler Platzhalter mit Initialen |
 | `Screen` | Grundgerüst: eine Hauptüberschrift, scrollender Inhalt, fester Fußbereich |
 
@@ -101,6 +103,10 @@ durchgängig, ohne dass eine Komponente sie einzeln berücksichtigen muss.
 6. Animationsdauern aus `theme.motion` – dann greift „Bewegung reduzieren".
 7. Fehler stehen am Feld und nennen den Weg zur Korrektur.
 8. Neue Farbwerte in `CONTRAST_PAIRS` eintragen, sonst prüft sie niemand.
+9. Kein Text in Bildern. Er skaliert nicht mit und lässt sich im
+   Hochkontrastmodus nicht anpassen.
+10. Untertitel und Videobeschriftungen kommen aus dem Theme, damit sie der
+    eingestellten Schriftgröße folgen.
 
 ## Adminbereich
 

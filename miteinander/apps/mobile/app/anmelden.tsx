@@ -14,6 +14,7 @@ import {
 } from '@miteinander/ui';
 import { useAppState } from '../src/state/app-state';
 import { useReadAloud } from '../src/state/speech';
+import { DgsAbschnitt } from '../src/components/DgsAbschnitt';
 
 /**
  * Screen 3: Einfache Registrierung und Anmeldung.
@@ -39,6 +40,7 @@ export default function SignIn() {
       intro="Wir brauchen nur Ihre E-Mail-Adresse. Ein Passwort ist nicht nötig – Sie bekommen einen Link."
       easyIntro="Bitte geben Sie Ihre E-Mail-Adresse ein."
       onSpeak={speak}
+      dgs={<DgsAbschnitt schluessel="onboarding.welcome" />}
       footer={
         <ButtonStack>
           <Button

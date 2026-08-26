@@ -62,7 +62,7 @@ Zwei Gründe, beide praktisch:
 | `privacy/` | feldgenaue Sichtbarkeit, Einwilligungen, Aufbewahrung |
 | `security/` | Rechte, Vier-Augen-Prinzip, Nachweise, Vorfälle |
 | `voice/` | Sprachbefehle, Bestätigungspflicht, Ersatzwege |
-| `content/` | Register für Gebärdensprache und Leichte Sprache |
+| `content/` | Gebärdensprache (Skripte, Katalog, Untertitel als WebVTT) und Leichte Sprache |
 | `data/` | Repository-Schnittstellen, In-Memory-Implementierung |
 | `services/` | Anwendungsschicht: verbindet Daten, Rechte, Einwilligungen, Domäne |
 | `seed/` | eindeutig fiktive Demo-Daten |
@@ -83,7 +83,9 @@ Testsuite fehlschlagen.
 
 Expo Router, dateibasierte Navigation. Der Anwendungszustand
 (`src/state/app-state.tsx`) hält die Service-Instanz, die aufgelösten
-Barrierefreiheits-Einstellungen und die Inhalte-Register. Systemzustände
+Barrierefreiheits-Einstellungen und die Inhalte-Register. Die Einstellungen
+werden gespeichert und beim Start wieder eingelesen (`src/state/speicher.ts`);
+ist keine Ablage verfügbar, läuft die App ohne Gedächtnis weiter. Systemzustände
 (Screenreader aktiv, Bewegung reduzieren, Farbschema) werden abgefragt und
 haben Vorrang vor den App-Einstellungen.
 
@@ -129,7 +131,8 @@ werden können.
 
 | Risiko | Einschätzung | Umgang |
 | --- | --- | --- |
-| Gebärdensprach-Videos fehlen | hoch – betrifft die Zugänglichkeit für gehörlose Menschen unmittelbar | Produktion beauftragen; bis dahin sagt die Oberfläche offen, dass nichts vorliegt |
+| Gebärdensprach-Aufnahmen fehlen | hoch – betrifft die Zugänglichkeit für gehörlose Menschen unmittelbar | Abspieler, Untertitel und Transkripte sind fertig; Produktion beauftragen. Bis dahin gekennzeichnete Platzhalter, die Oberfläche sagt es offen |
+| Platzhalter sind VP8/WebM | mittel | Für iOS und Safari wird H.264/MP4 gebraucht – vor dem Start festlegen |
 | Leichte Sprache ungeprüft | hoch | Prüfgruppe beauftragen; Texte sind als Entwurf gekennzeichnet |
 | Rechtliche Einordnung der Anbietenden (Gewerbe, Steuer, Sozialversicherung, Führungszeugnis) | hoch | Prüfprozess ist konfigurierbar angelegt; anwaltliche Klärung ist Startvoraussetzung |
 | Missbrauch der Vermittlung (Grooming, finanzielle Ausnutzung) | hoch | Identitätsprüfung, Meldewege, Incident-Workflow, Vier-Augen-Prinzip; ersetzt kein menschliches Schutzkonzept |

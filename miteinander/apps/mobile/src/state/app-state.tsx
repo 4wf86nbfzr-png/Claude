@@ -1,5 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useColorScheme, AccessibilityInfo } from 'react-native';
+import { ladeEinstellungen, speichereEinstellungen } from './speicher';
 import {
   SupportService,
   createCounterIds,
@@ -68,6 +69,33 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const [rawPrefs, setRawPrefs] = useState<AccessibilityPreferences>(() =>
     createDefaultPreferences(DEMO_USER, 'standard', new Date().toISOString()),
   );
+  // Solange die gespeicherten Einstellungen noch nicht gelesen sind, wird
+  // nichts zurueckgeschrieben -- sonst ueberschreibt der Startwert sie.
+  const [gelesen, setGelesen] = useState(false);
+
+  // Einmal beim Start aus dem Speicher holen.
+  useEffect(() => {
+    let aktiv = true;
+    void ladeEinstellungen<AccessibilityPreferences>().then((gespeichert) => {
+      if (!aktiv) return;
+      if (gespeichert) {
+        setRawPrefs((aktuell) =>
+          clampPreferences({ ...aktuell, ...gespeichert, userId: aktuell.userId }),
+        );
+      }
+      setGelesen(true);
+    });
+    return () => {
+      aktiv = false;
+    };
+  }, []);
+
+  // Jede Aenderung sofort sichern. Wer die App schliesst, findet seine
+  // Bedienung beim naechsten Start unveraendert vor.
+  useEffect(() => {
+    if (!gelesen) return;
+    void speichereEinstellungen(rawPrefs);
+  }, [rawPrefs, gelesen]);
 
   // Systemzustaende abfragen und auf Aenderungen hoeren.
   useEffect(() => {

@@ -22,7 +22,11 @@ Lücken" – und die Oberfläche selbst sagt es den Nutzenden.
 | **Individuell** | Schriftgröße, Kontrast, Farbschema, Bewegung, Vorlesen, Geschwindigkeit, Gebärdensprache, Untertitel, Haptik, Tippflächengröße und Bedienzeit einzeln einstellbar |
 
 Der Modus ist über die Schaltfläche **Bedienung** in der Kopfzeile von jedem
-Bildschirm erreichbar und jederzeit wechselbar. Ein Wechsel verliert keine
+Bildschirm erreichbar und jederzeit wechselbar. **Alle Einstellungen werden
+gespeichert und überleben den Neustart** – wer 200 Prozent Schrift braucht,
+darf sie nicht bei jedem Öffnen neu einstellen müssen. Ist kein Speicher
+verfügbar (privates Fenster, Datei-Fassung), läuft die App weiter, nur eben
+ohne Gedächtnis. Ein Wechsel verliert keine
 Daten: nach `individuell` bleiben alle Werte erhalten, und eine einmal bewusst
 abgeschaltete Bewegung bleibt abgeschaltet (`switchMode` in
 `packages/core/src/a11y/preferences.ts`).
@@ -57,7 +61,11 @@ Betriebssystem meldet. Systemseitige Einschränkungen gewinnen immer:
 - **Reflow:** jeder Bildschirm scrollt. Breite Inhalte (Vergleichstabelle)
   scrollen in sich; die Seite selbst nie waagerecht.
 - **Bilder:** ein Foto ohne Beschreibung wird nicht angezeigt – das ist in der
-  Datenbank als Prüfbedingung hinterlegt. Ohne Foto erscheint ein neutraler
+  Datenbank als Prüfbedingung hinterlegt. Das große Bild auf der Startseite
+  trägt eine Beschreibung in ganzen Sätzen und nimmt höchstens 45 Prozent der
+  Bildschirmhöhe ein, damit die erste Schaltfläche auch bei großer Schrift
+  sichtbar bleibt. Auf dem Bild steht kein Text: Schrift im Bild skaliert nicht
+  mit und lässt sich im Hochkontrastmodus nicht anpassen. Ohne Foto erscheint ein neutraler
   Platzhalter mit Initialen, kein erfundenes Symbol.
 
 ## Bedienbar
@@ -104,27 +112,60 @@ Betriebssystem meldet. Systemseitige Einschränkungen gewinnen immer:
 
 ## Deutsche Gebärdensprache
 
-**Stand: 0 von 18 Kernabläufen haben ein produziertes und fachlich geprüftes
-Video.**
+**Der Ablauf funktioniert vollständig. Die Aufnahmen fehlen.**
 
-Das ist der ehrliche Zustand, und die App sagt ihn: An jeder Stelle, an der ein
-Video fehlen würde, steht „Für diesen Bereich gibt es noch kein Video in
-Gebärdensprache. Es wird gerade produziert."
+Was heute funktioniert:
+
+- Auf **jedem** Bildschirm gibt es den Einstieg „In Gebärdensprache ansehen".
+  Wer Gebärdensprache braucht, muss sie nicht erst in den Einstellungen
+  finden. Ist die Einstellung an, ist der Bereich von vornherein offen.
+- Ein eigener Abspieler mit beschrifteten, ausreichend großen Bedienelementen:
+  Abspielen und Pause, fünf Sekunden zurück, von vorn, Geschwindigkeit
+  (0,5 / 0,75 / 1,0), Untertitel ein und aus, Vollbild. Die Wiedergabe startet
+  nie von selbst.
+- **Untertitel als eigene Ebene**, nicht ins Video gebrannt und nicht vom
+  Betriebssystem gezeichnet. Nur so folgen sie der eingestellten Schriftgröße
+  und dem Kontrastmodus. Der Browser-Test prüft genau das: bei 160 Prozent
+  Schrift wächst die Untertitelzeile von 18 auf 29 Punkt mit.
+- Die Untertitel stehen **unter** dem Video, nicht darüber. Gebärden reichen
+  bis in den unteren Bildrand; eine eingeblendete Zeile über dem Bild würde
+  genau die Hände verdecken, um die es geht.
+- Ein vollständiges Transkript zu jedem Ablauf, jederzeit lesbar, auch ohne
+  Video und ohne Wiedergabe.
+
+**Stand der Aufnahmen: 0 von 18 Kernabläufen sind produziert und fachlich
+geprüft.** Ausgeliefert werden gekennzeichnete Platzhalter – eine Textkarte,
+die im Bild „PLATZHALTER" und „Dies ist kein Gebärdensprach-Video" trägt. In
+der Oberfläche steht darüber: „Für diesen Bereich gibt es noch kein Video in
+Gebärdensprache. Es wird gerade produziert." Der Adminbereich zeigt
+unverändert 0 von 18 geprüft.
+
+Warum überhaupt Platzhalter: ohne abspielbares Material lässt sich nicht
+prüfen, ob der Abspieler taugt – Untertitel, Fokusreihenfolge, Vollbild,
+Screenreader. Die Platzhalter machen den Ablauf prüfbar, ohne eine
+Übersetzung vorzutäuschen.
 
 Die Regeln des Content-Systems (`packages/core/src/content/dgs.ts`):
 
-- Ein Eintrag gilt nur als geprüft, wenn **Video, Untertitel, Transkript und der
-  Name der prüfenden Person** vorliegen. Fehlt eines, wirft die Freigabe.
+- Ein Eintrag gilt nur als geprüft, wenn **Video, Untertitel, Transkript und
+  der Name der prüfenden Person** vorliegen.
+- Ein Platzhaltervideo ändert den Status nicht und kann ein freigegebenes
+  Video nicht überschreiben.
 - Ein neues Video setzt die Prüfung zurück und erhöht die Version.
 - Eine automatische Übersetzung ist nie eine gültige Quelle – nicht für
   Verträge, Buchungen, Sicherheit oder Einwilligungen.
 - Anbietende können Gebärdensprach-Kompetenz angeben; öffentlich als Stufe
-  erscheint sie erst mit Nachweis. Ohne Nachweis steht am Profil ausdrücklich
-  „Diese Person gibt Kenntnisse in Gebärdensprache an. Ein Nachweis liegt dafür
-  noch nicht vor."
+  erscheint sie erst mit Nachweis.
 
-Produktionsanforderungen stehen in `DGS_PRODUCTION_REQUIREMENTS` und im
+Die Skripte für alle 18 Abläufe stehen in
+`packages/core/src/content/dgs-skripte.ts`. Sie sind die inhaltliche Vorlage
+für die Produktion – **nicht die Übersetzung**. Deutsche Gebärdensprache hat
+eine eigene Grammatik; die Übertragung ist Aufgabe der DGS-Muttersprachler:innen
+bei der Aufnahme. Produktionsanforderungen: `DGS_PRODUCTION_REQUIREMENTS` und
 Adminbereich unter „Inhalte".
+
+Austausch gegen echte Aufnahmen: Dateien in `apps/mobile/assets/dgs/`
+ersetzen und im Adminbereich freigeben. Am Code ändert sich nichts.
 
 ## Leichte Sprache
 
@@ -149,6 +190,8 @@ kein Ersatz für die Prüfgruppe.
 | Sprachbefehle lösen keine Buchung aus | `packages/core/test/voice.test.ts` |
 | Sprachnachricht ohne Transkript wird abgelehnt | `packages/core/test/flow.test.ts` |
 | Gebärdensprache wird nicht als fertig behauptet | `packages/core/test/content.test.ts` |
+| Untertitel folgen der Schriftgröße | `apps/mobile/e2e/gebaerdensprache.mjs` |
+| Bedieneinstellungen überleben den Neustart | `apps/mobile/e2e/gebaerdensprache.mjs` |
 | Bedienbarkeit im echten Browser | `apps/mobile/e2e/` |
 
 **Automatisierte Tests finden höchstens einen Teil der Barrieren.** Der
@@ -156,7 +199,8 @@ manuelle Testplan steht in [`TESTPLAN.md`](TESTPLAN.md).
 
 ## Bekannte Lücken
 
-1. Gebärdensprach-Videos fehlen vollständig (siehe oben).
+1. Gebärdensprach-**Aufnahmen** fehlen vollständig – Abspieler, Untertitel und
+   Transkripte sind fertig, die Videos sind gekennzeichnete Platzhalter.
 2. Leichte-Sprache-Texte sind ungeprüfte Entwürfe.
 3. Die Spracherkennung ist noch nicht an eine Engine angebunden; die Auswertung
    und alle Ersatzwege stehen.

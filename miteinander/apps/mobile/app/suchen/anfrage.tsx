@@ -18,7 +18,6 @@ import {
   ButtonStack,
   Callout,
   ChoiceCard,
-  DgsVideo,
   EmergencyBar,
   ProgressSteps,
   Screen,
@@ -28,6 +27,7 @@ import {
   useTheme,
 } from '@miteinander/ui';
 import { useAppState } from '../../src/state/app-state';
+import { DgsAbschnitt } from '../../src/components/DgsAbschnitt';
 import { announce, useReadAloud } from '../../src/state/speech';
 
 /**
@@ -41,7 +41,7 @@ import { announce, useReadAloud } from '../../src/state/speech';
 export default function RequestWizard() {
   const theme = useTheme();
   const router = useRouter();
-  const { prefs, service, currentUserId, dgs, setActiveRequestId } = useAppState();
+  const { prefs, service, currentUserId, setActiveRequestId } = useAppState();
   const { speak } = useReadAloud(prefs);
 
   const [stepIndex, setStepIndex] = useState(0);
@@ -98,6 +98,7 @@ export default function RequestWizard() {
       title={prefs.easyLanguage ? step.title : step.formalTitle}
       intro={step.help}
       onSpeak={speak}
+      dgs={<DgsAbschnitt schluessel={step.dgsKey} />}
       footer={
         <ButtonStack>
           {step.key === 'summary' ? (
@@ -310,8 +311,6 @@ export default function RequestWizard() {
             variant="secondary"
             onPress={() => speak(summary.speechText)}
           />
-
-          {prefs.signLanguage ? <DgsVideo item={dgs.get(summary.dgsKey)} /> : null}
 
           <WhatHappensNext text={summary.whatHappensNext} />
 

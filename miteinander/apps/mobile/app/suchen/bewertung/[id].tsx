@@ -14,6 +14,7 @@ import {
 } from '@miteinander/ui';
 import { useAppState } from '../../../src/state/app-state';
 import { useReadAloud } from '../../../src/state/speech';
+import { DgsAbschnitt } from '../../../src/components/DgsAbschnitt';
 
 /**
  * Screen 12: Bewertung und Problemmeldung.
@@ -89,6 +90,7 @@ export default function ReviewScreen() {
       intro="Ihre Rückmeldung hilft anderen Menschen."
       easyIntro="Wie war es? Bitte tippen Sie auf ein Bild."
       onSpeak={speak}
+      dgs={<DgsAbschnitt schluessel="complaint.how_to" />}
       footer={
         <ButtonStack>
           <Button label="Absenden" onPress={() => void submit()} disabled={!rating && !reportCategory} />

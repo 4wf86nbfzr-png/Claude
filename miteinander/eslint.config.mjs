@@ -38,6 +38,13 @@ export default tseslint.config(
     },
   },
   {
+    // Asset-Register: React Native löst Bilder und Videos nur über
+    // statische require()-Pfade auf. Metro kann keine Import-Ausdrücke
+    // zur Bauzeit auswerten -- deshalb ist require() hier richtig.
+    files: ['apps/mobile/src/inhalte/**'],
+    rules: { '@typescript-eslint/no-require-imports': 'off' },
+  },
+  {
     // In Tests und Werkzeugskripten ist console erwünscht. Diese Dateien
     // laufen in Node, nicht im Gerät oder im Browser.
     files: ['**/test/**', '**/e2e/**', '**/*.config.{js,mjs,ts}', '**/*.mjs'],

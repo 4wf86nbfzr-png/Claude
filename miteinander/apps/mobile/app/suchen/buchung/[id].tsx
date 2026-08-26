@@ -6,7 +6,6 @@ import {
   Button,
   ButtonStack,
   Callout,
-  DgsVideo,
   Screen,
   Text,
   WhatHappensNext,
@@ -14,6 +13,7 @@ import {
 } from '@miteinander/ui';
 import { useAppState } from '../../../src/state/app-state';
 import { useReadAloud } from '../../../src/state/speech';
+import { DgsAbschnitt } from '../../../src/components/DgsAbschnitt';
 
 /**
  * Screen 10: Buchungszusammenfassung und Bestätigung.
@@ -26,7 +26,7 @@ export default function BookingConfirmation() {
   const theme = useTheme();
   const router = useRouter();
   const { id: conversationId } = useLocalSearchParams<{ id: string }>();
-  const { service, data, currentUserId, prefs, dgs } = useAppState();
+  const { service, data, currentUserId, prefs } = useAppState();
   const { speak } = useReadAloud(prefs);
 
   const [booking, setBooking] = useState<Booking | null>(null);
@@ -80,6 +80,7 @@ export default function BookingConfirmation() {
       intro="Bitte lesen Sie alles in Ruhe durch. Nichts passiert, bevor Sie bestätigen."
       easyIntro="Bitte prüfen Sie: Stimmt alles?"
       onSpeak={speak}
+      dgs={<DgsAbschnitt schluessel="booking.summary" />}
       footer={
         <ButtonStack>
           <Button
@@ -114,8 +115,6 @@ export default function BookingConfirmation() {
             variant="secondary"
             onPress={() => speak(summary.speechText)}
           />
-
-          {prefs.signLanguage ? <DgsVideo item={dgs.get(summary.dgsKey)} /> : null}
 
           <WhatHappensNext text={summary.whatHappensNext} />
 

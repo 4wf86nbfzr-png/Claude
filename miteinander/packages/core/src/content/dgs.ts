@@ -1,5 +1,15 @@
 import type { DgsContentItem } from '../domain/types';
 import type { ContentReviewStatus } from '../domain/enums';
+import {
+  DGS_SKRIPTE,
+  DGS_TITEL,
+  REQUIRED_DGS_KEYS,
+  SEKUNDEN_PRO_SATZ,
+  type RequiredDgsKey,
+} from './dgs-skripte';
+
+export { REQUIRED_DGS_KEYS, type RequiredDgsKey };
+import { transkriptAusZeilen, zeilenAusSaetzen, type Untertitelzeile } from './untertitel';
 
 /**
  * DGS-Inhalte (Deutsche Gebaerdensprache).
@@ -12,65 +22,35 @@ import type { ContentReviewStatus } from '../domain/enums';
  * Grundlage fuer Vertraege, Buchungen, Sicherheit oder Einwilligungen sein.
  */
 
-/** Kernablaeufe, fuer die DGS-Videos zwingend produziert werden muessen. */
-export const REQUIRED_DGS_KEYS = [
-  'onboarding.welcome',
-  'onboarding.mode_choice',
-  'onboarding.accessibility',
-  'profile.create',
-  'search.overview',
-  'request.step.what',
-  'request.step.when',
-  'request.step.where',
-  'request.step.important',
-  'request.summary',
-  'provider.profile_explained',
-  'booking.summary',
-  'booking.cancellation',
-  'payment.overview',
-  'complaint.how_to',
-  'safety.emergency',
-  'privacy.overview',
-  'help.overview',
-] as const;
-export type RequiredDgsKey = (typeof REQUIRED_DGS_KEYS)[number];
-
-const TITLES: Record<RequiredDgsKey, string> = {
-  'onboarding.welcome': 'Willkommen',
-  'onboarding.mode_choice': 'Was möchten Sie tun?',
-  'onboarding.accessibility': 'Bedienung einstellen',
-  'profile.create': 'Ihr Profil anlegen',
-  'search.overview': 'So finden Sie Unterstützung',
-  'request.step.what': 'Wobei brauchen Sie Hilfe?',
-  'request.step.when': 'Wann brauchen Sie Hilfe?',
-  'request.step.where': 'Wo ungefähr?',
-  'request.step.important': 'Was ist Ihnen wichtig?',
-  'request.summary': 'Ihre Anfrage im Überblick',
-  'provider.profile_explained': 'Das Profil verstehen',
-  'booking.summary': 'Ihre Buchung im Überblick',
-  'booking.cancellation': 'Einen Termin absagen',
-  'payment.overview': 'Bezahlen',
-  'complaint.how_to': 'Sich beschweren',
-  'safety.emergency': 'Notfall und Sicherheit',
-  'privacy.overview': 'Ihre Daten',
-  'help.overview': 'Hilfe',
-};
-
 /**
- * Der ausgelieferte Katalog. Im Entwicklungsstand sind alle Eintraege
- * gekennzeichnete Platzhalter -- das ist Absicht und wird sichtbar gemacht.
+ * Der ausgelieferte Katalog.
+ *
+ * Transkript und Untertitel sind echte Inhalte und ab sofort nutzbar --
+ * fuer gehoerlose Menschen ist ein vollstaendiger Text mehr wert als gar
+ * nichts. Der Status bleibt trotzdem "placeholder": ein Video in
+ * Deutscher Gebaerdensprache ist damit NICHT ersetzt. DGS ist eine eigene
+ * Sprache mit eigener Grammatik, kein verschriftetes Deutsch.
  */
-export const DGS_CATALOG: DgsContentItem[] = REQUIRED_DGS_KEYS.map((key) => ({
-  key,
-  title: TITLES[key],
-  status: 'placeholder' as ContentReviewStatus,
-  videoUrl: null,
-  captionsUrl: null,
-  transcript: null,
-  reviewedBy: null,
-  reviewedAt: null,
-  version: 0,
-}));
+export const DGS_CATALOG: DgsContentItem[] = REQUIRED_DGS_KEYS.map((key) => {
+  const untertitel = zeilenAusSaetzen(DGS_SKRIPTE[key], SEKUNDEN_PRO_SATZ);
+  return {
+    key,
+    title: DGS_TITEL[key],
+    status: 'placeholder' as ContentReviewStatus,
+    videoUrl: null,
+    captionsUrl: null,
+    untertitel,
+    transcript: transkriptAusZeilen(untertitel),
+    reviewedBy: null,
+    reviewedAt: null,
+    version: 0,
+  };
+});
+
+/** Laufzeit eines Eintrags in Sekunden -- ergibt sich aus den Untertiteln. */
+export function laufzeit(item: DgsContentItem): number {
+  return item.untertitel.reduce((max, z) => Math.max(max, z.bis), 0);
+}
 
 export class DgsRegistry {
   private items = new Map<string, DgsContentItem>();
@@ -84,7 +64,13 @@ export class DgsRegistry {
   }
 
   /** Neue Fassung einspielen. Ein neues Video setzt die Pruefung zurueck. */
-  upsertVideo(key: string, videoUrl: string, captionsUrl: string, transcript: string): DgsContentItem {
+  upsertVideo(
+    key: string,
+    videoUrl: string,
+    captionsUrl: string,
+    transcript: string,
+    untertitel: Untertitelzeile[] = [],
+  ): DgsContentItem {
     const existing = this.items.get(key);
     const next: DgsContentItem = {
       key,
@@ -92,6 +78,7 @@ export class DgsRegistry {
       status: 'in_review',
       videoUrl,
       captionsUrl,
+      untertitel: untertitel.length > 0 ? untertitel : (existing?.untertitel ?? []),
       transcript,
       reviewedBy: null,
       reviewedAt: null,
@@ -101,12 +88,29 @@ export class DgsRegistry {
     return next;
   }
 
+  /**
+   * Hinterlegt ein gekennzeichnetes Platzhaltervideo.
+   *
+   * Anders als upsertVideo aendert das den Status NICHT: der Eintrag bleibt
+   * ein Platzhalter. Zweck ist allein, dass der Abspieler mit Untertiteln,
+   * Geschwindigkeit und Vollbild vollstaendig bedienbar ist, bevor die
+   * echten Aufnahmen vorliegen.
+   */
+  setzePlatzhalterVideo(key: string, videoUrl: string): DgsContentItem | undefined {
+    const item = this.items.get(key);
+    if (!item) return undefined;
+    if (item.status === 'approved') return item;
+    const next: DgsContentItem = { ...item, videoUrl, status: 'placeholder' };
+    this.items.set(key, next);
+    return next;
+  }
+
   /** Freigabe nur mit Namen der pruefenden Person. */
   approve(key: string, reviewedBy: string, reviewedAt: string): DgsContentItem {
     const item = this.items.get(key);
     if (!item) throw new Error(`Unbekannter DGS-Inhalt: ${key}`);
     if (!item.videoUrl) throw new Error('Ohne produziertes Video ist keine Freigabe möglich.');
-    if (!item.captionsUrl || !item.transcript) {
+    if (item.untertitel.length === 0 || !item.transcript) {
       throw new Error('Ein DGS-Video braucht Untertitel und ein Transkript.');
     }
     if (!reviewedBy.trim()) {

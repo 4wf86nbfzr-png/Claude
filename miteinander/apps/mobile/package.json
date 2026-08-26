@@ -10,13 +10,14 @@
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
     "web:export": "expo export --platform web --output-dir dist",
-    "e2e": "node e2e/kernablauf.mjs && node e2e/bedienhilfen.mjs",
+    "e2e": "node e2e/kernablauf.mjs && node e2e/bedienhilfen.mjs && node e2e/gebaerdensprache.mjs",
     "testdatei": "expo export --platform web --output-dir dist && node tools/einzeldatei.mjs dist miteinander-testfassung.html"
   },
   "dependencies": {
     "@expo/metro-runtime": "*",
     "@miteinander/core": "*",
     "@miteinander/ui": "*",
+    "@react-native-async-storage/async-storage": "^2.2.0",
     "expo": "^57.0.0",
     "expo-av": "*",
     "expo-constants": "*",
@@ -24,6 +25,7 @@
     "expo-router": "~57.0.16",
     "expo-speech": "*",
     "expo-status-bar": "*",
+    "expo-video": "^57.0.2",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-native": "0.86.2",

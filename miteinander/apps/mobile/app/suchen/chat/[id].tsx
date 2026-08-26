@@ -20,6 +20,7 @@ import {
 } from '@miteinander/ui';
 import { useAppState } from '../../../src/state/app-state';
 import { useReadAloud } from '../../../src/state/speech';
+import { DgsAbschnitt } from '../../../src/components/DgsAbschnitt';
 
 /**
  * Screen 9: Chat, Sprachnachricht und Videoanruf.
@@ -72,6 +73,7 @@ export default function Chat() {
       intro="Schreiben oder sprechen Sie. Ihre Telefonnummer bleibt geheim, bis ein Termin fest steht."
       easyIntro="Hier schreiben Sie mit der Person."
       onSpeak={speak}
+      dgs={<DgsAbschnitt schluessel="help.overview" />}
       footer={
         <ButtonStack>
           <Button label="Nachricht senden" onPress={() => void send('text')} disabled={!text.trim()} />

@@ -17,7 +17,14 @@ Notfall, Datenschutz, Hilfe.
 Buchungszusammenfassung falsch wiedergeben. Am Ende steht eine Verpflichtung,
 die jemand nicht verstanden hat.
 
-**Stand:** 0 von 18. Anforderungen: `DGS_PRODUCTION_REQUIREMENTS`.
+**Was schon da ist:** Für jeden der 18 Abläufe liegt ein deutschsprachiges
+Skript vor (`packages/core/src/content/dgs-skripte.ts`). Es dient als
+inhaltliche Vorlage und trägt zugleich Transkript und Untertitel in der App.
+**Es ist nicht die Übersetzung.** Deutsche Gebärdensprache hat eine eigene
+Grammatik; die Übertragung gehört in die Hände der gebärdenden Person.
+
+**Stand:** 0 von 18 produziert und geprüft. Ausgeliefert werden
+gekennzeichnete Platzhalter. Anforderungen: `DGS_PRODUCTION_REQUIREMENTS`.
 
 ## 2. Leichte Sprache
 

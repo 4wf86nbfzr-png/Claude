@@ -20,6 +20,7 @@ import {
 } from '@miteinander/ui';
 import { useAppState } from '../../src/state/app-state';
 import { useReadAloud } from '../../src/state/speech';
+import { DgsAbschnitt } from '../../src/components/DgsAbschnitt';
 
 /**
  * Screen 13: Anbieter-Onboarding.
@@ -58,7 +59,9 @@ export default function ProviderOnboarding() {
     <Screen
       title="Unterstützung anbieten"
       intro="In drei Schritten. Sie können jederzeit unterbrechen – Ihre Angaben bleiben gespeichert."
+      easyIntro="Sie möchten anderen Menschen helfen.\nWir fragen ein paar Dinge."
       onSpeak={speak}
+      dgs={<DgsAbschnitt schluessel="onboarding.welcome" />}
       footer={
         <ButtonStack>
           {step < 2 ? (

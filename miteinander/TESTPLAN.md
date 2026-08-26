@@ -60,6 +60,14 @@ Testdaten: `supabase/seed/seed.sql`. Alle Konten sind an „(Demo)" erkennbar.
 
 ## C. Sehen
 
+### C0 Einstellungen bleiben
+
+- [ ] Schrift vergrößern, App vollständig schließen und neu öffnen: die
+      Einstellung ist noch da.
+- [ ] Dasselbe für Kontrast, Vorlesen, Leichte Sprache und Gebärdensprache.
+- [ ] Im privaten Fenster: die App läuft weiter, auch wenn nichts gespeichert
+      werden kann.
+
 ### C1 Große Schrift
 
 - [ ] Systemschrift auf Maximum: kein Text abgeschnitten, keine überlappenden
@@ -68,6 +76,9 @@ Testdaten: `supabase/seed/seed.sql`. Alle Konten sind an „(Demo)" erkennbar.
 - [ ] Kein waagerechtes Scrollen der Seite. Nur die Vergleichstabelle scrollt
       in sich.
 - [ ] Lange Wörter („Barrierefreiheitserklärung") brechen sauber um.
+- [ ] Das Bild auf der Startseite drängt die erste Schaltfläche nicht aus dem
+      sichtbaren Bereich.
+- [ ] Das Bild wird mit Screenreader als beschriebenes Bild angesagt.
 
 ### C2 Kontrast und Farbe
 
@@ -116,15 +127,35 @@ Testdaten: `supabase/seed/seed.sql`. Alle Konten sind an „(Demo)" erkennbar.
 
 ## G. Gebärdensprache
 
-- [ ] Ohne produziertes Video steht überall der Hinweis, dass es fehlt.
-- [ ] Nirgends wird behauptet, die Übersetzung sei vollständig.
-- [ ] Nach der Produktion: Untertitel, Transkript, Vollbild, Geschwindigkeit
-      und Pause steuerbar.
+### G1 Der Ablauf (heute prüfbar)
+
+- [ ] Auf jedem Bildschirm gibt es „In Gebärdensprache ansehen".
+- [ ] Mit eingeschalteter Einstellung ist der Bereich sofort offen.
+- [ ] Über dem Video steht, dass noch kein geprüftes Video vorliegt.
+- [ ] Abspielen, Pause, fünf Sekunden zurück und von vorn funktionieren.
+- [ ] Geschwindigkeit lässt sich auf 0,5 und 0,75 stellen.
+- [ ] Vollbild funktioniert und lässt sich wieder verlassen.
+- [ ] Untertitel lassen sich aus- und wieder einblenden.
+- [ ] Untertitel wechseln passend zur Wiedergabe.
+- [ ] **Untertitel wachsen mit der eingestellten Schriftgröße mit.**
+- [ ] Untertitel verdecken das Videobild nicht.
+- [ ] Das Transkript ist auch ohne Wiedergabe vollständig lesbar.
+- [ ] Mit VoiceOver und TalkBack: alle Bedienelemente sind beschriftet, die
+      Wiedergabezeit wird angesagt, der Fokus geht nicht verloren.
+- [ ] Das Video startet nie von selbst.
+
+### G2 Nach der Produktion (mit echten Aufnahmen)
+
+- [ ] Die gebärdende Person ist vollständig im Bild, auch die Hände unten.
+- [ ] Untertitel und Transkript stimmen mit der Aufnahme überein.
 - [ ] Der Name der prüfenden Person steht am Video.
+- [ ] Die Abdeckung im Adminbereich zählt hoch.
+- [ ] Auf iOS und Safari spielt das Video ab (Formatfrage, siehe
+      LAUNCH_CHECKLIST.md).
 - [ ] Ein ungeprüfter Gebärdensprach-Hinweis am Anbieterprofil ist als solcher
       gekennzeichnet.
-
----
+- [ ] **Test mit gehörlosen Menschen, DGS als Erstsprache** – ohne den gilt
+      dieser Abschnitt nicht als abgeschlossen.
 
 ## H. Fachliche Abläufe
 

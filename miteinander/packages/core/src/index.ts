@@ -28,6 +28,8 @@ export * from './security/incidents';
 
 export * from './voice/commands';
 export * from './content/dgs';
+export * from './content/dgs-skripte';
+export * from './content/untertitel';
 export * from './content/easy-language';
 
 export * from './data/repositories';

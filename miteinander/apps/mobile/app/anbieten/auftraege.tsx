@@ -10,6 +10,7 @@ import {
 import { Button, Callout, Screen, Text, useTheme } from '@miteinander/ui';
 import { useAppState } from '../../src/state/app-state';
 import { useReadAloud } from '../../src/state/speech';
+import { DgsAbschnitt } from '../../src/components/DgsAbschnitt';
 
 /**
  * Screen 15: Auftragsübersicht für Anbietende.
@@ -49,7 +50,9 @@ export default function ProviderRequests() {
     <Screen
       title="Passende Anfragen"
       intro="Sie sehen vor der Annahme nur, was für Ihre Entscheidung nötig ist."
+      easyIntro="Hier sehen Sie: Wer braucht Hilfe?"
       onSpeak={speak}
+      dgs={<DgsAbschnitt schluessel="search.overview" />}
     >
       {requests.length === 0 ? <Text muted>Gerade gibt es keine offenen Anfragen.</Text> : null}
 

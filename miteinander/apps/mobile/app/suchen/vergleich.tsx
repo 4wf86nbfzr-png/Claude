@@ -5,6 +5,7 @@ import { buildComparison, findMatches, type ComparisonRow } from '@miteinander/c
 import { Callout, Screen, Text, useTheme } from '@miteinander/ui';
 import { useAppState } from '../../src/state/app-state';
 import { useReadAloud } from '../../src/state/speech';
+import { DgsAbschnitt } from '../../src/components/DgsAbschnitt';
 
 /**
  * Screen 8: Vergleich von bis zu drei Vorschlägen.
@@ -53,6 +54,7 @@ export default function Comparison() {
       intro="Hier sehen Sie die Vorschläge nebeneinander."
       easyIntro="Hier sehen Sie die Menschen nebeneinander."
       onSpeak={() => speak(spoken)}
+      dgs={<DgsAbschnitt schluessel="search.overview" />}
     >
       {rows.length === 0 ? <Text muted>Wird geladen …</Text> : null}
 

@@ -4,7 +4,9 @@ import { useRouter } from 'expo-router';
 import { appConfig } from '@miteinander/core';
 import { Button, Callout, ChoiceCard, EmergencyBar, Screen, Text, useTheme } from '@miteinander/ui';
 import { useAppState } from '../src/state/app-state';
+import { heroStartseite } from '../src/inhalte/bilder';
 import { useReadAloud } from '../src/state/speech';
+import { DgsAbschnitt } from '../src/components/DgsAbschnitt';
 
 /**
  * Screen 1: Start und Moduswahl.
@@ -28,6 +30,8 @@ export default function StartScreen() {
       intro={appConfig.claim}
       easyIntro="Hier finden Sie Menschen, die Ihnen helfen."
       onSpeak={speak}
+      dgs={<DgsAbschnitt schluessel="onboarding.mode_choice" />}
+      hero={heroStartseite}
     >
       <Text variant="heading" accessibilityRole="header">
         Was möchten Sie tun?

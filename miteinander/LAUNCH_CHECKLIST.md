@@ -23,7 +23,13 @@ Nichts hiervon ist optional. Punkte mit **[Sperre]** verhindern den Start.
 
 - [ ] **[Sperre]** DGS-Videos für alle 18 Kernabläufe produziert und von
       DGS-Muttersprachler:innen oder qualifizierten Fachleuten geprüft.
-      Stand heute: 0 von 18.
+      Stand heute: 0 von 18. Abspieler, Untertitel und Transkripte sind
+      fertig; ausgeliefert werden gekennzeichnete Platzhalter. Die
+      inhaltlichen Vorlagen stehen in
+      `packages/core/src/content/dgs-skripte.ts`.
+- [ ] **[Sperre]** Videoformat für den Produktivbetrieb festlegen: die
+      Platzhalter sind VP8/WebM. Für iOS und Safari wird zusätzlich
+      H.264/MP4 gebraucht.
 - [ ] **[Sperre]** Leichte-Sprache-Texte von einer Prüfgruppe aus Menschen mit
       Lernschwierigkeiten geprüft. Stand heute: 0 von 12.
 - [ ] **[Sperre]** Unabhängiges Barrierefreiheits-Audit gegen WCAG 2.2 AA und
@@ -36,6 +42,11 @@ Nichts hiervon ist optional. Punkte mit **[Sperre]** verhindern den Start.
 - [ ] Barrierefreiheits-Erklärung um die gesetzlich vorgeschriebenen Angaben
       ergänzt; Bearbeitungszusage für Rückmeldungen verbindlich festgelegt.
 - [ ] Schriftdateien (Atkinson Hyperlegible) lokal eingebunden und lizenziert.
+- [ ] **[Sperre]** Für jedes Foto in der App: Einwilligung der abgebildeten
+      Personen und Nutzungslizenz dokumentiert. Betrifft aktuell das Bild auf
+      der Startseite.
+- [ ] Bildbeschreibungen redaktionell geprüft – nicht nur vorhanden, sondern
+      auch zutreffend und respektvoll formuliert.
 
 ## 3. Sicherheit und Schutz
 

@@ -13,6 +13,7 @@ import {
 import { Button, Callout, ChoiceCard, Screen, Text, useTheme } from '@miteinander/ui';
 import { useAppState } from '../src/state/app-state';
 import { useReadAloud } from '../src/state/speech';
+import { DgsAbschnitt } from '../src/components/DgsAbschnitt';
 
 /**
  * Screen 19: Datenschutz, Einwilligungen und Datenverwaltung.
@@ -56,6 +57,7 @@ export default function PrivacyScreen() {
       intro="Sie bestimmen, was wir verarbeiten dürfen. Jede Erlaubnis steht für sich."
       easyIntro="Hier bestimmen Sie über Ihre Daten."
       onSpeak={speak}
+      dgs={<DgsAbschnitt schluessel="privacy.overview" />}
     >
       <Text variant="heading" accessibilityRole="header">
         Ihre Erlaubnisse

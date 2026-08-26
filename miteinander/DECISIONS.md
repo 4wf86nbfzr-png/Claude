@@ -276,6 +276,92 @@ kostet hier den kompletten Web-Build.
 
 ---
 
+## E-22 Untertitel gehören zur Oberfläche, nicht ins Video
+
+**Entscheidung:** Untertitel werden von der App gezeichnet – nicht ins Video
+gebrannt und nicht über die Untertitelspur des Betriebssystems.
+
+**Warum:** Eine eingebrannte Zeile bleibt klein, egal was jemand eingestellt
+hat. Genau die Menschen, die Untertitel brauchen, brauchen sie oft groß. Über
+unsere eigene Ebene folgen sie der Schriftgröße und dem Kontrastmodus. Der
+Browser-Test misst das: 160 Prozent Schrift, 18 → 29 Punkt.
+
+**Preis:** Ein eigener WebVTT-Parser und eine eigene Taktung. Beides ist klein
+und getestet.
+
+---
+
+## E-23 Untertitel stehen unter dem Video, nicht darüber
+
+**Entscheidung:** Ursprünglich lag die Untertitelzeile als Overlay über dem
+unteren Bildrand. Der erste Blick auf den fertigen Abspieler hat gezeigt, dass
+sie genau dort liegt, wo bei Gebärdensprache die Hände sind.
+
+**Warum geändert:** Bei einem Gebärdensprach-Video ist das untere Bilddrittel
+kein Rand, sondern Inhalt. Ein Untertitel darüber verdeckt das, was er
+begleiten soll.
+
+**Nebenwirkung, die passt:** Der Platz unter dem Video ist reserviert. Die
+Oberfläche springt nicht, wenn eine Zeile kommt oder geht.
+
+---
+
+## E-24 Gekennzeichnete Platzhaltervideos statt gar keiner Videos
+
+**Entscheidung:** Für alle 18 Kernabläufe liegen erzeugte Platzhalter bei –
+eine Textkarte, die im Bild „PLATZHALTER" und „Dies ist kein
+Gebärdensprach-Video" trägt. Der Status bleibt `placeholder`, die Abdeckung im
+Adminbereich weiterhin 0 von 18.
+
+**Warum:** Ohne abspielbares Material lässt sich nicht prüfen, ob der Abspieler
+taugt – Untertitel, Fokusreihenfolge, Vollbild, Screenreader. Die Alternative
+wäre gewesen, den Abspieler ungetestet auszuliefern.
+
+**Wo die Grenze liegt:** Der Platzhalter zeigt bewusst keine Person und keine
+Gebärde. Eine Attrappe, die nach Gebärdensprache aussieht, wäre schlimmer als
+gar nichts – sie würde vortäuschen, dass eine Übersetzung existiert.
+
+**Transkript und Untertitel sind dagegen echt** und für alle 18 Abläufe
+vollständig. Für gehörlose Menschen ist ein verlässlicher Text heute mehr wert
+als ein Versprechen. Er ersetzt die Gebärdensprache nicht: DGS ist eine eigene
+Sprache, kein verschriftetes Deutsch.
+
+---
+
+## E-25 Bedieneinstellungen werden gespeichert
+
+**Entscheidung:** Schriftgröße, Kontrast, Bewegung, Vorlesen, Leichte Sprache,
+Gebärdensprache und Tippflächengröße überleben den Neustart.
+
+**Warum:** Aufgefallen ist es im Browser-Test – nach dem Neuladen stand die
+Schrift wieder auf 100 Prozent. Wer 200 Prozent braucht, müsste sie bei jedem
+Öffnen neu einstellen. Das ist keine Kleinigkeit, sondern macht die
+Einstellungen wertlos.
+
+**Robust gegen fehlenden Speicher:** In einem privaten Fenster oder in der
+Datei-Fassung kann die Ablage gesperrt sein. Dann läuft die App weiter, nur
+ohne Gedächtnis – statt abzustürzen.
+
+---
+
+## E-26 Das Startbild ist Inhalt, kein Dekor
+
+**Entscheidung:** Das Foto auf der Startseite läuft randlos über die volle
+Breite, trägt eine Beschreibung in ganzen Sätzen und nimmt höchstens 45 Prozent
+der Bildschirmhöhe ein.
+
+**Warum die Deckelung:** Ohne sie müsste man bei großer Schrift erst am Bild
+vorbeiscrollen, bevor die erste Schaltfläche auftaucht.
+
+**Warum kein Text im Bild:** Schrift in einem Foto skaliert nicht mit der
+Einstellung und lässt sich im Hochkontrastmodus nicht anpassen. Überschrift und
+Vorspann stehen deshalb darunter auf ruhigem Grund.
+
+**Offen:** Einwilligung der abgebildeten Personen und Nutzungslizenz sind vor
+dem Start zu dokumentieren (siehe `LAUNCH_CHECKLIST.md`).
+
+---
+
 ## Offene Entscheidungen
 
 | Nummer | Frage | Wer entscheidet |

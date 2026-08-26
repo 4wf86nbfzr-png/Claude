@@ -20,6 +20,7 @@ import {
 } from '@miteinander/ui';
 import { useAppState } from '../../src/state/app-state';
 import { useReadAloud } from '../../src/state/speech';
+import { DgsAbschnitt } from '../../src/components/DgsAbschnitt';
 
 /**
  * Screen 14: Leistungs- und Verfügbarkeitseditor.
@@ -50,7 +51,9 @@ export default function ServiceEditor() {
       <Screen
         title="So sehen andere Ihr Profil"
         intro="Genau das sehen Menschen, die Unterstützung suchen."
+        easyIntro="Hier sagen Sie: Wobei kann ich helfen?\nUnd: Was mache ich nicht?"
         onSpeak={speak}
+        dgs={<DgsAbschnitt schluessel="profile.create" />}
         footer={<Button label="Zurück zum Bearbeiten" onPress={() => setPreview(false)} />}
       >
         <View style={{ flexDirection: 'row', gap: theme.spacing.m, alignItems: 'center' }}>

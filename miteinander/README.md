@@ -29,14 +29,19 @@ Der vertikale Kern läuft durchgehend – von der Anfrage bis zur bestätigten B
 | Bewertung und Problemmeldung | funktionsfähig |
 | Anbieter-Onboarding, Leistungsprofil, Nachweise | funktionsfähig |
 | Adminbereich: Prüfungen, Vorfälle, Inhalte, Protokoll | funktionsfähig |
+| Gebärdensprach-Abspieler mit Untertiteln, Tempo, Vollbild | funktionsfähig, getestet |
+| Bedieneinstellungen überleben den Neustart | funktionsfähig, getestet |
 | Datenbankschema mit Row-Level-Security | vollständig, geprüft gegen die PostgreSQL-Grammatik |
 
 **Ehrlich benannt, was noch nicht fertig ist:**
 
-- **Gebärdensprache:** 0 von 18 Kernabläufen haben ein produziertes, fachlich
-  geprüftes Video. Das Content-System steht, die Oberfläche sagt an jeder Stelle
-  offen, dass das Video fehlt. Es wird nirgends behauptet, die Übersetzung sei
-  vollständig.
+- **Gebärdensprache:** Der Ablauf funktioniert vollständig – Abspieler,
+  Untertitel, Geschwindigkeit, Vollbild, Transkript, auf jedem Bildschirm
+  erreichbar. Was fehlt, sind die Aufnahmen selbst: **0 von 18 Kernabläufen
+  haben ein von DGS-Muttersprachler:innen produziertes und geprüftes Video.**
+  Ausgeliefert werden gekennzeichnete Platzhalter, die im Bild und in der
+  Oberfläche als solche benannt sind. Transkript und Untertitel sind dagegen
+  echte, vollständige Inhalte für alle 18 Abläufe.
 - **Leichte Sprache:** alle Texte sind Entwürfe des Produktteams und noch nicht
   von einer Prüfgruppe freigegeben. Auch das steht in der Oberfläche.
 - **Zahlungen:** als austauschbares Modul angelegt und im MVP abgeschaltet. Es
@@ -103,6 +108,20 @@ Was in dieser Fassung anders ist:
   App** funktioniert normal.
 - Es ist die Web-Fassung. Für Screenreader-Tests auf dem Gerät gilt
   `npm run mobile` mit Expo Go.
+
+### Gebärdensprach-Platzhalter neu bauen
+
+```bash
+cd apps/mobile
+node --experimental-strip-types tools/dgs-platzhalter.mjs
+```
+
+Erzeugt für alle 18 Kernabläufe ein gekennzeichnetes Platzhaltervideo, die
+zugehörigen Untertitel als WebVTT und die Zuordnung für Metro. Braucht ffmpeg
+und Python mit Pillow.
+
+**Für echte Aufnahmen wird das Skript nicht gebraucht:** Dateien in
+`apps/mobile/assets/dgs/` austauschen und im Adminbereich freigeben.
 
 ### Tests
 

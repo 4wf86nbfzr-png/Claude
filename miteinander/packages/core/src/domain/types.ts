@@ -1,3 +1,4 @@
+import type { Untertitelzeile } from '../content/untertitel.js';
 import type {
   BookingStatus,
   CommunicationMode,
@@ -377,6 +378,8 @@ export interface DgsContentItem {
   status: ContentReviewStatus;
   videoUrl?: string | null;
   captionsUrl?: string | null;
+  /** Untertitel als Daten -- die App setzt sie selbst, damit sie mitwachsen. */
+  untertitel: Untertitelzeile[];
   transcript?: string | null;
   /** Wer geprueft hat. Ohne Eintrag gilt der Inhalt nicht als geprueft. */
   reviewedBy?: string | null;

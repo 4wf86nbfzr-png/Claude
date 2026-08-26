@@ -9,6 +9,7 @@ import {
 import { Button, Callout, Screen, Text, useTheme } from '@miteinander/ui';
 import { useAppState } from '../../src/state/app-state';
 import { useReadAloud } from '../../src/state/speech';
+import { DgsAbschnitt } from '../../src/components/DgsAbschnitt';
 
 /**
  * Screen 16: Nachweisprüfung aus Sicht der anbietenden Person.
@@ -39,7 +40,9 @@ export default function ProviderVerifications() {
     <Screen
       title="Meine Nachweise"
       intro="Hier sehen Sie, was geprüft ist und was noch fehlt."
+      easyIntro="Hier sehen Sie Ihre Nachweise.\nUnd was noch fehlt."
       onSpeak={speak}
+      dgs={<DgsAbschnitt schluessel="provider.profile_explained" />}
     >
       {soon.length > 0 ? (
         <Callout tone="warning" title="Läuft bald ab">

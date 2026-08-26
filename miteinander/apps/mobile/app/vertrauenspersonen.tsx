@@ -4,6 +4,7 @@ import type { TrustedAccessGrant, TrustedScope } from '@miteinander/core';
 import { Button, Callout, ChoiceCard, Screen, Text, useTheme } from '@miteinander/ui';
 import { useAppState } from '../src/state/app-state';
 import { useReadAloud } from '../src/state/speech';
+import { DgsAbschnitt } from '../src/components/DgsAbschnitt';
 
 /**
  * Screen 17: Vertrauenspersonen und Berechtigungen.
@@ -56,6 +57,7 @@ export default function TrustedPeople() {
       intro="Sie entscheiden, wer Ihnen helfen darf und was diese Person darf."
       easyIntro="Hier bestimmen Sie: Wer darf mir helfen? Und was darf die Person?"
       onSpeak={speak}
+      dgs={<DgsAbschnitt schluessel="privacy.overview" />}
     >
       <Callout tone="info" title="Sie behalten die Entscheidung">
         Eine Vertrauensperson unterstützt Sie. Sie entscheidet nicht an Ihrer Stelle. Sie können

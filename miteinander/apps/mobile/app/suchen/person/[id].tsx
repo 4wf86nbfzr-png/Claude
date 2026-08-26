@@ -21,6 +21,7 @@ import {
 } from '@miteinander/ui';
 import { useAppState } from '../../../src/state/app-state';
 import { useReadAloud } from '../../../src/state/speech';
+import { DgsAbschnitt } from '../../../src/components/DgsAbschnitt';
 
 /**
  * Screen 7: Profil einer Unterstützungsperson.
@@ -75,7 +76,9 @@ export default function ProviderProfileScreen() {
     <Screen
       title={name}
       intro={profile.headline}
+      easyIntro="Hier steht alles über diese Person."
       onSpeak={speak}
+      dgs={<DgsAbschnitt schluessel="provider.profile_explained" />}
       footer={
         <Button
           label="Nachricht schreiben"

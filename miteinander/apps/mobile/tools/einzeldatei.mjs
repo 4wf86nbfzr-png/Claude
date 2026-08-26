@@ -31,6 +31,13 @@ const mimeTypen = {
   '.svg': 'image/svg+xml',
   '.woff2': 'font/woff2',
   '.ttf': 'font/ttf',
+  // Videos: ohne sie bliebe der Gebaerdensprach-Abspieler in der
+  // Datei-Fassung leer -- unter file:// laesst sich nichts nachladen.
+  '.webm': 'video/webm',
+  '.mp4': 'video/mp4',
+  '.m4v': 'video/mp4',
+  '.ogv': 'video/ogg',
+  '.vtt': 'text/vtt',
 };
 
 // 1. Bundle einlesen
@@ -38,7 +45,7 @@ const bundleDatei = alleDateien(path.join(distDir, '_expo')).find((f) => f.endsW
 if (!bundleDatei) throw new Error('Kein JavaScript-Bundle im Export gefunden.');
 let bundle = fs.readFileSync(bundleDatei, 'utf8');
 
-// 2. Bilder als data:-URI einsetzen.
+// 2. Bilder, Videos und Untertitel als data:-URI einsetzen.
 //    Laengste Pfade zuerst, damit kein kuerzerer Pfad einen laengeren zerschneidet.
 const medien = alleDateien(distDir).filter((f) => mimeTypen[path.extname(f).toLowerCase()]);
 let ersetzt = 0;

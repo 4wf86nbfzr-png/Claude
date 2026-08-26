@@ -11,7 +11,6 @@ import {
   Button,
   Callout,
   ChoiceCard,
-  DgsVideo,
   EmergencyBar,
   Screen,
   Text,
@@ -20,6 +19,7 @@ import {
 } from '@miteinander/ui';
 import { useAppState } from '../src/state/app-state';
 import { useReadAloud } from '../src/state/speech';
+import { DgsAbschnitt } from '../src/components/DgsAbschnitt';
 
 /**
  * Screen 20: Hilfe, Notfall und Beschwerde.
@@ -58,6 +58,7 @@ export default function HelpScreen() {
       intro="Hier finden Sie Antworten, können ein Problem melden und sehen die Notrufnummern."
       easyIntro="Hier bekommen Sie Hilfe."
       onSpeak={speak}
+      dgs={<DgsAbschnitt schluessel="help.overview" />}
     >
       <EmergencyBar />
 
@@ -124,8 +125,6 @@ export default function HelpScreen() {
         Wenn Sie eine Barriere finden, schreiben Sie uns an {appConfig.accessibilityFeedbackEmail}.
         Wir antworten und sagen Ihnen, was wir tun.
       </Text>
-
-      {prefs.signLanguage ? <DgsVideo item={dgs.get('help.overview')} /> : null}
 
       <Text variant="heading" accessibilityRole="header">
         So werden unsere Gebärdensprach-Videos gemacht

@@ -48,14 +48,14 @@ export const appConfig: AppConfig = {
   appNameShort: env('EXPO_PUBLIC_APP_NAME_SHORT', 'MITEINANDER'),
   claim: env(
     'EXPO_PUBLIC_APP_CLAIM',
-    'Hier finden Sie Menschen, die Sie im Alltag unterstuetzen.',
+    'Hier finden Sie Menschen, die Sie im Alltag unterstützen.',
   ),
   operator: env('EXPO_PUBLIC_OPERATOR', 'Betreiber: bitte vor dem Start eintragen'),
   supportEmail: env('EXPO_PUBLIC_SUPPORT_EMAIL', 'hilfe@example.org'),
   accessibilityFeedbackEmail: env('EXPO_PUBLIC_A11Y_EMAIL', 'barrierefreiheit@example.org'),
   privacyEmail: env('EXPO_PUBLIC_PRIVACY_EMAIL', 'datenschutz@example.org'),
   emergencyNumbers: [
-    { label: 'Notruf 112', number: '112', hint: 'Feuerwehr und Rettungsdienst. Bei Gefahr fuer Leben und Gesundheit.' },
+    { label: 'Notruf 112', number: '112', hint: 'Feuerwehr und Rettungsdienst. Bei Gefahr für Leben und Gesundheit.' },
     { label: 'Polizei 110', number: '110', hint: 'Polizei. Bei Gewalt, Bedrohung oder Straftaten.' },
   ],
   minimumAge: 18,
