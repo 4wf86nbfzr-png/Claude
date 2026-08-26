@@ -1,6 +1,7 @@
 import type {
   AbsencePeriod,
   AccessibilityPreferences,
+  ApprovalRequest,
   AuditEvent,
   AvailabilitySlot,
   Booking,
@@ -45,6 +46,7 @@ export interface MemorySeed {
   consents?: ConsentRecord[];
   preferences?: AccessibilityPreferences[];
   trust?: TrustedAccessGrant[];
+  approvals?: ApprovalRequest[];
   reports?: Report[];
   incidents?: Incident[];
   reviews?: Review[];
@@ -68,6 +70,7 @@ export function createMemoryContext(seed: MemorySeed = {}): DataContext {
     (seed.preferences ?? []).map((p) => [p.userId, p]),
   );
   const trust = [...(seed.trust ?? [])];
+  const approvals = [...(seed.approvals ?? [])];
   const reports = [...(seed.reports ?? [])];
   const incidents = [...(seed.incidents ?? [])];
   const reviews = [...(seed.reviews ?? [])];
@@ -264,6 +267,27 @@ export function createMemoryContext(seed: MemorySeed = {}): DataContext {
         if (idx >= 0) trust[idx] = clone(grant);
         else trust.push(clone(grant));
         return grant;
+      },
+    },
+    approvals: {
+      async get(id) {
+        const a = approvals.find((x) => x.id === id);
+        return a ? clone(a) : undefined;
+      },
+      async save(request) {
+        const idx = approvals.findIndex((a) => a.id === request.id);
+        if (idx >= 0) approvals[idx] = clone(request);
+        else approvals.push(clone(request));
+        return request;
+      },
+      async forResponsible(responsibleId) {
+        return approvals.filter((a) => a.responsibleId === responsibleId).map(clone);
+      },
+      async forSeeker(seekerId) {
+        return approvals.filter((a) => a.seekerId === seekerId).map(clone);
+      },
+      async forSubject(subjectId) {
+        return approvals.filter((a) => a.subjectId === subjectId).map(clone);
       },
     },
     safety: {

@@ -60,7 +60,7 @@ Zwei Gründe, beide praktisch:
 | `requests/` | Anfrage-Assistent: Schritte, Feldprüfung, Entwurf, Wiederholung |
 | `booking/` | Zustandsautomat, Absageregeln, Bestätigungs-Zusammenfassungen |
 | `privacy/` | feldgenaue Sichtbarkeit, Einwilligungen, Aufbewahrung |
-| `security/` | Rechte, Vier-Augen-Prinzip, Nachweise, Vorfälle |
+| `security/` | Rechte, Vier-Augen-Prinzip, Nachweise, Vorfälle, Freigaben |
 | `voice/` | Sprachbefehle, Bestätigungspflicht, Ersatzwege |
 | `content/` | Gebärdensprache (Skripte, Katalog, Untertitel als WebVTT) und Leichte Sprache |
 | `data/` | Repository-Schnittstellen, In-Memory-Implementierung |
@@ -126,6 +126,10 @@ werden können.
 | Vier-Augen-Prinzip bei Fachqualifikation | `decideVerification` | Trigger `trg_verifications_four_eyes` |
 | Kontaktfreigabe nur mit Buchung und Einwilligung | `confirmBooking` | Trigger `trg_bookings_contact_release` |
 | Sprachnachricht braucht Transkript | `sendMessage` | Prüfbedingung `voice_needs_transcript` |
+| Freigabepflicht nur mit Grundlage | `validateGrant` | Prüfbedingungen an `trusted_access_grants` |
+| Nur die benannte Person entscheidet | `decideApproval` | Trigger `trg_approvals_entscheidung` |
+| Ablehnung braucht eine Begründung | `decideApproval` | Prüfbedingung `ablehnung_braucht_grund` |
+| Niemand gibt sich selbst frei | `validateGrant`, `decideApproval` | Prüfbedingung `keine_selbstfreigabe` |
 
 ## Bekannte Risiken
 
@@ -136,6 +140,7 @@ werden können.
 | Leichte Sprache ungeprüft | hoch | Prüfgruppe beauftragen; Texte sind als Entwurf gekennzeichnet |
 | Rechtliche Einordnung der Anbietenden (Gewerbe, Steuer, Sozialversicherung, Führungszeugnis) | hoch | Prüfprozess ist konfigurierbar angelegt; anwaltliche Klärung ist Startvoraussetzung |
 | Missbrauch der Vermittlung (Grooming, finanzielle Ausnutzung) | hoch | Identitätsprüfung, Meldewege, Incident-Workflow, Vier-Augen-Prinzip; ersetzt kein menschliches Schutzkonzept |
+| Missbrauch der Verantwortlichen-Rolle (Bevormundung, Blockade durch Schweigen) | hoch | Grundlage ist Pflicht, Ablehnung braucht Begründung, kein Zeitablauf-Automatismus, volle Transparenz für die betroffene Person. Der Beschwerdeweg bei dauerhaftem Schweigen ist offen (O-10) |
 | Standortdaten | mittel | nur gerundete Koordinaten, Entfernungen nur grob beschriftet |
 | Falsche Spracherkennung | mittel | folgenreiche Handlungen brauchen immer eine Bestätigung am Bildschirm |
 | Supabase-Abhängigkeit | mittel | Repository-Muster; ein Wechsel berührt keine Domänenlogik |

@@ -25,6 +25,7 @@ export * from './privacy/retention';
 export * from './security/permissions';
 export * from './security/verification';
 export * from './security/incidents';
+export * from './security/approvals';
 
 export * from './voice/commands';
 export * from './content/dgs';

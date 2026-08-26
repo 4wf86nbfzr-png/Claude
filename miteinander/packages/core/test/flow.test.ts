@@ -70,11 +70,14 @@ describe('Durchgehender Ablauf für eine unterstützungssuchende Person', () => 
     expect(summary.speechText.length).toBeGreaterThan(0);
 
     // 4. Zwei aktive Bestätigungen machen die Buchung verbindlich
-    let confirmed = await service.confirmBooking(booking.id, 'u_seeker_1');
-    expect(confirmed.status).toBe('proposed');
-    confirmed = await service.confirmBooking(booking.id, top.match.providerId);
-    expect(confirmed.status).toBe('confirmed');
-    expect(confirmed.preciseAddressReleased).toBe(true);
+    // Frau Kessler hat eine Begleitung, aber keine Freigabepflicht --
+    // sie entscheidet selbst.
+    const ersteBestaetigung = await service.confirmBooking(booking.id, 'u_seeker_1');
+    expect(ersteBestaetigung.approval).toBeUndefined();
+    expect(ersteBestaetigung.booking.status).toBe('proposed');
+    const zweiteBestaetigung = await service.confirmBooking(booking.id, top.match.providerId);
+    expect(zweiteBestaetigung.booking.status).toBe('confirmed');
+    expect(zweiteBestaetigung.booking.preciseAddressReleased).toBe(true);
 
     // Die Anfrage ist jetzt gebucht.
     expect((await data.requests.get(request.id))?.status).toBe('booked');

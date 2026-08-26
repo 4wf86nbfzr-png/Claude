@@ -156,6 +156,7 @@ export default function RequestWizard() {
       {step.key === 'when' ? (
         <View style={{ gap: theme.spacing.l }}>
           <TextField
+            testID="feld-zeitpunkt"
             label="Tag und Uhrzeit"
             hint="Zum Beispiel: 2026-03-04 10:00. Sie können auch die Spracheingabe nutzen."
             value={draft.startsAt ?? ''}
@@ -211,6 +212,7 @@ export default function RequestWizard() {
             geben Sie erst frei, wenn ein Termin fest steht.
           </Callout>
           <TextField
+            testID="feld-ort"
             label="Ort"
             value={draft.region?.city ?? ''}
             autoComplete="off"
@@ -228,6 +230,7 @@ export default function RequestWizard() {
             {...(errorFor('region') ? { error: errorFor('region')! } : {})}
           />
           <TextField
+            testID="feld-postleitzahl"
             label="Erste Ziffern Ihrer Postleitzahl"
             hint="Zwei oder drei Ziffern genügen, zum Beispiel 221."
             keyboardType="number-pad"

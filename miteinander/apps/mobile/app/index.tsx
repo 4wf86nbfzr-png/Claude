@@ -17,12 +17,15 @@ import { DgsAbschnitt } from '../src/components/DgsAbschnitt';
 export default function StartScreen() {
   const router = useRouter();
   const theme = useTheme();
-  const { prefs, setMode, dgs, easy } = useAppState();
+  const { prefs, setMode, setCurrentUserId, easy } = useAppState();
   const { speak, speaking, stop } = useReadAloud(prefs);
 
   const seek = easy.resolve('home.seek', 'Jemand hilft Ihnen im Alltag.');
   const offer = easy.resolve('home.offer', 'Sie möchten anderen Menschen helfen.');
-  const assisted = easy.resolve('home.assisted', 'Eine Person hilft Ihnen beim Bedienen der App.');
+  const responsible = easy.resolve(
+    'home.responsible',
+    'Sie kümmern sich um einen Menschen.\nSie sehen, was los ist.\nSie sagen Ja oder Nein.',
+  );
 
   return (
     <Screen
@@ -38,6 +41,8 @@ export default function StartScreen() {
       </Text>
 
       <View style={{ gap: theme.spacing.l }}>
+        {/* Oben und am größten: der Zugang für Menschen, die Hilfe suchen.
+            Für sie muss die App vor allem eines sein -- leicht. */}
         <ChoiceCard
           testID="choice-seek"
           title="Ich suche Unterstützung"
@@ -46,39 +51,53 @@ export default function StartScreen() {
           icon={<Text variant="display" accessibilityElementsHidden>🤝</Text>}
           onPress={() => {
             setMode('seek');
+            setCurrentUserId('u_seeker_1');
             router.push('/suchen/anfrage');
           }}
           onSpeak={speak}
-          signLanguageAvailable={dgs.isApproved('onboarding.mode_choice')}
-          onOpenSignLanguage={() => router.push('/hilfe')}
         />
 
         <ChoiceCard
           testID="choice-offer"
           title="Ich biete Unterstützung an"
-          description="Sie möchten andere Menschen begleiten – beruflich oder ehrenamtlich."
+          description="Sie begleiten Menschen im Alltag – als Fachkraft, Alltagsbegleitung oder ehrenamtlich."
           easyDescription={offer.text}
           icon={<Text variant="display" accessibilityElementsHidden>💛</Text>}
           onPress={() => {
             setMode('offer');
+            setCurrentUserId('u_provider_1');
             router.push('/anbieten/onboarding');
           }}
           onSpeak={speak}
         />
 
         <ChoiceCard
-          testID="choice-assisted"
-          title="Jemand unterstützt mich bei der Bedienung"
-          description="Eine Person Ihres Vertrauens richtet die App gemeinsam mit Ihnen ein."
-          easyDescription={assisted.text}
-          icon={<Text variant="display" accessibilityElementsHidden>👥</Text>}
+          testID="choice-responsible"
+          title="Ich bin verantwortlich für eine Person"
+          description="Sie richten die App für jemanden ein, behalten den Überblick und geben frei, was vereinbart wurde."
+          easyDescription={responsible.text}
+          icon={<Text variant="display" accessibilityElementsHidden>🧭</Text>}
           onPress={() => {
-            setMode('assisted');
-            router.push('/vertrauenspersonen');
+            setMode('responsible');
+            setCurrentUserId('u_trusted_2');
+            router.push('/verantwortlich');
           }}
           onSpeak={speak}
         />
       </View>
+
+      {/* Kein vierter Kasten: wer nur beim Bedienen Hilfe braucht, findet
+          das hier als ruhigen Nebenweg. */}
+      <Button
+        label="Jemand hilft mir beim Bedienen"
+        variant="quiet"
+        onPress={() => {
+          setMode('assisted');
+          setCurrentUserId('u_seeker_1');
+          router.push('/vertrauenspersonen');
+        }}
+        accessibilityHint="Eine Person Ihres Vertrauens richtet die App gemeinsam mit Ihnen ein."
+      />
 
       {seek.notice ? <Callout tone="info" title="Hinweis zu den Texten">{seek.notice}</Callout> : null}
 

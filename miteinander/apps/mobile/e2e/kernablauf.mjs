@@ -51,7 +51,7 @@ await page.waitForTimeout(300);
 await weiter();
 
 // Schritt 2: Wann
-await page.getByLabel('Tag und Uhrzeit').fill('2026-09-04T10:00:00.000Z');
+await page.getByTestId('feld-zeitpunkt').fill('2026-09-04T10:00:00.000Z');
 await page.getByRole('button', { name: '1.5 Std.', exact: true }).click().catch(async () => {
   await page.getByRole('button', { name: '2 Std.', exact: true }).click();
 });
@@ -61,8 +61,8 @@ let body = await page.innerText('body');
 check('Schritt 3 erreicht (Ort)', body.includes('Schritt 3 von 5'));
 
 // Schritt 3: Wo
-await page.getByLabel('Ort').fill('Hamburg');
-await page.getByLabel('Erste Ziffern Ihrer Postleitzahl').fill('221');
+await page.getByTestId('feld-ort').fill('Hamburg');
+await page.getByTestId('feld-postleitzahl').fill('221');
 await page.waitForTimeout(300);
 await weiter();
 

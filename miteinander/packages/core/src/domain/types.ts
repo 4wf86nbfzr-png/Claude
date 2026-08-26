@@ -1,5 +1,8 @@
 import type { Untertitelzeile } from '../content/untertitel.js';
 import type {
+  ApprovalKind,
+  ApprovalLegalBasis,
+  ApprovalStatus,
   BookingStatus,
   CommunicationMode,
   ConsentPurpose,
@@ -355,12 +358,60 @@ export interface TrustedAccessGrant {
   seekerId: Id;
   trustedPersonId: Id;
   scopes: TrustedScope[];
+  /**
+   * Stufe der Verantwortung.
+   *
+   * "begleitung"   -- unterstuetzt beim Bedienen, sieht was freigegeben ist,
+   *                   entscheidet aber nichts.
+   * "verantwortung" -- muss zusaetzlich die unten benannten Handlungen
+   *                   freigeben, bevor sie wirksam werden.
+   */
+  responsibilityLevel: 'begleitung' | 'verantwortung';
+  /** Handlungen, die diese Person freigeben muss. Leer bei "begleitung". */
+  approvalRequired: ApprovalKind[];
+  /** Worauf sich die Freigabepflicht stuetzt. Null, wenn keine besteht. */
+  approvalLegalBasis?: ApprovalLegalBasis | null;
+  /** Aktenzeichen des Betreuungsgerichts -- Pflicht bei "court_ordered". */
+  courtReference?: string | null;
   /** Immer widerrufbar, immer sichtbar. */
   createdAt: IsoDateTime;
   expiresAt?: IsoDateTime | null;
   revokedAt?: IsoDateTime | null;
-  /** Rechtliche Grundlage, falls Betreuung besteht. */
+  /** Rechtliche Grundlage im Klartext, falls Betreuung besteht. */
   legalBasisNote?: string | null;
+}
+
+/**
+ * Eine einzelne Freigabeanfrage.
+ *
+ * Grundsaetze, die im Zustandsautomaten durchgesetzt werden:
+ *  - Es gibt keine stille Zustimmung durch Zeitablauf.
+ *  - Es gibt keine stille Ablehnung. Ohne Antwort bleibt der Fall offen und
+ *    sichtbar, und es wird erinnert.
+ *  - Die unterstuetzungssuchende Person sieht jede Freigabeanfrage, die sie
+ *    betrifft, samt Stand und zustaendiger Person.
+ *  - Eine Ablehnung braucht eine Begruendung.
+ */
+export interface ApprovalRequest {
+  id: Id;
+  seekerId: Id;
+  responsibleId: Id;
+  kind: ApprovalKind;
+  /** Anfrage, Buchung oder Zahlung, um die es geht. */
+  subjectId: Id;
+  status: ApprovalStatus;
+  /** Kurzfassung fuer die Anzeige. Ohne sensible Angaben. */
+  summary: string;
+  /** Dieselbe Kurzfassung in Leichter Sprache. */
+  easySummary: string;
+  createdAt: IsoDateTime;
+  /** Bis wann eine Antwort erwartet wird. Danach wird erinnert, nichts sonst. */
+  respondBy: IsoDateTime;
+  decidedAt?: IsoDateTime | null;
+  decidedBy?: Id | null;
+  /** Pflicht bei einer Ablehnung -- die Person hat ein Recht auf den Grund. */
+  reason?: string | null;
+  remindedAt?: IsoDateTime | null;
 }
 
 export type TrustedScope =

@@ -69,6 +69,26 @@ eingezogen. Beides ist in der Anwendung und in der Datenbank durchgesetzt.
 Die Verwaltung sieht ohne dokumentierte Freigabe nur Anzeigename und Region –
 und auch mit Freigabe nie die besonders geschützten Bedarfsangaben.
 
+## Was eine verantwortliche Person sieht
+
+Der Überblick ist auf die erteilte Berechtigung begrenzt: Name, nächster
+Termin, Anzahl offener Anfragen, offene Freigaben. **Keine** Nachrichteninhalte,
+keine Gesundheitsangaben, keine Adresse – es sei denn, die Person hat genau
+das freigegeben.
+
+Entscheidend ist der Gegenpol: Unter „Wer entscheidet mit" sieht die betroffene
+Person jederzeit, wer welchen Einblick hat und welche Freigabe gerade bei wem
+liegt. Ohne diesen Bildschirm wäre die Übersicht eine heimliche Beobachtung.
+
+| Datenart | Wer sie sieht | Rechtsgrundlage (Einschätzung) |
+| --- | --- | --- |
+| Freigabeanfrage mit Kurzfassung | Die Person selbst und die benannte verantwortliche Person | Art. 6 Abs. 1 lit. b, bei Betreuung lit. c |
+| Begründung einer Ablehnung | Beide | Art. 6 Abs. 1 lit. b |
+| Aktenzeichen des Betreuungsgerichts | Beide und die Verwaltung | Art. 6 Abs. 1 lit. c |
+
+Die Kurzfassung einer Freigabe enthält bewusst keine sensiblen Angaben – die
+Push-Vorschau erst recht nicht („Eine Freigabe wartet auf Sie").
+
 ## Datensparsamkeit im Detail
 
 - Koordinaten werden vor dem Speichern auf zwei Nachkommastellen gerundet.
@@ -135,3 +155,8 @@ weitergeben.
 5. Verfahren für Datenschutzverletzungen (Art. 33/34).
 6. Datenschutzhinweise in normaler **und** in Leichter Sprache, mit einer
    geprüften Fassung in Gebärdensprache.
+7. **Rechtliche Prüfung des Freigabe-Konstrukts.** Eine Freigabepflicht greift
+   in die Selbstbestimmung ein. Zu klären: Wie wird ein gerichtlicher
+   Einwilligungsvorbehalt belegt? Was gilt, wenn eine verantwortliche Person
+   dauerhaft nicht antwortet? Wie sieht der Beschwerdeweg der betroffenen
+   Person aus?

@@ -3,12 +3,10 @@ import {
   EasyLanguageRegistry,
   createCounterIds,
   createMemoryContext,
-  demoSeed,
+  createDemoSeed,
   expiringSoon,
   incidentFromReport,
-  fixedClock,
   systemClock,
-  DEMO_NOW,
   triageOrder,
   SupportService,
   type Clock,
@@ -19,16 +17,13 @@ import {
 /**
  * Zeitquelle.
  *
- * Im Demo-Modus rechnet der Adminbereich auf dem Zeitpunkt des Datenstands.
- * Mit der echten Uhr waeren die Demo-Daten sonst unsinnig -- ein Nachweis,
- * der im Datenstand "laeuft bald ab" bedeutet, waere nach ein paar Monaten
- * einfach abgelaufen und die Uebersicht zeigte nichts mehr.
- * Sobald der Supabase-Adapter angebunden ist, gilt hier wieder systemClock.
+ * Immer die echte Uhr. Die Demo-Daten werden zu genau diesem Zeitpunkt
+ * aufgebaut (createDemoSeed), damit Fristen und Ablaufdaten stimmen --
+ * frueher stand hier ein eingefrorener Zeitpunkt, weil der Datenstand
+ * feste Datumsangaben trug.
  */
-const DEMO_MODE = true;
-
 export function clock(): Clock {
-  return DEMO_MODE ? fixedClock(DEMO_NOW) : systemClock;
+  return systemClock;
 }
 
 /**
@@ -44,7 +39,7 @@ let easyRegistry: EasyLanguageRegistry | null = null;
 
 export function db(): DataContext {
   if (!context) {
-    context = createMemoryContext(demoSeed);
+    context = createMemoryContext(createDemoSeed(systemClock.now()));
     // Eine Beispielmeldung, damit der Vorfallbereich nicht leer wirkt.
     const now = clock().now();
     const report: Report = {

@@ -25,6 +25,29 @@ Eine Vertrauensperson erhält Rechte **nur** über einen `TrustedAccessGrant` mi
 ausdrücklich gewählten Bereichen. Der Zugang ist jederzeit widerrufbar; nach dem
 Widerruf sind alle Rechte sofort weg. Ein Ablaufdatum ist möglich.
 
+### Zwei Stufen: Begleitung und Verantwortung
+
+| Stufe | Was sie darf |
+| --- | --- |
+| `begleitung` | Beim Bedienen helfen, sehen was freigegeben ist. **Entscheidet nichts.** Voreinstellung. |
+| `verantwortung` | Zusätzlich benannte Handlungen freigeben, bevor sie wirksam werden. |
+
+Eine Freigabepflicht braucht eine von zwei Grundlagen – eigener Wunsch der
+Person oder gerichtlicher Einwilligungsvorbehalt (§ 1825 BGB, mit
+Aktenzeichen). Ohne Grundlage lässt sich die Berechtigung nicht speichern:
+`validateGrant` wirft, und drei Prüfbedingungen in `trusted_access_grants`
+fangen es auch bei direktem Datenbankzugriff ab.
+
+Regeln des Freigabe-Ablaufs (`packages/core/src/security/approvals.ts`):
+
+- Entscheiden darf nur die benannte Person. Niemand gibt sich selbst frei.
+- Eine Ablehnung ohne Begründung wird abgelehnt.
+- Zeitablauf entscheidet nichts – weder zu noch ab. Es wird erinnert.
+- Zurückziehen kann nur die Person, um deren Anliegen es geht. Immer.
+- Eine Freigabe ersetzt keine Bestätigung: die Person handelt weiterhin selbst.
+- Die betroffene Person sieht jede Freigabe, die sie betrifft, samt Stand und
+  zuständiger Person. Es gibt keine, von der sie nichts weiß.
+
 ## Vier-Augen-Prinzip
 
 Zwei Handlungen brauchen zwei verschiedene berechtigte Personen:

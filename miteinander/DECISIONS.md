@@ -362,6 +362,103 @@ dem Start zu dokumentieren (siehe `LAUNCH_CHECKLIST.md`).
 
 ---
 
+## E-27 Eine Freigabepflicht braucht eine Grundlage
+
+**Entscheidung:** Eine verantwortliche Person kann Handlungen freigeben – aber
+nur, wenn dafür eine von genau zwei Grundlagen hinterlegt ist: der eigene
+Wunsch der Person, oder ein gerichtlicher Einwilligungsvorbehalt nach § 1825
+BGB mit Aktenzeichen. Ohne Grundlage speichert die App gar nichts.
+
+**Warum:** Ein volljähriger Mensch mit Geschäftsfähigkeit braucht niemandes
+Zustimmung. Eine Freigabepflicht ohne Grundlage wäre schlicht eine
+Bevormundung – und rechtlich unwirksam. Wer die App für jemanden einrichtet,
+handelt oft gut gemeint; genau deshalb muss das Produkt hier die Grenze
+ziehen, nicht die Person am Bildschirm.
+
+**Folge:** Eine selbst gewünschte Freigabepflicht kann die Person jederzeit
+allein beenden. Einen gerichtlichen Vorbehalt nicht – dafür ist das
+Betreuungsgericht zuständig, und die App sagt das auch so.
+
+**Doppelt abgesichert:** `validateGrant` in der Anwendung und drei
+Prüfbedingungen in `trusted_access_grants`.
+
+---
+
+## E-28 Keine stille Zustimmung durch Zeitablauf
+
+**Entscheidung:** Läuft die Antwortfrist ab, passiert nichts. Der Vorgang
+bleibt offen, wird als überfällig angezeigt und erinnert.
+
+**Warum nicht automatisch zustimmen:** Dann wäre die Freigabe wertlos – und
+eine schweigende Person hätte einer Buchung zugestimmt, die sie nie gesehen
+hat.
+
+**Warum nicht automatisch ablehnen:** Dann könnte jemand ein Anliegen
+blockieren, indem er einfach nicht reagiert. Die Person würde nie erfahren,
+warum. Also: sichtbar offen halten, erinnern, und die betroffene Person kann
+selbst nachfragen oder zurückziehen.
+
+---
+
+## E-29 Eine Ablehnung braucht eine Begründung
+
+**Entscheidung:** Ohne Begründungstext lässt sich nicht ablehnen – in der
+Oberfläche ist die Schaltfläche gesperrt, in der Anwendung wirft es, in der
+Datenbank steht eine Prüfbedingung.
+
+**Warum:** Wer für einen anderen Menschen entscheidet, schuldet ihm eine
+Erklärung. Ein wortloses Nein ist die Form von Fürsorge, die Menschen klein
+hält.
+
+---
+
+## E-30 Eine Freigabe ersetzt keine Entscheidung
+
+**Entscheidung:** Nach der Zustimmung ist der Termin nicht gebucht. Die Person
+bestätigt weiterhin selbst – die Freigabe macht das nur möglich.
+
+**Warum:** Sonst würde die verantwortliche Person an ihrer Stelle handeln. Der
+Unterschied ist klein im Code und groß im Leben.
+
+---
+
+## E-31 Der Überblick für Verantwortliche ist nicht heimlich
+
+**Entscheidung:** Alles, was eine verantwortliche Person sieht, sieht die
+betroffene Person in ihrer eigenen App unter „Wer entscheidet mit" – samt
+Umfang der Berechtigung und Stand jeder Freigabe.
+
+**Warum:** Ohne diesen Gegenpol wäre die Übersicht eine Beobachtung. Der
+Auftrag war „Überblick, was beim Klienten passiert" – nicht Überwachung. Der
+Unterschied ist, dass die beobachtete Person es weiß und ändern kann.
+
+---
+
+## E-32 Zwei Ansprüche an die Oberfläche, ein Anspruch an die Haltung
+
+**Entscheidung:** Der Bereich für Verantwortliche darf dichter sein –
+Listen, Kennzahlen, mehrere Klienten. Der Bereich für Menschen mit
+Unterstützungsbedarf bleibt bei einem Hauptschritt pro Ansicht.
+
+**Was NICHT unterschiedlich ist:** Tippflächen, Kontrast, Vorlesen,
+Gebärdensprache, Fokus. Eine verantwortliche Person kann selbst
+Unterstützungsbedarf haben. „Umfangreicher" heißt mehr Inhalt, nicht weniger
+Barrierefreiheit.
+
+---
+
+## E-33 Demo-Daten werden zur Laufzeit aufgebaut
+
+**Entscheidung:** `createDemoSeed(jetzt)` erzeugt den Datenstand relativ zum
+übergebenen Zeitpunkt. Tests übergeben `DEMO_NOW`, die Apps die echte Uhr.
+
+**Warum:** Vorher standen feste Datumsangaben im Datenstand. Nach ein paar
+Wochen wirkte eine frische Demo kaputt – eine offene Freigabe war sofort
+„überfällig", ein gültiger Nachweis abgelaufen. Aufgefallen zweimal: erst im
+Adminbereich, dann im Browser-Test der Freigaben.
+
+---
+
 ## Offene Entscheidungen
 
 | Nummer | Frage | Wer entscheidet |
@@ -374,3 +471,5 @@ dem Start zu dokumentieren (siehe `LAUNCH_CHECKLIST.md`).
 | O-06 | Zahlungsdienstleister und Abrechnung über Kostenträger | Produkt + Recht |
 | O-07 | Wer prüft Leichte Sprache, wer produziert die DGS-Videos | Produkt |
 | O-08 | Betrieb des Sicherheitsteams: Zeiten, Besetzung, Eskalation | Betrieb |
+| O-09 | Wie wird geprüft, dass ein gerichtlicher Einwilligungsvorbehalt echt ist? Aktenzeichen allein belegt nichts | Recht + Betrieb |
+| O-10 | Was passiert, wenn eine verantwortliche Person dauerhaft nicht antwortet? Vertretung, Eskalation, Beschwerdeweg | Recht + Betrieb |

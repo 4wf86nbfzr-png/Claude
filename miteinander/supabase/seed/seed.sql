@@ -80,7 +80,9 @@ insert into users (id, display_name, email, age_confirmed_adult) values
   ('22222222-2222-4222-8222-000000000001', 'Meike (Demo)', 'demo.meike@example.invalid', true),
   ('22222222-2222-4222-8222-000000000002', 'Tarek (Demo)', 'demo.tarek@example.invalid', true),
   ('22222222-2222-4222-8222-000000000003', 'Bettina (Demo)', 'demo.bettina@example.invalid', true),
+  ('11111111-1111-4111-8111-000000000003', 'Herr Naumann (Demo)', 'demo.naumann@example.invalid', true),
   ('33333333-3333-4333-8333-000000000001', 'Herr Kessler (Demo)', 'demo.kessler.sohn@example.invalid', true),
+  ('33333333-3333-4333-8333-000000000002', 'Frau Naumann (Demo)', 'demo.naumann.tochter@example.invalid', true),
   ('44444444-4444-4444-8444-000000000001', 'Prüfstelle A (Demo)', 'demo.pruefung.a@example.invalid', true),
   ('44444444-4444-4444-8444-000000000002', 'Verwaltung (Demo)', 'demo.verwaltung@example.invalid', true)
 on conflict (id) do nothing;
@@ -91,7 +93,9 @@ insert into user_roles (user_id, role) values
   ('22222222-2222-4222-8222-000000000001', 'provider'),
   ('22222222-2222-4222-8222-000000000002', 'provider'),
   ('22222222-2222-4222-8222-000000000003', 'provider'),
+  ('11111111-1111-4111-8111-000000000003', 'support_seeker'),
   ('33333333-3333-4333-8333-000000000001', 'trusted_person'),
+  ('33333333-3333-4333-8333-000000000002', 'trusted_person'),
   ('44444444-4444-4444-8444-000000000001', 'reviewer'),
   ('44444444-4444-4444-8444-000000000002', 'admin')
 on conflict do nothing;
@@ -218,8 +222,38 @@ from unnest(array[
 ]) u
 cross join unnest(array['terms', 'privacy']::consent_purpose[]) p;
 
--- Vertrauensperson mit eng gefassten Rechten
-insert into trusted_access_grants (seeker_id, trusted_person_id, scopes, legal_basis_note) values
+-- Begleitung: hilft beim Bedienen, entscheidet nichts.
+insert into trusted_access_grants
+  (seeker_id, trusted_person_id, scopes, responsibility_level, legal_basis_note)
+values
   ('11111111-1111-4111-8111-000000000001', '33333333-3333-4333-8333-000000000001',
    array['view_profile', 'create_requests', 'read_messages']::trusted_scope[],
+   'begleitung',
    'Auf ausdrücklichen Wunsch von Frau Kessler. Keine gesetzliche Betreuung.');
+
+-- Verantwortung: gibt Termine und Zahlungen frei -- auf eigenen Wunsch der
+-- Person. Sie kann das jederzeit allein wieder beenden.
+insert into trusted_access_grants
+  (seeker_id, trusted_person_id, scopes, responsibility_level, approval_required,
+   approval_legal_basis, legal_basis_note)
+values
+  ('11111111-1111-4111-8111-000000000003', '33333333-3333-4333-8333-000000000002',
+   array['view_profile', 'create_requests', 'read_messages', 'confirm_bookings']::trusted_scope[],
+   'verantwortung',
+   array['booking', 'payment']::approval_kind[],
+   'client_wish',
+   'Herr Naumann hat seine Tochter selbst darum gebeten. Keine gesetzliche Betreuung, kein Einwilligungsvorbehalt.');
+
+insert into support_seeker_profiles
+  (user_id, postal_prefix, city, approx_lat, approx_lon, about_me, languages,
+   communication_modes, shared_before_booking)
+values
+  ('11111111-1111-4111-8111-000000000003', '221', 'Hamburg', 53.55, 10.00,
+   'Ich bin 81 und war früher Tischler.',
+   array['Deutsch'], array['sprechen', 'leichte_sprache']::communication_mode[],
+   array['displayName', 'region', 'communicationModes'])
+on conflict (user_id) do nothing;
+
+insert into consents (user_id, purpose, granted, policy_version, granted_at, channel)
+select '11111111-1111-4111-8111-000000000003'::uuid, p, true, '2026-01-01', now(), 'tap'
+from unnest(array['terms', 'privacy', 'location_coarse', 'contact_release']::consent_purpose[]) p;

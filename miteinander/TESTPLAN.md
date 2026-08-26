@@ -202,7 +202,29 @@ Testdaten: `supabase/seed/seed.sql`. Alle Konten sind an „(Demo)" erkennbar.
 - [ ] Die private Rückmeldung ist von der öffentlichen Bewertung getrennt.
 - [ ] Notrufnummern sind mit einem Tipp erreichbar.
 
-### H6 Vertrauensperson
+### H6 Verantwortliche Personen
+
+- [ ] Die Startseite führt in drei Richtungen; Hilfesuchende stehen oben.
+- [ ] Beim Einrichten ist „Begleitung" voreingestellt.
+- [ ] Eine Freigabepflicht lässt sich ohne Grundlage nicht speichern.
+- [ ] Ein gerichtlicher Einwilligungsvorbehalt verlangt das Aktenzeichen.
+- [ ] Die Einrichtung verlangt die Bestätigung, dass die Person dabei ist.
+- [ ] Eine offene Freigabe erscheint in der Übersicht mit Frist.
+- [ ] Ablehnen ohne Begründung ist gesperrt.
+- [ ] Nach Zustimmung ist der Termin **noch nicht** gebucht – die Person
+      bestätigt selbst.
+- [ ] Nach Ablehnung sieht die Person die Begründung im Wortlaut.
+- [ ] Ohne Antwort passiert nichts: der Vorgang bleibt offen, wird als
+      überfällig angezeigt.
+- [ ] Die Person sieht unter „Wer entscheidet mit" jede offene Freigabe.
+- [ ] Sie kann ihr eigenes Anliegen jederzeit zurückziehen.
+- [ ] Eine selbst gewünschte Freigabepflicht kann sie allein beenden.
+- [ ] Ein gerichtlicher Vorbehalt lässt sich nicht allein beenden, und die App
+      erklärt warum.
+- [ ] Der Bereich für Verantwortliche ist mit Screenreader und großer Schrift
+      genauso bedienbar wie der übrige Teil.
+
+### H7 Vertrauensperson
 
 - [ ] Die suchende Person sieht jederzeit, was erlaubt ist.
 - [ ] Ein Widerruf wirkt sofort.

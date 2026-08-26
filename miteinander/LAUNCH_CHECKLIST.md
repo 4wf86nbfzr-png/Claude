@@ -14,6 +14,11 @@ Nichts hiervon ist optional. Punkte mit **[Sperre]** verhindern den Start.
       und sozialversicherungsrechtliche Einordnung. Der Prüfprozess ist
       konfigurierbar angelegt und wartet auf diese Festlegung.
 - [ ] **[Sperre]** Klärung, ob das Produkt unter das BFSG fällt, und ab wann.
+- [ ] **[Sperre]** Rechtliche Prüfung des Freigabe-Konstrukts: Wie wird ein
+      gerichtlicher Einwilligungsvorbehalt (§ 1825 BGB) belegt – ein
+      Aktenzeichen allein beweist nichts? Was gilt bei dauerhaftem Schweigen
+      der verantwortlichen Person? Welcher Beschwerdeweg steht der betroffenen
+      Person offen?
 - [ ] Verzeichnis von Verarbeitungstätigkeiten (Art. 30).
 - [ ] Auftragsverarbeitungsverträge mit allen Dienstleistern.
 - [ ] Verfahren für Datenschutzverletzungen (Art. 33/34), erprobt.
@@ -51,7 +56,9 @@ Nichts hiervon ist optional. Punkte mit **[Sperre]** verhindern den Start.
 ## 3. Sicherheit und Schutz
 
 - [ ] **[Sperre]** Schriftliches Schutzkonzept, geprüft von einer Fachperson für
-      Gewaltschutz in der Eingliederungshilfe.
+      Gewaltschutz in der Eingliederungshilfe. Ausdrücklich mit zu prüfen:
+      der Missbrauch der Verantwortlichen-Rolle. Wer für einen Menschen
+      verantwortlich ist, hat Macht über ihn.
 - [ ] **[Sperre]** Sicherheitsteam besetzt: Zeiten, Vertretung, Eskalationsweg.
       Ohne Besetzung sind die Bearbeitungszusagen (1 Stunde bei kritischen
       Fällen) nicht haltbar.

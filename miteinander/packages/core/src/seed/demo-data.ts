@@ -1,4 +1,5 @@
 import type { MemorySeed } from '../data/memory/memory-context';
+import type { IsoDateTime } from '../domain/types';
 import { createDefaultPreferences } from '../a11y/preferences';
 
 /**
@@ -10,11 +11,24 @@ import { createDefaultPreferences } from '../a11y/preferences';
  * die Bedarfe sind alltagsnah und bewusst unspezifisch formuliert.
  */
 
-const NOW = '2026-03-02T09:00:00.000Z';
+export const DEMO_NOW = '2026-03-02T09:00:00.000Z';
 
-export const DEMO_NOW = NOW;
+/**
+ * Demo-Daten zu einem bestimmten Zeitpunkt.
+ *
+ * Warum als Funktion und nicht als feste Tabelle: Ein Datenstand mit
+ * eingefrorenen Datumsangaben wirkt schon nach wenigen Wochen kaputt --
+ * eine offene Freigabe waere sofort "ueberfaellig", ein gueltiger Nachweis
+ * abgelaufen. Die App reicht deshalb die echte Uhrzeit herein, die Tests
+ * den festen Zeitpunkt DEMO_NOW.
+ */
+export function createDemoSeed(jetzt: IsoDateTime = DEMO_NOW): MemorySeed {
+  const NOW = jetzt;
+  const basis = new Date(jetzt).getTime();
+  const inTagen = (tage: number) => new Date(basis + tage * 86_400_000).toISOString().slice(0, 10);
+  const inStunden = (stunden: number) => new Date(basis + stunden * 3_600_000).toISOString();
 
-export const demoSeed: MemorySeed = {
+  return {
   users: [
     {
       id: 'u_seeker_1',
@@ -57,6 +71,24 @@ export const demoSeed: MemorySeed = {
       displayName: 'Bettina (Demo)',
       email: 'demo.bettina@example.invalid',
       roles: ['provider'],
+      createdAt: NOW,
+      ageConfirmedAdult: true,
+      locale: 'de-DE',
+    },
+    {
+      id: 'u_seeker_3',
+      displayName: 'Herr Naumann (Demo)',
+      email: 'demo.naumann@example.invalid',
+      roles: ['support_seeker'],
+      createdAt: NOW,
+      ageConfirmedAdult: true,
+      locale: 'de-DE',
+    },
+    {
+      id: 'u_trusted_2',
+      displayName: 'Frau Naumann (Demo)',
+      email: 'demo.naumann.tochter@example.invalid',
+      roles: ['trusted_person'],
       createdAt: NOW,
       ageConfirmedAdult: true,
       locale: 'de-DE',
@@ -109,6 +141,21 @@ export const demoSeed: MemorySeed = {
         city: 'Hamburg',
       },
       phone: '+49 40 000000 (Demo)',
+      updatedAt: NOW,
+    },
+    {
+      userId: 'u_seeker_3',
+      region: { postalPrefix: '221', city: 'Hamburg', approxLat: 53.55, approxLon: 10.0 },
+      supportNeeds: ['Ich möchte einmal in der Woche spazieren gehen.'],
+      mobilityNotes: 'Ich gehe langsam und brauche Pausen.',
+      communicationModes: ['sprechen', 'leichte_sprache'],
+      languages: ['Deutsch'],
+      sharedBeforeBooking: ['displayName', 'region', 'communicationModes'],
+      aboutMe: 'Ich bin 81 und war früher Tischler.',
+      photoUrl: null,
+      photoAltText: null,
+      preciseAddress: null,
+      phone: null,
       updatedAt: NOW,
     },
     {
@@ -301,7 +348,7 @@ export const demoSeed: MemorySeed = {
       decidedBy: 'u_reviewer_1',
       secondApproverId: null,
       // Laeuft demnaechst ab -- zeigt im Adminbereich die Erinnerung.
-      validUntil: '2026-03-20',
+      validUntil: inTagen(18),
       rejectionReason: null,
       documentPath: null,
     },
@@ -355,8 +402,8 @@ export const demoSeed: MemorySeed = {
     {
       id: 'abs_1',
       providerId: 'u_provider_1',
-      from: '2026-04-01',
-      to: '2026-04-14',
+      from: inTagen(30),
+      to: inTagen(44),
       reason: 'Urlaub',
     },
   ],
@@ -413,14 +460,58 @@ export const demoSeed: MemorySeed = {
 
   trust: [
     {
+      // Begleitung: hilft beim Bedienen, entscheidet nichts.
       id: 'trust_1',
       seekerId: 'u_seeker_1',
       trustedPersonId: 'u_trusted_1',
       scopes: ['view_profile', 'create_requests', 'read_messages'],
+      responsibilityLevel: 'begleitung',
+      approvalRequired: [],
+      approvalLegalBasis: null,
+      courtReference: null,
       createdAt: NOW,
       expiresAt: null,
       revokedAt: null,
       legalBasisNote: 'Auf ausdrücklichen Wunsch von Frau Kessler. Keine gesetzliche Betreuung.',
+    },
+    {
+      // Verantwortung: gibt Termine und Zahlungen frei -- auf eigenen Wunsch
+      // von Herrn Naumann. Er kann das jederzeit allein wieder beenden.
+      id: 'trust_2',
+      seekerId: 'u_seeker_3',
+      trustedPersonId: 'u_trusted_2',
+      scopes: ['view_profile', 'create_requests', 'read_messages', 'confirm_bookings'],
+      responsibilityLevel: 'verantwortung',
+      approvalRequired: ['booking', 'payment'],
+      approvalLegalBasis: 'client_wish',
+      courtReference: null,
+      createdAt: NOW,
+      expiresAt: null,
+      revokedAt: null,
+      legalBasisNote:
+        'Herr Naumann hat seine Tochter selbst darum gebeten. Keine gesetzliche Betreuung, kein Einwilligungsvorbehalt.',
+    },
+  ],
+
+  // Eine offene Freigabe, damit der Bereich für Verantwortliche nicht leer ist.
+  approvals: [
+    {
+      id: 'appr_demo_1',
+      seekerId: 'u_seeker_3',
+      responsibleId: 'u_trusted_2',
+      kind: 'booking',
+      subjectId: 'book_demo_2',
+      status: 'pending',
+      summary:
+        'Spaziergang am Donnerstag um 10:00 Uhr, 60 Minuten, mit Bettina (Demo). Ehrenamtlich, kostenlos.',
+      easySummary:
+        'Herr Naumann möchte am Donnerstag spazieren gehen.\nMit Bettina.\nEs kostet nichts.',
+      createdAt: NOW,
+      respondBy: inStunden(12),
+      decidedAt: null,
+      decidedBy: null,
+      reason: null,
+      remindedAt: null,
     },
   ],
 
@@ -436,4 +527,8 @@ export const demoSeed: MemorySeed = {
       createdAt: NOW,
     },
   ],
-};
+  };
+}
+
+/** Fester Datenstand fuer Tests. */
+export const demoSeed: MemorySeed = createDemoSeed(DEMO_NOW);

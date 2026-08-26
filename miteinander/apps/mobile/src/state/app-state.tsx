@@ -6,7 +6,7 @@ import {
   createCounterIds,
   createDefaultPreferences,
   createMemoryContext,
-  demoSeed,
+  createDemoSeed,
   resolvePreferences,
   switchMode,
   systemClock,
@@ -29,7 +29,7 @@ import {
  * Supabase-Adapter getauscht; die Oberflaeche bleibt unveraendert.
  */
 
-export type Mode = 'seek' | 'offer' | 'assisted' | null;
+export type Mode = 'seek' | 'offer' | 'responsible' | 'assisted' | null;
 
 interface AppStateValue {
   service: SupportService;
@@ -58,7 +58,11 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const [screenReaderEnabled, setScreenReaderEnabled] = useState(false);
   const [systemReduceMotion, setSystemReduceMotion] = useState(false);
 
-  const [data] = useState<DataContext>(() => createMemoryContext(demoSeed));
+  // Der Datenstand wird zur echten Uhrzeit aufgebaut -- sonst waere eine
+  // offene Freigabe sofort ueberfaellig und ein Nachweis abgelaufen.
+  const [data] = useState<DataContext>(() =>
+    createMemoryContext(createDemoSeed(new Date().toISOString())),
+  );
   const [service] = useState(() => new SupportService(data, systemClock, createCounterIds(1000)));
   const [dgs] = useState(() => new DgsRegistry());
   const [easy] = useState(() => new EasyLanguageRegistry());

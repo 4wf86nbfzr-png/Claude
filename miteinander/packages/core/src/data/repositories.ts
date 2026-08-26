@@ -1,5 +1,6 @@
 import type {
   AbsencePeriod,
+  ApprovalRequest,
   AuditEvent,
   AvailabilitySlot,
   Booking,
@@ -96,6 +97,16 @@ export interface TrustRepository {
   save(grant: TrustedAccessGrant): Promise<TrustedAccessGrant>;
 }
 
+export interface ApprovalRepository {
+  get(id: Id): Promise<ApprovalRequest | undefined>;
+  save(request: ApprovalRequest): Promise<ApprovalRequest>;
+  /** Alles, was diese verantwortliche Person betrifft. */
+  forResponsible(responsibleId: Id): Promise<ApprovalRequest[]>;
+  /** Alles, was diese Person betrifft -- sie sieht immer alles zu sich. */
+  forSeeker(seekerId: Id): Promise<ApprovalRequest[]>;
+  forSubject(subjectId: Id): Promise<ApprovalRequest[]>;
+}
+
 export interface SafetyRepository {
   saveReport(report: Report): Promise<Report>;
   reports(): Promise<Report[]>;
@@ -130,6 +141,7 @@ export interface DataContext {
   consents: ConsentRepository;
   preferences: PreferencesRepository;
   trust: TrustRepository;
+  approvals: ApprovalRepository;
   safety: SafetyRepository;
   reviews: ReviewRepository;
   notifications: NotificationRepository;

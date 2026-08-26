@@ -82,7 +82,27 @@ Plattformvermittlung und Sozialrecht.
 technisch trivial. Was danach passiert, entscheidet über Vertrauen und
 Sicherheit – und das machen Menschen.
 
-## 6. Barrierefreiheit
+## 6. Verantwortliche Personen
+
+**Wer:** Fachperson für rechtliche Betreuung, gemeinsam mit Menschen mit
+Unterstützungsbedarf und mit Angehörigen.
+
+**Was:**
+- Ist der Unterschied zwischen „Begleitung" und „Verantwortung" verständlich –
+  für beide Seiten?
+- Versteht eine Person, was sie erlaubt, wenn sie eine Freigabepflicht
+  einrichtet? Und dass sie sie wieder beenden kann?
+- Sind die Formulierungen im Bereich für Verantwortliche respektvoll? Das Wort
+  „Klient" steht bewusst nicht in der Oberfläche.
+- Was passiert, wenn eine verantwortliche Person ihre Rolle missbraucht –
+  systematisch alles ablehnt, oder schweigt? Ist der Beschwerdeweg auffindbar
+  und nutzbar?
+
+**Warum kein Automat:** Ob eine Freigabe Schutz ist oder Bevormundung,
+entscheidet sich nicht an der Rechtsgrundlage, sondern an der Beziehung. Das
+kann nur ein Mensch beurteilen.
+
+## 7. Barrierefreiheit
 
 **Wer:** Unabhängige Prüfstelle plus Nutzungstests mit Betroffenen.
 
@@ -97,7 +117,7 @@ Sicherheit – und das machen Menschen.
 schwache Kontraste. Sie finden nicht, ob ein Ablauf verständlich ist, ob die
 Reihenfolge der Ansagen Sinn ergibt oder ob jemand nach drei Schritten aufgibt.
 
-## 7. Redaktion
+## 8. Redaktion
 
 **Wer:** Redaktion gemeinsam mit Menschen aus der Zielgruppe.
 

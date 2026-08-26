@@ -19,6 +19,9 @@ Der vertikale Kern läuft durchgehend – von der Anfrage bis zur bestätigten B
 
 | Ablauf | Zustand |
 | --- | --- |
+| Drei Zugänge auf der Startseite: Hilfesuchende, Dienstleister, Verantwortliche | funktionsfähig, getestet |
+| Freigaben durch verantwortliche Personen | funktionsfähig, getestet |
+| Übersicht für Verantwortliche, Transparenz für die betroffene Person | funktionsfähig, getestet |
 | Moduswahl, Bedienhilfen, Einfach-Modus | funktionsfähig |
 | Profil mit feldgenauer Freigabe | funktionsfähig |
 | Anfrage-Assistent mit Entwurfssicherung | funktionsfähig |
@@ -177,6 +180,46 @@ Entscheidungen. Mehr dazu in [`ARCHITECTURE.md`](ARCHITECTURE.md).
 
 ---
 
+## Drei Zugänge, zwei Ansprüche
+
+Die Startseite führt in drei Richtungen. Ganz oben und am größten steht der
+Zugang für Menschen, die Unterstützung suchen.
+
+| Zugang | Anspruch |
+| --- | --- |
+| **Ich suche Unterstützung** | So leicht wie möglich. Ein Schritt pro Ansicht, große Schaltflächen, Vorlesen, Leichte Sprache, Gebärdensprache. |
+| **Ich biete Unterstützung an** | Vollständig, aber sachlich: Leistungsprofil, Nachweise, Auftragsübersicht. |
+| **Ich bin verantwortlich für eine Person** | Darf umfangreicher sein: Überblick über offene Freigaben, Termine und Anfragen der Menschen, für die man da ist. |
+
+Der Bereich für Verantwortliche ist **kein heimlicher Einblick**. Die
+betroffene Person sieht unter „Wer entscheidet mit" jederzeit, wer was sehen
+darf und welche Freigabe gerade bei wem liegt.
+
+### Wann eine Freigabe überhaupt zulässig ist
+
+Ein volljähriger Mensch mit Geschäftsfähigkeit braucht niemandes Zustimmung.
+Eine Freigabepflicht ist deshalb an eine von genau zwei Grundlagen gebunden:
+
+| Grundlage | Wer kann sie beenden |
+| --- | --- |
+| **Eigener Wunsch der Person** | Sie selbst, jederzeit und ohne Begründung. |
+| **Gerichtlicher Einwilligungsvorbehalt** (§ 1825 BGB, mit Aktenzeichen) | Nur das Betreuungsgericht. |
+
+Ohne eines von beidem entscheidet die Person allein. Das ist in der Anwendung
+**und** als Prüfbedingung in der Datenbank abgesichert.
+
+Weitere Regeln, die im Zustandsautomaten durchgesetzt werden:
+
+- **Keine stille Zustimmung durch Zeitablauf.** Wer nicht antwortet, stimmt
+  nicht zu – der Vorgang bleibt offen und sichtbar, und es wird erinnert.
+- **Keine stille Ablehnung.** Eine Ablehnung braucht eine Begründung, die die
+  Person zu lesen bekommt.
+- **Eine Freigabe ersetzt keine Entscheidung.** Nach der Zustimmung bestätigt
+  die Person weiterhin selbst.
+- **Niemand gibt sich selbst frei.**
+- Die Einrichtung findet gemeinsam statt. Es gibt keinen Weg, jemanden ohne
+  sein Wissen zu verwalten.
+
 ## Grundregeln, die nicht verhandelbar sind
 
 1. Erlaubnispflichtige Anfragen (Pflege, Medizinnahes) sehen ausschließlich
@@ -192,3 +235,5 @@ Entscheidungen. Mehr dazu in [`ARCHITECTURE.md`](ARCHITECTURE.md).
    allgemeine Aussage über einen Menschen.
 6. Kein Inhalt wird als „in Gebärdensprache verfügbar" ausgewiesen, bevor er
    produziert und fachlich geprüft ist.
+7. Eine Freigabepflicht gibt es nur mit Grundlage, nie stillschweigend, und
+   die betroffene Person sieht jede Freigabe, die sie betrifft.

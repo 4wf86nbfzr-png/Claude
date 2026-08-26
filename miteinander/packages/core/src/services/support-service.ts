@@ -1,4 +1,5 @@
 import type {
+  ApprovalRequest,
   AuditEvent,
   Booking,
   Conversation,
@@ -13,7 +14,7 @@ import type { Clock, DataContext } from '../data/repositories';
 import { finalizeDraft, type RequestDraft } from '../requests/wizard';
 import { findMatches, type ScoredProvider } from '../matching/matcher';
 import type { ProviderRecord } from '../matching/eligibility';
-import { buildBookingSummary, type ConfirmationSummary } from '../booking/summary';
+import { buildBookingSummary, buildRequestSummary, type ConfirmationSummary } from '../booking/summary';
 import {
   confirmByProvider,
   confirmBySeeker,
@@ -24,6 +25,17 @@ import {
 import { hasActiveConsent, mayProcess } from '../privacy/consent';
 import { redactSeekerProfile, safeNotificationBody, stripSensitive } from '../privacy/visibility';
 import { incidentFromReport, RESPONSE_TARGET_HOURS } from '../security/incidents';
+import {
+  createApprovalRequest,
+  decideApproval,
+  findApprover,
+  isApprovalOverdue,
+  sortForResponsible,
+  statusForSeeker,
+  withdrawApproval,
+} from '../security/approvals';
+import type { ApprovalKind } from '../domain/enums';
+import { APPROVAL_KIND_LABELS } from '../domain/enums';
 import { requirePermission } from '../security/permissions';
 import { getCategory } from '../domain/service-categories';
 
@@ -53,6 +65,18 @@ export class ServiceError extends Error {
     super(message);
     this.name = 'ServiceError';
   }
+}
+
+/**
+ * Ergebnis einer Bestaetigung.
+ *
+ * Steht `approval` darin, ist die Buchung noch nicht bestaetigt: es wartet
+ * die Freigabe einer verantwortlichen Person. Das ist ein normaler Zustand
+ * und kein Fehler -- deshalb kein geworfener Fehler, sondern ein Feld.
+ */
+export interface BookingConfirmationResult {
+  booking: Booking;
+  approval?: ApprovalRequest;
 }
 
 export interface SuggestionView {
@@ -112,6 +136,190 @@ export class SupportService {
   }
 
   /**
+   * Legt eine Freigabeanfrage an, wenn fuer diese Handlung eine
+   * verantwortliche Person benannt ist. Gibt es keine, passiert nichts --
+   * dann entscheidet die Person allein, so wie jeder andere Mensch auch.
+   */
+  private async requestApproval(
+    seekerId: Id,
+    kind: ApprovalKind,
+    subjectId: Id,
+    summary: string,
+    easySummary: string,
+  ): Promise<ApprovalRequest | undefined> {
+    const now = this.clock.now();
+    const grants = await this.data.trust.forSeeker(seekerId);
+    const grant = findApprover(grants, kind, now);
+    if (!grant) return undefined;
+
+    const request = createApprovalRequest(
+      {
+        id: this.ids.next('appr'),
+        seekerId,
+        responsibleId: grant.trustedPersonId,
+        kind,
+        subjectId,
+        summary,
+        easySummary,
+      },
+      now,
+    );
+    await this.data.approvals.save(request);
+
+    // Die Benachrichtigung geht privat an das Geraet der verantwortlichen
+    // Person. Die Vorschau nennt nie den Inhalt.
+    await this.notify(
+      grant.trustedPersonId,
+      'booking',
+      'Eine Freigabe wartet auf Sie',
+      `/verantwortlich/freigaben/${request.id}`,
+    );
+    await this.audit(seekerId, 'approval.requested', 'approval_requests', request.id, {
+      kind,
+      responsible: true,
+    });
+    return request;
+  }
+
+  /** Offene und entschiedene Freigaben zu einem Vorgang. */
+  async approvalsForSubject(subjectId: Id): Promise<ApprovalRequest[]> {
+    return this.data.approvals.forSubject(subjectId);
+  }
+
+  /**
+   * Was die betroffene Person ueber ihre Freigaben sieht.
+   * Es gibt keine Freigabe, von der sie nichts weiss.
+   */
+  async approvalStatusForSeeker(seekerId: Id): Promise<
+    Array<{ request: ApprovalRequest; responsibleName: string } & ReturnType<typeof statusForSeeker>>
+  > {
+    const now = this.clock.now();
+    const eintraege = await this.data.approvals.forSeeker(seekerId);
+    const ergebnis = [];
+    for (const request of eintraege) {
+      const person = await this.data.users.get(request.responsibleId);
+      const name = person?.displayName ?? 'Ihre verantwortliche Person';
+      ergebnis.push({ request, responsibleName: name, ...statusForSeeker(request, name, now) });
+    }
+    return ergebnis;
+  }
+
+  /** Die betroffene Person zieht ihr eigenes Anliegen zurueck. */
+  async withdrawApproval(approvalId: Id, actorId: Id): Promise<ApprovalRequest> {
+    const request = await this.data.approvals.get(approvalId);
+    if (!request) throw new ServiceError('Freigabe nicht gefunden.', 'approval_not_found');
+    const next = withdrawApproval(request, actorId, this.clock.now());
+    await this.data.approvals.save(next);
+    await this.audit(actorId, 'approval.withdrawn', 'approval_requests', next.id, {});
+    return next;
+  }
+
+  /**
+   * Entscheidung einer verantwortlichen Person.
+   *
+   * Bei Zustimmung wird der zugehoerige Vorgang freigeschaltet, bei
+   * Ablehnung zurueckgenommen. Die betroffene Person wird in beiden Faellen
+   * benachrichtigt -- auch bei einer Ablehnung, mit dem Grund.
+   */
+  async decideApproval(
+    approvalId: Id,
+    actorId: Id,
+    entscheidung: 'approved' | 'declined',
+    grund?: string,
+  ): Promise<ApprovalRequest> {
+    const request = await this.data.approvals.get(approvalId);
+    if (!request) throw new ServiceError('Freigabe nicht gefunden.', 'approval_not_found');
+
+    const next = decideApproval(request, {
+      status: entscheidung,
+      actorId,
+      now: this.clock.now(),
+      ...(grund ? { reason: grund } : {}),
+    });
+    await this.data.approvals.save(next);
+
+    if (next.kind === 'support_request') {
+      const anfrage = await this.data.requests.get(next.subjectId);
+      if (anfrage) {
+        await this.data.requests.save({
+          ...anfrage,
+          status: entscheidung === 'approved' ? 'open' : 'withdrawn',
+          updatedAt: this.clock.now(),
+        });
+      }
+    }
+    if (next.kind === 'booking' && entscheidung === 'approved') {
+      // Die Freigabe ersetzt keine Bestaetigung: die Person bestaetigt
+      // weiterhin selbst. Sie kann es jetzt nur eben auch tun.
+      await this.notify(next.seekerId, 'booking', 'Sie können den Termin jetzt bestätigen', `/suchen/termine`);
+    }
+
+    await this.notify(
+      next.seekerId,
+      'booking',
+      entscheidung === 'approved' ? 'Ihre Anfrage wurde freigegeben' : 'Es gibt eine Antwort zu Ihrer Anfrage',
+      '/freigaben',
+    );
+    await this.audit(actorId, `approval.${entscheidung}`, 'approval_requests', next.id, {
+      kind: next.kind,
+    });
+    return next;
+  }
+
+  /**
+   * Ueberblick fuer eine verantwortliche Person.
+   *
+   * Bewusst begrenzt auf das, wofuer die Berechtigung erteilt wurde. Und
+   * bewusst nicht heimlich: die betroffene Person sieht in ihrer eigenen App,
+   * wer was sehen darf.
+   */
+  async overviewForResponsible(responsibleId: Id): Promise<{
+    klienten: Array<{
+      seekerId: Id;
+      name: string;
+      stufe: 'begleitung' | 'verantwortung';
+      freigabepflichten: string[];
+      offeneFreigaben: number;
+      naechsterTermin: Booking | undefined;
+      offeneAnfragen: number;
+    }>;
+    offeneFreigaben: ApprovalRequest[];
+    ueberfaellig: number;
+  }> {
+    const now = this.clock.now();
+    const grants = (await this.data.trust.forTrustedPerson(responsibleId)).filter(
+      (g) => !g.revokedAt && (!g.expiresAt || g.expiresAt > now),
+    );
+    const alleFreigaben = await this.data.approvals.forResponsible(responsibleId);
+    const offen = sortForResponsible(alleFreigaben, now);
+
+    const klienten = [];
+    for (const grant of grants) {
+      const person = await this.data.users.get(grant.seekerId);
+      const termine = (await this.data.bookings.forUser(grant.seekerId))
+        .filter((b) => b.status === 'confirmed' && b.startsAt > now)
+        .sort((a, b) => a.startsAt.localeCompare(b.startsAt));
+      const anfragen = await this.data.requests.forSeeker(grant.seekerId);
+      klienten.push({
+        seekerId: grant.seekerId,
+        name: person?.displayName ?? grant.seekerId,
+        stufe: grant.responsibilityLevel,
+        freigabepflichten: grant.approvalRequired.map((k) => APPROVAL_KIND_LABELS[k].label),
+        offeneFreigaben: offen.filter((f) => f.seekerId === grant.seekerId).length,
+        naechsterTermin: termine[0],
+        offeneAnfragen: anfragen.filter((a) => a.status === 'open' || a.status === 'waiting_approval')
+          .length,
+      });
+    }
+
+    return {
+      klienten,
+      offeneFreigaben: offen,
+      ueberfaellig: offen.filter((f) => isApprovalOverdue(f, now)).length,
+    };
+  }
+
+  /**
    * Anfrage absenden.
    *
    * Enthaelt die Anfrage Angaben zum Unterstuetzungsbedarf, ist dafuer eine
@@ -138,12 +346,26 @@ export class SupportService {
       }
     }
 
-    await this.data.requests.save(request);
+    // Ist eine verantwortliche Person fuer Anfragen benannt, geht die
+    // Anfrage nicht sofort raus, sondern zuerst zur Freigabe.
+    const freigabe = await this.requestApproval(
+      draft.seekerId,
+      'support_request',
+      request.id,
+      buildRequestSummary(request).plainText,
+      buildRequestSummary(request).easyText,
+    );
+    const gespeichert: SupportRequest = freigabe
+      ? { ...request, status: 'waiting_approval' }
+      : request;
+
+    await this.data.requests.save(gespeichert);
     await this.audit(draft.seekerId, 'request.submitted', 'support_requests', request.id, {
       categories: request.categoryKeys.length,
       requiresLicensedProfessional: request.requiresLicensedProfessional,
+      wartetAufFreigabe: freigabe !== undefined,
     });
-    return request;
+    return gespeichert;
   }
 
   /** Laedt einen Anbietenden vollstaendig -- Profil, Leistungen, Nachweise, Zeiten. */
@@ -356,7 +578,7 @@ export class SupportService {
    * Aktive Bestaetigung einer Seite. Sobald beide bestaetigt haben, wird die
    * Buchung verbindlich und der Treffpunkt freigegeben.
    */
-  async confirmBooking(bookingId: Id, actorId: Id): Promise<Booking> {
+  async confirmBooking(bookingId: Id, actorId: Id): Promise<BookingConfirmationResult> {
     let booking = await this.data.bookings.get(bookingId);
     if (!booking) throw new ServiceError('Buchung nicht gefunden.', 'booking_not_found');
     const actor = await this.data.users.get(actorId);
@@ -373,6 +595,37 @@ export class SupportService {
           'contact_release_missing',
         );
       }
+
+      // Ist eine verantwortliche Person fuer Termine benannt, braucht es
+      // deren Freigabe. Das ist kein Fehler, sondern ein normaler
+      // Zwischenschritt -- deshalb kommt die Buchung unveraendert zurueck.
+      const bestehend = (await this.data.approvals.forSubject(booking.id)).find(
+        (a) => a.kind === 'booking',
+      );
+      if (!bestehend || bestehend.status === 'withdrawn') {
+        const providerUser = await this.data.users.get(booking.providerId);
+        const providerProfile = await this.data.providers.get(booking.providerId);
+        const zusammenfassung =
+          providerProfile && providerUser
+            ? buildBookingSummary(booking, providerProfile, providerUser.displayName)
+            : undefined;
+        const freigabe = await this.requestApproval(
+          booking.seekerId,
+          'booking',
+          booking.id,
+          zusammenfassung?.plainText ?? 'Ein Termin soll verbindlich gebucht werden.',
+          zusammenfassung?.easyText ?? 'Ein Termin soll fest gebucht werden.',
+        );
+        if (freigabe) return { booking, approval: freigabe };
+      } else if (bestehend.status === 'pending') {
+        return { booking, approval: bestehend };
+      } else if (bestehend.status === 'declined') {
+        throw new ServiceError(
+          `Dieser Termin wurde nicht freigegeben. Begründung: ${bestehend.reason ?? 'keine angegeben'}`,
+          'approval_declined',
+        );
+      }
+
       booking = confirmBySeeker(booking, now);
     } else if (actorId === booking.providerId) {
       booking = confirmByProvider(booking, now);
@@ -390,7 +643,7 @@ export class SupportService {
 
     await this.data.bookings.save(booking);
     await this.audit(actorId, 'booking.confirmed', 'bookings', booking.id, { status: booking.status });
-    return booking;
+    return { booking };
   }
 
   /** Vor jeder Absage sagen wir ehrlich, was sie kostet. */

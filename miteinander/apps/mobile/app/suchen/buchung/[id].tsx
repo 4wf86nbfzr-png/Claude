@@ -1,7 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { requiresVisualConfirmation, type Booking, type ConfirmationSummary } from '@miteinander/core';
+import {
+  requiresVisualConfirmation,
+  type ApprovalRequest,
+  type Booking,
+  type ConfirmationSummary,
+} from '@miteinander/core';
 import {
   Button,
   ButtonStack,
@@ -33,6 +38,8 @@ export default function BookingConfirmation() {
   const [summary, setSummary] = useState<ConfirmationSummary | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [checked, setChecked] = useState(false);
+  const [wartetAufFreigabe, setWartetAufFreigabe] = useState<ApprovalRequest | null>(null);
+  const [verantwortlich, setVerantwortlich] = useState<string>('Ihre verantwortliche Person');
 
   const propose = useCallback(async () => {
     setError(null);
@@ -60,13 +67,22 @@ export default function BookingConfirmation() {
     void propose();
   }, [propose]);
 
+  useEffect(() => {
+    if (!wartetAufFreigabe) return;
+    void data.users
+      .get(wartetAufFreigabe.responsibleId)
+      .then((person) => person && setVerantwortlich(person.displayName));
+  }, [wartetAufFreigabe, data]);
+
   const confirm = async () => {
     if (!booking) return;
     setError(null);
     try {
-      const updated = await service.confirmBooking(booking.id, currentUserId);
-      setBooking(updated);
-      if (updated.status === 'confirmed') {
+      const ergebnis = await service.confirmBooking(booking.id, currentUserId);
+      setBooking(ergebnis.booking);
+      // Wartet eine Freigabe, ist das kein Fehler, sondern ein Zwischenschritt.
+      setWartetAufFreigabe(ergebnis.approval ?? null);
+      if (ergebnis.booking.status === 'confirmed') {
         router.push('/suchen/termine');
       }
     } catch (e) {
@@ -130,6 +146,12 @@ export default function BookingConfirmation() {
               Eine Buchung wird nie allein durch einen Sprachbefehl ausgelöst. Sie bestätigen immer
               hier auf dem Bildschirm.
             </Text>
+          ) : null}
+
+          {wartetAufFreigabe ? (
+            <Callout tone="info" title="Eine Person muss noch zustimmen">
+              {`${verantwortlich} muss diesen Termin freigeben. Wir haben Bescheid gesagt. Sie bekommen eine Nachricht, sobald es eine Antwort gibt. Sie können das Anliegen jederzeit zurückziehen.`}
+            </Callout>
           ) : null}
 
           {booking?.confirmedBySeekerAt && booking.status === 'proposed' ? (

@@ -31,6 +31,16 @@ export const EASY_TEXTS: EasyLanguageItem[] = [
     status: 'draft',
   },
   {
+    key: 'home.responsible',
+    text: 'Sie kümmern sich um einen Menschen.\nSie sehen, was los ist.\nSie sagen Ja oder Nein.',
+    status: 'draft',
+  },
+  {
+    key: 'freigabe.wartet',
+    text: 'Eine Person muss noch Ja sagen.\nWir haben Bescheid gesagt.\nSie bekommen eine Nachricht.',
+    status: 'draft',
+  },
+  {
     key: 'mode.simple',
     text: 'Einfach.\nSehr große Knöpfe.\nWenig Text auf einer Seite.',
     status: 'draft',

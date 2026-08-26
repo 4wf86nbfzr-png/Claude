@@ -26,6 +26,8 @@ export type VerificationStatus = (typeof VERIFICATION_STATUSES)[number];
 
 export const REQUEST_STATUSES = [
   'draft',
+  /** Wartet auf die Freigabe einer verantwortlichen Person. */
+  'waiting_approval',
   'open',
   'matched',
   'booked',
@@ -98,6 +100,62 @@ export const CONTENT_REVIEW_STATUSES = [
   'outdated',
 ] as const;
 export type ContentReviewStatus = (typeof CONTENT_REVIEW_STATUSES)[number];
+
+/**
+ * Handlungen, die eine verantwortliche Person freigeben kann.
+ *
+ * Eine Freigabepflicht ist ein Eingriff in die Selbstbestimmung. Sie gilt
+ * deshalb nur fuer die hier einzeln benannten Handlungen und nie pauschal.
+ */
+export const APPROVAL_KINDS = [
+  'support_request',
+  'booking',
+  'contact_release',
+  'payment',
+  'account_deletion',
+] as const;
+export type ApprovalKind = (typeof APPROVAL_KINDS)[number];
+
+export const APPROVAL_KIND_LABELS: Record<ApprovalKind, { label: string; easy: string }> = {
+  support_request: {
+    label: 'Anfragen nach Unterstützung',
+    easy: 'Wenn Sie Hilfe suchen.',
+  },
+  booking: {
+    label: 'Verbindliche Termine',
+    easy: 'Wenn Sie einen Termin fest buchen.',
+  },
+  contact_release: {
+    label: 'Freigabe von Telefonnummer und Adresse',
+    easy: 'Wenn jemand Ihre Adresse bekommen soll.',
+  },
+  payment: {
+    label: 'Zahlungen',
+    easy: 'Wenn etwas Geld kostet.',
+  },
+  account_deletion: {
+    label: 'Löschung des Kontos',
+    easy: 'Wenn Sie Ihr Konto löschen möchten.',
+  },
+};
+
+export const APPROVAL_STATUSES = ['pending', 'approved', 'declined', 'withdrawn'] as const;
+export type ApprovalStatus = (typeof APPROVAL_STATUSES)[number];
+
+/**
+ * Worauf sich eine Freigabepflicht stuetzt.
+ *
+ * "client_wish"  -- die Person hat es selbst so gewuenscht. Sie kann es
+ *                   jederzeit allein wieder beenden.
+ * "court_ordered" -- gerichtlich angeordneter Einwilligungsvorbehalt
+ *                   (§ 1825 BGB). Nur mit Aktenzeichen, und die Person kann
+ *                   ihn nicht allein aufheben.
+ *
+ * Es gibt bewusst keinen dritten Fall. Ohne eines von beidem entscheidet
+ * die Person allein -- so wie jeder andere volljaehrige Mensch auch.
+ */
+export const APPROVAL_LEGAL_BASES = ['client_wish', 'court_ordered'] as const;
+export type ApprovalLegalBasis = (typeof APPROVAL_LEGAL_BASES)[number];
 
 /** Zweckbindung einer Einwilligung. Keine Buendelung. */
 export const CONSENT_PURPOSES = [

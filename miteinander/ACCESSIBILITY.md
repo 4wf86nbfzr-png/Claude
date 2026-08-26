@@ -31,6 +31,18 @@ Daten: nach `individuell` bleiben alle Werte erhalten, und eine einmal bewusst
 abgeschaltete Bewegung bleibt abgeschaltet (`switchMode` in
 `packages/core/src/a11y/preferences.ts`).
 
+## Zwei Ansprüche, eine Grundlage
+
+Der Bereich für verantwortliche Personen ist dichter: Listen, Kennzahlen,
+mehrere Menschen auf einem Bildschirm. Der Bereich für Menschen mit
+Unterstützungsbedarf bleibt bei einem Hauptschritt pro Ansicht.
+
+Was **nicht** unterschiedlich ist: Tippflächen, Kontrast, Fokus, Vorlesen,
+Gebärdensprache, Leichte Sprache. Eine verantwortliche Person kann selbst
+Unterstützungsbedarf haben – „umfangreicher" heißt mehr Inhalt, nicht weniger
+Barrierefreiheit. Beide Bereiche nutzen dieselben Komponenten und dasselbe
+Theme.
+
 ## Systemeinstellungen haben Vorrang
 
 `resolvePreferences` verbindet die App-Einstellungen mit dem, was das

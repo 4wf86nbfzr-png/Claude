@@ -93,6 +93,14 @@ durchgängig, ohne dass eine Komponente sie einzeln berücksichtigen muss.
 | `Avatar` | Foto nur mit Beschreibung; sonst neutraler Platzhalter mit Initialen |
 | `Screen` | Grundgerüst: eine Hauptüberschrift, scrollender Inhalt, fester Fußbereich |
 
+## Zwei Ansprüche, dieselben Bausteine
+
+Der Bereich für verantwortliche Personen darf dichter sein – mehr Inhalt pro
+Ansicht, Listen statt einzelner Karten. Er nutzt dieselben Komponenten und
+dasselbe Theme wie der Rest. Tippflächen, Kontrast, Fokus und Schriftskalierung
+sind identisch: „umfangreicher" heißt mehr Inhalt, nicht weniger
+Barrierefreiheit.
+
 ## Regeln für neue Komponenten
 
 1. Keine Zahlen im Stil – nur Tokens.
