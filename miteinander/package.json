@@ -21,7 +21,8 @@
     "admin": "npm run dev --workspace @miteinander/admin",
     "db:reset": "supabase db reset",
     "verify": "npm run lint && npm run typecheck && npm test",
-    "e2e": "npm run e2e --workspace @miteinander/mobile"
+    "e2e": "npm run e2e --workspace @miteinander/mobile",
+    "testdatei": "npm run testdatei --workspace @miteinander/mobile"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

@@ -83,6 +83,27 @@ Reihenfolge angewendet:
 | `0004_views.sql` | reduzierte, öffentliche Sichten |
 | `../seed/seed.sql` | Stammdaten und eindeutig fiktive Demo-Daten |
 
+### Die App zum Ausprobieren weitergeben
+
+```bash
+npm run testdatei
+```
+
+Erzeugt `apps/mobile/miteinander-testfassung.html` – eine einzige Datei, die
+per Doppelklick im Browser läuft. Kein Server, keine Installation, keine
+Internetverbindung: das Bundle und alle Bilder sind eingebettet, es wird
+nichts nachgeladen.
+
+Was in dieser Fassung anders ist:
+
+- Alle Daten sind erfunden, mit „(Demo)" gekennzeichnet und liegen nur im
+  Arbeitsspeicher. Ein Neuladen setzt alles zurück.
+- Der Zurück-Knopf des **Browsers** wirkt nicht – eine Seite aus dem
+  Dateisystem darf die Adresszeile nicht ändern. Der Zurück-Knopf **in der
+  App** funktioniert normal.
+- Es ist die Web-Fassung. Für Screenreader-Tests auf dem Gerät gilt
+  `npm run mobile` mit Expo Go.
+
 ### Tests
 
 ```bash
