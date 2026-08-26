@@ -1,5 +1,5 @@
-import { RESPONSE_TARGET_HOURS, getQualification, isOverdue, systemClock } from '@miteinander/core';
-import { dashboardCounters } from '../lib/data';
+import { RESPONSE_TARGET_HOURS, getQualification, isOverdue } from '@miteinander/core';
+import { clock, dashboardCounters } from '../lib/data';
 
 /**
  * Screen 21: Admin-Dashboard.
@@ -13,7 +13,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function Dashboard() {
   const counters = await dashboardCounters();
-  const now = systemClock.now();
+  const now = clock().now();
 
   return (
     <>

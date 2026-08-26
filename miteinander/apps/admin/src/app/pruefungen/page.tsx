@@ -1,10 +1,9 @@
 import {
   describeVerification,
   getQualification,
-  systemClock,
   type ProviderVerification,
 } from '@miteinander/core';
-import { db } from '../../lib/data';
+import { clock, db } from '../../lib/data';
 
 /**
  * Screen 16 (Verwaltungssicht): Nachweisprüfung.
@@ -33,7 +32,7 @@ export default async function VerificationsPage() {
   const verifications = await data.verifications.all();
   const users = await data.users.list();
   const nameOf = (id: string) => users.find((u) => u.id === id)?.displayName ?? id;
-  const today = systemClock.today();
+  const today = clock().today();
 
   const sorted = [...verifications].sort((a, b) => {
     const rank = (v: ProviderVerification) =>

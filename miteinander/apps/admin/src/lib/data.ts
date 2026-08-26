@@ -6,12 +6,30 @@ import {
   demoSeed,
   expiringSoon,
   incidentFromReport,
+  fixedClock,
   systemClock,
+  DEMO_NOW,
   triageOrder,
   SupportService,
+  type Clock,
   type DataContext,
   type Report,
 } from '@miteinander/core';
+
+/**
+ * Zeitquelle.
+ *
+ * Im Demo-Modus rechnet der Adminbereich auf dem Zeitpunkt des Datenstands.
+ * Mit der echten Uhr waeren die Demo-Daten sonst unsinnig -- ein Nachweis,
+ * der im Datenstand "laeuft bald ab" bedeutet, waere nach ein paar Monaten
+ * einfach abgelaufen und die Uebersicht zeigte nichts mehr.
+ * Sobald der Supabase-Adapter angebunden ist, gilt hier wieder systemClock.
+ */
+const DEMO_MODE = true;
+
+export function clock(): Clock {
+  return DEMO_MODE ? fixedClock(DEMO_NOW) : systemClock;
+}
 
 /**
  * Datenzugriff des Adminbereichs.
@@ -28,7 +46,7 @@ export function db(): DataContext {
   if (!context) {
     context = createMemoryContext(demoSeed);
     // Eine Beispielmeldung, damit der Vorfallbereich nicht leer wirkt.
-    const now = systemClock.now();
+    const now = clock().now();
     const report: Report = {
       id: 'rep_demo_1',
       reporterId: 'u_seeker_2',
@@ -59,12 +77,12 @@ export function easy(): EasyLanguageRegistry {
 }
 
 export function service(): SupportService {
-  return new SupportService(db(), systemClock, createCounterIds(5000));
+  return new SupportService(db(), clock(), createCounterIds(5000));
 }
 
 export async function dashboardCounters() {
   const data = db();
-  const today = systemClock.today();
+  const today = clock().today();
   const [verifications, incidents, bookings, requests] = await Promise.all([
     data.verifications.all(),
     data.safety.incidents(),
@@ -77,7 +95,7 @@ export async function dashboardCounters() {
     ablaufendeNachweise: expiringSoon(verifications, today, 30),
     offeneVorfaelle: triageOrder(
       incidents.filter((i) => i.status !== 'resolved' && i.status !== 'closed'),
-      systemClock.now(),
+      clock().now(),
     ),
     anstehendeTermine: bookings.filter((b) => b.status === 'confirmed').length,
     offeneAnfragen: requests.filter((r) => r.status === 'open').length,

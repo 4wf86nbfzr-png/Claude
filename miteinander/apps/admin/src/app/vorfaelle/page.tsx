@@ -1,10 +1,9 @@
 import {
   RESPONSE_TARGET_HOURS,
   isOverdue,
-  systemClock,
   triageOrder,
 } from '@miteinander/core';
-import { db } from '../../lib/data';
+import { clock, db } from '../../lib/data';
 
 /**
  * Sicherheitsfälle.
@@ -18,7 +17,7 @@ export const dynamic = 'force-dynamic';
 export default async function IncidentsPage() {
   const data = db();
   const incidents = await data.safety.incidents();
-  const now = systemClock.now();
+  const now = clock().now();
   const sorted = triageOrder(incidents, now);
 
   return (
