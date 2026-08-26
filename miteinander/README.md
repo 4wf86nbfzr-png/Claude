@@ -1,12 +1,13 @@
-# MITEINANDER
+# Helpmate
 
 Eine barrierefreie App, die volljährige Menschen mit Behinderung, ältere Menschen
 und andere Menschen mit Unterstützungsbedarf mit passenden Unterstützenden
 zusammenbringt.
 
-> **Der Name ist ein Arbeitstitel.** Er steht an genau einer Stelle im Code
+> **Der Name steht an genau einer Stelle im Code**
 > (`packages/core/src/config/app-config.ts`) und wird über `EXPO_PUBLIC_APP_NAME`
-> überschrieben. Ein Rebrand berührt keine andere Datei.
+> überschrieben. Die Umbenennung vom Arbeitstitel „MITEINANDER" auf „Helpmate"
+> hat genau diese eine Zeile gekostet – so war E-01 gemeint.
 
 > **Diese App ersetzt keinen Notruf.** Bei akuter Gefahr gelten 112 und 110.
 > Der Hinweis steht auf jedem Bildschirm, auf dem Menschen Hilfe suchen.
@@ -20,6 +21,9 @@ Der vertikale Kern läuft durchgehend – von der Anfrage bis zur bestätigten B
 | Ablauf | Zustand |
 | --- | --- |
 | Drei Zugänge auf der Startseite: Hilfesuchende, Dienstleister, Verantwortliche | funktionsfähig, getestet |
+| Startbild als Animation: das Bild fährt heran, das Logo blendet auf | funktionsfähig, getestet |
+| Sprachführung: sagen oder tippen, was man braucht – Mika führt hin und füllt aus | funktionsfähig, getestet |
+| Verständigung: Karten und Text, die das Gerät laut spricht (für Menschen, die nicht sprechen) | funktionsfähig, getestet |
 | Begleitung „Mika": führt durch jeden Bildschirm, beantwortet Rückfragen | funktionsfähig, getestet |
 | Planer für Anbietende mit Wochenansicht | funktionsfähig, getestet |
 | Kalenderanbindung: einzelner Eintrag und Abo-Link (iCalendar) | funktionsfähig, getestet |
@@ -57,8 +61,14 @@ Der vertikale Kern läuft durchgehend – von der Anfrage bis zur bestätigten B
   Das Supabase-Schema ist vollständig, der Adapter dagegen noch nicht
   implementiert – die Schnittstelle dafür ist definiert
   (`packages/core/src/data/repositories.ts`).
-- **Spracherkennung:** die Auswertung von Sprachbefehlen ist implementiert und
-  getestet; die Anbindung an eine Erkennungs-Engine fehlt noch.
+- **Zuhören:** Die Auswertung dessen, was jemand sagt, ist implementiert und
+  getestet (`packages/core/src/voice/`). Das Zuhören selbst läuft im Browser
+  über die Web Speech API; in der nativen App fehlt die Anbindung an eine
+  Erkennung noch. Auf jedem Gerät führt derselbe Weg auch über Tippen und
+  über antippbare Beispielsätze – wer nicht spricht, verliert keine Funktion.
+- **Gebärdensprache in beide Richtungen:** Die App erkennt keine Gebärden und
+  erzeugt keine. Was sie kann, steht unter „Verständigung" auf dem Bildschirm
+  selbst, samt der Wege, die dafür noch fehlen (Ferndolmetschdienst).
 
 Die vollständige Liste steht in [`LAUNCH_CHECKLIST.md`](LAUNCH_CHECKLIST.md).
 
@@ -101,7 +111,7 @@ Reihenfolge angewendet:
 npm run testdatei
 ```
 
-Erzeugt `apps/mobile/miteinander-testfassung.html` – eine einzige Datei, die
+Erzeugt `apps/mobile/helpmate-testfassung.html` – eine einzige Datei, die
 per Doppelklick im Browser läuft. Kein Server, keine Installation, keine
 Internetverbindung: das Bundle und alle Bilder sind eingebettet, es wird
 nichts nachgeladen.
@@ -115,6 +125,21 @@ Was in dieser Fassung anders ist:
   App** funktioniert normal.
 - Es ist die Web-Fassung. Für Screenreader-Tests auf dem Gerät gilt
   `npm run mobile` mit Expo Go.
+- Das Zuhören der Sprachführung braucht ein Mikrofon und einen Browser mit
+  Web Speech API (Chrome, Edge). Ohne das bleibt der Knopf sichtbar und sagt
+  es; getippt und über die Beispielsätze läuft alles Weitere unverändert.
+
+### Startbild-Animation neu bauen
+
+```bash
+cd apps/mobile
+node tools/startbild-animation.mjs
+```
+
+Fährt das Foto langsam heran und blendet das Logo auf. Ergebnis sind
+`assets/bilder/startbild.webm` und das Standbild `startbild.jpg`, das den
+letzten Bildpunkt der Animation zeigt – es steht überall dort, wo
+„Bewegung reduzieren" eingeschaltet ist. Braucht ffmpeg und Python mit Pillow.
 
 ### Gebärdensprach-Platzhalter neu bauen
 
@@ -133,13 +158,17 @@ und Python mit Pillow.
 ### Tests
 
 ```bash
-npm test                             # 202 Unit- und Integrationstests
+npm test                             # 311 Unit- und Integrationstests (245 Kern, 66 Design)
 npm run typecheck                    # alle vier Pakete
 
 cd apps/mobile
 npm run web:export                   # Web-Fassung nach dist/
-CHROMIUM_PATH=/pfad/zu/chromium npm run e2e
+CHROMIUM_PATH=/pfad/zu/chromium npm run e2e   # 138 Prüfungen im echten Browser
 ```
+
+Die sechs Browser-Suiten decken ab: Kernablauf, Bedienhilfen,
+Gebärdensprache und Startanimation, Verantwortliche und Freigaben,
+Begleitung und Planer, Sprachführung und Verständigung.
 
 Automatisierte Tests ersetzen keine manuellen Tests mit Screenreader,
 Tastatur und Switch Control. Der manuelle Testplan steht in
@@ -150,7 +179,7 @@ Tastatur und Switch Control. Der manuelle Testplan steht in
 ## Aufbau
 
 ```
-miteinander/
+helpmate/
 ├── packages/
 │   ├── core/            Anwendungskern: Domäne, Matching, Buchung,
 │   │                    Datenschutz, Sicherheit, Sprache, Inhalte
@@ -207,6 +236,44 @@ Gebärdensprache bleibt daneben **direkt** erreichbar: neben „Mika fragen"
 steht auf jedem Bildschirm ein eigener Knopf „In Gebärdensprache ansehen".
 Wer sie braucht, soll das Wort lesen und nicht erraten müssen, dass es hinter
 der Begleitung liegt.
+
+### Sprachführung: sagen, was man braucht
+
+Oben auf der Startseite steht „Sagen Sie einfach, was Sie brauchen". Mika
+begrüßt, fragt „Was kann ich für Sie tun?" und wertet aus, was gesagt oder
+getippt wurde – zum Beispiel „Ich möchte zum Arzt begleitet werden". Danach
+steht die Person in der Anfrage, mit angekreuzter Kategorie.
+
+| Regel | Warum |
+| --- | --- |
+| Der verstandene Wortlaut steht **immer** als Text da | Eine Stimme, die falsch versteht und trotzdem weitergeht, ist schlimmer als gar keine |
+| Unter 50 % Sicherheit wird nachgefragt, nicht geführt | Raten kostet hier mehr als Nachfragen |
+| Der Notfall wird **vor** jeder Kategorie geprüft | Wer „Notruf" sagt, bekommt 112 und 110, kein Formular |
+| Mika führt hin und füllt aus – abgeschickt wird auf dem Bildschirm | `IRREVERSIBLE_ACTIONS` gilt unverändert |
+| Erkannt wird mit einer festen Wortliste auf dem Gerät | Nachlesbar in `packages/core/src/voice/wunsch.ts`, kein Sprachmodell, kein Netzabruf |
+
+**Tippen und antippbare Beispielsätze stehen gleichberechtigt daneben.**
+Das ist keine Notlösung, sondern der Kern: Erkennung versteht ausgerechnet
+die Menschen schlecht, für die diese App gebaut ist – nach einem
+Schlaganfall, bei Dysarthrie, bei Sprechapraxie.
+
+### Verständigung: wenn jemand nicht sprechen kann
+
+Ein eigener Bildschirm. Die Person wählt Karten oder tippt, das Gerät
+spricht laut; das Gegenüber antwortet mit Karten, tippt oder lässt sich
+zuhören. Der gebaute Satz steht groß da, **bevor** er gesprochen wird.
+
+Die Karten sind in der Ich-Form, und eine ganze Gruppe heißt „Meine
+Grenzen": „Bitte nicht anfassen", „Bitte aufhören", „Das mache ich selbst".
+Wer nicht sprechen kann, muss zuerst Nein sagen können.
+
+**Was das nicht ist, steht auf demselben Bildschirm:** kein
+Gebärdensprach-Übersetzer. DGS ist eine eigene Sprache mit eigener
+Grammatik. Die App erkennt keine Gebärden und erzeugt keine – eine falsch
+erkannte Gebärde in einer Buchung wäre ein Fehler, den niemand bemerkt. Der
+Bildschirm listet die Wege zu echter Gebärdensprache samt dem, was daran
+jeweils noch fehlt; der vollwertige ist ein Ferndolmetschdienst mit
+Menschen. Das Gespräch selbst wird nicht gespeichert und nicht verschickt.
 
 ## Der Planer für Anbietende
 

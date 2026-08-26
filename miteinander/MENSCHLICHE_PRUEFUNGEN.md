@@ -119,6 +119,47 @@ Videos.
 **Warum kein Automat:** Die Antworten sind bewusst geschrieben und nicht
 erzeugt. Damit steht und fällt ihre Verlässlichkeit mit der Redaktion.
 
+## 7b. Die Sprachführung
+
+**Wer:** Logopädie oder Sprachtherapie gemeinsam mit Menschen, deren
+Aussprache von einer Erkennung schlecht verstanden wird – nach einem
+Schlaganfall, bei Dysarthrie, bei Sprechapraxie. Dazu die Redaktion für die
+Wortliste.
+
+**Was:**
+- Trifft die Wortliste die Wörter, die Menschen wirklich sagen? Sie steht im
+  Klartext in `packages/core/src/voice/wunsch.ts` und ist gemeinsam mit der
+  Zielgruppe zu lesen, nicht am Schreibtisch zu erweitern.
+- Was passiert bei undeutlicher Aussprache: Wird geraten oder nachgefragt?
+  Eine falsch erkannte Absicht, die weiterführt, ist der Schaden, den diese
+  Prüfung finden muss.
+- Ist der getippte Weg gleich schnell und gleich gut beschriftet? Wenn nicht,
+  ist die Sprachführung ein Feature für alle außer der Zielgruppe.
+- Versteht jemand, dass Mika nur hinführt und nichts abschickt?
+
+**Warum kein Automat:** Ob eine Erkennung eine Person versteht, entscheidet
+diese Person – nicht eine Fehlerrate.
+
+## 7c. Die Karten für die Verständigung
+
+**Wer:** Fachleute für Unterstützte Kommunikation (UK) gemeinsam mit
+Menschen, die sie benutzen; für die Gebärdensprach-Fragen dieselben
+Fachleute wie bei den Videos.
+
+**Was:**
+- Sind es die richtigen Sätze, und sind sie in der richtigen Form? Alles
+  steht in der Ich-Form; die Gruppe „Meine Grenzen" muss ohne Scrollen
+  erreichbar sein.
+- Fehlt ein Satz, den jemand dringend gebraucht hätte?
+- Klingt ein gesprochener Satz respektvoll, wenn ihn ein Gerät sagt – oder
+  klingt er nach Formular?
+- Wird auf dem Bildschirm verstanden, dass dies **keine** Übersetzung in
+  Gebärdensprache ist?
+
+**Warum kein Automat:** Wessen Stimme das Gerät leiht, entscheidet mit,
+wie die Person wahrgenommen wird. Das ist eine Frage der Würde, keine der
+Wortwahl.
+
 ## 8. Barrierefreiheit
 
 **Wer:** Unabhängige Prüfstelle plus Nutzungstests mit Betroffenen.

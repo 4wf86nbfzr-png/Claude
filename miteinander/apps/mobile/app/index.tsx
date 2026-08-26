@@ -1,18 +1,26 @@
 import React from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { appConfig } from '@miteinander/core';
+import { BEGLEITER, appConfig } from '@miteinander/core';
 import { Button, Callout, ChoiceCard, EmergencyBar, Screen, Text, useTheme } from '@miteinander/ui';
 import { useAppState } from '../src/state/app-state';
 import { heroStartseite } from '../src/inhalte/bilder';
+import { Startbild } from '../src/components/Startbild';
 import { useReadAloud } from '../src/state/speech';
 import { Begleiter } from '../src/components/Begleiter';
 
 /**
- * Screen 1: Start und Moduswahl.
+ * Screen 1: Start.
  *
- * Kein Formular, keine Registrierung. Drei grosse Karten, jede mit Symbol,
- * kurzem Text, Vorlesen-Knopf und -- sobald produziert -- einem DGS-Video.
+ * Zwei Wege, klar getrennt:
+ *
+ *   „Sagen Sie es einfach"  -- Mika hoert zu und fuehrt. Der leichteste Weg,
+ *                              deshalb steht er oben und ist der groesste.
+ *   Drei Karten             -- fuer alle, die lieber selbst waehlen.
+ *
+ * Alles Weitere (Bedienung einstellen, Hilfe, jemand hilft mir) steht
+ * darunter als ruhige Zeile. Der Bildschirm hat damit genau eine Frage:
+ * Was moechten Sie tun?
  */
 export default function StartScreen() {
   const router = useRouter();
@@ -34,10 +42,30 @@ export default function StartScreen() {
       easyIntro="Hier finden Sie Menschen, die Ihnen helfen."
       onSpeak={speak}
       dgs={<Begleiter schluessel="start" />}
-      hero={heroStartseite}
+      // Bewegtes Startbild nur, wenn Bewegung erlaubt ist.
+      hero={{ ...heroStartseite, ...(prefs.reduceMotion ? {} : { video: <Startbild /> }) }}
     >
+      {/* Der leichteste Weg zuerst: sagen, was man braucht. */}
+      <ChoiceCard
+        testID="choice-mika"
+        title="Sagen Sie einfach, was Sie brauchen"
+        description={`${BEGLEITER.name} hört zu und bringt Sie hin. Sie können auch tippen.`}
+        easyDescription={'Sagen Sie, was Sie brauchen.\nMika bringt Sie hin.'}
+        icon={<Text variant="display" accessibilityElementsHidden>🎙️</Text>}
+        onPress={() => router.push('/sprachfuehrung')}
+        onSpeak={speak}
+      />
+
+      <Button
+        testID="zu-mika-verstaendigung"
+        label="Ich kann nicht sprechen – das Gerät spricht für mich"
+        variant="secondary"
+        onPress={() => router.push('/mika')}
+        accessibilityHint="Karten und Text, die laut gesprochen werden. Ihr Gegenüber antwortet auf demselben Bildschirm."
+      />
+
       <Text variant="heading" accessibilityRole="header">
-        Was möchten Sie tun?
+        Oder wählen Sie selbst
       </Text>
 
       <View style={{ gap: theme.spacing.l }}>
@@ -86,25 +114,31 @@ export default function StartScreen() {
         />
       </View>
 
-      {/* Kein vierter Kasten: wer nur beim Bedienen Hilfe braucht, findet
-          das hier als ruhigen Nebenweg. */}
-      <Button
-        label="Jemand hilft mir beim Bedienen"
-        variant="quiet"
-        onPress={() => {
-          setMode('assisted');
-          setCurrentUserId('u_seeker_1');
-          router.push('/vertrauenspersonen');
-        }}
-        accessibilityHint="Eine Person Ihres Vertrauens richtet die App gemeinsam mit Ihnen ein."
-      />
+      {/* Der Hinweis auf ungeprüfte Texte steht dort, wo er zählt: bei
+          eingeschalteter Leichter Sprache. Sonst wäre er nur ein Kasten
+          mehr für Menschen, die ihn gar nicht betrifft. */}
+      {prefs.easyLanguage && seek.notice ? (
+        <Callout tone="info" title="Hinweis zu den Texten">
+          {seek.notice}
+        </Callout>
+      ) : null}
 
-      {seek.notice ? <Callout tone="info" title="Hinweis zu den Texten">{seek.notice}</Callout> : null}
-
-      <View style={{ gap: theme.spacing.m }}>
+      {/* Ruhige Zeile: alles, was nicht die Hauptfrage dieses Bildschirms
+          ist. Kein vierter Kasten -- der würde die drei Wege verwässern. */}
+      <View style={{ gap: theme.spacing.s }}>
+        <Button
+          label="Jemand hilft mir beim Bedienen"
+          variant="quiet"
+          onPress={() => {
+            setMode('assisted');
+            setCurrentUserId('u_seeker_1');
+            router.push('/vertrauenspersonen');
+          }}
+          accessibilityHint="Eine Person Ihres Vertrauens richtet die App gemeinsam mit Ihnen ein."
+        />
         <Button
           label="Bedienung einstellen"
-          variant="secondary"
+          variant="quiet"
           onPress={() => router.push('/bedienhilfen')}
           accessibilityHint="Schrift, Farben, Vorlesen und Gebärdensprache einstellen."
         />

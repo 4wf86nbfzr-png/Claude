@@ -123,6 +123,38 @@ Testdaten: `supabase/seed/seed.sql`. Alle Konten sind an „(Demo)" erkennbar.
 - [ ] Bei Umgebungslärm wird nachgefragt statt geraten.
 - [ ] Das Mikrofon stoppt automatisch und ist sichtbar, solange es läuft.
 
+### F2 Sprachführung („Sagen Sie einfach, was Sie brauchen")
+
+- [ ] Mika begrüßt beim Öffnen und stellt die Frage. Vorlesen aus, Screenreader
+      an: die Begrüßung kommt als Ansage, nicht als zweite Stimme.
+- [ ] Der verstandene Wortlaut steht als Text da, bevor irgendetwas passiert.
+- [ ] „Ich möchte zum Arzt begleitet werden": führt in die Anfrage, Kategorie
+      ist angekreuzt, **nichts ist abgeschickt**.
+- [ ] Ein unverständlicher Satz führt nirgendwohin, sondern zur Nachfrage.
+- [ ] „Notruf" im Satz: 112 und 110 stehen da, kein Formular.
+- [ ] Mikrofon verweigert oder nicht vorhanden: der Grund steht da, das
+      Textfeld und die Beispielsätze führen zum selben Ergebnis.
+- [ ] Auf einem Gerät ohne Zuhören ist der Knopf beschriftet mit dem, was ist –
+      und nicht einfach still.
+- [ ] Mit undeutlicher Aussprache probieren (jemand, der nuschelt oder eine
+      Sprechbehinderung hat): Was passiert? Wird geraten oder nachgefragt?
+- [ ] Vor dem Weitergehen gibt es „Nein, das war nicht richtig".
+
+### F3 Verständigung (wenn jemand nicht sprechen kann)
+
+- [ ] Karten ergeben einen Satz, der **vor** dem Sprechen vollständig zu lesen
+      ist.
+- [ ] Eine einzelne gewählte Karte lässt sich zurücknehmen, ohne alles zu
+      verwerfen.
+- [ ] Getippter Text hängt sich an und wird mitgesprochen.
+- [ ] Das Gegenüber kann mit Karten antworten, ohne zu tippen.
+- [ ] Das Gespräch lässt sich löschen und ist danach weg.
+- [ ] Auf dem Bildschirm steht, dass dies kein Gebärdensprach-Übersetzer ist.
+- [ ] Die Gruppe „Meine Grenzen" ist erreichbar, ohne vorher zu scrollen –
+      im Einfach-Modus und mit 250 % Schrift geprüft.
+- [ ] Mit Screenreader: Jede Karte nennt ihre Beschriftung und was gesprochen
+      wird.
+
 ---
 
 ## G. Gebärdensprache
@@ -159,7 +191,9 @@ Testdaten: `supabase/seed/seed.sql`. Alle Konten sind an „(Demo)" erkennbar.
 
 ## G3 Die Begleitung
 
-- [ ] Auf jedem Bildschirm ist „Mika fragen" erreichbar.
+- [ ] Auf jedem Bildschirm ist „Mika fragen" erreichbar – außer auf Mikas
+      eigenen beiden Bildschirmen, wo die Rückfragen offen auf der Seite
+      stehen.
 - [ ] Daneben steht ein eigener Knopf für Gebärdensprache.
 - [ ] Mika nennt sich sichtbar als kein Mensch.
 - [ ] Mika sagt, nicht selbst zu gebärden.
@@ -265,6 +299,10 @@ Testdaten: `supabase/seed/seed.sql`. Alle Konten sind an „(Demo)" erkennbar.
 - [ ] Absenden bei schlechter Verbindung erzeugt keine doppelte Buchung.
 - [ ] Startzeit auf einem Mittelklassegerät unter drei Sekunden.
 - [ ] Scrollen bleibt flüssig, auch mit 250 % Schrift.
+- [ ] Die Startanimation läuft einmal und bleibt dann stehen.
+- [ ] Bei „Bewegung reduzieren" (in der App und im System) wird sie gar nicht
+      erst geladen; das Standbild zeigt dasselbe Bild.
+- [ ] Sie hat keinen Ton, auch nicht bei aufgedrehter Lautstärke.
 
 ---
 

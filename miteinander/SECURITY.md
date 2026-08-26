@@ -146,6 +146,14 @@ Jeder Zugriff wird protokolliert – auch der abgelehnte.
   sind grundsätzlich unzulässig. Die einzige Ausnahme – Geschlecht bei
   Körpernähe und persönlicher Assistenz (§ 8 AGG) – verlangt eine Begründung und
   wird zur manuellen Prüfung markiert.
+- **Falsch verstandene Sprachführung:** Der verstandene Wortlaut steht immer
+  als Text auf dem Bildschirm, und unter 50 Prozent Sicherheit wird
+  nachgefragt statt geführt. Die Führung bringt hin und füllt aus; abgeschickt
+  wird mit einem Fingertipp.
+- **Vorgetäuschte Gebärdensprache:** Die App erkennt keine Gebärden und
+  erzeugt keine, und sagt das auf dem Bildschirm. Eine falsch erkannte
+  Gebärde in einer Buchung oder Einwilligung wäre ein Fehler, den beide
+  Seiten für ein Einverständnis halten.
 - **Falsch verstandene Sprachbefehle:** folgenreiche Handlungen brauchen immer
   eine Bestätigung am Bildschirm.
 - **Nicht zugängliche Sprachnachrichten:** eine Sprachnachricht ohne Transkript

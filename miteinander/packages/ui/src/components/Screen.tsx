@@ -19,6 +19,12 @@ export interface HeroBild {
   altText: string;
   /** Natuerliches Seitenverhaeltnis (Breite geteilt durch Hoehe). */
   seitenverhaeltnis?: number;
+  /**
+   * Bewegte Fassung. Wird nur uebergeben, wenn Bewegung erlaubt ist -- bei
+   * "Bewegung reduzieren" bleibt es beim Standbild. Das Standbild zeigt das
+   * ENDE der Animation, damit niemand etwas verpasst.
+   */
+  video?: React.ReactNode;
 }
 
 export interface ScreenProps {
@@ -85,14 +91,25 @@ export function Screen({ title, intro, easyIntro, onSpeak, footer, hero, dgs, ch
               marginBottom: theme.spacing.s,
             }}
           >
-            <Image
-              source={hero.source}
-              accessible
-              accessibilityRole="image"
-              accessibilityLabel={hero.altText}
-              resizeMode="cover"
-              style={{ width: '100%', height: heroHoehe, backgroundColor: theme.colors.surface }}
-            />
+            {hero.video ? (
+              <View
+                accessible
+                accessibilityRole="image"
+                accessibilityLabel={hero.altText}
+                style={{ width: '100%', height: heroHoehe, backgroundColor: theme.colors.surface }}
+              >
+                {hero.video}
+              </View>
+            ) : (
+              <Image
+                source={hero.source}
+                accessible
+                accessibilityRole="image"
+                accessibilityLabel={hero.altText}
+                resizeMode="cover"
+                style={{ width: '100%', height: heroHoehe, backgroundColor: theme.colors.surface }}
+              />
+            )}
           </View>
         ) : null}
 

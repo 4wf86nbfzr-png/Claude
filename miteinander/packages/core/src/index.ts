@@ -28,10 +28,12 @@ export * from './security/incidents';
 export * from './security/approvals';
 
 export * from './voice/commands';
+export * from './voice/wunsch';
 export * from './content/dgs';
 export * from './content/dgs-skripte';
 export * from './content/untertitel';
 export * from './content/begleiter';
+export * from './content/kommunikation';
 export * from './kalender/ics';
 export * from './content/easy-language';
 

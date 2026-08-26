@@ -8,9 +8,14 @@
  * abgebildeten Personen und die Nutzungslizenz dokumentiert sein
  * (siehe LAUNCH_CHECKLIST.md).
  */
+export const startbildVideo = {
+  source: require('../../assets/bilder/startbild.webm') as number,
+};
+
 export const heroStartseite = {
-  source: require('../../assets/bilder/gemeinsam-tanzen.jpg') as number,
+  // Das Standbild zeigt das Ende der Animation, mit Logo.
+  source: require('../../assets/bilder/startbild.jpg') as number,
   altText:
     'Sieben Menschen tanzen bei Sonnenuntergang auf einer Wiese. Im Hintergrund spielt eine Band auf einer kleinen Bühne mit Lichterkette. Vorn hält eine Frau im Rollstuhl lachend die Hand einer Frau im roten Kleid. Daneben tanzen weitere Menschen, eine Person stützt sich auf einen Rollator.',
-  seitenverhaeltnis: 3 / 2,
+  seitenverhaeltnis: 900 / 600,
 };

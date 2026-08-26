@@ -115,6 +115,47 @@ gibt es auf jedem Bildschirm einen eigenen Knopf „In Gebärdensprache
 ansehen". Ist die Einstellung eingeschaltet, ist der Bereich von vornherein
 offen.
 
+Auf Mikas eigenen beiden Bildschirmen – Sprachführung und Verständigung –
+entfällt der Knopf „Mika fragen": Dort ist der ganze Bildschirm Mika. Die
+Rückfragen stehen offen auf der Seite, das geprüfte Video direkt unter der
+Überschrift.
+
+### Sprachführung
+
+„Sagen Sie einfach, was Sie brauchen" steht oben auf der Startseite. Mika
+begrüßt, fragt „Was kann ich für Sie tun?", und wertet aus, was gesagt oder
+getippt wurde.
+
+- Der **Wortlaut, wie er verstanden wurde, steht immer als Text da** – vor
+  jedem weiteren Schritt.
+- Unter 50 Prozent Sicherheit wird **nachgefragt statt geführt**.
+- Erkannt wird mit einer festen Wortliste auf dem Gerät, nicht mit einem
+  Sprachmodell. Der **Notfall wird vor jeder Kategorie geprüft**: Wer
+  „Notruf" sagt, bekommt 112 und 110, kein Formular.
+- Mika **führt hin und füllt aus**. Abgeschickt, gebucht und eingewilligt
+  wird immer mit einem Fingertipp auf dem Bildschirm.
+- **Tippen und antippbare Beispielsätze stehen gleichberechtigt daneben**,
+  auf jedem Gerät. Das ist keine Notlösung: Erkennung versteht genau die
+  Menschen schlecht, für die diese App gebaut ist – nach einem Schlaganfall,
+  bei Dysarthrie, bei Sprechapraxie.
+
+### Verständigung – wenn jemand nicht sprechen kann
+
+Ein eigener Bildschirm für unterstützte Kommunikation. Die Person wählt
+Karten oder tippt, das Gerät spricht laut; das Gegenüber antwortet mit
+Karten, tippt, oder lässt sich zuhören.
+
+- Der gebaute Satz steht **groß und vollständig da, bevor** er gesprochen
+  wird. Niemand soll etwas sagen lassen, das er nicht gelesen hat.
+- Die Karten sind in der **Ich-Form**, und eine ganze Gruppe heißt
+  „Meine Grenzen": „Bitte nicht anfassen", „Bitte aufhören", „Das mache ich
+  selbst". Wer nicht sprechen kann, muss zuerst Nein sagen können.
+- Das Gespräch steht **nur auf dem Bildschirm** – nicht gespeichert, nicht
+  verschickt, mit einem Tipp gelöscht.
+- Auf demselben Bildschirm steht, dass dies **kein
+  Gebärdensprach-Übersetzer** ist, und welche Wege es zu echter
+  Gebärdensprache gibt – mit dem, was daran jeweils noch fehlt.
+
 ## Verständlich
 
 - Ein Hauptschritt pro Ansicht, Fortschritt als Text („Schritt 3 von 5"), nicht
@@ -237,12 +278,17 @@ manuelle Testplan steht in [`TESTPLAN.md`](TESTPLAN.md).
 1. Gebärdensprach-**Aufnahmen** fehlen vollständig – Abspieler, Untertitel und
    Transkripte sind fertig, die Videos sind gekennzeichnete Platzhalter.
 2. Leichte-Sprache-Texte sind ungeprüfte Entwürfe.
-3. Die Spracherkennung ist noch nicht an eine Engine angebunden; die Auswertung
-   und alle Ersatzwege stehen.
-4. Es hat noch kein Test mit Betroffenen stattgefunden. Das Konzept dafür steht
+3. Zuhören läuft im Browser über die Web Speech API; in der nativen App fehlt
+   die Anbindung noch. Die Auswertung, das Tippen und die antippbaren
+   Beispielsätze stehen überall.
+4. Die App **erkennt keine Gebärden und erzeugt keine**. Die Verständigung
+   über Karten und Text ist ein Werkzeug daneben, kein Ersatz für
+   Dolmetschung. Der Weg zu vollwertiger DGS in beide Richtungen ist ein
+   Ferndolmetschdienst mit Menschen (offene Entscheidung O-13).
+5. Es hat noch kein Test mit Betroffenen stattgefunden. Das Konzept dafür steht
    in [`docs/RESEARCH.md`](docs/RESEARCH.md).
-5. Ein unabhängiges Barrierefreiheits-Audit steht aus.
-6. Die Vergleichstabelle scrollt waagerecht. Für Screenreader ist jede Zeile als
+6. Ein unabhängiges Barrierefreiheits-Audit steht aus.
+7. Die Vergleichstabelle scrollt waagerecht. Für Screenreader ist jede Zeile als
    Ganzes beschriftet; mit sehr großer Schrift bleibt das Format trotzdem
    anspruchsvoll und gehört im Nutzungstest überprüft.
 

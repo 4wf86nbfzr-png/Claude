@@ -124,6 +124,76 @@ const SCHRITTE: BegleiterSchritt[] = [
     ],
   },
   {
+    key: 'sprachfuehrung',
+    titel: 'Sprachführung',
+    woBinIch: 'Hier sagen Sie mit einem Satz, was Sie brauchen. Ich bringe Sie dorthin.',
+    woBinIchLeicht: 'Hier sagen Sie, was Sie brauchen.\nIch bringe Sie hin.',
+    wasKannIchTun: [
+      'Sprechen – ich höre zu, solange Sie den Knopf gedrückt haben.',
+      'Tippen, wenn Sie nicht sprechen möchten. Das ist genauso gut.',
+      'Einen Beispielsatz antippen, wenn Ihnen keiner einfällt.',
+    ],
+    wasPassiertDann:
+      'Ich sage Ihnen, was ich verstanden habe. Erst wenn Sie zustimmen, gehe ich mit Ihnen weiter – und trage schon ein, worum es geht.',
+    dgsKey: 'onboarding.welcome',
+    weiter: { label: 'Zurück zum Start', ziel: '/' },
+    fragen: [
+      {
+        frage: 'Verstehst du mich falsch?',
+        antwort:
+          'Das kann passieren. Deshalb steht immer als Text da, was ich verstanden habe. Stimmt es nicht, tippen Sie auf „Nein, das war nicht richtig“ – dann fangen wir neu an.',
+        antwortLeicht:
+          'Ich kann mich irren.\nDarum steht immer da, was ich verstanden habe.\nStimmt es nicht?\nDann sagen Sie es noch einmal.',
+      },
+      {
+        frage: 'Kannst du für mich etwas bestellen?',
+        antwort:
+          'Hinbringen und ausfüllen ja. Abschicken nein. Eine Anfrage, eine Buchung oder eine Einwilligung bestätigen Sie immer selbst auf dem Bildschirm.',
+        antwortLeicht:
+          'Ich fülle für Sie aus.\nAber ich schicke nichts ab.\nDas machen Sie selbst.',
+      },
+      {
+        frage: 'Hört mir jemand zu?',
+        antwort:
+          'Das Mikrofon geht nur an, wenn Sie darauf tippen, und nur für einen Satz. Die App speichert nichts davon. Im Browser wertet der Browser Ihre Stimme aus – bei manchen Browsern geschieht das auf einem Server des Herstellers. Das steht auch auf dem Bildschirm.',
+        antwortLeicht:
+          'Das Mikrofon ist meistens aus.\nEs geht nur an, wenn Sie tippen.\nDie App speichert nichts.',
+      },
+    ],
+  },
+  {
+    key: 'mika',
+    titel: 'Verständigung',
+    woBinIch:
+      'Hier sprechen Sie über das Gerät. Sie wählen Karten oder tippen – das Gerät sagt es laut.',
+    woBinIchLeicht: 'Hier spricht das Gerät für Sie.\nSie wählen Karten aus.',
+    wasKannIchTun: [
+      'Karten wählen und daraus einen Satz bauen.',
+      'Etwas tippen, das keine Karte trifft.',
+      'Den Satz laut sprechen lassen – so oft Sie wollen.',
+      'Das Gegenüber antwortet mit Karten oder tippt zurück.',
+    ],
+    wasPassiertDann:
+      'Das Gespräch bleibt auf dem Bildschirm stehen, bis Sie es löschen. Es wird nirgends gespeichert und nirgends hingeschickt.',
+    dgsKey: 'help.overview',
+    weiter: { label: 'Zurück zum Start', ziel: '/' },
+    fragen: [
+      {
+        frage: 'Ist das Gebärdensprache?',
+        antwort:
+          'Nein. Deutsche Gebärdensprache ist eine eigene Sprache mit eigener Grammatik. Ich gebärde nicht und ich erkenne keine Gebärden. Was hier läuft, ist geschriebenes Deutsch, das laut gesprochen wird – und dazu geprüfte Videos, wo es sie gibt. Für wichtige Gespräche holen Sie bitte eine dolmetschende Person dazu.',
+        antwortLeicht:
+          'Nein.\nGebärdensprache ist eine eigene Sprache.\nIch kann das nicht.\nDas Gerät spricht nur Ihren Text.',
+      },
+      {
+        frage: 'Wird das Gespräch gespeichert?',
+        antwort:
+          'Nein. Es steht nur auf diesem Bildschirm und ist weg, sobald Sie es löschen oder die App schließen.',
+        antwortLeicht: 'Nein.\nEs steht nur hier.\nSie können es löschen.',
+      },
+    ],
+  },
+  {
     key: 'bedienhilfen',
     titel: 'Bedienhilfen',
     woBinIch: 'Hier stellen Sie ein, wie die App für Sie aussehen und sprechen soll.',

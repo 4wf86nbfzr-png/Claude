@@ -1,5 +1,5 @@
 -- =====================================================================
--- MITEINANDER -- Grundschema
+-- Helpmate -- Grundschema
 --
 -- Grundsaetze:
 --  * Besonders geschuetzte Angaben (Unterstuetzungsbedarf, Kontaktdaten)

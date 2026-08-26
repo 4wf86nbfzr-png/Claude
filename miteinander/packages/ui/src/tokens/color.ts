@@ -9,8 +9,13 @@
  * (packages/ui/test/tokens.test.ts). Ein neuer Farbwert, der die Schwelle
  * reisst, laesst die Testsuite fehlschlagen.
  *
- * Grundton: tiefes Anthrazit-Blau als Traeger, ein warmes Bernstein als
- * Akzent. Kein Krankenhaus-Weiss, keine Pastell-Kindlichkeit.
+ * Grundton kommt aus dem Logo: tiefes Navy (#022255) als Traeger, Tuerkis
+ * (#02B9B5) und Koralle (#FD624D) als Markenfarben.
+ *
+ * Tuerkis und Koralle sind in ihrer reinen Form zu hell fuer Text -- 2,4:1
+ * und 3,0:1 auf Weiss. Sie stehen deshalb im Logo und in Flaechen, waehrend
+ * Text und Bedienelemente abgedunkelte Varianten nutzen. Die Marke bleibt
+ * erkennbar, ohne dass jemand raten muss, was dort steht.
  *
  * ACHTUNG: Der Adminbereich ist Web und kann diese Tokens nicht laden. Die
  * Werte sind dort als CSS-Variablen gespiegelt
@@ -52,37 +57,37 @@ export interface ColorPalette {
 
 export const lightColors: ColorPalette = {
   background: '#FFFFFF',
-  surface: '#F4F5F7',
-  surfaceRaised: '#E9EBEF',
-  text: '#14181F',
-  textMuted: '#4A5260',
+  surface: '#F1F5FA',
+  surfaceRaised: '#E2EAF4',
+  text: '#022255',
+  textMuted: '#48597A',
   textOnAccent: '#FFFFFF',
-  accent: '#8A4200',
-  accentPressed: '#6B3300',
-  border: '#B9BEC7',
-  inputBorder: '#5C6470',
-  focus: '#0B4FA8',
-  success: '#1B5E20',
-  danger: '#A31515',
-  warning: '#7A4A00',
+  accent: '#022255',
+  accentPressed: '#01173C',
+  border: '#6F84A6',
+  inputBorder: '#5A6B88',
+  focus: '#0B57C7',
+  success: '#146B3A',
+  danger: '#B03A28',
+  warning: '#8A4B00',
   emergency: '#8E0000',
   textOnEmergency: '#FFFFFF',
 };
 
 export const darkColors: ColorPalette = {
-  background: '#0E1116',
-  surface: '#171C24',
-  surfaceRaised: '#222933',
-  text: '#F2F4F7',
-  textMuted: '#B7BFCC',
-  textOnAccent: '#1A1200',
-  accent: '#FFB35C',
-  accentPressed: '#E09640',
-  border: '#3A424E',
-  inputBorder: '#8B95A5',
-  focus: '#7FB8FF',
+  background: '#0A1A33',
+  surface: '#12294A',
+  surfaceRaised: '#1D3A63',
+  text: '#F2F6FA',
+  textMuted: '#B7C6DB',
+  textOnAccent: '#05231F',
+  accent: '#3FD8D2',
+  accentPressed: '#26B7B1',
+  border: '#7A93BC',
+  inputBorder: '#8FA6C4',
+  focus: '#7FC9FF',
   success: '#7BD98A',
-  danger: '#FF9C93',
+  danger: '#FF9382',
   warning: '#FFC46B',
   emergency: '#FF8A80',
   textOnEmergency: '#1A0000',
@@ -96,17 +101,29 @@ export const highContrastColors: ColorPalette = {
   text: '#FFFFFF',
   textMuted: '#E6E6E6',
   textOnAccent: '#000000',
-  accent: '#FFD400',
-  accentPressed: '#E0BB00',
+  accent: '#5CF0EA',
+  accentPressed: '#3ED2CC',
   border: '#FFFFFF',
   inputBorder: '#FFFFFF',
-  focus: '#00E5FF',
+  focus: '#FFD400',
   success: '#7CFF9B',
   danger: '#FF8A80',
   warning: '#FFD400',
   emergency: '#FFFFFF',
   textOnEmergency: '#000000',
 };
+
+/**
+ * Markenfarben in ihrer reinen Form.
+ *
+ * Nur fuer Flaechen und Grafik -- nie fuer Text auf hellem Grund. Wer sie
+ * doch dort einsetzt, faellt im Kontrasttest auf.
+ */
+export const markenfarben = {
+  navy: '#022255',
+  tuerkis: '#02B9B5',
+  koralle: '#FD624D',
+} as const;
 
 export type ColorSchemeName = 'light' | 'dark' | 'highContrast';
 
@@ -133,6 +150,8 @@ export const CONTRAST_PAIRS: Array<{
   { name: 'Text auf Akzentfläche', fg: 'textOnAccent', bg: 'accent', role: 'text' },
   { name: 'Text auf gedrückter Akzentfläche', fg: 'textOnAccent', bg: 'accentPressed', role: 'text' },
   { name: 'Akzent als Bedienelement', fg: 'accent', bg: 'background', role: 'nonText' },
+  { name: 'Kartenrahmen auf Hintergrund', fg: 'border', bg: 'background', role: 'nonText' },
+  { name: 'Kartenrahmen auf Karte', fg: 'border', bg: 'surface', role: 'nonText' },
   { name: 'Eingaberahmen', fg: 'inputBorder', bg: 'background', role: 'nonText' },
   { name: 'Eingaberahmen auf Karte', fg: 'inputBorder', bg: 'surface', role: 'nonText' },
   { name: 'Fokusring auf Hintergrund', fg: 'focus', bg: 'background', role: 'nonText' },

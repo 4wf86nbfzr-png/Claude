@@ -96,7 +96,7 @@ function endzeit(booking: Booking): string {
 
 /** Ein einzelner Termin als VEVENT-Zeilen. */
 export function baueEreignis(booking: Booking, optionen: IcsOptionen = {}): string[] {
-  const domain = optionen.domain ?? 'miteinander.example';
+  const domain = optionen.domain ?? 'helpmate.example';
   const jetzt = optionen.jetzt ?? new Date().toISOString();
   const erinnerung = optionen.erinnerungMinuten ?? 60;
 
@@ -148,7 +148,7 @@ function huelle(inhalt: string[], name: string): string {
     [
       'BEGIN:VCALENDAR',
       'VERSION:2.0',
-      'PRODID:-//MITEINANDER//Planer//DE',
+      'PRODID:-//Helpmate//Planer//DE',
       'CALSCALE:GREGORIAN',
       'METHOD:PUBLISH',
       `X-WR-CALNAME:${icsText(name)}`,
@@ -169,7 +169,7 @@ export function baueEinzelEintrag(booking: Booking, optionen: IcsOptionen = {}):
 /** Alle Termine -- fuer den dauerhaft verbundenen Kalender. */
 export function baueKalenderFeed(bookings: readonly Booking[], optionen: IcsOptionen = {}): string {
   const ereignisse = bookings.flatMap((b) => baueEreignis(b, optionen));
-  return huelle(ereignisse, 'MITEINANDER – meine Einsätze');
+  return huelle(ereignisse, 'Helpmate – meine Einsätze');
 }
 
 /**

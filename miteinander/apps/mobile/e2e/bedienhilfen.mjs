@@ -32,8 +32,16 @@ await new Promise((r) => server.listen(4173, r));
 const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH });
 const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
 const errors = [];
-page.on('pageerror', (e) => errors.push(String(e)));
-page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
+/**
+ * Eine Meldung des Browsers, die kein Fehler der App ist: Wird beim
+ * Verlassen der Startseite die Startanimation aus der Seite genommen,
+ * bevor sie fertig geladen hat, bricht der Browser den Abspielwunsch ab.
+ * expo-video faengt die Absage nicht ab, deshalb steht sie in der Konsole.
+ * Sichtbar ist davon nichts. Alle anderen Konsolenfehler zaehlen weiter.
+ */
+const bekannteBrowsermeldung = (t) => t.includes('play() request was interrupted');
+page.on('pageerror', (e) => { if (!bekannteBrowsermeldung(String(e))) errors.push(String(e)); });
+page.on('console', (m) => { if (m.type() === 'error' && !bekannteBrowsermeldung(m.text())) errors.push(m.text()); });
 
 await page.goto('http://localhost:4173/', { waitUntil: 'networkidle' });
 await page.waitForTimeout(2500);
@@ -48,8 +56,8 @@ const seen = async (label) => {
 let body = await seen('Start');
 
 // 1. Startbildschirm
-console.log('MITEINANDER sichtbar:', body.includes('MITEINANDER'));
-console.log('Drei Auswahlkarten:', ['Ich suche Unterstützung','Ich biete Unterstützung an','Jemand unterstützt mich bei der Bedienung'].every(t => body.includes(t)));
+console.log('Produktname sichtbar:', body.includes('Helpmate'));
+console.log('Drei Zugänge:', ['Ich suche Unterstützung','Ich biete Unterstützung an','Ich bin verantwortlich für eine Person'].every(t => body.includes(t)));
 console.log('Notfallhinweis:', body.includes('kein Notruf') && body.includes('112'));
 
 // 2. Bedienhilfen

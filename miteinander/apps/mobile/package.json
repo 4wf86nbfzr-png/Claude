@@ -10,8 +10,8 @@
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
     "web:export": "expo export --platform web --output-dir dist",
-    "e2e": "node e2e/kernablauf.mjs && node e2e/bedienhilfen.mjs && node e2e/gebaerdensprache.mjs && node e2e/verantwortliche.mjs && node e2e/begleiter-planer.mjs",
-    "testdatei": "expo export --platform web --output-dir dist && node tools/einzeldatei.mjs dist miteinander-testfassung.html"
+    "e2e": "node e2e/kernablauf.mjs && node e2e/bedienhilfen.mjs && node e2e/gebaerdensprache.mjs && node e2e/verantwortliche.mjs && node e2e/begleiter-planer.mjs && node e2e/mika-sprache.mjs",
+    "testdatei": "expo export --platform web --output-dir dist && node tools/einzeldatei.mjs dist helpmate-testfassung.html"
   },
   "dependencies": {
     "@expo/metro-runtime": "*",

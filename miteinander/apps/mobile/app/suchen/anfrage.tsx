@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import {
@@ -41,7 +41,8 @@ import { announce, useReadAloud } from '../../src/state/speech';
 export default function RequestWizard() {
   const theme = useTheme();
   const router = useRouter();
-  const { prefs, service, currentUserId, setActiveRequestId } = useAppState();
+  const { prefs, service, currentUserId, setActiveRequestId, sprachWunsch, setSprachWunsch } =
+    useAppState();
   const { speak } = useReadAloud(prefs);
 
   const [stepIndex, setStepIndex] = useState(0);
@@ -49,7 +50,35 @@ export default function RequestWizard() {
     createDraft(`req_${Date.now()}`, currentUserId, new Date().toISOString()),
   );
   const [errors, setErrors] = useState<FieldError[]>([]);
+  // Was die Sprachführung verstanden hat, steht sichtbar über der Auswahl --
+  // solange, bis jemand es wegtippt.
+  const [ausSprache, setAusSprache] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  /**
+   * Vorbelegung aus der Sprachführung.
+   *
+   * Sie trägt ein, was verstanden wurde -- mehr nicht. Der Wunsch wird dabei
+   * sofort geleert, damit er beim nächsten Mal nicht noch einmal greift, und
+   * was er bewirkt hat, steht als Hinweis über der Auswahl. Wer die Anfrage
+   * ohne Sprachführung öffnet, merkt von alldem nichts.
+   */
+  useEffect(() => {
+    if (!sprachWunsch) return;
+    const kategorien = sprachWunsch.kategorien;
+    setDraft((current) => ({
+      ...current,
+      categoryKeys: kategorien,
+      updatedAt: new Date().toISOString(),
+    }));
+    setAusSprache(sprachWunsch.gehoert);
+    setSprachWunsch(null);
+    announce(
+      `Aus Ihrem Satz übernommen: ${kategorien
+        .map((k) => SERVICE_CATEGORIES.find((c) => c.key === k)?.label ?? k)
+        .join(', ')}. Sie können das ändern.`,
+    );
+  }, [sprachWunsch, setSprachWunsch]);
 
   const step = WIZARD_STEPS[stepIndex]!;
   const progress = stepProgress(step.key as WizardStepKey);
@@ -120,6 +149,12 @@ export default function RequestWizard() {
 
       {step.key === 'what' ? (
         <View style={{ gap: theme.spacing.m }}>
+          {ausSprache ? (
+            <Callout tone="info" title={`Aus Ihrem Satz: „${ausSprache.trim()}“`}>
+              Ich habe schon angekreuzt, worum es geht. Stimmt das nicht? Tippen Sie es einfach an
+              oder wieder ab – nichts davon ist schon abgeschickt.
+            </Callout>
+          ) : null}
           {SERVICE_CATEGORIES.map((category) => {
             const selected = draft.categoryKeys.includes(category.key);
             return (

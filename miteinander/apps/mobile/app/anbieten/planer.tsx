@@ -85,11 +85,11 @@ export default function Planer() {
 
   const alleTeilen = async () => {
     const ics = baueKalenderFeed(einsaetze, { jetzt: new Date().toISOString() });
-    const ergebnis = await teileDatei('miteinander-einsaetze.ics', ics);
+    const ergebnis = await teileDatei('helpmate-einsaetze.ics', ics);
     setMeldung(ergebnis.meldung);
   };
 
-  const verbindung = baueKalenderVerbindung('https://app.miteinander.example', schluessel);
+  const verbindung = baueKalenderVerbindung('https://app.helpmate.example', schluessel);
 
   return (
     <Screen

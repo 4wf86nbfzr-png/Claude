@@ -2,7 +2,7 @@
   "name": "miteinander",
   "private": true,
   "version": "0.1.0",
-  "description": "MITEINANDER – barrierefreie App zur Vermittlung von Unterstuetzung",
+  "description": "Helpmate – barrierefreie App zur Vermittlung von Unterstuetzung",
   "workspaces": [
     "packages/*",
     "apps/*"

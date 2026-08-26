@@ -30,7 +30,15 @@ await new Promise((r) => server.listen(4174, r));
 const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH });
 const page = await browser.newPage({ viewport: { width: 414, height: 900 } });
 const errors = [];
-page.on('pageerror', (e) => errors.push(String(e)));
+/**
+ * Eine Meldung des Browsers, die kein Fehler der App ist: Wird beim
+ * Verlassen der Startseite die Startanimation aus der Seite genommen,
+ * bevor sie fertig geladen hat, bricht der Browser den Abspielwunsch ab.
+ * expo-video faengt die Absage nicht ab, deshalb steht sie in der Konsole.
+ * Sichtbar ist davon nichts. Alle anderen Konsolenfehler zaehlen weiter.
+ */
+const bekannteBrowsermeldung = (t) => t.includes('play() request was interrupted');
+page.on('pageerror', (e) => { if (!bekannteBrowsermeldung(String(e))) errors.push(String(e)); });
 
 let failed = 0;
 const check = (label, ok) => {

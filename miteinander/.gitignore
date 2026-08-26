@@ -13,4 +13,4 @@ coverage/
 apps/mobile/*.png
 
 # Erzeugte Testfassung (mit "npm run testdatei" neu bauen)
-apps/mobile/miteinander-testfassung.html
+apps/mobile/helpmate-testfassung.html

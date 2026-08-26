@@ -11,7 +11,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
  * privaten Fenster kann der Speicher gesperrt sein. Dann läuft die App
  * weiter, nur eben ohne Gedächtnis -- statt abzustürzen.
  */
-const SCHLUESSEL = 'miteinander.bedienhilfen.v1';
+const SCHLUESSEL = 'helpmate.bedienhilfen.v1';
 
 export async function ladeEinstellungen<T>(): Promise<Partial<T> | null> {
   try {

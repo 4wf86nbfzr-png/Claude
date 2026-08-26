@@ -7,11 +7,19 @@ zuerst nachlesen, warum es so ist.
 
 ## E-01 Der Produktname steht an einer Stelle
 
-**Entscheidung:** „MITEINANDER" ist ein Arbeitstitel und liegt ausschließlich in
+**Entscheidung:** Der Produktname liegt ausschließlich in
 `packages/core/src/config/app-config.ts`, überschreibbar per Umgebungsvariable.
 
 **Warum:** Der Name wird sich ändern. Ein über 90 Dateien verstreuter Name wird
 bei einem Rebrand nie vollständig ersetzt, und übrig bleiben peinliche Reste.
+
+**Eingetreten:** Aus dem Arbeitstitel „MITEINANDER" wurde „Helpmate". Der
+Wechsel im Produkt war eine Zeile. Was daneben zu tun war, betraf nicht den
+Namen, sondern die Marke: Farbwerte aus dem Logo, die Logodateien und die
+Startbild-Animation. Angefasst werden mussten außerdem drei Stellen, die den
+Namen nicht als Produktnamen tragen, sondern als Kennung – der Dateiname der
+Kalenderdatei, die Beispiel-Domain im iCalendar-Feld `UID` und der Name der
+erzeugten Testfassung.
 
 ---
 
@@ -20,7 +28,7 @@ bei einem Rebrand nie vollständig ersetzt, und übrig bleiben peinliche Reste.
 **Entscheidung:** Die gesamte Fachlogik liegt in `packages/core` und spricht
 Daten nur über Repository-Schnittstellen an.
 
-**Warum:** Zwei Gründe. Erstens Testbarkeit – 202 Tests laufen in 2,4 Sekunden
+**Warum:** Zwei Gründe. Erstens Testbarkeit – 245 Tests laufen in gut zwei Sekunden
 ohne Emulator und ohne Datenbank; was schnell testbar ist, wird auch getestet.
 Zweitens Austauschbarkeit: ein Backend-Wechsel berührt keine Domänenlogik.
 
@@ -532,6 +540,113 @@ Kalender. Das ist praktisch und riskant zugleich; beides gehört gesagt.
 
 ---
 
+## E-39 Die Marke bestimmt die Farben, die Kontrastprüfung bestimmt die Werte
+
+**Entscheidung:** Die Palette kommt aus dem Logo (Navy `#022255`, Türkis
+`#02B9B5`, Koralle `#FD624D`). Welcher Ton wo landet, entscheidet nicht das
+Auge, sondern der Test: `packages/ui/test/tokens.test.ts` rechnet 19
+Farbpaare in drei Paletten durch und lässt nur durch, was WCAG 2.2 AA
+erfüllt – Text 4,5:1, große Schrift und Bedienelemente 3:1.
+
+**Warum:** Ein Rebrand ist der übliche Moment, in dem Barrierefreiheit
+verloren geht. Türkis auf Weiß sieht gut aus und hat 2,2:1. Der Test hat
+genau das abgefangen: Im hellen Bild trägt Navy den Akzent, das Türkis
+steht im dunklen Bild, wo es auf dunklem Grund trägt.
+
+**Preis:** Das Türkis des Logos ist im hellen Bild nur im Logo selbst zu
+sehen. Das ist der richtige Tausch: Die Marke ist im Bild, nicht in einer
+Schaltflächenfarbe, die niemand lesen kann.
+
+---
+
+## E-40 Das Startbild ist eine Animation, die einmal läuft
+
+**Entscheidung:** Auf der Startseite fährt das Foto langsam heran, dann
+blendet das Logo auf. Nach sieben Sekunden steht es still. Keine Schleife,
+kein Ton. Bei „Bewegung reduzieren" wird die Animation gar nicht erst
+geladen; dort steht das Standbild, das den letzten Bildpunkt zeigt.
+
+**Warum:** Eine Bewegung, die einen Anfang und ein Ende hat, erzählt etwas.
+Eine, die nicht aufhört, ist eine Zumutung – für Menschen mit vestibulären
+Störungen bis hin zu Übelkeit (WCAG 2.3.3, 2.2.2).
+
+**Preis:** 355 KB, die beim ersten Start geladen werden. Das Standbild
+allein wären 122 KB.
+
+**Geprüft:** Der Browser-Test misst am ausgelieferten Video, dass `loop`
+aus und `muted` an ist, und dass der Rahmen die Bildbeschreibung trägt.
+
+---
+
+## E-41 Die Sprachführung führt hin und füllt aus – abgeschickt wird auf dem Bildschirm
+
+**Entscheidung:** Mika begrüßt, fragt „Was kann ich für Sie tun?", hört zu
+oder liest mit, und bringt die Person zum passenden Bildschirm – mit
+bereits angekreuzter Kategorie. Absenden, buchen und einwilligen bleiben
+ein Fingertipp auf dem Bildschirm (`IRREVERSIBLE_ACTIONS`).
+
+**Warum:** Der Gewinn einer Stimme ist der Weg dorthin, nicht die
+Unterschrift darunter. Erkennung irrt sich, und zwar leise. Ein falsch
+verstandener Satz, der eine Buchung auslöst, ist ein Schaden, den niemand
+bemerkt, bevor jemand vor der Tür steht.
+
+**Wie erkannt wird:** mit einer festen Wortliste, nicht mit einem
+Sprachmodell (`packages/core/src/voice/wunsch.ts`). Sie ist im Klartext
+nachlesbar, irrt sich nachvollziehbar und läuft auf dem Gerät. Der Notfall
+wird vor jeder Kategorie geprüft: Wer „Notruf" sagt, landet nicht in einem
+Formular, sondern bei 112.
+
+**Was immer sichtbar ist:** der Wortlaut, wie er verstanden wurde. Unter
+50 Prozent Sicherheit wird nachgefragt statt geführt.
+
+---
+
+## E-42 Zuhören ist ein Weg, nicht der Weg
+
+**Entscheidung:** Neben dem Mikrofon steht immer ein Textfeld und eine
+Liste antippbarer Beispielsätze. Alle drei laufen durch dieselbe
+Auswertung.
+
+**Warum:** Zwei Gründe, und der zweite wiegt schwerer. Erstens gibt es die
+Erkennung nicht überall – im Browser über die Web Speech API, in der
+nativen App noch gar nicht. Zweitens ist die Zielgruppe dieser App
+teilweise genau die, deren Sprache eine Erkennung schlecht versteht:
+Menschen mit Dysarthrie, mit Sprechapraxie, nach einem Schlaganfall. Eine
+Sprachführung, die nur mit klarer Aussprache funktioniert, wäre ein Feature
+für alle außer denen, für die die App gebaut ist.
+
+**Und was mit der Stimme geschieht,** steht auf dem Bildschirm: In manchen
+Browsern wird die Aufnahme auf einem Server des Herstellers ausgewertet.
+Das Mikrofon geht nie von allein an, und die App speichert nichts davon.
+
+---
+
+## E-43 Mika übersetzt keine Gebärdensprache – und sagt das auf dem Bildschirm
+
+**Entscheidung:** Der Bildschirm „Verständigung" ist ein Werkzeug für
+unterstützte Kommunikation: Die Person wählt Karten oder tippt, das Gerät
+spricht laut, das Gegenüber antwortet mit Karten oder Text. Was das ist und
+was es nicht ist, steht darauf – samt einer Liste der Wege zu echter
+Gebärdensprache und dem, was daran noch fehlt.
+
+**Warum nicht mehr:** Gebärdenerkennung per Kamera ist heute nicht
+zuverlässig genug. Eine falsch erkannte Gebärde in einer Buchung oder einer
+Einwilligung wäre ein Fehler, den niemand bemerkt – weder die gehörlose
+Person, die glaubt, richtig verstanden worden zu sein, noch die hörende,
+die den Text für eine Übersetzung hält. Der ehrliche Weg zu vollwertiger
+DGS in beide Richtungen ist ein Ferndolmetschdienst mit Menschen (O-13).
+
+**Warum überhaupt:** Weil das, was heute läuft, für viele Menschen der
+Unterschied zwischen „kann sich äußern" und „wird für sich sprechen
+gelassen" ist. Die Karten sind in der Ich-Form, und es gibt eine ganze
+Gruppe für Grenzen – „Bitte nicht anfassen", „Bitte aufhören". Wer nicht
+sprechen kann, muss zuerst Nein sagen können.
+
+**Nichts davon wird gespeichert.** Das Gespräch steht auf dem Bildschirm
+und ist mit einem Tipp weg.
+
+---
+
 ## Offene Entscheidungen
 
 | Nummer | Frage | Wer entscheidet |
@@ -548,3 +663,5 @@ Kalender. Das ist praktisch und riskant zugleich; beides gehört gesagt.
 | O-10 | Was passiert, wenn eine verantwortliche Person dauerhaft nicht antwortet? Vertretung, Eskalation, Beschwerdeweg | Recht + Betrieb |
 | O-11 | Direkter Schreibzugriff auf den Gerätekalender (expo-calendar) statt Datei-Übergabe – lohnt die zusätzliche Berechtigung? | Produkt + Datenschutz |
 | O-12 | Wo wird der Abo-Kalender ausgeliefert, und wie werden Schlüssel gespeichert und zurückgezogen? | Technik + Datenschutz |
+| O-13 | Anbindung eines Ferndolmetschdienstes für DGS: Anbieter, Kosten, wer trägt sie | Produkt + Recht |
+| O-14 | Zuhören in der nativen App: Erkennung auf dem Gerät (offline, teurer) oder über einen Dienst (billiger, Daten verlassen das Handy) | Technik + Datenschutz |

@@ -99,6 +99,29 @@ Push-Vorschau erst recht nicht („Eine Freigabe wartet auf Sie").
 - Es gibt keine dauerhafte Standortverfolgung. Beginn und Ende eines Termins
   bestätigen die Beteiligten selbst.
 - Das Mikrofon läuft nur nach bewusster Aktivierung und sichtbar.
+- Das Gespräch auf dem Bildschirm „Verständigung" wird nicht gespeichert und
+  nicht verschickt. Es steht im Arbeitsspeicher und ist mit einem Tipp weg.
+
+## Was beim Zuhören geschieht
+
+Die Sprachführung hört nur zu, wenn jemand den Knopf drückt, und nur für
+einen Satz. Es gibt kein Schlüsselwort und kein Dauerlauschen.
+
+**Im Browser** wertet die Web Speech API aus. In Chrome und Edge geschieht
+das nicht auf dem Gerät, sondern auf einem Server des Browser-Herstellers –
+die Aufnahme verlässt also das Gerät, ohne dass diese App daran beteiligt
+ist. Genau das steht auf dem Bildschirm, an dem der Knopf sitzt, und nicht
+nur hier. Wer das nicht möchte, tippt: derselbe Weg, dasselbe Ergebnis.
+
+**Die App selbst speichert nichts davon.** Weder die Aufnahme noch das
+Erkannte verlässt das Gerät auf einem Weg, den diese App gebaut hat. Die
+Auswertung – aus „Ich möchte zum Arzt" wird eine Kategorie – läuft mit einer
+festen Wortliste im Gerät, ohne Netzabruf und ohne Sprachmodell.
+
+**Für die native App ist das noch offen** (O-14): Erkennung auf dem Gerät ist
+teurer und datenschutzfreundlich, ein Dienst ist billiger und schickt Audio
+weg. Bis das entschieden ist, gibt es in der nativen App kein Zuhören – und
+der Bildschirm sagt das, statt einen Knopf anzubieten, der nichts tut.
 
 ## Kalender auf dem privaten Handy
 
@@ -157,7 +180,9 @@ Datumsangaben und der Erklärung, warum manches gesperrt statt gelöscht wird.
 | Push-Dienst (Expo/APNs/FCM) | Benachrichtigungen | Gerätetoken, inhaltsarmer Text | AV-Vertrag **offen** |
 | WebRTC-Anbieter | Videoanrufe | Verbindungsdaten, Medienströme | Anbieter **noch nicht gewählt**; EU-Verarbeitung, keine Aufzeichnung |
 | Karten-/Geokodierung | Umkreissuche | gerundete Koordinaten | Anbieter **noch nicht gewählt**; selbst hosten prüfen |
-| Spracherkennung | Spracheingabe | Audio, Transkript | Anbieter **noch nicht gewählt**; Verarbeitung auf dem Gerät bevorzugen |
+| Spracherkennung Browser (Web Speech API) | Zuhören in der Web-Fassung | Audio, Transkript | in Chrome/Edge Verarbeitung beim Browser-Hersteller; **auf dem Bildschirm benannt**, Tippen als gleichwertiger Weg |
+| Spracherkennung native App | Zuhören auf dem Handy | Audio, Transkript | **nicht angebunden** (O-14); Verarbeitung auf dem Gerät bevorzugen |
+| Ferndolmetschdienst DGS | Gebärdensprache in beide Richtungen | Video, Ton, Gesprächsinhalt | Anbieter **noch nicht gewählt** (O-13); Berufsgeheimnis und AV-Vertrag klären |
 | Schriftart Atkinson Hyperlegible | Darstellung | keine | wird lokal ausgeliefert, kein Drittabruf |
 
 **Schriften und andere Ressourcen werden lokal ausgeliefert.** Ein Abruf von

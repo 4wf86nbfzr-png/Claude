@@ -47,6 +47,20 @@ interface AppStateValue {
   /** Merkt sich den Entwurf der laufenden Anfrage. */
   activeRequestId: Id | null;
   setActiveRequestId: (id: Id | null) => void;
+  /**
+   * Was die Sprachfuehrung verstanden hat und an den naechsten Bildschirm
+   * weiterreicht. Wird dort einmal gelesen und dann geleert -- ein Wunsch
+   * von vorgestern soll kein Formular von heute ausfuellen.
+   */
+  sprachWunsch: SprachWunsch | null;
+  setSprachWunsch: (wunsch: SprachWunsch | null) => void;
+}
+
+export interface SprachWunsch {
+  /** Vorgeschlagene Leistungskategorien. */
+  kategorien: string[];
+  /** Wortlaut, wie ihn die Sprachfuehrung verstanden hat. */
+  gehoert: string;
 }
 
 const AppStateContext = createContext<AppStateValue | null>(null);
@@ -70,6 +84,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const [currentUserId, setCurrentUserId] = useState<Id>(DEMO_USER);
   const [mode, setMode] = useState<Mode>(null);
   const [activeRequestId, setActiveRequestId] = useState<Id | null>(null);
+  const [sprachWunsch, setSprachWunsch] = useState<SprachWunsch | null>(null);
   const [rawPrefs, setRawPrefs] = useState<AccessibilityPreferences>(() =>
     createDefaultPreferences(DEMO_USER, 'standard', new Date().toISOString()),
   );
@@ -151,8 +166,10 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       easy,
       activeRequestId,
       setActiveRequestId,
+      sprachWunsch,
+      setSprachWunsch,
     }),
-    [service, data, prefs, rawPrefs, setUiMode, updatePrefs, mode, currentUserId, dgs, easy, activeRequestId],
+    [service, data, prefs, rawPrefs, setUiMode, updatePrefs, mode, currentUserId, dgs, easy, activeRequestId, sprachWunsch],
   );
 
   return <AppStateContext.Provider value={value}>{children}</AppStateContext.Provider>;

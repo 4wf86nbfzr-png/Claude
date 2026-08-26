@@ -33,8 +33,17 @@ gibt, kann es nicht geben – ein Test prüft die Schlüsselgleichheit.
 | `success`, `danger`, `warning` | Zustände – nie allein, immer mit Zeichen und Wort |
 | `emergency`, `textOnEmergency` | Notfallhinweis |
 
-`CONTRAST_PAIRS` beschreibt 17 Paare mit ihrer Rolle (Text 4,5:1,
-Bedienelement 3:1). Der Test prüft sie in allen drei Paletten – 51 Prüfungen.
+`CONTRAST_PAIRS` beschreibt 19 Paare mit ihrer Rolle (Text 4,5:1,
+Bedienelement 3:1). Der Test prüft sie in allen drei Paletten – 57 Prüfungen.
+
+**Die Werte kommen aus dem Logo, ihre Verteilung aus dem Test.**
+Markenfarben sind Navy `#022255`, Türkis `#02B9B5` und Koralle `#FD624D`
+(`markenfarben` in `color.ts`). Wo welcher Ton landet, entscheidet die
+Rechnung: Türkis auf Weiß hat 2,2:1 und fällt für Text und Bedienelemente
+durch. Deshalb trägt im hellen Bild Navy den Akzent, im dunklen Bild das
+Türkis – dort steht es auf dunklem Grund und trägt. Im hellen Bild ist das
+Türkis nur im Logo zu sehen. Das ist der richtige Tausch: Die Marke steckt
+im Bild, nicht in einer Schaltfläche, die niemand lesen kann.
 
 ### Typografie (`typography.ts`)
 
@@ -89,8 +98,11 @@ durchgängig, ohne dass eine Komponente sie einzeln berücksichtigen muss.
 | `ProgressSteps` | „Schritt x von y" als Text, Balken nur ergänzend |
 | `DgsVideo` | Hülle für Gebärdensprache: ehrlicher Stand, Abspieler, Transkript |
 | `Screen` mit `hero` | randloses Bild über der Überschrift, Beschreibung ist Pflicht, Höhe gedeckelt |
+| `Screen` mit `hero.video` | dasselbe als Animation; die Beschreibung sitzt am Rahmen, das Video selbst ist für den Screenreader unsichtbar |
 | `Screen` mit `dgs` | fester Platz für Begleitung und Gebärdensprache direkt unter der Überschrift |
 | `Avatar` | Foto nur mit Beschreibung; sonst neutraler Platzhalter mit Initialen |
+| `Startbild` (App) | die Startanimation: läuft einmal, stumm, entfällt bei „Bewegung reduzieren" |
+| `Rueckfragen` (App) | Mikas Rückfragen offen auf der Seite – für die Bildschirme, die Mika selbst sind |
 | `Screen` | Grundgerüst: eine Hauptüberschrift, scrollender Inhalt, fester Fußbereich |
 
 ## Zwei Ansprüche, dieselben Bausteine

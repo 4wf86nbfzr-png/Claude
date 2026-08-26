@@ -49,7 +49,22 @@ Nichts hiervon ist optional. Punkte mit **[Sperre]** verhindern den Start.
 - [ ] Schriftdateien (Atkinson Hyperlegible) lokal eingebunden und lizenziert.
 - [ ] **[Sperre]** Für jedes Foto in der App: Einwilligung der abgebildeten
       Personen und Nutzungslizenz dokumentiert. Betrifft aktuell das Bild auf
-      der Startseite.
+      der Startseite – **auch in seiner bewegten Fassung**
+      (`assets/bilder/startbild.webm`).
+- [ ] **[Sperre]** Rechte am Logo und am Namen „Helpmate" klären:
+      Markenrecherche, Verwendungsrechte an der Wort-Bild-Marke,
+      Domain. Der Name steht im Produkt an einer Stelle
+      (`packages/core/src/config/app-config.ts`) und ist bis zur Klärung
+      billig zu wechseln.
+- [ ] **[Sperre]** Vor dem Einschalten des Zuhörens in der nativen App
+      entscheiden (O-14), ob die Erkennung auf dem Gerät läuft oder Audio an
+      einen Dienst geht – und im zweiten Fall Einwilligung, AV-Vertrag und
+      Bildschirmtext dafür vorbereiten. In der Web-Fassung steht der Hinweis
+      zur Web Speech API bereits am Knopf.
+- [ ] Die Sprachführung mit Menschen testen, deren Aussprache von einer
+      Erkennung schlecht verstanden wird (Dysarthrie, Sprechapraxie, nach
+      einem Schlaganfall). Ergebnis muss sein: Der getippte Weg ist nicht
+      langsamer und nicht schlechter beschriftet.
 - [ ] Bildbeschreibungen redaktionell geprüft – nicht nur vorhanden, sondern
       auch zutreffend und respektvoll formuliert.
 

@@ -31,8 +31,16 @@ const adresse = 'http://localhost:4190/';
 const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH });
 const page = await browser.newPage({ viewport: { width: 414, height: 900 } });
 const fehler = [];
-page.on('pageerror', (e) => fehler.push(String(e).slice(0, 200)));
-page.on('console', (m) => { if (m.type() === 'error') fehler.push(m.text().slice(0, 200)); });
+/**
+ * Eine Meldung des Browsers, die kein Fehler der App ist: Wird beim
+ * Verlassen der Startseite die Startanimation aus der Seite genommen,
+ * bevor sie fertig geladen hat, bricht der Browser den Abspielwunsch ab.
+ * expo-video faengt die Absage nicht ab, deshalb steht sie in der Konsole.
+ * Sichtbar ist davon nichts. Alle anderen Konsolenfehler zaehlen weiter.
+ */
+const bekannteBrowsermeldung = (t) => t.includes('play() request was interrupted');
+page.on('pageerror', (e) => { if (!bekannteBrowsermeldung(String(e))) fehler.push(String(e).slice(0, 200)); });
+page.on('console', (m) => { if (m.type() === 'error' && !bekannteBrowsermeldung(m.text())) fehler.push(m.text().slice(0, 200)); });
 
 let offen = 0;
 const pruef = (label, ok) => { if (!ok) offen++; console.log(`${ok ? 'OK  ' : 'FEHLER'}  ${label}`); };
@@ -46,20 +54,32 @@ const start = async () => {
 await start();
 
 const bild = await page.evaluate(() => {
-  // react-native-web setzt die Bildbeschreibung als alt-Attribut.
-  const beschriftung = (el) => el.getAttribute('alt') || el.getAttribute('aria-label') || '';
-  const img = [...document.querySelectorAll('img')].find((x) => beschriftung(x).includes('tanzen'));
-  if (!img) return null;
-  const r = img.getBoundingClientRect();
+  // Auf der Startseite laeuft die Animation. Sie sitzt in einem Rahmen, der
+  // die Bildbeschreibung traegt -- react-native-web macht daraus aria-label.
+  const beschriftung = (el) => el.getAttribute('aria-label') || el.getAttribute('alt') || '';
+  const rahmen = [...document.querySelectorAll('[aria-label], img')]
+    .find((x) => beschriftung(x).includes('tanzen'));
+  if (!rahmen) return null;
+  const r = rahmen.getBoundingClientRect();
+  const video = rahmen.querySelector('video');
+  const img = rahmen.tagName === 'IMG' ? rahmen : rahmen.querySelector('img');
   return {
     breite: Math.round(r.width), hoehe: Math.round(r.height), links: Math.round(r.left),
-    geladen: img.complete && img.naturalWidth > 0, alt: beschriftung(img),
+    alt: beschriftung(rahmen),
+    video: video !== null,
+    // Bewegtes Bild: laeuft es? Standbild: ist es geladen?
+    geladen: video ? video.readyState > 0 : !!img && img.complete && img.naturalWidth > 0,
+    schleife: video ? video.loop : false,
+    stumm: video ? video.muted : true,
   };
 });
 pruef('Startbild vorhanden', bild !== null);
 pruef('Randlos über die volle Breite', bild !== null && bild.links === 0 && bild.breite >= 410);
 pruef('Große Bühne statt Briefmarke', bild !== null && bild.hoehe >= 200);
 pruef('Bild geladen', bild?.geladen === true);
+pruef('Startbild ist eine Animation', bild?.video === true);
+pruef('Animation läuft nicht endlos', bild?.schleife === false);
+pruef('Animation ist stumm', bild?.stumm === true);
 pruef('Bildbeschreibung vorhanden', (bild?.alt.length ?? 0) > 60);
 
 // --------------------------------------------------------- Gebärdensprache

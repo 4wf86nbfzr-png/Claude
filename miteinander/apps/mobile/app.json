@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "MITEINANDER",
-    "slug": "miteinander",
+    "name": "Helpmate",
+    "slug": "helpmate",
     "version": "0.1.0",
     "orientation": "default",
-    "scheme": "miteinander",
+    "scheme": "helpmate",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "assetBundlePatterns": [

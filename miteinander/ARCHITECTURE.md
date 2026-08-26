@@ -61,8 +61,8 @@ Zwei Gründe, beide praktisch:
 | `booking/` | Zustandsautomat, Absageregeln, Bestätigungs-Zusammenfassungen |
 | `privacy/` | feldgenaue Sichtbarkeit, Einwilligungen, Aufbewahrung |
 | `security/` | Rechte, Vier-Augen-Prinzip, Nachweise, Vorfälle, Freigaben |
-| `voice/` | Sprachbefehle, Bestätigungspflicht, Ersatzwege |
-| `content/` | Gebärdensprache (Skripte, Katalog, Untertitel als WebVTT), Leichte Sprache, Begleitung |
+| `voice/` | Sprachbefehle, Bestätigungspflicht, Ersatzwege; Absichtserkennung der Sprachführung (`wunsch.ts`, feste Wortliste, kein Sprachmodell) |
+| `content/` | Gebärdensprache (Skripte, Katalog, Untertitel als WebVTT), Leichte Sprache, Begleitung, Karten für unterstützte Kommunikation (`kommunikation.ts`) |
 | `kalender/` | iCalendar-Erzeugung und Abo-Adressen |
 | `data/` | Repository-Schnittstellen, In-Memory-Implementierung |
 | `services/` | Anwendungsschicht: verbindet Daten, Rechte, Einwilligungen, Domäne |

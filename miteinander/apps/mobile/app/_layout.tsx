@@ -9,6 +9,8 @@ import { AccessibilityHeaderButton } from '../src/components/AccessibilityHeader
 /** Route -> Titel in der Kopfzeile. */
 const SCREEN_TITLES: Array<[string, string]> = [
   ['index', 'Start'],
+  ['sprachfuehrung', 'Mika führt Sie'],
+  ['mika', 'Verständigung'],
   ['bedienhilfen', 'Bedienhilfen'],
   ['anmelden', 'Anmelden'],
   ['hilfe', 'Hilfe und Notfall'],

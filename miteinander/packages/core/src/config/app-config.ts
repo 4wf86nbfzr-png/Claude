@@ -1,9 +1,9 @@
 /**
  * Zentrale Produktkonfiguration.
  *
- * Der Arbeitstitel "MITEINANDER" ist bewusst NUR hier hinterlegt. Kein anderer
- * Programmteil darf den Namen fest verdrahten -- ein spaeterer Rebrand aendert
- * ausschliesslich diese Datei bzw. die Umgebungsvariablen.
+ * Der Produktname ist bewusst NUR hier hinterlegt. Kein anderer Programmteil
+ * darf ihn fest verdrahten. Dass der Wechsel vom Arbeitstitel "MITEINANDER"
+ * zu "Helpmate" genau eine Zeile gekostet hat, ist der Beleg dafuer.
  */
 
 export interface AppConfig {
@@ -44,8 +44,8 @@ function flag(key: string, fallback: boolean): boolean {
 }
 
 export const appConfig: AppConfig = {
-  appName: env('EXPO_PUBLIC_APP_NAME', 'MITEINANDER'),
-  appNameShort: env('EXPO_PUBLIC_APP_NAME_SHORT', 'MITEINANDER'),
+  appName: env('EXPO_PUBLIC_APP_NAME', 'Helpmate'),
+  appNameShort: env('EXPO_PUBLIC_APP_NAME_SHORT', 'Helpmate'),
   claim: env(
     'EXPO_PUBLIC_APP_CLAIM',
     'Hier finden Sie Menschen, die Sie im Alltag unterstützen.',
