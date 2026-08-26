@@ -100,6 +100,27 @@ Push-Vorschau erst recht nicht („Eine Freigabe wartet auf Sie").
   bestätigen die Beteiligten selbst.
 - Das Mikrofon läuft nur nach bewusster Aktivierung und sichtbar.
 
+## Kalender auf dem privaten Handy
+
+Ein Handy-Kalender ist kein geschützter Ort: Einträge erscheinen auf dem
+Sperrbildschirm, werden mit Firmenkonten abgeglichen und von anderen Apps
+gelesen. Deshalb enthält ein Eintrag nur:
+
+| Im Kalender | Nicht im Kalender |
+| --- | --- |
+| Tätigkeit („Begleitung zu Terminen") | Name der unterstützten Person |
+| Beginn und Dauer | Genaue Adresse |
+| Vereinbarter Treffpunkt | Telefonnummer |
+| Hinweis, dass Details in der App stehen | Angaben zum Unterstützungsbedarf |
+
+Der Abo-Link (`webcal://…`) trägt keine Anmeldung – wer ihn hat, sieht die
+Einsatzzeiten. Er ist deshalb als das benannt, was er ist, und jederzeit
+zurückziehbar: ein neuer Schlüssel macht den alten sofort ungültig.
+
+**Vor dem Start zu klären** (O-12): wo der Abo-Kalender ausgeliefert wird, wie
+Schlüssel gespeichert und zurückgezogen werden, und ob ein direkter
+Schreibzugriff auf den Gerätekalender die zusätzliche Berechtigung wert ist.
+
 ## Aufbewahrung und Löschung
 
 | Datenart | Frist | Ab wann | Bei Löschwunsch |

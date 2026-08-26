@@ -360,12 +360,54 @@ export class SupportService {
       : request;
 
     await this.data.requests.save(gespeichert);
+
+    // Passende Anbietende erfahren sofort, dass jemand sie brauchen koennte.
+    // Erst wenn die Anfrage offen ist -- eine Anfrage, die noch auf eine
+    // Freigabe wartet, geht niemanden etwas an.
+    if (gespeichert.status === 'open') {
+      await this.notifyMatchingProviders(gespeichert);
+    }
+
     await this.audit(draft.seekerId, 'request.submitted', 'support_requests', request.id, {
       categories: request.categoryKeys.length,
       requiresLicensedProfessional: request.requiresLicensedProfessional,
       wartetAufFreigabe: freigabe !== undefined,
     });
     return gespeichert;
+  }
+
+  /**
+   * Benachrichtigt Anbietende, zu denen eine neue Anfrage passt.
+   *
+   * Es gelten dieselben harten Ausschlusskriterien wie im Matching --
+   * insbesondere sieht eine erlaubnispflichtige Anfrage nur, wer die
+   * Qualifikation nachgewiesen hat. Die Vorschau nennt nie den Inhalt.
+   */
+  private async notifyMatchingProviders(request: SupportRequest): Promise<number> {
+    const records = await this.loadAllProviderRecords();
+    const treffer = findMatches(request, records, { today: this.clock.today() });
+    for (const match of treffer) {
+      await this.notify(
+        match.providerId,
+        'message',
+        'Eine neue Anfrage passt zu Ihnen',
+        `/anbieten/auftraege`,
+      );
+    }
+    return treffer.length;
+  }
+
+  /** Ungelesene Benachrichtigungen einer Person. */
+  async unreadNotifications(userId: Id): Promise<Notification[]> {
+    return (await this.data.notifications.forUser(userId))
+      .filter((n) => !n.readAt)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  }
+
+  async markNotificationRead(userId: Id, notificationId: Id): Promise<void> {
+    const alle = await this.data.notifications.forUser(userId);
+    const eintrag = alle.find((n) => n.id === notificationId);
+    if (eintrag) await this.data.notifications.save({ ...eintrag, readAt: this.clock.now() });
   }
 
   /** Laedt einen Anbietenden vollstaendig -- Profil, Leistungen, Nachweise, Zeiten. */

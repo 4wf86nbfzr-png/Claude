@@ -94,6 +94,27 @@ Betriebssystem meldet. Systemseitige Einschränkungen gewinnen immer:
   dem Inhalt: ein Overlay würde je nach Schriftgröße dauerhaft ein Bedienelement
   verdecken (WCAG 2.4.11).
 
+## Die Begleitung
+
+Auf jedem Bildschirm führt „Mika" durch die App: wo Sie sind, was Sie hier tun
+können, was danach passiert, was der nächste Schritt ist – dazu eine feste
+Liste von Rückfragen. Alles in normaler Sprache, in Leichter Sprache,
+vorlesbar und in Gebärdensprache.
+
+Drei Festlegungen, die dahinterstehen:
+
+- Mika sagt auf jedem Bildschirm, **kein Mensch** zu sein.
+- Mika **gebärdet nicht selbst**, sondern zeigt geprüfte Videos. Fehlt eines,
+  wird das gesagt.
+- Die Antworten sind **geschrieben, nicht erzeugt**. Kein Sprachmodell, kein
+  Netzabruf – eine frei formulierende Begleitung könnte einer Person etwas
+  Falsches über eine Buchung sagen.
+
+Gebärdensprache steht **daneben** und nicht nur darin: neben „Mika fragen"
+gibt es auf jedem Bildschirm einen eigenen Knopf „In Gebärdensprache
+ansehen". Ist die Einstellung eingeschaltet, ist der Bereich von vornherein
+offen.
+
 ## Verständlich
 
 - Ein Hauptschritt pro Ansicht, Fortschritt als Text („Schritt 3 von 5"), nicht
@@ -204,6 +225,8 @@ kein Ersatz für die Prüfgruppe.
 | Gebärdensprache wird nicht als fertig behauptet | `packages/core/test/content.test.ts` |
 | Untertitel folgen der Schriftgröße | `apps/mobile/e2e/gebaerdensprache.mjs` |
 | Bedieneinstellungen überleben den Neustart | `apps/mobile/e2e/gebaerdensprache.mjs` |
+| Begleitung erklärt jeden Bildschirm und nennt sich nicht Mensch | `apps/mobile/e2e/begleiter-planer.mjs` |
+| Kalendereintrag enthält keine Namen oder Adressen | `packages/core/test/`, `apps/mobile/e2e/begleiter-planer.mjs` |
 | Bedienbarkeit im echten Browser | `apps/mobile/e2e/` |
 
 **Automatisierte Tests finden höchstens einen Teil der Barrieren.** Der

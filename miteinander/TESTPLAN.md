@@ -157,6 +157,17 @@ Testdaten: `supabase/seed/seed.sql`. Alle Konten sind an „(Demo)" erkennbar.
 - [ ] **Test mit gehörlosen Menschen, DGS als Erstsprache** – ohne den gilt
       dieser Abschnitt nicht als abgeschlossen.
 
+## G3 Die Begleitung
+
+- [ ] Auf jedem Bildschirm ist „Mika fragen" erreichbar.
+- [ ] Daneben steht ein eigener Knopf für Gebärdensprache.
+- [ ] Mika nennt sich sichtbar als kein Mensch.
+- [ ] Mika sagt, nicht selbst zu gebärden.
+- [ ] Die vier Erklärungen stimmen mit dem Bildschirm überein.
+- [ ] Rückfragen lassen sich öffnen und vorlesen.
+- [ ] Mit Screenreader: die Antwort wird nach dem Antippen angesagt.
+- [ ] Im Einfach-Modus erscheinen die kurzen Fassungen.
+
 ## H. Fachliche Abläufe
 
 ### H1 Anfrage
@@ -193,6 +204,21 @@ Testdaten: `supabase/seed/seed.sql`. Alle Konten sind an „(Demo)" erkennbar.
 - [ ] „Das mache ich ausdrücklich nicht" ist Pflichtfeld.
 - [ ] Die Vorschau entspricht der tatsächlichen Anzeige.
 - [ ] Ein ablaufender Nachweis wird rechtzeitig gemeldet.
+
+### H4b Planer und Kalender
+
+- [ ] Der Planer zeigt die Woche und lässt sich blättern.
+- [ ] Ein Einsatz lässt sich in den Kalender legen.
+- [ ] Im Kalendereintrag stehen **kein Name und keine Adresse** – auf dem
+      Gerät nachprüfen, nicht nur in der App.
+- [ ] Der Eintrag erscheint mit richtiger Zeit und Dauer, auch über die
+      Sommerzeitumstellung hinweg.
+- [ ] Der Abo-Link lässt sich im Kalender des Handys abonnieren.
+- [ ] Ein neuer Link macht den alten sofort ungültig.
+- [ ] Eine Absage kommt im verbundenen Kalender an.
+- [ ] Bei einer passenden neuen Anfrage kommt eine Benachrichtigung.
+- [ ] In der Benachrichtigungs-Vorschau steht nie der Inhalt der Anfrage.
+- [ ] Eine erlaubnispflichtige Anfrage erreicht nur geprüfte Fachkräfte.
 
 ### H5 Schutz
 

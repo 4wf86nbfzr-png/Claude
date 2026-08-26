@@ -27,7 +27,7 @@ import {
   useTheme,
 } from '@miteinander/ui';
 import { useAppState } from '../../src/state/app-state';
-import { DgsAbschnitt } from '../../src/components/DgsAbschnitt';
+import { Begleiter } from '../../src/components/Begleiter';
 import { announce, useReadAloud } from '../../src/state/speech';
 
 /**
@@ -98,7 +98,7 @@ export default function RequestWizard() {
       title={prefs.easyLanguage ? step.title : step.formalTitle}
       intro={step.help}
       onSpeak={speak}
-      dgs={<DgsAbschnitt schluessel={step.dgsKey} />}
+      dgs={<Begleiter schluessel={`anfrage.${step.key}`} />}
       footer={
         <ButtonStack>
           {step.key === 'summary' ? (

@@ -9,7 +9,7 @@ import {
 import { Button, Callout, ChoiceCard, Screen, Text, useTheme } from '@miteinander/ui';
 import { useAppState } from '../src/state/app-state';
 import { useReadAloud } from '../src/state/speech';
-import { DgsAbschnitt } from '../src/components/DgsAbschnitt';
+import { Begleiter } from '../src/components/Begleiter';
 
 /**
  * Screen 2 und 18: Bedienhilfen einrichten / Barrierefreiheitscenter.
@@ -81,7 +81,7 @@ export default function AccessibilityCenter() {
       intro="Stellen Sie hier ein, wie die App für Sie aussehen und sprechen soll. Änderungen wirken sofort."
       easyIntro="Hier stellen Sie die App ein. Zum Beispiel: große Schrift."
       onSpeak={speak}
-      dgs={<DgsAbschnitt schluessel="onboarding.accessibility" />}
+      dgs={<Begleiter schluessel="bedienhilfen" />}
     >
       <Text variant="heading" accessibilityRole="header">
         Bedienmodus

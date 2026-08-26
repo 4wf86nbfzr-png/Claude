@@ -459,6 +459,79 @@ Adminbereich, dann im Browser-Test der Freigaben.
 
 ---
 
+## E-34 Die Begleitung ist geschrieben, nicht erzeugt
+
+**Entscheidung:** Alle Erklärungen und Antworten der Begleitung stehen als
+Text im Quellcode. Kein Sprachmodell, kein Netzabruf.
+
+**Warum:** Eine Begleitung, die frei formuliert, kann sich irren – über eine
+Absageregel, über eine Frist, über das, was eine Freigabe bedeutet. Die Person
+davor hätte keine Möglichkeit, das zu erkennen. Bei einem Produkt, das
+Verpflichtungen vermittelt, ist ein festes Skript kein Rückschritt, sondern
+die Voraussetzung dafür, dass man sich darauf verlassen kann.
+
+**Preis:** Die Begleitung kennt nur die Fragen, die jemand vorher aufgeschrieben
+hat. Das ist der richtige Preis.
+
+---
+
+## E-35 Die Begleitung sagt, dass sie kein Mensch ist
+
+**Entscheidung:** Sie hat einen Namen und eine Figur – und direkt darunter
+steht „Ich bin ein Teil dieser App und kein Mensch."
+
+**Warum der Name:** Eine Begleitung, die man ansprechen kann, ist leichter zu
+nutzen als ein Menüpunkt namens „Hilfe".
+
+**Warum die Selbstauskunft daneben:** Eine Figur, die sich für einen Menschen
+ausgeben würde, wäre genau das Dark Pattern, das dieses Produkt nicht haben
+soll – besonders gegenüber Menschen, die auf Vertrauen angewiesen sind.
+
+**Und ausdrücklich:** Sie gebärdet nicht selbst. Ein erzeugter
+Gebärden-Avatar wäre eine Behauptung über eine Sprache, die niemand geprüft
+hat. Gebärdensprache kommt aus den produzierten Videos.
+
+---
+
+## E-36 Gebärdensprache bleibt neben der Begleitung stehen
+
+**Entscheidung:** Erst lag die Gebärdensprache nur noch in der Begleitung.
+Jetzt steht auf jedem Bildschirm ein eigener Knopf daneben.
+
+**Warum geändert:** Der Browser-Test hat es gefunden – der Einstieg hieß nur
+noch „Mika fragen: Was ist das hier?". Wer Gebärdensprache braucht, hätte
+raten müssen, dass sie dahinter liegt. Eine Verbesserung für die einen darf
+kein Rückschritt für die anderen sein.
+
+---
+
+## E-37 Der Kalendereintrag ist bewusst arm
+
+**Entscheidung:** In den Kalender kommen Tätigkeit, Zeit und Treffpunkt. Kein
+Name, keine Wohnadresse, nichts zur Gesundheit.
+
+**Warum:** Ein Handy-Kalender ist kein geschützter Ort. Einträge erscheinen
+auf dem Sperrbildschirm, werden mit Firmenkonten abgeglichen und von anderen
+Apps gelesen. „Begleitung zu Terminen, 10 Uhr, Bürgeramt" genügt zum Planen.
+„Frau Kessler, Beispielweg 12" wäre eine Weitergabe an alle, die zufällig auf
+das Display schauen.
+
+**Geprüft:** Der Browser-Test lädt die erzeugte Datei herunter und sucht
+darin nach Namen und Adressen.
+
+---
+
+## E-38 Der Abo-Link ist ein Ausweis und muss zurückziehbar sein
+
+**Entscheidung:** Wer den Kalender dauerhaft verbindet, bekommt einen Link mit
+Schlüssel. Daneben steht, was das bedeutet, und ein Knopf, der einen neuen
+erzeugt – der alte wird sofort ungültig.
+
+**Warum:** Ein Abo-Link trägt keine Anmeldung. Wer ihn hat, sieht den
+Kalender. Das ist praktisch und riskant zugleich; beides gehört gesagt.
+
+---
+
 ## Offene Entscheidungen
 
 | Nummer | Frage | Wer entscheidet |
@@ -473,3 +546,5 @@ Adminbereich, dann im Browser-Test der Freigaben.
 | O-08 | Betrieb des Sicherheitsteams: Zeiten, Besetzung, Eskalation | Betrieb |
 | O-09 | Wie wird geprüft, dass ein gerichtlicher Einwilligungsvorbehalt echt ist? Aktenzeichen allein belegt nichts | Recht + Betrieb |
 | O-10 | Was passiert, wenn eine verantwortliche Person dauerhaft nicht antwortet? Vertretung, Eskalation, Beschwerdeweg | Recht + Betrieb |
+| O-11 | Direkter Schreibzugriff auf den Gerätekalender (expo-calendar) statt Datei-Übergabe – lohnt die zusätzliche Berechtigung? | Produkt + Datenschutz |
+| O-12 | Wo wird der Abo-Kalender ausgeliefert, und wie werden Schlüssel gespeichert und zurückgezogen? | Technik + Datenschutz |

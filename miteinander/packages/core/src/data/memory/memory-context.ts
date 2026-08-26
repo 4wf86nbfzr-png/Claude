@@ -292,7 +292,9 @@ export function createMemoryContext(seed: MemorySeed = {}): DataContext {
     },
     safety: {
       async saveReport(report) {
-        reports.push(clone(report));
+        const idx = reports.findIndex((r) => r.id === report.id);
+        if (idx >= 0) reports[idx] = clone(report);
+        else reports.push(clone(report));
         return report;
       },
       async reports() {
@@ -313,7 +315,9 @@ export function createMemoryContext(seed: MemorySeed = {}): DataContext {
         return reviews.filter((r) => r.subjectId === subjectId).map(clone);
       },
       async save(review) {
-        reviews.push(clone(review));
+        const idx = reviews.findIndex((r) => r.id === review.id);
+        if (idx >= 0) reviews[idx] = clone(review);
+        else reviews.push(clone(review));
         return review;
       },
     },
@@ -322,7 +326,11 @@ export function createMemoryContext(seed: MemorySeed = {}): DataContext {
         return notifications.filter((n) => n.userId === userId).map(clone);
       },
       async save(notification) {
-        notifications.push(clone(notification));
+        // Aktualisieren statt anhaengen -- sonst erzeugt "als gelesen
+        // markieren" ein Duplikat statt den Eintrag zu aendern.
+        const idx = notifications.findIndex((n) => n.id === notification.id);
+        if (idx >= 0) notifications[idx] = clone(notification);
+        else notifications.push(clone(notification));
         return notification;
       },
     },

@@ -89,7 +89,7 @@ durchgängig, ohne dass eine Komponente sie einzeln berücksichtigen muss.
 | `ProgressSteps` | „Schritt x von y" als Text, Balken nur ergänzend |
 | `DgsVideo` | Hülle für Gebärdensprache: ehrlicher Stand, Abspieler, Transkript |
 | `Screen` mit `hero` | randloses Bild über der Überschrift, Beschreibung ist Pflicht, Höhe gedeckelt |
-| `Screen` mit `dgs` | fester Platz für Gebärdensprache direkt unter der Überschrift |
+| `Screen` mit `dgs` | fester Platz für Begleitung und Gebärdensprache direkt unter der Überschrift |
 | `Avatar` | Foto nur mit Beschreibung; sonst neutraler Platzhalter mit Initialen |
 | `Screen` | Grundgerüst: eine Hauptüberschrift, scrollender Inhalt, fester Fußbereich |
 

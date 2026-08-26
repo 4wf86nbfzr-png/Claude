@@ -15,10 +15,17 @@ import { DgsPlayer } from './DgsPlayer';
  * Ist die Einstellung an, ist der Bereich offen. Sonst steht dort eine
  * Schaltfläche, die ihn öffnet.
  */
-export function DgsAbschnitt({ schluessel }: { schluessel: string }) {
+export function DgsAbschnitt({
+  schluessel,
+  standardOffen,
+}: {
+  schluessel: string;
+  /** Von aussen aufgeklappt -- etwa wenn die Begleitung genau deswegen geöffnet wurde. */
+  standardOffen?: boolean;
+}) {
   const theme = useTheme();
   const { dgs, prefs } = useAppState();
-  const [offen, setOffen] = useState(prefs.signLanguage);
+  const [offen, setOffen] = useState(standardOffen ?? prefs.signLanguage);
 
   const item = dgs.get(schluessel);
   if (!item) return null;
@@ -47,7 +54,7 @@ export function DgsAbschnitt({ schluessel }: { schluessel: string }) {
           quelle === undefined ? null : <DgsPlayer item={inhalt} quelle={quelle} />
         }
       />
-      {!prefs.signLanguage ? (
+      {!prefs.signLanguage && !standardOffen ? (
         <Button
           label="Gebärdensprache ausblenden"
           variant="quiet"

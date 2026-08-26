@@ -18,7 +18,7 @@ import {
 } from '@miteinander/ui';
 import { useAppState } from '../../../src/state/app-state';
 import { useReadAloud } from '../../../src/state/speech';
-import { DgsAbschnitt } from '../../../src/components/DgsAbschnitt';
+import { Begleiter } from '../../../src/components/Begleiter';
 
 /**
  * Screen 10: Buchungszusammenfassung und Bestätigung.
@@ -96,7 +96,7 @@ export default function BookingConfirmation() {
       intro="Bitte lesen Sie alles in Ruhe durch. Nichts passiert, bevor Sie bestätigen."
       easyIntro="Bitte prüfen Sie: Stimmt alles?"
       onSpeak={speak}
-      dgs={<DgsAbschnitt schluessel="booking.summary" />}
+      dgs={<Begleiter schluessel="buchung" />}
       footer={
         <ButtonStack>
           <Button

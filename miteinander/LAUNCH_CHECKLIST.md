@@ -78,6 +78,8 @@ Nichts hiervon ist optional. Punkte mit **[Sperre]** verhindern den Start.
       „(Demo)" und `.invalid`-Adressen erkennbar.
 - [ ] Notrufnummern für den tatsächlichen Betriebsraum geprüft.
 - [ ] Hilfetexte und Kategorien redaktionell durchgesehen.
+- [ ] Alle Erklärungen der Begleitung gegen die tatsächlichen Abläufe geprüft.
+      Eine falsche Erklärung ist schlimmer als keine.
 - [ ] Onboarding-Material für das Prüf- und Sicherheitsteam.
 
 ## 5. Technik
@@ -91,6 +93,10 @@ Nichts hiervon ist optional. Punkte mit **[Sperre]** verhindern den Start.
 - [ ] Karten-/Geokodierungsanbieter gewählt oder selbst gehostet.
 - [ ] Spracherkennung angebunden; Verarbeitung auf dem Gerät bevorzugt.
 - [ ] Push-Benachrichtigungen eingerichtet, Vorschauen bleiben inhaltsarm.
+- [ ] **[Sperre]** Auslieferung des Abo-Kalenders geklärt: Wo liegt der Feed,
+      wie werden Schlüssel gespeichert, wie zurückgezogen? (O-12)
+- [ ] Kalendereinträge auf echten Geräten geprüft – iOS, Android, Outlook –
+      einschließlich Zeitzone und Sommerzeit.
 - [ ] Biometrische Anmeldung über die Betriebssystemfunktionen umgesetzt.
 - [ ] CI: Lint, Typecheck, Unit-, Integrations-, Accessibility- und
       End-to-End-Tests bei jedem Pull Request.

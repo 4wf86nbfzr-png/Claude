@@ -62,7 +62,8 @@ Zwei Gründe, beide praktisch:
 | `privacy/` | feldgenaue Sichtbarkeit, Einwilligungen, Aufbewahrung |
 | `security/` | Rechte, Vier-Augen-Prinzip, Nachweise, Vorfälle, Freigaben |
 | `voice/` | Sprachbefehle, Bestätigungspflicht, Ersatzwege |
-| `content/` | Gebärdensprache (Skripte, Katalog, Untertitel als WebVTT) und Leichte Sprache |
+| `content/` | Gebärdensprache (Skripte, Katalog, Untertitel als WebVTT), Leichte Sprache, Begleitung |
+| `kalender/` | iCalendar-Erzeugung und Abo-Adressen |
 | `data/` | Repository-Schnittstellen, In-Memory-Implementierung |
 | `services/` | Anwendungsschicht: verbindet Daten, Rechte, Einwilligungen, Domäne |
 | `seed/` | eindeutig fiktive Demo-Daten |
@@ -78,6 +79,10 @@ einzeln berücksichtigen muss.
 Die Farbtokens werden im Test gegen WCAG 2.2 AA geprüft: 17 Farbpaare in drei
 Paletten, 51 Prüfungen. Ein neuer Farbwert, der eine Schwelle reißt, lässt die
 Testsuite fehlschlagen.
+
+Plattformwissen liegt bewusst an einer einzigen Stelle:
+`apps/mobile/src/kalender/geraetekalender.ts` übergibt die fertige Datei an
+Browser oder Teilen-Menü. Der Inhalt kommt aus dem Kern und ist dort getestet.
 
 ### `apps/mobile`
 

@@ -31,6 +31,8 @@ export * from './voice/commands';
 export * from './content/dgs';
 export * from './content/dgs-skripte';
 export * from './content/untertitel';
+export * from './content/begleiter';
+export * from './kalender/ics';
 export * from './content/easy-language';
 
 export * from './data/repositories';

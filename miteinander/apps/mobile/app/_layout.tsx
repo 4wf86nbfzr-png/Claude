@@ -30,6 +30,7 @@ const SCREEN_TITLES: Array<[string, string]> = [
   ['anbieten/onboarding', 'Unterstützung anbieten'],
   ['anbieten/leistungen', 'Mein Leistungsprofil'],
   ['anbieten/auftraege', 'Anfragen'],
+  ['anbieten/planer', 'Mein Planer'],
   ['anbieten/nachweise', 'Meine Nachweise'],
 ];
 

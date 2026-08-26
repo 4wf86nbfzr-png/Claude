@@ -6,7 +6,7 @@ import { Button, Callout, ChoiceCard, EmergencyBar, Screen, Text, useTheme } fro
 import { useAppState } from '../src/state/app-state';
 import { heroStartseite } from '../src/inhalte/bilder';
 import { useReadAloud } from '../src/state/speech';
-import { DgsAbschnitt } from '../src/components/DgsAbschnitt';
+import { Begleiter } from '../src/components/Begleiter';
 
 /**
  * Screen 1: Start und Moduswahl.
@@ -33,7 +33,7 @@ export default function StartScreen() {
       intro={appConfig.claim}
       easyIntro="Hier finden Sie Menschen, die Ihnen helfen."
       onSpeak={speak}
-      dgs={<DgsAbschnitt schluessel="onboarding.mode_choice" />}
+      dgs={<Begleiter schluessel="start" />}
       hero={heroStartseite}
     >
       <Text variant="heading" accessibilityRole="header">

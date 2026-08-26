@@ -5,7 +5,7 @@ import { formatDateTimeGerman, isApprovalOverdue, type ApprovalRequest } from '@
 import { Button, Callout, Screen, Text, useTheme } from '@miteinander/ui';
 import { useAppState } from '../../src/state/app-state';
 import { useReadAloud } from '../../src/state/speech';
-import { DgsAbschnitt } from '../../src/components/DgsAbschnitt';
+import { Begleiter } from '../../src/components/Begleiter';
 
 /**
  * Übersicht für verantwortliche Personen.
@@ -62,7 +62,7 @@ export default function VerantwortlichUebersicht() {
       intro="Hier sehen Sie, was ansteht, und geben frei, was vereinbart wurde."
       easyIntro="Hier sehen Sie: Was ist los?\nUnd: Wo müssen Sie Ja sagen?"
       onSpeak={speak}
-      dgs={<DgsAbschnitt schluessel="privacy.overview" />}
+      dgs={<Begleiter schluessel="verantwortlich" />}
     >
       <Callout tone="info" title="Die Person entscheidet mit">
         Ihre Übersicht ist kein heimlicher Einblick. Die Person sieht in ihrer eigenen App, was Sie

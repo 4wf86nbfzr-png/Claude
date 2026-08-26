@@ -13,7 +13,7 @@ import {
 } from '@miteinander/ui';
 import { useAppState } from '../../src/state/app-state';
 import { useReadAloud } from '../../src/state/speech';
-import { DgsAbschnitt } from '../../src/components/DgsAbschnitt';
+import { Begleiter } from '../../src/components/Begleiter';
 
 /**
  * Screen 6: Vorschläge als grosse Karten.
@@ -61,7 +61,7 @@ export default function Suggestions() {
       intro="Wir zeigen Ihnen, warum wir jede Person vorschlagen. Sie entscheiden."
       easyIntro="Diese Menschen können Ihnen helfen. Sie können auswählen."
       onSpeak={speak}
-      dgs={<DgsAbschnitt schluessel="search.overview" />}
+      dgs={<Begleiter schluessel="vorschlaege" />}
       footer={
         compare.length >= 2 ? (
           <Button

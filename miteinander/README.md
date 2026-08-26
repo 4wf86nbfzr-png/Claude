@@ -20,6 +20,10 @@ Der vertikale Kern läuft durchgehend – von der Anfrage bis zur bestätigten B
 | Ablauf | Zustand |
 | --- | --- |
 | Drei Zugänge auf der Startseite: Hilfesuchende, Dienstleister, Verantwortliche | funktionsfähig, getestet |
+| Begleitung „Mika": führt durch jeden Bildschirm, beantwortet Rückfragen | funktionsfähig, getestet |
+| Planer für Anbietende mit Wochenansicht | funktionsfähig, getestet |
+| Kalenderanbindung: einzelner Eintrag und Abo-Link (iCalendar) | funktionsfähig, getestet |
+| Benachrichtigung bei einer passenden Anfrage | funktionsfähig, getestet |
 | Freigaben durch verantwortliche Personen | funktionsfähig, getestet |
 | Übersicht für Verantwortliche, Transparenz für die betroffene Person | funktionsfähig, getestet |
 | Moduswahl, Bedienhilfen, Einfach-Modus | funktionsfähig |
@@ -179,6 +183,53 @@ Entscheidungen. Mehr dazu in [`ARCHITECTURE.md`](ARCHITECTURE.md).
 | [`docs/RESEARCH.md`](docs/RESEARCH.md) | Research- und Usability-Testkonzept |
 
 ---
+
+## Die Begleitung durch die App
+
+„Mika" führt durch jeden Bildschirm und beantwortet vier Fragen: **Wo bin ich?
+Was kann ich hier tun? Was passiert danach? Was ist der nächste Schritt?**
+Dazu kommt eine feste Liste von Rückfragen – in normaler Sprache, in Leichter
+Sprache, vorgelesen und in Gebärdensprache.
+
+Was Mika **nicht** ist, und das steht auf jedem Bildschirm mit dabei:
+
+- **Kein Mensch.** Mika sagt das selbst, direkt unter dem Namen.
+- **Keine gebärdende Person.** Mika erzeugt keine Gebärden, sondern zeigt
+  Videos, die von gehörlosen Menschen aufgenommen und geprüft wurden. Fehlt
+  ein Video, sagt Mika das – statt eine Übersetzung vorzutäuschen.
+- **Kein Sprachmodell.** Alle Antworten stehen im Klartext in
+  `packages/core/src/content/begleiter.ts`. Nichts wird zur Laufzeit erzeugt,
+  nichts verlässt das Gerät. Eine Begleitung, die frei formuliert, könnte
+  einer Person etwas Falsches über eine Buchung sagen – und die hätte es
+  geglaubt.
+
+Gebärdensprache bleibt daneben **direkt** erreichbar: neben „Mika fragen"
+steht auf jedem Bildschirm ein eigener Knopf „In Gebärdensprache ansehen".
+Wer sie braucht, soll das Wort lesen und nicht erraten müssen, dass es hinter
+der Begleitung liegt.
+
+## Der Planer für Anbietende
+
+Wochenansicht der Einsätze, blätterbar. Zwei Wege in den privaten Kalender:
+
+| Weg | Wofür |
+| --- | --- |
+| **Einzelner Eintrag** (.ics-Datei) | Einen Termin übernehmen. Jeder Kalender versteht das Format. |
+| **Kalender verbinden** (Abo-Link) | Dauerhaft. Der Kalender holt sich Änderungen selbst, auch Absagen. |
+
+**Was im Kalender landet, ist bewusst wenig:** Tätigkeit, Zeit, Treffpunkt.
+Kein Name, keine Wohnadresse, nichts zur Gesundheit. Ein Handy-Kalender ist
+kein geschützter Ort – Einträge stehen auf dem Sperrbildschirm und werden oft
+mit einem Firmenkonto abgeglichen. Der Browser-Test lädt die erzeugte Datei
+herunter und prüft, dass wirklich kein Name darin steht.
+
+Der Abo-Link ist ein Ausweis: wer ihn hat, sieht die Einsatzzeiten. Deshalb
+steht die Warnung daneben, und ein neuer Link macht den alten sofort ungültig.
+
+Neue Anfragen, die zu den angebotenen Leistungen passen, erscheinen als
+Benachrichtigung. Die Vorschau nennt nie den Inhalt – und eine
+erlaubnispflichtige Anfrage erreicht nur, wer die Qualifikation nachgewiesen
+hat.
 
 ## Drei Zugänge, zwei Ansprüche
 

@@ -75,7 +75,14 @@ export default function ProviderOnboarding() {
           )}
           {step > 0 ? (
             <Button label="Zurück" variant="secondary" onPress={() => setStep((s) => s - 1)} />
-          ) : null}
+          ) : (
+            // Wer schon dabei ist, soll nicht noch einmal durch die Einrichtung.
+            <Button
+              label="Ich habe schon ein Profil – zu meinem Planer"
+              variant="quiet"
+              onPress={() => router.push('/anbieten/planer')}
+            />
+          )}
         </ButtonStack>
       }
     >

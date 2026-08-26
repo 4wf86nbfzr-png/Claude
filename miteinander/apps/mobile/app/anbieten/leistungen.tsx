@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useRouter } from 'expo-router';
 import { View } from 'react-native';
 import {
   COMMUNICATION_MODE_LABELS,
@@ -10,6 +11,7 @@ import {
 import {
   Avatar,
   Button,
+  ButtonStack,
   Callout,
   ChoiceCard,
   Screen,
@@ -30,6 +32,7 @@ import { DgsAbschnitt } from '../../src/components/DgsAbschnitt';
  */
 export default function ServiceEditor() {
   const theme = useTheme();
+  const router = useRouter();
   const { prefs } = useAppState();
   const { speak } = useReadAloud(prefs);
 
@@ -87,7 +90,16 @@ export default function ServiceEditor() {
       title="Was Sie anbieten"
       intro="Sagen Sie genau, was Sie leisten – und was nicht. Das schützt Sie und die Menschen, die Sie unterstützen."
       onSpeak={speak}
-      footer={<Button label="Vorschau ansehen" onPress={() => setPreview(true)} />}
+      footer={
+        <ButtonStack>
+          <Button label="Vorschau ansehen" onPress={() => setPreview(true)} />
+          <Button
+            label="Zu meinem Planer"
+            variant="secondary"
+            onPress={() => router.push('/anbieten/planer')}
+          />
+        </ButtonStack>
+      }
     >
       <TextField
         label="Kurze Überschrift für Ihr Profil"

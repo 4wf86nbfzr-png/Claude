@@ -102,7 +102,24 @@ Unterstützungsbedarf und mit Angehörigen.
 entscheidet sich nicht an der Rechtsgrundlage, sondern an der Beziehung. Das
 kann nur ein Mensch beurteilen.
 
-## 7. Barrierefreiheit
+## 7. Die Begleitung
+
+**Wer:** Redaktion für Leichte Sprache, gemeinsam mit Menschen aus der
+Zielgruppe; für die Gebärdensprach-Fassungen dieselben Fachleute wie bei den
+Videos.
+
+**Was:**
+- Stimmen die Erklärungen mit dem überein, was der Bildschirm wirklich tut?
+  Eine falsche Erklärung ist schlimmer als keine.
+- Sind die Rückfragen die Fragen, die Menschen tatsächlich stellen? Das lässt
+  sich nur im Nutzungstest herausfinden.
+- Wird verstanden, dass Mika kein Mensch ist?
+- Fehlt eine Frage, die jemand dringend gebraucht hätte?
+
+**Warum kein Automat:** Die Antworten sind bewusst geschrieben und nicht
+erzeugt. Damit steht und fällt ihre Verlässlichkeit mit der Redaktion.
+
+## 8. Barrierefreiheit
 
 **Wer:** Unabhängige Prüfstelle plus Nutzungstests mit Betroffenen.
 
@@ -117,7 +134,7 @@ kann nur ein Mensch beurteilen.
 schwache Kontraste. Sie finden nicht, ob ein Ablauf verständlich ist, ob die
 Reihenfolge der Ansagen Sinn ergibt oder ob jemand nach drei Schritten aufgibt.
 
-## 8. Redaktion
+## 9. Redaktion
 
 **Wer:** Redaktion gemeinsam mit Menschen aus der Zielgruppe.
 
