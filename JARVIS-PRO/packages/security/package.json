@@ -8,7 +8,8 @@
   },
   "dependencies": {
     "@jarvis/domain": "workspace:*",
-    "zod": "4.4.3"
+    "zod": "4.4.3",
+    "@jarvis/testkit": "workspace:*"
   },
   "scripts": {
     "test": "vitest run"

@@ -9,7 +9,8 @@
   "dependencies": {
     "@jarvis/domain": "workspace:*",
     "@jarvis/security": "workspace:*",
-    "@jarvis/observability": "workspace:*"
+    "@jarvis/observability": "workspace:*",
+    "@jarvis/testkit": "workspace:*"
   },
   "scripts": {
     "test": "vitest run"

@@ -48,7 +48,19 @@ const PHONE_RE = /\+\d[\d\s/().-]{6,}\d/g;
 const BEARER_RE = /\b(?:Bearer|Basic)\s+[A-Za-z0-9._~+/=-]{8,}/gi;
 const JWT_RE = /\beyJ[A-Za-z0-9_-]{5,}\.[A-Za-z0-9_-]{5,}\.[A-Za-z0-9_-]{5,}\b/g;
 const IBAN_RE = /\b[A-Z]{2}\d{2}(?:[ ]?[A-Za-z0-9]{4}){2,7}\b/g;
-const LONG_SECRET_RE = /\b[A-Za-z0-9_-]{40,}\b/g;
+/**
+ * Lange, undurchsichtige Zeichenketten - typischerweise Tokens.
+ *
+ * Bewusst OHNE \b als Grenze: Wortgrenzen kennen '-' und '.' nicht, sodass ein
+ * base64url-Token wie `abc-def_ghi.jkl` in kurze Teilstuecke zerfaellt und
+ * unredigiert im Log landet. Genau das haben echte OAuth-Refresh-Tokens an
+ * sich. Stattdessen wird der Zeichenvorrat selbst als Grenze verwendet.
+ */
+const TOKEN_CHARS = 'A-Za-z0-9_\\-.~+/=';
+const LONG_SECRET_RE = new RegExp(
+  `(?<![${TOKEN_CHARS}])[${TOKEN_CHARS}]{40,}(?![${TOKEN_CHARS}])`,
+  'g',
+);
 
 export interface RedactionOptions {
   /** Nachrichteninhalte mitloggen. Nur fuer lokales Debugging, nie in Produktion. */

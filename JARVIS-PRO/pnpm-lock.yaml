@@ -87,6 +87,9 @@ importers:
       '@jarvis/telephony':
         specifier: workspace:*
         version: link:../telephony
+      '@jarvis/testkit':
+        specifier: workspace:*
+        version: link:../../packages/testkit
       zod:
         specifier: 4.4.3
         version: 4.4.3
@@ -159,6 +162,9 @@ importers:
       '@jarvis/domain':
         specifier: workspace:*
         version: link:../domain
+      '@jarvis/testkit':
+        specifier: workspace:*
+        version: link:../testkit
       zod:
         specifier: 4.4.3
         version: 4.4.3
@@ -186,6 +192,9 @@ importers:
       '@jarvis/security':
         specifier: workspace:*
         version: link:../security
+      '@jarvis/testkit':
+        specifier: workspace:*
+        version: link:../testkit
 
   packages/testkit:
     dependencies:
