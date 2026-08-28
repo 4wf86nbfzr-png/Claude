@@ -2,10 +2,17 @@
 
 Persönlicher Telefonassistent für Noah Benkhofer, HERM Service Team, Hamburg.
 
-Bedient wird er ausschließlich über normale Telefonanrufe: Noah ruft die
-Jarvis-Nummer an, oder Jarvis ruft Noah an, wenn eine neue E-Mail oder
-WhatsApp-Business-Nachricht eintrifft. Keine App, kein Dashboard, kein
-Chatfenster.
+Bedient wird er über **einen** von zwei Wegen — kein Dashboard, keine eigene
+App, nichts im Browser:
+
+- **Telefon.** Noah ruft die Jarvis-Nummer an, oder Jarvis ruft ihn an, wenn
+  etwas hereinkommt. Braucht einen SIP-Anschluss und Asterisk.
+- **WhatsApp.** Jarvis schreibt und liest über die WhatsApp Business Cloud
+  API. Braucht keine Hardware, keine Telefonanlage und keine Sprachschicht.
+
+`JARVIS_KANAL` entscheidet, welcher Weg läuft (`telefon`, `chat`, `beide`).
+Die Freigaberegeln sind in allen Fällen dieselben — nur der Kanal ist ein
+anderer.
 
 ---
 
@@ -13,14 +20,15 @@ Chatfenster.
 
 | | |
 |---|---|
-| Tests | **257 grün** (Unit + End-to-End) |
+| Tests | **286 grün** (Unit + End-to-End) |
 | Typecheck | sauber, TypeScript strict |
 | Lint | sauber |
 | Betriebsmodus | `simulation` — es wird nichts gesendet und niemand angerufen |
 
 **Vollständig gebaut und geprüft:** Domainmodelle, Eventstore, persistente
-Jobqueue, Approval Engine, Telefonie-Simulator, Sprachschicht, Gesprächsablauf,
-Anruf-Scheduler, Werkzeugschicht, Provider-Adapter, Betriebsskripte.
+Jobqueue, Approval Engine, Telefonie-Simulator, Chat-Simulator, Sprachschicht,
+Gesprächsablauf am Telefon und im Chat, Anruf-Scheduler, Werkzeugschicht,
+Provider-Adapter, Betriebsskripte.
 
 **Gebaut, aber nicht an echter Hardware bzw. echten Konten geprüft**
 (`unverified`): der Asterisk-Adapter, die Microsoft- und Meta-Endpunkte, das
@@ -42,14 +50,17 @@ Sendefunktion — nicht „darf nicht", sondern *hat nicht*. Der einzige Weg zu
 einer echten Provider-Sendefunktion führt durch die Approval Engine, und die
 verlangt gleichzeitig:
 
-1. den vollständigen Read-back (Kanal, Empfänger, Betreff, Text, Anhänge),
-2. das gesprochene „Ja, senden" — ein bloßes „ja" reicht nicht,
-3. die DTMF-Freigabe-PIN,
+1. den vollständigen Read-back (Kanal, Empfänger, Betreff, Text, Anhänge) —
+   am Telefon vorgelesen, im Chat geschrieben,
+2. das ausdrückliche „Ja, senden" — ein bloßes „ja" reicht nicht,
+3. den zweiten Faktor: die DTMF-Freigabe-PIN am Telefon, im Chat wahlweise
+   eine PIN oder ein Einmalcode nach RFC 6238,
 4. einen unveränderten Inhalt (SHA-256-Bindung),
 5. eine Freigabe, die noch nicht abgelaufen und noch nicht benutzt ist.
 
-Fehlt einer der fünf Punkte, wird **nichts** gesendet. 46 Tests belegen das,
-darunter property-based Nachweise über alle Teilmengen der Freigabeschritte.
+Fehlt einer der fünf Punkte, wird **nichts** gesendet. 60 Tests belegen das —
+46 für die Engine, darunter property-based Nachweise über alle Teilmengen der
+Freigabeschritte, und 14 End-to-End-Tests für den Chatweg.
 
 ---
 
@@ -59,12 +70,14 @@ darunter property-based Nachweise über alle Teilmengen der Freigabeschritte.
 cd JARVIS-PRO
 pnpm startplan       # wo stehe ich, was ist als Nächstes dran?
 pnpm doctor          # was ist da, was fehlt? Ändert nichts.
-pnpm setup           # richtet ein. Fragt nach keinem Geheimnis.
+pnpm simulate:chat   # ein vollständiger WhatsApp-Dialog im Terminal
 pnpm simulate:call   # ein vollständiges Telefongespräch im Terminal
 pnpm dry-run         # die Sicherheitsszenarien durchspielen
 ```
 
-Nichts davon telefoniert, sendet oder verbindet ein Konto.
+Nichts davon telefoniert, schreibt, sendet oder verbindet ein Konto.
+`pnpm startplan` liest `JARVIS_KANAL` und zeigt nur die Schritte, die auf
+dem gewählten Weg überhaupt anfallen.
 
 ---
 
@@ -100,7 +113,8 @@ mehrere Apps sie brauchen.
 | `pnpm startplan` | wo stehe ich, was ist als Naechstes dran |
 | `pnpm doctor` | Bestandsaufnahme, rein lesend, nur maskierte Werte |
 | `pnpm setup` | Einrichtung, idempotent, nicht destruktiv |
-| `pnpm simulate:call` | vollständiges Gespräch im Terminal |
+| `pnpm simulate:call` | vollständiges Telefongespräch im Terminal |
+| `pnpm simulate:chat` | vollständiger WhatsApp-Dialog im Terminal |
 | `pnpm dry-run` | vier Sicherheitsszenarien mit erwarteten Sendungszahlen |
 | `pnpm test` / `pnpm test:e2e` | Tests |
 | `pnpm bench:speech` | misst Erkennung und Ausgabe auf diesem Rechner |
@@ -115,6 +129,7 @@ mehrere Apps sie brauchen.
 ## Handbücher
 
 - [Betriebshandbuch](docs/betriebshandbuch.md) — Einrichtung und Alltag
+- [Jarvis über WhatsApp](docs/whatsapp-weg.md) — der Weg ohne Telefonanlage
 - [Gateway-Kaufberatung](docs/gateway-kaufberatung.md) — Kriterien für die Hardware
 - [VoIP-Nummer](docs/voip-nummer.md) — der Weg ohne eigene Hardware
 - [Fehlerhandbuch](docs/fehlerhandbuch.md) — nach Symptom sortiert
@@ -126,6 +141,13 @@ mehrere Apps sie brauchen.
 ---
 
 ## Drei Dinge, die man von Anfang an wissen sollte
+
+**0. Beim WhatsApp-Weg entscheidet die Nummer über den Funktionsumfang.**
+Eine Nummer, die auf der Cloud API registriert ist, lässt sich **nicht mehr
+in der WhatsApp-Business-App verwenden**. Wandert die Geschäftsnummer dorthin,
+sieht Jarvis die Kundennachrichten — dafür ist die App für diese Nummer weg.
+Mit einer neuen, separaten Nummer bleibt die App unangetastet, dann sieht
+Jarvis aber nur E-Mails. Details in [`docs/whatsapp-weg.md`](docs/whatsapp-weg.md).
 
 **1. Ein zweites Handy funktioniert nicht als Jarvis-Leitung.**
 Ein Handy ist kein SIP-Trunk. Gebraucht wird entweder ein GSM/VoLTE-Gateway
@@ -149,7 +171,8 @@ keine Einschränkung dieser Software.
 
 Spracherkennung und Sprachausgabe laufen vollständig lokal. Roh-Audio
 verlässt das System nie und wird nie gespeichert (`STORE_RAW_AUDIO=false`, in
-Produktion unveränderlich). Es gibt keine Gesprächsaufzeichnung.
+Produktion unveränderlich). Es gibt keine Gesprächsaufzeichnung. Im
+WhatsApp-Betrieb entsteht gar kein Audio.
 
 Nach außen geht nur: erkannter Text, minimaler Gesprächskontext, isolierter
 Nachrichteninhalt — und der freigegebene Text an den jeweiligen Provider.

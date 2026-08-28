@@ -25,8 +25,12 @@ interface Schritt {
   readonly warum: string;
   /** Nummern der Schritte, die vorher fertig sein muessen. */
   readonly braucht: readonly number[];
-  /** true = laesst sich ohne das Gateway erledigen. */
+  /** true = laesst sich ohne den Telefonanschluss erledigen. */
   readonly ohneHardware: boolean;
+  /** Faellt nur beim Telefonweg an. */
+  readonly nurTelefon?: boolean;
+  /** Faellt nur beim Chatweg an. */
+  readonly nurChat?: boolean;
   pruefen(): Promise<boolean> | boolean;
 }
 
@@ -44,6 +48,13 @@ async function main(): Promise<void> {
   const secrets = await detectSecretStore();
   const gesetzt = (k: string): boolean => (env[k] ?? '').trim().length > 0;
 
+  // Welcher Weg gegangen wird, entscheidet, welche Schritte ueberhaupt
+  // anfallen. Der Chatweg spart Gateway, Asterisk und die ganze
+  // Sprachschicht - es waere irrefuehrend, sie trotzdem aufzulisten.
+  const kanal = (env['JARVIS_KANAL'] ?? 'beide').trim();
+  const mitTelefon = kanal === 'telefon' || kanal === 'beide';
+  const mitChat = kanal === 'chat' || kanal === 'beide';
+
   const schritte: Schritt[] = [
     {
       nr: 1,
@@ -52,6 +63,7 @@ async function main(): Promise<void> {
       warum: 'Ohne whisper.cpp und Piper gibt es kein Hoeren und kein Sprechen.',
       braucht: [],
       ohneHardware: true,
+      nurTelefon: true,
       pruefen: () => gesetzt('WHISPER_BIN') && existsSync(env['WHISPER_BIN'] ?? ''),
     },
     {
@@ -61,6 +73,7 @@ async function main(): Promise<void> {
       warum: 'Piper wird bewusst nicht automatisch geladen - die Ausgaben unterscheiden sich je nach Plattform.',
       braucht: [1],
       ohneHardware: true,
+      nurTelefon: true,
       pruefen: () => gesetzt('PIPER_BIN') && existsSync(env['PIPER_BIN'] ?? ''),
     },
     {
@@ -70,15 +83,17 @@ async function main(): Promise<void> {
       warum: 'Welches Modell taugt, haengt am Rechner. Eine Empfehlung ohne Messung waere geraten.',
       braucht: [1],
       ohneHardware: true,
+      nurTelefon: true,
       pruefen: () => gesetzt('WHISPER_MODEL') && existsSync(env['WHISPER_MODEL'] ?? ''),
     },
     {
       nr: 4,
       titel: 'Anmelde-PIN festlegen',
       tun: 'pnpm hash:pin, dann den Hash als "login-pin-hash" in den Schluesselbund',
-      warum: 'Die Caller-ID allein genuegt nicht - sie laesst sich faelschen.',
+      warum: 'Die Caller-ID allein genuegt nicht - sie laesst sich faelschen. Im Chat optional (JARVIS_CHAT_REQUIRE_LOGIN_PIN).',
       braucht: [],
       ohneHardware: true,
+      nurTelefon: true,
       pruefen: () => secrets.has('login-pin-hash'),
     },
     {
@@ -93,7 +108,7 @@ async function main(): Promise<void> {
     {
       nr: 6,
       titel: 'Verhalten im Simulator abnehmen',
-      tun: 'pnpm simulate:call und pnpm dry-run',
+      tun: mitChat ? 'pnpm simulate:chat und pnpm dry-run' : 'pnpm simulate:call und pnpm dry-run',
       warum: 'Vor jedem Kauf pruefen, ob das Gespraech so laeuft, wie du es willst.',
       braucht: [],
       ohneHardware: true,
@@ -129,6 +144,7 @@ async function main(): Promise<void> {
     },
     {
       nr: 10,
+      nurTelefon: true,
       titel: 'Anschluss beschaffen: Gateway ODER VoIP-Nummer',
       tun: 'Weg A: Geraet nach docs/gateway-kaufberatung.md bestellen. Weg B: Nummer nach docs/voip-nummer.md anmelden. Danach GATEWAY_VORHANDEN=ja in .env.',
       warum: 'DAS ist der Blocker fuer alles Telefonische. Ein Handy taugt nicht - es ist kein SIP-Trunk. Weg B geht heute, Weg A ohne fremden Anbieter in der Leitung.',
@@ -138,6 +154,7 @@ async function main(): Promise<void> {
     },
     {
       nr: 11,
+      nurTelefon: true,
       titel: 'Zugangsdaten besorgen, Portierungssperre setzen',
       tun: 'Weg A: SIM aus dem Zweithandy ins Gateway, SIP-Benutzer anlegen. Weg B: SIP-Zugangsdaten in der Kontoverwaltung abrufen. Beide: beim Anbieter eine Portierungssperre einrichten.',
       warum: 'Ohne Sperre koennte jemand die Jarvis-Nummer uebernehmen und die Ansagen mithoeren.',
@@ -147,6 +164,7 @@ async function main(): Promise<void> {
     },
     {
       nr: 12,
+      nurTelefon: true,
       titel: 'Asterisk installieren',
       tun: 'Paket der Distribution, oder infra/docker/compose.yml',
       warum: 'Die Telefonanlage zwischen Gateway und Jarvis.',
@@ -156,6 +174,7 @@ async function main(): Promise<void> {
     },
     {
       nr: 13,
+      nurTelefon: true,
       titel: 'Asterisk konfigurieren',
       tun: 'pnpm configure:gateway (fragt nach Weg A oder B), Dateien durchlesen, BITTE-EINTRAGEN ersetzen, nach /etc/asterisk kopieren',
       warum: 'Der Rufnummernplan laesst ausgehend nur deine Nummer zu - zweite Sicherung hinter dem Code.',
@@ -165,6 +184,7 @@ async function main(): Promise<void> {
     },
     {
       nr: 14,
+      nurTelefon: true,
       titel: 'Erster echter Testanruf: du rufst Jarvis an',
       tun: 'Jarvis-Nummer vom Handy anrufen, PIN eingeben',
       warum: 'Hier zeigt sich, ob der Asterisk-Adapter stimmt - er ist als einziger Teil noch nie an echter Hardware gelaufen.',
@@ -173,24 +193,66 @@ async function main(): Promise<void> {
       pruefen: () => false,
     },
     {
-      nr: 15,
+      nr: 16,
+      nurChat: true,
+      titel: 'Entscheiden, welche Nummer Jarvis bekommt',
+      tun: 'docs/whatsapp-weg.md lesen, Abschnitt "Die Entscheidung, die vorher faellt", dann JARVIS_OWNER_WA_ID in .env eintragen',
+      warum: 'Eine Nummer auf der Cloud API laesst sich NICHT mehr in der WhatsApp-Business-App verwenden. Das ist nicht rueckgaengig zu machen, ohne die Nummer freizugeben.',
+      braucht: [],
+      ohneHardware: true,
+      pruefen: () => gesetzt('JARVIS_OWNER_WA_ID'),
+    },
+    {
+      nr: 17,
+      nurChat: true,
+      titel: 'WhatsApp Cloud API verbinden',
+      tun: 'pnpm connect:whatsapp',
+      warum: 'Der Bedienkanal. Ohne ihn kann Jarvis weder etwas melden noch etwas entgegennehmen.',
+      braucht: [16],
+      ohneHardware: true,
+      pruefen: async () => (await secrets.has('whatsapp-access-token')) && gesetzt('WHATSAPP_PHONE_NUMBER_ID'),
+    },
+    {
+      nr: 18,
+      nurChat: true,
+      titel: 'Webhook von aussen erreichbar machen',
+      tun: 'Adresse bei Meta eintragen, Feld "messages" abonnieren, Verifizierungs-Token auf beiden Seiten gleich setzen',
+      warum: 'Meta ruft dich an, nicht umgekehrt. Ohne erreichbare Adresse kommt keine einzige Nachricht an.',
+      braucht: [17],
+      ohneHardware: true,
+      pruefen: () => gesetzt('WHATSAPP_WEBHOOK_URL'),
+    },
+    {
+      // Bewusst die hoechste Nummer: dieser Schritt ist immer der letzte,
+      // egal welcher Weg gegangen wird.
+      nr: 20,
       titel: 'Erster echter Versand - an deine eigene Adresse',
       tun: 'JARVIS_MODE=live und JARVIS_DB_CIPHER=true setzen, Jarvis eine Mail an dich selbst entwerfen und freigeben lassen',
       warum: 'Der erste scharfe Versand geht an niemanden sonst. Pruefen: genau EINE Mail kommt an.',
-      braucht: [5, 7, 8, 14],
-      ohneHardware: false,
+      braucht: mitTelefon ? [5, 7, 8, 14] : [5, 7, 8, 18],
+      ohneHardware: !mitTelefon,
       pruefen: () => (env['JARVIS_MODE'] ?? '') === 'live',
     },
   ];
 
+  // Nur die Schritte, die auf dem gewaehlten Weg ueberhaupt anfallen. Einen
+  // Schritt anzuzeigen, den man gar nicht machen muss, kostet mehr Zeit als
+  // er spart.
+  const relevant = schritte.filter(
+    (s) => !((s.nurTelefon === true && !mitTelefon) || (s.nurChat === true && !mitChat)),
+  );
+
   const zustaende = new Map<number, Zustand>();
-  for (const s of schritte) {
+  for (const s of relevant) {
     const fertig = await s.pruefen();
     if (fertig) {
       zustaende.set(s.nr, 'fertig');
       continue;
     }
-    const blockiert = s.braucht.some((n) => zustaende.get(n) !== 'fertig');
+    // Voraussetzungen, die auf diesem Weg wegfallen, blockieren nicht.
+    const blockiert = s.braucht
+      .filter((n) => relevant.some((r) => r.nr === n))
+      .some((n) => zustaende.get(n) !== 'fertig');
     zustaende.set(s.nr, blockiert ? 'blockiert' : 'offen');
   }
 
@@ -199,36 +261,43 @@ async function main(): Promise<void> {
   console.log('\n' + '='.repeat(72));
   console.log('Jarvis Pro - Startplan');
   console.log('='.repeat(72));
+  const wegName = { telefon: 'Telefon', chat: 'WhatsApp', beide: 'Telefon und WhatsApp' };
+  console.log(`Weg: ${wegName[kanal as keyof typeof wegName] ?? kanal}  (JARVIS_KANAL=${kanal})`);
   console.log('Reihenfolge ist bindend: was blockiert ist, braucht erst die Vorstufe.\n');
 
-  const ohne = schritte.filter((s) => s.ohneHardware);
-  const mit = schritte.filter((s) => !s.ohneHardware);
+  const nachNummer = (a: Schritt, b: Schritt): number => a.nr - b.nr;
+  const ohne = relevant.filter((s) => s.ohneHardware).sort(nachNummer);
+  const mit = relevant.filter((s) => !s.ohneHardware).sort(nachNummer);
 
-  console.log('OHNE ANSCHLUSS MOEGLICH - das kannst du jetzt sofort machen');
-  console.log('-'.repeat(72));
-  for (const s of ohne) {
+  const zeige = (s: Schritt): void => {
     const z = zustaende.get(s.nr) ?? 'offen';
     console.log(`${symbol[z]} ${String(s.nr).padStart(2)}. ${s.titel}`);
     if (z !== 'fertig') console.log(`         ${s.tun}`);
-  }
+  };
 
-  console.log('\nBRAUCHT DEN ANSCHLUSS (Gateway oder VoIP-Nummer)');
+  console.log(
+    mit.length === 0
+      ? 'ALLE SCHRITTE - nichts davon braucht Hardware'
+      : 'OHNE ANSCHLUSS MOEGLICH - das kannst du jetzt sofort machen',
+  );
   console.log('-'.repeat(72));
-  for (const s of mit) {
-    const z = zustaende.get(s.nr) ?? 'offen';
-    console.log(`${symbol[z]} ${String(s.nr).padStart(2)}. ${s.titel}`);
-    if (z !== 'fertig') console.log(`         ${s.tun}`);
+  for (const s of ohne) zeige(s);
+
+  if (mit.length > 0) {
+    console.log('\nBRAUCHT DEN ANSCHLUSS (Gateway oder VoIP-Nummer)');
+    console.log('-'.repeat(72));
+    for (const s of mit) zeige(s);
   }
 
   // Genau EIN naechster Schritt - der erste offene ohne Hardware, sonst der
   // erste offene ueberhaupt. Eine Liste mit zwoelf "als Naechstes" ist keine.
   const naechster =
     ohne.find((s) => zustaende.get(s.nr) === 'offen') ??
-    schritte.find((s) => zustaende.get(s.nr) === 'offen');
+    [...relevant].sort(nachNummer).find((s) => zustaende.get(s.nr) === 'offen');
 
   console.log('\n' + '='.repeat(72));
   if (naechster === undefined) {
-    const offen = schritte.filter((s) => zustaende.get(s.nr) !== 'fertig');
+    const offen = [...relevant].sort(nachNummer).filter((s) => zustaende.get(s.nr) !== 'fertig');
     if (offen.length === 0) {
       console.log('Alles erledigt. Jarvis ist startklar.');
     } else {
@@ -242,9 +311,13 @@ async function main(): Promise<void> {
     console.log(`  Warum: ${naechster.warum}`);
   }
 
-  const fertig = schritte.filter((s) => zustaende.get(s.nr) === 'fertig').length;
-  console.log(`\nStand: ${fertig} von ${schritte.length} Schritten erledigt.`);
-  console.log('Ausfuehrlich: docs/betriebshandbuch.md\n');
+  const fertig = relevant.filter((s) => zustaende.get(s.nr) === 'fertig').length;
+  console.log(`\nStand: ${fertig} von ${relevant.length} Schritten erledigt.`);
+  console.log(
+    mitChat && !mitTelefon
+      ? 'Ausfuehrlich: docs/whatsapp-weg.md\n'
+      : 'Ausfuehrlich: docs/betriebshandbuch.md\n',
+  );
 }
 
 void main();

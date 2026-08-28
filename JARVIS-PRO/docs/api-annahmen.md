@@ -63,6 +63,10 @@ Version über `WHATSAPP_GRAPH_VERSION` in der `.env`.
 | W7 | Länge des Kundendienstfensters (aktuell als 24 Stunden konfiguriert) | Doku „Pricing / Conversation types" — **Meta hat diese Regel mehrfach geändert** | offen |
 | W8 | Aktuelle Graph-Version (`v23.0` als Vorgabe) | Changelog der Graph API | offen |
 | W9 | Ob Noahs bestehende Nummer direkt anbindbar ist oder über Coexistence bzw. Migration laufen muss | WhatsApp Manager, Doku „Coexistence" | **offen und kaufentscheidend** |
+| W10 | Eine auf der Cloud API registrierte Nummer ist für die WhatsApp-Business-App gesperrt und muss vorher von allen Geräten abgemeldet sein | über Suche bestätigt; vor der Registrierung selbst gegenlesen — **nicht ohne Weiteres rückgängig** | über Suche bestätigt |
+| W11 | Eingehende Nachrichten von Noahs eigener Nummer erscheinen im selben `messages`-Feld wie Kundennachrichten und lassen sich über `from` unterscheiden | erste Testnachricht an die Jarvis-Nummer, Webhook-Nutzlast ansehen | offen |
+| W12 | Ein Versand außerhalb des Antwortfensters wird von Meta mit einem Fehler quittiert und nicht still verworfen | bewusst außerhalb des Fensters senden, Antwort ansehen | offen |
+| W13 | Nachrichten ohne Text (Bild, Sprachnachricht) kommen als eigener `type` und tragen keinen `text.body` | ein Bild an die Jarvis-Nummer schicken | offen |
 
 **Ausdrücklich keine Zusage:** Nachrichten, die vor der Anbindung in der
 WhatsApp-Business-App angekommen sind, lassen sich über die Cloud API **nicht**
