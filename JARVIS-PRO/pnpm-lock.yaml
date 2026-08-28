@@ -185,12 +185,18 @@ importers:
 
   packages/testkit:
     dependencies:
+      '@jarvis/approval-engine':
+        specifier: workspace:*
+        version: link:../approval-engine
       '@jarvis/connectors':
         specifier: workspace:*
         version: link:../connectors
       '@jarvis/domain':
         specifier: workspace:*
         version: link:../domain
+      '@jarvis/observability':
+        specifier: workspace:*
+        version: link:../observability
       '@jarvis/security':
         specifier: workspace:*
         version: link:../security

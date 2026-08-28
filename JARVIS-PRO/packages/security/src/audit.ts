@@ -83,16 +83,27 @@ export function stableJson(v: unknown): string {
   return JSON.stringify(walk(v));
 }
 
+/**
+ * Der Sink schreibt die Kette.
+ *
+ * `appendAtomic` bekommt bewusst eine Baufunktion statt eines fertigen
+ * Eintrags: Vorgaengerhash lesen, naechsten Eintrag bilden und schreiben muss
+ * EIN unteilbarer Schritt sein. Sonst vergeben zwei nebenlaeufige Aufrufe
+ * dieselbe Sequenznummer und die Kette bricht - das ist beim ersten Testlauf
+ * genau so passiert.
+ */
 export interface AuditSink {
-  append(entry: AuditEntry): Promise<void>;
+  appendAtomic(build: (prev: AuditEntry | null) => AuditEntry): Promise<AuditEntry>;
   last(): Promise<AuditEntry | null>;
   all(): Promise<readonly AuditEntry[]>;
 }
 
 export class InMemoryAuditSink implements AuditSink {
   private readonly entries: AuditEntry[] = [];
-  async append(entry: AuditEntry): Promise<void> {
+  async appendAtomic(build: (prev: AuditEntry | null) => AuditEntry): Promise<AuditEntry> {
+    const entry = build(this.entries.at(-1) ?? null);
     this.entries.push(entry);
+    return entry;
   }
   async last(): Promise<AuditEntry | null> {
     return this.entries.at(-1) ?? null;
@@ -103,6 +114,13 @@ export class InMemoryAuditSink implements AuditSink {
 }
 
 export class AuditLog {
+  /**
+   * Serialisiert die Schreibvorgaenge im Prozess. Die meisten Aufrufer
+   * schreiben "nebenbei" (`void audit.record(...)`) und warten nicht ab -
+   * ohne diese Kette wuerden sie sich gegenseitig ueberholen.
+   */
+  private tail: Promise<unknown> = Promise.resolve();
+
   constructor(
     private readonly sink: AuditSink,
     private readonly clock: Clock,
@@ -118,18 +136,29 @@ export class AuditLog {
     subject: string,
     details: Record<string, unknown> = {},
   ): Promise<AuditEntry> {
-    const prev = await this.sink.last();
-    const base = {
-      seq: (prev?.seq ?? 0) + 1,
-      at: this.clock.nowIso(),
-      action,
-      subject,
-      details: redact(details) as Record<string, unknown>,
-      prevHash: prev?.hash ?? AUDIT_GENESIS,
-    };
-    const entry: AuditEntry = { ...base, hash: computeAuditHash(base) };
-    await this.sink.append(entry);
-    return entry;
+    const at = this.clock.nowIso();
+    const safeDetails = redact(details) as Record<string, unknown>;
+    const run = this.tail.then(() =>
+      this.sink.appendAtomic((prev) => {
+        const base = {
+          seq: (prev?.seq ?? 0) + 1,
+          at,
+          action,
+          subject,
+          details: safeDetails,
+          prevHash: prev?.hash ?? AUDIT_GENESIS,
+        };
+        return { ...base, hash: computeAuditHash(base) };
+      }),
+    );
+    // Auch ein Fehlschlag darf die Kette nicht blockieren.
+    this.tail = run.catch(() => undefined);
+    return run;
+  }
+
+  /** Wartet, bis alle nebenbei gestarteten Eintraege geschrieben sind. */
+  async flush(): Promise<void> {
+    await this.tail;
   }
 
   async verify(): Promise<{ ok: true } | { ok: false; brokenAtSeq: number; reason: string }> {

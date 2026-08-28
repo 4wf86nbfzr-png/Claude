@@ -11,7 +11,9 @@
     "@jarvis/security": "workspace:*",
     "@jarvis/storage": "workspace:*",
     "@jarvis/connectors": "workspace:*",
-    "@jarvis/speech": "workspace:*"
+    "@jarvis/speech": "workspace:*",
+    "@jarvis/approval-engine": "workspace:*",
+    "@jarvis/observability": "workspace:*"
   },
   "scripts": {
     "test": "vitest run"

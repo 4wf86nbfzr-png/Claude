@@ -760,11 +760,17 @@ export class SyncStateRepository {
 export class SqlAuditSink implements AuditSink {
   constructor(private readonly db: Db) {}
 
-  async append(entry: AuditEntry): Promise<void> {
-    this.db.run(
-      'INSERT INTO audit_log (seq, at, action, subject, details, prev_hash, hash) VALUES (?,?,?,?,?,?,?)',
-      [entry.seq, entry.at, entry.action, entry.subject, JSON.stringify(entry.details), entry.prevHash, entry.hash],
-    );
+  /** Lesen des Vorgaengers und Schreiben in einer Transaktion - sonst reisst die Kette. */
+  async appendAtomic(build: (prev: AuditEntry | null) => AuditEntry): Promise<AuditEntry> {
+    return this.db.transaction(() => {
+      const prevRow = this.db.get<AuditLogRow>('SELECT * FROM audit_log ORDER BY seq DESC LIMIT 1');
+      const entry = build(prevRow === undefined ? null : rowToAudit(prevRow));
+      this.db.run(
+        'INSERT INTO audit_log (seq, at, action, subject, details, prev_hash, hash) VALUES (?,?,?,?,?,?,?)',
+        [entry.seq, entry.at, entry.action, entry.subject, JSON.stringify(entry.details), entry.prevHash, entry.hash],
+      );
+      return entry;
+    });
   }
 
   async last(): Promise<AuditEntry | null> {
