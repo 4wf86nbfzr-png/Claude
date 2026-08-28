@@ -27,7 +27,8 @@
     "status": "tsx scripts/status.ts",
     "logs:safe": "bash scripts/logs-safe.sh",
     "backup": "bash scripts/backup.sh",
-    "restore": "bash scripts/restore.sh"
+    "restore": "bash scripts/restore.sh",
+    "hash:pin": "tsx scripts/hash-pin.ts"
   },
   "devDependencies": {
     "@types/node": "22.19.2",
