@@ -1,0 +1,164 @@
+# Jarvis Pro
+
+Persönlicher Telefonassistent für Noah Benkhofer, HERM Service Team, Hamburg.
+
+Bedient wird er ausschließlich über normale Telefonanrufe: Noah ruft die
+Jarvis-Nummer an, oder Jarvis ruft Noah an, wenn eine neue E-Mail oder
+WhatsApp-Business-Nachricht eintrifft. Keine App, kein Dashboard, kein
+Chatfenster.
+
+---
+
+## Stand
+
+| | |
+|---|---|
+| Tests | **257 grün** (Unit + End-to-End) |
+| Typecheck | sauber, TypeScript strict |
+| Lint | sauber |
+| Betriebsmodus | `simulation` — es wird nichts gesendet und niemand angerufen |
+
+**Vollständig gebaut und geprüft:** Domainmodelle, Eventstore, persistente
+Jobqueue, Approval Engine, Telefonie-Simulator, Sprachschicht, Gesprächsablauf,
+Anruf-Scheduler, Werkzeugschicht, Provider-Adapter, Betriebsskripte.
+
+**Gebaut, aber nicht an echter Hardware bzw. echten Konten geprüft**
+(`unverified`): der Asterisk-Adapter, die Microsoft- und Meta-Endpunkte, das
+Claude-Gehirn. Was genau zu prüfen ist, steht einzeln in
+[`docs/api-annahmen.md`](docs/api-annahmen.md).
+
+**Noch nicht gemessen:** welches whisper.cpp-Modell auf Noahs Mac taugt. Das
+Messskript liegt bereit (`pnpm bench:speech`); eine Empfehlung ohne Messung
+wäre geraten und steht deshalb nirgends im Projekt.
+
+---
+
+## Der wichtigste Satz
+
+**Jarvis kann nichts senden, was Noah nicht Wort für Wort freigegeben hat.**
+
+Das ist keine Einstellung, sondern die Bauweise. Das Sprachmodell hat keine
+Sendefunktion — nicht „darf nicht", sondern *hat nicht*. Der einzige Weg zu
+einer echten Provider-Sendefunktion führt durch die Approval Engine, und die
+verlangt gleichzeitig:
+
+1. den vollständigen Read-back (Kanal, Empfänger, Betreff, Text, Anhänge),
+2. das gesprochene „Ja, senden" — ein bloßes „ja" reicht nicht,
+3. die DTMF-Freigabe-PIN,
+4. einen unveränderten Inhalt (SHA-256-Bindung),
+5. eine Freigabe, die noch nicht abgelaufen und noch nicht benutzt ist.
+
+Fehlt einer der fünf Punkte, wird **nichts** gesendet. 46 Tests belegen das,
+darunter property-based Nachweise über alle Teilmengen der Freigabeschritte.
+
+---
+
+## Schnellstart
+
+```bash
+cd JARVIS-PRO
+pnpm doctor          # was ist da, was fehlt? Ändert nichts.
+pnpm setup           # richtet ein. Fragt nach keinem Geheimnis.
+pnpm simulate:call   # ein vollständiges Telefongespräch im Terminal
+pnpm dry-run         # die Sicherheitsszenarien durchspielen
+```
+
+Nichts davon telefoniert, sendet oder verbindet ein Konto.
+
+---
+
+## Aufbau
+
+```
+apps/
+  orchestrator/     Gesprächsablauf, Gehirn, Werkzeuge, Anruf-Scheduler, Verdrahtung
+  telephony/        Asterisk-Adapter, Simulator, Sprachsitzung mit Barge-in
+  connector-worker/ WhatsApp-Webhook, Postfach-Abgleich
+packages/
+  domain/           reine Modelle und Zustandsautomaten, kein I/O
+  approval-engine/  die Einmalfreigabe
+  connectors/       Microsoft Graph, WhatsApp Cloud API, nachgebaute Provider
+  speech/           G.711, Resampling, VAD, whisper.cpp, Piper
+  security/         Hashing, Redaction, Injection-Isolation, Webhooks, Audit-Kette
+  observability/    Logger mit erzwungener Redaction, Metriken, Healthchecks
+  storage/          SQLite mit WAL, Eventstore, Jobqueue, Repositories
+  testkit/          Fake Clock, Fixtures, verdrahteter Test-Jarvis
+infra/              Asterisk, systemd, launchd, Docker, Firewall
+docs/               Handbücher, Bedrohungsmodell, offene API-Annahmen
+scripts/            doctor, setup, simulate, dry-run, backup, restore, …
+```
+
+`packages/storage` ist eine Ergänzung zur vorgegebenen Struktur: Persistenz
+gehört weder in `domain` (das bleibt frei von I/O) noch in eine App, weil
+mehrere Apps sie brauchen.
+
+## Befehle
+
+| Befehl | Wofür |
+|---|---|
+| `pnpm doctor` | Bestandsaufnahme, rein lesend, nur maskierte Werte |
+| `pnpm setup` | Einrichtung, idempotent, nicht destruktiv |
+| `pnpm simulate:call` | vollständiges Gespräch im Terminal |
+| `pnpm dry-run` | vier Sicherheitsszenarien mit erwarteten Sendungszahlen |
+| `pnpm test` / `pnpm test:e2e` | Tests |
+| `pnpm bench:speech` | misst Erkennung und Ausgabe auf diesem Rechner |
+| `pnpm hash:pin` | PIN-Hash erzeugen, Eingabe unsichtbar |
+| `pnpm connect:microsoft` | E-Mail und Kalender verbinden |
+| `pnpm connect:whatsapp` | WhatsApp verbinden |
+| `pnpm configure:gateway` | Asterisk-Vorlagen erzeugen |
+| `pnpm status` | Betriebszustand, maskiert |
+| `pnpm logs:safe` | Logs ohne Vertrauliches |
+| `pnpm backup` / `pnpm restore` | sichern und zurückspielen |
+
+## Handbücher
+
+- [Betriebshandbuch](docs/betriebshandbuch.md) — Einrichtung und Alltag
+- [Fehlerhandbuch](docs/fehlerhandbuch.md) — nach Symptom sortiert
+- [Bedrohungsmodell](docs/bedrohungsmodell.md) — 14 Bedrohungen mit Gegenmaßnahme und Nachweis
+- [Offene API-Annahmen](docs/api-annahmen.md) — was vor dem Live-Gang zu prüfen ist
+- [Fortschritt](docs/fortschritt.md) — Stand je Phase
+- [Abnahmebericht](docs/abnahmebericht.md) — Punkt für Punkt gegen die Anforderung
+
+---
+
+## Drei Dinge, die man von Anfang an wissen sollte
+
+**1. Ein zweites Handy funktioniert nicht als Jarvis-Leitung.**
+Ein Handy ist kein SIP-Trunk. Gebraucht wird ein GSM- bzw. VoLTE-Gateway mit
+SIP; die SIM muss aus dem Handy dorthin. Reine 2G-Gateways sind in
+Deutschland nutzlos, seit die 2G-Netze abgeschaltet sind.
+
+**2. Ein schlafender Mac ist nicht erreichbar.**
+Anrufe gehen dann ins Leere — ohne Hinweis, ohne Voicemail. Für 24/7 gehört
+Jarvis auf einen kleinen Linux-Rechner (`infra/systemd/`).
+
+**3. Alte WhatsApp-Nachrichten lassen sich nicht nachholen.**
+Was vor der Anbindung in der WhatsApp-Business-App ankam, ist über die Cloud
+API nicht rückwirkend abrufbar. Das ist eine Eigenschaft der Schnittstelle,
+keine Einschränkung dieser Software.
+
+---
+
+## Datenschutz
+
+Spracherkennung und Sprachausgabe laufen vollständig lokal. Roh-Audio
+verlässt das System nie und wird nie gespeichert (`STORE_RAW_AUDIO=false`, in
+Produktion unveränderlich). Es gibt keine Gesprächsaufzeichnung.
+
+Nach außen geht nur: erkannter Text, minimaler Gesprächskontext, isolierter
+Nachrichteninhalt — und der freigegebene Text an den jeweiligen Provider.
+
+Geheimnisse liegen im Schlüsselbund des Betriebssystems, nie in einer Datei.
+Der Logger redigiert jede Zeile; Nachrichtentexte erscheinen in Produktion
+nur als `[inhalt N zeichen]`.
+
+## Technische Grundlage
+
+Node 22 LTS, TypeScript strict, pnpm-Monorepo, SQLite mit WAL (SQLCipher für
+echte Daten), Zod für alles von außen, Vitest samt property-based Tests,
+Asterisk über ARI und AudioSocket, whisper.cpp und Piper lokal.
+
+Bewusst wenige Abhängigkeiten, alle exakt gepinnt: `zod`, `ws`,
+`@anthropic-ai/claude-agent-sdk`. Logger, HTTP-Schicht, Metriken und
+`.env`-Parser sind selbst geschrieben, weil dort Redaction und kontrolliertes
+Verhalten wichtiger sind als eingesparte Zeilen.

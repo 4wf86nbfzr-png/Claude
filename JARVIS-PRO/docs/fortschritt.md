@@ -1,6 +1,7 @@
 # Jarvis Pro - Fortschritt
 
-Stand: Phase 1 bis 7 der verbindlichen Reihenfolge.
+Stand: Phasen 1 bis 22 und 26 bis 30 der verbindlichen Reihenfolge.
+Details je Punkt im [Abnahmebericht](abnahmebericht.md).
 
 ## Erledigt und durch Tests belegt
 
@@ -51,12 +52,16 @@ Daraus folgt:
    Verschlusslaute reichen dafuer aus. Jetzt Abbau statt Reset.
 5. **Testharness schloss die Datenbank waehrend laufender Audit-Schreibvorgaenge.**
 
-## Naechste Schritte
+## Was noch aussteht
 
-8. Vollstaendiger End-to-End-Dry-Run
-9. Claude-Gehirn mit Mock-Tools
-10. Prompt-Injection-Schutz im Gespraechsablauf
-11-14. Lokales STT/TTS verdrahten, Benchmarks auf dem Mac, Barge-in im Live-Betrieb
-16. Reale Asterisk-Integration
-17-21. Microsoft Graph, Kalender, WhatsApp
-22-25. SIM, Gateway, echte Testanrufe
+Alles Verbleibende braucht Hardware, Konten oder Netzzugang:
+
+- **23, 24** echter eingehender und ausgehender Testanruf - braucht das
+  gekaufte GSM/VoLTE-Gateway und die Jarvis-SIM
+- **25** Live-Versand an ein freigegebenes Testziel - braucht das verbundene
+  Microsoft-Konto
+- **13** Latenzmessung auf Noahs Mac - `pnpm bench:speech`, Skript liegt bereit
+- Die Pruefliste in [api-annahmen.md](api-annahmen.md) abarbeiten
+
+Die Reihenfolge dafuer steht im [Abnahmebericht](abnahmebericht.md),
+Abschnitt "Was vor dem Live-Gang zu tun ist".
