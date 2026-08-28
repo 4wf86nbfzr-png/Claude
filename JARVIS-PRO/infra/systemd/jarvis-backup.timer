@@ -1,0 +1,17 @@
+# Sicherung nachts um 3.
+#
+# Installation:
+#   sudo cp infra/systemd/jarvis-backup.* /etc/systemd/system/
+#   sudo systemctl enable --now jarvis-backup.timer
+[Unit]
+Description=Taegliche Sicherung von Jarvis Pro
+
+[Timer]
+OnCalendar=*-*-* 03:00:00
+# Nachholen, falls die Maschine um 3 Uhr aus war.
+Persistent=true
+# Etwas Streuung, damit nicht alle Aufgaben gleichzeitig loslaufen.
+RandomizedDelaySec=600
+
+[Install]
+WantedBy=timers.target

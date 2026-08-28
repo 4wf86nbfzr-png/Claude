@@ -16,3 +16,7 @@ backups/
 models/
 coverage/
 .DS_Store
+
+# Erzeugte Asterisk-Konfiguration: enthaelt Rufnummern und spaeter Zugangsdaten.
+infra/asterisk/erzeugt/
+vendor/

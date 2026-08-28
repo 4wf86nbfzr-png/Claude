@@ -1,0 +1,18 @@
+# Logrotation.
+#
+# Installation:
+#   sudo cp infra/systemd/logrotate-jarvis /etc/logrotate.d/jarvis
+#
+# Nur noetig, wenn Jarvis in Dateien schreibt. Unter systemd landet alles im
+# Journal; dessen Groesse regelt /etc/systemd/journald.conf (SystemMaxUse).
+/opt/jarvis-pro/logs/*.log {
+    daily
+    rotate 14
+    compress
+    delaycompress
+    missingok
+    notifempty
+    create 0640 jarvis jarvis
+    # Logs koennen trotz Redaction personenbezogene Spuren enthalten
+    # (Zeitpunkte, Haeufigkeiten). Nach 14 Tagen sind sie weg.
+}

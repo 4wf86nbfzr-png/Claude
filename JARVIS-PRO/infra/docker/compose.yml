@@ -1,0 +1,31 @@
+# Asterisk zum Ausprobieren.
+#
+# Achtung: mit "network_mode: host" spricht Asterisk direkt mit dem Netz des
+# Rechners. Das ist fuer SIP praktisch notwendig - RTP nutzt viele Ports, und
+# die Portweiterleitung von Docker kommt damit schlecht zurecht.
+#
+# Unter macOS gibt es kein echtes Host-Networking. Dort laeuft dieser Aufbau
+# nur eingeschraenkt; fuer echte Telefonie gehoert Asterisk auf den
+# Linux-Host.
+services:
+  asterisk:
+    build:
+      context: ../..
+      dockerfile: infra/docker/asterisk.Dockerfile
+    container_name: jarvis-asterisk
+    network_mode: host
+    volumes:
+      # Die erzeugte Konfiguration liegt ausserhalb der Versionsverwaltung.
+      - ../asterisk/erzeugt:/etc/asterisk:ro
+      - asterisk-spool:/var/spool/asterisk
+      - asterisk-lib:/var/lib/asterisk
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "asterisk", "-rx", "core show version"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  asterisk-spool:
+  asterisk-lib:
