@@ -26,12 +26,13 @@ function fakeFetch(
   const impl = (async (url: string | URL | Request, init?: RequestInit) => {
     calls.push({ url: String(url), init: init ?? {} });
     if (typeof responses === 'function') responses();
-    const r = responses[Math.min(i, responses.length - 1)];
+    const list = responses as { status: number; body?: unknown; headers?: Record<string, string> }[];
+    const r = list[Math.min(i, list.length - 1)];
     i += 1;
     if (r === undefined) throw new Error('keine Antwort vorbereitet');
     return new Response(r.body === undefined ? '' : JSON.stringify(r.body), {
       status: r.status,
-      headers: r.headers,
+      ...(r.headers === undefined ? {} : { headers: r.headers }),
     });
   }) as unknown as typeof fetch;
   return { impl, calls };

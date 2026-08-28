@@ -66,6 +66,9 @@ importers:
       '@jarvis/approval-engine':
         specifier: workspace:*
         version: link:../../packages/approval-engine
+      '@jarvis/connector-worker':
+        specifier: workspace:*
+        version: link:../connector-worker
       '@jarvis/connectors':
         specifier: workspace:*
         version: link:../../packages/connectors

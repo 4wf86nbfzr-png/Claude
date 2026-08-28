@@ -49,6 +49,7 @@ export class SimulatedCall implements CallHandle {
   private endReason: CallEndReason | null = null;
   private answerResult: AnswerResult | null = null;
   private answerWaiters: ((r: AnswerResult) => void)[] = [];
+  private dtmfWaiting = false;
 
   constructor(
     readonly id: string,
@@ -155,26 +156,40 @@ export class SimulatedCall implements CallHandle {
     const immediate = take();
     if (immediate !== null) return immediate;
 
+    this.dtmfWaiting = true;
     return new Promise<string | null>((resolve) => {
       const deadline = Date.now() + timeoutMs;
+      const done = (v: string | null): void => {
+        this.dtmfWaiting = false;
+        resolve(v);
+      };
       const poll = (): void => {
         if (this.ended) {
-          resolve(null);
+          done(null);
           return;
         }
         const got = take();
         if (got !== null) {
-          resolve(got);
+          done(got);
           return;
         }
         if (Date.now() >= deadline) {
-          resolve(null);
+          done(null);
           return;
         }
         setTimeout(poll, 5);
       };
       setTimeout(poll, 5);
     });
+  }
+
+  /**
+   * true, solange auf eine Tastatureingabe gewartet wird. Der
+   * Gespraechssimulator braucht das, um zu erkennen, dass jetzt die PIN
+   * dran ist und keine gesprochene Antwort.
+   */
+  get awaitingDtmf(): boolean {
+    return this.dtmfWaiting;
   }
 
   onDtmf(handler: (digit: string) => void): void {

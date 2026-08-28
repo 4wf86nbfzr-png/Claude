@@ -8,7 +8,7 @@
   },
   "type": "module",
   "scripts": {
-    "doctor": "node --experimental-strip-types scripts/doctor.ts",
+    "doctor": "tsx scripts/doctor.ts",
     "setup": "bash scripts/setup.sh",
     "build": "tsc --build",
     "typecheck": "tsc --build --force",
