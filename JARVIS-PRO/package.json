@@ -17,6 +17,7 @@
     "test:e2e": "vitest run --project e2e",
     "test:all": "vitest run",
     "simulate:call": "tsx scripts/simulate-call.ts",
+    "simulate:chat": "tsx scripts/simulate-chat.ts",
     "dry-run": "tsx scripts/dry-run.ts",
     "connect:microsoft": "tsx scripts/connect-microsoft.ts",
     "connect:whatsapp": "tsx scripts/connect-whatsapp.ts",

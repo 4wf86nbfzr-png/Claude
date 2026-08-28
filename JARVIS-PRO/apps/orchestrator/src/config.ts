@@ -27,8 +27,19 @@ export const ConfigSchema = z.object({
   nodeEnv: z.string().default('development'),
   mode: ModeSchema.default('simulation'),
 
-  ownerPhone: E164Schema,
-  jarvisPhone: E164Schema,
+  /**
+   * Ueber welchen Weg Jarvis bedient wird.
+   *
+   * 'telefon' braucht einen SIP-Anschluss und Asterisk, 'chat' braucht nur
+   * die WhatsApp Cloud API. 'beide' ist der Vollausbau. Die Freigaberegeln
+   * sind in allen drei Faellen dieselben - nur der Kanal unterscheidet sich.
+   */
+  kanal: z.enum(['telefon', 'chat', 'beide']).default('beide'),
+
+  // Leer erlaubt, weil ein reiner Chatbetrieb keine Rufnummern braucht.
+  // Ob sie gebraucht werden, haengt am Kanal und wird unten geprueft.
+  ownerPhone: E164Schema.or(z.literal('')),
+  jarvisPhone: E164Schema.or(z.literal('')),
 
   ari: z.object({
     url: z.string().url().default('http://127.0.0.1:8088'),
@@ -64,6 +75,24 @@ export const ConfigSchema = z.object({
     clientId: z.string(),
     redirectUri: z.string().url(),
     account: z.string(),
+  }),
+
+  chat: z.object({
+    /** Noahs eigene WhatsApp-Nummer, ohne fuehrendes Plus. */
+    ownerWaId: z.string(),
+    /** Nach dieser Pause beginnt ein neuer Gespraechsabschnitt. */
+    idleMinutes: z.number().int().min(1).max(1440).default(60),
+    requireLoginPin: z.boolean().default(false),
+    /**
+     * Zweiter Faktor fuer die Freigabe.
+     *
+     * 'pin' ist bequemer, bleibt aber im Chatverlauf stehen. 'totp' ist ein
+     * Einmalcode aus einer Authenticator-App und nach einer halben Minute
+     * wertlos - was im Chat der Unterschied zwischen einem zweiten Faktor
+     * und einem Ritual ist.
+     */
+    secondFactor: z.enum(['pin', 'totp']).default('pin'),
+    maxAnnouncementsPerTurn: z.number().int().min(1).max(20).default(3),
   }),
 
   whatsapp: z.object({
@@ -133,6 +162,7 @@ export function loadConfig(opts: LoadConfigOptions = {}): Config {
   const raw = {
     nodeEnv: env['NODE_ENV'] ?? 'development',
     mode,
+    kanal: env['JARVIS_KANAL'] ?? 'beide',
     ownerPhone: env['JARVIS_OWNER_PHONE_E164'] ?? '',
     jarvisPhone: env['JARVIS_SIM_PHONE_E164'] ?? '',
     ari: {
@@ -165,6 +195,13 @@ export function loadConfig(opts: LoadConfigOptions = {}): Config {
       redirectUri: env['MS_REDIRECT_URI'] ?? 'http://localhost:53682/callback',
       account: env['MS_ACCOUNT'] ?? '',
     },
+    chat: {
+      ownerWaId: (env['JARVIS_OWNER_WA_ID'] ?? env['JARVIS_OWNER_PHONE_E164'] ?? '').replace(/\D/g, ''),
+      idleMinutes: Number(env['JARVIS_CHAT_IDLE_MINUTES'] ?? 60),
+      requireLoginPin: (env['JARVIS_CHAT_REQUIRE_LOGIN_PIN'] ?? 'false') === 'true',
+      secondFactor: env['JARVIS_CHAT_SECOND_FACTOR'] ?? 'pin',
+      maxAnnouncementsPerTurn: Number(env['JARVIS_CHAT_MAX_ANNOUNCEMENTS'] ?? 3),
+    },
     whatsapp: {
       phoneNumberId: env['WHATSAPP_PHONE_NUMBER_ID'] ?? '',
       wabaId: env['WHATSAPP_WABA_ID'] ?? '',
@@ -194,10 +231,37 @@ export function loadConfig(opts: LoadConfigOptions = {}): Config {
   // Feldern sind. Sie hier zu erschlagen ist besser, als sie im Betrieb zu
   // erleben.
   const c = parsed.data;
-  if (c.ownerPhone === c.jarvisPhone) {
+  const mitTelefon = c.kanal === 'telefon' || c.kanal === 'beide';
+  const mitChat = c.kanal === 'chat' || c.kanal === 'beide';
+
+  if (mitTelefon) {
+    if (c.ownerPhone.length === 0 || c.jarvisPhone.length === 0) {
+      throw new Error(
+        `Bei JARVIS_KANAL=${c.kanal} muessen JARVIS_OWNER_PHONE_E164 und ` +
+          'JARVIS_SIM_PHONE_E164 gesetzt sein.',
+      );
+    }
+    if (c.ownerPhone === c.jarvisPhone) {
+      throw new Error(
+        'JARVIS_OWNER_PHONE_E164 und JARVIS_SIM_PHONE_E164 sind identisch. ' +
+          'Jarvis wuerde sich selbst anrufen.',
+      );
+    }
+  }
+
+  if (mitChat && c.chat.ownerWaId.length === 0) {
     throw new Error(
-      'JARVIS_OWNER_PHONE_E164 und JARVIS_SIM_PHONE_E164 sind identisch. ' +
-        'Jarvis wuerde sich selbst anrufen.',
+      `Bei JARVIS_KANAL=${c.kanal} muss JARVIS_OWNER_WA_ID gesetzt sein - ` +
+        'sonst weiss Jarvis nicht, von wem er Anweisungen annehmen darf.',
+    );
+  }
+
+  // Die eigene Nummer als Gegenstelle waere eine Schleife: Jarvis wuerde auf
+  // seine eigenen Nachrichten antworten.
+  if (mitChat && c.chat.ownerWaId === c.whatsapp.phoneNumberId) {
+    throw new Error(
+      'JARVIS_OWNER_WA_ID und WHATSAPP_PHONE_NUMBER_ID sind identisch. ' +
+        'Jarvis wuerde mit sich selbst schreiben.',
     );
   }
   if (c.mode === 'live') {
@@ -224,8 +288,11 @@ export function describeConfig(c: Config): Record<string, unknown> {
   return {
     mode: c.mode,
     nodeEnv: c.nodeEnv,
+    kanal: c.kanal,
     ownerPhone: maskPhone(c.ownerPhone),
     jarvisPhone: maskPhone(c.jarvisPhone),
+    ownerWaId: maskPhone(c.chat.ownerWaId),
+    chatZweiterFaktor: c.chat.secondFactor,
     timezone: c.behaviour.timezone,
     storeRawAudio: c.privacy.storeRawAudio,
     logMessageBodies: c.privacy.logMessageBodies,

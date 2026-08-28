@@ -121,3 +121,75 @@ describe('Diagnoseausgabe', () => {
     expect(described).toContain('***');
   });
 });
+
+describe('Kanalwahl', () => {
+  it('laesst den reinen Chatbetrieb ohne Rufnummern zu', () => {
+    const c = loadConfig({
+      env: {
+        JARVIS_KANAL: 'chat',
+        JARVIS_OWNER_WA_ID: '4915112345678',
+        WHATSAPP_PHONE_NUMBER_ID: '111222333',
+      },
+      dotEnvPath: envFile(''),
+    });
+    expect(c.kanal).toBe('chat');
+    expect(c.ownerPhone).toBe('');
+    expect(c.chat.ownerWaId).toBe('4915112345678');
+  });
+
+  it('verlangt im Chatbetrieb die eigene WhatsApp-Nummer', () => {
+    expect(() =>
+      loadConfig({ env: { JARVIS_KANAL: 'chat' }, dotEnvPath: envFile('') }),
+    ).toThrow(/JARVIS_OWNER_WA_ID/);
+  });
+
+  it('verlangt im Telefonbetrieb beide Rufnummern', () => {
+    expect(() =>
+      loadConfig({
+        env: { JARVIS_KANAL: 'telefon', JARVIS_OWNER_PHONE_E164: '+4915112345678' },
+        dotEnvPath: envFile(''),
+      }),
+    ).toThrow(/JARVIS_SIM_PHONE_E164/);
+  });
+
+  it('weist es ab, wenn Jarvis mit sich selbst schreiben wuerde', () => {
+    expect(() =>
+      loadConfig({
+        env: {
+          JARVIS_KANAL: 'chat',
+          JARVIS_OWNER_WA_ID: '111222333',
+          WHATSAPP_PHONE_NUMBER_ID: '111222333',
+        },
+        dotEnvPath: envFile(''),
+      }),
+    ).toThrow(/mit sich selbst/);
+  });
+
+  it('nimmt die eigene WhatsApp-Nummer notfalls aus der Rufnummer', () => {
+    const c = loadConfig({
+      env: { ...BASE, JARVIS_KANAL: 'beide', WHATSAPP_PHONE_NUMBER_ID: '111222333' },
+      dotEnvPath: envFile(''),
+    });
+    // Aus '+4915112345678' wird '4915112345678' - Meta liefert die Nummer
+    // ohne Plus und ohne Trennzeichen.
+    expect(c.chat.ownerWaId).toBe('4915112345678');
+  });
+
+  it('nimmt den Einmalcode als zweiten Faktor entgegen', () => {
+    const c = loadConfig({
+      env: { ...BASE, JARVIS_CHAT_SECOND_FACTOR: 'totp', WHATSAPP_PHONE_NUMBER_ID: '111222333' },
+      dotEnvPath: envFile(''),
+    });
+    expect(c.chat.secondFactor).toBe('totp');
+  });
+
+  it('maskiert die eigene WhatsApp-Nummer im Diagnosebericht', () => {
+    const c = loadConfig({
+      env: { ...BASE, WHATSAPP_PHONE_NUMBER_ID: '111222333' },
+      dotEnvPath: envFile(''),
+    });
+    const bericht = JSON.stringify(describeConfig(c));
+    expect(bericht).not.toContain('4915112345678');
+    expect(bericht).toContain('***');
+  });
+});

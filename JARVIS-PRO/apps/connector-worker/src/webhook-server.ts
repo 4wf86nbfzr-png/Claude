@@ -29,6 +29,15 @@ export interface WebhookServerConfig {
   readonly path?: string;
   readonly phoneNumberId: string;
   readonly maxBodyBytes?: number;
+  /**
+   * Noahs eigene WhatsApp-Nummer.
+   *
+   * Ohne diese Trennung landet jede Nachricht, die Noah an Jarvis schreibt,
+   * als "neues Ereignis" im Speicher - und Jarvis meldet ihm zurueck, dass
+   * er selbst geschrieben hat. Was von dieser Nummer kommt, ist Bedienung
+   * und kein Vorgang.
+   */
+  readonly ownerWaId?: string;
 }
 
 export interface WebhookServerDeps {
@@ -39,6 +48,12 @@ export interface WebhookServerDeps {
   readonly clock: Clock;
   /** Wird fuer jedes neue, nicht duplizierte Ereignis aufgerufen. */
   readonly onEvent: (event: InboundEvent) => void;
+  /**
+   * Wird fuer Nachrichten von Noah selbst aufgerufen - das ist die Bedienung
+   * von Jarvis. Fehlt der Rueckruf, werden solche Nachrichten verworfen
+   * statt als Ereignis abgelegt.
+   */
+  readonly onOwnerMessage?: (waId: string, text: string) => void;
   /** Zustellstatus der eigenen Nachrichten - nur fuer die Diagnose. */
   readonly onStatus?: (status: { id: string; status: string; recipientId: string }) => void;
 }
@@ -162,6 +177,20 @@ export class WhatsAppWebhookServer {
       this.deps.logger.info('webhook_duplikat_verworfen', { providerId: draft.providerId });
       return;
     }
+
+    // Bedienung statt Vorgang: was von Noah kommt, geht in den
+    // Gespraechsablauf und nicht in den Ereignisspeicher.
+    const owner = this.deps.config.ownerWaId;
+    if (owner !== undefined && sameNumber(draft.senderAddress, owner)) {
+      // `preview` ist bei Text identisch mit `body` und nie null - ein Bild
+      // ohne Bildunterschrift kommt hier als "[Bild]" an, und das ist als
+      // Bedienbefehl genau richtig unverstaendlich.
+      const text = draft.body ?? draft.preview;
+      this.deps.logger.info('webhook_nachricht_vom_eigentuemer', { laenge: text.length });
+      this.deps.onOwnerMessage?.(draft.senderAddress, text);
+      return;
+    }
+
     const { event, isNew } = this.deps.events.ingest(draft);
     if (!isNew) {
       metrics.duplicatesDropped.inc({ channel: 'whatsapp', quelle: 'eventstore' });
@@ -207,4 +236,11 @@ async function readBody(req: IncomingMessage, maxBytes: number): Promise<Buffer 
     req.on('end', () => resolve(Buffer.concat(chunks)));
     req.on('error', reject);
   });
+}
+
+/** Nummernvergleich ohne Plus, Leerzeichen und Bindestriche. */
+function sameNumber(a: string, b: string): boolean {
+  const links = a.replace(/\D/g, '');
+  const rechts = b.replace(/\D/g, '');
+  return links.length > 0 && links === rechts;
 }
