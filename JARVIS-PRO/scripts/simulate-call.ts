@@ -17,6 +17,7 @@ import { MockCalendarConnector } from '@jarvis/connectors';
 import { MockTts, ScriptedStt } from '@jarvis/speech';
 import { SimulatedCall, VoiceSession, silenceFrames, speechLike, toFrames } from '@jarvis/telephony';
 import { createHarness, emailEventFixture, whatsappEventFixture } from '@jarvis/testkit';
+import { loadDotEnv } from '../apps/orchestrator/src/config.js';
 import {
   Conversation,
   ScriptedBrain,
@@ -119,7 +120,12 @@ async function main(): Promise<void> {
   // Gespraechstechnik.
   const stt = new ScriptedStt([]);
   const tts = new MockTts();
-  const call = new SimulatedCall('sim-cli', 'outbound', '+4915112345678', {});
+  // Die Zielnummer kommt aus der Konfiguration, damit die Simulation zeigt,
+  // wen Jarvis tatsaechlich anrufen wuerde. Ohne .env die Fixture-Nummer.
+  const zielnummer =
+    (loadDotEnv()['JARVIS_OWNER_PHONE_E164'] ?? process.env['JARVIS_OWNER_PHONE_E164'] ?? '')
+      .trim() || '+4915112345678';
+  const call = new SimulatedCall('sim-cli', 'outbound', zielnummer, {});
   call.settleAnswer({ answered: true });
 
   const session = new VoiceSession({
@@ -210,7 +216,8 @@ async function main(): Promise<void> {
   console.log('\n' + '='.repeat(72));
   console.log('Jarvis Pro - Gespraechssimulator');
   console.log('='.repeat(72));
-  console.log('Es wird nichts gesendet und niemand angerufen.');
+  console.log(`Simulierter AUSGEHENDER Anruf an ${zielnummer}.`);
+  console.log('Es klingelt nirgends: es gibt keine Telefonleitung. Nichts wird gesendet.');
   console.log(`Freigabe-PIN in dieser Simulation: ${PIN}`);
   console.log('Eingaben: normaler Text, "#<ziffern>" fuer die Tastatur, "tschuess" zum Beenden.');
   console.log('='.repeat(72));
