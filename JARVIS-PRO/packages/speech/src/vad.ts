@@ -109,7 +109,15 @@ export class EnergyVad implements Vad {
       return null;
     }
 
-    this.consecutiveVoiceMs = 0;
+    // Kein harter Reset, sondern Abbau.
+    //
+    // Deutsche Sprache ist voller Verschlusslaute: bei "Punkt" oder "Achi"
+    // faellt der Pegel fuer 30 bis 60 ms auf null. Ein Zaehler, der bei jedem
+    // leisen Frame auf 0 springt, erreicht die Mindestdauer dann nie und der
+    // Sprachbeginn wird gar nicht erkannt - genau das ist beim ersten
+    // Testlauf passiert. Der Abbau ueberbrueckt kurze Luecken und laesst
+    // echte Stille trotzdem zuverlaessig auf 0 laufen.
+    this.consecutiveVoiceMs = Math.max(0, this.consecutiveVoiceMs - frameMs);
     if (this.speaking && atMs - this.lastVoiceMs >= this.silenceMs) {
       this.speaking = false;
       const durationMs = this.lastVoiceMs - this.speechStartMs;
