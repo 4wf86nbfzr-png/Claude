@@ -1,0 +1,17 @@
+{
+  "name": "@jarvis/storage",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@jarvis/domain": "workspace:*",
+    "@jarvis/security": "workspace:*",
+    "@jarvis/observability": "workspace:*"
+  },
+  "scripts": {
+    "test": "vitest run"
+  }
+}

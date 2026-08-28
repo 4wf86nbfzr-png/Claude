@@ -1,0 +1,21 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@jarvis/domain": ["packages/domain/src/index.ts"],
+      "@jarvis/security": ["packages/security/src/index.ts"],
+      "@jarvis/observability": ["packages/observability/src/index.ts"],
+      "@jarvis/storage": ["packages/storage/src/index.ts"],
+      "@jarvis/approval-engine": ["packages/approval-engine/src/index.ts"],
+      "@jarvis/connectors": ["packages/connectors/src/index.ts"],
+      "@jarvis/speech": ["packages/speech/src/index.ts"],
+      "@jarvis/testkit": ["packages/testkit/src/index.ts"],
+      "@jarvis/telephony": ["apps/telephony/src/index.ts"],
+      "@jarvis/orchestrator": ["apps/orchestrator/src/index.ts"],
+      "@jarvis/connector-worker": ["apps/connector-worker/src/index.ts"]
+    }
+  },
+  "include": ["packages/*/src/**/*.ts", "apps/*/src/**/*.ts", "scripts/**/*.ts", "tests/**/*.ts", "*.config.ts"]
+}

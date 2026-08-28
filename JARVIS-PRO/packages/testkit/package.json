@@ -1,0 +1,19 @@
+{
+  "name": "@jarvis/testkit",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@jarvis/domain": "workspace:*",
+    "@jarvis/security": "workspace:*",
+    "@jarvis/storage": "workspace:*",
+    "@jarvis/connectors": "workspace:*",
+    "@jarvis/speech": "workspace:*"
+  },
+  "scripts": {
+    "test": "vitest run"
+  }
+}
