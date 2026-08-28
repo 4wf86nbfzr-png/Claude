@@ -3,6 +3,11 @@
 Das GSM/VoLTE-Gateway ist der einzige Punkt, an dem ohne Kauf nichts
 weitergeht. Alles andere lässt sich vorher erledigen.
 
+> **Es gibt einen zweiten Weg.** Statt eigener SIM in eigener Hardware kann
+> eine Rufnummer bei einem VoIP-Anbieter denselben SIP-Trunk liefern — ohne
+> Kauf und ohne Wartezeit, dafür mit einem Anbieter mehr in der Leitung.
+> Der Vergleich steht in [`voip-nummer.md`](voip-nummer.md).
+
 **Was hier steht, sind Kriterien, keine Produktempfehlungen.** Ich kann von
 hier aus keine aktuellen Angebote prüfen; ein Gerätename, den ich nicht
 verifizieren kann, wäre geraten. Die Liste unten ist so gebaut, dass du sie

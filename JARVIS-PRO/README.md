@@ -116,6 +116,7 @@ mehrere Apps sie brauchen.
 
 - [Betriebshandbuch](docs/betriebshandbuch.md) — Einrichtung und Alltag
 - [Gateway-Kaufberatung](docs/gateway-kaufberatung.md) — Kriterien für die Hardware
+- [VoIP-Nummer](docs/voip-nummer.md) — der Weg ohne eigene Hardware
 - [Fehlerhandbuch](docs/fehlerhandbuch.md) — nach Symptom sortiert
 - [Bedrohungsmodell](docs/bedrohungsmodell.md) — 14 Bedrohungen mit Gegenmaßnahme und Nachweis
 - [Offene API-Annahmen](docs/api-annahmen.md) — was vor dem Live-Gang zu prüfen ist
@@ -127,9 +128,11 @@ mehrere Apps sie brauchen.
 ## Drei Dinge, die man von Anfang an wissen sollte
 
 **1. Ein zweites Handy funktioniert nicht als Jarvis-Leitung.**
-Ein Handy ist kein SIP-Trunk. Gebraucht wird ein GSM- bzw. VoLTE-Gateway mit
-SIP; die SIM muss aus dem Handy dorthin. Reine 2G-Gateways sind in
-Deutschland nutzlos, seit die 2G-Netze abgeschaltet sind.
+Ein Handy ist kein SIP-Trunk. Gebraucht wird entweder ein GSM/VoLTE-Gateway
+mit SIP, in das die SIM aus dem Handy wandert (reine 2G-Geräte sind nutzlos,
+seit die 2G-Netze abgeschaltet sind) — oder eine Rufnummer bei einem
+VoIP-Anbieter, die denselben SIP-Trunk liefert. `pnpm configure:gateway`
+fragt, welchen Weg du gehst; am Code ändert sich nichts.
 
 **2. Ein schlafender Mac ist nicht erreichbar.**
 Anrufe gehen dann ins Leere — ohne Hinweis, ohne Voicemail. Für 24/7 gehört

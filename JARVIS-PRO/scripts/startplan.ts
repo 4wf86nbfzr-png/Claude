@@ -129,17 +129,17 @@ async function main(): Promise<void> {
     },
     {
       nr: 10,
-      titel: 'GSM/VoLTE-Gateway beschaffen',
-      tun: 'Geraet nach den Kriterien in docs/gateway-kaufberatung.md aussuchen und bestellen',
-      warum: 'DAS ist der Blocker fuer alles Telefonische. Ein Handy taugt nicht - es ist kein SIP-Trunk.',
+      titel: 'Anschluss beschaffen: Gateway ODER VoIP-Nummer',
+      tun: 'Weg A: Geraet nach docs/gateway-kaufberatung.md bestellen. Weg B: Nummer nach docs/voip-nummer.md anmelden. Danach GATEWAY_VORHANDEN=ja in .env.',
+      warum: 'DAS ist der Blocker fuer alles Telefonische. Ein Handy taugt nicht - es ist kein SIP-Trunk. Weg B geht heute, Weg A ohne fremden Anbieter in der Leitung.',
       braucht: [],
       ohneHardware: true,
       pruefen: () => gesetzt('GATEWAY_VORHANDEN'),
     },
     {
       nr: 11,
-      titel: 'SIM ins Gateway, Portierungssperre setzen',
-      tun: 'SIM aus dem Zweithandy ins Gateway, beim Anbieter eine Portierungssperre einrichten',
+      titel: 'Zugangsdaten besorgen, Portierungssperre setzen',
+      tun: 'Weg A: SIM aus dem Zweithandy ins Gateway, SIP-Benutzer anlegen. Weg B: SIP-Zugangsdaten in der Kontoverwaltung abrufen. Beide: beim Anbieter eine Portierungssperre einrichten.',
       warum: 'Ohne Sperre koennte jemand die Jarvis-Nummer uebernehmen und die Ansagen mithoeren.',
       braucht: [10],
       ohneHardware: false,
@@ -157,7 +157,7 @@ async function main(): Promise<void> {
     {
       nr: 13,
       titel: 'Asterisk konfigurieren',
-      tun: 'pnpm configure:gateway, Dateien durchlesen, BITTE-EINTRAGEN ersetzen, nach /etc/asterisk kopieren',
+      tun: 'pnpm configure:gateway (fragt nach Weg A oder B), Dateien durchlesen, BITTE-EINTRAGEN ersetzen, nach /etc/asterisk kopieren',
       warum: 'Der Rufnummernplan laesst ausgehend nur deine Nummer zu - zweite Sicherung hinter dem Code.',
       braucht: [12],
       ohneHardware: false,
@@ -204,7 +204,7 @@ async function main(): Promise<void> {
   const ohne = schritte.filter((s) => s.ohneHardware);
   const mit = schritte.filter((s) => !s.ohneHardware);
 
-  console.log('OHNE GATEWAY MOEGLICH - das kannst du jetzt sofort machen');
+  console.log('OHNE ANSCHLUSS MOEGLICH - das kannst du jetzt sofort machen');
   console.log('-'.repeat(72));
   for (const s of ohne) {
     const z = zustaende.get(s.nr) ?? 'offen';
@@ -212,7 +212,7 @@ async function main(): Promise<void> {
     if (z !== 'fertig') console.log(`         ${s.tun}`);
   }
 
-  console.log('\nBRAUCHT DAS GATEWAY');
+  console.log('\nBRAUCHT DEN ANSCHLUSS (Gateway oder VoIP-Nummer)');
   console.log('-'.repeat(72));
   for (const s of mit) {
     const z = zustaende.get(s.nr) ?? 'offen';
@@ -232,7 +232,7 @@ async function main(): Promise<void> {
     if (offen.length === 0) {
       console.log('Alles erledigt. Jarvis ist startklar.');
     } else {
-      console.log('Es geht nur mit dem Gateway weiter. Alles andere ist vorbereitet.');
+      console.log('Es geht nur mit dem Anschluss weiter. Alles andere ist vorbereitet.');
       console.log(`Naechster Schritt danach: ${offen[0]?.nr}. ${offen[0]?.titel}`);
     }
   } else {
