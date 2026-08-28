@@ -28,7 +28,8 @@
     "logs:safe": "bash scripts/logs-safe.sh",
     "backup": "bash scripts/backup.sh",
     "restore": "bash scripts/restore.sh",
-    "hash:pin": "tsx scripts/hash-pin.ts"
+    "hash:pin": "tsx scripts/hash-pin.ts",
+    "startplan": "tsx scripts/startplan.ts"
   },
   "devDependencies": {
     "@eslint/js": "9.39.5",

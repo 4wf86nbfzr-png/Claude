@@ -57,6 +57,7 @@ darunter property-based Nachweise über alle Teilmengen der Freigabeschritte.
 
 ```bash
 cd JARVIS-PRO
+pnpm startplan       # wo stehe ich, was ist als Nächstes dran?
 pnpm doctor          # was ist da, was fehlt? Ändert nichts.
 pnpm setup           # richtet ein. Fragt nach keinem Geheimnis.
 pnpm simulate:call   # ein vollständiges Telefongespräch im Terminal
@@ -96,6 +97,7 @@ mehrere Apps sie brauchen.
 
 | Befehl | Wofür |
 |---|---|
+| `pnpm startplan` | wo stehe ich, was ist als Naechstes dran |
 | `pnpm doctor` | Bestandsaufnahme, rein lesend, nur maskierte Werte |
 | `pnpm setup` | Einrichtung, idempotent, nicht destruktiv |
 | `pnpm simulate:call` | vollständiges Gespräch im Terminal |
@@ -113,6 +115,7 @@ mehrere Apps sie brauchen.
 ## Handbücher
 
 - [Betriebshandbuch](docs/betriebshandbuch.md) — Einrichtung und Alltag
+- [Gateway-Kaufberatung](docs/gateway-kaufberatung.md) — Kriterien für die Hardware
 - [Fehlerhandbuch](docs/fehlerhandbuch.md) — nach Symptom sortiert
 - [Bedrohungsmodell](docs/bedrohungsmodell.md) — 14 Bedrohungen mit Gegenmaßnahme und Nachweis
 - [Offene API-Annahmen](docs/api-annahmen.md) — was vor dem Live-Gang zu prüfen ist

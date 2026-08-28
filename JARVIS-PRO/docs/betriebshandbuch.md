@@ -46,9 +46,23 @@ Beim Kauf zu beachten: **VoLTE ist Pflicht.** Reine 2G-Geräte sind in
 Deutschland nicht mehr brauchbar, weil die 2G-Netze abgeschaltet wurden.
 Ein günstiges 2G-Gateway ist rausgeworfenes Geld.
 
+Die vollständigen Kaufkriterien stehen in
+[gateway-kaufberatung.md](gateway-kaufberatung.md) — inklusive der beiden
+Punkte, die man beim Anbieter klären muss, bevor die SIM ins Gerät wandert.
+
 ---
 
 ## 2. Einrichtung
+
+### 2.0 Wo stehe ich?
+
+```bash
+pnpm startplan
+```
+
+Zeigt die fünfzehn Schritte bis zum ersten echten Anruf, getrennt nach „geht
+schon jetzt" und „braucht das Gateway", und nennt genau **einen** nächsten
+Schritt. Nach jeder Etappe wieder aufrufen.
 
 ### 2.1 Erst nachsehen, was da ist
 
