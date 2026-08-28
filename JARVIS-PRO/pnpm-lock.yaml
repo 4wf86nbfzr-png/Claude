@@ -141,6 +141,9 @@ importers:
       '@jarvis/security':
         specifier: workspace:*
         version: link:../security
+      '@jarvis/testkit':
+        specifier: workspace:*
+        version: link:../testkit
       zod:
         specifier: 4.4.3
         version: 4.4.3
