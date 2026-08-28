@@ -29,6 +29,40 @@ ehrlich als `unverified` markiert — nicht als „fertig" ausgegeben.
 
 ---
 
+## Bewusste Abweichung vom Auftrag: der Bedienweg
+
+Der Auftrag legt in Abschnitt 1 fest, dass Jarvis **ausschließlich über
+normale Telefonanrufe** bedient wird — „kein Chatfenster" steht dort
+wörtlich. Das ist gebaut und bleibt es: `JARVIS_KANAL=telefon` ist genau
+dieser Jarvis.
+
+Auf ausdrücklichen Wunsch Noahs ist ein **zweiter Bedienweg über WhatsApp**
+dazugekommen (`JARVIS_KANAL=chat`), weil der Telefonweg einen SIP-Anschluss,
+Asterisk und eine lokale Sprachschicht verlangt und damit an Aufwand
+scheiterte. Die Entscheidung liegt bei ihm; hier steht, was sie kostet:
+
+| | Telefon (wie beauftragt) | WhatsApp |
+|---|---|---|
+| Zweiter Faktor | DTMF-PIN, nach dem Anruf weg | getippte PIN bleibt im Verlauf stehen (oder TOTP) |
+| Bedienkanal und Nachrichtenkanal | getrennt | **derselbe** — wer WhatsApp hat, hat beides |
+| Audio | lokal, nichts verlässt das Gerät | entsteht gar nicht |
+| Dritte in der Kette | Mobilfunkanbieter | Meta |
+| Erreichbarkeit | jederzeit anrufbar | nur im Antwortfenster, sonst Rückstau |
+
+**Was sich NICHT geändert hat:** die fünf Freigabebedingungen, die
+Hash-Bindung, die Einmaligkeit, die Ablauffrist, das Verbot eines
+generischen Sendewerkzeugs für das Modell und die Injection-Isolation. Der
+Chatweg hat dafür 14 eigene End-to-End-Tests, die dieselben Gegenproben
+fahren wie der Telefonweg.
+
+**Der ehrlichste Satz dazu:** der Chatweg ist bequemer und schwächer. Er ist
+schwächer, weil Bedienung und Nachrichten durch denselben Kanal laufen — wer
+Noahs WhatsApp übernimmt, kann Freigaben erteilen und sieht die PIN im
+Verlauf. `JARVIS_CHAT_SECOND_FACTOR=totp` schließt genau diese Lücke und
+kostet eine Authenticator-App.
+
+---
+
 ## Definition of Done
 
 | # | Punkt | Stand | Nachweis bzw. was fehlt |

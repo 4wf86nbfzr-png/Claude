@@ -1,3 +1,4 @@
+import type { InboundEvent } from '@jarvis/domain';
 import { MailSyncWorker, WhatsAppWebhookServer } from '@jarvis/connector-worker';
 import { rootLogger } from '@jarvis/observability';
 import { loadConfig, describeConfig } from './config.js';
@@ -82,10 +83,28 @@ async function main(): Promise<void> {
       connectorName: runtime.mail.name,
     },
     onEvent: (event) => {
-      runtime.scheduler.scheduleForEvent(event);
+      melde(event);
     },
   });
   sync.start();
+
+  // Wie ein neues Ereignis Noah erreicht, haengt am Kanal: anrufen oder
+  // schreiben. Beides gleichzeitig waere zudringlich - deshalb bekommt der
+  // Chat den Vorrang, wenn er eingeschaltet ist.
+  const mitTelefon = config.kanal === 'telefon' || config.kanal === 'beide';
+  const melde = (event: InboundEvent): void => {
+    if (runtime.chat !== null) {
+      void runtime.chat.notifyPending().catch((err: unknown) => {
+        // Kein Datenverlust: das Ereignis bleibt ungenannt und wird
+        // nachgereicht, sobald Noah das naechste Mal schreibt.
+        runtime.logger.info('chat_meldung_verschoben', {
+          error: err instanceof Error ? err.message : String(err),
+        });
+      });
+      return;
+    }
+    if (mitTelefon) runtime.scheduler.scheduleForEvent(event);
+  };
 
   // WhatsApp-Webhook, nur wenn eingerichtet.
   let webhook: WhatsAppWebhookServer | null = null;
@@ -94,13 +113,27 @@ async function main(): Promise<void> {
       config: {
         port: config.whatsapp.webhookPort,
         phoneNumberId: config.whatsapp.phoneNumberId,
+        // Ohne diese Angabe landet jede Nachricht, die Noah an Jarvis
+        // schreibt, als "neues Ereignis" im Speicher.
+        ownerWaId: config.chat.ownerWaId,
       },
       secrets: runtime.secrets,
       events: runtime.events,
       logger: runtime.logger.child('webhook'),
       clock: runtime.clock,
       onEvent: (event) => {
-        runtime.scheduler.scheduleForEvent(event);
+        melde(event);
+      },
+      onOwnerMessage: (waId, text) => {
+        if (runtime.chat === null) {
+          runtime.logger.info('chat_nachricht_verworfen', { grund: 'Chatweg ist aus' });
+          return;
+        }
+        void runtime.chat.handleMessage(waId, text).catch((err: unknown) => {
+          runtime.logger.error('chat_zug_fehlgeschlagen', {
+            error: err instanceof Error ? err.message : String(err),
+          });
+        });
       },
       onStatus: (s) => {
         runtime.logger.debug('whatsapp_zustellstatus', { status: s.status });

@@ -179,7 +179,7 @@ function checkSpeechAssets(env: Record<string, string>): void {
   }
 }
 
-function checkConfig(env: Record<string, string>): void {
+function checkConfig(env: Record<string, string>, mitTelefon: boolean): void {
   const get = (k: string): string => env[k] ?? process.env[k] ?? '';
 
   add({
@@ -198,17 +198,44 @@ function checkConfig(env: Record<string, string>): void {
     ...(mode === 'live' ? { hinweis: 'Im Live-Betrieb wird tatsaechlich gesendet und angerufen.' } : {}),
   });
 
-  // Rufnummern nur maskiert.
-  for (const [key, name] of [
-    ['JARVIS_OWNER_PHONE_E164', 'Rufnummer Noah'],
-    ['JARVIS_SIM_PHONE_E164', 'Rufnummer Jarvis-SIM'],
-  ] as const) {
-    const v = get(key);
+  // Rufnummern nur maskiert - und nur, wenn der Weg sie braucht.
+  if (mitTelefon) {
+    for (const [key, name] of [
+      ['JARVIS_OWNER_PHONE_E164', 'Rufnummer Noah'],
+      ['JARVIS_SIM_PHONE_E164', 'Rufnummer Jarvis-SIM'],
+    ] as const) {
+      const v = get(key);
+      add({
+        bereich: 'Konfiguration',
+        name,
+        status: /^\+[1-9]\d{6,14}$/.test(v) ? 'ok' : 'fehlt',
+        wert: v.length > 6 ? `${v.slice(0, 4)}***${v.slice(-3)}` : 'nicht gesetzt',
+      });
+    }
+  } else {
+    const wa = get('JARVIS_OWNER_WA_ID');
     add({
       bereich: 'Konfiguration',
-      name,
-      status: /^\+[1-9]\d{6,14}$/.test(v) ? 'ok' : 'fehlt',
-      wert: v.length > 6 ? `${v.slice(0, 4)}***${v.slice(-3)}` : 'nicht gesetzt',
+      name: 'Eigene WhatsApp-Nummer',
+      status: wa.replace(/\D/g, '').length >= 8 ? 'ok' : 'fehlt',
+      wert: wa.length > 6 ? `${wa.slice(0, 4)}***${wa.slice(-3)}` : 'nicht gesetzt',
+      ...(wa.length > 0
+        ? {}
+        : { hinweis: 'JARVIS_OWNER_WA_ID - nur von dieser Nummer nimmt Jarvis Anweisungen an.' }),
+    });
+
+    const faktor = get('JARVIS_CHAT_SECOND_FACTOR') || 'pin';
+    add({
+      bereich: 'Konfiguration',
+      name: 'Zweiter Faktor im Chat',
+      status: 'info',
+      wert: faktor,
+      ...(faktor === 'pin'
+        ? {
+            hinweis:
+              'Eine getippte PIN bleibt im Chatverlauf stehen. "totp" waere staerker - siehe docs/whatsapp-weg.md.',
+          }
+        : {}),
     });
   }
 
@@ -322,10 +349,26 @@ function render(): void {
 
 async function main(): Promise<void> {
   const env = loadDotEnv();
+  // Was ueberhaupt gebraucht wird, haengt am Bedienweg. Beim Chatweg gibt es
+  // weder Spracherkennung noch Sprachausgabe - sie als "fehlt" zu melden
+  // schickt einen auf einen Weg, den man gar nicht gehen will.
+  const kanal = (env['JARVIS_KANAL'] ?? process.env['JARVIS_KANAL'] ?? 'beide').trim();
+  const mitTelefon = kanal === 'telefon' || kanal === 'beide';
+
+  add({
+    bereich: 'Konfiguration',
+    name: 'Bedienweg',
+    status: 'info',
+    wert: kanal,
+    ...(mitTelefon
+      ? {}
+      : { hinweis: 'Reiner Chatbetrieb: Sprachschicht, Asterisk und Rufnummern entfallen.' }),
+  });
+
   await checkSystem();
-  await checkToolchain();
-  checkSpeechAssets(env);
-  checkConfig(env);
+  if (mitTelefon) await checkToolchain();
+  if (mitTelefon) checkSpeechAssets(env);
+  checkConfig(env, mitTelefon);
   checkSecretsInGit();
   await checkExisting();
   render();

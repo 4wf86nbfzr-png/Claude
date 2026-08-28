@@ -3,13 +3,16 @@ import {
   systemClock,
   type CallId,
   type Clock,
+  type DraftId,
   type IdGenerator,
   type InboundEvent,
+  type OutboundDraft,
 } from '@jarvis/domain';
 import {
   AuditLog,
   CallerAuthenticator,
   detectSecretStore,
+  sha256Hex,
   SECRET_KEYS,
   type SecretStore,
 } from '@jarvis/security';
@@ -19,6 +22,7 @@ import {
   ApprovalRepository,
   CalendarIdempotencyRepository,
   CallRepository,
+  ChatSessionRepository,
   DraftRepository,
   EventStore,
   JobQueue,
@@ -63,6 +67,7 @@ import {
 import { ClaudeAgentBrain, ScriptedBrain, type Brain } from './brain.js';
 import { CallScheduler, type CallJobPayload } from './call-scheduler.js';
 import { Conversation } from './conversation.js';
+import { ChatConversation } from './chat.js';
 import { ToolRegistry, type ToolContext } from './tools.js';
 import type { Config } from './config.js';
 
@@ -106,6 +111,11 @@ export interface Runtime {
   readonly calendar: CalendarConnector;
   readonly registry: ToolRegistry;
   readonly scheduler: CallScheduler;
+  /**
+   * Der Chatweg. `null`, wenn JARVIS_KANAL=telefon - dann gibt es ihn nicht,
+   * statt ihn zu bauen und nie zu benutzen.
+   */
+  readonly chat: ChatConversation | null;
   readonly health: HealthRegistry;
   readonly config: Config;
   activeConversation(): Conversation | null;
@@ -196,6 +206,7 @@ export async function buildRuntime(opts: BuildOptions): Promise<Runtime> {
   const calls = new CallRepository(db, clock, ids);
   const syncState = new SyncStateRepository(db, clock);
   const calendarIdempotency = new CalendarIdempotencyRepository(db, clock);
+  const chatSessions = new ChatSessionRepository(db, clock);
   const audit = new AuditLog(new SqlAuditSink(db), clock);
 
   // ---- Provider -----------------------------------------------------------
@@ -247,6 +258,12 @@ export async function buildRuntime(opts: BuildOptions): Promise<Runtime> {
           logger: logger.child('whatsapp'),
           clock,
           lastInboundAt: (waId) => {
+            // Noahs eigene Nachrichten landen bewusst NICHT im Eventstore -
+            // sie sind Bedienung, kein Vorgang. Fuer die Fensterpruefung
+            // muss deshalb zuerst der Chatzustand befragt werden, sonst
+            // gaebe es fuer ihn nie ein offenes Fenster.
+            const ausChat = chatSessions.lastInboundAt(waId);
+            if (ausChat !== null) return ausChat;
             const history = events.threadHistory('whatsapp', waId, 1);
             return history.at(-1)?.receivedAt ?? null;
           },
@@ -270,6 +287,19 @@ export async function buildRuntime(opts: BuildOptions): Promise<Runtime> {
     );
   }
 
+  // Einmalcode statt statischer PIN - nur wenn eingestellt UND hinterlegt.
+  // Beides zu verlangen ist Absicht: eine Einstellung ohne Geheimnis wuerde
+  // sonst still auf die PIN zurueckfallen, und dann glaubt man, man haette
+  // den staerkeren Faktor.
+  const approvalTotpSecret =
+    config.chat.secondFactor === 'totp' ? await secrets.get(SECRET_KEYS.approvalTotpSecret) : null;
+  if (config.chat.secondFactor === 'totp' && approvalTotpSecret === null && config.mode !== 'simulation') {
+    throw new Error(
+      'JARVIS_CHAT_SECOND_FACTOR=totp ist gesetzt, aber im Schluesselbund liegt kein ' +
+        '"approval-totp-secret". Ohne Geheimnis gibt es keine Einmalcodes.',
+    );
+  }
+
   const engine = new ApprovalEngine({
     drafts,
     approvals,
@@ -281,6 +311,7 @@ export async function buildRuntime(opts: BuildOptions): Promise<Runtime> {
     config: {
       expiresSeconds: config.behaviour.approvalExpiresSeconds,
       approvalPinHash,
+      ...(approvalTotpSecret === null ? {} : { approvalTotpSecret }),
     },
   });
 
@@ -304,8 +335,11 @@ export async function buildRuntime(opts: BuildOptions): Promise<Runtime> {
 
   // ---- Telefonie ----------------------------------------------------------
   const ariPassword = (await secrets.get(SECRET_KEYS.ariPassword)) ?? '';
+  // Im reinen Chatbetrieb gibt es keine Telefonanlage. Statt einen
+  // Asterisk-Adapter zu bauen, der ins Leere greift, laeuft hier die
+  // Simulation: der Scheduler bekommt in dem Betrieb ohnehin keine Anlaesse.
   const telephony: TelephonyPort =
-    config.mode === 'simulation'
+    config.mode === 'simulation' || config.kanal === 'chat'
       ? new SimulatedTelephony({
           ownerPhone: config.ownerPhone,
           jarvisPhone: config.jarvisPhone,
@@ -413,6 +447,78 @@ export async function buildRuntime(opts: BuildOptions): Promise<Runtime> {
     }
   };
 
+  // ---- Chatweg -----------------------------------------------------------
+  //
+  // Wird nur gebaut, wenn er auch benutzt wird. Der zweite Faktor kommt aus
+  // der Konfiguration: die statische PIN ist bequemer, der Einmalcode
+  // ueberlebt es, im Chatverlauf zu stehen.
+  const mitChat = config.kanal === 'chat' || config.kanal === 'beide';
+  const chat: ChatConversation | null = !mitChat
+    ? null
+    : new ChatConversation({
+        brain,
+        engine,
+        approvals,
+        sessions: chatSessions,
+        audit,
+        logger: logger.child('chat'),
+        clock,
+        deliver: async (text: string) => {
+          // Eine Chatzeile ist kein freigabepflichtiger Entwurf - sie geht an
+          // Noah, nicht an einen Dritten. Sie laeuft deshalb NICHT durch die
+          // Approval Engine, sondern direkt zum Connector. Der Entwurf wird
+          // hier nur gebaut, weil der Connector diese Form erwartet.
+          const zeile: OutboundDraft = {
+            id: `chat-${clock.nowIso()}` as DraftId,
+            channel: 'whatsapp',
+            providerAccount: whatsapp.account,
+            recipient: config.chat.ownerWaId,
+            subject: null,
+            body: text,
+            attachments: [],
+            threadId: config.chat.ownerWaId,
+            inReplyToEventId: null,
+            createdAt: clock.nowIso(),
+            revision: 1,
+          };
+          const ergebnis = await whatsapp.send(
+            zeile,
+            // Idempotenzschluessel: dieselbe Zeile zur selben Zeit soll nicht
+            // doppelt rausgehen, zwei verschiedene Zeilen aber sehr wohl.
+            `chat:${sha256Hex(`${clock.nowIso()}|${text}`)}`,
+          );
+          // Ein fehlgeschlagener Versand darf nicht als erledigt gelten -
+          // sonst gilt ein Read-back als vorgelesen, den niemand gesehen hat.
+          if (ergebnis.status !== 'sent') {
+            throw new Error(ergebnis.error ?? 'Nachricht konnte nicht zugestellt werden');
+          }
+        },
+        ownerWaId: config.chat.ownerWaId,
+        timezone: config.behaviour.timezone,
+        config: {
+          idleMinutes: config.chat.idleMinutes,
+          requireLoginPin: config.chat.requireLoginPin,
+          ...(loginPinHash.length === 0 ? {} : { loginPinHash }),
+          maxAnnouncementsPerTurn: config.chat.maxAnnouncementsPerTurn,
+          secondFactorLabel:
+            config.chat.secondFactor === 'totp'
+              ? 'den Einmalcode aus deiner Authenticator-App'
+              : 'deine Freigabe-PIN',
+        },
+        toolContext: {
+          events,
+          tasks,
+          memories,
+          engine,
+          calendar,
+          calendarIdempotency,
+          audit,
+          logger: logger.child('tools'),
+          clock,
+          providerAccounts: { email: mail.account, whatsapp: whatsapp.account },
+        },
+      });
+
   const scheduler = new CallScheduler({
     jobs,
     events,
@@ -489,6 +595,7 @@ export async function buildRuntime(opts: BuildOptions): Promise<Runtime> {
     calendar,
     registry,
     scheduler,
+    chat,
     health,
     config,
     activeConversation: () => current,

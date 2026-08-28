@@ -199,6 +199,7 @@ export const SECRET_KEYS = {
   ariPassword: 'ari-password',
   loginPinHash: 'login-pin-hash',
   approvalPinHash: 'approval-pin-hash',
+  approvalTotpSecret: 'approval-totp-secret',
   dbEncryptionKey: 'db-encryption-key',
 } as const;
 
