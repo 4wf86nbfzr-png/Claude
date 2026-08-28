@@ -518,7 +518,18 @@ export class AsteriskTelephony implements TelephonyPort {
       });
       ws.on('message', (raw) => {
         try {
-          this.handleEvent(JSON.parse(raw.toString()) as AriEvent);
+          // ws liefert je nach Verbindung string, Buffer oder ein Array
+          // von Buffern. Alles andere waere ein Fehler des Gegenuebers und
+          // wird als solcher behandelt.
+          const text =
+            typeof raw === 'string'
+              ? raw
+              : Buffer.isBuffer(raw)
+                ? raw.toString('utf8')
+                : Array.isArray(raw)
+                  ? Buffer.concat(raw).toString('utf8')
+                  : Buffer.from(raw).toString('utf8');
+          this.handleEvent(JSON.parse(text) as AriEvent);
         } catch (err) {
           this.cfg.logger.warn('ari_ereignis_unlesbar', {
             error: err instanceof Error ? err.message : String(err),

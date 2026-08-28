@@ -62,16 +62,24 @@ export function wortfehlerrate(referenz: string, erkannt: string): number {
   const h = norm(erkannt);
   if (r.length === 0) return h.length === 0 ? 0 : 1;
 
-  const d: number[][] = Array.from({ length: r.length + 1 }, () => new Array<number>(h.length + 1).fill(0));
-  for (let i = 0; i <= r.length; i += 1) d[i]![0] = i;
-  for (let j = 0; j <= h.length; j += 1) d[0]![j] = j;
+  // Flaches Array statt verschachtelter Matrix: spart die Zugriffe, die
+  // TypeScript sonst nur mit Non-Null-Assertions durchgehen laesst.
+  const breite = h.length + 1;
+  const d = new Uint32Array((r.length + 1) * breite);
+  for (let i = 0; i <= r.length; i += 1) d[i * breite] = i;
+  for (let j = 0; j <= h.length; j += 1) d[j] = j;
+
   for (let i = 1; i <= r.length; i += 1) {
     for (let j = 1; j <= h.length; j += 1) {
       const kosten = r[i - 1] === h[j - 1] ? 0 : 1;
-      d[i]![j] = Math.min(d[i - 1]![j]! + 1, d[i]![j - 1]! + 1, d[i - 1]![j - 1]! + kosten);
+      d[i * breite + j] = Math.min(
+        (d[(i - 1) * breite + j] ?? 0) + 1,
+        (d[i * breite + j - 1] ?? 0) + 1,
+        (d[(i - 1) * breite + j - 1] ?? 0) + kosten,
+      );
     }
   }
-  return d[r.length]![h.length]! / r.length;
+  return (d[r.length * breite + h.length] ?? 0) / r.length;
 }
 
 async function messeStt(binPath: string, modellPfad: string): Promise<BenchErgebnis[]> {

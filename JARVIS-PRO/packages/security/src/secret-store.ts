@@ -90,7 +90,13 @@ export class LibsecretSecretStore implements SecretStore {
       const child = execFile(
         'secret-tool',
         ['store', '--label', `${SERVICE}:${key}`, 'service', SERVICE, 'account', key],
-        (err) => (err ? reject(err) : resolve()),
+        (err) => {
+          if (err === null) {
+            resolve();
+            return;
+          }
+          reject(err instanceof Error ? err : new Error('secret-tool ist fehlgeschlagen'));
+        },
       );
       child.stdin?.end(value);
     });

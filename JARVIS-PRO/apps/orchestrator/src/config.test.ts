@@ -11,9 +11,13 @@ function envFile(content: string): string {
   return path;
 }
 
+/**
+ * Erfundene Rufnummern. Echte Nummern gehoeren nicht in die
+ * Versionsverwaltung - auch nicht in einen Test. Die CI prueft das.
+ */
 const BASE = {
-  JARVIS_OWNER_PHONE_E164: '+491771459965',
-  JARVIS_SIM_PHONE_E164: '+491634789597',
+  JARVIS_OWNER_PHONE_E164: '+4915112345678',
+  JARVIS_SIM_PHONE_E164: '+4915199998888',
 };
 
 describe('.env einlesen', () => {
@@ -48,7 +52,7 @@ describe('Konfiguration pruefen', () => {
 
   it('lehnt eine Rufnummer ohne E.164-Format ab', () => {
     expect(() =>
-      loadConfig({ env: { ...BASE, JARVIS_OWNER_PHONE_E164: '01771459965' }, dotEnvPath: '/x' }),
+      loadConfig({ env: { ...BASE, JARVIS_OWNER_PHONE_E164: '015112345678' }, dotEnvPath: '/x' }),
     ).toThrow(/E\.164/);
   });
 
@@ -112,8 +116,8 @@ describe('Diagnoseausgabe', () => {
     const c = loadConfig({ env: BASE, dotEnvPath: '/x' });
     const described = JSON.stringify(describeConfig(c));
 
-    expect(described).not.toContain('1771459965');
-    expect(described).not.toContain('1634789597');
+    expect(described).not.toContain('15112345678');
+    expect(described).not.toContain('15199998888');
     expect(described).toContain('***');
   });
 });

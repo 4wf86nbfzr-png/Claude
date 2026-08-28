@@ -17,7 +17,7 @@ beforeEach(async () => {
   h = await createHarness();
   telephony = new SimulatedTelephony({
     ownerPhone: OWNER,
-    jarvisPhone: '+4915199998888' as E164,
+    jarvisPhone: '+4915199998888',
     clock: h.clock,
   });
   await telephony.start();

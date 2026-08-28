@@ -34,11 +34,14 @@ export interface Brain {
 /* Deterministisches Gehirn                                                    */
 /* -------------------------------------------------------------------------- */
 
+/** Argumente eines Werkzeugaufrufs, entweder fest oder aus dem letzten Ergebnis. */
+export type ToolArgs = Record<string, unknown> | ((last: string | null) => Record<string, unknown>);
+
 export interface ScriptedStep {
   /** Trifft dieses Muster auf die Aeusserung zu, greift der Schritt. */
   readonly match: RegExp;
   /** Werkzeuge, die der Reihe nach aufgerufen werden. */
-  readonly tools?: readonly { name: string; args: unknown | ((last: string | null) => unknown) }[];
+  readonly tools?: readonly { name: string; args: ToolArgs }[];
   /** Antwortsatz. Als Funktion, wenn er vom letzten Werkzeugergebnis abhaengt. */
   readonly speak: string | ((results: readonly string[]) => string);
   /** Nur einmal ausfuehren. */
@@ -75,7 +78,8 @@ export class ScriptedBrain implements Brain {
     const results: string[] = [];
     const toolsUsed: string[] = [];
     for (const call of step.tools ?? []) {
-      const args = typeof call.args === 'function' ? call.args(results.at(-1) ?? null) : call.args;
+      const args: Record<string, unknown> =
+        typeof call.args === 'function' ? call.args(results.at(-1) ?? null) : call.args;
       const r = await this.registry.invoke(call.name, args, input.toolContext);
       results.push(r.content);
       toolsUsed.push(call.name);

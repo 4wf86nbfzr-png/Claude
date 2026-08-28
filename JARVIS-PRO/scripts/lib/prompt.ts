@@ -36,7 +36,7 @@ export async function createPrompt(): Promise<Prompt> {
   }
 
   const chunks: Buffer[] = [];
-  for await (const chunk of stdin) chunks.push(Buffer.from(chunk));
+  for await (const chunk of stdin) chunks.push(Buffer.from(chunk as Uint8Array));
   const zeilen = Buffer.concat(chunks).toString('utf8').split('\n');
   let index = 0;
 

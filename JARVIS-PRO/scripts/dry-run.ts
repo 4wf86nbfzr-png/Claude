@@ -8,7 +8,7 @@
  *
  * Das ist der Nachweis vor jeder Scharfschaltung.
  */
-import type { CallId, E164 } from '@jarvis/domain';
+import type { CallId } from '@jarvis/domain';
 import { Logger, MemoryLogWriter } from '@jarvis/observability';
 import { MockCalendarConnector } from '@jarvis/connectors';
 import { MockTts, ScriptedStt } from '@jarvis/speech';
@@ -87,7 +87,7 @@ async function fahre(sz: Szenario, injection: boolean): Promise<{ gesendet: numb
 
   const stt = new ScriptedStt(sz.eingaben.filter((e) => e.say !== undefined).map((e) => e.say ?? ''));
   const tts = new MockTts();
-  const call = new SimulatedCall('dry', 'outbound', '+490000000000' as E164, {});
+  const call = new SimulatedCall('dry', 'outbound', '+490000000000', {});
   call.settleAnswer({ answered: true });
 
   const session = new VoiceSession({ call, stt, tts, logger, clock: h.clock, preRollMs: 200, postRollMs: 100 });

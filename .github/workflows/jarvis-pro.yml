@@ -1,0 +1,136 @@
+# Prüflauf für Jarvis Pro.
+#
+# Läuft nur, wenn sich etwas unter JARVIS-PRO/ geändert hat — die Website im
+# selben Repository hat ihre eigenen Abläufe und soll davon nichts merken.
+name: Jarvis Pro
+
+on:
+  push:
+    paths: ['JARVIS-PRO/**', '.github/workflows/jarvis-pro.yml']
+  pull_request:
+    paths: ['JARVIS-PRO/**', '.github/workflows/jarvis-pro.yml']
+
+defaults:
+  run:
+    working-directory: JARVIS-PRO
+
+permissions:
+  contents: read
+
+jobs:
+  pruefen:
+    name: Typen, Lint und Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.0
+
+      - uses: actions/setup-node@v4
+        with:
+          # node:sqlite braucht 22.13 oder neuer.
+          node-version: '22.19.0'
+          cache: pnpm
+          cache-dependency-path: JARVIS-PRO/pnpm-lock.yaml
+
+      - name: Abhängigkeiten installieren
+        run: pnpm install --frozen-lockfile
+
+      - name: Typen prüfen
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Unit-Tests
+        run: pnpm test
+
+      - name: End-to-End-Tests
+        run: pnpm test:e2e
+
+  sicherheit:
+    name: Geheimnisse und Abhängigkeiten
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Volle Historie: ein Geheimnis, das einmal committet wurde, bleibt
+          # in der Historie stehen, auch wenn die Datei später bereinigt wird.
+          fetch-depth: 0
+
+      - name: Nach Geheimnissen suchen
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Eigene Prüfung auf typische Fehler
+        run: |
+          set -e
+          fehler=0
+
+          echo "== .env darf nicht eingecheckt sein =="
+          if git ls-files --error-unmatch .env >/dev/null 2>&1; then
+            echo "FEHLER: .env liegt in der Versionsverwaltung."
+            fehler=1
+          else
+            echo "  ok"
+          fi
+
+          echo "== erzeugte Asterisk-Konfiguration darf nicht eingecheckt sein =="
+          if git ls-files 'infra/asterisk/erzeugt/*' | grep -q .; then
+            echo "FEHLER: erzeugte Konfiguration liegt in der Versionsverwaltung."
+            fehler=1
+          else
+            echo "  ok"
+          fi
+
+          echo "== keine Rufnummern im Quelltext =="
+          # Deutsche Mobilnummern in E.164. Erlaubt sind ausschliesslich die
+          # erfundenen Fixture-Nummern; alles andere ist ein Leck.
+          # Erlaubt: 15112345678 (Noah-Fixture), 15199998888 (Jarvis-Fixture),
+          #          15177776666 (Kontakt-Fixture), 15199999999 (Gegenprobe)
+          if git grep -nE '\+49(1[5-7][0-9])[0-9]{7,}' -- . \
+               | grep -vE '15112345678|15199998888|15177776666|15199999999|docs/|\\.md:' | grep -q .; then
+            echo "FEHLER: eine echte Rufnummer steht im Quelltext."
+            git grep -nE '\+49(1[5-7][0-9])[0-9]{7,}' -- . \
+              | grep -vE '15112345678|15199998888|15177776666|15199999999|docs/|\\.md:'
+            fehler=1
+          else
+            echo "  ok"
+          fi
+
+          echo "== keine offensichtlichen Tokens =="
+          if git grep -nE '(EAA[A-Za-z0-9]{20,}|sk-ant-[A-Za-z0-9-]{20,}|ya29\.[A-Za-z0-9_-]{20,})' -- . | grep -q .; then
+            echo "FEHLER: etwas, das wie ein Zugangstoken aussieht."
+            fehler=1
+          else
+            echo "  ok"
+          fi
+
+          exit $fehler
+        working-directory: JARVIS-PRO
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.19.0'
+
+      - name: Abhängigkeiten auf bekannte Lücken prüfen
+        run: pnpm audit --audit-level moderate
+        working-directory: JARVIS-PRO
+        # Ein Fund soll sichtbar sein, aber nicht jeden Lauf blockieren:
+        # oft steckt die Lücke in einer Abhängigkeit einer Abhängigkeit und
+        # lässt sich nicht sofort beheben. Der Bericht gehört trotzdem gelesen.
+        continue-on-error: true
+
+      - name: Abhängigkeitsbaum ausgeben
+        run: pnpm list --depth 1
+        working-directory: JARVIS-PRO

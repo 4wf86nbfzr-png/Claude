@@ -1,4 +1,4 @@
-import type { CallId, E164, InboundEvent } from '@jarvis/domain';
+import type { CallId, InboundEvent } from '@jarvis/domain';
 import { CallerAuthenticator, hashPin } from '@jarvis/security';
 import { Logger, MemoryLogWriter } from '@jarvis/observability';
 import { MockCalendarConnector, MockMailConnector, MockMessagingConnector } from '@jarvis/connectors';
@@ -74,12 +74,12 @@ export async function setupE2e(): Promise<E2eSetup> {
 
   // Die echten Provider-Sender ersetzen die Aufzeichnungssender des
   // Basis-Harness - so laeuft der Versand durch dieselbe Kette wie spaeter live.
-  base.senders.register(new ConnectorSender('email', mail as never) as never);
-  base.senders.register(new ConnectorSender('whatsapp', whatsapp as never) as never);
+  base.senders.register(new ConnectorSender('email', mail));
+  base.senders.register(new ConnectorSender('whatsapp', whatsapp));
 
   const telephony = new SimulatedTelephony({
     ownerPhone: TEST_OWNER_PHONE,
-    jarvisPhone: '+4915199998888' as E164,
+    jarvisPhone: '+4915199998888',
     clock: base.clock,
   });
   await telephony.start();

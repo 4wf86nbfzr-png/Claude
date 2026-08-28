@@ -12,6 +12,9 @@ importers:
         specifier: 0.3.250
         version: 0.3.250(@anthropic-ai/sdk@0.122.0(zod@4.4.3))(@modelcontextprotocol/sdk@1.30.0(zod@4.4.3))(zod@4.4.3)
     devDependencies:
+      '@eslint/js':
+        specifier: 9.39.5
+        version: 9.39.5
       '@types/node':
         specifier: 22.19.2
         version: 22.19.2

@@ -11,7 +11,7 @@
  */
 import { createInterface } from 'node:readline/promises';
 import { stdin, stdout } from 'node:process';
-import type { CallId, E164 } from '@jarvis/domain';
+import type { CallId } from '@jarvis/domain';
 import { Logger, MemoryLogWriter } from '@jarvis/observability';
 import { MockCalendarConnector } from '@jarvis/connectors';
 import { MockTts, ScriptedStt } from '@jarvis/speech';
@@ -119,7 +119,7 @@ async function main(): Promise<void> {
   // Gespraechstechnik.
   const stt = new ScriptedStt([]);
   const tts = new MockTts();
-  const call = new SimulatedCall('sim-cli', 'outbound', '+4915112345678' as E164, {});
+  const call = new SimulatedCall('sim-cli', 'outbound', '+4915112345678', {});
   call.settleAnswer({ answered: true });
 
   const session = new VoiceSession({
@@ -292,7 +292,7 @@ async function feedFrames(call: SimulatedCall, frames: Int16Array[]): Promise<vo
 
 async function readAllStdin(): Promise<string> {
   const chunks: Buffer[] = [];
-  for await (const chunk of stdin) chunks.push(Buffer.from(chunk));
+  for await (const chunk of stdin) chunks.push(Buffer.from(chunk as Uint8Array));
   return Buffer.concat(chunks).toString('utf8');
 }
 

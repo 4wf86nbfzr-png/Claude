@@ -204,7 +204,7 @@ export class ApprovalRepository {
       const cur = this.db.get<ApprovalRow>('SELECT * FROM approvals WHERE id = ?', [id]);
       if (cur === undefined || cur.state !== expectedState) return null;
       const next = {
-        state: patch.state ?? (cur.state as ApprovalState),
+        state: patch.state ?? (cur.state),
         read_back_at: patch.readBackAt === undefined ? cur.read_back_at : patch.readBackAt,
         read_back_hash: patch.readBackHash === undefined ? cur.read_back_hash : patch.readBackHash,
         voice_confirmed_at:
@@ -658,7 +658,7 @@ function rowToCall(r: CallRow): Call {
   return {
     id: r.id as CallId,
     direction: r.direction as CallDirection,
-    peer: r.peer as E164,
+    peer: r.peer,
     state: r.state as CallState,
     startedAt: r.started_at,
     answeredAt: r.answered_at,

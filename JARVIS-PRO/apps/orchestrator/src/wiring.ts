@@ -3,7 +3,6 @@ import {
   systemClock,
   type CallId,
   type Clock,
-  type E164,
   type IdGenerator,
   type InboundEvent,
 } from '@jarvis/domain';
@@ -14,7 +13,8 @@ import {
   SECRET_KEYS,
   type SecretStore,
 } from '@jarvis/security';
-import { HealthRegistry, Logger, check, metricsSnapshot, rootLogger } from '@jarvis/observability';
+import type { Logger} from '@jarvis/observability';
+import { HealthRegistry, check, metricsSnapshot, rootLogger } from '@jarvis/observability';
 import {
   ApprovalRepository,
   CalendarIdempotencyRepository,
@@ -307,13 +307,13 @@ export async function buildRuntime(opts: BuildOptions): Promise<Runtime> {
   const telephony: TelephonyPort =
     config.mode === 'simulation'
       ? new SimulatedTelephony({
-          ownerPhone: config.ownerPhone as E164,
-          jarvisPhone: config.jarvisPhone as E164,
+          ownerPhone: config.ownerPhone,
+          jarvisPhone: config.jarvisPhone,
           clock,
         })
       : new AsteriskTelephony({
-          ownerPhone: config.ownerPhone as E164,
-          jarvisPhone: config.jarvisPhone as E164,
+          ownerPhone: config.ownerPhone,
+          jarvisPhone: config.jarvisPhone,
           ariUrl: config.ari.url,
           ariUser: config.ari.user,
           ariPassword,
@@ -391,7 +391,7 @@ export async function buildRuntime(opts: BuildOptions): Promise<Runtime> {
         ? {
             authenticator: new CallerAuthenticator(
               {
-                ownerPhone: config.ownerPhone as E164,
+                ownerPhone: config.ownerPhone,
                 loginPinHash,
                 maxAttempts: 3,
                 lockoutSeconds: 900,
@@ -422,7 +422,7 @@ export async function buildRuntime(opts: BuildOptions): Promise<Runtime> {
     logger: logger.child('scheduler'),
     clock,
     config: {
-      ownerPhone: config.ownerPhone as E164,
+      ownerPhone: config.ownerPhone,
       callOnEveryNewEmail: config.behaviour.callOnEveryNewEmail,
       callOnEveryNewWhatsapp: config.behaviour.callOnEveryNewWhatsapp,
       retrySeconds: config.behaviour.callRetrySeconds,
@@ -440,7 +440,7 @@ export async function buildRuntime(opts: BuildOptions): Promise<Runtime> {
       await call.hangup('hangup_by_system');
       return;
     }
-    const record = calls.start('inbound', config.ownerPhone as E164);
+    const record = calls.start('inbound', config.ownerPhone);
     try {
       await runConversation(call, { eventId: '' as never, reason: '' }, null);
       calls.end(record.id, 'completed');

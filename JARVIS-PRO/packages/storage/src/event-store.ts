@@ -12,7 +12,7 @@ import {
   type Channel,
   type Urgency,
 } from '@jarvis/domain';
-import type { Db, SqlParam } from './db.js';
+import type { Db } from './db.js';
 
 interface EventRow {
   id: string;
@@ -143,7 +143,7 @@ export class EventStore {
   }
 
   deleteById(id: EventId): boolean {
-    return this.db.run('DELETE FROM events WHERE id = ?', [id as SqlParam]).changes > 0;
+    return this.db.run('DELETE FROM events WHERE id = ?', [id]).changes > 0;
   }
 }
 

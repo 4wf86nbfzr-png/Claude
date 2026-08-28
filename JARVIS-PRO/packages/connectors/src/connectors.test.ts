@@ -7,7 +7,7 @@ import { HttpClient, redactUrl } from './http.js';
 import { ConnectorError, classifyHttpError, retryDelayMs } from './types.js';
 import { GraphMailConnector, htmlToText } from './microsoft/graph-mail.js';
 import { GraphCalendarConnector } from './microsoft/graph-calendar.js';
-import { MicrosoftOAuth } from './microsoft/oauth.js';
+import type { MicrosoftOAuth } from './microsoft/oauth.js';
 import {
   WhatsAppCloudConnector,
   WhatsAppWebhookSchema,
@@ -23,8 +23,8 @@ function fakeFetch(
 ): { impl: typeof fetch; calls: { url: string; init: RequestInit }[] } {
   const calls: { url: string; init: RequestInit }[] = [];
   let i = 0;
-  const impl = (async (url: string | URL | Request, init?: RequestInit) => {
-    calls.push({ url: String(url), init: init ?? {} });
+  const impl = async (url: string | URL | Request, init?: RequestInit) => {
+    calls.push({ url: url instanceof Request ? url.url : url.toString(), init: init ?? {} });
     if (typeof responses === 'function') responses();
     const list = responses as { status: number; body?: unknown; headers?: Record<string, string> }[];
     const r = list[Math.min(i, list.length - 1)];
@@ -34,11 +34,17 @@ function fakeFetch(
       status: r.status,
       ...(r.headers === undefined ? {} : { headers: r.headers }),
     });
-  }) as unknown as typeof fetch;
+  };
   return { impl, calls };
 }
 
 const noSleep = async (): Promise<void> => undefined;
+
+/** Holt den JSON-Koerper eines aufgezeichneten Aufrufs. */
+function bodyOf(call: { init: RequestInit } | undefined): string {
+  const body = call?.init.body;
+  return typeof body === 'string' ? body : '{}';
+}
 
 describe('HTTP-Schicht', () => {
   it('wiederholt bei 429 und beachtet Retry-After', async () => {
@@ -331,7 +337,7 @@ describe('Microsoft Graph - Kalender', () => {
       reminderMinutesBefore: 15,
     });
 
-    const sent = JSON.parse(String(calls[0]?.init.body)) as {
+    const sent = JSON.parse(bodyOf(calls[0])) as {
       start: { dateTime: string; timeZone: string };
     };
     expect(sent.start.timeZone).toBe('Europe/Berlin');
@@ -402,7 +408,7 @@ describe('WhatsApp Cloud API', () => {
 
     expect(result.status).toBe('sent');
     expect(result.providerMessageId).toBe('wamid.ABC');
-    const body = JSON.parse(String(calls[0]?.init.body)) as { to: string; messaging_product: string };
+    const body = JSON.parse(bodyOf(calls[0])) as { to: string; messaging_product: string };
     expect(body.to).toBe('4915177766 66'.replace(/\D/g, ''));
     expect(body.messaging_product).toBe('whatsapp');
   });

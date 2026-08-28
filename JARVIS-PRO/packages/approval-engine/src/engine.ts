@@ -10,7 +10,8 @@ import {
   type OutboundDraft,
   type OutboundDraftInput,
 } from '@jarvis/domain';
-import { AuditLog, sha256Hex, verifyPin } from '@jarvis/security';
+import type { AuditLog} from '@jarvis/security';
+import { sha256Hex, verifyPin } from '@jarvis/security';
 import { metrics, type Logger } from '@jarvis/observability';
 import type { ApprovalRepository, DraftRepository, SendRepository } from '@jarvis/storage';
 import { ApprovalError } from './errors.js';
