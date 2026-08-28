@@ -330,6 +330,15 @@ export class VoiceSession {
     return this.speakingAbort !== null;
   }
 
+  /**
+   * true, wenn gerade auf eine Aeusserung gewartet wird - also der Moment, in
+   * dem ein Mensch antworten wuerde. Der Gespraechssimulator haengt daran
+   * seine Eingaben auf, statt auf Wanduhrzeit zu setzen.
+   */
+  get awaitingUtterance(): boolean {
+    return this.utteranceWaiters.length > 0;
+  }
+
   close(): void {
     if (this.closed) return;
     this.closed = true;

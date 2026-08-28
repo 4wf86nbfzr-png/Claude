@@ -140,11 +140,41 @@ export class SimulatedCall implements CallHandle {
   /* DTMF                                                               */
   /* ----------------------------------------------------------------- */
 
+  /**
+   * Sammelt DTMF-Ziffern. Wartet bis zum Timeout, statt sofort aufzugeben -
+   * genau wie die echte Strecke: der Ablauf fragt nach der PIN, und erst
+   * DANACH tippt Noah. Ein Simulator, der hier sofort null liefert, meldet
+   * eine fehlende PIN, wo in Wirklichkeit nur noch niemand getippt hat.
+   */
   async collectDtmf(maxDigits: number, timeoutMs: number): Promise<string | null> {
-    void timeoutMs;
-    const queued = this.dtmfQueue.shift();
-    if (queued === undefined) return null;
-    return queued.replace(/#$/, '').slice(0, maxDigits);
+    const take = (): string | null => {
+      const queued = this.dtmfQueue.shift();
+      return queued === undefined ? null : queued.replace(/#$/, '').slice(0, maxDigits);
+    };
+
+    const immediate = take();
+    if (immediate !== null) return immediate;
+
+    return new Promise<string | null>((resolve) => {
+      const deadline = Date.now() + timeoutMs;
+      const poll = (): void => {
+        if (this.ended) {
+          resolve(null);
+          return;
+        }
+        const got = take();
+        if (got !== null) {
+          resolve(got);
+          return;
+        }
+        if (Date.now() >= deadline) {
+          resolve(null);
+          return;
+        }
+        setTimeout(poll, 5);
+      };
+      setTimeout(poll, 5);
+    });
   }
 
   onDtmf(handler: (digit: string) => void): void {
