@@ -13,6 +13,7 @@ import { Logger, MemoryLogWriter } from '@jarvis/observability';
 import {
   ApprovalRepository,
   CalendarIdempotencyRepository,
+  ChatSessionRepository,
   CallRepository,
   DraftRepository,
   EventStore,
@@ -58,6 +59,7 @@ export interface Harness {
   readonly memories: MemoryRepository;
   readonly calls: CallRepository;
   readonly calendarIdempotency: CalendarIdempotencyRepository;
+  readonly chatSessions: ChatSessionRepository;
   readonly syncState: SyncStateRepository;
   readonly audit: AuditLog;
   readonly senders: SenderRegistry;
@@ -123,6 +125,8 @@ export interface HarnessOptions {
   readonly approvalExpiresSeconds?: number;
   readonly startTime?: string;
   readonly deterministicIds?: boolean;
+  /** Setzt den zweiten Faktor auf Einmalcodes statt auf die statische PIN. */
+  readonly approvalTotpSecret?: string;
 }
 
 export async function createHarness(opts: HarnessOptions = {}): Promise<Harness> {
@@ -143,6 +147,7 @@ export async function createHarness(opts: HarnessOptions = {}): Promise<Harness>
   const memories = new MemoryRepository(db, clock, ids);
   const calls = new CallRepository(db, clock, ids);
   const calendarIdempotency = new CalendarIdempotencyRepository(db, clock);
+  const chatSessions = new ChatSessionRepository(db, clock);
   const syncState = new SyncStateRepository(db, clock);
   const audit = new AuditLog(new SqlAuditSink(db), clock);
 
@@ -165,6 +170,7 @@ export async function createHarness(opts: HarnessOptions = {}): Promise<Harness>
     config: {
       expiresSeconds: opts.approvalExpiresSeconds ?? 180,
       approvalPinHash: await hashPin(TEST_APPROVAL_PIN),
+      ...(opts.approvalTotpSecret === undefined ? {} : { approvalTotpSecret: opts.approvalTotpSecret }),
     },
   });
 
@@ -183,6 +189,7 @@ export async function createHarness(opts: HarnessOptions = {}): Promise<Harness>
     memories,
     calls,
     calendarIdempotency,
+    chatSessions,
     syncState,
     audit,
     senders,

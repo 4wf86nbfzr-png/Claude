@@ -9,6 +9,7 @@ import { INJECTION_GUARD_RULES_DE, isolate, neutralize } from './isolation.js';
 import { ReplayGuard, verifyMetaChallenge, verifyMetaSignature } from './webhook.js';
 import { CallerAuthenticator, OutboundCallGuard, isOwnerNumber, normalizePhone } from './caller-auth.js';
 import { AuditLog, InMemoryAuditSink, verifyChain } from './audit.js';
+import { base32Decode, base32Encode, generateTotpSecret, otpauthUri, totpCode, verifyTotp } from './totp.js';
 
 describe('PIN-Hashing', () => {
   it('bestaetigt die richtige PIN und lehnt falsche ab', async () => {
@@ -384,5 +385,74 @@ describe('Hashing', () => {
     expect(sha256Hex('a')).toBe(sha256Hex('a'));
     expect(sha256Hex('a')).not.toBe(sha256Hex('b'));
     expect(sha256Hex('a')).toHaveLength(64);
+  });
+});
+
+describe('TOTP', () => {
+  // Das Geheimnis der Testvektoren aus RFC 6238, Anhang B.
+  const RFC_SECRET = base32Encode(Buffer.from('12345678901234567890', 'ascii'));
+
+  it('erzeugt die Codes der RFC-6238-Testvektoren', () => {
+    const vektoren: [number, string][] = [
+      [59, '94287082'],
+      [1_111_111_109, '07081804'],
+      [1_111_111_111, '14050471'],
+      [1_234_567_890, '89005924'],
+      [2_000_000_000, '69279037'],
+      // Jenseits von 2^31 Sekunden - hier bricht eine 32-Bit-Zaehlerimplementierung.
+      [20_000_000_000, '65353130'],
+    ];
+    for (const [zeit, erwartet] of vektoren) {
+      expect(totpCode(RFC_SECRET, zeit, { digits: 8 })).toBe(erwartet);
+    }
+  });
+
+  it('akzeptiert ein Fenster Abweichung, aber nicht drei', () => {
+    const code = totpCode(RFC_SECRET, 1000);
+    expect(verifyTotp(RFC_SECRET, code, 1010).ok).toBe(true);
+    expect(verifyTotp(RFC_SECRET, code, 1035).ok).toBe(true);
+    expect(verifyTotp(RFC_SECRET, code, 975).ok).toBe(true);
+    // Ein mitgelesener Code darf nicht beliebig lange gelten.
+    expect(verifyTotp(RFC_SECRET, code, 1100).ok).toBe(false);
+    expect(verifyTotp(RFC_SECRET, code, 800).ok).toBe(false);
+  });
+
+  it('weist zu kurze, leere und nicht-numerische Eingaben ab', () => {
+    for (const eingabe of ['', '12345', '1234567', 'abcdef', '   ']) {
+      expect(verifyTotp(RFC_SECRET, eingabe, 1000).ok).toBe(false);
+    }
+  });
+
+  it('liefert den Schritt zurueck, damit ein Code nicht zweimal gelten kann', () => {
+    const code = totpCode(RFC_SECRET, 1000);
+    const ersteNutzung = verifyTotp(RFC_SECRET, code, 1000);
+    const zweiteNutzung = verifyTotp(RFC_SECRET, code, 1005);
+    expect(ersteNutzung.ok).toBe(true);
+    // Derselbe Schritt - der Aufrufer kann daran eine Wiederverwendung erkennen.
+    expect(zweiteNutzung.step).toBe(ersteNutzung.step);
+  });
+
+  it('liest sein eigenes Base32 zurueck, auch in Vierergruppen getippt', () => {
+    fc.assert(
+      fc.property(fc.uint8Array({ minLength: 1, maxLength: 40 }), (bytes) => {
+        const kodiert = base32Encode(Buffer.from(bytes));
+        expect([...base32Decode(kodiert)]).toEqual([...bytes]);
+        const gruppiert = (kodiert.match(/.{1,4}/g) ?? []).join(' ');
+        expect([...base32Decode(gruppiert)]).toEqual([...bytes]);
+      }),
+    );
+  });
+
+  it('erzeugt Geheimnisse, die sich unterscheiden', () => {
+    const menge = new Set(Array.from({ length: 50 }, () => generateTotpSecret()));
+    expect(menge.size).toBe(50);
+  });
+
+  it('baut eine otpauth-URI, die eine Authenticator-App lesen kann', () => {
+    const uri = otpauthUri('ABCDEFGH', 'noah@example.com');
+    expect(uri).toContain('otpauth://totp/');
+    expect(uri).toContain('secret=ABCDEFGH');
+    expect(uri).toContain('period=30');
+    expect(uri).toContain('digits=6');
   });
 });

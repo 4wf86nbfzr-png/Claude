@@ -3,7 +3,7 @@ import { eventDedupKey } from '@jarvis/domain';
 import { FakeClock, SeqIdGenerator, emailEventFixture, whatsappEventFixture } from '@jarvis/testkit';
 import { EventStore } from './event-store.js';
 import { JobQueue, backoffSeconds } from './job-queue.js';
-import { migrate, schemaVersion } from './schema.js';
+import { migrate, MIGRATIONS, schemaVersion } from './schema.js';
 import { openMemoryDatabase, type Db } from './db.js';
 
 let db: Db;
@@ -23,9 +23,18 @@ afterEach(() => {
 
 describe('Migrationen', () => {
   it('laufen genau einmal', () => {
-    expect(schemaVersion(db)).toBe(1);
+    // Nicht auf eine feste Zahl festnageln: sonst schlaegt dieser Test bei
+    // jeder neuen Migration fehl, ohne dass etwas kaputt waere.
+    const letzte = MIGRATIONS.at(-1)?.id ?? 0;
+    expect(schemaVersion(db)).toBe(letzte);
     expect(migrate(db)).toBe(0);
-    expect(schemaVersion(db)).toBe(1);
+    expect(schemaVersion(db)).toBe(letzte);
+  });
+
+  it('vergibt aufsteigende, luecken- und dublettenfreie Nummern', () => {
+    const ids = MIGRATIONS.map((m) => m.id);
+    expect(ids).toEqual([...ids].sort((a, b) => a - b));
+    expect(new Set(ids).size).toBe(ids.length);
   });
 });
 

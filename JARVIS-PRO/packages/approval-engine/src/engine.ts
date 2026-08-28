@@ -11,11 +11,11 @@ import {
   type OutboundDraftInput,
 } from '@jarvis/domain';
 import type { AuditLog} from '@jarvis/security';
-import { sha256Hex, verifyPin } from '@jarvis/security';
+import { sha256Hex, verifyPin, verifyTotp } from '@jarvis/security';
 import { metrics, type Logger } from '@jarvis/observability';
 import type { ApprovalRepository, DraftRepository, SendRepository } from '@jarvis/storage';
 import { ApprovalError } from './errors.js';
-import { buildReadBack, type ReadBackScript } from './read-back.js';
+import { buildReadBack, type ReadBackFormat, type ReadBackScript } from './read-back.js';
 import type { SenderRegistry, SendOutcome } from './sender-registry.js';
 
 /**
@@ -47,6 +47,20 @@ import type { SenderRegistry, SendOutcome } from './sender-registry.js';
 export interface ApprovalEngineConfig {
   readonly expiresSeconds: number;
   readonly approvalPinHash: string;
+  /**
+   * Optional: Einmalcode (TOTP) statt statischer PIN als zweiter Faktor.
+   *
+   * Am Telefon ist die getippte PIN in Ordnung - sie wird gewaehlt und ist
+   * danach weg. Im Chat ist sie es nicht: eine getippte PIN bleibt im
+   * Nachrichtenverlauf stehen und ist damit kein zweiter Faktor mehr,
+   * sondern nur noch ein Ritual. Ein Einmalcode steht dort zwar auch, ist
+   * aber nach einer halben Minute wertlos.
+   *
+   * Ist dieser Wert gesetzt, wird ausschliesslich der Code geprueft - nicht
+   * beides. Zwei gleichzeitig gueltige zweite Faktoren waeren zwei Wege
+   * hinein, nicht doppelte Sicherheit.
+   */
+  readonly approvalTotpSecret?: string;
 }
 
 export interface ApprovalEngineDeps {
@@ -74,6 +88,9 @@ export interface SendResult {
 }
 
 export class ApprovalEngine {
+  /** Bereits verwendete TOTP-Zeitfenster. Siehe `verifySecondFactor`. */
+  private readonly usedTotpSteps = new Set<number>();
+
   constructor(private readonly deps: ApprovalEngineDeps) {}
 
   /* --------------------------------------------------------------------- */
@@ -124,7 +141,11 @@ export class ApprovalEngine {
    * ausloesen kann - der Vorgang steht danach in DRAFT und wartet auf den
    * Read-back durch den Gespraechsablauf.
    */
-  requestApproval(draftId: DraftId, callId: CallId): ApprovalRequest {
+  requestApproval(
+    draftId: DraftId,
+    callId: CallId,
+    format: ReadBackFormat = 'voice',
+  ): ApprovalRequest {
     const draft = this.getDraft(draftId);
     if (!this.deps.senders.has(draft.channel)) {
       throw new ApprovalError('SENDER_NOT_REGISTERED', draft.channel);
@@ -143,7 +164,7 @@ export class ApprovalEngine {
       expiresAt,
     });
     metrics.approvalsRequested.inc({ channel: draft.channel });
-    return { approval, script: buildReadBack(draft) };
+    return { approval, script: buildReadBack(draft, format) };
   }
 
   /**
@@ -152,7 +173,11 @@ export class ApprovalEngine {
    * `readBackHash`. Wer nur so tut, als haette er vorgelesen, erzeugt einen
    * anderen Hash und kommt nicht weiter.
    */
-  markReadBackComplete(approvalId: ApprovalId, spokenText: string): Approval {
+  markReadBackComplete(
+    approvalId: ApprovalId,
+    spokenText: string,
+    format: ReadBackFormat = 'voice',
+  ): Approval {
     const approval = this.load(approvalId);
     this.assertUsable(approval);
     assertTransition(approval.state, 'READ_BACK');
@@ -160,7 +185,7 @@ export class ApprovalEngine {
     const draft = this.getDraft(approval.draftId);
     this.assertContentUnchanged(approval, draft);
 
-    const expected = buildReadBack(draft).full;
+    const expected = buildReadBack(draft, format).full;
     if (normalizeSpoken(spokenText) !== normalizeSpoken(expected)) {
       throw new ApprovalError('READ_BACK_STALE', 'Vorgelesener Text weicht vom Entwurf ab');
     }
@@ -222,9 +247,10 @@ export class ApprovalEngine {
   }
 
   /**
-   * Prueft die DTMF-Freigabe-PIN. Erst danach steht der Vorgang auf APPROVED.
-   * Ohne vorherige gueltige Sprachbestaetigung wird die PIN gar nicht erst
-   * geprueft - beide Faktoren sind Pflicht, in dieser Reihenfolge.
+   * Prueft den zweiten Faktor - die Freigabe-PIN oder, wenn konfiguriert,
+   * einen Einmalcode. Erst danach steht der Vorgang auf APPROVED. Ohne
+   * vorherige gueltige Sprachbestaetigung wird gar nicht erst geprueft -
+   * beide Faktoren sind Pflicht, in dieser Reihenfolge.
    */
   async confirmPin(approvalId: ApprovalId, digits: string | null): Promise<{ accepted: boolean; approval: Approval }> {
     const approval = this.load(approvalId);
@@ -241,7 +267,7 @@ export class ApprovalEngine {
     const draft = this.getDraft(approval.draftId);
     this.assertContentUnchanged(approval, draft);
 
-    const ok = await verifyPin(digits, this.deps.config.approvalPinHash);
+    const ok = await this.verifySecondFactor(digits);
     if (!ok) {
       void this.deps.audit.record('approval.pin.failed', approvalId, {});
       return { accepted: false, approval };
@@ -261,6 +287,33 @@ export class ApprovalEngine {
       payloadHash: approval.payloadHash,
     });
     return { accepted: true, approval: updated };
+  }
+
+  /**
+   * Der zweite Faktor. Entweder die statische PIN oder ein Einmalcode -
+   * nie beides.
+   *
+   * Ein einmal benutzter Code wird fuer sein Zeitfenster gesperrt. Innerhalb
+   * einer halben Minute laesst sich damit keine zweite Freigabe abnicken,
+   * falls jemand den Code im Verlauf mitliest. Die Sperre lebt im Prozess;
+   * nach einem Neustart ist sie weg, was hinnehmbar ist, weil das Fenster
+   * dann laengst abgelaufen ist.
+   */
+  private async verifySecondFactor(digits: string): Promise<boolean> {
+    const secret = this.deps.config.approvalTotpSecret;
+    if (secret === undefined) {
+      return verifyPin(digits, this.deps.config.approvalPinHash);
+    }
+    const unixSeconds = Math.floor(this.deps.clock.now().getTime() / 1000);
+    const result = verifyTotp(secret, digits, unixSeconds);
+    if (!result.ok || result.step === null) return false;
+    if (this.usedTotpSteps.has(result.step)) return false;
+    this.usedTotpSteps.add(result.step);
+    // Nur die juengste Vergangenheit merken - die Menge soll nicht wachsen.
+    for (const step of this.usedTotpSteps) {
+      if (step < result.step - 10) this.usedTotpSteps.delete(step);
+    }
+    return true;
   }
 
   /* --------------------------------------------------------------------- */

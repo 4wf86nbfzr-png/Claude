@@ -7,17 +7,34 @@ import { CHANNEL_LABEL_DE, type OutboundDraft } from '@jarvis/domain';
  * Empfaenger, bei E-Mail der Betreff, der vollstaendige finale Text, die
  * Anhaenge, dann die Frage. Der Text wird gehasht - was vorgelesen wurde,
  * ist genau das, was gesendet wird.
+ *
+ * Es gibt zwei Darstellungen desselben Entwurfs:
+ *
+ *   'voice'  am Telefon. Die Empfaengeradresse wird buchstabiert, damit Noah
+ *            einen Zahlendreher oder eine falsche Domain HOERT.
+ *   'text'   im Chat. Dort waere Buchstabieren unlesbar; die Adresse steht
+ *            woertlich da, weil Noah sie mit den Augen prueft.
+ *
+ * Beide sind aus demselben Entwurf eindeutig ableitbar. Welche Darstellung
+ * verwendet wurde, muss der Aufrufer beim Bestaetigen wieder mitgeben - sonst
+ * schlaegt der Abgleich fehl, und das ist so gewollt: es darf nicht moeglich
+ * sein, eine Fassung zu zeigen und eine andere zu binden.
  */
+export type ReadBackFormat = 'voice' | 'text';
+
 export interface ReadBackScript {
   readonly lines: readonly string[];
   readonly full: string;
   readonly question: string;
+  readonly format: ReadBackFormat;
 }
 
-export function buildReadBack(draft: OutboundDraft): ReadBackScript {
+export function buildReadBack(draft: OutboundDraft, format: ReadBackFormat = 'voice'): ReadBackScript {
   const lines: string[] = [];
+  const recipient = format === 'voice' ? spellRecipient(draft.recipient) : draft.recipient;
+
   lines.push(`Kanal: ${CHANNEL_LABEL_DE[draft.channel]}.`);
-  lines.push(`Empfaenger: ${spellRecipient(draft.recipient)}.`);
+  lines.push(`Empfaenger: ${recipient}.`);
   if (draft.channel === 'email') {
     lines.push(`Betreff: ${draft.subject === null || draft.subject.trim() === '' ? 'ohne Betreff' : draft.subject}.`);
   }
@@ -31,8 +48,16 @@ export function buildReadBack(draft: OutboundDraft): ReadBackScript {
       `${draft.attachments.length === 1 ? 'Ein Anhang' : `${draft.attachments.length} Anhaenge`}: ${names}.`,
     );
   }
-  const question = 'Soll ich genau diese Version jetzt senden?';
-  return { lines, full: lines.join('\n'), question };
+
+  // Die Frage ist in beiden Darstellungen dieselbe. Im Chat kommt der Hinweis
+  // auf die verlangte Antwort dazu - am Telefon steht er im gesprochenen
+  // Ablauf, hier muss er sichtbar sein, sonst raet Noah.
+  const question =
+    format === 'voice'
+      ? 'Soll ich genau diese Version jetzt senden?'
+      : 'Soll ich genau diese Version jetzt senden? Antworte mit "Ja, senden" - ein blosses "ja" reicht nicht.';
+
+  return { lines, full: lines.join('\n'), question, format };
 }
 
 /**

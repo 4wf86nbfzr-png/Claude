@@ -116,6 +116,35 @@ export class EventStore {
     return r?.n ?? 0;
   }
 
+  /**
+   * Ereignisse, die Noah noch nicht genannt bekommen hat.
+   *
+   * Unterscheidet sich bewusst von `openEvents`: "offen" heisst
+   * unerledigt, "nicht angekuendigt" heisst ungesagt. Am Telefon fallen
+   * beide zusammen, weil im selben Gespraech angekuendigt und abgehakt
+   * wird. Im Chat nicht - dort kann eine Nachricht tagelang genannt, aber
+   * unerledigt sein. Wer hier `openEvents` nimmt, meldet dieselbe Mail bei
+   * jeder Nachricht erneut.
+   */
+  unannouncedEvents(limit = 50): InboundEvent[] {
+    return this.db
+      .all<EventRow>(
+        `SELECT * FROM events
+          WHERE handled = 0 AND self_originated = 0 AND announced_at IS NULL
+          ORDER BY received_at ASC LIMIT ?`,
+        [limit],
+      )
+      .map(rowToEvent);
+  }
+
+  countUnannounced(): number {
+    const r = this.db.get<{ n: number }>(
+      `SELECT COUNT(*) AS n FROM events
+        WHERE handled = 0 AND self_originated = 0 AND announced_at IS NULL`,
+    );
+    return r?.n ?? 0;
+  }
+
   markAnnounced(id: EventId): void {
     this.db.run('UPDATE events SET announced_at = ? WHERE id = ? AND announced_at IS NULL', [
       this.clock.nowIso(),

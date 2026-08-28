@@ -5,3 +5,4 @@ export * from './conversation.js';
 export * from './call-scheduler.js';
 export * from './config.js';
 export * from './wiring.js';
+export * from './chat.js';

@@ -173,6 +173,35 @@ CREATE TABLE audit_log (
 );
 `,
   },
+  {
+    id: 2,
+    name: 'chat_sessions',
+    sql: `
+-- Gespraechszustand im Chat.
+--
+-- Am Telefon haelt der laufende Prozess den Zustand, solange der Anruf
+-- dauert. Im Chat gibt es keinen laufenden Prozess: jede Nachricht ist eine
+-- eigene HTTP-Anfrage, und zwischen zwei Nachrichten koennen Stunden oder ein
+-- Neustart liegen. Was ueber eine Nachricht hinaus gilt, muss deshalb hier
+-- stehen.
+--
+-- Was hier bewusst NICHT steht: Nachrichtentexte. Der Inhalt liegt in
+-- der Tabelle events, und der Rueckstau ergibt sich aus den dort offenen
+-- Ereignissen - eine zweite Kopie waere eine zweite Stelle, an der
+-- Inhalte liegen.
+CREATE TABLE chat_sessions (
+  wa_id             TEXT PRIMARY KEY,
+  session_ref       TEXT NOT NULL,
+  opened_at         TEXT,
+  authenticated_at  TEXT,
+  last_inbound_at   TEXT,
+  last_outbound_at  TEXT,
+  failed_logins     INTEGER NOT NULL DEFAULT 0,
+  created_at        TEXT NOT NULL,
+  updated_at        TEXT NOT NULL
+);
+`,
+  },
 ];
 
 export function migrate(db: Db): number {

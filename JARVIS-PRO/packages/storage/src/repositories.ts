@@ -261,6 +261,26 @@ export class ApprovalRepository {
     return r === undefined ? null : rowToApproval(r);
   }
 
+  /**
+   * Die laufende Freigabe eines Gespraechs.
+   *
+   * Am Telefon braucht es das nicht - dort haelt der Gespraechsablauf den
+   * Vorgang im Speicher, solange der Anruf laeuft. Im Chat gibt es keinen
+   * laufenden Prozess: jede Nachricht ist eine eigene HTTP-Anfrage. Der
+   * Zustand muss deshalb aus der Datenbank kommen, nicht aus dem Speicher -
+   * sonst waere eine begonnene Freigabe nach einem Neustart verloren, oder
+   * schlimmer: halb vorhanden.
+   */
+  liveForCall(callId: CallId): Approval | null {
+    const r = this.db.get<ApprovalRow>(
+      `SELECT * FROM approvals WHERE call_id = ?
+        AND state IN ('DRAFT','READ_BACK','AWAITING_APPROVAL','APPROVED','SENDING')
+        ORDER BY created_at DESC LIMIT 1`,
+      [callId],
+    );
+    return r === undefined ? null : rowToApproval(r);
+  }
+
   /** Alle Freigaben, deren Frist abgelaufen ist und die noch offen sind. */
   findExpired(nowIso: string): Approval[] {
     return this.db

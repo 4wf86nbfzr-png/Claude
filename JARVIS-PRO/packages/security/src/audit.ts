@@ -11,6 +11,10 @@ import type { Clock } from '@jarvis/domain';
  * Vollzugriff, macht sie aber nachweisbar.
  */
 export const AUDIT_ACTIONS = [
+  'chat.session.opened',
+  'chat.session.rejected',
+  'chat.message.received',
+  'chat.message.sent',
   'call.inbound.accepted',
   'call.inbound.rejected',
   'call.outbound.placed',

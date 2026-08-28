@@ -12,14 +12,17 @@ import {
   toFrames,
 } from '@jarvis/telephony';
 import {
+  ChatConversation,
   Conversation,
   ScriptedBrain,
   ToolRegistry,
+  type ChatTurnOutcome,
   type ConversationOutcome,
   type ScriptedStep,
 } from '@jarvis/orchestrator';
 import {
   createHarness,
+  type HarnessOptions,
   TEST_APPROVAL_PIN,
   TEST_LOGIN_PIN,
   TEST_OWNER_PHONE,
@@ -63,8 +66,8 @@ class ConnectorSender implements ChannelSender {
   }
 }
 
-export async function setupE2e(): Promise<E2eSetup> {
-  const base = await createHarness();
+export async function setupE2e(opts: HarnessOptions = {}): Promise<E2eSetup> {
+  const base = await createHarness(opts);
   const logs = new MemoryLogWriter();
   const logger = new Logger({ writer: logs, level: 'debug', component: 'e2e' });
 
@@ -293,3 +296,86 @@ function delay(ms: number): Promise<void> {
 }
 
 export { TEST_APPROVAL_PIN, TEST_LOGIN_PIN, TEST_OWNER_PHONE };
+
+/* -------------------------------------------------------------------------- */
+/* Chat durchspielen                                                           */
+/* -------------------------------------------------------------------------- */
+
+/** Noahs WhatsApp-Nummer im Test - ohne Plus, so wie Meta sie liefert. */
+export const TEST_OWNER_WA_ID = '4915112345678';
+
+export interface ChatRun {
+  readonly chat: ChatConversation;
+  /** Alles, was Jarvis an Noah geschickt hat, in der Reihenfolge des Versands. */
+  readonly sent: string[];
+  readonly brain: ScriptedBrain;
+  /** Schickt eine Nachricht von Noah und gibt zurueck, was dabei herauskam. */
+  send(text: string): Promise<ChatTurnOutcome>;
+}
+
+export interface MakeChatOptions {
+  readonly setup: E2eSetup;
+  readonly steps: readonly ScriptedStep[];
+  readonly requireLoginPin?: boolean;
+  readonly loginPinHash?: string;
+  /** Laesst den Versand an Noah scheitern - fuer den Fall "Fenster zu". */
+  readonly deliveryFails?: () => boolean;
+}
+
+/**
+ * Baut einen Jarvis, der ueber den Chat bedient wird.
+ *
+ * Anders als beim Telefon gibt es hier keinen Feeder und keine Stoppuhr: eine
+ * Nachricht geht hinein, die Antworten kommen heraus. Genau das ist der Punkt
+ * des Entwurfs - der Ablauf haelt nichts im Speicher, also laesst er sich
+ * Nachricht fuer Nachricht pruefen.
+ */
+export function makeChat(opts: MakeChatOptions): ChatRun {
+  const { setup } = opts;
+  const sent: string[] = [];
+  const brain = new ScriptedBrain(opts.steps, setup.registry);
+
+  const chat = new ChatConversation({
+    brain,
+    engine: setup.base.engine,
+    approvals: setup.base.approvals,
+    sessions: setup.base.chatSessions,
+    audit: setup.base.audit,
+    logger: setup.logger,
+    clock: setup.base.clock,
+    deliver: async (text: string) => {
+      if (opts.deliveryFails?.() === true) {
+        throw new Error('Antwortfenster ist zu - freier Text nicht zulaessig');
+      }
+      sent.push(text);
+    },
+    ownerWaId: TEST_OWNER_WA_ID,
+    timezone: 'Europe/Berlin',
+    config: {
+      idleMinutes: 60,
+      requireLoginPin: opts.requireLoginPin ?? false,
+      ...(opts.loginPinHash === undefined ? {} : { loginPinHash: opts.loginPinHash }),
+      maxAnnouncementsPerTurn: 3,
+      secondFactorLabel: 'deine Freigabe-PIN',
+    },
+    toolContext: {
+      events: setup.base.events,
+      tasks: setup.base.tasks,
+      memories: setup.base.memories,
+      engine: setup.base.engine,
+      calendar: setup.calendar,
+      calendarIdempotency: setup.base.calendarIdempotency,
+      audit: setup.base.audit,
+      logger: setup.logger,
+      clock: setup.base.clock,
+      providerAccounts: { email: setup.mail.account, whatsapp: setup.whatsapp.account },
+    },
+  });
+
+  return {
+    chat,
+    sent,
+    brain,
+    send: (text: string) => chat.handleMessage(TEST_OWNER_WA_ID, text),
+  };
+}
