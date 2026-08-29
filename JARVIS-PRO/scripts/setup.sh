@@ -18,6 +18,8 @@ cd "$ROOT"
 
 VENDOR="$ROOT/vendor"
 MODELS="$ROOT/models"
+WHISPER_DIR="$VENDOR/whisper.cpp"
+PIPER_DIR="$VENDOR/piper"
 OS="$(uname -s)"
 ARCH="$(uname -m)"
 
@@ -27,6 +29,17 @@ gelb()  { printf '\033[33m%s\033[0m\n' "$*"; }
 rot()   { printf '\033[31m%s\033[0m\n' "$*"; }
 
 schritt() { echo; blau "== $* =="; }
+
+# Der Bedienweg entscheidet, ob die Sprachschicht ueberhaupt gebraucht wird.
+# whisper.cpp zu bauen und ein Modell von mehreren hundert MB zu laden ist
+# eine gute Viertelstunde - im reinen Chatbetrieb waere sie vollstaendig
+# vergeudet, weil dort nichts gehoert und nichts gesprochen wird.
+KANAL="$(grep -E '^JARVIS_KANAL=' .env 2>/dev/null | head -1 | cut -d= -f2 | tr -d ' \t' | cut -d'#' -f1 || true)"
+KANAL="${JARVIS_KANAL:-${KANAL:-beide}}"
+case "$KANAL" in
+  chat) MIT_SPRACHE=nein ;;
+  *)    MIT_SPRACHE=ja ;;
+esac
 
 sichern() {
   # Sichert einen vorhandenen Pfad datiert, statt ihn zu ueberschreiben.
@@ -93,8 +106,16 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+if [ "$MIT_SPRACHE" = "nein" ]; then
+  schritt "Sprachschicht"
+  gruen "  Uebersprungen: JARVIS_KANAL=chat."
+  echo "  Im Chatbetrieb gibt es weder Spracherkennung noch Sprachausgabe."
+  echo "  whisper.cpp und Piper werden nicht gebaut und nicht geladen."
+  echo "  Umstellen auf den Telefonweg: JARVIS_KANAL=beide in .env, dann erneut."
+fi
+
+if [ "$MIT_SPRACHE" = "ja" ]; then
 schritt "whisper.cpp (Spracherkennung)"
-WHISPER_DIR="$VENDOR/whisper.cpp"
 if [ -d "$WHISPER_DIR/.git" ]; then
   gruen "  Bereits vorhanden unter $WHISPER_DIR - es wird nicht neu geklont."
   echo "  Aktualisieren waere: git -C $WHISPER_DIR pull && erneut bauen"
@@ -130,7 +151,6 @@ done
 
 # ---------------------------------------------------------------------------
 schritt "Piper (Sprachausgabe)"
-PIPER_DIR="$VENDOR/piper"
 if [ -x "$PIPER_DIR/piper" ] || command -v piper >/dev/null 2>&1; then
   gruen "  Piper ist vorhanden."
 else
@@ -144,6 +164,8 @@ else
   echo "    PIPER_BIN=$PIPER_DIR/piper"
   echo "    PIPER_VOICE=$MODELS/de_DE-thorsten-high.onnx"
 fi
+
+fi   # Ende der Sprachschicht
 
 # ---------------------------------------------------------------------------
 schritt "Pfade in .env eintragen"
@@ -166,10 +188,10 @@ setze_env() {
   gruen "  $schluessel gesetzt."
 }
 
-if [ -x "$WHISPER_DIR/build/bin/whisper-cli" ]; then
+if [ "$MIT_SPRACHE" = "ja" ] && [ -x "$WHISPER_DIR/build/bin/whisper-cli" ]; then
   setze_env WHISPER_BIN "$WHISPER_DIR/build/bin/whisper-cli"
 fi
-if [ -f "$MODELS/ggml-medium.bin" ]; then
+if [ "$MIT_SPRACHE" = "ja" ] && [ -f "$MODELS/ggml-medium.bin" ]; then
   setze_env WHISPER_MODEL "$MODELS/ggml-medium.bin"
 elif [ -f "$MODELS/ggml-small.bin" ]; then
   setze_env WHISPER_MODEL "$MODELS/ggml-small.bin"
@@ -184,6 +206,36 @@ echo
 gruen "======================================================================"
 gruen "Einrichtung abgeschlossen."
 gruen "======================================================================"
+if [ "$MIT_SPRACHE" = "nein" ]; then
+cat <<'HINWEIS'
+
+Was jetzt noch fehlt, und warum es nicht automatisch passiert ist:
+
+  1. Freigabe-PIN festlegen
+       pnpm hash:pin
+     Der Hash gehoert in den Schluesselbund, nicht in die .env.
+     Ohne diese PIN kann Jarvis nichts senden.
+
+  2. Ausprobieren, ohne dass irgendetwas passiert
+       pnpm simulate:chat
+       pnpm dry-run
+
+  3. Konten verbinden - jeweils einzeln und ausdruecklich
+       pnpm connect:microsoft
+       pnpm connect:whatsapp
+
+  4. Webhook bei Meta eintragen
+     Ohne oeffentlich erreichbare Adresse kommt keine Nachricht an.
+     Der Weg dorthin steht in docs/whatsapp-weg.md.
+
+Was auf diesem Weg NICHT gebraucht wird: whisper.cpp, Piper,
+pnpm bench:speech, Asterisk, pnpm configure:gateway.
+
+Nichts davon sendet etwas oder schreibt jemandem. Der Betriebsmodus steht
+weiterhin auf "simulation".
+
+HINWEIS
+else
 cat <<'HINWEIS'
 
 Was jetzt noch fehlt, und warum es nicht automatisch passiert ist:
@@ -213,3 +265,4 @@ Nichts davon sendet etwas oder ruft jemanden an. Der Betriebsmodus steht
 weiterhin auf "simulation".
 
 HINWEIS
+fi
