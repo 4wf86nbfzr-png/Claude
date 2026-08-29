@@ -1,0 +1,16 @@
+# Taegliche Sicherung. Laeuft einmal und beendet sich.
+[Unit]
+Description=Jarvis Pro - Sicherung
+After=jarvis.service
+
+[Service]
+Type=oneshot
+User=jarvis
+Group=jarvis
+WorkingDirectory=/opt/jarvis-pro
+EnvironmentFile=/opt/jarvis-pro/.env
+ExecStart=/bin/bash /opt/jarvis-pro/scripts/backup.sh /opt/jarvis-pro/backups
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/jarvis-pro/var /opt/jarvis-pro/backups

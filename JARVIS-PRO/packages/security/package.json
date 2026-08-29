@@ -1,0 +1,17 @@
+{
+  "name": "@jarvis/security",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@jarvis/domain": "workspace:*",
+    "zod": "4.4.3",
+    "@jarvis/testkit": "workspace:*"
+  },
+  "scripts": {
+    "test": "vitest run"
+  }
+}

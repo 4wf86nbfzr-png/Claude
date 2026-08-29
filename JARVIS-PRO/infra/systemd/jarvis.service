@@ -1,0 +1,67 @@
+# Jarvis Pro als Dienst auf dem Linux-24/7-Host.
+#
+# Installation:
+#   sudo cp infra/systemd/jarvis.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now jarvis
+#
+# Logs:  journalctl -u jarvis -f
+# Stand: systemctl status jarvis
+
+[Unit]
+Description=Jarvis Pro - persoenlicher Telefonassistent
+Documentation=file:///opt/jarvis-pro/docs/betriebshandbuch.md
+# Ohne Asterisk kann Jarvis nicht telefonieren, aber er soll trotzdem
+# starten und das im Healthcheck melden - deshalb Wants, nicht Requires.
+Wants=asterisk.service network-online.target
+After=asterisk.service network-online.target
+
+[Service]
+Type=simple
+User=jarvis
+Group=jarvis
+WorkingDirectory=/opt/jarvis-pro
+Environment=NODE_ENV=production
+EnvironmentFile=/opt/jarvis-pro/.env
+ExecStart=/usr/bin/node --experimental-strip-types /opt/jarvis-pro/node_modules/.bin/tsx apps/orchestrator/src/main.ts
+
+# Neustart bei Absturz. Nicht bei sauberem Beenden - sonst laesst sich
+# der Dienst nicht anhalten.
+Restart=on-failure
+RestartSec=10
+# Wenn er dauernd abstuerzt, soll er aufgeben statt die Maschine zu belasten.
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+# Zeit fuer sauberes Herunterfahren: laufendes Gespraech beenden und das
+# Audit-Log fertig schreiben.
+KillSignal=SIGTERM
+TimeoutStopSec=45
+
+# --- Absicherung -----------------------------------------------------------
+# Jarvis braucht kein Root, keine fremden Verzeichnisse und keine neuen
+# Rechte. Was er nicht braucht, bekommt er auch nicht.
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictRealtime=true
+LockPersonality=true
+MemoryDenyWriteExecute=false
+# Schreiben ausschliesslich in die eigenen Verzeichnisse.
+ReadWritePaths=/opt/jarvis-pro/var /opt/jarvis-pro/logs /opt/jarvis-pro/backups
+# Nur die Adressfamilien, die tatsaechlich gebraucht werden.
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+
+# Logs gehen ins Journal. Die Redaction passiert bereits im Logger.
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=jarvis
+
+[Install]
+WantedBy=multi-user.target

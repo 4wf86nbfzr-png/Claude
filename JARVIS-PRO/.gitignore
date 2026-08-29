@@ -1,0 +1,22 @@
+node_modules/
+dist/
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+data/
+var/
+logs/
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+backups/
+models/
+coverage/
+.DS_Store
+
+# Erzeugte Asterisk-Konfiguration: enthaelt Rufnummern und spaeter Zugangsdaten.
+infra/asterisk/erzeugt/
+vendor/

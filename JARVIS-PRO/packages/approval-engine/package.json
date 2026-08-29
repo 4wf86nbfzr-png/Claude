@@ -1,0 +1,18 @@
+{
+  "name": "@jarvis/approval-engine",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@jarvis/domain": "workspace:*",
+    "@jarvis/security": "workspace:*",
+    "@jarvis/observability": "workspace:*",
+    "@jarvis/storage": "workspace:*"
+  },
+  "scripts": {
+    "test": "vitest run"
+  }
+}

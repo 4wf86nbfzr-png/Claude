@@ -1,0 +1,20 @@
+{
+  "name": "@jarvis/telephony",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@jarvis/domain": "workspace:*",
+    "@jarvis/security": "workspace:*",
+    "@jarvis/observability": "workspace:*",
+    "@jarvis/speech": "workspace:*",
+    "ws": "8.19.0",
+    "@types/ws": "8.18.1"
+  },
+  "scripts": {
+    "test": "vitest run"
+  }
+}

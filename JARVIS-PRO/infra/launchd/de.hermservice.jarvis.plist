@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Autostart auf dem Mac.
+
+  Installation:
+    cp infra/launchd/de.hermservice.jarvis.plist ~/Library/LaunchAgents/
+    launchctl load ~/Library/LaunchAgents/de.hermservice.jarvis.plist
+
+  Anhalten:
+    launchctl unload ~/Library/LaunchAgents/de.hermservice.jarvis.plist
+
+  WICHTIG: Ein LaunchAgent laeuft nur, solange der Benutzer angemeldet ist.
+  Ist der Mac ausgeschaltet, zugeklappt oder im Ruhezustand, ist Jarvis NICHT
+  erreichbar - Anrufe gehen dann ins Leere. Fuer echten 24/7-Betrieb gehoert
+  das Projekt auf den kleinen Linux-Rechner (siehe infra/systemd/).
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>de.hermservice.jarvis</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>-lc</string>
+    <string>cd "$HOME/JARVIS-PRO" &amp;&amp; exec pnpm start</string>
+  </array>
+
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <dict>
+    <!-- Neu starten, wenn er abstuerzt - nicht, wenn er sauber beendet wurde. -->
+    <key>SuccessfulExit</key>
+    <false/>
+  </dict>
+  <key>ThrottleInterval</key>
+  <integer>30</integer>
+
+  <key>StandardOutPath</key>
+  <string>/tmp/jarvis.log</string>
+  <key>StandardErrorPath</key>
+  <string>/tmp/jarvis.err.log</string>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>NODE_ENV</key>
+    <string>production</string>
+    <key>PATH</key>
+    <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+  </dict>
+
+  <!-- Kein Schlafen waehrend Jarvis laeuft waere Sache von "caffeinate";
+       das gehoert bewusst nicht in einen Autostart, weil es das Geraet
+       am Energiesparen hindert. -->
+</dict>
+</plist>
