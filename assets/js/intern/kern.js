@@ -1156,11 +1156,20 @@ globalThis.HSTAbgleich = (function () {
           mitarbeiterId: z.person ? z.person.id : null,
           personalnummer: z.person ? z.person.personalnummer || '' : '',
           name: z.name,
+          // So steht der Name in secplan — danach wird dort gesucht.
+          nameSecplan: (z.person && z.person.nachnameZuerst) || z.name,
           datum: z.datum,
           einsatz: z.einsatz,
+          // Die geplanten Zeiten fahren mit: an ihnen erkennt die Bruecke
+          // in der Schichtmaske, welches Feld der Beginn und welches das
+          // Ende ist — verlaesslicher als jeder Feldname.
+          geplantBeginn: z.soll ? zeitAusMinuten(z.soll.beginn) : '',
+          geplantEnde: z.soll ? zeitAusMinuten(z.soll.ende) : '',
+          geplantPause: z.soll ? (z.soll.pause || 0) : 0,
           beginn: zeitAusMinuten(z.vorschlag.beginn),
           ende: zeitAusMinuten(z.vorschlag.ende),
           pause: z.vorschlag.pause || 0,
+          unveraendert: z.status === 'passt',
           status: z.status,
           neu: !z.schichtId,
           notiz: z.notiz || ''

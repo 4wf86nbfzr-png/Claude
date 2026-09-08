@@ -689,28 +689,56 @@
       return;
     }
 
-    var kasten = meldung('info', '&Uuml;bertragung l&auml;uft &hellip;', true);
+    var kasten = meldung('info', 'Die Br&uuml;cke tr&auml;gt die Zeiten in secplan ein &hellip; ' +
+      'das dauert etwa zwei Sekunden je Schicht.', true);
     Bruecke.schicke('/api/freigabe', paket).then(function (antwort) {
       kasten.remove();
       merken.sichern('zuletztUebertragen', Z.datum);
-      if (antwort.probelauf) {
-        meldung('warnung', '<b>Probelauf</b>: ' + antwort.uebertragen + ' Schichten w&auml;ren &uuml;bertragen worden. ' +
-          'In <code>bruecke/konfig.json</code> steht <code>"probelauf": true</code> &ndash; auf <code>false</code> setzen, ' +
-          'sobald die Zuordnung stimmt.', true);
-      } else {
-        meldung('gut', '<b>' + antwort.uebertragen + ' Schichten</b> in secplan eingetragen' +
-          (antwort.fehler && antwort.fehler.length ? ', <b>' + antwort.fehler.length + '</b> nicht &ndash; siehe Protokoll.' : '.'), true);
-      }
-      if (antwort.fehler && antwort.fehler.length) {
-        meldung('fehler', antwort.fehler.map(function (f) {
-          return sicher(f.name + ': ' + f.grund);
-        }).join('<br />'), true);
-      }
+      berichtZeigen(antwort);
     }).catch(function (f) {
       kasten.remove();
       meldung('fehler', 'Die &Uuml;bertragung ist gescheitert: ' + sicher(f.message) +
-        '<br />Die Freigabe ist nicht verloren &ndash; mit <b>Als CSV sichern</b> l&auml;sst sie sich von Hand einspielen.', true);
+        '<br />Die Freigabe ist nicht verloren &ndash; mit <b>Ergebnisdatei</b> l&auml;sst sie sich von Hand nacharbeiten.', true);
     });
+  }
+
+  /* Was die Br&uuml;cke in secplan getan hat, Zeile f&uuml;r Zeile.
+     Nicht als Zahl allein: wenn drei von vierzig danebengehen, muss
+     man sehen k&ouml;nnen, welche drei. */
+  function berichtZeigen(antwort) {
+    if (antwort.probelauf) {
+      meldung('warnung', '<b>Probelauf</b> &ndash; in secplan wurde nichts ge&auml;ndert. ' +
+        antwort.uebertragen + ' Schichten w&auml;ren eingetragen worden. ' +
+        'Wenn das stimmt: in <code>bruecke/konfig.json</code> <code>"probelauf": false</code> setzen.', true);
+    } else if (antwort.weg === 'browser') {
+      var art = antwort.fehler && antwort.fehler.length ? 'warnung' : 'gut';
+      meldung(art, '<b>' + antwort.uebertragen + ' Schichten</b> in secplan eingetragen und nachgepr&uuml;ft' +
+        (antwort.fehler && antwort.fehler.length
+          ? ' &middot; <b>' + antwort.fehler.length + '</b> nicht &ndash; siehe unten.' : '.'), true);
+    } else {
+      meldung('gut', 'Datei geschrieben: <code>' + sicher(antwort.datei || '') + '</code>. ' +
+        'Der Browser-Modus tr&auml;gt die Zeiten direkt ein &ndash; einzurichten mit ' +
+        '<code>npm run einrichten</code> im Ordner <code>bruecke/</code>.', true);
+    }
+
+    if (!antwort.bericht || !antwort.bericht.length) return;
+
+    var zeilen = antwort.bericht.map(function (b) {
+      return '<tr><td data-spalte="Stand"><span class="stand" data-s="' +
+        (b.erfolg ? 'passt' : 'pruefen') + '">' + (b.erfolg ? 'eingetragen' : 'nicht') + '</span></td>' +
+        '<td data-spalte="Mitarbeiter"><span class="z-name">' + sicher(b.name) + '</span></td>' +
+        '<td data-spalte="Zeit"><span class="z-zeit">' + sicher(b.von) + '&thinsp;&ndash;&thinsp;' + sicher(b.bis) + '</span></td>' +
+        '<td data-spalte="Bemerkung">' + (b.erfolg
+          ? '<span class="z-roh">' + (b.abgeglichen ? 'gespeichert und abgeglichen' : 'gespeichert und nachgepr&uuml;ft') + '</span>'
+          : '<span class="z-roh">' + sicher(b.grund || '') +
+            (b.bild ? '<br />Bildschirmfoto: ' + sicher(b.bild) : '') + '</span>') +
+        '</td></tr>';
+    }).join('');
+
+    meldung(antwort.fehler && antwort.fehler.length ? 'warnung' : 'info',
+      '<b>Was die Br&uuml;cke getan hat</b>' +
+      '<div style="overflow-x:auto"><table class="tafel" style="margin-top:8px">' +
+      '<tbody>' + zeilen + '</tbody></table></div>', true);
   }
 
   /* ============================================================

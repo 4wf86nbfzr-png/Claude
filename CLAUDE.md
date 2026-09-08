@@ -138,6 +138,15 @@ Umbruechen ueber mehrere Zeilen, Stundenzettel mit Format- und Stundenspalte,
 Nachtschichten, eine Schicht in zwei Zeilen). **In den Tests stehen erfundene
 Namen** — echte Personaldaten gehoeren nicht ins Repository.
 
+Der Weg nach secplan (`bruecke/secplan.mjs`, Modus `browser`) sucht ueber den
+**Inhalt**, nicht ueber den Aufbau der Seite: die Zeile an Name und
+Personalnummer, die Zeitfelder an den geplanten Zeiten, die dort stehen. Wer
+das anfasst, faehrt `npm test` — `test/scheinplan.mjs` ist eine nachgebaute
+Planungsanwendung mit absichtlich nichtssagenden Klassennamen, gegen die der
+ganze Ablauf laeuft. Selektoren aus der Konfiguration duerfen gewinnen, sind
+aber nie Voraussetzung. Und: nach dem Speichern wird zurueckgelesen; was sich
+nicht bestaetigen laesst, gilt als nicht uebertragen.
+
 Eine Sache ist bewusst *nicht* gebaut: aus einem Foto handschriftlicher Zeiten
 werden keine Zeiten gelesen. Das wurde ausprobiert und taugt nicht; falsch
 erkannte Uhrzeiten waeren schlimmer als gar keine. Stattdessen liegt der Zettel

@@ -90,8 +90,10 @@ Werkzeug für den Morgenlauf des Büros. Zwei Dateien rein, eine raus:
 
 1. **Abgleichliste aus secplan** (das PDF der offenen Abgleiche) ablegen.
 2. **Stundenzettel** vom Einsatz ablegen — Foto, PDF oder Tabelle.
-3. **Ergebnisdatei** herunterladen: Name, neue Zeit, was zu ändern ist.
-   Nur noch in secplan nachtragen.
+3. Abweichungen bestätigen, freigeben. Die Brücke meldet sich mit Ihrem Zugang
+   bei secplan an und trägt die Zeiten selbst ein — mit Nachlesen, ob es
+   angekommen ist. Wer das (noch) nicht will, lädt stattdessen die
+   **Ergebnisdatei** herunter und trägt von Hand nach.
 
 Zwei Seiten und ein kleiner Dienst:
 
@@ -108,6 +110,8 @@ cd bruecke
 cp konfig.beispiel.json konfig.json
 npm install          # optional — ohne Pakete läuft der Datei-Modus
 npm start            # → Link mit Schlüssel erscheint im Fenster
+
+npm run einrichten   # einmalig, wenn die Zeiten selbst nach secplan sollen
 ```
 
 Ohne den Dienst funktioniert der Abgleich weiterhin: Dateien von Hand ablegen,

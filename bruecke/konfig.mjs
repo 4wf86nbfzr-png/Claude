@@ -26,10 +26,17 @@ const STANDARD = {
   ordner: { daten: 'daten', eingang: 'daten/eingang', ausgang: 'daten/ausgang' },
   secplan: {
     adresse: 'https://www.secplan.net/',
-    planAdresse: '',
+    planAdresse: '',          // Tagesplan, mit {datum} oder {datum_de} an der Stelle des Datums
     schichtAdresse: '',
-    kopfmodus: false,
-    wartenMs: 2500,
+    browserPfad: '',          // eigener Chrome/Chromium statt des mitgelieferten
+    kopfmodus: false,         // true: Browser sichtbar mitlaufen lassen
+    wartenMs: 1500,           // Ruhe nach jedem Seitenwechsel
+    fristMs: 20000,           // wie lange auf ein Element gewartet wird
+    langsamMs: 0,             // Zeitlupe zum Zusehen
+    nurAenderungen: true,     // planmaessige Schichten nicht anfassen
+    abgleichKlicken: true,    // nach dem Speichern "Abgleichen" druecken, wenn es das gibt
+    hoechstensProLauf: 250,
+    abbruchNachFehlern: 3,
     selektoren: {
       benutzerfeld: '', passwortfeld: '', anmeldeknopf: '', angemeldetErkennenAn: '',
       planZeile: '', spalteId: '', spalteName: '', spalteNummer: '',

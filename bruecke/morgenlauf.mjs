@@ -24,8 +24,10 @@ export async function morgenlauf(konfig, tag, { stumm = false } = {}) {
   try {
     soll = await secplan.sollHolen(konfig, datum);
   } catch (f) {
+    // Kein Beinbruch: der uebliche Weg ist die Abgleichliste als PDF.
+    // Der Hinweis wandert ins Tagespaket und in die Morgenmail.
     hinweis = f.message;
-    console.error('Dienstplan konnte nicht geholt werden: ' + f.message);
+    console.log('Hinweis zum Dienstplan: ' + f.message);
   }
 
   vorhanden.soll = soll.length ? soll : vorhanden.soll;

@@ -14,20 +14,29 @@
 export function textBauen(paket, adresse) {
   const zahl = paket.soll.length;
   const einsaetze = [...new Set(paket.soll.map((s) => s.einsatz).filter(Boolean))];
+
+  const kopf = zahl
+    ? `fuer ${deutsch(paket.tag)} ${zahl === 1 ? 'steht 1 Schicht' : 'stehen ' + zahl + ' Schichten'} zum Abgleich bereit.`
+    : `fuer ${deutsch(paket.tag)} liegt hier noch kein Dienstplan.\n` +
+      `Bitte in secplan die Liste der offenen Abgleiche als PDF ausgeben und im Abgleich ablegen.`;
+
+  const gemeldet = paket.ist && paket.ist.length
+    ? `${paket.ist.length === 1 ? '1 Zeit ist' : paket.ist.length + ' Zeiten sind'} bereits per Schnellerfassung eingegangen.`
+    : `Es liegen noch keine gemeldeten Zeiten vor.`;
+
+  // null heisst "weglassen", '' ist eine gewollte Leerzeile.
   const zeilen = [
     `Moin,`,
     ``,
-    `fuer ${deutsch(paket.tag)} stehen ${zahl} Schichten zum Abgleich bereit.`,
-    einsaetze.length ? `Einsätze: ${einsaetze.slice(0, 8).join(', ')}${einsaetze.length > 8 ? ' …' : ''}` : '',
-    paket.ist && paket.ist.length
-      ? `${paket.ist.length} Zeiten sind bereits per Schnellerfassung eingegangen.`
-      : `Es liegen noch keine gemeldeten Zeiten vor.`,
+    kopf,
+    zahl && einsaetze.length ? `Einsätze: ${einsaetze.slice(0, 8).join(', ')}${einsaetze.length > 8 ? ' …' : ''}` : null,
+    gemeldet,
     ``,
     `Abgleich öffnen: ${adresse}`,
     ``,
     `— Brücke, automatisch erzeugt`
   ];
-  return zeilen.filter((z) => z !== '').join('\n');
+  return zeilen.filter((z) => z !== null).join('\n');
 }
 
 function deutsch(iso) {

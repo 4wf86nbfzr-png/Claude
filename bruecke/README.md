@@ -69,7 +69,8 @@ Datum;Mitarbeiter;Personalnummer;Objekt;von;bis;Pause;SchichtID
    morgens     Abgleich öffnen. Grün ist erledigt. Übrig bleiben:
                Abweichungen, fehlende Zeiten, unklare Namen.
 
-   Freigabe    ein Knopf → zurück nach secplan, Protokoll geschrieben
+   Freigabe    ein Knopf → die Brücke meldet sich bei secplan an, trägt die
+               Zeiten ein, liest nach und drückt „Abgleichen". Protokoll läuft mit.
 ```
 
 Welcher Tag morgens abgeglichen wird, steht in `konfig.json` unter
@@ -190,81 +191,84 @@ von Mitarbeitern.
 
 ---
 
-## Browser-Modus einrichten (der eigentliche Draht zu secplan)
+## Die Zeiten selbst in secplan eintragen
 
-secplan.net veröffentlicht keine Programmierschnittstelle. Die Brücke bedient
-deshalb im Modus `"browser"` dieselbe Oberfläche, die auch ein Mensch bedient —
-angemeldet mit einem eigenen Konto, damit im secplan-Protokoll erkennbar bleibt,
-was automatisch passiert ist.
+Das ist der Teil, der die Arbeit wirklich abnimmt: Sie geben frei, die Brücke
+meldet sich mit Ihrem Zugang bei secplan an, sucht jede Schicht im Tagesplan,
+trägt die endgültige Zeit ein, speichert, **liest nach, ob es angekommen ist**,
+und drückt anschließend „Abgleichen".
 
-Weil niemand von außen weiß, wie die Seiten aufgebaut sind, stehen die
-Zugriffspunkte als CSS-Selektoren in `konfig.json`. Das ist eine einmalige
-Einrichtung von etwa zwanzig Minuten:
+secplan.net hat keine offene Schnittstelle. Die Brücke bedient deshalb dieselbe
+Oberfläche wie ein Mensch — aber sie sucht über den **Inhalt**, nicht über den
+Aufbau der Seite: die Zeile an Name und Personalnummer, die Zeitfelder an den
+geplanten Zeiten, die dort stehen. Deshalb ist keine Liste von CSS-Selektoren zu
+pflegen, und ein Update von secplan legt sie nicht sofort lahm.
 
-**1. Zugangsdaten hinterlegen**
-
-```bash
-cp .env.beispiel .env
-chmod 600 .env
-# SECPLAN_BENUTZER und SECPLAN_PASSWORT eintragen
-```
-
-**2. Playwright installieren und einmal anmelden**
+### Einrichten (einmalig, ein paar Minuten)
 
 ```bash
+cd bruecke
+cp .env.beispiel .env && chmod 600 .env     # SECPLAN_BENUTZER / SECPLAN_PASSWORT eintragen
 npm install playwright && npx playwright install chromium
-npm run anmeldung
+npm run einrichten
 ```
 
-Es öffnet sich ein Browserfenster. Dort die Anmeldung abschließen —
-inklusive Zwei-Faktor-Abfrage, Cookie-Hinweis und Mandantenwahl — und im
-Terminal Enter drücken. Die Sitzung landet in `daten/sitzung.json` und
-ersetzt ab dann die tägliche Anmeldung.
+Es öffnet sich ein Browserfenster. Dort anmelden — auch mit Zwei-Faktor,
+Cookie-Hinweis und Mandantenwahl —, **den Tagesplan eines Tages öffnen, an dem
+Schichten stehen**, und im Terminal Enter drücken. Den Rest macht die
+Einrichtung:
 
-**3. Selektoren ermitteln**
+* Sie merkt sich die Adresse des Tagesplans und setzt das Datum als Platzhalter
+  (`…/plan?tag={datum}`).
+* Sie prüft nach, ob unter dieser Adresse Schichtzeilen zu erkennen sind, und
+  zeigt die ersten davon an.
+* Sie speichert die Sitzung — die ersetzt ab dann die tägliche Anmeldung.
+* Sie schreibt `konfig.json`: `modus: browser`, `probelauf: true`.
 
-In secplan den Dienstplan eines Tages öffnen. Rechtsklick auf eine
-Schichtzeile → *Untersuchen*. In den Entwicklerwerkzeugen mit Rechtsklick auf
-das Element → *Copy* → *Copy selector*. Das ergibt einen Ausdruck wie
-`tr.dienst-zeile` oder `td:nth-child(3)`. Diese Werte in `konfig.json`
-eintragen:
+Zugangsdaten stehen in `.env`, nie im Browser und nie in der Oberfläche. Legen
+Sie dafür am besten ein **eigenes secplan-Konto „Brücke"** an — dann steht im
+secplan-Protokoll, was automatisch passiert ist.
 
-| Eintrag | zeigt auf |
+### Erst Probelauf, dann scharf
+
+`probelauf: true` heißt: alles läuft durch, aber in secplan wird nichts
+geändert. Was passiert wäre, steht im Bericht und in `daten/ausgang/`. Ein, zwei
+Tage so mitlaufen lassen; stimmt es, in `konfig.json` `"probelauf": false`
+setzen. Ab dann trägt die Freigabe direkt ein.
+
+### Was dabei geschützt ist
+
+| | |
 |---|---|
-| `planAdresse` | Adresse des Tagesplans, `{datum}` als Platzhalter (`…/plan?tag={datum}`) |
-| `planZeile` | eine Schichtzeile im Plan (der wiederkehrende Container) |
-| `spalteName`, `spalteBeginn`, `spalteEnde`, `spaltePause`, `spalteEinsatz` | Zellen **innerhalb** einer Zeile |
-| `spalteId`, `spalteNummer` | Schichtnummer und Personalnummer, falls vorhanden |
-| `schichtAdresse` | Adresse einer einzelnen Schicht, `{id}` als Platzhalter |
-| `feldBeginn`, `feldEnde`, `feldPause` | die Eingabefelder in der Schichtmaske |
-| `speichern` | der Speichern-Knopf |
-| `gespeichertErkennenAn` | etwas, das nach dem Speichern erscheint (Meldung, Haken) |
-| `benutzerfeld`, `passwortfeld`, `anmeldeknopf`, `angemeldetErkennenAn` | die Anmeldemaske |
+| **Nur Änderungen** | Planmäßige Schichten werden nicht angefasst (`nurAenderungen`) |
+| **Eindeutigkeit** | Wird die Zeile im Tagesplan nicht eindeutig gefunden, wird sie übersprungen und gemeldet — nie geraten |
+| **Nachlesen** | Nach dem Speichern werden die Felder zurückgelesen; stimmen sie nicht, zählt die Schicht als nicht übertragen |
+| **Notbremse** | Nach drei Fehlern hintereinander bricht der Lauf ab (`abbruchNachFehlern`) |
+| **Beweis** | Von jedem Fehler liegt ein Bildschirmfoto in `daten/bilder/` |
+| **Obergrenze** | `hoechstensProLauf` (Standard 250) |
+| **Protokoll** | Wer, wann, was — in `daten/protokoll-JJJJ-MM.jsonl` |
 
-Für Lesen genügen `planZeile`, `spalteName`, `spalteBeginn`, `spalteEnde` —
-Schreiben braucht zusätzlich `feldBeginn`, `feldEnde`, `speichern`.
-Fehlt etwas, sagt die Brücke beim Versuch, welcher Eintrag es ist, und der
-Datei-Modus läuft unverändert weiter.
+Nach der Übertragung zeigt die Oberfläche **Zeile für Zeile**, was passiert ist:
+eingetragen und nachgeprüft, oder nicht — mit Grund und Pfad zum Bildschirmfoto.
 
-**4. Erst im Probelauf**
+### Wenn es klemmt
 
-```json
-"modus": "browser",
-"probelauf": true
-```
+Meist ist es eines von dreien: die Sitzung ist abgelaufen (`npm run anmeldung`),
+die Adresse des Tagesplans stimmt nicht mehr (`npm run einrichten`), oder Name
+bzw. geplante Zeit weichen zwischen Abgleichliste und Tagesplan ab — dann sagt
+der Bericht genau das.
 
-Der Probelauf liest den Plan, rechnet alles durch und schreibt das Ergebnis
-nach `daten/ausgang/` — ohne in secplan etwas zu ändern. Ein, zwei Tage so
-mitlaufen lassen und die Datei gegen die Wirklichkeit halten. Stimmt sie,
-`"probelauf": false` setzen. Ab dann trägt die Freigabe direkt ein.
+Für den Fall, dass secplan ungewöhnlich gebaut ist, lassen sich einzelne Felder
+in `konfig.json` unter `secplan.selektoren` doch vorgeben (`feldBeginn`,
+`feldEnde`, `feldPause`, `benutzerfeld`, `passwortfeld`, `anmeldeknopf`). Was
+dort steht, gewinnt; alles Übrige findet die Brücke weiter selbst.
 
-> **Ehrlich gesagt:** Diesen Teil konnte niemand gegen das echte secplan-Konto
-> prüfen — dafür braucht es Zugang. Der Weg funktioniert (Anmeldung, Sitzung,
-> Lesen, Schreiben, Protokoll), aber die Selektoren muss beim ersten Mal jemand
-> mit Zugang eintragen. Bis dahin ist der Datei-Modus kein Notbehelf, sondern
-> der normale Betrieb: Export rein, fertige Datei raus.
-
----
+**Selbst geprüft:** Der ganze Ablauf — Anmeldung, Tagesplan, Zeile finden,
+Zeiten setzen, speichern, nachlesen, „Abgleichen" — ist gegen eine nachgebaute
+Planungsanwendung getestet (`test/scheinplan.mjs`, absichtlich mit
+nichtssagenden Klassennamen und anderen Feldnamen, als man raten würde). Gegen
+das echte secplan.net konnte hier niemand testen; dafür braucht es Ihren Zugang.
+Genau dafür ist der Probelauf da.
 
 ## Der Stundenzettel
 
@@ -347,8 +351,11 @@ sind zwanzig Minuten, nicht dreiundzwanzig Stunden.
   genug für Rückfragen zur Lohnabrechnung, nicht länger.
 * Das Protokoll (`daten/protokoll-JJJJ-MM.jsonl`) hält fest, wer wann was
   freigegeben hat. Bei Streit über eine Stunde ist das die Antwort.
-* Für den Browser-Modus ein **eigenes secplan-Konto** anlegen, nicht das
-  persönliche eines Kollegen.
+* Für das automatische Eintragen ein **eigenes secplan-Konto „Brücke"** anlegen,
+  nicht das persönliche eines Kollegen — dann steht im secplan-Protokoll, was
+  automatisch passiert ist.
+* Das Passwort steht ausschließlich in `bruecke/.env` auf dem Bürorechner. Es
+  geht nie an den Browser, nie in die Oberfläche und nie über das Netz.
 
 ---
 
@@ -361,6 +368,8 @@ sind zwanzig Minuten, nicht dreiundzwanzig Stunden.
 * **Handschrift lesen.** Siehe *Der Stundenzettel*.
 * **Gescannte Abgleichlisten lesen.** Die Liste muss aus secplan als PDF
   gespeichert sein, nicht ausgedruckt und wieder eingescannt.
+* **Raten, wenn etwas nicht zusammenpasst.** Findet die Brücke eine Schicht im
+  Tagesplan nicht eindeutig, lässt sie die Finger davon und sagt es.
 * **Entscheiden, ob jemand da war.** Fehlt eine Meldung, fragt das Werkzeug —
   es rät nicht.
 
@@ -376,7 +385,9 @@ sind zwanzig Minuten, nicht dreiundzwanzig Stunden.
 | Texterkennung „nicht hochgekommen" | `npm install tesseract.js`, oder Sprachdaten fehlen (siehe *Der Stundenzettel*) |
 | „In diesem PDF steht kein Text" | die Abgleichliste wurde eingescannt statt aus secplan als PDF gespeichert |
 | Zettel steht auf dem Kopf | zweimal auf ↷ im Zettelbalken |
-| Übertragung scheitert | Sitzung abgelaufen → `npm run anmeldung`. Die Freigabe ist nicht verloren: **Als CSV sichern** und `node uebertragen.mjs <datei>` |
+| Übertragung scheitert | Sitzung abgelaufen → `npm run anmeldung`. Die Freigabe ist nicht verloren: **Ergebnisdatei** sichern und `node uebertragen.mjs <datei>` |
+| „im Tagesplan nicht gefunden" | Name oder geplante Zeit weichen zwischen Abgleichliste und Tagesplan ab — Bildschirmfoto in `daten/bilder/` ansehen |
+| „Zeitfelder nicht gefunden" | die Schichtmaske sieht anders aus als erwartet; `feldBeginn`/`feldEnde` in `konfig.json` setzen |
 | Namen werden falsch zugeordnet | einmal von Hand richtig zuordnen — die Zuordnung wird gemerkt |
 
 Prüfen, ob die Rechenlogik stimmt:
@@ -393,7 +404,7 @@ npm test
 | `nodemailer` | Mail am Morgen | Meldung erscheint nur im Fenster |
 | — | Abgleichliste als PDF lesen | läuft ohne alles, auch im Browser |
 | `tesseract.js` | getippte Listen als Foto lesen | Foto dient als Vorlage zum Abtippen |
-| `playwright` | Browser-Modus zu secplan | Datei-Modus über `daten/eingang` und `daten/ausgang` |
+| `playwright` | Zeiten selbst in secplan eintragen | Ergebnisdatei zum Nacharbeiten von Hand |
 | `pdftotext` (System) | PDF mit Textebene | fällt auf Texterkennung zurück |
 
 `npm install` holt alle drei; einzeln geht auch.
