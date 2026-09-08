@@ -37,10 +37,15 @@ Abgleich:  http://127.0.0.1:8770/intern/abgleich.html?t=…
 Diesen Link öffnen. Fertig. Der Schlüssel steht in `daten/token.txt` und wird
 beim ersten Start erzeugt.
 
-**Erster Test ohne secplan:** einen Dienstplan-Export als CSV in
-`daten/eingang/` legen (Dateiname am besten `plan-2026-09-07.csv`).
-Erwartet werden Spalten in dieser Art — die Schreibweise ist großzügig,
-`Objekt`/`Einsatz`/`Veranstaltung` gelten gleichermaßen:
+**Ohne alles loslegen:** In secplan die Liste der offenen Abgleiche als
+**PDF** ausgeben und im Abgleich unter *01* ablegen — mehr braucht es nicht.
+Das PDF wird direkt gelesen, mit Personalnummer, Planung, Funktion und Datum.
+Enthält es mehrere Wochen (der Normalfall), erscheint darunter eine Leiste mit
+allen Tagen; verglichen wird der gewählte.
+
+Alternativ ein CSV-Export in `daten/eingang/` (Dateiname am besten
+`plan-2026-09-07.csv`). Die Schreibweise ist großzügig, `Objekt`/`Einsatz`/
+`Veranstaltung` gelten gleichermaßen:
 
 ```
 Datum;Mitarbeiter;Personalnummer;Objekt;von;bis;Pause;SchichtID
@@ -76,12 +81,16 @@ Welcher Tag morgens abgeglichen wird, steht in `konfig.json` unter
 
 ### `intern/abgleich.html` — fürs Büro
 
-* **01 Geplante Schichten** — kommen von der Brücke oder werden als CSV abgelegt.
+* **01 Geplante Schichten** — die **Abgleichliste aus secplan als PDF**, ein
+  CSV-Export, oder von der Brücke. Umfasst die Liste mehrere Tage, steht
+  darunter eine Tagesleiste.
 * **02 Gelaufene Zeiten** — vier Wege:
-  * Zeitliste als **Foto oder PDF** ablegen → wird gelesen (siehe *Zeitlisten scannen*)
-  * **CSV/Text** ablegen oder einfügen (aus einer Mail kopiert, abgetippt)
+  * **Foto des Stundenzettels** ablegen → liegt groß daneben als Vorlage,
+    automatisch gedreht (siehe *Der Stundenzettel*)
+  * **CSV/Text/PDF** ablegen oder einfügen (aus einer Mail kopiert, abgetippt)
   * **Schnellerfassung** des Schichtleiters — kommt von allein rein
-  * **„Alles wie geplant"** — der häufigste Fall bei kleinen Einsätzen, ein Klick
+  * **„Alles wie geplant"** — der häufigste Fall, ein Klick: danach stehen alle
+    geplanten Zeiten fertig da und nur die Abweichungen werden getippt
 * **03 Abgleich** — je Zeile ein Stand:
 
   | Stand | heißt | was zu tun ist |
@@ -90,16 +99,32 @@ Welcher Tag morgens abgeglichen wird, steht in `konfig.json` unter
   | Abweichung | Zeit weicht ab | ansehen, übernehmen oder korrigieren |
   | fehlt | geplant, keine Zeit gemeldet | „war da, wie geplant" oder „Ausfall" |
   | zusätzlich | Zeit ohne geplante Schicht | prüfen — Nachbesetzung? |
+  | Ausfall | jemand war nicht da | nichts, Grund steht im Protokoll |
   | Name unklar | Name nicht zuzuordnen | Person auswählen (wird gemerkt) |
   | prüfen | Abweichung über vier Stunden | fast immer ein Lesefehler |
 
   Tastatur: `↑` `↓` wählen, `Enter` übernehmen, `P` wie geplant, `A` Ausfall,
   `Z` zurücknehmen. Mit sechzig Zeilen ist man so in zwei Minuten durch.
+* **Ergebnisdatei** — das, was am Ende zählt: eine CSV, die man neben secplan
+  legt und abarbeitet. Erste Spalte **Änderung**, sortiert nach dem, was zu tun
+  ist; dann Name (in der secplan-Schreibweise `Nachname, Vorname`),
+  Personalnummer, Planung, geplante Zeit, **neue Zeit**, Pause, Stunden,
+  Differenz und ein Hinweis. Wer nur nachträgt, braucht nichts weiter.
 * **Freigabe** — überträgt die bestätigten Zeiten und schreibt ins Protokoll,
-  wer freigegeben hat.
+  wer freigegeben hat. Ohne Browser-Modus ist die Ergebnisdatei der Weg.
 
 Namen, die einmal von Hand zugeordnet wurden („Mueller M." → Marek Musielak),
 merkt sich die Oberfläche. Beim nächsten Mal sitzt die Zuordnung von allein.
+secplan schreibt `Nachname, Vorname (Nummer)`, der Zettel `Vorname Nachname` —
+das gleicht die Zuordnung selbst aus, ebenso Kürzel und Tippfehler.
+
+**Eine Schicht in zwei Zeilen.** Auf dem Stundenzettel steht eine Schicht oft
+getrennt nach Format (`10:30–19:00 KS`, dann `19:00–21:30 ML`), in secplan ist
+das eine Schicht von 10:30 bis 21:30. Solche Zeilen werden wieder zusammengelegt
+— aber nur so weit, wie der Dienstplan es hergibt: sind für den Tag zwei
+Schichten geplant, bleiben es zwei. Eine Lücke dazwischen (bis 2 h, einstellbar)
+zählt als Pause. In der Ergebnisdatei steht im Hinweis, wie der Zettel es
+aufgeteilt hatte.
 
 ### `intern/erfassung.html` — für den Einsatz
 
@@ -241,12 +266,40 @@ mitlaufen lassen und die Datei gegen die Wirklichkeit halten. Stimmt sie,
 
 ---
 
-## Zeitlisten scannen
+## Der Stundenzettel
 
-* **PDF mit Textebene** → wird direkt gelesen, wenn `pdftotext` vorhanden ist
-  (Paket `poppler-utils`; unter Windows Teil der Poppler-Binaries).
-* **Foto oder eingescanntes PDF** → Texterkennung mit `tesseract.js`
-  (`npm install tesseract.js`).
+Ein Foto des handschriftlichen Zettels wird **nicht** in Zeiten übersetzt, und
+das ist Absicht. Nachgemessen an einem echten Zettel: Tesseract bringt aus der
+Handschrift Bruchstücke, mehr nicht — mal eine Uhrzeit, meist gar nichts. So zu
+tun, als ginge das, wäre schlimmer als es zu lassen: falsch erkannte Zeiten
+wandern sonst ungeprüft in die Abrechnung, und niemand merkt es.
+
+Der Weg, der wirklich Zeit spart, ist ein anderer:
+
+1. Foto ablegen. Es erscheint **groß über der Tabelle**, hochformatige Bilder
+   werden automatisch gedreht (das Blatt liegt quer, das Handy fotografiert
+   hochkant), drehbar und zoombar, wegklappbar.
+2. **„Alles wie geplant"** drücken. Jetzt steht jede geplante Person mit ihren
+   Zeiten fertig in der Tabelle.
+3. Nur die Abweichungen vom Zettel tippen — Tab ins Feld, Zeit eintragen, weiter.
+   Wer nicht da war, bekommt **Ausfall**.
+
+Aus fünfzehn Minuten Abtippen werden so ein bis zwei Minuten, ohne dass irgendwo
+geraten wird.
+
+**Gelesen wird trotzdem**, und zwar da, wo es zuverlässig klappt:
+
+* **PDF mit Textebene** → direkt, ohne Zusatzsoftware. Das gilt für die
+  Abgleichliste aus secplan ebenso wie für Zeitlisten aus Excel oder einem
+  Kassensystem.
+* **Getippte oder gedruckte Listen als Foto** → Texterkennung
+  (`npm install tesseract.js`); nachgemessen an einer gedruckten Liste: alle
+  Zeilen mit Name, Zeiten und Pause korrekt.
+* **Handschrift** → siehe oben.
+
+Erkannte Zeilen sind immer nur ein Vorschlag: das Original liegt daneben, jede
+Zeile will bestätigt werden, und Zeilen ohne zwei erkennbare Uhrzeiten werden
+gar nicht erst übernommen.
 
 Die Sprachdaten holt tesseract beim ersten Mal aus dem Netz und legt sie in
 `daten/tessdata/` ab. Rechner ohne Netzzugang: `deu.traineddata` einmal von
@@ -256,17 +309,9 @@ Hand herunterladen, dorthin legen und eintragen:
 "ocr": { "datenPfad": "daten/tessdata", "gepackt": false }
 ```
 
-**Fototipps, die den Unterschied machen:** Blatt ganz im Bild, von oben, gutes
-Licht, keine Schatten der eigenen Hand. Ein 2000 Pixel breites Foto einer
-gedruckten Liste wird zuverlässig gelesen; ein schräges Handyfoto im Halbdunkel
-nicht.
-
-**Handschrift bleibt unsicher.** Deshalb ist das Ergebnis ausdrücklich ein
-Vorschlag: die Oberfläche zeigt das Originalfoto neben der Tabelle, jede Zeile
-will bestätigt werden, und Zeilen ohne zwei erkennbare Uhrzeiten werden gar
-nicht erst übernommen, sondern als übergangen gemeldet.
-
----
+Für PDF mit Textebene wird nichts installiert — das kann die Brücke selbst
+(und die Oberfläche im Browser auch, dafür muss nicht einmal die Brücke laufen).
+Für gescannte PDF hilft zusätzlich `pdftotext` (Paket `poppler-utils`).
 
 ## Wie gerechnet wird
 
@@ -279,7 +324,9 @@ Einstellbar oben rechts im Abgleich unter *Regeln* (gilt dauerhaft):
   Mitarbeiter (Beginn ab, Ende auf) oder zugunsten Firma. Was gilt, steht im
   Rahmenvertrag — deshalb eine Einstellung und keine feste Regel.
 * **Pause** — fehlende Pausen nach § 4 ArbZG ergänzen (>6 h: 30 min, >9 h: 45 min).
-  Standard aus: was Pause war, steht auf der Liste.
+  Standard aus: was Pause war, steht auf der Liste. Weicht die Pause um mehr als
+  die Toleranz vom Plan ab, ist das eine Abweichung — auch wenn Kommen und Gehen
+  stimmen, sind es sonst am Ende Stunden zu viel.
 
 Verglichen wird immer mit der **echten** gemeldeten Zeit, gerundet wird erst
 beim Übernehmen — sonst würden aus fünf Minuten Überzug fünfzehn.
@@ -308,10 +355,12 @@ sind zwanzig Minuten, nicht dreiundzwanzig Stunden.
 ## Was das Ganze nicht kann
 
 * **Neue Schichten in secplan anlegen.** Zeiten ohne geplante Schicht
-  („zusätzlich") werden gemeldet und in die Ausgabedatei geschrieben, aber
+  („zusätzlich") werden gemeldet und in die Ergebnisdatei geschrieben, aber
   nicht selbst eingetragen — eine Nachbesetzung ist eine Entscheidung, keine
   Rechenoperation.
-* **Handschrift sicher lesen.** Siehe oben.
+* **Handschrift lesen.** Siehe *Der Stundenzettel*.
+* **Gescannte Abgleichlisten lesen.** Die Liste muss aus secplan als PDF
+  gespeichert sein, nicht ausgedruckt und wieder eingescannt.
 * **Entscheiden, ob jemand da war.** Fehlt eine Meldung, fragt das Werkzeug —
   es rät nicht.
 
@@ -324,7 +373,9 @@ sind zwanzig Minuten, nicht dreiundzwanzig Stunden.
 | „ohne Brücke" im Kopf der Seite | Dienst läuft nicht (`npm start`) oder falscher Schlüssel im Link |
 | „Auf Port 8770 läuft bereits eine Brücke" | zweites Fenster offen — das erste benutzen |
 | Für den Tag liegt kein Tagespaket vor | keine Datei in `daten/eingang/`, oder im Browser-Modus stimmt `planAdresse` nicht |
-| Texterkennung „nicht hochgekommen" | `npm install tesseract.js`, oder Sprachdaten fehlen (siehe *Zeitlisten scannen*) |
+| Texterkennung „nicht hochgekommen" | `npm install tesseract.js`, oder Sprachdaten fehlen (siehe *Der Stundenzettel*) |
+| „In diesem PDF steht kein Text" | die Abgleichliste wurde eingescannt statt aus secplan als PDF gespeichert |
+| Zettel steht auf dem Kopf | zweimal auf ↷ im Zettelbalken |
 | Übertragung scheitert | Sitzung abgelaufen → `npm run anmeldung`. Die Freigabe ist nicht verloren: **Als CSV sichern** und `node uebertragen.mjs <datei>` |
 | Namen werden falsch zugeordnet | einmal von Hand richtig zuordnen — die Zuordnung wird gemerkt |
 
@@ -340,7 +391,8 @@ npm test
 |---|---|---|
 | — | Abgleich, Datei-Modus, Morgenlauf, Schnellerfassung | läuft alles |
 | `nodemailer` | Mail am Morgen | Meldung erscheint nur im Fenster |
-| `tesseract.js` | Fotos und gescannte PDF lesen | Foto dient als Vorlage zum Abtippen |
+| — | Abgleichliste als PDF lesen | läuft ohne alles, auch im Browser |
+| `tesseract.js` | getippte Listen als Foto lesen | Foto dient als Vorlage zum Abtippen |
 | `playwright` | Browser-Modus zu secplan | Datei-Modus über `daten/eingang` und `daten/ausgang` |
 | `pdftotext` (System) | PDF mit Textebene | fällt auf Texterkennung zurück |
 

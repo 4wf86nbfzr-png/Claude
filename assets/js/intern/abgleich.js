@@ -31,7 +31,9 @@
   /* ---- Zustand ------------------------------------------------ */
   var Z = {
     datum: K.heuteIso(-1),
-    soll: [],
+    sollAlle: [],           // die ganze Abgleichliste, oft mehrere Wochen
+    soll: [],               // davon der gewaehlte Tag
+    zettel: null,           // { name, daten, grad, breite }
     personen: [],
     ist: [],
     ergebnis: null,
@@ -177,24 +179,58 @@
   /* ============================================================
      Soll (secplan) setzen
      ============================================================ */
+  /* Die Abgleichliste aus secplan umfasst in der Regel mehrere Wochen.
+     Sie wird ganz behalten; verglichen wird immer der gewaehlte Tag. */
   function sollSetzen(liste, herkunft) {
-    Z.soll = liste || [];
-    Z.personen = personenAus(Z.soll);
-    if (!Z.soll.length) {
-      schreibe('#sollStand', 'warnung', 'Keine Schichten erkannt. Erwartet werden Spalten wie ' +
-        '<b>Datum, Mitarbeiter, von, bis, Pause</b> &ndash; oder Zeilen mit Name und zwei Uhrzeiten.');
+    Z.sollAlle = liste || [];
+    if (!Z.sollAlle.length) {
+      schreibe('#sollStand', 'warnung', 'Keine Schichten erkannt. Erwartet wird die ' +
+        '<b>Abgleichliste aus secplan</b> (PDF) oder eine Tabelle mit ' +
+        '<b>Datum, Mitarbeiter, von, bis</b>.');
+      $('#tageLeiste').hidden = true;
       return;
     }
-    var tage = {};
-    Z.soll.forEach(function (s) { if (s.datum) tage[s.datum] = true; });
-    var tageListe = Object.keys(tage);
-    if (tageListe.length === 1 && tageListe[0] !== Z.datum) {
-      Z.datum = tageListe[0];
+
+    var tage = tageAusSoll();
+    // Liegt der gewaehlte Tag nicht in der Liste, auf den letzten
+    // Tag darin springen — meist ist es genau der, der ansteht.
+    if (tage.indexOf(Z.datum) < 0 && tage.length) {
+      Z.datum = tage[tage.length - 1];
       $('#datum').value = Z.datum;
     }
-    schreibe('#sollStand', 'gut', '<b>' + Z.soll.length + ' geplante Schichten</b> f&uuml;r ' +
-      K.datumDeutsch(Z.datum) + ' &middot; ' + Z.personen.length + ' Personen &middot; Quelle: ' + herkunft);
+    tagAnwenden();
+
+    schreibe('#sollStand', 'gut', '<b>' + Z.sollAlle.length + ' offene Schichten</b> aus ' + herkunft +
+      (tage.length > 1 ? ' &middot; ' + tage.length + ' Tage &ndash; unten den Tag w&auml;hlen' : '') +
+      ' &middot; ' + Z.personen.length + ' Personen');
+  }
+
+  function tageAusSoll() {
+    var karte = {};
+    Z.sollAlle.forEach(function (s) { if (s.datum) karte[s.datum] = (karte[s.datum] || 0) + 1; });
+    return Object.keys(karte).sort();
+  }
+
+  function tagAnwenden() {
+    Z.soll = Z.sollAlle.filter(function (s) { return !s.datum || s.datum === Z.datum; });
+    // Fuer die Namenszuordnung zaehlt der ganze Bestand: auf dem Zettel
+    // steht mitunter jemand, der an dem Tag nicht eingeplant war.
+    Z.personen = personenAus(Z.sollAlle.length ? Z.sollAlle : Z.soll);
+    tageZeichnen();
     rechnen();
+  }
+
+  function tageZeichnen() {
+    var leiste = $('#tageLeiste');
+    var tage = tageAusSoll();
+    if (tage.length < 2) { leiste.hidden = true; leiste.innerHTML = ''; return; }
+    var zahl = {};
+    Z.sollAlle.forEach(function (s) { zahl[s.datum] = (zahl[s.datum] || 0) + 1; });
+    leiste.hidden = false;
+    leiste.innerHTML = tage.map(function (t) {
+      return '<button class="filter__chip" type="button" data-tag="' + t + '" aria-pressed="' +
+        (t === Z.datum ? 'true' : 'false') + '">' + K.datumDeutsch(t) + '<b>' + zahl[t] + '</b></button>';
+    }).join('');
   }
 
   function personenAus(soll) {
@@ -287,6 +323,7 @@
       if (e.vorschlag) z.vorschlag = e.vorschlag;
       if (e.notiz) z.notiz = e.notiz;
       if (e.person) { z.person = e.person; z.name = e.person.name; if (z.status === 'unklar') z.status = 'zusatz'; }
+      if (e.status === 'ausfall' || e.status === 'passt') z.status = e.status;
       z.freigegeben = !!e.freigegeben;
     });
 
@@ -297,21 +334,23 @@
 
   function entscheidungMerken(z) {
     Z.entscheidungen[schluesselFuer(z)] = {
-      freigegeben: z.freigegeben, vorschlag: z.vorschlag, notiz: z.notiz, person: z.person
+      freigegeben: z.freigegeben, vorschlag: z.vorschlag, notiz: z.notiz,
+      person: z.person, status: z.status
     };
   }
 
   var STAND_TEXT = {
-    passt: 'passt', abweichung: 'Abweichung', fehlt: 'fehlt', zusatz: 'zus&auml;tzlich',
-    unklar: 'Name unklar', pruefen: 'pr&uuml;fen'
+    passt: 'passt', abweichung: 'Abweichung', fehlt: 'offen', zusatz: 'zus&auml;tzlich',
+    unklar: 'Name unklar', pruefen: 'pr&uuml;fen', ausfall: 'Ausfall'
   };
 
   var FILTER = [
     ['offen', 'Zu tun'],
     ['unklar', 'Name unklar'],
     ['abweichung', 'Abweichung'],
-    ['fehlt', 'fehlt'],
+    ['fehlt', 'ohne Meldung'],
     ['zusatz', 'zus&auml;tzlich'],
+    ['ausfall', 'Ausfall'],
     ['passt', 'passt'],
     ['alle', 'Alle']
   ];
@@ -330,7 +369,8 @@
       kennzahl(k.gesamt, 'Schichten'),
       kennzahl(k.offen, 'offen'),
       kennzahl(k.abweichung + k.pruefen, 'Abweichungen'),
-      kennzahl(k.fehlt, 'ohne Zeit'),
+      kennzahl(k.fehlt, 'ohne Meldung'),
+      kennzahl(k.ausfall, 'Ausfall'),
       kennzahl(k.unklar, 'Name unklar'),
       kennzahl(K.stundenText(k.sollMinuten), 'geplant'),
       kennzahl(K.stundenText(k.istMinuten), 'gerechnet'),
@@ -414,8 +454,21 @@
     zelle(tr, 'Geplant').innerHTML = zeitSpanne(z.soll);
 
     /* 5 Gelaufen */
-    zelle(tr, 'Gelaufen').innerHTML = z.ist ? zeitSpanne(z.ist)
-      : '<span class="z-zeit z-zeit--blass">keine Zeit gemeldet</span>';
+    var td5 = zelle(tr, 'Gelaufen');
+    if (z.ist) {
+      var extra = '';
+      if (z.ist.teile && z.ist.teile.length > 1) {
+        extra = '<span class="z-roh">Zettel: ' + z.ist.teile.map(function (t) {
+          return K.zeitAusMinuten(t.beginn) + '&ndash;' + K.zeitAusMinuten(t.ende) +
+                 (t.format ? '&nbsp;' + sicher(t.format) : '');
+        }).join(' + ') + '</span>';
+      } else if (z.ist.format) {
+        extra = '<span class="z-roh">' + sicher(z.ist.format) + '</span>';
+      }
+      td5.innerHTML = zeitSpanne(z.ist) + extra;
+    } else {
+      td5.innerHTML = '<span class="z-zeit z-zeit--blass">keine Meldung</span>';
+    }
 
     /* 6 Differenz */
     var td6 = zelle(tr, 'Differenz');
@@ -432,8 +485,8 @@
     /* 7 Uebernehmen (bearbeitbar) */
     var td7 = zelle(tr, 'Übernehmen');
     td7.className = 'z-uebernehmen';
-    if (z.status === 'fehlt' && !z.freigegeben) {
-      td7.innerHTML = '<span class="z-zeit z-zeit--blass">Entscheidung n&ouml;tig</span>';
+    if (z.status === 'ausfall') {
+      td7.innerHTML = '<span class="z-zeit z-zeit--blass">&ndash;</span>';
     } else {
       td7.innerHTML =
         '<input class="zeitfeld" data-tun="beginn" value="' + K.zeitAusMinuten(z.vorschlag.beginn) + '" inputmode="numeric" aria-label="Beginn" /> ' +
@@ -446,14 +499,17 @@
     var knoepfe = [];
     if (z.freigegeben) {
       knoepfe.push('<button class="knopf knopf--klein" data-tun="zurueck" type="button">zur&uuml;cknehmen</button>');
-    } else {
-      if (z.status === 'fehlt') {
-        knoepfe.push('<button class="knopf knopf--klein" data-tun="wieGeplant" type="button">war da, wie geplant</button>');
+      // Auch nach "alles wie geplant" faellt manchmal noch einer aus.
+      if (z.status !== 'ausfall' && z.soll) {
         knoepfe.push('<button class="knopf knopf--klein knopf--warn" data-tun="ausfall" type="button">Ausfall</button>');
-      } else if (z.status !== 'unklar') {
-        knoepfe.push('<button class="knopf knopf--klein" data-tun="uebernehmen" type="button">&uuml;bernehmen</button>');
-        if (z.soll) knoepfe.push('<button class="knopf knopf--klein" data-tun="wieGeplant" type="button">wie geplant</button>');
       }
+    } else if (z.status === 'fehlt') {
+      knoepfe.push('<button class="knopf knopf--klein" data-tun="wieGeplant" type="button">war da, wie geplant</button>');
+      knoepfe.push('<button class="knopf knopf--klein knopf--warn" data-tun="ausfall" type="button">Ausfall</button>');
+    } else if (z.status !== 'unklar') {
+      knoepfe.push('<button class="knopf knopf--klein" data-tun="uebernehmen" type="button">&uuml;bernehmen</button>');
+      if (z.soll) knoepfe.push('<button class="knopf knopf--klein" data-tun="wieGeplant" type="button">wie geplant</button>');
+      if (z.soll) knoepfe.push('<button class="knopf knopf--klein knopf--warn" data-tun="ausfall" type="button">Ausfall</button>');
     }
     td8.innerHTML = '<span class="z-tun">' + knoepfe.join('') + '</span>';
 
@@ -507,20 +563,40 @@
   function wieGeplant(z) {
     if (!z || !z.soll) return;
     z.vorschlag = { beginn: z.soll.beginn, ende: z.soll.ende, pause: z.soll.pause || 0 };
+    if (z.status === 'fehlt') z.notiz = z.notiz || 'ohne Zeitliste als planm\u00e4ssig best\u00e4tigt';
+    // Wer als planmaessig bestaetigt wurde, ist kein offener Fall mehr —
+    // sonst landete die Zeile spaeter als Ausfall in der Ergebnisdatei.
+    z.status = 'passt';
+    z.diffBeginn = 0; z.diffEnde = 0; z.diffDauer = 0;
     z.freigegeben = true;
-    z.notiz = z.status === 'fehlt' ? 'ohne Zeitliste als planm&auml;ssig best&auml;tigt' : z.notiz;
     entscheidungMerken(z);
     zeichnen();
   }
 
   function ausfall(z) {
     if (!z) return;
-    var grund = prompt('Was war der Grund? (steht sp&auml;ter im Protokoll)', z.notiz || 'nicht erschienen');
+    var grund = prompt('Was war der Grund? (steht so im Protokoll und in der Ergebnisdatei)',
+                       z.notiz || 'nicht erschienen');
     if (grund === null) return;
     z.notiz = grund;
+    z.status = 'ausfall';
     z.freigegeben = true;
     entscheidungMerken(z);
     zeichnen();
+  }
+
+  /* Nach einer Korrektur von Hand neu einordnen: wer wieder auf den
+     Plan trifft, ist kein Abweichler mehr — und umgekehrt. */
+  function neuBewerten(z) {
+    if (!z.soll || z.vorschlag.beginn === null) return;
+    var r = K.regelnMitStandard(Z.regeln);
+    z.diffBeginn = K.kuerzesteDifferenz(z.vorschlag.beginn, z.soll.beginn);
+    z.diffEnde = K.kuerzesteDifferenz(z.vorschlag.ende, z.soll.ende);
+    z.diffDauer = (K.dauer(z.vorschlag.beginn, z.vorschlag.ende) - (z.vorschlag.pause || 0)) -
+                  (K.dauer(z.soll.beginn, z.soll.ende) - (z.soll.pause || 0));
+    var drin = Math.abs(z.diffBeginn) <= r.toleranzMin && Math.abs(z.diffEnde) <= r.toleranzMin;
+    if (z.status === 'unklar') return;
+    z.status = drin ? 'passt' : 'abweichung';
   }
 
   function zurueck(z) {
@@ -552,6 +628,21 @@
     if (!confirm(liste.length + ' Schichten so &uuml;bernehmen, wie sie unten stehen?')) return;
     liste.forEach(function (z) { z.freigegeben = true; entscheidungMerken(z); });
     zeichnen();
+  }
+
+  /* Die Datei, die neben secplan liegt: oben das, was geaendert
+     werden muss, darunter das Uebrige. */
+  function ergebnisSichern() {
+    var alle = Z.ergebnis ? Z.ergebnis.zeilen : [];
+    var frei = alle.filter(function (z) { return z.freigegeben; });
+    if (!frei.length) { meldung('warnung', 'Es ist noch nichts best&auml;tigt.'); return; }
+
+    var zuTun = K.ergebnisZeilen(alle, true).length;
+    var csv = K.ergebnisCsv(alle, {});
+    herunterladen('ergebnis-' + Z.datum + '.csv', csv, 'text/csv;charset=utf-8');
+    meldung('gut', 'Ergebnisdatei gesichert: <b>' + frei.length + ' Zeilen</b>, davon <b>' + zuTun +
+      '</b> mit &Auml;nderung. Sie &ouml;ffnet sich in Excel; die Spalte <b>&Auml;nderung</b> steht vorn, ' +
+      'sortiert ist nach dem, was zu tun ist.', true);
   }
 
   function csvSichern() {
@@ -636,7 +727,7 @@
           ' liegt kein Tagespaket vor. Entweder gab es keine Schichten, oder der Morgenlauf ist noch nicht durch.');
         return null;
       }
-      sollSetzen(paket.soll, 'Br&uuml;cke, Stand ' + (paket.erzeugt || '').slice(0, 16).replace('T', ' '));
+      sollSetzen(paket.soll, 'der Br&uuml;cke, Stand ' + (paket.erzeugt || '').slice(0, 16).replace('T', ' '));
       if (paket.ist && paket.ist.length) {
         istHinzufuegen(paket.ist, 'Schnellerfassung vom Einsatz', []);
       }
@@ -707,6 +798,25 @@
   }
 
   function sollDatei(datei) {
+    if (/pdf/i.test(datei.type) || /\.pdf$/i.test(datei.name)) {
+      pufferAusDatei(datei).then(function (puffer) {
+        if (!globalThis.HSTPdf) throw new Error('pdf.js wurde nicht geladen.');
+        return globalThis.HSTPdf.stuecke(puffer).then(function (stuecke) {
+          if (!stuecke.length) {
+            throw new Error('In diesem PDF steht kein Text &ndash; es ist vermutlich ein Scan. ' +
+              'Bitte die Abgleichliste direkt aus secplan als PDF speichern, nicht ausdrucken und einscannen.');
+          }
+          var zeilen = globalThis.HSTPdf.zeilenAus(stuecke);
+          var liste = K.secplanAbgleichLesen(zeilen);
+          if (!liste.length) {
+            throw new Error('Das PDF liess sich lesen, aber es sah nicht aus wie eine Abgleichliste. ' +
+              'Erwartet werden die Spalten <b>Mitarbeiter</b> und <b>Datum</b> nebst <b>von</b> und <b>bis</b>.');
+          }
+          sollSetzen(liste, 'Abgleichliste ' + sicher(datei.name));
+        });
+      }).catch(function (f) { schreibe('#sollStand', 'fehler', f.message); });
+      return;
+    }
     textAusDatei(datei).then(function (text) {
       if (/^\s*[{[]/.test(text)) {
         var paket = JSON.parse(text);
@@ -716,34 +826,41 @@
     }).catch(function (f) { schreibe('#sollStand', 'fehler', sicher(f.message)); });
   }
 
+  function pufferAusDatei(datei) {
+    return new Promise(function (fertig, daneben) {
+      var leser = new FileReader();
+      leser.onload = function () { fertig(leser.result); };
+      leser.onerror = function () { daneben(new Error('Datei nicht lesbar')); };
+      leser.readAsArrayBuffer(datei);
+    });
+  }
+
   function istDatei(datei) {
-    var typ = (datei.type || '') + ' ' + datei.name.toLowerCase();
+    var name = datei.name.toLowerCase();
 
-    if (/image\//.test(datei.type)) {
-      belegZeigen(datei);
-      scannen(datei).then(function (a) {
-        rohschauZeigen(a.text || '');
-        var gelesen = K.zeitlisteLesen(a.text || '', { quelle: 'ocr', datum: Z.datum });
-        istHinzufuegen(gelesen.zeilen, 'Foto ' + datei.name + ' (Texterkennung)', gelesen.verworfen);
-        meldung('warnung', 'Aus einem Foto gelesene Zeiten sind ein <b>Vorschlag</b>. ' +
-          'Bitte die Spalte &bdquo;Gelaufen&ldquo; gegen den Zettel halten, bevor Sie freigeben.', true);
-      }).catch(function (f) {
-        schreibe('#istStand', 'warnung', f.message);
-      });
-      return;
-    }
+    if (/image\//.test(datei.type)) { zettelAufnehmen(datei); return; }
 
-    if (/pdf/.test(typ)) {
-      scannen(datei).then(function (a) {
-        rohschauZeigen(a.text || '');
-        var gelesen = K.zeitlisteLesen(a.text || '', { quelle: a.weg === 'ocr' ? 'ocr' : 'pdf', datum: Z.datum });
-        istHinzufuegen(gelesen.zeilen, 'PDF ' + datei.name, gelesen.verworfen);
+    if (/pdf/.test(datei.type) || /\.pdf$/.test(name)) {
+      // Erst im PDF selbst nachsehen — ein aus secplan oder Excel
+      // erzeugtes PDF traegt Text und braucht keine Texterkennung.
+      pufferAusDatei(datei).then(function (puffer) {
+        return globalThis.HSTPdf.stuecke(puffer).then(function (stuecke) {
+          if (stuecke.length) {
+            var text = globalThis.HSTPdf.zeilenAus(stuecke).map(function (z) {
+              return z.teile.map(function (t) { return t.text; }).join('  ');
+            }).join('\n');
+            istAusText(text, 'PDF ' + datei.name);
+            return;
+          }
+          // Kein Text drin: gescannt. Dann der uebliche Weg fuer Bilder.
+          return scannen(datei).then(function (a) { ocrErgebnis(a, datei); });
+        });
       }).catch(function (f) { schreibe('#istStand', 'warnung', f.message); });
       return;
     }
 
     textAusDatei(datei).then(function (text) {
-      if (/\.json$/.test(datei.name) || /^\s*[{[]/.test(text)) {
+      if (/\.json$/.test(name) || /^\s*[{[]/.test(text)) {
         var paket = JSON.parse(text);
         var zeilen = paket.zeilen || paket.ist || (Array.isArray(paket) ? paket : null);
         if (zeilen) {
@@ -756,10 +873,127 @@
     }).catch(function (f) { schreibe('#istStand', 'fehler', sicher(f.message)); });
   }
 
-  function belegZeigen(datei) {
-    var url = URL.createObjectURL(datei);
-    $('#belegBereich').innerHTML = '<figure class="beleg"><img src="' + url + '" alt="Zeitliste ' +
-      sicher(datei.name) + '" /></figure>';
+  /* ============================================================
+     Der Zettel
+     ------------------------------------------------------------
+     Handschrift liest keine Texterkennung zuverlaessig — nachgemessen
+     an einem echten Stundenzettel: Tesseract bringt daraus Bruchstuecke,
+     mehr nicht. So zu tun, als ginge das, waere schlimmer als es zu
+     lassen: falsch erkannte Zeiten wandern sonst ungeprueft in die
+     Abrechnung.
+
+     Deshalb der ehrliche Weg: das Foto liegt gross daneben, die Zeilen
+     darunter sind mit den geplanten Zeiten vorbefuellt. Wer den Zettel
+     abarbeitet, tippt nur die Abweichungen. Gelesen wird trotzdem —
+     bei getippten oder gedruckten Listen klappt es gut, und dann spart
+     es den Rest.
+     ============================================================ */
+  function zettelAufnehmen(datei) {
+    Z.zettel = { name: datei.name, daten: null, grad: 0, breite: 100 };
+    datenAusDatei(datei).then(function (daten) {
+      Z.zettel.daten = daten;
+      zettelZeichnen();
+      // Der Stundenzettel liegt quer, das Handy fotografiert hochkant.
+      // Deshalb hochformatige Bilder gleich einmal drehen — daneben
+      // liegt der Knopf, der es zurueckdreht, falls es doch nicht passt.
+      return hochkant(daten).then(function (ja) {
+        return ja ? zettelDrehen(-90) : null;
+      }).then(function () { return zettelLesen(true); });
+    }).catch(function (f) { schreibe('#istStand', 'fehler', sicher(f.message)); });
+  }
+
+  function hochkant(daten) {
+    return new Promise(function (fertig) {
+      var bild = new Image();
+      bild.onload = function () { fertig(bild.height > bild.width * 1.15); };
+      bild.onerror = function () { fertig(false); };
+      bild.src = daten;
+    });
+  }
+
+  function zettelZeichnen() {
+    if (!Z.zettel || !Z.zettel.daten) { $('#zettel').hidden = true; return; }
+    $('#zettel').hidden = false;
+    $('#zettelName').textContent = Z.zettel.name + (Z.zettel.grad ? ' · gedreht' : '');
+    var schau = $('#zettelSchau');
+    schau.innerHTML = '';
+    var bild = new Image();
+    bild.alt = 'Zeitliste ' + Z.zettel.name;
+    bild.src = Z.zettel.daten;
+    bild.style.width = (Z.zettel.breite || 100) + '%';
+    schau.appendChild(bild);
+  }
+
+  /* Drehen geschieht am Bild selbst, nicht per CSS: so stimmt die
+     Ansicht mit dem ueberein, was die Texterkennung zu sehen bekommt. */
+  function zettelDrehen(grad) {
+    if (!Z.zettel || !Z.zettel.daten) return Promise.resolve();
+    return new Promise(function (fertig) {
+      var bild = new Image();
+      bild.onload = function () {
+        var quer = Math.abs(grad) % 180 !== 0;
+        var b = quer ? bild.height : bild.width;
+        var h = quer ? bild.width : bild.height;
+        var leinwand = document.createElement('canvas');
+        leinwand.width = b; leinwand.height = h;
+        var stift = leinwand.getContext('2d');
+        stift.fillStyle = '#FFF';
+        stift.fillRect(0, 0, b, h);
+        stift.translate(b / 2, h / 2);
+        stift.rotate(grad * Math.PI / 180);
+        stift.drawImage(bild, -bild.width / 2, -bild.height / 2);
+        Z.zettel.daten = leinwand.toDataURL('image/jpeg', 0.92);
+        Z.zettel.grad = ((Z.zettel.grad + grad) % 360 + 360) % 360;
+        zettelZeichnen();
+        fertig();
+      };
+      bild.onerror = function () { fertig(); };
+      bild.src = Z.zettel.daten;
+    });
+  }
+
+  function zettelLesen(still) {
+    if (!Z.zettel || !Z.zettel.daten) return Promise.resolve();
+    if (!Z.bruecke.an) {
+      schreibe('#istStand', 'info', zettelHinweis(
+        'Zum Lesen von Fotos muss die Br&uuml;cke laufen. So oder so: ' +
+        'der Zettel liegt oben als Vorlage.'));
+      return Promise.resolve();
+    }
+    var kasten = meldung('info', 'Zeitliste wird gelesen &hellip;', true);
+    return Bruecke.schicke('/api/scannen', { name: Z.zettel.name, daten: Z.zettel.daten })
+      .then(function (a) {
+        kasten.remove();
+        ocrErgebnis(a, { name: Z.zettel.name }, still);
+      })
+      .catch(function (f) {
+        kasten.remove();
+        schreibe('#istStand', 'warnung', zettelHinweis(sicher(f.message)));
+      });
+  }
+
+  function ocrErgebnis(a, datei, still) {
+    rohschauZeigen(a.text || '');
+    var gelesen = K.zeitlisteLesen(a.text || '', { quelle: a.weg === 'pdf' ? 'pdf' : 'ocr', datum: Z.datum });
+
+    if (gelesen.zeilen.length < 2) {
+      // Eine einzelne Zeile aus einem Foto ist fast immer Rauschen —
+      // die wandert nicht ungefragt in die Abrechnung.
+      meldung(still ? 'info' : 'warnung', zettelHinweis(
+        'Aus dem Bild liessen sich <b>' + gelesen.zeilen.length + ' Zeilen</b> lesen &ndash; zu wenig, ' +
+        'um darauf zu bauen. Bei Handschrift ist das der Normalfall.'), true);
+      return;
+    }
+
+    istHinzufuegen(gelesen.zeilen, (datei.name || 'Foto') + ' (Texterkennung)', gelesen.verworfen);
+    meldung('warnung', 'Aus einem Bild gelesene Zeiten sind ein <b>Vorschlag</b>. ' +
+      'Bitte gegen den Zettel oben halten, bevor Sie freigeben.', true);
+  }
+
+  function zettelHinweis(text) {
+    return text + '<br />Weiter geht es so: oben <b>Alles wie geplant</b> dr&uuml;cken &ndash; ' +
+      'dann stehen unten alle geplanten Zeiten fertig da und nur die Abweichungen vom Zettel ' +
+      'm&uuml;ssen getippt werden. Wer nicht da war, bekommt <b>Ausfall</b>.';
   }
 
   function regelnLesen() {
@@ -806,8 +1040,10 @@
     regelnZeigen();
 
     $('#datum').addEventListener('change', function () {
-      Z.datum = this.value; Z.ist = []; Z.entscheidungen = {};
-      rohschauZeigen(''); $('#belegBereich').innerHTML = ''; meldungenLeeren();
+      Z.datum = this.value; Z.ist = []; Z.entscheidungen = {}; Z.aktiv = -1;
+      rohschauZeigen(''); meldungenLeeren();
+      // Liegt der Tag in der geladenen Abgleichliste, reicht das Umschalten.
+      if (Z.sollAlle.some(function (s) { return s.datum === Z.datum; })) { tagAnwenden(); return; }
       tagespaketLaden(true);
     });
     $('#tagZurueck').addEventListener('click', function () { tagVerschieben(-1); });
@@ -831,12 +1067,33 @@
       istAusText(text, 'eingef&uuml;gter Text');
     });
     $('#istLeeren').addEventListener('click', function () {
-      Z.ist = []; Z.entscheidungen = {}; rohschauZeigen(''); $('#belegBereich').innerHTML = '';
+      Z.ist = []; Z.entscheidungen = {}; rohschauZeigen('');
       schreibe('#istStand', 'info', 'Ist-Zeiten zur&uuml;ckgesetzt.');
       rechnen();
     });
     $('#alsGeplant').addEventListener('click', alsGeplantUebernehmen);
     $('#erfassungLink').addEventListener('click', erfassungLink);
+
+    $('#tageLeiste').addEventListener('click', function (e) {
+      var chip = e.target.closest('[data-tag]');
+      if (!chip) return;
+      Z.datum = chip.getAttribute('data-tag');
+      $('#datum').value = Z.datum;
+      Z.aktiv = -1;
+      tagAnwenden();
+    });
+
+    $('#zettel').addEventListener('click', function (e) {
+      var knopf = e.target.closest('[data-zettel]');
+      if (!knopf) return;
+      var tun = knopf.getAttribute('data-zettel');
+      if (tun === 'links') zettelDrehen(-90);
+      else if (tun === 'rechts') zettelDrehen(90);
+      else if (tun === 'groesser') { Z.zettel.breite = Math.min(500, (Z.zettel.breite || 100) + 50); zettelZeichnen(); }
+      else if (tun === 'kleiner') { Z.zettel.breite = Math.max(100, (Z.zettel.breite || 100) - 50); zettelZeichnen(); }
+      else if (tun === 'lesen') zettelLesen(false);
+      else if (tun === 'zu') $('#zettel').hidden = true;
+    });
 
     $('#filter').addEventListener('click', function (e) {
       var chip = e.target.closest('[data-filter]');
@@ -872,6 +1129,7 @@
         if (min === null) { feld.value = K.zeitAusMinuten(z.vorschlag[tun]); meldung('warnung', 'Das war keine Uhrzeit.'); return; }
         z.vorschlag[tun] = min;
       }
+      neuBewerten(z);
       entscheidungMerken(z);
       zeichnen();
     });
@@ -881,7 +1139,7 @@
     });
 
     $('#alleGruen').addEventListener('click', alleSichtbaren);
-    $('#csvLaden').addEventListener('click', csvSichern);
+    $('#ergebnis').addEventListener('click', ergebnisSichern);
     $('#freigeben').addEventListener('click', freigeben);
 
     document.addEventListener('keydown', function (e) {

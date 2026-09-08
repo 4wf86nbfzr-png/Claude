@@ -110,6 +110,9 @@
 .filter__chip[aria-pressed="true"]{ background:#FFF; color:#08080A; border-color:transparent; }
 .filter__chip b{ font-family:var(--font-mono); opacity:.7; margin-left:5px; }
 
+/* Tage in der Abgleichliste — sie umfasst meist mehrere Wochen. */
+#tageLeiste .filter__chip b{ margin-left:6px; }
+
 /* ---- Kennzahlen ---- */
 .kennzahlen{ display:flex; flex-wrap:wrap; gap:clamp(16px,3vw,42px); padding:14px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
 .kennzahl{ display:grid; gap:3px; }
@@ -146,6 +149,7 @@
 .stand[data-s="zusatz"]{ color:var(--info); }     .stand[data-s="zusatz"]::before{ background:var(--info); }
 .stand[data-s="unklar"]{ color:var(--alarm); }    .stand[data-s="unklar"]::before{ background:var(--alarm); border-radius:2px; }
 .stand[data-s="pruefen"]{ color:var(--alarm); }   .stand[data-s="pruefen"]::before{ background:var(--alarm); border-radius:2px; }
+.stand[data-s="ausfall"]{ color:var(--alarm); }   .stand[data-s="ausfall"]::before{ background:transparent; box-shadow:inset 0 0 0 2px var(--alarm); }
 
 .merker{ display:inline-block; padding:2px 7px; border-radius:var(--r-pill); border:1px solid var(--line); font-family:var(--font-mono); font-size:.6rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-left:6px; vertical-align:middle; }
 .merker[data-art="vorschlag"]{ color:var(--warn); border-color:rgba(232,194,106,.45); }
@@ -191,6 +195,23 @@
 .meldung[data-art="fehler"]{ border-left-color:var(--alarm); }
 .meldung[data-art="info"]{ border-left-color:var(--info); }
 .meldung b{ color:var(--paper); }
+
+/* ---- Der Zettel als Vorlage ----
+   Handschrift liest keine Texterkennung sicher. Statt so zu tun,
+   liegt das Foto gross neben der Tabelle: gross genug, um Uhrzeiten
+   zu entziffern, drehbar (jedes Handyfoto vom quer liegenden Blatt
+   kommt hochkant an) und wegklappbar, wenn es stoert. */
+.zettel{ margin-top:14px; border:1px solid var(--line); border-radius:var(--r-m); background:var(--ink-2); overflow:hidden; }
+.zettel[hidden]{ display:none; }
+.zettel__leiste{
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  padding:9px 12px; border-bottom:1px solid var(--line);
+  position:sticky; top:0; background:var(--ink-2); z-index:2;
+}
+.zettel__leiste .wz-knoepfe{ margin-left:auto; }
+.zettel__schau{ max-height:min(70vh,760px); overflow:auto; background:#0B0B0D; }
+.zettel__schau img{ display:block; width:auto; max-width:none; image-rendering:auto; }
+.zettel--gross .zettel__schau{ max-height:none; }
 
 /* ---- Vorschau der eingelesenen Datei ---- */
 .rohschau{

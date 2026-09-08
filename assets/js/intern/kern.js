@@ -301,7 +301,16 @@ globalThis.HSTAbgleich = (function () {
   var KOPF_PAUSE  = /^(pause|pausen|brutto[- ]?pause)/i;
   var KOPF_NUMMER = /^(pers|personalnr|personalnummer|nr|mitarbeiternr)/i;
   var KOPF_DATUM  = /^(datum|tag)/i;
-  var KOPF_BEMERK = /^(bemerk|hinweis|notiz|kommentar|position|funktion)/i;
+  var KOPF_BEMERK = /^(bemerk|hinweis|notiz|kommentar|position)/i;
+  // Der HERM-Stundenzettel hat drei eigene Spalten: die Unterschrift
+  // (fuer die Auswertung ohne Belang, aber voller Gekritzel — sie muss
+  // erkannt werden, damit sie nichts durcheinanderbringt), das Format
+  // des Einsatzes (KS, ML …) und die vom Schichtleiter selbst
+  // ausgerechneten Stunden, die als Gegenprobe taugen.
+  var KOPF_UNTER  = /^(unterschrift|signatur|zeichen)/i;
+  var KOPF_FORMAT = /^(format|bereich|saal|einsatzart|art)/i;
+  var KOPF_STD    = /^(stunden|std|dauer|gesamt|summe)/i;
+  var KOPF_FUNK   = /^(funktion|taetigkeit|tätigkeit)/i;
 
   var MUELLZEILE = /^(summe|gesamt|zwischensumme|seite|unterschrift|datum:|blatt|total)\b/i;
 
@@ -332,7 +341,10 @@ globalThis.HSTAbgleich = (function () {
       else if (karte.pause === undefined && KOPF_PAUSE.test(t)) karte.pause = i;
       else if (karte.nummer === undefined && KOPF_NUMMER.test(t)) karte.nummer = i;
       else if (karte.datum === undefined && KOPF_DATUM.test(t)) karte.datum = i;
-      else if (karte.bemerkung === undefined && KOPF_BEMERK.test(t)) karte.bemerkung = i;
+      else if (karte.unterschrift === undefined && KOPF_UNTER.test(t)) karte.unterschrift = i;
+      else if (karte.format === undefined && KOPF_FORMAT.test(t)) karte.format = i;
+      else if (karte.stunden === undefined && KOPF_STD.test(t)) karte.stunden = i;
+      else if (karte.bemerkung === undefined && (KOPF_BEMERK.test(t) || KOPF_FUNK.test(t))) karte.bemerkung = i;
     });
     var treffer = Object.keys(karte).length;
     return (treffer >= 2 && karte.von !== undefined && karte.bis !== undefined) ||
@@ -367,15 +379,32 @@ globalThis.HSTAbgleich = (function () {
     }
     if (beginn === null || ende === null) return null;
 
+    // Was hinter den Uhrzeiten steht, ist auf dem Zettel gemischt:
+    // Unterschrift, Format (KS/ML) und die ausgerechneten Stunden.
+    // Eine Pause ist nur eine ganze Zahl ohne Komma dahinter — sonst
+    // wuerde aus "9,5 Stunden" eine Pause von neun Minuten.
     var pause = null;
-    var pm = restNachher.match(/(\d{1,3})\s*(?:min|')?\b/);
-    if (pm && +pm[1] <= 180) pause = +pm[1];
+    var pm = restNachher.match(/(?:^|[\s;|])(\d{1,3})(?![.,\d])\s*(min|')?/);
+    if (pm) {
+      var wert = +pm[1];
+      if (wert <= 180 && (pm[2] || wert % 5 === 0)) pause = wert;
+    }
+
+    // Stunden laut Zettel: "9,5" / "3.75" — dient als Gegenprobe.
+    var stundenLaut = null;
+    var sm = restNachher.match(/(\d{1,2})[.,](\d{1,2})(?!\d)/);
+    if (sm) stundenLaut = parseFloat(sm[1] + '.' + sm[2]);
+
+    // Format: zwei bis vier Grossbuchstaben, alleinstehend.
+    var format = '';
+    var fm = restNachher.match(/(?:^|[\s;|])([A-ZÄÖÜ]{2,4})(?:[\s;|]|$)/);
+    if (fm) format = fm[1];
 
     var name = restVorher.replace(/^\s*\d+[.)]\s*/, '').replace(/[;,|]\s*$/, '').trim();
     if (!name) return null;
 
     return { rohname: name, beginn: beginn, ende: ende, pause: pause,
-             datum: datumInZeile,
+             datum: datumInZeile, format: format, stundenLaut: stundenLaut,
              bemerkung: restNachher.replace(/^[\s;,|]+/, '').trim() };
   }
 
@@ -420,6 +449,8 @@ globalThis.HSTAbgleich = (function () {
             pause: karte.pause !== undefined ? zahlOderNull(f[karte.pause]) : null,
             personalnummer: karte.nummer !== undefined ? (f[karte.nummer] || '').trim() : '',
             datum: karte.datum !== undefined ? datumAusText(f[karte.datum]) : null,
+            format: karte.format !== undefined ? (f[karte.format] || '').trim() : '',
+            stundenLaut: karte.stunden !== undefined ? kommazahl(f[karte.stunden]) : null,
             bemerkung: karte.bemerkung !== undefined ? (f[karte.bemerkung] || '').trim() : ''
           };
         }
@@ -438,10 +469,21 @@ globalThis.HSTAbgleich = (function () {
       satz.datum = satz.datum || datumGlobal || null;
       satz.rohtext = roh.trim();
       if (satz.pause === undefined) satz.pause = null;
+      if (satz.format === undefined) satz.format = '';
+      if (satz.stundenLaut === undefined) satz.stundenLaut = null;
       ergebnis.push(satz);
     });
 
     return { zeilen: ergebnis, verworfen: verworfen, datum: datumGlobal, trenner: trenner };
+  }
+
+  /* "9,5" und "3.75" sind dasselbe. */
+  function kommazahl(wert) {
+    if (wert === null || wert === undefined || wert === '') return null;
+    var m = String(wert).match(/\d{1,3}([.,]\d{1,2})?/);
+    if (!m) return null;
+    var z = parseFloat(m[0].replace(',', '.'));
+    return isFinite(z) ? z : null;
   }
 
   function zahlOderNull(wert) {
@@ -463,7 +505,14 @@ globalThis.HSTAbgleich = (function () {
     pauseAutomatisch: false,  // fehlende Pause nach ArbZG ergaenzen
     nachtVon: '23:00',
     nachtBis: '06:00',
-    maxAbweichungMin: 240   // darueber: Verdacht auf Lesefehler, nie automatisch
+    maxAbweichungMin: 240,  // darueber: Verdacht auf Lesefehler, nie automatisch
+    // Auf dem Stundenzettel steht eine Schicht oft in mehreren Zeilen,
+    // getrennt nach Format (10:30-19:00 KS, danach 19:00-21:30 ML).
+    // In secplan ist das eine Schicht. Solche Zeilen werden wieder
+    // zusammengefasst; blockLuecke sagt, wie gross die Luecke dazwischen
+    // hoechstens sein darf — die Luecke selbst zaehlt dann als Pause.
+    blockLuecke: 120,
+    tagesbeginn: 300        // 05:00: alles davor gehoert zur Nacht davor
   };
 
   function regelnMitStandard(regeln) {
@@ -504,10 +553,16 @@ globalThis.HSTAbgleich = (function () {
     var istNetto  = dauer(b, e) - pause;
     var dD = istNetto - sollNetto;
 
+    // Die Pause zaehlt mit: wer planmaessig kommt und geht, aber eine
+    // Stunde Pause auf dem Zettel stehen hat, hat eine Stunde weniger
+    // gearbeitet. Ohne diese Pruefung liefe das als "passt" durch.
+    var pauseDiff = pause - (soll.pause || 0);
+
     var status;
     if (Math.abs(dB) > r.maxAbweichungMin || Math.abs(dE) > r.maxAbweichungMin) {
       status = 'pruefen';
-    } else if (Math.abs(dB) <= r.toleranzMin && Math.abs(dE) <= r.toleranzMin) {
+    } else if (Math.abs(dB) <= r.toleranzMin && Math.abs(dE) <= r.toleranzMin &&
+               Math.abs(pauseDiff) <= r.toleranzMin) {
       status = 'passt';
     } else {
       status = 'abweichung';
@@ -541,9 +596,74 @@ globalThis.HSTAbgleich = (function () {
     return d;
   }
 
+  /* ============================================================
+     Zeilen zu Bloecken
+     Auf dem Zettel steht eine Schicht haeufig in zwei Zeilen —
+     10:30-19:00 im Kleinen Saal, danach 19:00-21:30 im anderen.
+     secplan kennt dafuer eine Schicht von 10:30 bis 21:30. Also
+     werden solche Zeilen wieder zusammengelegt, aber nur so weit,
+     wie der Dienstplan es hergibt: sind fuer den Tag zwei Schichten
+     geplant, bleiben es zwei.
+     ============================================================ */
+
+  /* Uhrzeit auf einen durchgehenden Zeitstrahl legen, damit
+     "01:00" nach "19:00" kommt und nicht davor. */
+  function aufStrahl(min, tagesbeginn) {
+    return min < tagesbeginn ? min + 1440 : min;
+  }
+
+  function bloeckeBilden(zeilen, sollAnzahl, r) {
+    if (zeilen.length <= Math.max(1, sollAnzahl)) return zeilen.map(alsBlock);
+
+    var bloecke = zeilen.map(alsBlock).sort(function (a, b) { return a.von - b.von; });
+
+    while (bloecke.length > Math.max(1, sollAnzahl)) {
+      // Immer zuerst die kleinste Luecke schliessen.
+      var besteLuecke = null, stelle = -1;
+      for (var i = 0; i < bloecke.length - 1; i++) {
+        var luecke = bloecke[i + 1].von - bloecke[i].bis;
+        if (luecke < 0) luecke = 0;
+        if (besteLuecke === null || luecke < besteLuecke) { besteLuecke = luecke; stelle = i; }
+      }
+      if (stelle < 0 || besteLuecke > r.blockLuecke) break;
+      bloecke.splice(stelle, 2, verschmelzen(bloecke[stelle], bloecke[stelle + 1], besteLuecke));
+    }
+    return bloecke;
+
+    function alsBlock(z) {
+      var von = aufStrahl(z.beginn, r.tagesbeginn);
+      var bis = von + dauer(z.beginn, z.ende);
+      return {
+        rohname: z.rohname, personalnummer: z.personalnummer || '',
+        beginn: z.beginn, ende: z.ende, pause: z.pause,
+        datum: z.datum, quelle: z.quelle, zeile: z.zeile, rohtext: z.rohtext || '',
+        format: z.format || '', stundenLaut: z.stundenLaut === undefined ? null : z.stundenLaut,
+        bemerkung: z.bemerkung || '',
+        von: von, bis: bis,
+        teile: [{ beginn: z.beginn, ende: z.ende, format: z.format || '', pause: z.pause }]
+      };
+    }
+
+    function verschmelzen(a, b, luecke) {
+      var pausen = (a.pause || 0) + (b.pause || 0) + luecke;
+      return {
+        rohname: a.rohname, personalnummer: a.personalnummer || b.personalnummer || '',
+        beginn: a.beginn, ende: b.ende,
+        pause: pausen || (a.pause === null && b.pause === null ? null : 0),
+        datum: a.datum || b.datum, quelle: a.quelle, zeile: a.zeile,
+        rohtext: [a.rohtext, b.rohtext].filter(Boolean).join(' / '),
+        format: [a.format, b.format].filter(Boolean).join('+'),
+        stundenLaut: (a.stundenLaut || 0) + (b.stundenLaut || 0) || null,
+        bemerkung: [a.bemerkung, b.bemerkung].filter(Boolean).join(' / '),
+        von: a.von, bis: Math.max(a.bis, b.bis),
+        teile: a.teile.concat(b.teile)
+      };
+    }
+  }
+
   /* Ist-Zeilen den geplanten Schichten zuordnen und alles bewerten.
-     sollListe: Schichten aus secplan (ein Tag)
-     istListe:  Zeilen aus der Zeitliste / Schnellerfassung
+     sollListe: Schichten aus secplan (Abgleichliste oder Export)
+     istListe:  Zeilen vom Stundenzettel / aus der Schnellerfassung
      personen:  Stammdaten fuer die Namenszuordnung          */
   function abgleichen(sollListe, istListe, personen, regeln, aliase) {
     var r = regelnMitStandard(regeln);
@@ -553,21 +673,47 @@ globalThis.HSTAbgleich = (function () {
     });
     var zeilen = [];
 
-    (istListe || []).forEach(function (ist) {
+    // 1 — jede Ist-Zeile einem Menschen zuordnen
+    var zugeordnet = (istListe || []).map(function (ist) {
       var z = zuordnen(ist.personalnummer ? (ist.rohname + ' ' + ist.personalnummer) : ist.rohname,
                        personen, aliase);
-      var person = z.person;
+      return { ist: ist, treffer: z };
+    });
+
+    // 2 — nach Person und Tag gruppieren
+    var gruppen = {};
+    zugeordnet.forEach(function (e) {
+      var schluessel = (e.treffer.person ? 'p' + e.treffer.person.id : 'x' + normalisiere(e.ist.rohname)) +
+                       '|' + (e.ist.datum || '');
+      (gruppen[schluessel] = gruppen[schluessel] || { treffer: e.treffer, zeilen: [] }).zeilen.push(e.ist);
+    });
+
+    // 3 — je Gruppe zu Bloecken zusammenfassen, so weit der Plan es hergibt
+    var bloecke = [];
+    Object.keys(gruppen).forEach(function (schluessel) {
+      var g = gruppen[schluessel];
+      var person = g.treffer.person;
+      var passendeSoll = person ? offen.filter(function (o) {
+        return String(personId(o.soll)) === String(person.id) &&
+               (!g.zeilen[0].datum || !o.soll.datum || g.zeilen[0].datum === o.soll.datum);
+      }).length : 0;
+      bloeckeBilden(g.zeilen, passendeSoll, r).forEach(function (b) {
+        bloecke.push({ ist: b, treffer: g.treffer });
+      });
+    });
+
+    // 4 — Bloecke auf Schichten legen und bewerten
+    bloecke.forEach(function (e) {
+      var ist = e.ist, person = e.treffer.person;
 
       if (!person) {
         zeilen.push(bauZeile(null, ist, {
           status: 'unklar', beginn: ist.beginn, ende: ist.ende, pause: ist.pause || 0,
           diffBeginn: null, diffEnde: null, diffDauer: null
-        }, z));
+        }, e.treffer));
         return;
       }
 
-      // Passende geplante Schicht: gleiche Person, gleicher Tag,
-      // bei mehreren die mit dem naechstliegenden Beginn.
       var passend = offen.filter(function (o) {
         return !o.belegt &&
                String(personId(o.soll)) === String(person.id) &&
@@ -579,20 +725,22 @@ globalThis.HSTAbgleich = (function () {
 
       if (passend) passend.belegt = true;
       zeilen.push(bauZeile(passend ? passend.soll : null, ist,
-                           bewerten(passend ? passend.soll : null, ist, r), z));
+                           bewerten(passend ? passend.soll : null, ist, r), e.treffer));
     });
 
-    // Was uebrig bleibt, wurde geplant aber nicht abgehakt.
+    // 5 — was uebrig bleibt, wurde geplant aber nicht gemeldet
     offen.forEach(function (o) {
       if (o.belegt) return;
       zeilen.push(bauZeile(o.soll, null, bewerten(o.soll, null, r), null));
     });
 
     zeilen.sort(function (a, b) {
-      var rang = { unklar: 0, pruefen: 1, fehlt: 2, zusatz: 3, abweichung: 4, passt: 5 };
+      var rang = { unklar: 0, pruefen: 1, fehlt: 2, zusatz: 3, abweichung: 4, ausfall: 5, passt: 6 };
       var d = (rang[a.status] === undefined ? 9 : rang[a.status]) -
               (rang[b.status] === undefined ? 9 : rang[b.status]);
       if (d) return d;
+      var t = String(a.datum || '').localeCompare(String(b.datum || ''));
+      if (t) return t;
       return String(a.name).localeCompare(String(b.name), 'de');
     });
 
@@ -625,11 +773,15 @@ globalThis.HSTAbgleich = (function () {
       zuordnung: zuordnung ? { grund: zuordnung.grund, wert: zuordnung.wert,
                                kandidaten: zuordnung.kandidaten || [] } : null,
       datum: (soll && soll.datum) || (ist && ist.datum) || null,
-      einsatz: soll ? (soll.einsatz || soll.objekt || '') : (ist && ist.bemerkung) || '',
+      einsatz: soll ? (soll.einsatz || soll.objekt || '') : (ist && ist.format) || (ist && ist.bemerkung) || '',
+      funktion: soll ? (soll.funktion || '') : '',
+      format: (ist && ist.format) || '',
       schichtId: soll ? (soll.id || null) : null,
       soll: soll ? { beginn: soll.beginn, ende: soll.ende, pause: soll.pause || 0 } : null,
       ist: ist ? { beginn: ist.beginn, ende: ist.ende, pause: ist.pause,
-                   quelle: ist.quelle, zeile: ist.zeile, rohtext: ist.rohtext || '' } : null,
+                   quelle: ist.quelle, zeile: ist.zeile, rohtext: ist.rohtext || '',
+                   format: ist.format || '', stundenLaut: ist.stundenLaut === undefined ? null : ist.stundenLaut,
+                   teile: ist.teile || null } : null,
       vorschlag: { beginn: urteil.beginn, ende: urteil.ende, pause: urteil.pause },
       diffBeginn: urteil.diffBeginn,
       diffEnde: urteil.diffEnde,
@@ -643,13 +795,13 @@ globalThis.HSTAbgleich = (function () {
 
   function kennzahlen(zeilen) {
     var k = { gesamt: zeilen.length, passt: 0, abweichung: 0, fehlt: 0, zusatz: 0,
-              unklar: 0, pruefen: 0, freigegeben: 0,
+              unklar: 0, pruefen: 0, ausfall: 0, freigegeben: 0,
               sollMinuten: 0, istMinuten: 0 };
     zeilen.forEach(function (z) {
       if (k[z.status] !== undefined) k[z.status]++;
       if (z.freigegeben) k.freigegeben++;
       if (z.soll) k.sollMinuten += Math.max(0, dauer(z.soll.beginn, z.soll.ende) - (z.soll.pause || 0));
-      if (z.vorschlag && z.vorschlag.beginn !== null && z.status !== 'fehlt') {
+      if (z.vorschlag && z.vorschlag.beginn !== null && z.status !== 'fehlt' && z.status !== 'ausfall') {
         k.istMinuten += Math.max(0, dauer(z.vorschlag.beginn, z.vorschlag.ende) - (z.vorschlag.pause || 0));
       }
     });
@@ -724,6 +876,236 @@ globalThis.HSTAbgleich = (function () {
     return '';
   }
 
+  /* ============================================================
+     Die Abgleichliste aus secplan
+     ------------------------------------------------------------
+     secplan gibt "offene Abgleiche" als PDF aus (TCPDF). Die
+     Spalten stehen dort an festen Stellen; lange Eintraege
+     brechen ueber zwei bis drei Zeilen um:
+
+        123 FM -   | Ahmed, Ziyad   | Sicherheitsmitarb | Di, 08.09.2026 | 08:30 | 16:00
+        Sicherheit | Khalaf (2620)  | eiter             |                |       |
+
+     Erwartet wird, was HSTPdf.zeilenAus() liefert: Zeilen mit
+     Textstuecken samt x-Position. Die Kopfzeile gibt die
+     Spaltengrenzen vor, ein Datum in der Datumsspalte beginnt
+     einen neuen Satz — alles danach ohne Datum gehoert dazu.
+     ============================================================ */
+  function secplanAbgleichLesen(pdfZeilen) {
+    var zeilen = (pdfZeilen || []).slice();
+    var spalten = null;
+    var saetze = [];
+    var jetzt = null;
+
+    zeilen.forEach(function (zeile) {
+      var texte = zeile.teile.map(function (t) { return t.text.trim(); });
+      var ganz = texte.join(' ');
+
+      // Kopfzeile — auch auf Folgeseiten, dort wird sie uebersprungen.
+      var istKopf = texte.some(function (t) { return /^mitarbeiter$/i.test(t); }) &&
+                    texte.some(function (t) { return /^datum$/i.test(t); });
+      if (istKopf) {
+        spalten = zeile.teile.map(function (t) {
+          return { name: normalisiere(t.text).replace(/ /g, ''), x: t.x };
+        }).sort(function (a, b) { return a.x - b.x; });
+        // Auf Folgeseiten steht die Kopfzeile erneut. Ohne diese Zeile
+        // haengt sich ihr Umbruchrest ("…statu" / "s") an den letzten
+        // Satz der Seite davor.
+        jetzt = null;
+        return;
+      }
+      if (!spalten) return;                                   // Titelzeilen vor der Tabelle
+      if (/^seite\s*\d+\s*\/\s*\d+$/i.test(ganz)) return;   // Fusszeile
+      if (/powered by/i.test(ganz)) return;
+
+      var felder = {};
+      zeile.teile.forEach(function (t) {
+        var spalte = null;
+        for (var i = 0; i < spalten.length; i++) {
+          if (t.x >= spalten[i].x - 2) spalte = spalten[i]; else break;
+        }
+        if (!spalte) spalte = spalten[0];
+        felder[spalte.name] = anhaengen(felder[spalte.name], t.text.trim());
+      });
+
+      var datumText = felder.datum || '';
+      if (datumAusText(datumText)) {
+        jetzt = felder;
+        saetze.push(jetzt);
+      } else if (jetzt) {
+        Object.keys(felder).forEach(function (k) {
+          jetzt[k] = anhaengen(jetzt[k], felder[k]);
+        });
+      }
+    });
+
+    return saetze.map(function (f, i) {
+      var person = personAusSecplan(f.mitarbeiter || '');
+      var von = minutenAusZeit(erstesWort(f.von));
+      var bis = minutenAusZeit(erstesWort(f.bis));
+      if (!person.name || von === null || bis === null) return null;
+      var datum = datumAusText(f.datum);
+      return {
+        id: 'sp|' + datum + '|' + (person.personalnummer || normalisiere(person.name)) + '|' + zeitAusMinuten(von),
+        datum: datum,
+        einsatz: aufraeumen(f.planung || ''),
+        funktion: aufraeumen(f.funktion || ''),
+        tarif: aufraeumen(f.tarif || ''),
+        anwesenheit: aufraeumen(f.status || ''),
+        abgleichstatus: aufraeumen(f.abgleichstatu || f.abgleichstatus || ''),
+        mitarbeiter: {
+          id: person.personalnummer || ('p' + normalisiere(person.name).replace(/ /g, '-')),
+          name: person.name,
+          nachnameZuerst: person.nachnameZuerst,
+          personalnummer: person.personalnummer
+        },
+        beginn: von,
+        ende: bis,
+        pause: 0
+      };
+    }).filter(Boolean);
+  }
+
+  /* Umbrueche in einer Tabellenzelle wieder zusammensetzen.
+     Meist gehoert ein Leerzeichen dazwischen ("Nicht" + "abgeglichen").
+     Zwei Faelle nicht: ein Bindestrich am Ende ("Hettmann-" + "Jelovic")
+     und ein Wort, das mitten durchgebrochen wurde, weil es breiter war
+     als die Spalte ("Sicherheitsmitarb" + "eiter"). Letzteres erkennt
+     man daran, dass das erste Stueck lang ist und das zweite klein
+     anfaengt und kurz bleibt. */
+  function anhaengen(bisher, neuTeil) {
+    if (!bisher) return neuTeil;
+    if (!neuTeil) return bisher;
+    // Nur ein Bindestrich, der am Wort klebt ("Hettmann-"), ist ein
+    // Umbruch. Ein freistehender ist ein Trenner ("123 FM -").
+    if (/[A-Za-zÄÖÜäöüß]-$/.test(bisher)) return bisher + neuTeil;
+    var letztes = bisher.split(/\s/).pop();
+    if (letztes.length >= 12 && /^[a-zäöüß]/.test(neuTeil) && neuTeil.length <= 8) {
+      return bisher + neuTeil;
+    }
+    return bisher + ' ' + neuTeil;
+  }
+
+  function erstesWort(text) {
+    return String(text || '').trim().split(/\s+/)[0] || '';
+  }
+
+  function aufraeumen(text) {
+    return String(text || '').replace(/\s+/g, ' ').trim();
+  }
+
+  /* "Hettmann-Jelovic, Valentino (2027)" ->
+     { name: "Valentino Hettmann-Jelovic", personalnummer: "2027" }
+     Auf dem Stundenzettel steht der Vorname vorn — deshalb wird hier
+     gedreht, sonst muesste die Namenssuche das jedes Mal ausgleichen. */
+  function personAusSecplan(text) {
+    var roh = aufraeumen(text);
+    var nummer = '';
+    roh = roh.replace(/\((\d{2,8})\)/, function (t, n) { nummer = n; return ' '; });
+    roh = aufraeumen(roh);
+    var teile = roh.split(',');
+    var nachname = aufraeumen(teile[0] || '');
+    var vorname = aufraeumen(teile.slice(1).join(' '));
+    return {
+      name: vorname ? (vorname + ' ' + nachname) : nachname,
+      nachnameZuerst: vorname ? (nachname + ', ' + vorname) : nachname,
+      personalnummer: nummer
+    };
+  }
+
+  /* ============================================================
+     Die Ergebnisdatei
+     ------------------------------------------------------------
+     Das, was am Ende zaehlt: eine Liste, die man neben secplan
+     legt und abarbeitet. Oben steht, was geaendert werden muss,
+     darunter das, was so bleiben kann.
+     ============================================================ */
+  var AENDERUNG = {
+    passt:      'unveraendert',
+    abweichung: 'Zeit anpassen',
+    zusatz:     'nicht geplant - pruefen',
+    ausfall:    'Ausfall eintragen',
+    fehlt:      'noch offen',
+    pruefen:    'pruefen',
+    unklar:     'Person klaeren'
+  };
+
+  function ergebnisZeilen(zeilen, nurAenderungen) {
+    return zeilen.filter(function (z) {
+      if (!z.freigegeben) return false;
+      if (nurAenderungen && z.status === 'passt') return false;
+      return true;
+    }).slice().sort(function (a, b) {
+      var rang = { abweichung: 0, ausfall: 1, zusatz: 2, pruefen: 3, unklar: 4, fehlt: 5, passt: 6 };
+      var d = (rang[a.status] === undefined ? 9 : rang[a.status]) -
+              (rang[b.status] === undefined ? 9 : rang[b.status]);
+      if (d) return d;
+      var t = String(a.datum || '').localeCompare(String(b.datum || ''));
+      return t || String(a.name).localeCompare(String(b.name), 'de');
+    });
+  }
+
+  function ergebnisCsv(zeilen, optionen) {
+    optionen = optionen || {};
+    var trenner = optionen.trenner || ';';
+    var liste = ergebnisZeilen(zeilen, optionen.nurAenderungen);
+
+    var kopf = ['Aenderung', 'Datum', 'Mitarbeiter', 'Personalnummer', 'Planung', 'Funktion',
+                'Geplant von', 'Geplant bis', 'Neu von', 'Neu bis', 'Pause min', 'Stunden neu',
+                'Differenz', 'Format', 'Hinweis'];
+    var raus = [kopf.join(trenner)];
+
+    liste.forEach(function (z) {
+      var neu = (z.status === 'fehlt' || z.status === 'ausfall')
+        ? { beginn: null, ende: null, pause: 0 } : z.vorschlag;
+      var netto = neu.beginn === null ? null : dauer(neu.beginn, neu.ende) - (neu.pause || 0);
+      var felder = [
+        AENDERUNG[z.status] || z.status,
+        z.datum ? datumDeutsch(z.datum).slice(4) : '',
+        z.person && z.person.nachnameZuerst ? z.person.nachnameZuerst : z.name,
+        (z.person && z.person.personalnummer) || '',
+        z.einsatz || '',
+        z.funktion || '',
+        z.soll ? zeitAusMinuten(z.soll.beginn) : '',
+        z.soll ? zeitAusMinuten(z.soll.ende) : '',
+        neu.beginn === null ? '' : zeitAusMinuten(neu.beginn),
+        neu.beginn === null ? '' : zeitAusMinuten(neu.ende),
+        neu.beginn === null ? '' : (neu.pause || 0),
+        netto === null ? '' : (netto / 60).toFixed(2).replace('.', ','),
+        z.diffDauer === null || z.diffDauer === undefined || z.status === 'passt'
+          ? '' : ((z.diffDauer > 0 ? '+' : '') + Math.round(z.diffDauer) + ' min'),
+        z.format || '',
+        hinweisZu(z)
+      ];
+      raus.push(felder.map(function (w) {
+        var t = String(w === undefined || w === null ? '' : w);
+        return /["\r\n;]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t;
+      }).join(trenner));
+    });
+    return raus.join('\r\n') + '\r\n';
+  }
+
+  /* Alles, was jemand beim Nacharbeiten wissen muss — und sonst nichts. */
+  function hinweisZu(z) {
+    var teile = [];
+    if (z.notiz) teile.push(z.notiz);
+    if (z.ist && z.ist.teile && z.ist.teile.length > 1) {
+      teile.push('Zettel in ' + z.ist.teile.length + ' Zeilen: ' + z.ist.teile.map(function (t) {
+        return zeitAusMinuten(t.beginn) + '-' + zeitAusMinuten(t.ende) + (t.format ? ' ' + t.format : '');
+      }).join(', '));
+    }
+    if (z.ist && z.ist.stundenLaut && z.vorschlag && z.vorschlag.beginn !== null) {
+      var gerechnet = (dauer(z.vorschlag.beginn, z.vorschlag.ende) - (z.vorschlag.pause || 0)) / 60;
+      if (Math.abs(gerechnet - z.ist.stundenLaut) > 0.26) {
+        teile.push('Zettel nennt ' + String(z.ist.stundenLaut).replace('.', ',') +
+                   ' h, gerechnet ' + gerechnet.toFixed(2).replace('.', ',') + ' h');
+      }
+    }
+    if (z.zuordnung && z.zuordnung.grund === 'vorschlag') teile.push('Name nur aehnlich - bitte pruefen');
+    if (z.ist && z.ist.quelle === 'ocr') teile.push('aus Foto gelesen');
+    return teile.join(' | ');
+  }
+
   /* Freigegebene Zeilen als CSV — der Weg, der ohne jede
      Automatisierung funktioniert: Datei erzeugen, in secplan
      importieren oder an die Lohnbuchhaltung weiterreichen. */
@@ -748,6 +1130,7 @@ globalThis.HSTAbgleich = (function () {
     ];
     var raus = [spalten.map(function (s) { return s[0]; }).join(trenner)];
     zeilen.forEach(function (z) {
+      if (z.status === 'ausfall') return;
       if (z.status === 'fehlt' && !z.freigegeben) return;
       raus.push(spalten.map(function (s) {
         var w = String(s[1](z) === undefined ? '' : s[1](z));
@@ -765,7 +1148,8 @@ globalThis.HSTAbgleich = (function () {
       bearbeiter: bearbeiter || '',
       erzeugt: new Date().toISOString(),
       schichten: zeilen.filter(function (z) {
-        return z.freigegeben && z.status !== 'fehlt' && z.vorschlag.beginn !== null;
+        return z.freigegeben && z.status !== 'fehlt' && z.status !== 'ausfall' &&
+               z.vorschlag.beginn !== null;
       }).map(function (z) {
         return {
           schichtId: z.schichtId,
@@ -782,7 +1166,7 @@ globalThis.HSTAbgleich = (function () {
           notiz: z.notiz || ''
         };
       }),
-      ausfaelle: zeilen.filter(function (z) { return z.status === 'fehlt' && z.freigegeben; })
+      ausfaelle: zeilen.filter(function (z) { return z.status === 'ausfall' && z.freigegeben; })
         .map(function (z) {
           return { schichtId: z.schichtId, name: z.name, datum: z.datum,
                    grund: z.notiz || 'nicht erschienen' };
@@ -800,9 +1184,13 @@ globalThis.HSTAbgleich = (function () {
     normalisiere: normalisiere, namensAehnlichkeit: namensAehnlichkeit, zuordnen: zuordnen,
     // Listen
     zeitlisteLesen: zeitlisteLesen, csvLesen: csvLesen, sollAusCsv: sollAusCsv,
-    csvSchreiben: csvSchreiben,
+    csvSchreiben: csvSchreiben, secplanAbgleichLesen: secplanAbgleichLesen,
+    personAusSecplan: personAusSecplan,
+    // Ergebnis
+    ergebnisCsv: ergebnisCsv, ergebnisZeilen: ergebnisZeilen, AENDERUNG: AENDERUNG,
     // Abgleich
     bewerten: bewerten, abgleichen: abgleichen, kennzahlen: kennzahlen,
+    bloeckeBilden: bloeckeBilden,
     freigabePaket: freigabePaket, regelnMitStandard: regelnMitStandard,
     REGELN_STANDARD: REGELN_STANDARD, SCHWELLEN: { SICHER: SICHER, VORSCHLAG: VORSCHLAG }
   };

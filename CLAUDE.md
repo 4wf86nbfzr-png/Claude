@@ -27,7 +27,9 @@ assets/video/                  Imagefilm und Bereichs-Clips
 
 intern/*.html                  internes Werkzeug (Schichtabgleich) — nicht Teil der Website
 assets/css/intern.css          nur fuer dieses Werkzeug
-assets/js/intern/*.js          Kern (Rechnen) + je eine Datei pro Werkzeugseite
+assets/js/intern/kern.js       Rechenlogik: Zeiten, Namen, Listen, Abgleich, Ergebnis
+assets/js/intern/pdf.js        liest die secplan-Abgleichliste (PDF) ohne fremde Bibliothek
+assets/js/intern/*.js          dazu je eine Datei pro Werkzeugseite
 bruecke/                       Node-Dienst dahinter, eigene Anleitung im Ordner
 ```
 
@@ -128,11 +130,19 @@ Deshalb gelten dort drei bewusste Abweichungen von den Regeln oben:
 Was gleich bleibt: Sie-Form und Ton, sichtbarer Fokus, Tastaturbedienung,
 Mobile-First, `prefers-reduced-motion`, `kein-js`-Zeile im `<head>`.
 
-`assets/js/intern/kern.js` enthaelt die ganze Rechenlogik (Zeiten, Namen,
-Listen lesen, Vergleich) und **nichts Browsereigenes** — dieselbe Datei laeuft
-im Browser und in Node. Wer daran etwas aendert, faehrt `cd bruecke && npm test`;
-die Faelle dort stammen aus echten Zeitlisten (Nachtschichten, Handschrift,
-Listen ohne Kopfzeile).
+`assets/js/intern/kern.js` und `pdf.js` enthalten die ganze Rechen- und
+Lesearbeit und **nichts Browsereigenes** — dieselben Dateien laufen im Browser
+und in Node. Wer daran etwas aendert, faehrt `cd bruecke && npm test`; die
+Faelle dort sind den echten Vorlagen nachgebaut (secplan-Abgleichliste mit
+Umbruechen ueber mehrere Zeilen, Stundenzettel mit Format- und Stundenspalte,
+Nachtschichten, eine Schicht in zwei Zeilen). **In den Tests stehen erfundene
+Namen** — echte Personaldaten gehoeren nicht ins Repository.
+
+Eine Sache ist bewusst *nicht* gebaut: aus einem Foto handschriftlicher Zeiten
+werden keine Zeiten gelesen. Das wurde ausprobiert und taugt nicht; falsch
+erkannte Uhrzeiten waeren schlimmer als gar keine. Stattdessen liegt der Zettel
+gross neben der Tabelle, und die Zeilen sind mit dem Plan vorbefuellt. Wer das
+spaeter doch automatisieren will: erst an echten Zetteln messen, dann glauben.
 
 ## Tonalität (Copy)
 Hamburgerisch-warm, aber professionell. Sie-Form (auf der Jobs-Seite Du-Form, weil

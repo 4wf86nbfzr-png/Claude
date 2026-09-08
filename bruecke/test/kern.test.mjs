@@ -255,3 +255,143 @@ test('Datum wird auch spaeter im Text gefunden', () => {
   assert.equal(r.datum, '2026-09-07');
   assert.equal(r.zeilen.length, 1);
 });
+
+/* ============================================================
+   Der HERM-Stundenzettel
+   Aufbau: Datum | Name | Beginn | Ende | Unterschrift | Format | Stunden
+   Besonderheit: eine Schicht steht oft in zwei Zeilen, getrennt
+   nach Format (Kleiner Saal / anderer Saal). In secplan ist das
+   eine Schicht — also muss es wieder zusammenfinden.
+   ============================================================ */
+
+const ZETTEL = [
+  'Datum;Name;Beginn;Ende;Unterschrift;Format;Stunden',
+  '08.09.26;Ruth Kuehn-Adler;08:30;13:00;;KS;4,5',
+  '08.09.26;R. Kuehn-Adler;13:00;17:30;;ML;4,5',
+  '08.09.26;Luis Sanchez;19:00;02:00;;KS;7,0',
+  '08.09.26;Emily Fett;10:30;20:00;;ML;9,5'
+].join('\n');
+
+const PLAN = [
+  { id: 'A', datum: '2026-09-08', einsatz: '123 FM - Sicherheit', funktion: 'Sicherheitsmitarbeiter',
+    mitarbeiter: { id: '2027', name: 'Ruth Kuehn-Adler', nachnameZuerst: 'Kuehn-Adler, Ruth', personalnummer: '2027' },
+    beginn: 510, ende: 960, pause: 0 },
+  { id: 'B', datum: '2026-09-08', einsatz: '123 FM - Sicherheit', funktion: 'Teamleiter Sicherheit',
+    mitarbeiter: { id: '1005', name: 'Luis Sanchez', nachnameZuerst: 'Sanchez, Luis', personalnummer: '1005' },
+    beginn: 1140, ende: 120, pause: 0 },
+  { id: 'C', datum: '2026-09-08', einsatz: '125 FM - Hostessen', funktion: 'Hostess',
+    mitarbeiter: { id: '2850', name: 'Emily Fett', nachnameZuerst: 'Fett, Emily', personalnummer: '2850' },
+    beginn: 630, ende: 1200, pause: 0 }
+];
+
+test('Stundenzettel mit Unterschrift, Format und Stundenspalte', () => {
+  const r = K.zeitlisteLesen(ZETTEL);
+  assert.equal(r.zeilen.length, 4);
+  assert.equal(r.zeilen[0].datum, '2026-09-08');
+  assert.equal(r.zeilen[0].format, 'KS');
+  assert.equal(r.zeilen[0].stundenLaut, 4.5);
+  assert.equal(r.zeilen[0].pause, null);        // leere Unterschrift wird nicht zur Pause
+  assert.equal(r.zeilen[2].ende, 120);          // 02:00 am Folgetag
+});
+
+test('Zwei Zeilen fuer eine geplante Schicht werden zusammengelegt', () => {
+  const ist = K.zeitlisteLesen(ZETTEL).zeilen;
+  const r = K.abgleichen(PLAN, ist, null, {});
+
+  const ruth = r.zeilen.filter((z) => /Kuehn/.test(z.name))[0];
+  assert.equal(ruth.status, 'abweichung');
+  assert.equal(K.zeitAusMinuten(ruth.ist.beginn), '08:30');
+  assert.equal(K.zeitAusMinuten(ruth.ist.ende), '17:30');   // aus 08:30-13:00 und 13:00-17:30
+  assert.equal(ruth.ist.teile.length, 2);
+  assert.equal(ruth.ist.format, 'KS+ML');
+  assert.equal(ruth.diffEnde, 90);
+  assert.equal(K.zeitAusMinuten(ruth.vorschlag.ende), '17:30');
+
+  // die anderen beiden liefen wie geplant
+  assert.equal(r.zeilen.filter((z) => z.status === 'passt').length, 2);
+  assert.equal(r.kennzahlen.gesamt, 3);                     // vier Zeilen, drei Schichten
+});
+
+test('Eine Luecke zwischen zwei Zeilen wird zur Pause', () => {
+  const plan = [PLAN[2]];                                    // Emily Fett 10:30–20:00
+  const ist = K.zeitlisteLesen([
+    'Datum;Name;Beginn;Ende;Format',
+    '08.09.26;Emily Fett;10:30;14:00;KS',
+    '08.09.26;Emily Fett;15:00;20:00;ML'
+  ].join('\n')).zeilen;
+
+  const r = K.abgleichen(plan, ist, null, {});
+  const emily = r.zeilen[0];
+  assert.equal(emily.ist.teile.length, 2);
+  assert.equal(emily.vorschlag.pause, 60);                   // die Stunde dazwischen
+  assert.equal(K.zeitAusMinuten(emily.vorschlag.beginn), '10:30');
+  assert.equal(K.zeitAusMinuten(emily.vorschlag.ende), '20:00');
+  // Kommen und Gehen wie geplant, aber eine Stunde weniger gearbeitet —
+  // das ist eine Abweichung, keine planmaessige Schicht.
+  assert.equal(emily.status, 'abweichung');
+  assert.equal(emily.diffDauer, -60);
+});
+
+test('Zwei geplante Schichten bleiben zwei', () => {
+  const plan = [
+    { id: 'F1', datum: '2026-09-08', mitarbeiter: PLAN[2].mitarbeiter, beginn: 630, ende: 840, pause: 0 },
+    { id: 'F2', datum: '2026-09-08', mitarbeiter: PLAN[2].mitarbeiter, beginn: 900, ende: 1200, pause: 0 }
+  ];
+  const ist = K.zeitlisteLesen([
+    'Datum;Name;Beginn;Ende;Format',
+    '08.09.26;Emily Fett;10:30;14:00;KS',
+    '08.09.26;Emily Fett;15:00;20:00;ML'
+  ].join('\n')).zeilen;
+
+  const r = K.abgleichen(plan, ist, null, {});
+  assert.equal(r.zeilen.length, 2);
+  r.zeilen.forEach((z) => assert.equal(z.ist.teile.length, 1));
+});
+
+test('Ausfall ist eine Entscheidung, kein fehlender Eintrag', () => {
+  const r = K.abgleichen(PLAN, [], null, {});
+  assert.equal(r.zeilen.length, 3);
+  r.zeilen.forEach((z) => assert.equal(z.status, 'fehlt'));
+
+  // So entscheidet die Oberflaeche: der eine war da, der andere nicht.
+  r.zeilen[0].status = 'passt';    r.zeilen[0].freigegeben = true;
+  r.zeilen[1].status = 'ausfall';  r.zeilen[1].freigegeben = true; r.zeilen[1].notiz = 'krank';
+
+  const paket = K.freigabePaket(r.zeilen, '2026-09-08', 'Noah');
+  assert.equal(paket.schichten.length, 1);
+  assert.equal(paket.ausfaelle.length, 1);
+  assert.equal(paket.ausfaelle[0].grund, 'krank');
+});
+
+test('Ergebnisdatei: Aenderungen oben, Zeiten fertig zum Eintragen', () => {
+  const ist = K.zeitlisteLesen(ZETTEL).zeilen;
+  const r = K.abgleichen(PLAN, ist, null, {});
+  r.zeilen.forEach((z) => { z.freigegeben = true; });
+
+  const csv = K.ergebnisCsv(r.zeilen, {});
+  const zeilen = csv.trim().split('\r\n');
+  assert.match(zeilen[0], /^Aenderung;Datum;Mitarbeiter;Personalnummer/);
+  assert.equal(zeilen.length, 4);
+
+  // Was zu tun ist, steht oben.
+  assert.match(zeilen[1], /^Zeit anpassen;08\.09\.2026;Kuehn-Adler, Ruth;2027/);
+  assert.match(zeilen[1], /;08:30;16:00;08:30;17:30;/);       // geplant, dann neu
+  assert.match(zeilen[1], /\+90 min/);
+  assert.match(zeilen[1], /Zettel in 2 Zeilen: 08:30-13:00 KS, 13:00-17:30 ML/);
+  assert.match(zeilen[2], /^unveraendert/);
+
+  // Nur die Aenderungen — das ist die Liste, die man abarbeitet.
+  const kurz = K.ergebnisCsv(r.zeilen, { nurAenderungen: true }).trim().split('\r\n');
+  assert.equal(kurz.length, 2);
+});
+
+test('Stundenspalte des Zettels dient als Gegenprobe', () => {
+  const ist = K.zeitlisteLesen([
+    'Datum;Name;Beginn;Ende;Format;Stunden',
+    '08.09.26;Emily Fett;10:30;20:00;ML;6,0'          // gerechnet waeren 9,5
+  ].join('\n')).zeilen;
+  const r = K.abgleichen([PLAN[2]], ist, null, {});
+  r.zeilen[0].freigegeben = true;
+  const csv = K.ergebnisCsv(r.zeilen, {});
+  assert.match(csv, /Zettel nennt 6 h, gerechnet 9,50 h/);
+});

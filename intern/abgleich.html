@@ -61,7 +61,8 @@
       </div>
       <p class="wz-block__hinweis">
         Die Br&uuml;cke holt den Dienstplan des gew&auml;hlten Tages jede Nacht ab.
-        L&auml;uft sie nicht, hier den secplan-Export ablegen &ndash; CSV oder Excel als CSV gespeichert.
+        L&auml;uft sie nicht, hier die <b>Abgleichliste aus secplan</b> ablegen &ndash; genau das
+        PDF, das secplan unter &bdquo;offene Abgleiche&ldquo; ausgibt. CSV geht auch.
       </p>
 
       <div class="wz-reihe" style="margin-top:16px">
@@ -74,13 +75,14 @@
         </div>
         <div class="wz-karte" style="padding:0;border:0;background:transparent">
           <label class="ablage" id="ablageSoll" tabindex="0" role="button">
-            <b>Dienstplan hier ablegen</b>
-            <span>CSV oder Text aus secplan &middot; oder klicken</span>
-            <input type="file" id="dateiSoll" accept=".csv,.txt,.tsv,text/csv,text/plain" />
+            <b>Abgleichliste hier ablegen</b>
+            <span>PDF aus secplan, CSV oder Text &middot; oder klicken</span>
+            <input type="file" id="dateiSoll" accept=".pdf,.csv,.txt,.tsv,application/pdf,text/csv,text/plain" />
           </label>
         </div>
       </div>
       <div id="sollStand"></div>
+      <div class="filter" id="tageLeiste" hidden></div>
     </section>
 
     <!-- ---------------------------------------------------------
@@ -127,7 +129,25 @@
       </div>
 
       <div id="istStand"></div>
-      <div id="belegBereich"></div>
+
+      <!-- Der Zettel als Vorlage. Handschrift liest keine Maschine
+           zuverlaessig; hier liegt er gross daneben, waehrend unten
+           die vorbefuellten Zeilen abgehakt werden. -->
+      <figure class="zettel" id="zettel" hidden>
+        <figcaption class="zettel__leiste">
+          <span class="wz-draht" id="zettelName">Zeitliste</span>
+          <span class="wz-knoepfe">
+            <button class="knopf knopf--klein" type="button" data-zettel="links" title="nach links drehen">&#8630;</button>
+            <button class="knopf knopf--klein" type="button" data-zettel="rechts" title="nach rechts drehen">&#8631;</button>
+            <button class="knopf knopf--klein" type="button" data-zettel="kleiner">&minus;</button>
+            <button class="knopf knopf--klein" type="button" data-zettel="groesser">+</button>
+            <button class="knopf knopf--klein" type="button" data-zettel="lesen">Noch einmal lesen</button>
+            <button class="knopf knopf--klein" type="button" data-zettel="zu">Ausblenden</button>
+          </span>
+        </figcaption>
+        <div class="zettel__schau" id="zettelSchau"></div>
+      </figure>
+
       <pre class="rohschau" id="rohschau" hidden></pre>
     </section>
 
@@ -193,6 +213,7 @@
         <span><kbd>P</kbd> wie geplant</span>
         <span><kbd>A</kbd> Ausfall</span>
         <span><kbd>Z</kbd> zur&uuml;cknehmen</span>
+        <span><kbd>Tab</kbd> ins Zeitfeld</span>
       </div>
     </section>
   </main>
@@ -204,12 +225,13 @@
     <span class="freigabe__text" id="freigabeText"></span>
     <div class="freigabe__rechts">
       <button class="knopf" id="alleGruen" type="button">Alle sichtbaren &uuml;bernehmen</button>
-      <button class="knopf" id="csvLaden" type="button">Als CSV sichern</button>
+      <button class="knopf" id="ergebnis" type="button">Ergebnisdatei</button>
       <button class="knopf knopf--voll" id="freigeben" type="button">Freigeben &amp; nach secplan</button>
     </div>
   </div>
 </div>
 
+<script src="../assets/js/intern/pdf.js"></script>
 <script src="../assets/js/intern/kern.js"></script>
 <script src="../assets/js/intern/abgleich.js"></script>
 </body>

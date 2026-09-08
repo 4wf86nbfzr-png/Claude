@@ -86,8 +86,14 @@ nicht schön: der Absender muss die Mail selbst abschicken.
 
 ## Schichtabgleich (intern)
 
-Werkzeug für den Morgenlauf des Büros: Dienstplan von gestern aus secplan.net,
-Zeiten vom Einsatz, Abgleich, Freigabe. Zwei Seiten und ein kleiner Dienst:
+Werkzeug für den Morgenlauf des Büros. Zwei Dateien rein, eine raus:
+
+1. **Abgleichliste aus secplan** (das PDF der offenen Abgleiche) ablegen.
+2. **Stundenzettel** vom Einsatz ablegen — Foto, PDF oder Tabelle.
+3. **Ergebnisdatei** herunterladen: Name, neue Zeit, was zu ändern ist.
+   Nur noch in secplan nachtragen.
+
+Zwei Seiten und ein kleiner Dienst:
 
 ```
 intern/abgleich.html    fürs Büro — Abweichungen sichten und freigeben
@@ -105,7 +111,10 @@ npm start            # → Link mit Schlüssel erscheint im Fenster
 ```
 
 Ohne den Dienst funktioniert der Abgleich weiterhin: Dateien von Hand ablegen,
-am Ende fällt eine CSV heraus. Alles Weitere — Mail am Morgen, Texterkennung,
+am Ende fällt die Ergebnisdatei heraus. Das PDF liest die Oberfläche selbst,
+dafür muss nichts installiert sein und nichts laufen.
+
+Alles Weitere — Mail am Morgen, was mit handschriftlichen Zetteln passiert,
 der direkte Draht zu secplan.net und seine einmalige Einrichtung — steht in
 **`bruecke/README.md`**.
 

@@ -12,7 +12,7 @@
     "morgenlauf": "node morgenlauf.mjs",
     "uebertragen": "node uebertragen.mjs",
     "anmeldung": "node secplan.mjs anmelden",
-    "test": "node --test test/"
+    "test": "node --test test/*.test.mjs"
   },
   "optionalDependencies": {
     "nodemailer": "^6.9.14",
