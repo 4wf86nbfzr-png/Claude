@@ -24,6 +24,11 @@ assets/js/main.js              Alle Interaktionen (Bühnen, Nav, Film, Lightbox,
 assets/logo/                   Logo und Favicons
 assets/img/                    Fotos
 assets/video/                  Imagefilm und Bereichs-Clips
+
+intern/*.html                  internes Werkzeug (Schichtabgleich) — nicht Teil der Website
+assets/css/intern.css          nur fuer dieses Werkzeug
+assets/js/intern/*.js          Kern (Rechnen) + je eine Datei pro Werkzeugseite
+bruecke/                       Node-Dienst dahinter, eigene Anleitung im Ordner
 ```
 
 ## Design-Grundsätze
@@ -101,6 +106,33 @@ Effekte beim Hochscrollen nicht rückwärts abgespielt werden. Bitte so lassen.
 - Kopfzeile, mobiles Menü und Fußzeile sind auf allen Seiten identisch. Wer eine
   Seite anlegt, kopiert sie aus einer bestehenden — sonst laufen sie auseinander
   (die Fußzeile hatte einmal Buchstaben statt Icons für die sozialen Netzwerke).
+
+## Das interne Werkzeug (intern/ + bruecke/)
+Der Schichtabgleich ist **keine Seite der Website**, sondern ein Werkzeug fuers
+Buero: Dienstplan von gestern aus secplan.net, Zeiten vom Einsatz, Abgleich,
+Freigabe. Es liegt hier, weil es Schrift, Tokens und Bausteine der Website
+mitbenutzt — ausgeliefert wird es vom Dienst im Bueronetz (`bruecke/`), nicht
+vom Webhoster. `netlify.toml` und `.htaccess` beantworten `/intern/` mit 404;
+bitte so lassen.
+
+Deshalb gelten dort drei bewusste Abweichungen von den Regeln oben:
+- **Eigene Stylesheet-Datei** `assets/css/intern.css`. Sie holt Tokens und
+  Grundformen aus `styles.css` und ergaenzt nur Tabelle, Status und Ablagefeld.
+  Werkzeugteile haben in der Design-Datei der Website nichts verloren.
+- **Statusfarben** (`--ok`/`--warn`/`--alarm`/`--info`). Wer morgens sechzig
+  Zeilen durchsieht, muss den Ausreisser sehen, ohne zu lesen. Sie sind
+  entsaettigt und tragen immer auch ein Wort — Farbe allein waere fuer
+  Farbfehlsichtige keine Information.
+- **Eigene Kopfzeile** (schmale Werkzeugleiste statt der Website-Navigation).
+
+Was gleich bleibt: Sie-Form und Ton, sichtbarer Fokus, Tastaturbedienung,
+Mobile-First, `prefers-reduced-motion`, `kein-js`-Zeile im `<head>`.
+
+`assets/js/intern/kern.js` enthaelt die ganze Rechenlogik (Zeiten, Namen,
+Listen lesen, Vergleich) und **nichts Browsereigenes** — dieselbe Datei laeuft
+im Browser und in Node. Wer daran etwas aendert, faehrt `cd bruecke && npm test`;
+die Faelle dort stammen aus echten Zeitlisten (Nachtschichten, Handschrift,
+Listen ohne Kopfzeile).
 
 ## Tonalität (Copy)
 Hamburgerisch-warm, aber professionell. Sie-Form (auf der Jobs-Seite Du-Form, weil

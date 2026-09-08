@@ -99,6 +99,18 @@
   to = "/dienstleistungen/:name.html"
   status = 200
 
+# ---- Interne Werkzeuge gehoeren nicht auf die Website ----
+# /intern/ ist die Oberflaeche des Schichtabgleichs. Sie wird vom
+# Dienst im Bueronetz ausgeliefert (siehe bruecke/README.md) und
+# hat auf dem oeffentlichen Host nichts verloren. Diese Regel steht
+# bewusst VOR der allgemeinen 404-Regel: Netlify nimmt die erste,
+# die passt.
+[[redirects]]
+  from = "/intern/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
 # Alles Unbekannte auf die Fehlerseite, mit korrektem Statuscode.
 [[redirects]]
   from = "/*"

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="de" class="kein-js">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Schichtabgleich &ndash; HERM Service Team (intern)</title>
+<meta name="robots" content="noindex, nofollow, noarchive" />
+<meta name="description" content="Internes Werkzeug: Zeitlisten einlesen, mit den geplanten Schichten aus secplan.net abgleichen und freigeben." />
+<script>document.documentElement.classList.remove('kein-js');</script>
+<link rel="icon" href="../assets/logo/favicon.ico" sizes="any" />
+<link rel="apple-touch-icon" href="../assets/logo/apple-touch-icon.png" />
+<link rel="stylesheet" href="../assets/css/fonts.css" />
+<link rel="stylesheet" href="../assets/css/styles.css" />
+<link rel="stylesheet" href="../assets/css/intern.css" />
+</head>
+<body>
+<div class="werkzeug">
+
+  <header class="wz-kopf">
+    <a class="wz-kopf__marke" href="index.html">
+      <img src="../assets/logo/logo-herm.png" alt="HERM Service Team" />
+      <span class="wz-kopf__titel">Schichtabgleich</span>
+    </a>
+
+    <div class="wz-knoepfe">
+      <button class="knopf knopf--klein" id="tagZurueck" type="button" aria-label="Ein Tag zur&uuml;ck">&larr;</button>
+      <label class="wz-draht" for="datum" style="letter-spacing:.14em">Tag</label>
+      <input class="wahlfeld" id="datum" type="date" />
+      <button class="knopf knopf--klein" id="tagVor" type="button" aria-label="Ein Tag vor">&rarr;</button>
+      <button class="knopf knopf--klein" id="tagGestern" type="button">Gestern</button>
+    </div>
+
+    <div class="wz-kopf__rechts">
+      <label class="wz-draht" for="bearbeiter" style="letter-spacing:.14em">Bearbeitet von</label>
+      <input class="wahlfeld" id="bearbeiter" type="text" list="bueroteam" placeholder="Ihr Name" style="width:11em" />
+      <datalist id="bueroteam">
+        <option>Shayan Wahedi</option>
+        <option>Mohamad Hamade</option>
+        <option>Noah Benkhofer</option>
+        <option>Valeria Occhipinto</option>
+        <option>Maik Herm</option>
+        <option>Alexander Krapp</option>
+      </datalist>
+      <span class="wz-draht" id="draht" data-stand="suche" title="Verbindung zur Br&uuml;cke">
+        <i></i><span id="drahtText">Br&uuml;cke wird gesucht</span>
+      </span>
+    </div>
+  </header>
+
+  <main class="wz-inhalt">
+
+    <div id="meldungen"></div>
+
+    <!-- ---------------------------------------------------------
+         1 — Was war geplant (Soll aus secplan.net)
+         --------------------------------------------------------- -->
+    <section class="wz-block" id="s-soll">
+      <div class="wz-block__kopf">
+        <span class="wz-block__nr">01</span>
+        <h2>Geplante Schichten</h2>
+      </div>
+      <p class="wz-block__hinweis">
+        Die Br&uuml;cke holt den Dienstplan des gew&auml;hlten Tages jede Nacht ab.
+        L&auml;uft sie nicht, hier den secplan-Export ablegen &ndash; CSV oder Excel als CSV gespeichert.
+      </p>
+
+      <div class="wz-reihe" style="margin-top:16px">
+        <div class="wz-karte">
+          <h3>Von der Br&uuml;cke</h3>
+          <p>Holt das Tagespaket, das der Morgenlauf abgelegt hat.</p>
+          <div class="wz-knoepfe">
+            <button class="knopf" id="sollVonBruecke" type="button">Tagespaket laden</button>
+          </div>
+        </div>
+        <div class="wz-karte" style="padding:0;border:0;background:transparent">
+          <label class="ablage" id="ablageSoll" tabindex="0" role="button">
+            <b>Dienstplan hier ablegen</b>
+            <span>CSV oder Text aus secplan &middot; oder klicken</span>
+            <input type="file" id="dateiSoll" accept=".csv,.txt,.tsv,text/csv,text/plain" />
+          </label>
+        </div>
+      </div>
+      <div id="sollStand"></div>
+    </section>
+
+    <!-- ---------------------------------------------------------
+         2 — Was war wirklich (Ist)
+         --------------------------------------------------------- -->
+    <section class="wz-block" id="s-ist">
+      <div class="wz-block__kopf">
+        <span class="wz-block__nr">02</span>
+        <h2>Gelaufene Zeiten</h2>
+      </div>
+      <p class="wz-block__hinweis">
+        Drei Wege, je nachdem was vom Einsatz zur&uuml;ckkommt: die Zeitliste als Datei oder Foto,
+        ein abgetippter Block &ndash; oder gar nichts, dann z&auml;hlt die Schnellerfassung vom Handy
+        des Schichtleiters. Erkannt wird immer nur ein Vorschlag; best&auml;tigt wird hier.
+      </p>
+
+      <div class="wz-reihe" style="margin-top:16px">
+        <div class="wz-karte" style="padding:0;border:0;background:transparent">
+          <label class="ablage" id="ablageIst" tabindex="0" role="button">
+            <b>Zeitliste hier ablegen</b>
+            <span>Foto, PDF, CSV oder Text &middot; oder klicken</span>
+            <input type="file" id="dateiIst" accept="image/*,.pdf,.csv,.txt,.tsv,.json" multiple />
+          </label>
+        </div>
+        <div class="wz-karte">
+          <h3>Abgetippt oder aus der Mail kopiert</h3>
+          <label class="wz-draht" for="istText" style="letter-spacing:.14em">Zeilen einf&uuml;gen</label>
+          <textarea id="istText" rows="4" class="wahlfeld" style="width:100%;resize:vertical;font-family:var(--font-mono);font-size:.8rem"
+            placeholder="Mustermann, Max   18:00 - 02:15   30&#10;Schmidt Erika     17:45 - 01:00"></textarea>
+          <div class="wz-knoepfe">
+            <button class="knopf" id="istAusText" type="button">Zeilen einlesen</button>
+            <button class="knopf knopf--klein" id="istLeeren" type="button">Ist zur&uuml;cksetzen</button>
+          </div>
+        </div>
+        <div class="wz-karte">
+          <h3>Ohne Liste</h3>
+          <p>Kein Zettel vom Einsatz? Dann den Link an den Schichtleiter geben &ndash; er best&auml;tigt
+             am Handy pro Person &bdquo;wie geplant&ldquo; oder korrigiert in Viertelstunden.</p>
+          <div class="wz-knoepfe">
+            <button class="knopf" id="erfassungLink" type="button">Link zur Schnellerfassung</button>
+            <button class="knopf knopf--klein" id="alsGeplant" type="button">Alles wie geplant</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="istStand"></div>
+      <div id="belegBereich"></div>
+      <pre class="rohschau" id="rohschau" hidden></pre>
+    </section>
+
+    <!-- ---------------------------------------------------------
+         3 — Abgleich
+         --------------------------------------------------------- -->
+    <section class="wz-block" id="s-tafel" hidden>
+      <div class="wz-block__kopf">
+        <span class="wz-block__nr">03</span>
+        <h2>Abgleich</h2>
+        <details style="margin-left:auto">
+          <summary class="wz-draht" style="cursor:pointer">Regeln</summary>
+          <div class="wz-karte" style="position:absolute;right:clamp(16px,3vw,32px);z-index:20;width:min(360px,86vw);margin-top:8px">
+            <h3>Wie gerechnet wird</h3>
+            <label class="wz-draht" for="rToleranz" style="letter-spacing:.14em">Toleranz in Minuten</label>
+            <input class="wahlfeld" id="rToleranz" type="number" min="0" max="60" step="1" />
+            <label class="wz-draht" for="rRaster" style="letter-spacing:.14em">Rundungsraster</label>
+            <select class="wahlfeld" id="rRaster">
+              <option value="1">keine Rundung</option>
+              <option value="5">5 Minuten</option>
+              <option value="15">15 Minuten</option>
+              <option value="30">30 Minuten</option>
+            </select>
+            <label class="wz-draht" for="rRundung" style="letter-spacing:.14em">Rundungsrichtung</label>
+            <select class="wahlfeld" id="rRundung">
+              <option value="kaufmaennisch">kaufm&auml;nnisch</option>
+              <option value="mitarbeiter">zugunsten Mitarbeiter</option>
+              <option value="firma">zugunsten Firma</option>
+            </select>
+            <label class="wz-draht" style="letter-spacing:.14em">
+              <input type="checkbox" id="rPause" style="margin-right:8px" />
+              fehlende Pause nach ArbZG erg&auml;nzen
+            </label>
+            <p>Gilt f&uuml;r alle Tage, bis es hier ge&auml;ndert wird.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="kennzahlen" id="kennzahlen"></div>
+      <div class="filter" id="filter"></div>
+
+      <div style="overflow-x:auto">
+        <table class="tafel">
+          <thead>
+            <tr>
+              <th scope="col">Stand</th>
+              <th scope="col">Mitarbeiter</th>
+              <th scope="col">Einsatz</th>
+              <th scope="col">Geplant</th>
+              <th scope="col">Gelaufen</th>
+              <th scope="col">Diff.</th>
+              <th scope="col">&Uuml;bernehmen</th>
+              <th scope="col"><span class="wz-draht">Aktion</span></th>
+            </tr>
+          </thead>
+          <tbody id="tafelKoerper"></tbody>
+        </table>
+      </div>
+
+      <div class="tasten">
+        <span><kbd>&uarr;</kbd><kbd>&darr;</kbd> Zeile w&auml;hlen</span>
+        <span><kbd>Enter</kbd> &uuml;bernehmen</span>
+        <span><kbd>P</kbd> wie geplant</span>
+        <span><kbd>A</kbd> Ausfall</span>
+        <span><kbd>Z</kbd> zur&uuml;cknehmen</span>
+      </div>
+    </section>
+  </main>
+
+  <!-- ---------------------------------------------------------
+       4 — Freigabe
+       --------------------------------------------------------- -->
+  <div class="freigabe" id="freigabe" hidden>
+    <span class="freigabe__text" id="freigabeText"></span>
+    <div class="freigabe__rechts">
+      <button class="knopf" id="alleGruen" type="button">Alle sichtbaren &uuml;bernehmen</button>
+      <button class="knopf" id="csvLaden" type="button">Als CSV sichern</button>
+      <button class="knopf knopf--voll" id="freigeben" type="button">Freigeben &amp; nach secplan</button>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/js/intern/kern.js"></script>
+<script src="../assets/js/intern/abgleich.js"></script>
+</body>
+</html>

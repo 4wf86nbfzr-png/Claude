@@ -12,5 +12,6 @@ Disallow: /
 # User-agent: *
 # Allow: /
 # Disallow: /404.html
+# Disallow: /intern/
 #
 # Sitemap: https://hermserviceteam.com/sitemap.xml

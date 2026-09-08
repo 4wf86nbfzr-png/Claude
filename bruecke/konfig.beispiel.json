@@ -1,0 +1,61 @@
+{
+  "port": 8770,
+  "host": "127.0.0.1",
+  "modus": "dateien",
+  "probelauf": true,
+  "tagesversatz": -1,
+  "morgenlauf": "07:00",
+  "wochentage": [1, 2, 3, 4, 5, 6, 0],
+  "aufbewahrungTage": 400,
+
+  "secplan": {
+    "adresse": "https://www.secplan.net/",
+    "planAdresse": "",
+    "schichtAdresse": "",
+    "kopfmodus": false,
+    "wartenMs": 2500,
+    "selektoren": {
+      "benutzerfeld": "",
+      "passwortfeld": "",
+      "anmeldeknopf": "",
+      "angemeldetErkennenAn": "",
+      "planZeile": "",
+      "spalteId": "",
+      "spalteName": "",
+      "spalteNummer": "",
+      "spalteBeginn": "",
+      "spalteEnde": "",
+      "spaltePause": "",
+      "spalteEinsatz": "",
+      "schichtOeffnen": "",
+      "feldBeginn": "",
+      "feldEnde": "",
+      "feldPause": "",
+      "speichern": "",
+      "gespeichertErkennenAn": ""
+    }
+  },
+
+  "ocr": {
+    "sprache": "deu",
+    "datenPfad": "",
+    "gepackt": true,
+    "zwischenlager": "",
+    "seitenmodus": 3
+  },
+
+  "mail": {
+    "aktiv": false,
+    "an": ["dispo@hermserviceteam.com"],
+    "von": "bruecke@hermserviceteam.com",
+    "betreff": "Schichtabgleich {datum}",
+    "smtp": {
+      "host": "smtp.example.de",
+      "port": 587,
+      "secure": false,
+      "auth": { "user": "bruecke@hermserviceteam.com", "pass": "" }
+    }
+  },
+
+  "webhook": ""
+}

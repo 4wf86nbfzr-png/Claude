@@ -40,9 +40,17 @@ assets/video/           Imagefilm + Untertitel
 netlify.toml            Hosting-Konfiguration (Header, Adressen, Zwischenspeicher)
 robots.txt              sperrt derzeit alles
 sitemap.xml             für später
+
+intern/                 internes Werkzeug: Schichtabgleich (nicht öffentlich)
+bruecke/                der Dienst dahinter (Node) — eigene Anleitung im Ordner
 ```
 
 Gestaltungsregeln stehen in `CLAUDE.md`.
+
+`intern/` und `bruecke/` gehören nicht zur Website. Sie liegen im selben
+Repository, weil sie dieselben Schriften, Farben und Bausteine benutzen —
+ausgeliefert werden sie aber vom Dienst im Büronetz. `netlify.toml` und
+`.htaccess` beantworten `/intern/` auf dem öffentlichen Host mit 404.
 
 ---
 
@@ -73,6 +81,35 @@ Auf einem anderen Host: `data-netlify="true"` entfernen und stattdessen
 
 Ohne Netlify und ohne Endpunkt bleibt der Mail-Weg — funktionsfähig, aber
 nicht schön: der Absender muss die Mail selbst abschicken.
+
+---
+
+## Schichtabgleich (intern)
+
+Werkzeug für den Morgenlauf des Büros: Dienstplan von gestern aus secplan.net,
+Zeiten vom Einsatz, Abgleich, Freigabe. Zwei Seiten und ein kleiner Dienst:
+
+```
+intern/abgleich.html    fürs Büro — Abweichungen sichten und freigeben
+intern/erfassung.html   fürs Handy des Schichtleiters, wenn keine Liste geführt wurde
+bruecke/                Node-Dienst: Plan holen, Fotos lesen, zurückschreiben, morgens melden
+```
+
+Starten:
+
+```bash
+cd bruecke
+cp konfig.beispiel.json konfig.json
+npm install          # optional — ohne Pakete läuft der Datei-Modus
+npm start            # → Link mit Schlüssel erscheint im Fenster
+```
+
+Ohne den Dienst funktioniert der Abgleich weiterhin: Dateien von Hand ablegen,
+am Ende fällt eine CSV heraus. Alles Weitere — Mail am Morgen, Texterkennung,
+der direkte Draht zu secplan.net und seine einmalige Einrichtung — steht in
+**`bruecke/README.md`**.
+
+Prüfen, ob die Rechenlogik stimmt: `cd bruecke && npm test`.
 
 ---
 

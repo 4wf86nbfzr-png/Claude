@@ -1,0 +1,268 @@
+/* ============================================================
+   HERM SERVICE TEAM — internes Werkzeug: Schichtabgleich
+   ------------------------------------------------------------
+   Kein zweites Design-Stylesheet fuer die Website, sondern die
+   Oberflaeche eines Werkzeugs. Sie holt sich Tokens, Schrift und
+   Grundformen aus styles.css und ergaenzt nur, was eine dichte
+   Arbeitsansicht braucht: Tabelle, Status, Ablagefeld.
+
+   Eine Abweichung von den Design-Grundsaetzen der Website ist
+   bewusst: hier gibt es Statusfarben. Wer morgens 60 Zeilen
+   durchsieht, muss den Ausreisser sehen, ohne zu lesen. Sie sind
+   entsaettigt und tragen immer auch ein Wort — Farbe allein
+   waere fuer Farbfehlsichtige keine Information.
+   ============================================================ */
+
+:root{
+  --ok:     #7FCF9B;
+  --warn:   #E8C26A;
+  --alarm:  #E4736F;
+  --info:   #8FB8E8;
+  --feld:   rgba(255,255,255,.04);
+}
+
+/* ---- Rahmen ---- */
+.werkzeug{ min-height:100svh; display:flex; flex-direction:column; }
+.wz-kopf{
+  position:sticky; top:0; z-index:40;
+  display:flex; align-items:center; gap:clamp(12px,2vw,28px); flex-wrap:wrap;
+  padding:12px clamp(16px,3vw,32px);
+  border-bottom:1px solid var(--line);
+  background:rgba(8,8,10,.92); backdrop-filter:blur(10px);
+}
+.wz-kopf__marke{ display:flex; align-items:center; gap:10px; }
+.wz-kopf__marke img{ height:26px; width:auto; }
+.wz-kopf__titel{
+  font-family:var(--font-mono); font-size:.68rem; letter-spacing:.22em;
+  text-transform:uppercase; color:var(--muted); white-space:nowrap;
+}
+.wz-kopf__rechts{ margin-left:auto; display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+
+.wz-inhalt{ flex:1; width:100%; max-width:1560px; margin-inline:auto; padding:clamp(18px,2.4vw,32px) clamp(16px,3vw,32px) 120px; }
+
+/* ---- Verbindungsanzeige ---- */
+.wz-draht{ display:inline-flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:.66rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); }
+.wz-draht i{ width:8px; height:8px; border-radius:50%; background:var(--muted); flex:none; }
+.wz-draht[data-stand="an"] i{ background:var(--ok); }
+.wz-draht[data-stand="aus"] i{ background:var(--alarm); }
+.wz-draht[data-stand="suche"] i{ background:var(--warn); }
+
+/* ---- Abschnitte ----
+   Heisst .wz-block und nicht .schritt: die Website benutzt .schritt bereits
+   fuer die Ablauf-Sektion, samt gezaehltem ::before. Zwei Bedeutungen fuer
+   denselben Namen ergaben im Werkzeug vor jeder Ueberschrift eine zweite,
+   falsche Nummer. */
+.wz-block{ border-top:1px solid var(--line); padding:clamp(22px,2.6vw,34px) 0 clamp(18px,2.2vw,26px); }
+.wz-block:first-of-type{ border-top:0; padding-top:clamp(12px,1.6vw,20px); }
+.wz-block__kopf{ display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; margin-bottom:var(--gap-s); }
+.wz-block__nr{ font-family:var(--font-mono); font-size:.68rem; letter-spacing:.22em; color:var(--muted); }
+.wz-block h2{ font-size:clamp(1.2rem,1.8vw,1.5rem); }
+.wz-block__hinweis{ color:var(--muted); font-size:.9rem; max-width:66ch; }
+.wz-block[hidden]{ display:none; }
+
+/* ---- Kacheln nebeneinander ---- */
+.wz-reihe{ display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:14px; }
+.wz-karte{
+  border:1px solid var(--line); border-radius:var(--r-m);
+  background:var(--ink-2); padding:16px 18px;
+  display:flex; flex-direction:column; gap:10px;
+}
+.wz-karte h3{ font-size:.98rem; font-family:var(--font-body); font-weight:600; letter-spacing:0; }
+.wz-karte p{ color:var(--muted); font-size:.86rem; }
+
+/* ---- Ablagefeld ---- */
+.ablage{
+  border:1px dashed rgba(255,255,255,.24); border-radius:var(--r-m);
+  padding:clamp(18px,2.4vw,30px); text-align:center; cursor:pointer;
+  background:var(--feld); transition:border-color var(--t-fast) var(--ease-swift), background var(--t-fast) var(--ease-swift);
+}
+.ablage:hover, .ablage:focus-visible{ border-color:rgba(255,255,255,.6); background:rgba(255,255,255,.07); }
+.ablage.hover{ border-color:#FFF; background:rgba(255,255,255,.1); }
+.ablage b{ display:block; font-weight:600; margin-bottom:4px; }
+.ablage span{ color:var(--muted); font-size:.85rem; }
+.ablage input[type="file"]{ display:none; }
+
+/* ---- Knopfleiste ---- */
+.wz-knoepfe{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+.knopf{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:9px 15px; border-radius:var(--r-pill); cursor:pointer;
+  border:1px solid var(--line); background:transparent; color:var(--paper);
+  font-family:var(--font-body); font-size:.86rem; line-height:1;
+  transition:background var(--t-fast) var(--ease-swift), border-color var(--t-fast) var(--ease-swift), color var(--t-fast) var(--ease-swift);
+}
+.knopf:hover{ border-color:rgba(255,255,255,.45); background:rgba(255,255,255,.06); }
+.knopf:focus-visible{ outline:2px solid #FFF; outline-offset:2px; }
+.knopf[disabled]{ opacity:.4; cursor:not-allowed; }
+.knopf--voll{ background:#FFF; color:#08080A; border-color:transparent; font-weight:600; }
+.knopf--voll:hover{ background:rgba(255,255,255,.86); color:#08080A; }
+.knopf--klein{ padding:6px 11px; font-size:.78rem; }
+.knopf--warn{ border-color:rgba(228,115,111,.5); color:#F0A19D; }
+.knopf--warn:hover{ background:rgba(228,115,111,.12); }
+
+/* ---- Filterchips ---- */
+.filter{ display:flex; flex-wrap:wrap; gap:7px; margin:var(--gap-s) 0; }
+.filter__chip{
+  padding:6px 12px; border-radius:var(--r-pill); cursor:pointer;
+  border:1px solid var(--line); background:transparent; color:var(--chrome);
+  font-family:var(--font-mono); font-size:.68rem; letter-spacing:.1em; text-transform:uppercase;
+}
+.filter__chip[aria-pressed="true"]{ background:#FFF; color:#08080A; border-color:transparent; }
+.filter__chip b{ font-family:var(--font-mono); opacity:.7; margin-left:5px; }
+
+/* ---- Kennzahlen ---- */
+.kennzahlen{ display:flex; flex-wrap:wrap; gap:clamp(16px,3vw,42px); padding:14px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+.kennzahl{ display:grid; gap:3px; }
+.kennzahl b{ font-family:var(--font-display); font-size:1.5rem; font-weight:800; line-height:1; }
+.kennzahl span{ font-family:var(--font-mono); font-size:.62rem; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); }
+
+/* ---- Tabelle ---- */
+.tafel{ width:100%; border-collapse:collapse; margin-top:var(--gap-s); font-size:.9rem; }
+.tafel thead th{
+  text-align:left; padding:8px 10px; border-bottom:1px solid var(--line);
+  font-family:var(--font-mono); font-size:.62rem; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--muted); font-weight:400; white-space:nowrap;
+}
+.tafel tbody tr{ border-bottom:1px solid rgba(255,255,255,.07); }
+.tafel tbody tr:hover{ background:rgba(255,255,255,.035); }
+.tafel tbody tr[data-aktiv="ja"]{ background:rgba(255,255,255,.075); box-shadow:inset 3px 0 0 #FFF; }
+.tafel tbody tr[data-frei="ja"]{ opacity:.62; }
+.tafel td{ padding:9px 10px; vertical-align:middle; }
+.tafel .z-name{ font-weight:600; }
+.tafel .z-roh{ display:block; color:var(--muted); font-size:.74rem; font-family:var(--font-mono); }
+.tafel .z-einsatz{ color:var(--chrome); font-size:.84rem; }
+.tafel .z-zeit{ font-family:var(--font-mono); font-size:.84rem; white-space:nowrap; }
+.tafel .z-zeit--blass{ color:var(--muted); }
+.tafel .z-diff{ font-family:var(--font-mono); font-size:.84rem; white-space:nowrap; }
+.tafel .z-diff--plus{ color:var(--warn); }
+.tafel .z-diff--minus{ color:var(--info); }
+.tafel .z-tun{ display:flex; gap:6px; justify-content:flex-end; flex-wrap:wrap; }
+
+.stand{ display:inline-flex; align-items:center; gap:7px; white-space:nowrap; font-family:var(--font-mono); font-size:.66rem; letter-spacing:.1em; text-transform:uppercase; }
+.stand::before{ content:""; width:9px; height:9px; border-radius:50%; background:var(--muted); flex:none; }
+.stand[data-s="passt"]{ color:var(--ok); }        .stand[data-s="passt"]::before{ background:var(--ok); }
+.stand[data-s="abweichung"]{ color:var(--warn); } .stand[data-s="abweichung"]::before{ background:var(--warn); }
+.stand[data-s="fehlt"]{ color:var(--alarm); }     .stand[data-s="fehlt"]::before{ background:var(--alarm); }
+.stand[data-s="zusatz"]{ color:var(--info); }     .stand[data-s="zusatz"]::before{ background:var(--info); }
+.stand[data-s="unklar"]{ color:var(--alarm); }    .stand[data-s="unklar"]::before{ background:var(--alarm); border-radius:2px; }
+.stand[data-s="pruefen"]{ color:var(--alarm); }   .stand[data-s="pruefen"]::before{ background:var(--alarm); border-radius:2px; }
+
+.merker{ display:inline-block; padding:2px 7px; border-radius:var(--r-pill); border:1px solid var(--line); font-family:var(--font-mono); font-size:.6rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-left:6px; vertical-align:middle; }
+.merker[data-art="vorschlag"]{ color:var(--warn); border-color:rgba(232,194,106,.45); }
+.merker[data-art="alias"], .merker[data-art="personalnummer"]{ color:var(--ok); border-color:rgba(127,207,155,.4); }
+
+/* Zeitfelder in der Tabelle */
+/* Beginn, Ende und Pause gehoeren in eine Zeile — umgebrochen sieht die
+   Spalte aus, als stuenden dort drei unabhaengige Werte. */
+.tafel .z-uebernehmen{ white-space:nowrap; }
+.zeitfeld{
+  width:5.1em; padding:5px 7px; border-radius:var(--r-s);
+  border:1px solid var(--line); background:var(--ink-3); color:var(--paper);
+  font-family:var(--font-mono); font-size:.84rem; text-align:center;
+}
+.zeitfeld:focus{ outline:none; border-color:#FFF; box-shadow:0 0 0 3px rgba(255,255,255,.14); }
+.pausenfeld{ width:3.6em; }
+.wahlfeld{
+  padding:5px 8px; border-radius:var(--r-s); border:1px solid var(--line);
+  background:var(--ink-3); color:var(--paper); font-family:var(--font-body); font-size:.82rem;
+}
+.wahlfeld option{ background:var(--ink-2); }
+
+/* ---- Freigabe ---- */
+.freigabe{
+  position:sticky; bottom:0; z-index:30;
+  margin-top:var(--gap-m);
+  border-top:1px solid var(--line);
+  background:rgba(8,8,10,.94); backdrop-filter:blur(10px);
+  padding:14px clamp(16px,3vw,32px);
+  display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+}
+.freigabe__text{ color:var(--chrome); font-size:.88rem; }
+.freigabe__text b{ color:var(--paper); }
+.freigabe__rechts{ margin-left:auto; display:flex; gap:8px; flex-wrap:wrap; }
+
+/* ---- Meldungen ---- */
+.meldung{
+  border:1px solid var(--line); border-left-width:3px; border-radius:var(--r-s);
+  padding:11px 14px; font-size:.88rem; color:var(--chrome); margin-top:12px;
+}
+.meldung[data-art="gut"]{ border-left-color:var(--ok); }
+.meldung[data-art="warnung"]{ border-left-color:var(--warn); }
+.meldung[data-art="fehler"]{ border-left-color:var(--alarm); }
+.meldung[data-art="info"]{ border-left-color:var(--info); }
+.meldung b{ color:var(--paper); }
+
+/* ---- Vorschau der eingelesenen Datei ---- */
+.rohschau{
+  max-height:230px; overflow:auto; margin-top:12px;
+  border:1px solid var(--line); border-radius:var(--r-s); background:#000;
+  font-family:var(--font-mono); font-size:.76rem; line-height:1.55; color:var(--chrome);
+  padding:12px 14px; white-space:pre-wrap; word-break:break-word;
+}
+.beleg{ margin-top:12px; border:1px solid var(--line); border-radius:var(--r-s); overflow:hidden; }
+.beleg img{ width:100%; height:auto; display:block; }
+
+/* ---- Tastaturhilfe ---- */
+.tasten{ display:flex; flex-wrap:wrap; gap:14px; margin-top:14px; color:var(--muted); font-size:.78rem; }
+.tasten kbd{
+  font-family:var(--font-mono); font-size:.7rem; padding:2px 6px; border-radius:4px;
+  border:1px solid var(--line); background:var(--ink-3); color:var(--chrome); margin-right:5px;
+}
+
+/* ============================================================
+   Schnellerfassung (Handy des Schichtleiters)
+   ============================================================ */
+.erfassung{ max-width:640px; margin-inline:auto; }
+.crew{ display:grid; gap:10px; margin-top:var(--gap-s); list-style:none; }
+.kraft{
+  border:1px solid var(--line); border-radius:var(--r-m); background:var(--ink-2);
+  padding:14px 16px; display:grid; gap:10px;
+}
+.kraft[data-zustand="plan"]{ border-color:rgba(127,207,155,.45); }
+.kraft[data-zustand="ausfall"]{ border-color:rgba(228,115,111,.45); opacity:.75; }
+.kraft__kopf{ display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
+.kraft__name{ font-weight:600; font-size:1rem; }
+.kraft__plan{ font-family:var(--font-mono); font-size:.78rem; color:var(--muted); }
+.kraft__wahl{ display:flex; gap:8px; flex-wrap:wrap; }
+.kraft__wahl .knopf[aria-pressed="true"]{ background:#FFF; color:#08080A; border-color:transparent; font-weight:600; }
+.kraft__zeiten{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+.kraft__zeiten label{ font-family:var(--font-mono); font-size:.62rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); display:block; margin-bottom:5px; }
+.stellrad{ display:inline-flex; align-items:center; gap:4px; }
+.stellrad button{
+  width:34px; height:34px; border-radius:var(--r-s); border:1px solid var(--line);
+  background:transparent; color:var(--paper); font-size:1.05rem; cursor:pointer; line-height:1;
+}
+.stellrad button:hover{ background:rgba(255,255,255,.08); }
+
+/* ---- Mobil: Tabelle wird zu Karten ---- */
+@media (max-width:900px){
+  .tafel, .tafel tbody, .tafel tr, .tafel td{ display:block; width:100%; }
+  .tafel thead{ position:absolute; left:-9999px; }
+  .tafel tbody tr{
+    border:1px solid var(--line); border-radius:var(--r-m);
+    background:var(--ink-2); padding:12px 14px; margin-bottom:10px;
+  }
+  .tafel tbody tr[data-aktiv="ja"]{ box-shadow:inset 0 0 0 1px #FFF; }
+  .tafel td{ padding:4px 0; }
+  .tafel td::before{
+    content:attr(data-spalte); display:block;
+    font-family:var(--font-mono); font-size:.58rem; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--muted); margin-bottom:3px;
+  }
+  .tafel td:empty{ display:none; }
+  .tafel .z-tun{ justify-content:flex-start; margin-top:6px; }
+  .freigabe{ flex-direction:column; align-items:stretch; }
+  .freigabe__rechts{ margin-left:0; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .knopf, .ablage{ transition:none; }
+}
+
+/* Drucken: der Abgleich als Beleg fuer die Ablage */
+@media print{
+  .wz-kopf, .freigabe, .filter, .ablage, .z-tun, .tasten, .wz-knoepfe{ display:none !important; }
+  body{ background:#FFF; color:#000; }
+  body::after{ display:none; }
+  .tafel td, .tafel th{ color:#000; }
+}

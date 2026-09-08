@@ -1,0 +1,22 @@
+{
+  "name": "herm-bruecke",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Bruecke zwischen der internen Abgleich-Oberflaeche und secplan.net",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server.mjs",
+    "morgenlauf": "node morgenlauf.mjs",
+    "uebertragen": "node uebertragen.mjs",
+    "anmeldung": "node secplan.mjs anmelden",
+    "test": "node --test test/"
+  },
+  "optionalDependencies": {
+    "nodemailer": "^6.9.14",
+    "playwright": "^1.63.0",
+    "tesseract.js": "^5.1.0"
+  }
+}

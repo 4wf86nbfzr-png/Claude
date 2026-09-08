@@ -64,6 +64,16 @@
 # ---- Fehlerseite ----
 ErrorDocument 404 /404.html
 
+# ---- Interne Werkzeuge sperren ----
+# /intern/ (Schichtabgleich) und /bruecke/ (Zugangsdaten des Dienstes)
+# duerfen ueber die Website nie erreichbar sein. Der Ordner bruecke/
+# sollte ohnehin nicht mit hochgeladen werden; die Regel ist der
+# zweite Riegel fuer den Fall, dass es doch passiert.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^(intern|bruecke)/ - [R=404,L]
+</IfModule>
+
 # ---- Adressen ohne .html ----
 <IfModule mod_rewrite.c>
   RewriteEngine On

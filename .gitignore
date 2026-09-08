@@ -1,0 +1,11 @@
+# Zugangsdaten und Betriebsdaten der Bruecke — nie ins Repository.
+bruecke/.env
+bruecke/konfig.json
+bruecke/daten/
+bruecke/node_modules/
+bruecke/package-lock.json
+
+# Was beim Arbeiten anfaellt
+.DS_Store
+Thumbs.db
+*.log

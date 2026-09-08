@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="de" class="kein-js">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Zeiten melden &ndash; HERM Service Team (intern)</title>
+<meta name="robots" content="noindex, nofollow, noarchive" />
+<script>document.documentElement.classList.remove('kein-js');</script>
+<link rel="icon" href="../assets/logo/favicon.ico" sizes="any" />
+<link rel="apple-touch-icon" href="../assets/logo/apple-touch-icon.png" />
+<link rel="stylesheet" href="../assets/css/fonts.css" />
+<link rel="stylesheet" href="../assets/css/styles.css" />
+<link rel="stylesheet" href="../assets/css/intern.css" />
+</head>
+<body>
+<div class="werkzeug">
+
+  <header class="wz-kopf">
+    <span class="wz-kopf__marke">
+      <img src="../assets/logo/logo-herm.png" alt="HERM Service Team" />
+      <span class="wz-kopf__titel">Zeiten melden</span>
+    </span>
+    <span class="wz-kopf__rechts">
+      <span class="wz-draht" id="draht" data-stand="suche"><i></i><span id="drahtText">verbinde</span></span>
+    </span>
+  </header>
+
+  <main class="wz-inhalt erfassung">
+    <div id="meldungen"></div>
+
+    <section class="wz-block" id="s-kopf">
+      <div class="wz-block__kopf">
+        <span class="wz-block__nr" id="tagText">&mdash;</span>
+        <h2 id="einsatzTitel">Einsatz</h2>
+      </div>
+      <p class="wz-block__hinweis">
+        Moin. Bitte einmal durchgehen: Wer war wie geplant da, wer nicht, wer l&auml;nger.
+        Das dauert eine Minute und spart dem B&uuml;ro morgen die R&uuml;ckfragen.
+      </p>
+      <div class="wz-knoepfe" style="margin-top:14px">
+        <span class="wz-knoepfe" id="einsatzZeile">
+          <label class="wz-draht" for="einsatzWahl" style="letter-spacing:.14em">Einsatz</label>
+          <select class="wahlfeld" id="einsatzWahl"></select>
+        </span>
+        <button class="knopf knopf--klein" id="alleGeplant" type="button">Alle waren wie geplant da</button>
+      </div>
+    </section>
+
+    <section class="wz-block">
+      <ul class="crew" id="crew"></ul>
+    </section>
+
+    <section class="wz-block">
+      <div class="wz-block__kopf"><span class="wz-block__nr">Zum Schluss</span></div>
+      <div class="wz-karte">
+        <label class="wz-draht" for="melder" style="letter-spacing:.14em">Wer meldet das?</label>
+        <input class="wahlfeld" id="melder" type="text" placeholder="Vor- und Nachname" autocomplete="name" />
+        <label class="wz-draht" for="bemerkung" style="letter-spacing:.14em">Etwas Besonderes vorgefallen?</label>
+        <textarea class="wahlfeld" id="bemerkung" rows="2" style="width:100%;resize:vertical"
+                  placeholder="Optional &ndash; z.&nbsp;B. Verl&auml;ngerung durch den Kunden"></textarea>
+      </div>
+    </section>
+  </main>
+
+  <div class="freigabe">
+    <span class="freigabe__text" id="stand"></span>
+    <div class="freigabe__rechts">
+      <button class="knopf knopf--voll" id="absenden" type="button">Ans B&uuml;ro senden</button>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/js/intern/kern.js"></script>
+<script src="../assets/js/intern/erfassung.js"></script>
+</body>
+</html>
