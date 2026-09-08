@@ -777,7 +777,8 @@ globalThis.HSTAbgleich = (function () {
       funktion: soll ? (soll.funktion || '') : '',
       format: (ist && ist.format) || '',
       schichtId: soll ? (soll.id || null) : null,
-      soll: soll ? { beginn: soll.beginn, ende: soll.ende, pause: soll.pause || 0 } : null,
+      soll: soll ? { beginn: soll.beginn, ende: soll.ende, pause: soll.pause || 0,
+                     pauseUnbekannt: !!soll.pauseUnbekannt } : null,
       ist: ist ? { beginn: ist.beginn, ende: ist.ende, pause: ist.pause,
                    quelle: ist.quelle, zeile: ist.zeile, rohtext: ist.rohtext || '',
                    format: ist.format || '', stundenLaut: ist.stundenLaut === undefined ? null : ist.stundenLaut,
@@ -854,6 +855,7 @@ globalThis.HSTAbgleich = (function () {
       var bis  = ersterWert(s, ['bis', 'ende', 'dienstende', 'schichtende', 'zeitbis']);
       if (!name || minutenAusZeit(von) === null || minutenAusZeit(bis) === null) return;
       var nummer = ersterWert(s, ['personalnummer', 'personalnr', 'persnr', 'mitarbeiternummer', 'nr']);
+      var pauseRoh = ersterWert(s, ['pause', 'pausemin', 'pauseminuten']);
       aus.push({
         id: ersterWert(s, ['schichtid', 'id', 'dienstid', 'einsatzid']) || ('s' + i),
         datum: datumAusText(ersterWert(s, ['datum', 'tag', 'einsatztag'])) || null,
@@ -863,7 +865,8 @@ globalThis.HSTAbgleich = (function () {
                        name: name, personalnummer: nummer || '' },
         beginn: minutenAusZeit(von),
         ende: minutenAusZeit(bis),
-        pause: zahlOderNull(ersterWert(s, ['pause', 'pausemin', 'pauseminuten'])) || 0
+        pause: pauseRoh === '' ? 0 : (zahlOderNull(pauseRoh) || 0),
+        pauseUnbekannt: pauseRoh === ''
       });
     });
     return aus;
@@ -961,7 +964,11 @@ globalThis.HSTAbgleich = (function () {
         },
         beginn: von,
         ende: bis,
-        pause: 0
+        // Die Abgleichliste fuehrt keine Pausenspalte. Das ist etwas
+        // anderes als "keine Pause" — sonst meldet die Pruefung nach
+        // § 4 ArbZG jede einzelne Schicht.
+        pause: 0,
+        pauseUnbekannt: true
       };
     }).filter(Boolean);
   }
@@ -1045,41 +1052,78 @@ globalThis.HSTAbgleich = (function () {
     });
   }
 
+  /* Die Felder, aus denen sich eine Ergebnisdatei zusammensetzen
+     laesst. secplan kann CSV importieren, aber welche Spalten in
+     welcher Reihenfolge erwartet werden, weiss nur die eigene
+     Installation — deshalb ist die Spaltenfolge eine Einstellung
+     (konfig.json unter "export") und keine feste Groesse. */
+  var ERGEBNIS_FELDER = {
+    aenderung:      function (z) { return AENDERUNG[z.status] || z.status; },
+    datum:          function (z) { return z.datum ? datumDeutsch(z.datum).slice(4) : ''; },
+    datum_iso:      function (z) { return z.datum || ''; },
+    mitarbeiter:    function (z) { return (z.person && z.person.nachnameZuerst) || z.name; },
+    vorname_nachname: function (z) { return z.name; },
+    personalnummer: function (z) { return (z.person && z.person.personalnummer) || ''; },
+    planung:        function (z) { return z.einsatz || ''; },
+    funktion:       function (z) { return z.funktion || ''; },
+    soll_von:       function (z) { return z.soll ? zeitAusMinuten(z.soll.beginn) : ''; },
+    soll_bis:       function (z) { return z.soll ? zeitAusMinuten(z.soll.ende) : ''; },
+    soll_pause:     function (z) { return z.soll ? (z.soll.pause || 0) : ''; },
+    neu_von:        function (z) { return endgueltig(z).beginn === null ? '' : zeitAusMinuten(endgueltig(z).beginn); },
+    neu_bis:        function (z) { return endgueltig(z).beginn === null ? '' : zeitAusMinuten(endgueltig(z).ende); },
+    pause:          function (z) { return endgueltig(z).beginn === null ? '' : (endgueltig(z).pause || 0); },
+    stunden:        function (z) {
+      var n = nettoVon(z);
+      return n === null ? '' : (n / 60).toFixed(2).replace('.', ',');
+    },
+    stunden_punkt:  function (z) {
+      var n = nettoVon(z);
+      return n === null ? '' : (n / 60).toFixed(2);
+    },
+    minuten:        function (z) { var n = nettoVon(z); return n === null ? '' : n; },
+    differenz:      function (z) {
+      if (z.diffDauer === null || z.diffDauer === undefined || z.status === 'passt') return '';
+      return (z.diffDauer > 0 ? '+' : '') + Math.round(z.diffDauer) + ' min';
+    },
+    format:         function (z) { return z.format || ''; },
+    status:         function (z) { return z.status; },
+    notiz:          function (z) { return z.notiz || ''; },
+    hinweis:        function (z) { return hinweisZu(z); }
+  };
+
+  function endgueltig(z) {
+    return (z.status === 'fehlt' || z.status === 'ausfall')
+      ? { beginn: null, ende: null, pause: 0 } : z.vorschlag;
+  }
+
+  function nettoVon(z) {
+    var e = endgueltig(z);
+    if (e.beginn === null) return null;
+    return dauer(e.beginn, e.ende) - (e.pause || 0);
+  }
+
+  var ERGEBNIS_SPALTEN = [
+    ['Aenderung', 'aenderung'], ['Datum', 'datum'], ['Mitarbeiter', 'mitarbeiter'],
+    ['Personalnummer', 'personalnummer'], ['Planung', 'planung'], ['Funktion', 'funktion'],
+    ['Geplant von', 'soll_von'], ['Geplant bis', 'soll_bis'],
+    ['Neu von', 'neu_von'], ['Neu bis', 'neu_bis'], ['Pause min', 'pause'],
+    ['Stunden neu', 'stunden'], ['Differenz', 'differenz'], ['Format', 'format'],
+    ['Hinweis', 'hinweis']
+  ];
+
   function ergebnisCsv(zeilen, optionen) {
     optionen = optionen || {};
     var trenner = optionen.trenner || ';';
+    var spalten = (optionen.spalten && optionen.spalten.length) ? optionen.spalten : ERGEBNIS_SPALTEN;
     var liste = ergebnisZeilen(zeilen, optionen.nurAenderungen);
 
-    var kopf = ['Aenderung', 'Datum', 'Mitarbeiter', 'Personalnummer', 'Planung', 'Funktion',
-                'Geplant von', 'Geplant bis', 'Neu von', 'Neu bis', 'Pause min', 'Stunden neu',
-                'Differenz', 'Format', 'Hinweis'];
-    var raus = [kopf.join(trenner)];
-
+    var raus = [spalten.map(function (s) { return s[0]; }).join(trenner)];
     liste.forEach(function (z) {
-      var neu = (z.status === 'fehlt' || z.status === 'ausfall')
-        ? { beginn: null, ende: null, pause: 0 } : z.vorschlag;
-      var netto = neu.beginn === null ? null : dauer(neu.beginn, neu.ende) - (neu.pause || 0);
-      var felder = [
-        AENDERUNG[z.status] || z.status,
-        z.datum ? datumDeutsch(z.datum).slice(4) : '',
-        z.person && z.person.nachnameZuerst ? z.person.nachnameZuerst : z.name,
-        (z.person && z.person.personalnummer) || '',
-        z.einsatz || '',
-        z.funktion || '',
-        z.soll ? zeitAusMinuten(z.soll.beginn) : '',
-        z.soll ? zeitAusMinuten(z.soll.ende) : '',
-        neu.beginn === null ? '' : zeitAusMinuten(neu.beginn),
-        neu.beginn === null ? '' : zeitAusMinuten(neu.ende),
-        neu.beginn === null ? '' : (neu.pause || 0),
-        netto === null ? '' : (netto / 60).toFixed(2).replace('.', ','),
-        z.diffDauer === null || z.diffDauer === undefined || z.status === 'passt'
-          ? '' : ((z.diffDauer > 0 ? '+' : '') + Math.round(z.diffDauer) + ' min'),
-        z.format || '',
-        hinweisZu(z)
-      ];
-      raus.push(felder.map(function (w) {
+      raus.push(spalten.map(function (s) {
+        var holen = ERGEBNIS_FELDER[s[1]];
+        var w = holen ? holen(z) : '';
         var t = String(w === undefined || w === null ? '' : w);
-        return /["\r\n;]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t;
+        return /["\r\n]/.test(t) || t.indexOf(trenner) >= 0 ? '"' + t.replace(/"/g, '""') + '"' : t;
       }).join(trenner));
     });
     return raus.join('\r\n') + '\r\n';
@@ -1183,6 +1227,333 @@ globalThis.HSTAbgleich = (function () {
     };
   }
 
+  /* ============================================================
+     6 — Konflikte
+     ------------------------------------------------------------
+     Der Abgleich sagt, ob Plan und Zettel zusammenpassen. Das ist
+     nicht dasselbe wie: ob das Ergebnis in Ordnung ist. Jemand kann
+     genau wie geplant vierzehn Stunden gearbeitet haben — dann
+     stimmt der Abgleich und das Arbeitszeitgesetz nicht.
+
+     Geprueft wird deshalb zusaetzlich das Ergebnis: Ueberschneidungen,
+     Hoechstarbeitszeit (§ 3 ArbZG), Ruhezeit (§ 5), Pausen (§ 4) und
+     was schlicht unplausibel ist. Alles als Hinweis mit Paragraph —
+     entschieden wird im Buero, nicht hier.
+     ============================================================ */
+
+  var ARBZG = {
+    hoechstStunden: 10,      // § 3: werktaeglich 8 h, verlaengerbar auf 10 h
+    ruheStunden: 11,         // § 5: 11 Stunden ununterbrochene Ruhezeit
+    pauseAb6: 30,            // § 4: mehr als 6 h -> 30 min
+    pauseAb9: 45,            // § 4: mehr als 9 h -> 45 min
+    unplausibelStunden: 16
+  };
+
+  /* Ein Zeitpunkt auf einem durchgehenden Strahl: Tagesnummer * 1440
+     + Minuten. Damit lassen sich Schichten ueber Tage hinweg
+     vergleichen, ohne mit Datum und Uhrzeit zu jonglieren. */
+  function zeitpunkt(datum, minuten) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(datum || ''));
+    if (!m) return null;
+    var tag = Date.UTC(+m[1], +m[2] - 1, +m[3]) / 86400000;
+    return tag * 1440 + minuten;
+  }
+
+  function spanneVon(zeile) {
+    if (!zeile.vorschlag || zeile.vorschlag.beginn === null) return null;
+    var von = zeitpunkt(zeile.datum, zeile.vorschlag.beginn);
+    if (von === null) return null;
+    return { von: von, bis: von + dauer(zeile.vorschlag.beginn, zeile.vorschlag.ende),
+             netto: dauer(zeile.vorschlag.beginn, zeile.vorschlag.ende) - (zeile.vorschlag.pause || 0) };
+  }
+
+  /* zeilen:    das Ergebnis des Abgleichs (ein Tag)
+     umgebung:  weitere bekannte Schichten derselben Leute (Vor- und
+                Folgetag), damit die Ruhezeit ueberhaupt pruefbar ist */
+  function konflikte(zeilen, regeln, umgebung) {
+    var r = regelnMitStandard(regeln);
+    var grenzen = Object.assign({}, ARBZG, r.arbzg || {});
+    var aus = [];
+
+    function melden(art, schwere, text, ids, paragraf) {
+      aus.push({ art: art, schwere: schwere, text: text, zeilen: ids || [], paragraf: paragraf || '' });
+    }
+
+    var offen = zeilen.filter(function (z) {
+      return z.status !== 'ausfall' && z.vorschlag && z.vorschlag.beginn !== null;
+    });
+    var ohnePause = [];
+
+    // ---- je Schicht ----
+    offen.forEach(function (z) {
+      var s = spanneVon(z);
+      var netto = s ? s.netto : (dauer(z.vorschlag.beginn, z.vorschlag.ende) - (z.vorschlag.pause || 0));
+      var brutto = dauer(z.vorschlag.beginn, z.vorschlag.ende);
+
+      if (netto > grenzen.unplausibelStunden * 60 || netto < 0) {
+        melden('unplausibel', 'fehler',
+          z.name + ': ' + stundenText(netto) + ' am Stueck — das ist vermutlich ein Lesefehler.',
+          [z.id]);
+        return;
+      }
+      if (netto > grenzen.hoechstStunden * 60) {
+        melden('hoechstarbeitszeit', 'warnung',
+          z.name + ': ' + stundenText(netto) + ' Arbeitszeit. Zulaessig sind ' +
+          grenzen.hoechstStunden + ' Stunden.', [z.id], '§ 3 ArbZG');
+      }
+      var noetig = brutto > 9 * 60 ? grenzen.pauseAb9 : brutto > 6 * 60 ? grenzen.pauseAb6 : 0;
+      if (!noetig) return;
+
+      // "Keine Pause eingetragen" ist nicht dasselbe wie "keine Pause
+      // gemacht". Die Abgleichliste aus secplan fuehrt gar keine
+      // Pausenspalte — daraus jede Schicht anzumahnen waere Laerm,
+      // durch den man die echten Faelle nicht mehr sieht.
+      var bekannt = (z.ist && typeof z.ist.pause === 'number') ||
+                    (z.soll && !z.soll.pauseUnbekannt) ||
+                    r.pauseAutomatisch;
+      if (!bekannt) { ohnePause.push(z.id); return; }
+
+      if ((z.vorschlag.pause || 0) < noetig) {
+        melden('pause', 'warnung',
+          z.name + ': ' + stundenText(brutto) + ' vor Ort, aber nur ' + (z.vorschlag.pause || 0) +
+          ' min Pause. Vorgeschrieben sind ' + noetig + ' min.', [z.id], '§ 4 ArbZG');
+      }
+    });
+
+    if (ohnePause.length) {
+      melden('pause_unbekannt', 'hinweis',
+        'Bei ' + ohnePause.length + ' Schichten steht in den Daten keine Pause. ' +
+        'Ob § 4 ArbZG eingehalten ist, l\u00e4sst sich so nicht sagen — die Pausenspalte ' +
+        'des Stundenzettels oder die Regel \u201ePause automatisch erg\u00e4nzen\u201c schafft Klarheit.',
+        ohnePause, '§ 4 ArbZG');
+    }
+
+    // ---- je Person: Ueberschneidung und Ruhezeit ----
+    var proPerson = {};
+    offen.forEach(function (z) {
+      if (!z.person) return;
+      (proPerson[z.person.id] = proPerson[z.person.id] || []).push({ zeile: z, spanne: spanneVon(z) });
+    });
+    (umgebung || []).forEach(function (s) {
+      var id = s.mitarbeiter ? s.mitarbeiter.id : s.mitarbeiterId;
+      if (!id || !proPerson[id]) return;
+      var von = zeitpunkt(s.datum, s.beginn);
+      if (von === null) return;
+      proPerson[id].push({
+        zeile: { id: null, name: s.mitarbeiter ? s.mitarbeiter.name : '', datum: s.datum, geplant: true },
+        spanne: { von: von, bis: von + dauer(s.beginn, s.ende), netto: 0 }
+      });
+    });
+
+    Object.keys(proPerson).forEach(function (id) {
+      var liste = proPerson[id].filter(function (e) { return e.spanne; })
+        .sort(function (a, b) { return a.spanne.von - b.spanne.von; });
+
+      for (var i = 1; i < liste.length; i++) {
+        var vorher = liste[i - 1], jetzt = liste[i];
+        if (vorher.zeile.geplant && jetzt.zeile.geplant) continue;
+
+        if (jetzt.spanne.von < vorher.spanne.bis) {
+          melden('ueberschneidung', 'fehler',
+            (jetzt.zeile.name || vorher.zeile.name) + ': zwei Schichten ueberschneiden sich (' +
+            datumDeutsch(vorher.zeile.datum) + ' ' + zeitAusMinuten(vorher.spanne.von % 1440) + '–' +
+            zeitAusMinuten(vorher.spanne.bis % 1440) + ' und ' +
+            datumDeutsch(jetzt.zeile.datum) + ' ' + zeitAusMinuten(jetzt.spanne.von % 1440) + '–' +
+            zeitAusMinuten(jetzt.spanne.bis % 1440) + ').',
+            [vorher.zeile.id, jetzt.zeile.id].filter(Boolean));
+          continue;
+        }
+        var ruhe = jetzt.spanne.von - vorher.spanne.bis;
+        if (ruhe < grenzen.ruheStunden * 60) {
+          melden('ruhezeit', 'warnung',
+            (jetzt.zeile.name || vorher.zeile.name) + ': nur ' + stundenText(ruhe) +
+            ' zwischen den Schichten am ' + datumDeutsch(vorher.zeile.datum) + ' und ' +
+            datumDeutsch(jetzt.zeile.datum) + '. Vorgeschrieben sind ' + grenzen.ruheStunden + ' Stunden.',
+            [vorher.zeile.id, jetzt.zeile.id].filter(Boolean), '§ 5 ArbZG');
+        }
+      }
+    });
+
+    // ---- Zettel doppelt eingelesen ----
+    var gesehen = {};
+    zeilen.forEach(function (z) {
+      if (!z.ist || z.vorschlag.beginn === null) return;
+      var schluessel = normalisiere(z.name) + '|' + z.datum + '|' + z.ist.beginn + '|' + z.ist.ende;
+      if (gesehen[schluessel]) {
+        melden('doppelt', 'warnung',
+          z.name + ': dieselbe Zeit steht zweimal in der Liste (' +
+          zeitAusMinuten(z.ist.beginn) + '–' + zeitAusMinuten(z.ist.ende) +
+          '). Wurde der Zettel zweimal eingelesen?', [gesehen[schluessel], z.id]);
+      } else {
+        gesehen[schluessel] = z.id;
+      }
+    });
+
+    var rang = { fehler: 0, warnung: 1, hinweis: 2 };
+    aus.sort(function (a, b) { return rang[a.schwere] - rang[b.schwere]; });
+    return aus;
+  }
+
+  /* ============================================================
+     7 — Sprache
+     ------------------------------------------------------------
+     Im Buero liegt der Zettel links, die Maus rechts, und zwischen
+     beidem sitzt jemand, der vorlesen koennte statt zu tippen:
+
+       "Kanopka von acht Uhr dreissig bis siebzehn Uhr fuenfzehn"
+       "Fett Ende achtzehn Uhr fuenfundvierzig"
+       "Botis Ausfall"
+       "Schmedding wie geplant"
+       "Pause dreissig Minuten fuer Mustermann"
+
+     Hier steht nur das Verstehen des Satzes — reiner Text rein,
+     Anweisung raus. Wo der Text herkommt (Mikrofon, Tastatur,
+     Diktiergeraet), ist dieser Datei gleichgueltig, und genau
+     deshalb laesst sie sich pruefen.
+     ============================================================ */
+
+  var ZAHLWORT = {
+    null: 0, eins: 1, ein: 1, eine: 1, zwei: 2, zwo: 2, drei: 3, vier: 4, fuenf: 5,
+    sechs: 6, sieben: 7, acht: 8, neun: 9, zehn: 10, elf: 11, zwoelf: 12,
+    dreizehn: 13, vierzehn: 14, fuenfzehn: 15, sechzehn: 16, siebzehn: 17,
+    achtzehn: 18, neunzehn: 19, zwanzig: 20, dreissig: 30, vierzig: 40, fuenfzig: 50
+  };
+
+  function zahlAusWort(wort) {
+    var w = normalisiere(wort);
+    if (!w) return null;
+    if (/^\d{1,2}$/.test(w)) return +w;
+    if (ZAHLWORT[w] !== undefined) return ZAHLWORT[w];
+    var m = /^(\w+?)und(zwanzig|dreissig|vierzig|fuenfzig)$/.exec(w);
+    if (m && ZAHLWORT[m[1]] !== undefined && ZAHLWORT[m[2]] !== undefined) {
+      return ZAHLWORT[m[2]] + ZAHLWORT[m[1]];
+    }
+    return null;
+  }
+
+  /* Findet die erste Zeitangabe in einem gesprochenen Satz und gibt
+     zurueck, wo sie stand — der Rest ist dann der Name oder der Befehl. */
+  function zeitAusSprache(text) {
+    var worte = normalisiere(text).split(' ').filter(Boolean);
+
+    for (var i = 0; i < worte.length; i++) {
+      // "halb acht" = 7:30 — im Alltag haeufig, in Zeitlisten selten,
+      // aber wer spricht, sagt es nun mal so.
+      if (worte[i] === 'halb') {
+        var h = zahlAusWort(worte[i + 1]);
+        if (h !== null) {
+          var std = (h - 1 + 24) % 24;
+          return { minuten: std * 60 + 30, von: i, bis: i + 1 };
+        }
+      }
+
+      var erste = zahlAusWort(worte[i]);
+      if (erste === null) continue;
+
+      // "18:45", "1845" wurden schon von minutenAusZeit erkannt
+      var direkt = minutenAusZeit(worte[i]);
+      if (direkt !== null && /[:.]/.test(worte[i])) return { minuten: direkt, von: i, bis: i };
+
+      if (erste > 23) continue;
+
+      var j = i;
+      var minute = 0;
+      if (normalisiere(worte[i + 1] || '') === 'uhr') j = i + 1;
+      var naechste = zahlAusWort(worte[j + 1]);
+      if (naechste !== null && naechste <= 59 && (j > i || naechste >= 10)) {
+        minute = naechste;
+        j = j + 1;
+      }
+      return { minuten: erste * 60 + minute, von: i, bis: j };
+    }
+    return null;
+  }
+
+  var BEFEHL = [
+    { art: 'ausfall',    muster: /\b(ausfall|nicht da|nicht erschienen|krank|abgesagt|fehlt)\b/ },
+    { art: 'wieGeplant', muster: /\b(wie geplant|planmaessig|planmassig|passt|war da|unveraendert)\b/ },
+    { art: 'zuruecknehmen', muster: /\b(zurueck|zuruecknehmen|rueckgaengig|doch nicht)\b/ }
+  ];
+  // Dieselben Woerter noch einmal, um sie aus dem Satz zu streichen —
+  // sonst sucht die Namenszuordnung spaeter nach "Sanchez Ausfall".
+  var BEFEHLSWOERTER = /\b(ausfall|nicht da|nicht erschienen|krank|abgesagt|fehlt|wie geplant|planmaessig|planmassig|passt|war da|unveraendert|zurueck|zuruecknehmen|rueckgaengig|doch nicht)\b/g;
+
+  /* text:     was gesprochen wurde
+     personen: Stammdaten, damit der Name zugeordnet werden kann
+     Ergebnis: { art, person, beginn, ende, pause, rest, verstanden } */
+  function sprachbefehlLesen(text, personen, aliase) {
+    var roh = String(text || '').trim();
+    var flach = normalisiere(roh);
+    if (!flach) return { art: 'leer', verstanden: false, text: roh };
+
+    var ergebnis = { art: null, person: null, beginn: null, ende: null, pause: null,
+                     text: roh, verstanden: false };
+
+    // Pause zuerst: "pause dreissig minuten". Das erkannte Stueck wird
+    // aus dem Satz genommen, damit es nicht spaeter als Name gilt.
+    var worte = flach.split(' ').filter(Boolean);
+    var pi = worte.indexOf('pause');
+    if (pi >= 0) {
+      for (var i = pi + 1; i < Math.min(worte.length, pi + 4); i++) {
+        var z = zahlAusWort(worte[i]);
+        if (z !== null) { ergebnis.pause = z; worte.splice(i, 1); break; }
+      }
+      if (ergebnis.pause !== null) { ergebnis.art = 'pause'; worte.splice(pi, 1); }
+    }
+    flach = worte.join(' ');
+
+    for (var b = 0; b < BEFEHL.length; b++) {
+      if (BEFEHL[b].muster.test(flach)) { ergebnis.art = BEFEHL[b].art; break; }
+    }
+    flach = flach.replace(BEFEHLSWOERTER, ' ').replace(/\s+/g, ' ').trim();
+
+    // Zeiten: bis zu zwei, in der Reihenfolge Beginn, Ende.
+    // "ende achtzehn uhr" setzt nur das Ende.
+    if (!ergebnis.art || ergebnis.art === 'pause') {
+      var nurEnde = /\b(ende|bis|schluss|geht|feierabend)\b/.test(flach) &&
+                    !/\b(von|beginn|start|ab|kommt|angefangen)\b/.test(flach);
+      var nurBeginn = /\b(beginn|start|angefangen|gekommen)\b/.test(flach) &&
+                      !/\b(bis|ende|schluss)\b/.test(flach);
+
+      var rest = flach;
+      var zeiten = [];
+      for (var n = 0; n < 2; n++) {
+        var t = zeitAusSprache(rest);
+        if (!t) break;
+        zeiten.push(t.minuten);
+        var w = rest.split(' ');
+        w.splice(t.von, t.bis - t.von + 1);
+        rest = w.join(' ');
+      }
+      if (zeiten.length === 2) { ergebnis.beginn = zeiten[0]; ergebnis.ende = zeiten[1]; ergebnis.art = 'zeit'; }
+      else if (zeiten.length === 1) {
+        if (nurEnde) ergebnis.ende = zeiten[0];
+        else if (nurBeginn) ergebnis.beginn = zeiten[0];
+        else ergebnis.beginn = zeiten[0];
+        ergebnis.art = ergebnis.art === 'pause' ? 'pause' : 'zeit';
+      }
+      flach = rest;
+    }
+
+    // Was uebrig bleibt, ohne Fuellwoerter, ist der Name.
+    var namenstext = flach
+      .replace(/\b(von|bis|uhr|ende|beginn|start|schluss|geht|kommt|ab|fuer|der|die|das|herr|frau|minuten|minute|pause|und|dann|bitte|auf|setzen|eintragen|hat|ist|war|halb)\b/g, ' ')
+      .replace(/\s+/g, ' ').trim();
+
+    if (namenstext && personen && personen.length) {
+      var treffer = zuordnen(namenstext, personen, aliase);
+      if (treffer.person) {
+        ergebnis.person = treffer.person;
+        ergebnis.zuordnung = treffer;
+      } else {
+        ergebnis.zuordnung = treffer;
+      }
+    }
+    ergebnis.name = namenstext;
+    ergebnis.verstanden = !!(ergebnis.person && ergebnis.art);
+    return ergebnis;
+  }
+
   return {
     // Zeit
     minutenAusZeit: minutenAusZeit, zeitAusMinuten: zeitAusMinuten, dauer: dauer,
@@ -1197,9 +1568,13 @@ globalThis.HSTAbgleich = (function () {
     personAusSecplan: personAusSecplan,
     // Ergebnis
     ergebnisCsv: ergebnisCsv, ergebnisZeilen: ergebnisZeilen, AENDERUNG: AENDERUNG,
+    ERGEBNIS_SPALTEN: ERGEBNIS_SPALTEN, ERGEBNIS_FELDER: ERGEBNIS_FELDER,
     // Abgleich
     bewerten: bewerten, abgleichen: abgleichen, kennzahlen: kennzahlen,
     bloeckeBilden: bloeckeBilden,
+    // Konflikte und Sprache
+    konflikte: konflikte, ARBZG: ARBZG, zeitpunkt: zeitpunkt,
+    sprachbefehlLesen: sprachbefehlLesen, zeitAusSprache: zeitAusSprache, zahlAusWort: zahlAusWort,
     freigabePaket: freigabePaket, regelnMitStandard: regelnMitStandard,
     REGELN_STANDARD: REGELN_STANDARD, SCHWELLEN: { SICHER: SICHER, VORSCHLAG: VORSCHLAG }
   };

@@ -95,6 +95,10 @@ Werkzeug für den Morgenlauf des Büros. Zwei Dateien rein, eine raus:
    angekommen ist. Wer das (noch) nicht will, lädt stattdessen die
    **Ergebnisdatei** herunter und trägt von Hand nach.
 
+Dazu: automatische Namenszuordnung, Konfliktprüfung nach Arbeitszeitgesetz,
+Massenbestätigung, Diktat statt Tippen und ein Protokoll, das jede Änderung
+festhält.
+
 Zwei Seiten und ein kleiner Dienst:
 
 ```

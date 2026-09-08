@@ -147,6 +147,21 @@ ganze Ablauf laeuft. Selektoren aus der Konfiguration duerfen gewinnen, sind
 aber nie Voraussetzung. Und: nach dem Speichern wird zurueckgelesen; was sich
 nicht bestaetigen laesst, gilt als nicht uebertragen.
 
+Zwei Regeln, die im Werkzeug immer wieder auftauchen und leicht verloren
+gehen: **"nicht eingetragen" ist nicht "null"** — die Abgleichliste fuehrt keine
+Pausenspalte, daraus jede Schicht nach § 4 ArbZG anzumahnen waere Laerm, durch
+den man die echten Faelle nicht mehr sieht (deshalb `pauseUnbekannt`). Und
+**Konflikte haengen an den Entscheidungen**, nicht am Einlesen: sie werden bei
+jedem Zeichnen neu bestimmt, sonst steht nach einem Ausfall noch die Warnung
+von vorhin da.
+
+Das Diktat versteht den Satz in `kern.js` (`sprachbefehlLesen`) — reiner Text
+rein, Anweisung raus. Woher der Text kommt, ist der Datei gleichgueltig, und
+genau deshalb laesst sie sich pruefen. Das Mikrofon fuellt nur dieselbe Zeile,
+die man auch tippen kann; es bleibt aus, bis jemand ausdruecklich zustimmt
+(die Aufnahme geht bei Chrome an Google — bei Namen und Arbeitszeiten von
+Mitarbeitern ist das eine Uebermittlung an einen Dritten).
+
 Eine Sache ist bewusst *nicht* gebaut: aus einem Foto handschriftlicher Zeiten
 werden keine Zeiten gelesen. Das wurde ausprobiert und taugt nicht; falsch
 erkannte Uhrzeiten waeren schlimmer als gar keine. Stattdessen liegt der Zettel

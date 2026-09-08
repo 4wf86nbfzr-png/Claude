@@ -97,14 +97,34 @@ async function uebertragenPerDatei(konfig, paket) {
 
 async function ausgangSchreiben(konfig, paket, art) {
   const zeilen = paket.schichten.map((s) => ({
-    datum: s.datum, name: s.name, person: { personalnummer: s.personalnummer },
-    einsatz: s.einsatz, schichtId: s.schichtId, status: s.status, notiz: s.notiz,
+    datum: s.datum, name: s.name,
+    person: { personalnummer: s.personalnummer, nachnameZuerst: s.nameSecplan || s.name },
+    einsatz: s.einsatz, funktion: s.funktion || '', format: s.format || '',
+    schichtId: s.schichtId, status: s.status, notiz: s.notiz,
+    soll: s.geplantBeginn ? {
+      beginn: K.minutenAusZeit(s.geplantBeginn), ende: K.minutenAusZeit(s.geplantEnde),
+      pause: s.geplantPause || 0
+    } : null,
+    ist: null,
+    diffDauer: null,
     vorschlag: {
       beginn: K.minutenAusZeit(s.beginn), ende: K.minutenAusZeit(s.ende), pause: s.pause
     },
     freigegeben: true
-  }));
-  const csv = K.csvSchreiben(zeilen);
+  })).concat((paket.ausfaelle || []).map((a) => ({
+    datum: a.datum, name: a.name, person: { personalnummer: '', nachnameZuerst: a.name },
+    einsatz: '', funktion: '', format: '', status: 'ausfall', notiz: a.grund || '',
+    soll: null, ist: null, diffDauer: null,
+    vorschlag: { beginn: null, ende: null, pause: 0 }, freigegeben: true
+  })));
+  const profil = konfig.export || {};
+  const csv = K.ergebnisCsv(zeilen, {
+    trenner: profil.trenner || ';',
+    spalten: profil.spalten && profil.spalten.length
+      ? profil.spalten.map((s) => (Array.isArray(s) ? s : [s.kopf, s.feld]))
+      : null,
+    nurAenderungen: !!profil.nurAenderungen
+  });
   const stamm = `${art}-${paket.datum}`;
   const zielCsv = path.join(konfig.ordner.ausgang, stamm + '.csv');
   const zielJson = path.join(konfig.ordner.ausgang, stamm + '.json');
@@ -448,7 +468,9 @@ async function uebertragenPerBrowser(konfig, paket) {
 
   try {
     for (const schicht of zuTun) {
-      const eintrag = { name: schicht.name, datum: schicht.datum,
+      const eintrag = { name: schicht.name, personalnummer: schicht.personalnummer,
+                        datum: schicht.datum,
+                        geplantVon: schicht.geplantBeginn, geplantBis: schicht.geplantEnde,
                         von: schicht.beginn, bis: schicht.ende };
       try {
         if (!schicht.datum) throw new Error('ohne Datum');

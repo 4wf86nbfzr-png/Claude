@@ -106,6 +106,20 @@ Welcher Tag morgens abgeglichen wird, steht in `konfig.json` unter
 
   Tastatur: `↑` `↓` wählen, `Enter` übernehmen, `P` wie geplant, `A` Ausfall,
   `Z` zurücknehmen. Mit sechzig Zeilen ist man so in zwei Minuten durch.
+* **Konflikte** — stehen über der Tabelle und beantworten eine andere Frage
+  als der Abgleich: nicht „passen Plan und Zettel zusammen", sondern „ist das
+  Ergebnis in Ordnung". Geprüft werden Überschneidungen, Höchstarbeitszeit
+  (§ 3 ArbZG), Ruhezeit über Tagesgrenzen hinweg (§ 5), Pausen (§ 4), doppelt
+  eingelesene Zettel und schlicht Unplausibles. Ein Klick springt zur Zeile.
+  Steht in den Daten gar keine Pause — die Abgleichliste führt keine
+  Pausenspalte —, sagt das Werkzeug das einmal, statt jede Schicht anzumahnen.
+* **Massenbestätigung** — „Alle sichtbaren übernehmen" für die aktuelle Ansicht,
+  und „Abweichungen bis ± n min übernehmen" für den Alltag: fünf Minuten
+  Überzug will niemand einzeln bestätigen. Zeilen mit einem dringenden Konflikt
+  bleiben dabei außen vor.
+* **Diktat** — siehe *Zeiten sagen statt tippen*.
+* **Protokoll** — unten aufklappbar: wer wann was freigegeben hat, und jede
+  einzelne Änderung in secplan mit alter und neuer Zeit.
 * **Ergebnisdatei** — das, was am Ende zählt: eine CSV, die man neben secplan
   legt und abarbeitet. Erste Spalte **Änderung**, sortiert nach dem, was zu tun
   ist; dann Name (in der secplan-Schreibweise `Nachname, Vorname`),
@@ -270,6 +284,34 @@ nichtssagenden Klassennamen und anderen Feldnamen, als man raten würde). Gegen
 das echte secplan.net konnte hier niemand testen; dafür braucht es Ihren Zugang.
 Genau dafür ist der Probelauf da.
 
+## Zeiten sagen statt tippen
+
+Der Zettel liegt links, die Maus rechts, dazwischen sitzt jemand, der vorlesen
+könnte. Der Knopf **Diktat** (oder Taste `D`) öffnet eine Befehlszeile:
+
+```
+Kanopka von acht Uhr dreißig bis siebzehn Uhr fünfzehn
+Fett Ende achtzehn Uhr fünfundvierzig
+Botis Ausfall
+Schmedding wie geplant
+Pause dreißig Minuten für Mustermann
+```
+
+Verstanden werden Zahlwörter („fünfundvierzig"), „halb acht", Ziffern und
+gemischte Formen. Der Name wird gegen den Plan geprüft — wer nicht eindeutig
+erkannt wird, führt zu einer Rückfrage statt zu einer Buchung.
+
+**Dieselbe Zeile lässt sich tippen.** Das ist kein Notbehelf, sondern der
+Normalfall: das Mikrofon füllt nur dasselbe Feld. Wer schneller tippt als
+spricht, tippt.
+
+**Zum Mikrofon:** Der Browser schickt die Aufnahme zur Erkennung an seinen
+Anbieter — bei Chrome an Google. Gesprochen werden dabei Namen von Mitarbeitern
+und ihre Arbeitszeiten. Deshalb fragt das Werkzeug einmal ausdrücklich, bevor es
+das Mikrofon einschaltet, und lässt es sonst aus. Wer das nicht will, tippt die
+Zeile — es geht alles genauso. (Eine Erkennung, die auf dem eigenen Rechner
+läuft, wäre der sauberere Weg; sie ist hier nicht eingebaut.)
+
 ## Der Stundenzettel
 
 Ein Foto des handschriftlichen Zettels wird **nicht** in Zeiten übersetzt, und
@@ -339,6 +381,53 @@ sind zwanzig Minuten, nicht dreiundzwanzig Stunden.
 
 ---
 
+## Die Ergebnisdatei an secplan anpassen
+
+secplan kann CSV importieren. Welche Spalten die eigene Installation dabei
+erwartet, weiß nur sie — deshalb ist die Spaltenfolge eine Einstellung. In
+`konfig.json`:
+
+```json
+"export": {
+  "trenner": ";",
+  "nurAenderungen": false,
+  "spalten": [
+    ["Personalnummer", "personalnummer"],
+    ["Datum",          "datum"],
+    ["Von",            "neu_von"],
+    ["Bis",            "neu_bis"],
+    ["Pause",          "pause"],
+    ["Stunden",        "stunden_punkt"]
+  ]
+}
+```
+
+Links steht die Überschrift, wie secplan sie erwartet, rechts das Feld. Zur
+Auswahl stehen: `aenderung`, `datum`, `datum_iso`, `mitarbeiter` (Nachname,
+Vorname), `vorname_nachname`, `personalnummer`, `planung`, `funktion`,
+`soll_von`, `soll_bis`, `soll_pause`, `neu_von`, `neu_bis`, `pause`, `stunden`
+(mit Komma), `stunden_punkt`, `minuten`, `differenz`, `format`, `status`,
+`notiz`, `hinweis`. Leer gelassen, kommt die Standardfolge — die ist für
+Menschen gemacht, nicht für einen Import.
+
+## Gibt es eine richtige Schnittstelle?
+
+Kurz: keine öffentlich dokumentierte. Recherchiert wurde in den Produkt- und
+Partnerinformationen zu SecPlan NET; genannt werden **CSV-Import** für Stamm-
+und Einsatzdaten sowie **Export der Lohnabrechnung in gängige Buchhaltungs-
+programme**, aber keine REST- oder Webservice-Schnittstelle. Deshalb setzt
+dieses Werkzeug auf genau die zwei Wege, die es tatsächlich gibt: die
+Weboberfläche (automatisiert bedient) und CSV.
+
+Erfunden wird hier nichts. Damit es dabei nicht bleiben muss, schreibt
+`npm run einrichten` nebenbei mit, welche **JSON-Aufrufe secplan intern selbst
+macht** — fast jede Weboberfläche spricht so mit ihrem Server. Das Ergebnis
+landet in `daten/schnittstellen.json`, und zwar nur Methode, Adresse (ohne die
+Werte) und die *Namen* der Felder; keine Inhalte, keine Personendaten. Steht
+dort etwas Brauchbares, ist das der Ansatzpunkt für einen direkten Draht —
+damit lässt sich beim secplan-Support konkret nachfragen, statt allgemein nach
+„einer API".
+
 ## Sicherheit und Datenschutz
 
 * Alles läuft auf dem Bürorechner. Es gehen keine Namen, Zeiten oder Fotos an
@@ -366,6 +455,10 @@ sind zwanzig Minuten, nicht dreiundzwanzig Stunden.
   nicht selbst eingetragen — eine Nachbesetzung ist eine Entscheidung, keine
   Rechenoperation.
 * **Handschrift lesen.** Siehe *Der Stundenzettel*.
+* **Ausfälle in secplan austragen.** Ein Ausfall steht im Bericht, im Protokoll
+  und in der Ergebnisdatei — eingetragen wird er nicht. Eine Schicht zu löschen
+  oder umzubuchen ist eine Entscheidung mit Folgen für Abrechnung und Kunde;
+  das gehört in die Hand eines Menschen.
 * **Gescannte Abgleichlisten lesen.** Die Liste muss aus secplan als PDF
   gespeichert sein, nicht ausgedruckt und wieder eingescannt.
 * **Raten, wenn etwas nicht zusammenpasst.** Findet die Brücke eine Schicht im

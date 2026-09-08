@@ -43,6 +43,12 @@
     }
   },
 
+  "export": {
+    "trenner": ";",
+    "nurAenderungen": false,
+    "spalten": []
+  },
+
   "ocr": {
     "sprache": "deu",
     "datenPfad": "",

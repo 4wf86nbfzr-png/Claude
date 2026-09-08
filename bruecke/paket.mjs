@@ -72,6 +72,26 @@ export async function protokollieren(konfig, eintrag) {
   return datei;
 }
 
+/* Protokoll lesen — neueste zuerst. Kaputte Zeilen werden
+   uebergangen statt den ganzen Monat unlesbar zu machen. */
+export async function protokollLesen(konfig, monat, grenze = 200) {
+  const datei = path.join(konfig.ordner.daten, `protokoll-${monat}.jsonl`);
+  if (!existsSync(datei)) return [];
+  const text = await readFile(datei, 'utf8');
+  const aus = [];
+  for (const zeile of text.split(/\r?\n/)) {
+    if (!zeile.trim()) continue;
+    try { aus.push(JSON.parse(zeile)); } catch (f) { /* uebergehen */ }
+  }
+  return aus.reverse().slice(0, grenze);
+}
+
+export async function protokollMonate(konfig) {
+  return (await readdir(konfig.ordner.daten))
+    .map((n) => /^protokoll-(\d{4}-\d{2})\.jsonl$/.exec(n))
+    .filter(Boolean).map((m) => m[1]).sort().reverse();
+}
+
 export async function letztesPaket(konfig) {
   const dateien = (await readdir(konfig.ordner.daten))
     .filter((n) => /^tagespaket-\d{4}-\d{2}-\d{2}\.json$/.test(n))

@@ -17,8 +17,19 @@ import path from 'node:path';
 import { starten, schichtenAnlegen } from './scheinplan.mjs';
 import * as secplan from '../secplan.mjs';
 
+/* Diese Faelle brauchen einen echten Browser. Fehlt Playwright oder
+   ist das Browser-Paket nicht heruntergeladen, werden sie
+   uebersprungen — ein fehlendes Werkzeug ist kein Testfehler. */
 let playwrightDa = true;
-try { await import('playwright'); } catch (f) { playwrightDa = false; }
+try {
+  const { chromium } = await import('playwright');
+  const pfad = process.env.HST_BROWSER || '';
+  const browser = await chromium.launch(pfad ? { executablePath: pfad } : {});
+  await browser.close();
+} catch (f) {
+  playwrightDa = false;
+  console.log('# uebersprungen: kein Browser fuer Playwright (' + String(f.message).split('\n')[0] + ')');
+}
 
 const PORT = 8793;
 
@@ -32,6 +43,7 @@ async function umgebung() {
     ordner: { daten, eingang: path.join(ordner, 'eingang'), ausgang },
     zugang: { benutzer: 'buero', passwort: 'geheim' },
     secplan: {
+      browserPfad: process.env.HST_BROWSER || '',
       adresse: `http://127.0.0.1:${PORT}/`,
       planAdresse: `http://127.0.0.1:${PORT}/tagesplan?d={datum}`,
       schichtAdresse: '', kopfmodus: false, wartenMs: 120, fristMs: 8000, langsamMs: 0,

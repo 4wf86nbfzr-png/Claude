@@ -125,6 +125,8 @@ async function schnittstelle(req, res, url) {
       modus: konfig.modus === 'browser' ? 'secplan direkt' : 'Dateien',
       probelauf: konfig.probelauf,
       letztesPaket: await Paket.letztesPaket(konfig),
+      export: { trenner: (konfig.export && konfig.export.trenner) || ';',
+                spalten: (konfig.export && konfig.export.spalten) || [] },
       heute: tagesdatum(0),
       abzugleichen: tagesdatum(konfig.tagesversatz)
     });
@@ -150,6 +152,21 @@ async function schnittstelle(req, res, url) {
       }
     }
     antwortJson(res, paket || Paket.leeresPaket(tag));
+    return;
+  }
+
+  if (weg === '/api/protokoll') {
+    // Das Protokoll ist der Nachweis, wer wann was freigegeben hat.
+    // Lesbar nur mit Schluessel, und immer nur ein Monat auf einmal.
+    const monat = url.searchParams.get('monat') || tagesdatum(0).slice(0, 7);
+    if (!/^\d{4}-\d{2}$/.test(monat)) { antwortFehler(res, 400, 'Monat unbrauchbar'); return; }
+    const grenze = Math.min(parseInt(url.searchParams.get('anzahl'), 10) || 200, 2000);
+    try {
+      const eintraege = await Paket.protokollLesen(konfig, monat, grenze);
+      antwortJson(res, { monat, eintraege, monate: await Paket.protokollMonate(konfig) });
+    } catch (f) {
+      antwortFehler(res, 500, f.message);
+    }
     return;
   }
 
@@ -194,6 +211,18 @@ async function schnittstelle(req, res, url) {
         uebertragen: ergebnis.uebertragen, probelauf: !!ergebnis.probelauf,
         fehler: ergebnis.fehler, weg: ergebnis.weg
       });
+      // Und jede einzelne Aenderung noch einmal fuer sich: bei einer
+      // Rueckfrage zu einer Stunde ist genau das die Antwort.
+      for (const b of ergebnis.bericht || []) {
+        if (!b.erfolg) continue;
+        await Paket.protokollieren(konfig, {
+          art: 'uebertragen', datum: b.datum, wer: paket.bearbeiter,
+          name: b.name, personalnummer: b.personalnummer || '',
+          alt: (b.geplantVon || '?') + '–' + (b.geplantBis || '?'),
+          neu: b.von + '–' + b.bis,
+          abgeglichen: !!b.abgeglichen
+        });
+      }
       const tagesPaket = await Paket.laden(konfig, paket.datum);
       if (tagesPaket) {
         tagesPaket.freigabe = { zeit: new Date().toISOString(), wer: paket.bearbeiter, ...ergebnis };

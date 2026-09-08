@@ -105,7 +105,7 @@ async function los() {
   let planAdresse = argument('plan');
   // Nur wenn wirklich jemand davor sitzt, wird ein Fenster geoeffnet.
   konfig.secplan.kopfmodus = !planAdresse && !argument('unsichtbar');
-  let seite, browser, kontext;
+  let seite, browser, kontext, mitschrift = null;
 
   if (!planAdresse) {
     console.log('\n  Es oeffnet sich gleich ein Fenster.');
@@ -114,6 +114,7 @@ async function los() {
 
     const teile = await werkzeug.browserOeffnen(konfig, { sichtbar: true });
     ({ browser, kontext, seite } = teile);
+    mitschrift = mitschriftStarten(seite);
     await seite.goto(start, { waitUntil: 'domcontentloaded' });
 
     if (konfig.zugang.benutzer && await werkzeug.anmeldemaskeDa(seite)) {
@@ -144,6 +145,7 @@ async function los() {
     try {
       const teile = await werkzeug.angemeldetOeffnen(still, werkzeug.planAdresseFuer(still, datum || ''));
       ({ browser, kontext, seite } = teile);
+      mitschrift = mitschriftStarten(seite);
     } catch (f) {
       console.log('\n  Die Anmeldung hat nicht geklappt: ' + f.message);
       console.log('  Entweder SECPLAN_BENUTZER / SECPLAN_PASSWORT in bruecke/.env eintragen');
@@ -164,6 +166,31 @@ async function los() {
   if (!zeilen.length) {
     console.log('    Keine gefunden. Entweder standen an dem Tag keine Schichten,');
     console.log('    oder die Adresse zeigt nicht auf den Tagesplan.');
+  }
+
+  // Was secplan selbst an JSON-Aufrufen macht — als Fundstueck,
+  // nicht als fertiger Weg.
+  const gefunden = mitschrift ? [...mitschrift.values()] : [];
+  if (gefunden.length) {
+    await mkdir(konfig.ordner.daten, { recursive: true });
+    await writeFile(path.join(konfig.ordner.daten, 'schnittstellen.json'),
+      JSON.stringify({ erzeugt: new Date().toISOString(), hinweis:
+        'Nur Adressen und Feldnamen, keine Inhalte. Mitgeschrieben waehrend der Einrichtung.',
+        aufrufe: gefunden }, null, 2), 'utf8');
+
+    const nachDaten = gefunden.filter((g) =>
+      /(dienst|schicht|plan|zeit|mitarbeiter|personal|einsatz|shift|roster)/i.test(g.aufruf) ||
+      g.felder.some((f) => /(von|bis|beginn|ende|datum|mitarbeiter|schicht)/i.test(f)));
+
+    console.log('\n  Nebenbei mitgeschrieben: secplan spricht intern ueber ' + gefunden.length +
+      ' JSON-Aufrufe' + (nachDaten.length ? ', davon ' + nachDaten.length + ' nach Dienstplandaten aussehend' : '') + '.');
+    nachDaten.slice(0, 5).forEach((g) => {
+      console.log('    · ' + g.aufruf);
+      if (g.felder.length) console.log('      Felder: ' + g.felder.slice(0, 10).join(', '));
+    });
+    console.log('    Vollstaendig in daten/schnittstellen.json — nur Adressen und Feldnamen,');
+    console.log('    keine Inhalte. Wenn dort etwas Brauchbares steht, ist das der Ansatzpunkt');
+    console.log('    fuer einen direkten Draht; fragen Sie damit beim secplan-Support nach.');
   }
 
   await kontext.storageState({ path: werkzeug.sitzungsdatei(konfig) });

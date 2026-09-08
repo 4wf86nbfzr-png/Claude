@@ -158,7 +158,20 @@
       <div class="wz-block__kopf">
         <span class="wz-block__nr">03</span>
         <h2>Abgleich</h2>
-        <details style="margin-left:auto">
+
+        <span class="wz-knoepfe" style="margin-left:auto">
+          <button class="knopf knopf--klein" id="mikro" type="button" aria-pressed="false"
+                  title="Zeiten diktieren statt tippen">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" aria-hidden="true">
+              <rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/>
+              <line x1="12" y1="18" x2="12" y2="22"/>
+            </svg>
+            Diktat
+          </button>
+        </span>
+
+        <details>
           <summary class="wz-draht" style="cursor:pointer">Regeln</summary>
           <div class="wz-karte" style="position:absolute;right:clamp(16px,3vw,32px);z-index:20;width:min(360px,86vw);margin-top:8px">
             <h3>Wie gerechnet wird</h3>
@@ -187,7 +200,28 @@
       </div>
 
       <div class="kennzahlen" id="kennzahlen"></div>
+
+      <!-- Diktat: dieselbe Befehlszeile, ob getippt oder gesprochen -->
+      <div class="diktat" id="diktat" hidden>
+        <label class="wz-draht" for="diktatText">Anweisung</label>
+        <input class="wahlfeld" id="diktatText" type="text" autocomplete="off"
+               placeholder="z.&nbsp;B. Kanopka von acht Uhr drei&szlig;ig bis siebzehn Uhr f&uuml;nfzehn" />
+        <button class="knopf knopf--klein" id="diktatAus" type="button">ausf&uuml;hren</button>
+        <span class="diktat__stand" id="diktatStand">Enter f&uuml;hrt aus. Mit dem Mikrofonknopf auch gesprochen.</span>
+      </div>
+
+      <div id="konflikte"></div>
+
       <div class="filter" id="filter"></div>
+
+      <div class="wz-knoepfe" style="margin-bottom:var(--gap-s)">
+        <span class="wz-draht">Massenbest&auml;tigung</span>
+        <label class="wz-draht" for="schwelle" style="letter-spacing:.1em">Abweichungen bis &plusmn;</label>
+        <input class="zeitfeld pausenfeld" id="schwelle" type="number" value="15" min="0" max="480"
+               inputmode="numeric" aria-label="Schwelle in Minuten" />
+        <span class="wz-draht" style="letter-spacing:.1em">min</span>
+        <button class="knopf knopf--klein" id="alleKlein" type="button">&uuml;bernehmen</button>
+      </div>
 
       <div style="overflow-x:auto">
         <table class="tafel">
@@ -207,6 +241,11 @@
         </table>
       </div>
 
+      <details class="protokoll" id="protokoll">
+        <summary class="wz-draht" style="cursor:pointer;padding:10px 0">Protokoll &ndash; wer hat wann was freigegeben</summary>
+        <div id="protokollInhalt"><p class="wz-block__hinweis">wird geladen &hellip;</p></div>
+      </details>
+
       <div class="tasten">
         <span><kbd>&uarr;</kbd><kbd>&darr;</kbd> Zeile w&auml;hlen</span>
         <span><kbd>Enter</kbd> &uuml;bernehmen</span>
@@ -214,6 +253,7 @@
         <span><kbd>A</kbd> Ausfall</span>
         <span><kbd>Z</kbd> zur&uuml;cknehmen</span>
         <span><kbd>Tab</kbd> ins Zeitfeld</span>
+        <span><kbd>D</kbd> Diktat</span>
       </div>
     </section>
   </main>

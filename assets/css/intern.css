@@ -113,6 +113,59 @@
 /* Tage in der Abgleichliste — sie umfasst meist mehrere Wochen. */
 #tageLeiste .filter__chip b{ margin-left:6px; }
 
+/* ---- Diktat ----
+   Eine Befehlszeile fuer beides: getippt oder gesprochen. Das
+   Mikrofon fuellt dasselbe Feld, das man auch von Hand fuellen kann —
+   dadurch bleibt das Werkzeug ohne Spracherkennung vollstaendig. */
+.diktat{
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  border:1px solid var(--line); border-radius:var(--r-m);
+  background:var(--ink-2); padding:10px 14px; margin:var(--gap-s) 0;
+}
+.diktat[hidden]{ display:none; }
+.diktat input[type="text"]{ flex:1; min-width:16em; }
+.diktat__stand{ color:var(--muted); font-size:.8rem; }
+.diktat--hoert{ border-color:rgba(127,207,155,.55); }
+.diktat--hoert .diktat__stand{ color:var(--ok); }
+#mikro[aria-pressed="true"]{ background:#FFF; color:#08080A; border-color:transparent; font-weight:600; }
+
+/* ---- Konflikte ----
+   Getrennt vom Abgleich, weil es eine andere Frage beantwortet:
+   nicht "passt Plan und Zettel zusammen", sondern "ist das Ergebnis
+   in Ordnung". Steht deshalb ueber der Tabelle, nicht darin. */
+.konflikt{
+  display:flex; align-items:flex-start; gap:12px;
+  border:1px solid var(--line); border-left-width:3px; border-radius:var(--r-s);
+  padding:10px 14px; margin-top:8px; font-size:.88rem; color:var(--chrome);
+}
+.konflikt[data-schwere="fehler"]{ border-left-color:var(--alarm); }
+.konflikt[data-schwere="warnung"]{ border-left-color:var(--warn); }
+.konflikt[data-schwere="hinweis"]{ border-left-color:var(--info); }
+/* Eine Gesetzesangabe wird nicht versalisiert — "§ 4 ArbZG" ist ein
+   Zitat, kein Etikett. */
+.konflikt__par{
+  font-family:var(--font-mono); font-size:.68rem; letter-spacing:.04em;
+  color:var(--muted); white-space:nowrap; padding-top:2px; min-width:7em;
+}
+.konflikt__text{ flex:1; }
+.konflikt__text b{ color:var(--paper); }
+.konflikt__kopf{
+  font-family:var(--font-mono); font-size:.66rem; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--muted); margin:var(--gap-s) 0 2px;
+}
+
+/* Zeile mit Konflikt bekommt eine Kante, damit man sie in der Tabelle findet */
+.tafel tbody tr[data-konflikt="fehler"]{ box-shadow:inset 3px 0 0 var(--alarm); }
+.tafel tbody tr[data-konflikt="warnung"]{ box-shadow:inset 3px 0 0 var(--warn); }
+
+/* ---- Protokoll ---- */
+.protokoll{ border-top:1px solid var(--line); margin-top:var(--gap-m); }
+.protokoll summary{ list-style:none; }
+.protokoll summary::-webkit-details-marker{ display:none; }
+.protokoll summary::before{ content:"› "; }
+.protokoll[open] summary::before{ content:"⌄ "; }
+.protokoll table{ font-size:.84rem; }
+
 /* ---- Kennzahlen ---- */
 .kennzahlen{ display:flex; flex-wrap:wrap; gap:clamp(16px,3vw,42px); padding:14px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
 .kennzahl{ display:grid; gap:3px; }

@@ -45,6 +45,14 @@ const STANDARD = {
       speichern: '', gespeichertErkennenAn: ''
     }
   },
+  // Die Ergebnisdatei. secplan kann CSV importieren; welche Spalten
+  // in welcher Reihenfolge die eigene Installation erwartet, weiss
+  // nur sie selbst — deshalb ist die Spaltenfolge hier einstellbar.
+  // Moegliche Felder: aenderung, datum, datum_iso, mitarbeiter,
+  // vorname_nachname, personalnummer, planung, funktion, soll_von,
+  // soll_bis, soll_pause, neu_von, neu_bis, pause, stunden,
+  // stunden_punkt, minuten, differenz, format, status, notiz, hinweis
+  export: { trenner: ';', nurAenderungen: false, spalten: [] },
   ocr: { sprache: 'deu', datenPfad: '', gepackt: true, zwischenlager: '',
          seitenmodus: 3, startFrist: 60, leseFrist: 120 },
   mail: { aktiv: false, an: [], von: '', betreff: 'Schichtabgleich {datum}', smtp: {} },

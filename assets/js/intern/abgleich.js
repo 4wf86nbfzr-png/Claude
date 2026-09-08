@@ -37,6 +37,7 @@
     personen: [],
     ist: [],
     ergebnis: null,
+    konflikte: [],
     entscheidungen: {},     // ueberlebt ein Neuberechnen
     filter: 'offen',
     aktiv: -1,
@@ -297,7 +298,9 @@
     if (!Z.soll.length) { meldung('warnung', 'Erst den Dienstplan laden.'); return; }
     Z.ist = Z.soll.map(function (s) {
       return { rohname: s.mitarbeiter.name, beginn: s.beginn, ende: s.ende,
-               pause: s.pause || 0, datum: s.datum, quelle: 'wie geplant' };
+               // Wo der Plan keine Pause kennt, wird auch keine behauptet.
+               pause: s.pauseUnbekannt ? null : (s.pause || 0),
+               datum: s.datum, quelle: 'wie geplant' };
     });
     schreibe('#istStand', 'gut', 'Alle ' + Z.ist.length + ' Schichten als <b>planm&auml;ssig</b> gesetzt. ' +
       'Einzelne Abweichungen lassen sich unten trotzdem eintragen.');
@@ -351,6 +354,7 @@
     ['fehlt', 'ohne Meldung'],
     ['zusatz', 'zus&auml;tzlich'],
     ['ausfall', 'Ausfall'],
+    ['konflikt', 'Konflikt'],
     ['passt', 'passt'],
     ['alle', 'Alle']
   ];
@@ -359,10 +363,34 @@
     var alle = Z.ergebnis ? Z.ergebnis.zeilen : [];
     if (Z.filter === 'alle') return alle;
     if (Z.filter === 'offen') return alle.filter(function (z) { return !z.freigegeben; });
+    if (Z.filter === 'konflikt') {
+      var betroffen = konfliktKarte();
+      return alle.filter(function (z) { return betroffen[z.id]; });
+    }
     return alle.filter(function (z) { return z.status === Z.filter; });
   }
 
+  /* Zeilen-Id -> schwerster Konflikt dieser Zeile */
+  function konfliktKarte() {
+    var karte = {};
+    var rang = { fehler: 3, warnung: 2, hinweis: 1 };
+    Z.konflikte.forEach(function (k) {
+      k.zeilen.forEach(function (id) {
+        if (!karte[id] || rang[k.schwere] > rang[karte[id]]) karte[id] = k.schwere;
+      });
+    });
+    return karte;
+  }
+
   function zeichnen() {
+    // Konflikte sind eine andere Frage als der Abgleich: nicht "passt
+    // Plan und Zettel zusammen", sondern "ist das Ergebnis in Ordnung".
+    // Sie haengen an den Entscheidungen und werden deshalb bei jedem
+    // Zeichnen neu bestimmt — sonst steht nach einem Ausfall noch die
+    // Warnung von vorhin da. Fuer die Ruhezeit zaehlen die Nachbartage.
+    Z.konflikte = K.konflikte(Z.ergebnis.zeilen, Z.regeln,
+      Z.sollAlle.filter(function (s) { return s.datum !== Z.datum; }));
+
     var k = K.kennzahlen(Z.ergebnis.zeilen);
 
     $('#kennzahlen').innerHTML = [
@@ -380,11 +408,14 @@
     $('#filter').innerHTML = FILTER.map(function (f) {
       var zahl = f[0] === 'alle' ? k.gesamt
                : f[0] === 'offen' ? k.offen
+               : f[0] === 'konflikt' ? Object.keys(konfliktKarte()).length
                : (k[f[0]] || 0);
       return '<button class="filter__chip" type="button" data-filter="' + f[0] + '" ' +
              'aria-pressed="' + (Z.filter === f[0] ? 'true' : 'false') + '">' +
              f[1] + '<b>' + zahl + '</b></button>';
     }).join('');
+
+    konflikteZeichnen();
 
     var koerper = $('#tafelKoerper');
     koerper.innerHTML = '';
@@ -403,6 +434,21 @@
       ' &middot; ' + K.datumDeutsch(Z.datum);
   }
 
+  function konflikteZeichnen() {
+    var ziel = $('#konflikte');
+    if (!Z.konflikte.length) { ziel.innerHTML = ''; return; }
+    var schwer = Z.konflikte.filter(function (k) { return k.schwere === 'fehler'; }).length;
+    ziel.innerHTML = '<p class="konflikt__kopf">' + Z.konflikte.length + ' Konflikt' +
+      (Z.konflikte.length === 1 ? '' : 'e') +
+      (schwer ? ' &middot; ' + schwer + ' davon dringend' : '') + '</p>' +
+      Z.konflikte.map(function (k) {
+        return '<div class="konflikt" data-schwere="' + k.schwere + '"' +
+          (k.zeilen.length ? ' data-zeilen="' + k.zeilen.join(',') + '" style="cursor:pointer"' : '') + '>' +
+          '<span class="konflikt__par">' + (k.paragraf || k.art) + '</span>' +
+          '<span class="konflikt__text">' + sicher(k.text) + '</span></div>';
+      }).join('');
+  }
+
   function kennzahl(wert, was) {
     return '<div class="kennzahl"><b>' + wert + '</b><span>' + was + '</span></div>';
   }
@@ -418,6 +464,8 @@
   function zeileZeichnen(z, index) {
     var tr = document.createElement('tr');
     tr.setAttribute('data-id', z.id);
+    var konflikt = konfliktKarte()[z.id];
+    if (konflikt) tr.setAttribute('data-konflikt', konflikt);
     tr.setAttribute('data-frei', z.freigegeben ? 'ja' : 'nein');
     tr.setAttribute('data-aktiv', index === Z.aktiv ? 'ja' : 'nein');
 
@@ -618,6 +666,212 @@
   }
 
   /* ============================================================
+     Diktat
+     ------------------------------------------------------------
+     Der Zettel liegt links, die Maus rechts, dazwischen sitzt
+     jemand, der vorlesen koennte statt zu tippen. Verstanden wird
+     der Satz in kern.js; hier steht nur, was damit passiert.
+
+     Getippt geht dasselbe — das Mikrofon fuellt nur dieselbe Zeile.
+     Deshalb funktioniert die Bedienung auch dort, wo die
+     Spracherkennung nicht erlaubt ist oder nicht taugt.
+     ============================================================ */
+  var Sprache = {
+    erkenner: null,
+    hoert: false,
+
+    moeglich: function () {
+      return !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+    },
+
+    /* Chrome schickt die Aufnahme zur Erkennung an Google. Bei Namen
+       und Arbeitszeiten von Mitarbeitern ist das eine Uebermittlung
+       an einen Dritten — also einmal ausdruecklich fragen, statt es
+       einfach zu tun. */
+    einwilligung: function () {
+      if (merken.laden('diktatEinwilligung', false)) return true;
+      var ja = confirm(
+        'Spracherkennung einschalten?\n\n' +
+        'Der Browser schickt die Aufnahme zur Erkennung an seinen Anbieter ' +
+        '(bei Chrome an Google). Gesprochen werden dabei Namen von Mitarbeitern ' +
+        'und ihre Arbeitszeiten.\n\n' +
+        'Ohne Mikrofon geht alles genauso: dieselbe Zeile laesst sich tippen.\n\n' +
+        'Einschalten?');
+      if (ja) merken.sichern('diktatEinwilligung', true);
+      return ja;
+    },
+
+    an: function () {
+      if (!Sprache.moeglich()) {
+        setDiktatStand('Dieser Browser kann keine Spracherkennung. Die Zeile l&auml;sst sich tippen.');
+        return false;
+      }
+      if (!Sprache.einwilligung()) return false;
+
+      var Erkenner = window.SpeechRecognition || window.webkitSpeechRecognition;
+      var e = new Erkenner();
+      e.lang = 'de-DE';
+      e.continuous = true;
+      e.interimResults = true;
+
+      e.onresult = function (ereignis) {
+        var text = '', endgueltig = false;
+        for (var i = ereignis.resultIndex; i < ereignis.results.length; i++) {
+          text += ereignis.results[i][0].transcript;
+          if (ereignis.results[i].isFinal) endgueltig = true;
+        }
+        $('#diktatText').value = text.trim();
+        if (endgueltig && text.trim()) diktatAusfuehren(text.trim());
+      };
+      e.onerror = function (f) {
+        setDiktatStand('Mikrofon: ' + sicher(f.error || 'Fehler') +
+          (f.error === 'not-allowed' ? ' &ndash; im Browser den Zugriff erlauben.' : ''));
+        Sprache.aus();
+      };
+      e.onend = function () { if (Sprache.hoert) { try { e.start(); } catch (g) {} } };
+
+      Sprache.erkenner = e;
+      Sprache.hoert = true;
+      try { e.start(); } catch (g) {}
+      $('#diktat').classList.add('diktat--hoert');
+      setDiktatStand('H&ouml;rt zu &ndash; sprechen Sie, z.&nbsp;B. &bdquo;Kanopka bis siebzehn Uhr f&uuml;nfzehn&ldquo;.');
+      return true;
+    },
+
+    aus: function () {
+      Sprache.hoert = false;
+      if (Sprache.erkenner) { try { Sprache.erkenner.stop(); } catch (f) {} }
+      Sprache.erkenner = null;
+      $('#diktat').classList.remove('diktat--hoert');
+    }
+  };
+
+  function setDiktatStand(html) { $('#diktatStand').innerHTML = html; }
+
+  function diktatUmschalten() {
+    var knopf = $('#mikro');
+    var offen = $('#diktat').hidden === false;
+    if (offen) {
+      Sprache.aus();
+      $('#diktat').hidden = true;
+      knopf.setAttribute('aria-pressed', 'false');
+      return;
+    }
+    $('#diktat').hidden = false;
+    knopf.setAttribute('aria-pressed', 'true');
+    $('#diktatText').focus();
+    if (!Sprache.an()) {
+      setDiktatStand('Zeile tippen und Enter &ndash; das Mikrofon ist nicht an.');
+    }
+  }
+
+  /* Eine Anweisung auf die passende Zeile anwenden. */
+  function diktatAusfuehren(text) {
+    if (!Z.ergebnis) { setDiktatStand('Erst Dienstplan und Zeiten laden.'); return; }
+    var b = K.sprachbefehlLesen(text, Z.personen, Z.aliase);
+
+    if (b.art === 'leer') { setDiktatStand('Nichts verstanden.'); return; }
+    if (!b.person) {
+      setDiktatStand('&bdquo;' + sicher(b.name || text) + '&ldquo; passt zu keinem Namen im Plan. ' +
+        'Bitte Nachnamen deutlich nennen.');
+      return;
+    }
+    if (!b.art) {
+      setDiktatStand('Name erkannt (' + sicher(b.person.name) + '), aber keine Anweisung. ' +
+        'M&ouml;glich: Zeiten, &bdquo;wie geplant&ldquo;, &bdquo;Ausfall&ldquo;, &bdquo;Pause 30&ldquo;.');
+      return;
+    }
+
+    var zeilen = Z.ergebnis.zeilen.filter(function (z) {
+      return z.person && String(z.person.id) === String(b.person.id);
+    });
+    if (!zeilen.length) {
+      setDiktatStand(sicher(b.person.name) + ' steht an diesem Tag nicht im Plan.');
+      return;
+    }
+    // Bei mehreren Schichten die noch offene, sonst die erste.
+    var z = zeilen.filter(function (x) { return !x.freigegeben; })[0] || zeilen[0];
+
+    if (b.art === 'wieGeplant') { wieGeplant(z); fertig('als planm&auml;ssig best&auml;tigt'); return; }
+    if (b.art === 'zuruecknehmen') { zurueck(z); fertig('zur&uuml;ckgenommen'); return; }
+    if (b.art === 'ausfall') {
+      z.notiz = 'per Diktat als Ausfall gemeldet';
+      z.status = 'ausfall';
+      z.freigegeben = true;
+      entscheidungMerken(z);
+      zeichnen();
+      fertig('als Ausfall eingetragen');
+      return;
+    }
+
+    if (b.beginn !== null && b.beginn !== undefined) z.vorschlag.beginn = b.beginn;
+    if (b.ende !== null && b.ende !== undefined) z.vorschlag.ende = b.ende;
+    if (b.pause !== null && b.pause !== undefined) z.vorschlag.pause = b.pause;
+    neuBewerten(z);
+    z.freigegeben = true;
+    entscheidungMerken(z);
+    zeichnen();
+    fertig(K.zeitAusMinuten(z.vorschlag.beginn) + '–' + K.zeitAusMinuten(z.vorschlag.ende) +
+           (z.vorschlag.pause ? ', ' + z.vorschlag.pause + ' min Pause' : ''));
+
+    function fertig(was) {
+      setDiktatStand('<b>' + sicher(z.name) + '</b>: ' + was + '.');
+      $('#diktatText').value = '';
+      var index = sichtbare().indexOf(z);
+      if (index >= 0) { Z.aktiv = index; markiereAktiv(); }
+    }
+  }
+
+  /* ============================================================
+     Protokoll
+     ============================================================ */
+  function protokollLaden() {
+    var ziel = $('#protokollInhalt');
+    if (!Z.bruecke.an) {
+      ziel.innerHTML = '<p class="wz-block__hinweis">Das Protokoll f&uuml;hrt die Br&uuml;cke. ' +
+        'Ohne sie gibt es keins &ndash; dann ist die Ergebnisdatei der Nachweis.</p>';
+      return;
+    }
+    ziel.innerHTML = '<p class="wz-block__hinweis">wird geladen &hellip;</p>';
+    Bruecke.hole('/api/protokoll?monat=' + Z.datum.slice(0, 7)).then(function (a) {
+      if (!a.eintraege || !a.eintraege.length) {
+        ziel.innerHTML = '<p class="wz-block__hinweis">F&uuml;r ' + sicher(a.monat) +
+          ' ist noch nichts eingetragen.</p>';
+        return;
+      }
+      var zeilen = a.eintraege.map(function (e) {
+        var zeit = String(e.zeit || '').replace('T', ' ').slice(0, 16);
+        var was = e.art === 'freigabe' ? 'Freigabe'
+                : e.art === 'erfassung' ? 'Schnellerfassung'
+                : e.art === 'uebertragen' ? 'in secplan eingetragen'
+                : sicher(e.art || '');
+        var mehr = [];
+        if (e.schichten !== undefined) mehr.push(e.schichten + ' Schichten');
+        if (e.zeilen !== undefined) mehr.push(e.zeilen + ' Zeiten');
+        if (e.ausfaelle) mehr.push(e.ausfaelle + ' Ausf&auml;lle');
+        if (e.uebertragen !== undefined) mehr.push(e.uebertragen + ' &uuml;bertragen');
+        if (e.probelauf) mehr.push('Probelauf');
+        if (e.alt && e.neu) mehr.push(sicher(e.alt) + ' &rarr; ' + sicher(e.neu));
+        if (e.fehler && e.fehler.length) mehr.push('<span style="color:var(--alarm)">' +
+          e.fehler.length + ' Fehler</span>');
+        return '<tr><td data-spalte="Zeit"><span class="z-zeit">' + sicher(zeit) + '</span></td>' +
+          '<td data-spalte="Vorgang">' + was + '</td>' +
+          '<td data-spalte="Tag"><span class="z-zeit">' + sicher(e.datum || '') + '</span></td>' +
+          '<td data-spalte="Wer">' + sicher(e.wer || e.name || '') + '</td>' +
+          '<td data-spalte="Einzelheiten"><span class="z-roh">' + mehr.join(' &middot; ') + '</span></td></tr>';
+      }).join('');
+      ziel.innerHTML = '<div style="overflow-x:auto"><table class="tafel"><thead><tr>' +
+        '<th>Zeit</th><th>Vorgang</th><th>Tag</th><th>Wer</th><th>Einzelheiten</th>' +
+        '</tr></thead><tbody>' + zeilen + '</tbody></table></div>' +
+        '<p class="wz-block__hinweis" style="margin-top:10px">Monat ' + sicher(a.monat) +
+        ' &middot; ' + a.eintraege.length + ' Eintr&auml;ge &middot; Datei: ' +
+        '<code>bruecke/daten/protokoll-' + sicher(a.monat) + '.jsonl</code></p>';
+    }).catch(function (f) {
+      ziel.innerHTML = '<p class="wz-block__hinweis">Protokoll nicht lesbar: ' + sicher(f.message) + '</p>';
+    });
+  }
+
+  /* ============================================================
      Freigabe
      ============================================================ */
   function alleSichtbaren() {
@@ -638,11 +892,42 @@
     if (!frei.length) { meldung('warnung', 'Es ist noch nichts best&auml;tigt.'); return; }
 
     var zuTun = K.ergebnisZeilen(alle, true).length;
-    var csv = K.ergebnisCsv(alle, {});
+    // Spaltenfolge kommt von der Bruecke, wenn dort eine eingestellt
+    // ist — dann passt die Datei zu dem, was secplan importieren will.
+    var profil = (Z.bruecke.konfig && Z.bruecke.konfig.export) || {};
+    var csv = K.ergebnisCsv(alle, {
+      trenner: profil.trenner || ';',
+      spalten: (profil.spalten && profil.spalten.length)
+        ? profil.spalten.map(function (sp) { return Array.isArray(sp) ? sp : [sp.kopf, sp.feld]; })
+        : null
+    });
     herunterladen('ergebnis-' + Z.datum + '.csv', csv, 'text/csv;charset=utf-8');
     meldung('gut', 'Ergebnisdatei gesichert: <b>' + frei.length + ' Zeilen</b>, davon <b>' + zuTun +
       '</b> mit &Auml;nderung. Sie &ouml;ffnet sich in Excel; die Spalte <b>&Auml;nderung</b> steht vorn, ' +
       'sortiert ist nach dem, was zu tun ist.', true);
+  }
+
+  /* Massenbestaetigung mit Grenze: alles, was nur ein paar Minuten
+     abweicht, ist Alltag — das einzeln zu bestaetigen ist verlorene
+     Zeit. Was darueber liegt, will weiterhin angesehen werden. */
+  function alleKleinen() {
+    if (!Z.ergebnis) return;
+    var grenze = Math.max(0, parseInt($('#schwelle').value, 10) || 0);
+    var konflikt = konfliktKarte();
+    var liste = Z.ergebnis.zeilen.filter(function (z) {
+      return !z.freigegeben && z.status === 'abweichung' &&
+             z.diffDauer !== null && Math.abs(z.diffDauer) <= grenze &&
+             konflikt[z.id] !== 'fehler';
+    });
+    if (!liste.length) {
+      meldung('info', 'Keine offene Abweichung bis &plusmn;' + grenze + ' min.');
+      return;
+    }
+    if (!confirm(liste.length + ' Abweichungen bis ' + grenze +
+                 ' Minuten so übernehmen, wie sie unten stehen?')) return;
+    liste.forEach(function (z) { z.freigegeben = true; entscheidungMerken(z); });
+    zeichnen();
+    meldung('gut', '<b>' + liste.length + '</b> kleine Abweichungen &uuml;bernommen.');
   }
 
   function csvSichern() {
@@ -1167,7 +1452,39 @@
     });
 
     $('#alleGruen').addEventListener('click', alleSichtbaren);
+    $('#alleKlein').addEventListener('click', alleKleinen);
     $('#ergebnis').addEventListener('click', ergebnisSichern);
+
+    // Diktat
+    $('#mikro').addEventListener('click', diktatUmschalten);
+    $('#diktatAus').addEventListener('click', function () {
+      var t = $('#diktatText').value.trim();
+      if (t) diktatAusfuehren(t);
+    });
+    $('#diktatText').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); var t = this.value.trim(); if (t) diktatAusfuehren(t); }
+    });
+
+    // Protokoll erst laden, wenn es jemand aufklappt
+    $('#protokoll').addEventListener('toggle', function () {
+      if (this.open) protokollLaden();
+    });
+
+    // Ein Klick auf einen Konflikt fuehrt zu den betroffenen Zeilen
+    $('#konflikte').addEventListener('click', function (e) {
+      var kasten = e.target.closest('[data-zeilen]');
+      if (!kasten) return;
+      var ids = kasten.getAttribute('data-zeilen').split(',');
+      Z.filter = 'konflikt';
+      zeichnen();
+      var tr = $$('#tafelKoerper tr').filter(function (r) {
+        return ids.indexOf(r.getAttribute('data-id')) >= 0;
+      })[0];
+      if (tr) {
+        Z.aktiv = $$('#tafelKoerper tr').indexOf(tr);
+        markiereAktiv();
+      }
+    });
     $('#freigeben').addEventListener('click', freigeben);
 
     document.addEventListener('keydown', function (e) {
@@ -1184,9 +1501,11 @@
         else if (e.key === 'a' || e.key === 'A') { e.preventDefault(); ausfall(z); }
         else if (e.key === 'z' || e.key === 'Z') { e.preventDefault(); zurueck(z); }
       }
+      if (e.key === 'd' || e.key === 'D') { e.preventDefault(); diktatUmschalten(); }
     });
 
     // Ungespeichertes nicht verlieren.
+    window.addEventListener('pagehide', function () { Sprache.aus(); });
     window.addEventListener('beforeunload', function (e) {
       var offen = Z.ergebnis && Z.ergebnis.zeilen.some(function (z) { return z.freigegeben; });
       var uebertragen = merken.laden('zuletztUebertragen', '') === Z.datum;
