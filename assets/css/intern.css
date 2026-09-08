@@ -21,6 +21,11 @@
   --feld:   rgba(255,255,255,.04);
 }
 
+/* Ein Element mit hidden bleibt verborgen — auch wenn eine spaetere
+   Regel ihm display:flex gibt. Ohne das stand die Tagesleiste da,
+   bevor eine Liste geladen war, und die Freigabe-Leiste ebenso. */
+[hidden]{ display:none !important; }
+
 /* ---- Rahmen ---- */
 .werkzeug{ min-height:100svh; display:flex; flex-direction:column; }
 .wz-kopf{
@@ -46,6 +51,21 @@
 .wz-draht[data-stand="an"] i{ background:var(--ok); }
 .wz-draht[data-stand="aus"] i{ background:var(--alarm); }
 .wz-draht[data-stand="suche"] i{ background:var(--warn); }
+
+/* ---- Starthilfe ----
+   Wer das Werkzeug zum ersten Mal oeffnet, soll nicht raten muessen.
+   Verschwindet, sobald etwas geladen ist — danach waere sie im Weg. */
+.starthilfe{
+  border:1px solid var(--line); border-radius:var(--r-m);
+  background:var(--ink-2); padding:clamp(18px,2.4vw,28px);
+  margin-bottom:var(--gap-m);
+}
+.starthilfe[hidden]{ display:none; }
+.starthilfe h2{ font-size:clamp(1.15rem,1.7vw,1.4rem); margin-bottom:var(--gap-s); }
+.starthilfe ol{ display:grid; gap:10px; padding-left:1.3em; color:var(--chrome); max-width:78ch; }
+.starthilfe li{ font-size:.95rem; line-height:1.55; }
+.starthilfe li b, .starthilfe p b{ color:var(--paper); font-weight:600; }
+.starthilfe p{ color:var(--muted); font-size:.88rem; margin-top:var(--gap-s); }
 
 /* ---- Abschnitte ----
    Heisst .wz-block und nicht .schritt: die Website benutzt .schritt bereits
@@ -110,8 +130,14 @@
 .filter__chip[aria-pressed="true"]{ background:#FFF; color:#08080A; border-color:transparent; }
 .filter__chip b{ font-family:var(--font-mono); opacity:.7; margin-left:5px; }
 
-/* Tage in der Abgleichliste — sie umfasst meist mehrere Wochen. */
+/* Tage in der Abgleichliste — sie umfasst meist mehrere Wochen.
+   Damit die Tagesleiste nicht mit den Standfiltern darunter
+   verwechselt wird, traegt sie eine Beschriftung. */
 #tageLeiste .filter__chip b{ margin-left:6px; }
+.filter__titel{
+  font-family:var(--font-mono); font-size:.62rem; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--muted); align-self:center; margin-right:4px;
+}
 
 /* ---- Diktat ----
    Eine Befehlszeile fuer beides: getippt oder gesprochen. Das

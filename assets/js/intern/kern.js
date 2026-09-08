@@ -5,10 +5,14 @@
    Diese Datei enthaelt die ganze Rechenlogik und nichts, was
    einen Browser braucht. Dadurch laeuft sie an zwei Stellen:
 
-     <script src="../assets/js/intern/kern.js">   (Oberflaeche)
-     import '../assets/js/intern/kern.js'          (Bruecke, Tests)
+     als Skriptdatei im Browser (intern/abgleich.html)
+     import '../assets/js/intern/kern.js'   (Bruecke, Tests)
 
    Beide holen sie danach unter globalThis.HSTAbgleich ab.
+   In den Kommentaren steht bewusst kein wortwoertlicher Skript-Tag:
+   beim Bauen der Einzeldatei landet dieser Code in einem Skriptblock,
+   und ein solcher Tag darin bringt den HTML-Leser durcheinander —
+   die Seite bleibt dann still, ohne jede Fehlermeldung.
    Wer hier etwas aendert, faehrt bitte `npm test` in bruecke/ —
    die Faelle dort sind aus echten Zeitlisten abgeleitet.
    ============================================================ */

@@ -584,9 +584,9 @@ async function bildschirmfoto(konfig, seite, schicht) {
 async function sollAusBrowser(konfig, datum) {
   const s = konfig.secplan.selektoren || {};
   if (!s.planZeile || !s.spalteName) {
-    throw new Error('Zum Auslesen des Dienstplans fehlen secplan.selektoren.planZeile und .spalteName. ' +
-      'Ohne sie geht der Weg ueber die Abgleichliste: in secplan als PDF ausgeben und in der ' +
-      'Oberflaeche ablegen — dafuer ist nichts einzurichten.');
+    throw new Error('Der Dienstplan kommt ueber die Abgleichliste: in secplan als PDF ausgeben ' +
+      'und im Abgleich unter 01 ablegen. (Ihn stattdessen selbst auszulesen braeuchte ' +
+      'secplan.selektoren.planZeile und .spalteName in konfig.json — noetig ist das nicht.)');
   }
   const teile = await angemeldetOeffnen(konfig, planAdresseFuer(konfig, datum));
   const { browser, seite } = teile;

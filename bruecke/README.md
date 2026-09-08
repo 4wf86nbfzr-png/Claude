@@ -187,6 +187,79 @@ sobald ein neues Tagespaket bereitliegt (einmalig erlauben).
 
 ---
 
+## Erst einmal ausprobieren
+
+```bash
+npm run vorfuehrung
+```
+
+Startet ein **secplan-Doppel** (eine nachgebaute Planungsanwendung), die Brücke
+darauf gerichtet, und legt die Beispieldateien bereit. Damit lässt sich die
+ganze Kette durchspielen — Abgleichliste laden, Zeiten einlesen, freigeben —
+und die Zeiten landen wirklich im Tagesplan. Nur eben nicht im echten secplan.
+Im Terminal steht Schritt für Schritt, was zu klicken ist.
+
+Zum Üben, zum Vorführen, und als Probe nach jeder Änderung. Alles Erzeugte
+liegt in `daten-vorfuehrung/` und kann gelöscht werden; die echte Konfiguration
+wird nicht angefasst, die echte Brücke darf nebenher weiterlaufen.
+
+Die Beispieldateien liegen in `beispiel/` und enthalten erfundene Namen:
+
+| Datei | was sie zeigt |
+|---|---|
+| `abgleichliste-beispiel.pdf` | wie der Export aus secplan: 8 Schichten, zwei Tage, Namen über mehrere Zeilen umgebrochen |
+| `stundenzettel-beispiel.csv` | wie ein Zettel vom Einsatz: eine Schicht in zwei Zeilen (KS/ML), ein Kürzel statt des vollen Namens, eine Verlängerung, jemand ohne Meldung, jemand ohne Plan |
+
+Neu erzeugen: `npm run beispiele`.
+
+## Läuft hier alles?
+
+```bash
+npm run pruefen
+```
+
+Geht der Reihe nach durch, was für den täglichen Betrieb gebraucht wird —
+Konfiguration, Schlüssel, Brücke, Playwright samt Browser, Texterkennung,
+Morgenmail, Beispieldateien — und prüft im Browser-Modus die Anmeldung bei
+secplan und ob der Tagesplan lesbar ist. Bei jedem Punkt steht, was zu tun ist,
+wenn er fehlt. Geändert wird nichts.
+
+## Weitergeben an Kolleginnen und Kollegen
+
+Zwei Wege, je nachdem wie viel jemand braucht.
+
+### Weg 1 — die eine Datei (am einfachsten)
+
+```bash
+npm run bauen
+```
+
+Baut **`Schichtabgleich.html`** im Projektordner: eine einzige Datei, rund
+440 KB, alles darin — Schriften, Gestaltung, Programm. Die lässt sich per Mail
+verschicken, auf einen Stick legen oder ins Laufwerk stellen. Wer sie
+doppelklickt, hat das Werkzeug. Ohne Installation, ohne Server, ohne Internet.
+
+Vollständig darin: Abgleichliste (PDF) lesen, Stundenzettel einlesen, Namen
+zuordnen, abgleichen, Konflikte, Diktat (getippt), Ergebnisdatei.
+Eine laufende Brücke brauchen nur: das Eintragen in secplan, Fotos scannen,
+Morgenmail, Protokoll und die Schnellerfassung.
+
+Findet die Datei eine Brücke im Netz, benutzt sie sie automatisch. Sonst steht
+oben ein Knopf **Brücke im Büronetz suchen** — dort Adresse und Schlüssel des
+Bürorechners eintragen, danach merkt sich der Browser beides.
+
+Nach jeder Änderung am Werkzeug neu bauen und die Datei erneut verteilen —
+sonst arbeitet jemand mit einem alten Stand.
+
+### Weg 2 — alle auf derselben Brücke
+
+Auf einem Bürorechner läuft `npm start`, in `konfig.json` steht
+`"host": "0.0.0.0"`. Dann bekommt jeder den Link aus dem Terminal (mit `?t=…`)
+und arbeitet auf demselben Stand: dasselbe Protokoll, dieselben gemerkten
+Namenszuordnungen, und die Freigabe trägt direkt in secplan ein.
+
+Nur im Büronetz oder über VPN — hier stehen Namen und Arbeitszeiten.
+
 ## Für alle im Team erreichbar machen
 
 Standardmäßig hört die Brücke nur auf dem eigenen Rechner (`127.0.0.1`).

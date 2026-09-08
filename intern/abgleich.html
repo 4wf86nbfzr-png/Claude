@@ -51,6 +51,23 @@
 
     <div id="meldungen"></div>
 
+    <!-- Steht nur da, solange nichts geladen ist. Wer das Werkzeug
+         zum ersten Mal oeffnet, soll nicht raten muessen. -->
+    <section class="starthilfe" id="starthilfe">
+      <h2>In drei Schritten fertig</h2>
+      <ol>
+        <li><b>Abgleichliste ablegen.</b> In secplan die offenen Abgleiche als PDF
+            ausgeben und unten bei <b>01</b> hineinziehen.</li>
+        <li><b>Zeiten dazugeben.</b> Stundenzettel bei <b>02</b> ablegen &ndash; Foto, PDF
+            oder Tabelle. Kein Zettel da? Dann <b>Alles wie geplant</b> und nur die
+            Abweichungen tippen.</li>
+        <li><b>Durchgehen und freigeben.</b> Gr&uuml;n ist erledigt. &Uuml;brig bleibt,
+            was nicht zusammenpasst.</li>
+      </ol>
+      <p>Am Ende: <b>Ergebnisdatei</b> zum Nachtragen &ndash; oder
+         <b>Freigeben &amp; nach secplan</b>, dann tr&auml;gt die Br&uuml;cke es selbst ein.</p>
+    </section>
+
     <!-- ---------------------------------------------------------
          1 — Was war geplant (Soll aus secplan.net)
          --------------------------------------------------------- -->
@@ -66,7 +83,7 @@
       </p>
 
       <div class="wz-reihe" style="margin-top:16px">
-        <div class="wz-karte">
+        <div class="wz-karte" id="karteBruecke" hidden>
           <h3>Von der Br&uuml;cke</h3>
           <p>Holt das Tagespaket, das der Morgenlauf abgelegt hat.</p>
           <div class="wz-knoepfe">
@@ -82,7 +99,9 @@
         </div>
       </div>
       <div id="sollStand"></div>
-      <div class="filter" id="tageLeiste" hidden></div>
+      <div class="filter" id="tageLeiste" hidden>
+        <span class="filter__titel">Tag w&auml;hlen</span>
+      </div>
     </section>
 
     <!-- ---------------------------------------------------------
@@ -254,6 +273,7 @@
         <span><kbd>Z</kbd> zur&uuml;cknehmen</span>
         <span><kbd>Tab</kbd> ins Zeitfeld</span>
         <span><kbd>D</kbd> Diktat</span>
+        <span><kbd>Enter</kbd> im Zeitfeld: eintragen und best&auml;tigen</span>
       </div>
     </section>
   </main>

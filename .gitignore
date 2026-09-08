@@ -2,6 +2,8 @@
 bruecke/.env
 bruecke/konfig.json
 bruecke/daten/
+bruecke/daten-vorfuehrung/
+bruecke/konfig-vorfuehrung.json
 bruecke/node_modules/
 bruecke/package-lock.json
 

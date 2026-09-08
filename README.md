@@ -118,6 +118,12 @@ npm start            # → Link mit Schlüssel erscheint im Fenster
 npm run einrichten   # einmalig, wenn die Zeiten selbst nach secplan sollen
 ```
 
+**Zum Ausprobieren:** `npm run vorfuehrung` startet ein nachgebautes secplan
+samt Beispieldateien — die ganze Kette einmal durchspielen, ohne dass etwas
+Echtes angefasst wird. `npm run pruefen` sagt, ob auf diesem Rechner alles da
+ist. `npm run bauen` erzeugt **`Schichtabgleich.html`**: eine einzige Datei zum
+Weitergeben, die man doppelklickt — ohne Installation.
+
 Ohne den Dienst funktioniert der Abgleich weiterhin: Dateien von Hand ablegen,
 am Ende fällt die Ergebnisdatei heraus. Das PDF liest die Oberfläche selbst,
 dafür muss nichts installiert sein und nichts laufen.

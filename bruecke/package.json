@@ -13,7 +13,11 @@
     "uebertragen": "node uebertragen.mjs",
     "anmeldung": "node secplan.mjs anmelden",
     "test": "node --test test/*.test.mjs",
-    "einrichten": "node einrichten.mjs"
+    "einrichten": "node einrichten.mjs",
+    "bauen": "node bauen.mjs",
+    "beispiele": "node beispiel/erzeugen.mjs",
+    "vorfuehrung": "node vorfuehrung.mjs",
+    "pruefen": "node pruefen.mjs"
   },
   "optionalDependencies": {
     "nodemailer": "^6.9.14",

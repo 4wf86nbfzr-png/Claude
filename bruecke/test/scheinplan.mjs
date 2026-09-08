@@ -21,16 +21,36 @@ const BENUTZER = 'buero';
 const PASSWORT = 'geheim';
 const KEKS = 'sp_sitzung=1';
 
+/* Der Tagesplan im Doppel. Dieselben Leute stehen in der
+   Beispiel-Abgleichliste (beispiel/abgleichliste-beispiel.pdf) —
+   damit laesst sich die ganze Kette vorfuehren, ohne dass jemand
+   an das echte secplan muss. Alle Namen sind erfunden. */
 export function schichtenAnlegen() {
   return [
     { id: 'S1', datum: '2026-09-08', name: 'Kuehn-Adler, Ruth', nummer: '2027',
-      planung: '123 FM - Sicherheit', von: '08:30', bis: '16:00', pause: '0', abgeglichen: false },
+      planung: '123 FM - Sicherheit', funktion: 'Sicherheitsmitarbeiter',
+      von: '08:30', bis: '16:00', pause: '0', abgeglichen: false },
     { id: 'S2', datum: '2026-09-08', name: 'Sanchez, Luis', nummer: '1005',
-      planung: '123 FM - Sicherheit', von: '19:00', bis: '02:00', pause: '0', abgeglichen: false },
+      planung: '123 FM - Sicherheit', funktion: 'Teamleiter Sicherheit',
+      von: '19:00', bis: '02:00', pause: '0', abgeglichen: false },
     { id: 'S3', datum: '2026-09-08', name: 'Fett, Emily', nummer: '2850',
-      planung: '125 FM - Hostessen', von: '10:30', bis: '20:00', pause: '0', abgeglichen: false },
+      planung: '125 FM - Hostessen', funktion: 'Hostess',
+      von: '10:30', bis: '20:00', pause: '0', abgeglichen: false },
+    { id: 'S5', datum: '2026-09-08', name: 'Terzic, Marko', nummer: '3311',
+      planung: '123 FM - Sicherheit', funktion: 'Sicherheitsmitarbeiter',
+      von: '14:30', bis: '23:00', pause: '0', abgeglichen: false },
+    { id: 'S6', datum: '2026-09-08', name: 'Oduya, Grace', nummer: '3402',
+      planung: '124 FM - Reinigung', funktion: 'Reinigung',
+      von: '06:00', bis: '12:30', pause: '0', abgeglichen: false },
+    { id: 'S7', datum: '2026-09-08', name: 'Brandt, Kilian', nummer: '2911',
+      planung: '125 FM - Hostessen', funktion: 'Hostess',
+      von: '10:30', bis: '20:00', pause: '0', abgeglichen: false },
+    { id: 'S8', datum: '2026-09-08', name: 'Vogel, Marlene', nummer: '2744',
+      planung: '13 FM - Call Center', funktion: 'Call Center Agency',
+      von: '17:00', bis: '21:00', pause: '0', abgeglichen: false },
     { id: 'S4', datum: '2026-09-07', name: 'Fett, Emily', nummer: '2850',
-      planung: '125 FM - Hostessen', von: '09:00', bis: '17:00', pause: '30', abgeglichen: false }
+      planung: '125 FM - Hostessen', funktion: 'Hostess',
+      von: '09:00', bis: '17:00', pause: '30', abgeglichen: false }
   ];
 }
 

@@ -90,7 +90,12 @@ export async function umgebungLaden() {
 export async function konfigLaden() {
   await umgebungLaden();
   let eigen = {};
-  const datei = path.join(HIER, 'konfig.json');
+  // HST_KONFIG erlaubt eine zweite Konfiguration neben der echten —
+  // die Vorfuehrung benutzt das, damit sie nichts anfassen kann.
+  const datei = process.env.HST_KONFIG
+    ? (path.isAbsolute(process.env.HST_KONFIG)
+        ? process.env.HST_KONFIG : path.join(HIER, process.env.HST_KONFIG))
+    : path.join(HIER, 'konfig.json');
   if (existsSync(datei)) {
     try {
       eigen = JSON.parse(await readFile(datei, 'utf8'));

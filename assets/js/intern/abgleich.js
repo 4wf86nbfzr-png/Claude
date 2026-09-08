@@ -45,7 +45,7 @@
     aliase: merken.laden('aliase', {}),
     regeln: merken.laden('regeln', {}),
     bearbeiter: merken.laden('bearbeiter', ''),
-    bruecke: { an: false, basis: '', token: '', konfig: null }
+    bruecke: { an: false, basis: null, token: '', konfig: null, schluesselFehlt: false }
   };
 
   /* ============================================================
@@ -79,15 +79,23 @@
      Bruecke — der kleine Dienst auf dem Buerorechner
      ============================================================ */
   var Bruecke = {
+    /* Wo koennte die Bruecke sein? In dieser Reihenfolge:
+       eine von Hand eingetragene Adresse, die Adresse, von der diese
+       Seite selbst kommt (dann liefert die Bruecke sie aus — egal auf
+       welchem Port), und zuletzt der uebliche Port auf diesem Rechner.
+       Frueher stand hier nur "Port 8770" — damit fand eine Bruecke auf
+       einem anderen Port sich selbst nicht. */
+    kandidaten: function () {
+      var liste = [];
+      var gemerkt = merken.laden('bruecke', '');
+      if (gemerkt) liste.push(gemerkt);
+      if (location.protocol === 'http:' || location.protocol === 'https:') liste.push(location.origin);
+      liste.push('http://127.0.0.1:8770');
+      return liste.filter(function (a, i, alle) { return a && alle.indexOf(a) === i; });
+    },
     basis: function () {
-      // Wird die Seite von der Bruecke selbst ausgeliefert, ist es
-      // dieselbe Adresse — sonst der uebliche Port auf diesem Rechner.
-      if (location.protocol === 'http:' || location.protocol === 'https:') {
-        if (location.port === '8770') return '';
-        var vor = merken.laden('bruecke', null);
-        if (vor) return vor;
-      }
-      return 'http://127.0.0.1:8770';
+      return Z.bruecke.basis !== null && Z.bruecke.basis !== undefined
+        ? Z.bruecke.basis : Bruecke.kandidaten()[0];
     },
     schluessel: function () {
       var ausUrl = new URLSearchParams(location.search).get('t');
@@ -98,8 +106,9 @@
       var t = Bruecke.schluessel();
       return Bruecke.basis() + pfad + (pfad.indexOf('?') >= 0 ? '&' : '?') + 't=' + encodeURIComponent(t);
     },
-    hole: function (pfad) {
-      return fetch(Bruecke.adresse(pfad), { cache: 'no-store' }).then(pruefeAntwort);
+    hole: function (pfad, fristMs) {
+      return mitFrist(fetch(Bruecke.adresse(pfad), { cache: 'no-store' }), fristMs || 15000)
+        .then(pruefeAntwort);
     },
     schicke: function (pfad, koerper) {
       return fetch(Bruecke.adresse(pfad), {
@@ -110,23 +119,85 @@
     },
     pruefen: function () {
       setDraht('suche', 'Br&uuml;cke wird gesucht');
-      return Bruecke.hole('/api/stand').then(function (stand) {
-        Z.bruecke.an = true;
-        Z.bruecke.konfig = stand;
-        setDraht('an', 'Br&uuml;cke verbunden' + (stand.modus ? ' &middot; ' + stand.modus : ''));
-        return stand;
-      }).catch(function (fehler) {
-        Z.bruecke.an = false;
-        setDraht('aus', 'ohne Br&uuml;cke');
-        return null;
+      var liste = Bruecke.kandidaten();
+      var letzterFehler = null;
+
+      // Kurze Frist je Versuch: wird die Datei ohne Bruecke geoeffnet,
+      // soll die Ansicht nach Sekunden stehen und nicht ewig suchen.
+      function versuch(i) {
+        if (i >= liste.length) {
+          Z.bruecke.an = false;
+          Z.bruecke.basis = null;
+          Z.bruecke.schluesselFehlt = (letzterFehler && letzterFehler.status === 401);
+          setDraht('aus', Z.bruecke.schluesselFehlt ? 'Schl&uuml;ssel fehlt' : 'ohne Br&uuml;cke');
+          return null;
+        }
+        Z.bruecke.basis = liste[i];
+        return Bruecke.hole('/api/stand', 2500).then(function (stand) {
+          Z.bruecke.an = true;
+          Z.bruecke.konfig = stand;
+          Z.bruecke.schluesselFehlt = false;
+          setDraht('an', 'Br&uuml;cke verbunden' + (stand.modus ? ' &middot; ' + stand.modus : ''));
+          return stand;
+        }).catch(function (fehler) {
+          letzterFehler = fehler;
+          // Ein falscher Schluessel ist eine Antwort, kein Suchgrund —
+          // weitersuchen wuerde nur denselben Fehler noch einmal geben.
+          if (fehler && fehler.status === 401) return versuch(liste.length);
+          return versuch(i + 1);
+        });
+      }
+      return versuch(0);
+    },
+    adresseSetzen: function () {
+      var jetzt = merken.laden('bruecke', '') || 'http://192.168.0.10:8770';
+      var neu = prompt(
+        'Adresse der Bruecke im Bueronetz.\n\n' +
+        'Sie steht im Fenster des Buerorechners, auf dem "npm start" laeuft —\n' +
+        'zum Beispiel http://192.168.0.10:8770\n\n' +
+        'Leer lassen und OK druecken, um ohne Bruecke zu arbeiten.', jetzt);
+      if (neu === null) return;
+      var sauber = neu.trim().replace(/\/+$/, '');
+      merken.sichern('bruecke', sauber);
+
+      var schluessel = prompt(
+        'Schluessel der Bruecke.\n\n' +
+        'Er steht im selben Fenster hinter "?t=" — und in der Datei\n' +
+        'bruecke/daten/token.txt auf dem Buerorechner.\n\n' +
+        'Ohne ihn gibt die Bruecke nichts heraus.', merken.laden('token', ''));
+      if (schluessel !== null) merken.sichern('token', schluessel.trim());
+      meldungenLeeren();
+      Bruecke.pruefen().then(function (stand) {
+        if (stand) {
+          meldung('gut', 'Verbunden mit <code>' + sicher(sauber) + '</code>.');
+          tagespaketLaden(true);
+        } else if (sauber) {
+          meldung('warnung', 'Unter <code>' + sicher(sauber) + '</code> antwortet niemand. ' +
+            'L&auml;uft dort <code>npm start</code>, und steht in <code>konfig.json</code> ' +
+            '<code>"host": "0.0.0.0"</code>?', true);
+        }
       });
     }
   };
 
+  /* Ein fetch, das nie antwortet, laesst die Seite ewig warten —
+     etwa wenn die Bruecke-Adresse ins Leere zeigt. */
+  function mitFrist(versprechen, ms) {
+    var uhr;
+    return Promise.race([
+      versprechen.finally(function () { clearTimeout(uhr); }),
+      new Promise(function (_, daneben) {
+        uhr = setTimeout(function () { daneben(new Error('keine Antwort')); }, ms);
+      })
+    ]);
+  }
+
   function pruefeAntwort(antwort) {
     if (!antwort.ok) {
       return antwort.text().then(function (t) {
-        throw new Error('Br&uuml;cke antwortet ' + antwort.status + (t ? ': ' + t.slice(0, 200) : ''));
+        var f = new Error('Br&uuml;cke antwortet ' + antwort.status + (t ? ': ' + t.slice(0, 200) : ''));
+        f.status = antwort.status;
+        throw f;
       });
     }
     return antwort.json();
@@ -228,7 +299,7 @@
     var zahl = {};
     Z.sollAlle.forEach(function (s) { zahl[s.datum] = (zahl[s.datum] || 0) + 1; });
     leiste.hidden = false;
-    leiste.innerHTML = tage.map(function (t) {
+    leiste.innerHTML = '<span class="filter__titel">Tag w&auml;hlen</span>' + tage.map(function (t) {
       return '<button class="filter__chip" type="button" data-tag="' + t + '" aria-pressed="' +
         (t === Z.datum ? 'true' : 'false') + '">' + K.datumDeutsch(t) + '<b>' + zahl[t] + '</b></button>';
     }).join('');
@@ -330,6 +401,7 @@
       z.freigegeben = !!e.freigegeben;
     });
 
+    $('#starthilfe').hidden = true;
     $('#s-tafel').hidden = false;
     $('#freigabe').hidden = false;
     zeichnen();
@@ -650,6 +722,23 @@
   function zurueck(z) {
     if (!z) return;
     z.freigegeben = false;
+    z.notiz = '';
+    // Ohne das bliebe eine zurueckgenommene Zeile auf "Ausfall" oder
+    // "passt" stehen — mit Knoepfen, die nicht mehr dazu passen.
+    if (!z.ist) {
+      z.status = 'fehlt';
+      z.vorschlag = z.soll
+        ? { beginn: z.soll.beginn, ende: z.soll.ende, pause: z.soll.pause || 0 }
+        : z.vorschlag;
+      z.diffBeginn = null; z.diffEnde = null; z.diffDauer = null;
+    } else if (z.soll) {
+      z.vorschlag = { beginn: z.ist.beginn, ende: z.ist.ende,
+                      pause: z.ist.pause === null || z.ist.pause === undefined
+                        ? (z.soll.pause || 0) : z.ist.pause };
+      neuBewerten(z);
+    } else {
+      z.status = 'zusatz';
+    }
     entscheidungMerken(z);
     zeichnen();
   }
@@ -1329,10 +1418,22 @@
   }
 
   function erfassungLink() {
-    var grund = Z.bruecke.an && Bruecke.basis()
-      ? Bruecke.basis() + '/intern/erfassung.html'
-      : location.href.replace(/abgleich\.html.*$/, 'erfassung.html');
+    // Muss eine vollstaendige Adresse sein — der Link geht aufs Handy
+    // eines Kollegen, "/intern/erfassung.html" hilft dort niemandem.
+    var grund;
+    if (location.protocol === 'http:' || location.protocol === 'https:') {
+      grund = location.origin + location.pathname.replace(/[^/]*$/, 'erfassung.html');
+    } else if (Z.bruecke.an) {
+      grund = (Bruecke.basis() || 'http://127.0.0.1:8770') + '/intern/erfassung.html';
+    } else {
+      grund = location.href.replace(/abgleich\.html.*$/, 'erfassung.html');
+    }
     var url = grund + '?tag=' + Z.datum + (Z.bruecke.an ? '&t=' + encodeURIComponent(Bruecke.schluessel()) : '');
+    if (/127\.0\.0\.1|localhost/.test(url)) {
+      meldung('warnung', 'Achtung: dieser Link zeigt auf <b>diesen</b> Rechner. Damit ein Handy ihn ' +
+        'erreicht, muss die Br&uuml;cke im B&uuml;ronetz h&ouml;ren &ndash; in <code>bruecke/konfig.json</code> ' +
+        '<code>"host": "0.0.0.0"</code> setzen und dann die IP-Adresse des B&uuml;rorechners verwenden.', true);
+    }
     var kasten = meldung('info', 'Link f&uuml;r den Schichtleiter (nur im B&uuml;ronetz erreichbar):<br />' +
       '<code style="user-select:all;word-break:break-all">' + sicher(url) + '</code>', true);
     if (navigator.clipboard) {
@@ -1428,6 +1529,16 @@
       else if (tun === 'zurueck') zurueck(z);
     });
 
+    $('#tafelKoerper').addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter') return;
+      var feld = e.target;
+      if (!feld.getAttribute || !feld.getAttribute('data-tun')) return;
+      e.preventDefault();
+      feld.dispatchEvent(new Event('change', { bubbles: true }));
+      var z = zeileZu(feld);
+      if (z && z.vorschlag.beginn !== null) uebernehmen(z);
+    });
+
     $('#tafelKoerper').addEventListener('change', function (e) {
       var feld = e.target;
       var tun = feld.getAttribute && feld.getAttribute('data-tun');
@@ -1513,11 +1624,29 @@
     });
 
     Bruecke.pruefen().then(function (stand) {
+      // Ohne Bruecke ist die Karte "Von der Bruecke" nur eine Sackgasse.
+      var karte = $('#karteBruecke');
+      if (karte) karte.hidden = !stand;
       if (stand) tagespaketLaden(true);
-      else meldung('info', 'Die Br&uuml;cke l&auml;uft gerade nicht &ndash; das Werkzeug funktioniert trotzdem: ' +
-        'Dienstplan und Zeitliste als Datei ablegen, am Ende f&auml;llt eine CSV heraus. ' +
-        'Mit Br&uuml;cke geht beides von selbst.', true);
-      benachrichtigungEinrichten();
+      else if (Z.bruecke.schluesselFehlt) {
+        var s1 = meldung('warnung', 'Die Br&uuml;cke ist erreichbar, aber dieser Zugang hat keinen ' +
+          'g&uuml;ltigen Schl&uuml;ssel. Am einfachsten: den Link aus der Morgenmail benutzen &ndash; ' +
+          'darin steckt er. ' +
+          '<button class="knopf knopf--klein" id="brueckeAdresse" type="button" style="margin-left:8px">' +
+          'Schl&uuml;ssel eintragen</button>', true);
+        var kn1 = $('#brueckeAdresse', s1);
+        if (kn1) kn1.addEventListener('click', Bruecke.adresseSetzen);
+      }
+      else {
+        var k = meldung('info', 'Ohne Br&uuml;cke &ndash; das Werkzeug funktioniert trotzdem vollst&auml;ndig: ' +
+          'Abgleichliste und Zeitliste ablegen, am Ende f&auml;llt die Ergebnisdatei heraus. ' +
+          'Nur das Eintragen in secplan &uuml;bernimmt dann niemand. ' +
+          '<button class="knopf knopf--klein" id="brueckeAdresse" type="button" style="margin-left:8px">' +
+          'Br&uuml;cke im B&uuml;ronetz suchen</button>', true);
+        var knopf = $('#brueckeAdresse', k);
+        if (knopf) knopf.addEventListener('click', Bruecke.adresseSetzen);
+      }
+      if (stand) benachrichtigungEinrichten();
       aufNeuesPaketHorchen();
     });
   }
