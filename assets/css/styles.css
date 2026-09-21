@@ -45,48 +45,53 @@
      `var(--tinte)` schreibt, stimmt dadurch in beiden Lagen — ohne zweite
      Regel und ohne Medienabfrage. */
   /* ------------------------------------------------------------------
-     Dunkelblau und Beige
+     Petrol, Salbei, Taupe — fünf Farben, gemessen aus einer Vorlage
      ------------------------------------------------------------------
-     Bestellt war: Dunkelblau als Grund, warmes Beige beziehungsweise Weiß
-     darauf — „Vertrauen, Stabilität und Professionalität", und durch das
-     Beige nahbar statt steif. Sonst nichts verändern.
+     Bestellt war eine Palette, und zwar genau diese: eine Luftaufnahme von
+     Strand und Wasser mit fünf Kacheln daneben. Aus der Datei gemessen,
+     nicht geschätzt — Median eines Fensters in jeder Kachelmitte, damit
+     die JPEG-Artefakte nicht mitreden:
 
-     Genau das kostet hier keine einzige neue Regel, und zwar zum zweiten
-     Mal: die Umstellung von hell auf dunkel im September ging schon so.
-     Die Tokennamen tragen die ROLLE und nicht die Farbe, deshalb sind es
-     wieder nur die Grundwerte hier und dieselben Werte im `.auf-dunkel`
-     weiter unten. Jede Regel, die `var(--grund)` oder `var(--tinte)`
-     schreibt, stimmt danach von selbst.
+         #D8D4D1   helles Warmgrau      -> Tinte, helle Bahn
+         #BCB3AA   Taupe                -> abgesetzte Fläche darauf
+         #6F928E   Salbei               -> Markenton auf dunklem Grund
+         #285E60   Petrol               -> Markenton auf heller Bahn
+         #143336   tiefes Petrol        -> Seitengrund
 
-     WARUM NICHT REINES WEISS AUF DEM BLAU. Weiß auf Dunkelblau ist der
-     Bildschirmlook jeder Bank-App; das Warme, das bestellt war, kommt
-     allein aus der Tinte. #F6F1E8 ist gegen #0F1C2E mit 15,2:1 praktisch
-     so kontraststark wie Weiß (16,4:1) und sieht auf einer ganzen Seite
-     Fließtext deutlich weicher aus. Reines Weiß steht nur noch dort, wo
-     der Browser selbst zeichnet.
+     Jede der fünf steht in einer Rolle. Abgeleitet sind nur die
+     Zwischenstufen (`--flaeche-2`, `--flaeche-3`) und die eine hellere
+     Fassung des Salbeis, die Schrift tragen muss (siehe `--marke-2`).
 
-     NICHT #000 und nicht #001133 — dieselbe Begründung wie im September:
-     auf einem OLED-Bildschirm schaltet ein Kanal auf 0 die Pixel ab, und
-     ein angeschnittenes Foto hat dann keinen Rand mehr, an dem es
-     aufhört. #0F1C2E hat in jedem Kanal Substanz.
+     Die Umstellung kostet wieder keine einzige neue Regel — zum dritten
+     Mal. Die Tokennamen tragen die ROLLE und nicht die Farbe, deshalb
+     sind es nur die Werte hier, dieselben in `.auf-dunkel` und die
+     Gegenstücke in `.auf-hell`. Jede Regel, die `var(--grund)` oder
+     `var(--tinte)` schreibt, stimmt danach von selbst.
 
-     Der Takt bleibt: ein Abschnitt darf mit `--flaeche` eine Spur heller
-     stehen als der Grund. Aus dem Wechsel #15161B/#21232B wird der
-     Wechsel #0F1C2E/#1B2C44 — dieselbe Mechanik, dieselben Klassen. */
-  --grund:      #0F1C2E;   /* Seitengrund, Dunkelblau */
-  --flaeche:    #1B2C44;   /* erhobene Fläche: Karte, Feld, Panel */
-  --flaeche-2:  #142338;   /* zweite Bahn, zum Abwechseln */
-  --flaeche-3:  #21334D;   /* Kante, Geisterzahlen, Füllung */
-  --dunkel:     #0F1C2E;   /* Dunkelblau: Fuß, Kontrastbahn, Bildgrund */
-  --dunkel-2:   #1B2C44;
+     WAS DIESE PALETTE TEURER MACHT ALS DIE VORIGE: ihre hellste Farbe ist
+     #D8D4D1 und nicht #F6F1E8. Gegen den Grund sind das 9,2:1 statt
+     15,2:1 — genug für jeden Text, aber ein Viertel weniger Luft. Jede
+     gedämpfte Stufe und jeder Schleier über einem Foto musste deshalb neu
+     gerechnet werden; keiner der alten Werte liess sich mitnehmen.
+
+     NICHT #000: dieselbe Begründung wie immer. Auf einem OLED-Bildschirm
+     schaltet ein Kanal auf 0 die Pixel ab, und ein angeschnittenes Foto
+     hat dann keinen Rand mehr, an dem es aufhört. #143336 hat in jedem
+     Kanal Substanz. */
+  --grund:      #143336;   /* Seitengrund, tiefes Petrol */
+  --flaeche:    #17393C;   /* erhobene Fläche: Karte, Feld, Panel */
+  --flaeche-2:  #122F32;   /* zweite Bahn, zum Abwechseln */
+  --flaeche-3:  #1E474A;   /* Kante, Geisterzahlen, Füllung */
+  --dunkel:     #143336;   /* Petrol: Fuß, Kontrastbahn, Bildgrund */
+  --dunkel-2:   #17393C;
   /* Die Gegenfläche. `--dunkel` und `--hell` sind die beiden ANKER des
      Farbtakts: sie werden von keiner Tonleiter umgeschaltet und bleiben
      deshalb auch innerhalb von `.auf-hell` das, was sie sind. Nur so kann
      eine helle Bahn wissen, in welche Farbe sie an ihren Kanten ausläuft.
      Wer sie in `.auf-hell` oder `.auf-dunkel` überschreibt, nimmt der
      Blende ihren Bezugspunkt, und die Kante wird wieder hart. */
-  --hell:       #E9E0D1;   /* warmes Beige, die helle Bahn */
-  --hell-2:     #F2EBDE;   /* die erhobene Fläche darauf */
+  --hell:       #D8D4D1;   /* helles Warmgrau, die helle Bahn */
+  --hell-2:     #BCB3AA;   /* Taupe: die abgesetzte Fläche darauf */
   /* Wie weit die Blende an jeder Kante einer hellen Bahn trägt. Sie muss
      UNTER dem knappsten Abschnittspolster bleiben — das ist nicht `--sec`
      (64 bis 116 px), sondern `.bereichsblock` mit 40 px am Telefon. Sonst
@@ -106,22 +111,23 @@
      Markup tauschen (`logo-herm.png` -> `logo-herm-dunkel.png`) und
      `theme-color`. */
 
-  --tinte:      #F6F1E8;                  /* Fließtext und Überschriften */
-  --tinte-2:    rgba(246,241,232,.74);    /* Sekundärtext */
-  /* **Eine Tonleiter ist nicht symmetrisch, und das gilt in jede
-     Richtung.** Auf hellem Grund brauchte diese Stufe .62 (Anthrazit bei
-     .52 auf #F7F6F3 sind nur 3,58:1, und genau das hat die Prüfung 2026 an
-     sechzig Stellen gemeldet). Auf dunklem Grund trägt die helle Tinte
-     mehr. Beige auf Dunkelblau liegt dabei eine Spur unter Weiß auf
-     Anthrazit, aber nicht so weit, dass die Stufe wandern müsste:
+  --tinte:      #D8D4D1;                  /* Fließtext und Überschriften */
+  --tinte-2:    rgba(216,212,209,.82);    /* Sekundärtext */
+  /* **Eine Tonleiter ist nicht symmetrisch**, und mit dieser Palette ist
+     sie ausserdem enger. Die gedämpfte Stufe stand auf Anthrazit auf .58
+     und auf Dunkelblau ebenso; gegen #143336 mit der dunkleren Tinte
+     #D8D4D1 wären das nur 4,1:1, und auf `--flaeche` noch weniger. Sie
+     steht deshalb auf .70 — und der Abstand zu `--tinte-2` (.82) ist
+     damit knapper als früher. Das ist der Preis der Vorlage, nicht ein
+     Versehen:
 
-         hell (#F7F6F3)   Anthrazit (#15161B)   Blau (#0F1C2E)
-         .52  3,58:1      .52  5,79:1           .52  5,04:1
-         .58  4,31:1      .58  6,67:1           .58  5,90:1   <- so
-         .62  4,92:1      .62  7,29:1           .62  6,48:1 */
-  --tinte-3:    rgba(246,241,232,.58);    /* gedämpft */
-  --linie:      rgba(246,241,232,.16);
-  --linie-stark:rgba(246,241,232,.34);
+         gegen #143336        gegen #17393C (Fläche)
+         .58  4,12:1          .58  3,7:1
+         .66  4,87:1          .66  4,4:1
+         .70  5,32:1          .70  5,01:1   <- so */
+  --tinte-3:    rgba(216,212,209,.70);    /* gedämpft */
+  --linie:      rgba(216,212,209,.18);
+  --linie-stark:rgba(216,212,209,.36);
 
   /* Der Markenton. Er trägt nichts, er markiert nur: Hover, aktiver
      Menüpunkt, laufende Fortschrittslinie, Fokusdetail. Wer ihn
@@ -133,29 +139,27 @@
      `--ink`/`--paper` schon einmal war: eine Regel mit `var(--marke)`,
      die Beige malt, liest niemand mehr richtig. Deshalb einmal umbenannt.
 
-     Die Richtung dreht mit dem Grund. Auf hellem Grund musste er tiefer
-     stehen (#5B21B6 gegen #F7F6F3 sind 8,9:1); auf Dunkelblau braucht es
-     die helle Fassung: #D9C2A0 sind 10,2:1.
+     Die Palette liefert ihn zweimal, je einen für jede Bahn: **#6F928E
+     (Salbei) auf dunklem Grund, #285E60 (Petrol) auf heller.** Das ist
+     der eine Punkt, an dem diese Vorlage angenehmer ist als jede vorige —
+     der Akzent musste nicht erfunden werden, er lag schon darin.
 
-     **Die zweite Stufe geht nach UNTEN, nicht nach oben** — und das ist
-     der eine Punkt, an dem ein Beige-Akzent anders funktioniert als ein
-     violetter. `--marke-2` war als das hellere Violett gedacht (#C4B5FD
-     gegen #A78BFA). In Beige wäre das hellere aber fast die Tinte: ein
-     Markenpunkt neben einer Zeile in #F6F1E8 unterscheidet sich dann
-     nicht mehr von ihr, und genau dort steht er — im aktiven Menüpunkt
-     und auf einer Kontaktangabe im Hover. Deshalb #C8A87A, eine Stufe
-     TIEFER: 7,6:1, deutlich gesättigter, unverwechselbar neben Tinte.
+     `--marke-2` ist die Stufe für das, woran SCHRIFT hängt: der aktive
+     Menüpunkt, eine Kontaktangabe im Hover. #6F928E allein sind gegen
+     #143336 nur 3,97:1 — für einen Punkt von vier Pixeln genug (dort
+     gelten 3:1), für Text nicht. Deshalb eine Stufe heller, #8FB0AC mit
+     5,8:1. Das ist die einzige Farbe im Stylesheet, die nicht aus der
+     Vorlage kommt, und sie ist genau deren Salbei, nur aufgehellt.
 
-     Beige darf hier mehr Fläche als das Violett, aber nicht viel mehr:
-     ein Punkt von vier Pixeln, eine Linie, ein Hover. Die grosse warme
-     Fläche der Seite ist die Tinte, nicht die Marke. */
+     Die Marke darf hier keine Fläche werden: ein Punkt von vier Pixeln,
+     eine Linie, ein Hover. Die grossen Flächen sind Grund und Tinte. */
   /* Der Warnton fuer noch offene Angaben. Er ist BEWUSST nicht der
      Markenton: eine offene Angabe soll nach Hinweis aussehen und nicht
      nach Auszeichnung. #B0350B war der Wert fuer hellen Grund (5,78:1);
      auf Dunkelblau liegt er bei 1,9:1. #F0A19D sind 8,4:1. */
   --offen-ton:  #F0A19D;
-  --marke:      #D9C2A0;   /* warmes Beige: Punkt, Linie, Fokus */
-  --marke-2:    #C8A87A;   /* eine Stufe tiefer, wo die Tinte danebensteht */
+  --marke:      #6F928E;   /* Salbei: Punkt, Linie, Fokus */
+  --marke-2:    #8FB0AC;   /* eine Stufe heller, wo Schrift daran haengt */
 
   /* Standardakzent ist die Tinte; Farbe kommt nur pro Leistungsbereich */
   --accent:     var(--tinte);
@@ -293,15 +297,15 @@ a{ color:inherit; text-decoration:none; }
 body > footer{
   --grund:      var(--dunkel);
   --flaeche:    var(--dunkel-2);
-  --flaeche-2:  #142338;
-  --flaeche-3:  #21334D;
-  --tinte:      #F6F1E8;
-  --tinte-2:    rgba(246,241,232,.74);
-  --tinte-3:    rgba(246,241,232,.58);
-  --linie:      rgba(246,241,232,.16);
-  --linie-stark:rgba(246,241,232,.34);
-  --marke:      #D9C2A0;
-  --marke-2:    #C8A87A;
+  --flaeche-2:  #122F32;
+  --flaeche-3:  #1E474A;
+  --tinte:      #D8D4D1;
+  --tinte-2:    rgba(216,212,209,.82);
+  --tinte-3:    rgba(216,212,209,.70);
+  --linie:      rgba(216,212,209,.18);
+  --linie-stark:rgba(216,212,209,.36);
+  --marke:      #6F928E;
+  --marke-2:    #8FB0AC;
   --accent:     var(--tinte);
   background:var(--grund);
   color:var(--tinte);
@@ -318,37 +322,47 @@ body > footer{
    zwanzig Zeilen.
 
    DIE WERTE SIND NICHT DIE GESPIEGELTEN, und das ist in diesem Projekt
-   inzwischen dreimal nachgemessen: helle Tinte auf dunklem Grund trägt
-   mehr als dunkle auf hellem. Die gedämpfte Stufe steht auf dunklem Grund
-   auf .58 und hier auf **.66** — mit .58 wären es gegen #E9E0D1 nur
-   4,04:1, mit .62 noch 4,41:1, also beides unter der Grenze. Gerechnet:
+   inzwischen viermal nachgemessen. Die gedämpfte Stufe steht auf dunklem
+   Grund auf .70 und hier auf **.74** — mit .70 wären es gegen #D8D4D1 nur
+   4,3:1, und genau das hat die Prüfung an drei Stellen auf jobs.html
+   gemeldet. Gerechnet:
 
-       .58  4,04:1      .62  4,41:1      .66  4,94:1   <- so
+       .70  4,32:1      .74  4,76:1   <- so      .80  5,4:1
 
-   UND DER MARKENTON DREHT MIT. #D9C2A0 auf Beige sind 1,2:1 — dasselbe
-   Beige auf sich selbst. Auf der hellen Bahn braucht er die tiefe Fassung
-   (#7A5A2C, 4,8:1), und die zweite Stufe geht hier nach unten statt nach
-   oben (#5E421C, 7,1:1). Derselbe Gedanke wie beim Warnton: #F0A19D ist
-   ein helles Lachs und auf Beige unsichtbar, auf der hellen Bahn gilt
-   wieder #B0350B (4,8:1). */
+   UND DER MARKENTON DREHT MIT — hier aber nicht in eine erfundene Farbe,
+   sondern in die vierte Kachel der Vorlage: **#285E60 (Petrol)**, 5,0:1
+   gegen das helle Warmgrau. Die zweite Stufe geht nach unten (#1F4C4E,
+   6,5:1). Derselbe Gedanke wie beim Warnton: #F0A19D ist ein helles Lachs
+   und auf der hellen Bahn unsichtbar, dort gilt #97290A (5,4:1) — das
+   frühere #B0350B lag mit 4,24:1 knapp darunter.
+
+   DIE HELLE BAHN IST DAS WARMGRAU, NICHT DAS TAUPE, und das ist eine
+   gemessene Entscheidung. Auf #BCB3AA trägt die Tinte 6,5:1, und eine
+   gedämpfte Stufe bräuchte dort .86 — dann sähe sie nicht mehr gedämpft
+   aus, und die Staffelung zwischen Überschrift, Fliesstext und Bildunter-
+   schrift fiele auf der hellen Bahn in sich zusammen. Auf #D8D4D1 sind es
+   9,2:1 und .74, also eine echte Stufe. Das Taupe steht deshalb dort, wo
+   es hingehört: als abgesetzte Fläche DARAUF (`--flaeche`, `--hell-2`) —
+   Karte, Feld, Panel, Kachelgrund. Beide Farben der Vorlage bleiben in
+   Gebrauch, nur in der Reihenfolge, die die Messung vorgibt. */
 .auf-hell{
   --grund:      var(--hell);
   --flaeche:    var(--hell-2);
-  --flaeche-2:  #E2D8C6;
-  --flaeche-3:  #D8CCB6;
-  --tinte:      #0F1C2E;
-  --tinte-2:    rgba(15,28,46,.78);
-  --tinte-3:    rgba(15,28,46,.66);
-  --linie:      rgba(15,28,46,.14);
-  --linie-stark:rgba(15,28,46,.30);
-  --offen-ton:  #B0350B;
-  --marke:      #7A5A2C;
-  --marke-2:    #5E421C;
+  --flaeche-2:  #CFC9C3;
+  --flaeche-3:  #B0A69B;
+  --tinte:      #143336;
+  --tinte-2:    rgba(20,51,54,.82);
+  --tinte-3:    rgba(20,51,54,.74);
+  --linie:      rgba(20,51,54,.20);
+  --linie-stark:rgba(20,51,54,.38);
+  --offen-ton:  #97290A;
+  --marke:      #285E60;
+  --marke-2:    #1F4C4E;
   --accent:     var(--tinte);
   /* Auf hellem Grund trägt ein Schatten aus Blau wieder etwas — auf
      dunklem war er unsichtbar und musste aus reinem Schwarz kommen. */
-  --schatten:   0 1px 2px rgba(15,28,46,.07), 0 8px 24px -12px rgba(15,28,46,.18);
-  --schatten-2: 0 2px 4px rgba(15,28,46,.09), 0 18px 44px -18px rgba(15,28,46,.24);
+  --schatten:   0 1px 2px rgba(20,51,54,.07), 0 8px 24px -12px rgba(20,51,54,.18);
+  --schatten-2: 0 2px 4px rgba(20,51,54,.09), 0 18px 44px -18px rgba(20,51,54,.24);
   color:var(--tinte);
   /* Das Gegenstueck zu `color-scheme:dark` an `html`: was der BROWSER
      zeichnet, weiss nichts von Tokens. Der Pfeil eines `<select>`, das
@@ -369,8 +383,8 @@ body > footer{
   background-color:var(--grund);
   background-image:linear-gradient(to bottom,
     var(--dunkel)        0,
-    rgba(15,28,46,0)     min(var(--blende), 22%),
-    rgba(15,28,46,0)     max(calc(100% - var(--blende)), 78%),
+    rgba(20,51,54,0)     min(var(--blende), 22%),
+    rgba(20,51,54,0)     max(calc(100% - var(--blende)), 78%),
     var(--dunkel)        100%);
 }
 /* **`min(…, 22%)` ist keine Vorsicht, sondern eine gemessene Korrektur.**
@@ -384,9 +398,9 @@ body > footer{
    Die Regel dahinter ist allgemeiner als der Fall: **ein Effekt, der in
    absoluten Werten an beiden Kanten eines Kastens sitzt, muss wissen, wie
    hoch der Kasten ist.** Sonst trifft er sich in der Mitte. */
-/* **Der Endpunkt eines Verlaufs heisst `rgba(15,28,46,0)` und nicht
+/* **Der Endpunkt eines Verlaufs heisst `rgba(20,51,54,0)` und nicht
    `transparent`.** `transparent` ist rgba(0,0,0,0); dazwischen
-   interpoliert der Browser im sRGB-Raum, und der Weg von Dunkelblau nach
+   interpoliert der Browser im sRGB-Raum, und der Weg von Petrol nach
    durchsichtigem SCHWARZ führt durch einen grauen Streifen. Genau der
    sähe an jeder Kante aus wie Schmutz auf dem Papier. Dieselbe Farbe mit
    Deckkraft null blendet sauber aus. */
@@ -397,13 +411,13 @@ body > footer{
    hintereinander wären ein doppelter Nebel. */
 .auf-hell[data-blende="unten"]{
   background-image:linear-gradient(to bottom,
-    rgba(15,28,46,0)  calc(100% - var(--blende)),
+    rgba(20,51,54,0)  calc(100% - var(--blende)),
     var(--dunkel)     100%);
 }
 .auf-hell[data-blende="oben"]{
   background-image:linear-gradient(to bottom,
     var(--dunkel)     0,
-    rgba(15,28,46,0)  var(--blende));
+    rgba(20,51,54,0)  var(--blende));
 }
 .auf-hell[data-blende="keine"]{ background-image:none; }
 
@@ -653,9 +667,9 @@ button.btn--zeile:focus-visible:not(:disabled)::after{ transform:scaleX(1); tran
   content:""; position:absolute; inset:-12% -35%;
   background:linear-gradient(112deg,
     transparent 34%,
-    rgba(246,241,232,.05) 45%,
-    rgba(246,241,232,.11) 50%,
-    rgba(246,241,232,.05) 55%,
+    rgba(216,212,209,.05) 45%,
+    rgba(216,212,209,.11) 50%,
+    rgba(216,212,209,.05) 55%,
     transparent 66%);
   transform:translateX(-46%);
   animation:preLicht 2s var(--ease-soft) .1s forwards;
@@ -1267,19 +1281,32 @@ body.megabar-auf header.nav{
          schlechtesten Pixel, und zwar genau dort, wo die Hauptzeile liegt.
          Ein dunkles Foto ist nicht dasselbe wie ein Foto ohne helle
          Stellen. Bei 50 % fällt die Auszeichnungszeile auf 3,74:1; sie ist
-         kleine Schrift, braucht 4,5, und bestimmt damit den ganzen
-         Verlauf. */
-      rgba(5,10,18,.59)  0%,
-      rgba(5,10,18,.56) 22%,
-      rgba(5,10,18,.56) 42%,
-      rgba(5,10,18,.56) 56%,   /* hier steht die Auszeichnungszeile */
-      rgba(5,10,18,.32) 66%,
-      rgba(5,10,18,.10) 80%,
-      rgba(5,10,18,0)   92%),
+         kleine Schrift, braucht 4,5, und bestimmte damit den ganzen
+         Verlauf.
+
+         **Seit dem Wechsel auf diese Palette steht sie nicht mehr da.**
+         Die Tinte ist mit #D8D4D1 dunkler als das fruehere #F6F1E8, der
+         Schleier haette also STAERKER werden muessen: bei gleichem Text
+         auf dem Foto waren es gemessen .69 statt .56, und das Motiv war
+         sichtbar zu. Stattdessen ist die Auszeichnungszeile ins
+         Auftaktband darunter gewandert — sie war als einzige KLEINE
+         Schrift auf dem Foto die bindende Bedingung (4,5:1 gegen 3,0:1
+         fuer die Hauptzeile). Ohne sie genuegen .59, also weniger als
+         vorher, und die Hauptzeile steht bei 3,23:1 am schlechtesten
+         Pixel aller fuenf Phasen. Zum zweiten Mal dieselbe Lehre: **ein
+         Verlauf ueber einem Foto ist kein Regler, sondern eine Folge
+         davon, wie viel Text darauf steht.** */
+      rgba(8,26,28,.62)  0%,
+      rgba(8,26,28,.59) 22%,
+      rgba(8,26,28,.59) 42%,
+      rgba(8,26,28,.59) 56%,   /* bis hier stand die Auszeichnungszeile */
+      rgba(8,26,28,.38) 66%,
+      rgba(8,26,28,.10) 80%,
+      rgba(8,26,28,0)   92%),
     /* Eine Spur mehr nach links: die Schrift steht dort, und das Licht des
        Motivs kommt von rechts oben. */
     linear-gradient(to right,
-      rgba(5,10,18,.12) 0%, rgba(5,10,18,0) 58%);
+      rgba(8,26,28,.12) 0%, rgba(8,26,28,0) 58%);
   /* Der Schleier gehört zur Kamerafahrt, nicht zum Bild.
      Bestellt war: „zuerst das Hintergrundbild vollständig und bildfüllend,
      ohne dass der Text sichtbar ist". Also steht das Foto den ersten
@@ -1396,8 +1423,8 @@ body.megabar-auf header.nav{
 .schaubild::after{
   content:""; position:absolute; inset:0; pointer-events:none;
   background:
-    linear-gradient(180deg, rgba(5,10,18,.86) 0%, rgba(5,10,18,.42) 9%, rgba(5,10,18,0) 26%),
-    linear-gradient(0deg,   var(--grund) 0%, var(--grund) 3%, rgba(5,10,18,.22) 14%, rgba(5,10,18,0) 32%);
+    linear-gradient(180deg, rgba(8,26,28,.86) 0%, rgba(8,26,28,.42) 9%, rgba(8,26,28,0) 26%),
+    linear-gradient(0deg,   var(--grund) 0%, var(--grund) 3%, rgba(8,26,28,.22) 14%, rgba(8,26,28,0) 32%);
 }
 .kein-js .schaubild img{ animation:none; }
 
@@ -1580,13 +1607,26 @@ body.megabar-auf header.nav{
   display:flex; align-items:flex-end; justify-content:space-between;
   flex-wrap:wrap; gap:clamp(24px,4vw,64px);
 }
-.auftakt__satz{
+/* Die linke Spalte des Bandes: Auszeichnungszeile und Satz. Die
+   Flex-Basis sitzt seit dem Umzug der Zeile hier und nicht mehr am
+   Absatz — sonst teilt sich die Zeile zwischen drei Kindern statt
+   zwischen zweien, und die Aktionen rutschen darunter. */
+.auftakt__wort{
   /* `flex-basis:auto` heisst bei einem Absatz: die Breite, die er braucht,
      um in EINE Zeile zu passen. Das sind hier 1600 px, also mehr als die
      Zeile hergibt — die Aktionen rutschten darunter und liessen die rechte
      Hälfte des Bandes leer. Mit einer echten Basis teilen sich beide die
      Zeile. */
+  /* Die Hoechstbreite sitzt am ABSATZ und nicht hier: die
+     Auszeichnungszeile ist gesperrte Schreibmaschinenschrift und misst
+     rund 500 px, 52ch der Grundschrift sind aber nur 440 — sie brach
+     dadurch mitten im Wort „JAHREN" um. `ch` ist die Breite der Null der
+     jeweiligen Schrift, und zwei verschieden laufende Schriften teilen
+     sich hier eine Spalte. */
   flex:1 1 34ch;
+  display:grid; gap:clamp(12px,1.6vh,20px); align-content:start;
+}
+.auftakt__satz{
   margin:0; max-width:52ch;
   font-family:var(--font-display); font-weight:500;
   font-size:clamp(1.12rem,1.9vw,1.6rem); line-height:1.42;
@@ -1681,7 +1721,7 @@ body.megabar-auf header.nav{
 .scrollcue{
   position:absolute; right:clamp(20px,5vw,64px); bottom:clamp(20px,3vh,34px); z-index:4;
   font-family:var(--font-mono); font-size:.58rem; letter-spacing:.34em;
-  color:rgba(246,241,232,.66);
+  color:rgba(216,212,209,.66);
   text-transform:uppercase; display:flex; align-items:center; gap:12px;
 }
 /* Die Einblendung liegt auf den Kindern, die Ausblendung beim Scrollen auf
@@ -1692,7 +1732,7 @@ body.megabar-auf header.nav{
 .los .scrollcue > *{ animation:fadeIn 1s ease 1.44s forwards; }
 /* Liegend statt stehend: der Hinweis steht jetzt unter der Textspalte und
    nicht mehr senkrecht am Bildrand. */
-.scrollcue i{ height:1px; width:clamp(34px,5vw,64px); background:linear-gradient(90deg,rgba(246,241,232,.5),transparent); }
+.scrollcue i{ height:1px; width:clamp(34px,5vw,64px); background:linear-gradient(90deg,rgba(216,212,209,.5),transparent); }
 /* Mit dem ersten Zehntel Scrollweg ist der Hinweis überflüssig. */
 .hero[data-weg] .scrollcue{ opacity:clamp(0, calc(1 - var(--weg,0) * 9), 1); }
 @media (max-width:900px){ .scrollcue{ display:none; } }
@@ -2021,7 +2061,7 @@ body.megabar-auf header.nav{
 .film__buehne::after{
   content:"";
   position:absolute; inset:auto 0 0; height:52%;
-  background:linear-gradient(to top, rgba(4,8,14,.88) 0%, rgba(4,8,14,.55) 38%, transparent 100%);
+  background:linear-gradient(to top, rgba(6,20,22,.88) 0%, rgba(6,20,22,.55) 38%, transparent 100%);
   pointer-events:none;
 }
 
@@ -2054,7 +2094,7 @@ body.megabar-auf header.nav{
   display:inline-flex; align-items:center; justify-content:center; gap:8px;
   padding:.6em 1em; min-height:44px;
   border-radius:0;
-  border:1px solid rgba(246,241,232,.28);
+  border:1px solid rgba(216,212,209,.28);
   background:rgba(0,0,0,.55);
   backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
   color:var(--tinte);
@@ -2065,7 +2105,7 @@ body.megabar-auf header.nav{
              border-color var(--t-fast) var(--ease-swift),
              color var(--t-fast) var(--ease-swift);
 }
-.film__knopf:hover{ background:rgba(246,241,232,.92); color:var(--grund); border-color:transparent; }
+.film__knopf:hover{ background:rgba(216,212,209,.92); color:var(--grund); border-color:transparent; }
 /* Der Film soll mit Ton laufen. Verweigert der Browser das Selbststarten mit
    Ton — was er in den meisten Fällen tut —, muss der Schalter auffallen,
    sonst bleibt der Film für die Besucher einfach stumm. Helle Fläche,
@@ -2074,7 +2114,7 @@ body.megabar-auf header.nav{
   background:var(--tinte); color:var(--grund); border-color:transparent;
   box-shadow:0 6px 24px -10px rgba(0,0,0,.8);
 }
-.film__knopf--wartet:hover{ background:rgba(246,241,232,.86); }
+.film__knopf--wartet:hover{ background:rgba(216,212,209,.86); }
 .film__knopf:focus-visible{ outline:2px solid var(--tinte); outline-offset:3px; }
 .film__knopf svg{ flex:none; }
 
@@ -3056,7 +3096,7 @@ header.nav{ view-transition-name:kopfzeile; }
 .appleiste{
   position:fixed; z-index:930; left:0; right:0; bottom:0;
   display:none;                       /* nur am Telefon, siehe unten */
-  /* **Hier stand bis zum Farbwechsel rgba(246,241,232,.94).** Das war der
+  /* **Hier stand bis zum Farbwechsel rgba(216,212,209,.94).** Das war der
      Wert der hellen Fassung und ist beim Umbau auf Dunkel stehen geblieben:
      eine weisse Leiste mit weissen Beschriftungen darauf, gemessen 1,05:1.
      Am Telefon war die ganze untere Leiste unlesbar — Wortzeichen, Zeichen
@@ -3067,7 +3107,7 @@ header.nav{ view-transition-name:kopfzeile; }
      weisse Schrift natürlich. **Eine durchscheinende Fläche ist für eine
      DOM-Prüfung kein Grund** — dieselbe Lücke wie beim Foto im Hero, und
      derselbe Ausweg: hinsehen, im Bild messen. */
-  background:rgba(15,28,46,.94);
+  background:rgba(20,51,54,.94);
   backdrop-filter:blur(20px) saturate(1.2); -webkit-backdrop-filter:blur(20px) saturate(1.2);
   border-top:1px solid var(--linie);
   /* Die Heimtaste des iPhones liegt über dem unteren Rand. Ohne diese
@@ -3096,7 +3136,7 @@ header.nav{ view-transition-name:kopfzeile; }
    Fehler verhindert: **ein Verlauf, der eine Fläche auflösen soll, nimmt
    die Farbe der Fläche, nicht eine eigene.** */
 .appleiste.faehrt{
-  background:linear-gradient(to top, rgba(15,28,46,.92) 0%, rgba(15,28,46,.72) 55%, rgba(15,28,46,0) 100%);
+  background:linear-gradient(to top, rgba(20,51,54,.92) 0%, rgba(20,51,54,.72) 55%, rgba(20,51,54,0) 100%);
   border-top-color:transparent;
 }
 .appleiste.faehrt a{ color:var(--tinte-2); }
@@ -3224,7 +3264,7 @@ header.nav{ view-transition-name:kopfzeile; }
      deshalb hat es keine Prüfung gefunden, die eine frisch geladene Seite
      ansieht. Der Wert ist der Seitengrund. */
   header.nav.scrolled{
-    background:rgba(15,28,46,.94);
+    background:rgba(20,51,54,.94);
     backdrop-filter:none; -webkit-backdrop-filter:none;
   }
   .appleiste{ backdrop-filter:none; -webkit-backdrop-filter:none; }
@@ -3259,7 +3299,7 @@ header.nav{ view-transition-name:kopfzeile; }
 .zeiger{
   position:fixed; top:0; left:0; z-index:9990; pointer-events:none;
   width:34px; height:34px; border-radius:50%;
-  border:1px solid rgba(246,241,232,.55);
+  border:1px solid rgba(216,212,209,.55);
   display:grid; place-items:center;
   opacity:0; mix-blend-mode:difference;
   transition:width .45s var(--ease-out), height .45s var(--ease-out),
@@ -3267,9 +3307,9 @@ header.nav{ view-transition-name:kopfzeile; }
              background-color .45s var(--ease-out);
 }
 .zeiger.an{ opacity:1; }
-.zeiger--aktiv{ width:52px; height:52px; border-color:rgba(246,241,232,.85); }
+.zeiger--aktiv{ width:52px; height:52px; border-color:rgba(216,212,209,.85); }
 /* Über den sechs Szenen und der Galerie sagt der Ring, was ein Klick tut. */
-.zeiger--sehen{ width:88px; height:88px; background:rgba(246,241,232,.9); border-color:transparent; mix-blend-mode:normal; }
+.zeiger--sehen{ width:88px; height:88px; background:rgba(216,212,209,.9); border-color:transparent; mix-blend-mode:normal; }
 .zeiger__wort{
   font-family:var(--font-mono); font-size:.56rem; letter-spacing:.2em;
   text-transform:uppercase; color:var(--dunkel); opacity:0;
@@ -3309,13 +3349,13 @@ header.nav{ view-transition-name:kopfzeile; }
   .hero__schleier{
     background:
       linear-gradient(to top,
-        rgba(5,10,18,.65)  0%,
-        rgba(5,10,18,.61) 30%,
-        rgba(5,10,18,.58) 55%,
-        rgba(5,10,18,.57) 70%,
-        rgba(5,10,18,.30) 82%,
-        rgba(5,10,18,.08) 92%,
-        rgba(5,10,18,0)  100%);
+        rgba(8,26,28,.64)  0%,
+        rgba(8,26,28,.61) 30%,
+        rgba(8,26,28,.58) 55%,
+        rgba(8,26,28,.57) 70%,
+        rgba(8,26,28,.36) 82%,
+        rgba(8,26,28,.08) 92%,
+        rgba(8,26,28,0)  100%);
   }
   /* ---- Weniger Bewegung, weil weniger Rechner ----
      Die Unschärfe ist am Telefon der teuerste Posten der ganzen Sequenz und
@@ -3552,7 +3592,7 @@ header.nav{ view-transition-name:kopfzeile; }
   display:block; color:var(--tinte-2); font-family:var(--font-body);
   font-size:var(--fs-lead); margin-top:clamp(20px,2.6vh,30px); max-width:46ch;
   text-shadow:0 1px 16px rgba(0,0,0,.7);
-  padding-top:clamp(16px,2.2vh,24px); border-top:1px solid rgba(246,241,232,.22);
+  padding-top:clamp(16px,2.2vh,24px); border-top:1px solid rgba(216,212,209,.22);
 }
 /* .bignum ist entfallen: eine konturierte Riesenzahl über dem Kopfbild ist
    Dekoration, die mit der Überschrift um dieselbe Ecke konkurriert. Die
@@ -3637,18 +3677,19 @@ header.nav{ view-transition-name:kopfzeile; }
    Vignette von (48,46,51) oben links auf (20,20,22) unten rechts. Der Wert
    hier stand auf #2E2D33 = (46,45,51), also auf der hellsten Ecke.
 
-   Mit dem blauen Seitengrund ist er auf #272C38 = (39,44,56) gerueckt:
-   dieselbe Helligkeit, eine Spur ins Blaue. Gegen die Ecke sind das sieben
-   Stufen im Blaukanal — die Vignette der Aufnahme selbst ueberstreicht
-   neunundzwanzig. Eine Kante entsteht dadurch nicht, der Block gehoert
-   aber sichtbar zur blauen Seite und nicht zu einer grauen Insel darin.
+   Mit dem Petrol-Grund ist er auf #2B3336 = (43,51,54) gerueckt:
+   dieselbe Helligkeit, eine Spur ins Gruenblaue. Gegen die Ecke sind das
+   drei bis acht Stufen je Kanal — die Vignette der Aufnahme selbst
+   ueberstreicht neunundzwanzig. Eine Kante entsteht dadurch nicht, der
+   Block gehoert aber sichtbar zur Seite und nicht zu einer grauen Insel
+   darin.
 
    **Dieser eine Wert darf dem Farbschema nicht folgen.** Wer ihn auf
    `--grund` setzt, bekommt vier graue Rechtecke mit sichtbarem Rand auf
    blauem Papier zurueck. Er folgt der Aufnahme, und er aendert sich erst
    mit ihr. */
-.team-buero.auf-dunkel{ background:#272C38; }
-.team-buero .member__img{ background:#272C38; }
+.team-buero.auf-dunkel{ background:#2B3336; }
+.team-buero .member__img{ background:#2B3336; }
 /* Versucht und wieder verworfen: wechselnde Kachelformate (hochkant,
    quadratisch, hochkant), damit die vier nicht wie Kopien desselben Bildes
    wirken. Im Bild sah das nicht abwechslungsreich aus, sondern unsortiert —
@@ -4095,7 +4136,7 @@ header.nav{ view-transition-name:kopfzeile; }
 .gal__item figcaption{
   position:absolute; inset:auto 0 0; z-index:2; padding:14px 16px;
   font-size:.86rem; color:var(--tinte);
-  background:linear-gradient(to top, rgba(5,10,17,.88), rgba(5,10,17,0));
+  background:linear-gradient(to top, rgba(8,26,28,.88), rgba(8,26,28,0));
   opacity:0; transform:translateY(6px);
   transition:opacity var(--t-base) var(--ease-swift), transform var(--t-base) var(--ease-swift);
 }
@@ -4110,11 +4151,11 @@ header.nav{ view-transition-name:kopfzeile; }
 .lightbox{
   position:fixed; inset:0; z-index:9600; border:0; padding:0; margin:0;
   width:100%; height:100%; max-width:none; max-height:none;
-  background:rgba(5,10,17,.94); color:var(--tinte);
+  background:rgba(8,26,28,.94); color:var(--tinte);
   display:none; place-items:center;
 }
 .lightbox[open]{ display:grid; }
-.lightbox::backdrop{ background:rgba(5,10,17,.94); }
+.lightbox::backdrop{ background:rgba(8,26,28,.94); }
 .lightbox__bild{ max-width:min(1400px,94vw); max-height:82vh; width:auto; height:auto; object-fit:contain; border-radius:var(--r-s); }
 .lightbox__bu{ text-align:center; margin-top:16px; color:var(--tinte-2); font-size:.95rem; }
 .lightbox__zaehler{ font-family:var(--font-mono); font-size:.66rem; letter-spacing:.2em; color:var(--tinte-3); display:block; margin-top:6px; }
@@ -4124,7 +4165,7 @@ header.nav{ view-transition-name:kopfzeile; }
   display:grid; place-items:center; cursor:pointer;
   transition:border-color var(--t-fast) var(--ease-swift), background var(--t-fast) var(--ease-swift);
 }
-.lightbox__knopf:hover{ border-color:rgba(246,241,232,.55); background:rgba(27,44,68,.9); }
+.lightbox__knopf:hover{ border-color:rgba(216,212,209,.55); background:rgba(23,57,60,.9); }
 .lightbox__knopf svg{ width:20px; height:20px; }
 .lightbox__zu{ top:clamp(14px,2.4vw,26px); right:clamp(14px,2.4vw,26px); }
 .lightbox__vor{ right:clamp(14px,2.4vw,26px); top:50%; translate:0 -50%; }
@@ -4401,7 +4442,7 @@ body > footer[data-spur]::before{ opacity:.3; }
   display:block; width:clamp(84px,11vw,148px); height:1px;
   background:
     linear-gradient(var(--tinte),var(--tinte)) left center / calc(var(--kapitel,0) * 100%) 100% no-repeat,
-    rgba(246,241,232,.2);
+    rgba(216,212,209,.2);
 }
 
 /* ---- 3. Kapitelrail ----
@@ -4450,7 +4491,7 @@ body > footer[data-spur]::before{ opacity:.3; }
 .kino{ position:fixed; inset:0; z-index:860; pointer-events:none; contain:strict; }
 .kino__balken{
   position:absolute; left:0; right:0;
-  height:clamp(18px,4vh,46px); background:#05090F;
+  height:clamp(18px,4vh,46px); background:#0A2023;
   transform:scaleY(var(--kino,0));
   will-change:transform;
 }
@@ -4648,7 +4689,7 @@ h1.reveal-up.in, h2.reveal-up.in, h3.reveal-up.in{
    zu zählen beginnt, wenn sie das Fenster füllt. */
 .stage__sticky::before{
   content:""; position:absolute; inset:0; z-index:8; pointer-events:none;
-  background:#05090F;
+  background:#0A2023;
   opacity:calc(clamp(0, calc((var(--kapitel,0) - .9) / .1), 1) * .55);
 }
 
@@ -4656,7 +4697,7 @@ h1.reveal-up.in, h2.reveal-up.in, h3.reveal-up.in{
   .kino, .kapitel{ display:none; }
   .stage__sticky::before{ display:none; }
   .stage__index{ opacity:1; }
-  .stage__linie{ background:rgba(246,241,232,.2); }
+  .stage__linie{ background:rgba(216,212,209,.2); }
   h1.reveal-up, h2.reveal-up, h3.reveal-up{
     -webkit-mask-image:none; mask-image:none; }
   .wide-shot picture{ clip-path:none; }

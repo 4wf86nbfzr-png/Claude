@@ -4,7 +4,7 @@
 
 Warum es dieses Skript gibt, und nicht acht von Hand gepflegte PNG:
 
-Beim Umbau auf Dunkelblau ist aufgefallen, dass die Symbole zwei
+Beim Umbau auf Dunkelblau ist zuerst aufgefallen, dass die Symbole zwei
 verschiedenen Farbschemata angehoerten, und zwar mitten in derselben
 Datei-Familie:
 
@@ -50,8 +50,8 @@ VORLAGE = os.path.join(LOGO, "logo-herm-mark.png")
 # Farbe der Seite wechselt, wechselt sie hier mit — es ist die einzige
 # Stelle im Projekt, an der die Seitenfarbe ausserhalb von CSS und
 # `theme-color` noch einmal vorkommt.
-GRUND = (15, 28, 46)      # #0F1C2E
-ZEICHEN = (246, 241, 232)  # #F6F1E8
+GRUND = (20, 51, 54)      # #143336
+ZEICHEN = (216, 212, 209)  # #D8D4D1
 
 # Der Rand ist Anteil der Kantenlaenge. 14 % ist der Wert, den
 # apple-touch-icon und favicon-source schon hatten; die maskierbare

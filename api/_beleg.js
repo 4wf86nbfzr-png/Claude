@@ -40,12 +40,12 @@ const LOGO_URI = 'data:image/png;base64,' + LOGO.toString('base64');
 
 /* `ink` ist das Band oben, also die einzige Flaeche, auf der die Marke
    ausserhalb des Browsers auftritt. Es traegt deshalb den Seitengrund der
-   Website und nicht irgendein Schwarz: mit dem Wechsel auf Dunkelblau ist
-   aus #0b0b0c das #0F1C2E des Stylesheets geworden. Die uebrigen vier
+   Website und nicht irgendein Schwarz: es traegt den Grundton des
+   Stylesheets, zuletzt #143336. Die uebrigen vier
    Werte sind Drucktoene auf weissem Papier und haben mit dem Farbschema
    des Bildschirms nichts zu tun — sie bleiben. */
 const FARBE = {
-  ink:     '#0F1C2E',
+  ink:     '#143336',
   text:    '#17171a',
   leise:   '#6f6f77',
   linie:   '#e3e3e7',

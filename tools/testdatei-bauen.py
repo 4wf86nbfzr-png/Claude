@@ -311,14 +311,14 @@ HUELLE = r"""<title>HERM Service Team</title>
      Farbwechsel stand hier #000: eine schwarze Flaeche unter einer
      dunkelblauen Seite, sichtbar als Blitz beim Aufbauen und an jeder
      Kante, an der das Fenster nicht genau aufgeht. */
-  html,body{ margin:0; padding:0; height:100%; background:#0F1C2E; }
+  html,body{ margin:0; padding:0; height:100%; background:#143336; }
   /* Der Rahmen ist das Fenster. Keine Leiste, kein Rand, kein Hinweis
      ueber der Seite: was hier zu sehen ist, soll genau das sein, was auch
      unter der eigenen Adresse zu sehen waere. */
-  #blatt{ position:fixed; inset:0; width:100%; height:100%; border:0; display:block; background:#0F1C2E; }
-  #warte{ position:fixed; inset:0; display:grid; place-items:center; color:#F6F1E8;
+  #blatt{ position:fixed; inset:0; width:100%; height:100%; border:0; display:block; background:#143336; }
+  #warte{ position:fixed; inset:0; display:grid; place-items:center; color:#D8D4D1;
           font:400 13px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;
-          letter-spacing:.08em; text-transform:uppercase; background:#0F1C2E; }
+          letter-spacing:.08em; text-transform:uppercase; background:#143336; }
 </style>
 
 <div id="warte">Testfassung wird aufgebaut</div>

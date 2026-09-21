@@ -13,9 +13,10 @@ Die Seite soll nach Handwerk aussehen, nicht nach Baukasten. Konkret heißt das:
 - **Ein Stylesheet, eine Wahrheit.** Alle Werte kommen aus den Tokens ganz
   oben in `assets/css/styles.css`. Keine Einzelfarben, keine Einzelabstände
   irgendwo im Markup.
-- **Der Grund ist Dunkelblau** (`--grund: #0F1C2E`), und er wechselt sich
-  ab: jede zweite Bahn steht in warmem Beige (`--hell: #E9E0D1`), dazwischen
-  eine weiche Blende. Die Seite hat alle Richtungen einmal ganz durchlaufen —
+- **Der Grund ist tiefes Petrol** (`--grund: #143336`), und er wechselt
+  sich ab: jede zweite Bahn steht in hellem Warmgrau (`--hell: #D8D4D1`),
+  dazwischen eine weiche Blende. Alle Werte stammen aus einer gelieferten
+  Palette und sind aus ihr gemessen (siehe „Die Palette aus der Vorlage"). Die Seite hat alle Richtungen einmal ganz durchlaufen —
   schwarz, dann Off-White, dann abwechselnd, dann Anthrazit, jetzt Blau und
   Beige — und aus jedem Durchgang bleibt eine Regel stehen: **nicht #000**
   (auf OLED schaltet ein Kanal auf 0 die Pixel ab, und ein angeschnittenes
@@ -936,7 +937,111 @@ Apple-Touch-Icon, drei Favicons, `favicon.ico`) aus **einer** Vorlage
 und **zwei** Zahlen, die `--grund` und `--tinte` entsprechen. Ein
 Farbwechsel ist danach ein Lauf.
 
-## Der Farbtakt: blau, beige, blau
+## Die Palette aus der Vorlage
+
+Nach Dunkelblau/Beige kam eine konkrete Vorlage: eine Luftaufnahme von
+Strand und Wasser, daneben fünf Kacheln. „Genau diese Farben, überall."
+
+**Gemessen, nicht geschätzt.** Median eines Fensters in jeder Kachelmitte,
+damit die JPEG-Artefakte nicht mitreden:
+
+| | Kachel | Rolle |
+|---|---|---|
+| `#D8D4D1` | helles Warmgrau | Tinte auf dunklem Grund · **die helle Bahn** |
+| `#BCB3AA` | Taupe | die abgesetzte Fläche auf der hellen Bahn |
+| `#6F928E` | Salbei | Markenton auf dunklem Grund |
+| `#285E60` | Petrol | Markenton auf der hellen Bahn |
+| `#143336` | tiefes Petrol | **Seitengrund** |
+
+Jede der fünf steht in einer Rolle. Abgeleitet sind nur die Zwischenstufen
+(`--flaeche-2`, `--flaeche-3`) und eine hellere Fassung des Salbeis, die
+Schrift tragen muss — dazu unten.
+
+### Was diese Palette teurer macht als jede vorige
+
+Ihre hellste Farbe ist **#D8D4D1 und nicht #F6F1E8**. Gegen den Grund sind
+das 9,2:1 statt 15,2:1 — genug für jeden Text, aber ein Viertel weniger
+Luft. **Keiner der alten Werte liess sich mitnehmen.** Nachgezogen werden
+mussten:
+
+| | vorher | jetzt | warum |
+|---|---|---|---|
+| `--tinte-3` dunkel | .58 | **.70** | .58 ergab gegen #143336 nur 4,12:1 |
+| `--tinte-3` hell | .66 | **.74** | .70 meldete die Prüfung an drei Stellen mit 4,3:1 |
+| `--offen-ton` hell | #B0350B | **#97290A** | #B0350B lag mit 4,24:1 knapp darunter |
+| Schleier im Hero | .56 | **.59** | siehe unten — und das ist WENIGER, nicht mehr |
+
+Der Abstand zwischen `--tinte-2` (.82) und `--tinte-3` (.70) ist damit
+knapper als früher. Das ist der Preis der Vorlage, kein Versehen.
+
+### Die helle Bahn ist das Warmgrau, nicht das Taupe
+
+Der naheliegende Griff wäre das Taupe gewesen — es ist die „schönere" der
+beiden hellen Kacheln. Gemessen geht es nicht: auf #BCB3AA trägt die Tinte
+6,5:1, und die gedämpfte Stufe bräuchte dort **.86**. Dann sieht sie nicht
+mehr gedämpft aus, und die Staffelung zwischen Überschrift, Fliesstext und
+Bildunterschrift fällt auf der hellen Bahn in sich zusammen.
+
+Auf #D8D4D1 sind es 9,2:1 und .74 — eine echte Stufe. Das Taupe steht
+deshalb dort, wo es hingehört: als abgesetzte Fläche **darauf**
+(`--flaeche`, `--hell-2`) — Karte, Feld, Panel, Kachelgrund. Beide Farben
+bleiben in Gebrauch, nur in der Reihenfolge, die die Messung vorgibt.
+
+**Die allgemeine Form davon:** eine Palette gibt Farben, keine Rollen. Wer
+die Rollen nach Geschmack verteilt statt nach Messung, verliert als erstes
+die Textstaffelung — und zwar an der Stelle, an der sie niemand sucht.
+
+### Der Markenton lag diesmal schon in der Vorlage
+
+Zum ersten Mal musste der Akzent nicht erfunden werden: **#6F928E (Salbei)
+auf dunklem Grund, #285E60 (Petrol) auf heller.** Das ist der angenehme
+Teil einer gelieferten Palette.
+
+Eine Ausnahme gibt es. `--marke-2` ist die Stufe, an der **Schrift** hängt
+— der aktive Menüpunkt, eine Kontaktangabe im Hover. #6F928E allein sind
+gegen #143336 nur 3,97:1: für einen Punkt von vier Pixeln genug (dort
+gelten 3:1), für Text nicht. Deshalb eine Stufe heller, **#8FB0AC** mit
+5,8:1. Das ist die einzige Farbe im Stylesheet, die nicht aus der Vorlage
+kommt, und sie ist genau deren Salbei, nur aufgehellt.
+
+### Der Schleier wurde kleiner, obwohl die Tinte dunkler ist
+
+Das ist die lehrreichste Messung dieses Durchgangs. Mit der dunkleren
+Tinte hätte der Schleier über dem Kopfbild **stärker** werden müssen: bei
+unverändertem Text auf dem Foto waren es gemessen **.69 statt .56**, und
+das Motiv war sichtbar zu.
+
+Der Hebel war wieder nicht der Verlauf, sondern der Text darauf. Die
+Auszeichnungszeile war als einzige **kleine** Schrift auf dem Foto die
+bindende Bedingung — sie braucht 4,5:1, die Hauptzeile nur 3,0:1. Sie steht
+jetzt im Auftaktband darunter, auf dunklem Grund, wo sie nichts kostet.
+
+| | mit der Zeile auf dem Foto | ohne sie |
+|---|---|---|
+| Deckkraft, Schreibtisch | .69 | **.59** |
+| Deckkraft, Telefon | .78 | **.61** |
+| Hauptzeile, schlechtester Pixel über fünf Phasen | 4,46:1 | 3,23:1 (nötig 3,0) |
+
+**Zum zweiten Mal dieselbe Lehre: ein Verlauf über einem Foto ist kein
+Regler, sondern eine Folge davon, wie viel Text darauf steht.** Das Foto
+ist dadurch heller als vor dem Palettenwechsel, nicht dunkler.
+
+Nachzuziehen war dabei eine Kleinigkeit, die exemplarisch ist: die
+Auszeichnungszeile brach im Auftaktband mitten in „JAHREN" um. Die
+Hoechstbreite stand als `52ch` an der Spalte — aber `ch` ist die Breite der
+Null **der jeweiligen Schrift**, und in der Spalte stehen zwei verschieden
+laufende Schriften. Die Begrenzung gehört an den Absatz, nicht an die
+Spalte.
+
+---
+
+## Der Farbtakt: dunkel, hell, dunkel
+
+**Dieser Abschnitt beschreibt die Mechanik; die Farben darin sind der
+Stand von damals** (Dunkelblau/Beige). Die Tabelle mit den heutigen Werten
+steht oben unter „Die Palette aus der Vorlage" — die Mechanik ist
+unverändert, und genau das ist ihr Ertrag: ein Palettenwechsel fasst sie
+nicht an.
 
 Auf den Farbwechsel folgte der Auftrag, aus den beiden Farben ein Spiel zu
 machen: „ein Textfeld zum Beispiel blau und dann mit sanftem Farbübergang
