@@ -259,8 +259,8 @@ document.documentElement.classList.remove("kein-js");
 <main id="top" tabindex="-1">
 
 <!-- ============ HERO ============ -->
-<!-- Randlose Aufnahme vom Einsatzort statt des Markendetails aus dem Büroflur:
-     der erste Bildschirm soll zeigen, auf welchem Niveau gearbeitet wird.
+<!-- Randlose Aufnahme statt des Markendetails aus dem Büroflur: der erste
+     Bildschirm soll zeigen, auf welchem Niveau gearbeitet wird.
 
      Das Foto füllt den ganzen ersten Bildschirm, und darauf steht genau eine
      Aussage: die Hauptzeile. Alles Weitere, der Vorspanntext und die beiden
@@ -270,10 +270,14 @@ document.documentElement.classList.remove("kein-js");
      kleine Schrift braucht auf reinem Weiss 54 % Abdunklung, eine grosse
      Zeile nur 42 %, und kleine Schrift stand hier ganz oben im Textblock,
      also im hellsten Teil des Bildes. Mit nur noch einer Zeile auf dem Foto
-     bleiben die oberen zwei Drittel unangetastet. -->
+     bleiben die oberen zwei Drittel unangetastet.
+
+     Zwei Stufen, 1600 und 2560 px: die Vorlage hat 1672 px und traegt sie
+     (nachgemessen, siehe tools/motive-bauen.py). Das Motiv davor kam aus
+     640 px und bekam deshalb nur eine. -->
 <section class="hero" id="hero" data-weg>
   <div class="hero__photo" aria-hidden="true">
-    <picture><source type="image/avif" srcset="assets/img/team-einsatz.avif" /><source type="image/webp" srcset="assets/img/team-einsatz.webp" /><img src="assets/img/team-einsatz.jpg" alt="" fetchpriority="high" width="1600" height="1200" /></picture>
+    <picture><source type="image/avif" srcset="assets/img/bankett.avif 1600w, assets/img/bankett-gross.avif 2560w" sizes="(max-width:980px) 200vw, 100vw" /><source type="image/webp" srcset="assets/img/bankett.webp 1600w, assets/img/bankett-gross.webp 2560w" sizes="(max-width:980px) 200vw, 100vw" /><img src="assets/img/bankett.jpg" alt="" fetchpriority="high" width="1600" height="900" /></picture>
   </div>
   <div class="hero__schleier" aria-hidden="true"></div>
 

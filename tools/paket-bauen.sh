@@ -145,6 +145,10 @@ AUSSEN=(
   # Quelldatei des Wortzeichens, 157 KB. Sie gehoert ins Repository, aber
   # keine Seite laedt sie.
   "assets/logo/logo-herm-original.png"
+  # Die Vorlagen der Startseiten-Motive. Sie stehen im Repository, damit
+  # sich jede Stufe neu rechnen laesst (assets/quellen/LIESMICH.md) — auf
+  # dem Webserver laedt sie keine Seite.
+  "assets/quellen/*"
   # Dieselbe Sache, 646 KB: die unvertonte Musikspur ist die Vorlage, aus
   # der film-vertonen.py mischt (und zwar immer aus ihr, nie aus einer schon
   # gemischten Fassung — siehe „Der Imagefilm"). Keine Seite verweist
@@ -394,11 +398,15 @@ drin = set(z.namelist())
 # 1) Jede Datei aus assets/ muss im Paket sein — bis auf das, was
 #    absichtlich draussen bleibt.
 AUSGENOMMEN = ("assets/logo/logo-herm-original.png",
-               "assets/video/imagefilm-musik.webm")
+               "assets/video/imagefilm-musik.webm",
+               "assets/quellen/")
 fehlt = [os.path.join(w, d)
          for w, _, ds in os.walk("assets") for d in ds
          if os.path.join(w, d) not in drin
          and os.path.join(w, d) not in AUSGENOMMEN
+         # Ein Eintrag mit Schraegstrich am Ende meint den ganzen Ordner.
+         and not any(os.path.join(w, d).startswith(a)
+                     for a in AUSGENOMMEN if a.endswith("/"))
          and not os.path.join(w, d).endswith("-gross.webp")]
 if fehlt:
     print("   FEHLT im Paket:", *fehlt, sep="\n     ")

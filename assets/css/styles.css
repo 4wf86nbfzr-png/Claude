@@ -1051,12 +1051,12 @@ body.megabar-auf header.nav{
   position:absolute; inset:0; z-index:1; pointer-events:none;
   background:
     linear-gradient(to top,
-      rgba(6,7,11,.58)  0%,
-      rgba(6,7,11,.55) 22%,
-      rgba(6,7,11,.54) 42%,
+      rgba(6,7,11,.56)  0%,
+      rgba(6,7,11,.53) 22%,
+      rgba(6,7,11,.53) 42%,
       rgba(6,7,11,.53) 56%,   /* hier steht die Auszeichnungszeile */
-      rgba(6,7,11,.32) 66%,
-      rgba(6,7,11,.11) 80%,
+      rgba(6,7,11,.30) 66%,
+      rgba(6,7,11,.10) 80%,
       rgba(6,7,11,0)   92%),
     /* Eine Spur mehr nach links: die Schrift steht dort, und das Licht des
        Motivs kommt von rechts oben. */
@@ -2980,12 +2980,12 @@ header.nav{ view-transition-name:kopfzeile; }
   .hero__schleier{
     background:
       linear-gradient(to top,
-        rgba(6,7,11,.66)  0%,
-        rgba(6,7,11,.62) 30%,
-        rgba(6,7,11,.58) 55%,
-        rgba(6,7,11,.56) 70%,
-        rgba(6,7,11,.30) 82%,
-        rgba(6,7,11,.09) 92%,
+        rgba(6,7,11,.62)  0%,
+        rgba(6,7,11,.58) 30%,
+        rgba(6,7,11,.55) 55%,
+        rgba(6,7,11,.54) 70%,
+        rgba(6,7,11,.28) 82%,
+        rgba(6,7,11,.08) 92%,
         rgba(6,7,11,0)  100%);
   }
   /* ---- Weniger Bewegung, weil weniger Rechner ----

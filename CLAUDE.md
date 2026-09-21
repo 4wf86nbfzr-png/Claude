@@ -424,30 +424,50 @@ Die untere bleibt hell, darunter steht die Vertrauensleiste auf
 Seitengrund. Aus zwei Bildern mit einem Strich dazwischen wird eine Fahrt,
 die von einem Motiv ins nächste geht.
 
-### Was am Motiv nicht zu retten ist, und was doch
+### Wie viele Stufen eine Vorlage trägt
 
-Bestellt war „komplett 4K, gestochen scharf". Die Vorlage hat **0,31
-Megapixel** (640 × 480). Bildfüllend auf einem 1440er Schirm mit doppelter
-Pixeldichte werden 2880 × 1630 angefordert — das ist das
-Sechsundzwanzigfache der Fläche, die die Datei hat.
+Das Kopfbild ist inzwischen ein anderes (`bankett`, 1672 × 941). Der
+Abschnitt bleibt trotzdem stehen, denn er enthält die Messung, aus der die
+Regel kommt — **wie viele Stufen ein Motiv bekommt, entscheidet seine
+Vorlage, und das ist nachgemessen, nicht geschätzt.**
 
-**Eine zweite Stufe macht es messbar schlechter, nicht besser.** Das ist
-das Gegenteil dessen, was man erwartet, deshalb steht es hier mit Zahlen.
-Gerechnet wurden 2560 px und 3840 px aus der Originalvorlage, gerendert bei
-doppelter Pixeldichte, gemessen am mittleren Gradientenbetrag der
-Bildmitte:
+Gemessen wird nicht die Datei, sondern die Darstellung: bildfüllend auf
+einem 1440er Schirm mit doppelter Pixeldichte, also 2880 Gerätepixel,
+Kantenschärfe der Bildmitte.
 
-| Quelle | Kantenschärfe der Darstellung | Datei (AVIF) |
-|---|---|---|
-| 1600 px (so wie jetzt) | **4,47** | 92 KB |
-| 2560 px | 4,40 | 124 KB |
-| 3840 px | 4,06 | 202 KB |
+| Vorlage | Stufe | Kantenschärfe | Datei (AVIF) |
+|---|---|---|---|
+| 640 × 480 | 1600 px | **4,47** | 92 KB |
+| | 2560 px | 4,40 | 124 KB |
+| | 3840 px | 4,06 | 202 KB |
+| 1672 × 941 | 1600 px | 8,18 | 117 KB |
+| | 1672 px (nativ) | 8,43 | 124 KB |
+| | 2200 px | 8,88 | 168 KB |
+| | 2560 px | **9,00** | 198 KB |
 
-Der Grund ist die Nachschärfung: die 1600er Datei wird für 1600 geschärft
-und vom Browser auf 2880 hochgerechnet — die Schärfung wächst mit. Die
-3840er wird bei 3840 geschärft, wo derselbe Radius relativ feiner ist, und
-danach auf 2880 **herunter**gerechnet, was sie wieder wegmittelt. Detail
-kommt in keinem Fall dazu, es ist in der Vorlage nicht drin.
+**Bei der kleinen Vorlage war mehr messbar schlechter, bei der großen
+messbar besser** — und der Grund ist derselbe. Der Browser rechnet auf
+2880 hoch. Die 1600er Datei wird für 1600 geschärft und dann
+hochgerechnet: die Schärfung wächst mit. Die 3840er wird bei 3840
+geschärft und danach **herunter**gerechnet: das mittelt die Schärfung weg.
+Bei einer 1672er Vorlage liegt jede Stufe unter 2880, wird also in jedem
+Fall hochgerechnet, und dann lohnt die größere.
+
+Die Entscheidung steht als `LOHNT_GROSS = 1400` in
+`tools/motive-bauen.py`. Der Deckel bleibt bei 2560 — nicht der Dateigröße
+wegen, sondern des Rasterns (siehe „Die Obergrenze kommt nicht von der
+Dateigröße").
+
+**Die Vorlagen liegen seit dem Wechsel im Repository**, unter
+`assets/quellen/`. Vorher lagen sie ausschließlich außerhalb des Projekts,
+und damit war jede Neuberechnung eine Frage des Glücks. `paket-bauen.sh`
+lässt den Ordner aus.
+
+#### Der Fall, aus dem die Messung stammt
+
+Bestellt war „komplett 4K, gestochen scharf". Die damalige Vorlage hatte
+**0,31 Megapixel** (640 × 480) — das Sechsundzwanzigfache der Fläche wurde
+angefordert.
 
 **Was wirklich hilft, kostet 5 KB.** Wenn die Schärfung ohnehin die
 Hochrechnung überleben muss, darf sie stärker sein. Nachgemessen am
@@ -472,6 +492,38 @@ Hinweis, der in diesem Fall der wichtigste ist: in ein Gespräch
 desselben Betriebs kamen in dieser Sitzung mit 24,5 und 16,8 Megapixel an,
 weil sie als Datei angehängt waren. Das Kopfbild kam mit 0,31 — das Original
 existiert also mit hoher Wahrscheinlichkeit, es ist nur nie hier angekommen.
+
+### Der Schleier misst sich am Motiv, nicht an einer Zahl
+
+Das Kopfbild ist ein drittes Mal gewechselt: von `gastro` über
+`team-einsatz` auf **`bankett`**, eine dunkle Restauranttafel mit warmen
+Leuchten. Der Schleier wurde dabei nicht neu gewählt, sondern neu
+**gemessen** — und das ist der Punkt.
+
+Man erwartet, dass ein dunkles Motiv kaum Schleier braucht. Ohne ihn
+gemessen ergibt genau dieses Bild aber **1,00:1 am schlechtesten Pixel**:
+Kerzenflammen und Glaskanten sind reines Weiss, und sie stehen ausgerechnet
+dort, wo die Hauptzeile liegt. Ein dunkles Foto ist nicht dasselbe wie ein
+Foto ohne helle Stellen.
+
+**Und der Grund steht nicht still.** Die stehende Kamerafahrt zieht das
+Motiv in 30 s von 1,00 auf 1,10 und zurück; was hinter einem Buchstaben
+liegt, wandert mit. Eine einzelne Aufnahme misst deshalb einen Moment, nicht
+den schlechtesten Fall. `scratchpad/heroPhasen.js` hält die Animation an
+und tastet fünf Stellen ab, `phasen.py` nimmt je Textfläche die
+schlechteste. Zwischen bester und schlechtester Phase liegen gemessen bis
+zu 1,4 Stufen Kontrast — genug, um eine Fassung durchzuwinken, die in
+Wahrheit nicht besteht.
+
+| | vorher (`team-einsatz`) | jetzt (`bankett`) |
+|---|---|---|
+| Deckkraft unten, Schreibtisch | 58 % | **56 %** |
+| Deckkraft unten, Telefon | 66 % | **62 %** |
+| schlechtester Pixel über alle fünf Phasen | — | 4,38:1 bis 4,80:1 |
+
+Viel weniger geht nicht: bei 50 % fällt die Auszeichnungszeile am
+schlechtesten Pixel auf 3,74:1. Sie ist kleine Schrift und braucht 4,5 —
+sie allein bestimmt den ganzen Verlauf.
 
 ### Der Schleier, zweiter Durchgang: weniger Text auf dem Foto
 
