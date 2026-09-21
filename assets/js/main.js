@@ -34,9 +34,21 @@
        die sich auch noch aufbaut. Beim zweiten Aufruf im selben Besuch
        (oben, `gesehen`) wird `sofort` nicht gesetzt: dort IST die Einfahrt
        der Einstieg. */
+    /* `los` faellt erst hier — und nicht schon im Kopf der Seite.
+       ------------------------------------------------------------
+       Unter `sofort` steht das Foto von der ersten Zeichnung an fertig da
+       (LCP). Der Text darauf wartet dagegen auf den Schnitt: liefe seine
+       Kamerafahrt unter dem deckenden Vorspann ab, waere sie vorbei, bevor
+       irgendjemand sie sehen kann, und beim Schnitt stuende einfach ein
+       fertiger Hero da.
+
+       Die Klasse steht hier und nicht weiter unten in main.js, weil dieser
+       Block als erster laeuft: was danach kommt, kann fehlschlagen, ohne
+       dass die Startseite textlos bleibt. */
     const fertig = ()=>{
       if(pre.classList.contains('done')) return;   // der Notausstieg kommt nur, wenn noetig
       pre.classList.add('done');
+      document.documentElement.classList.add('los');
     };
     setTimeout(fertig, 2750);          // nach dem Glanz: Schnitt
     setTimeout(fertig, 4400);          // Notausstieg, falls etwas hängt
@@ -63,7 +75,7 @@
        getBoundingClientRect in jedem Scrollbild wäre ein erzwungenes Layout
        je Bild, und genau davor warnt „Erst messen, dann schreiben". */
     if(nav.classList.contains('scrolled') !== warGescrollt)
-      requestAnimationFrame(navHoehe);
+      requestAnimationFrame(()=> navHoehe(false));
   }
   /* Instant jump to top — bypasses the scroll-scrubbed effects entirely */
   toTop.addEventListener('click', ()=>{
@@ -556,7 +568,7 @@
      Masken nach oben, sobald sie hereinkommt — dieselbe Geste wie im Hero,
      nur nicht zeitgesteuert. Sie trägt bewusst nicht .reveal-up: das wären
      zwei Bewegungen auf derselben Zeile. */
-  document.querySelectorAll('.reveal-up, [data-stagger], .foot__claim').forEach(el=>{
+  document.querySelectorAll('.reveal-up, [data-stagger], [data-kino], .foot__claim').forEach(el=>{
     wartend.add(el);
     io.observe(el);
   });
@@ -793,11 +805,41 @@
      sonst liegt er unsichtbar dahinter, und die Kapitelmarke muss unter
      ihm anfangen. Ihre Höhe hängt an der Breite, deshalb wird sie gemessen
      und global hinterlegt statt geraten. */
-  function navHoehe(){
+  /* Zwei Hoehen, und der Unterschied ist wichtig.
+     ------------------------------------------------------------
+     Die Kopfzeile wird beim Scrollen flacher: 85 px oben, 63 px gescrollt.
+     Bis hierher stand beides in EINER Variablen, und daran hingen zwei
+     verschiedene Dinge:
+
+       --nav-h   wie hoch die Leiste GERADE ist. Daran haengen die
+                 Unterleiste und die Kinobalken — beide liegen unter der
+                 Leiste und muessen ihr folgen.
+       --nav-h0  wieviel Platz fuer sie reserviert ist. Daran haengen
+                 `body{padding-top}`, die Hoehe des Heros und
+                 `scroll-padding-top`. Das darf sich NICHT aendern, sonst
+                 rutscht beim Scrollen die ganze Seite um 22 px.
+
+     Gemessen: der Hero wuchs beim Zurueckscrollen von 815 auf 839 px, weil
+     seine Hoehe `100svh - var(--nav-h)` ist. Und `--nav-h` selbst stand
+     dabei auf 61 px, obwohl die Leiste 68 hoch war — gemessen wurde
+     mitten in ihrer eigenen Ueberblendung. Deshalb wird nach deren Ende
+     noch einmal nachgemessen. */
+  function navHoehe(reserviert){
     if(!nav) return;
-    document.documentElement.style.setProperty(
-      '--nav-h', Math.round(nav.getBoundingClientRect().height) + 'px');
+    const h = Math.round(nav.getBoundingClientRect().height);
+    document.documentElement.style.setProperty('--nav-h', h + 'px');
+    /* Nur aus dem Ruhezustand heraus, und nur wenn die Leiste wirklich
+       steht. Die Umschaltung `.scrolled` blendet ueber (Polsterung 0,4 s,
+       Logohoehe 0,6 s); wer mittendrin misst, bekommt 61 px fuer eine
+       Leiste, die 85 hoch ist — genau so stand es hier vorher. */
+    if(reserviert && !nav.classList.contains('scrolled')){
+      document.documentElement.style.setProperty('--nav-h0', h + 'px');
+    }
   }
+  /* `transitionend` blubbert, die Logohoehe zaehlt also mit. Wenn hier
+     nichts mehr laeuft, steht die Leiste — dann und nur dann ist die
+     Messung des reservierten Platzes gueltig. */
+  if(nav) nav.addEventListener('transitionend', ()=> navHoehe(true));
 
   if(!reduce && stages.length > 1){
     /* In der Einzeldatei-Vorschau laeuft dieser Code bei jedem Seitenwechsel
@@ -1467,15 +1509,29 @@
      dann klickt man daneben. Die Rückkehr macht eine kurze Überblendung im
      Stylesheet, nicht JavaScript. */
   if(!reduce && window.matchMedia('(hover:hover) and (pointer:fine)').matches){
+    /* Gerechnet wird einmal je Bild, nicht einmal je Mausbewegung. Eine Maus
+       meldet sich bei 1000 Hz, der Bildschirm zeichnet bei 60 — ohne die
+       Bremse laufen auf dem Weg ueber einen Knopf bis zu siebzehn Messungen
+       und Schreibvorgaenge fuer ein einziges Bild, und jedes
+       `getBoundingClientRect` erzwingt dabei ein Layout. */
+    let magnetAn = false, magnetZiel = null, magnetX = 0, magnetY = 0;
+    function magnetSchreiben(){
+      magnetAn = false;
+      if(!magnetZiel) return;
+      const r = magnetZiel.getBoundingClientRect();
+      const dx = (magnetX - (r.left + r.width  / 2)) / Math.max(1, r.width);
+      const dy = (magnetY - (r.top  + r.height / 2)) / Math.max(1, r.height);
+      magnetZiel.style.setProperty('--mx', (dx * 10).toFixed(1) + 'px');
+      magnetZiel.style.setProperty('--my', (dy * 6).toFixed(1)  + 'px');
+    }
     document.querySelectorAll('.btn, .form__submit, .film__knopf').forEach(el => {
       el.addEventListener('pointermove', (ev)=>{
-        const r = el.getBoundingClientRect();
-        const dx = (ev.clientX - (r.left + r.width  / 2)) / Math.max(1, r.width);
-        const dy = (ev.clientY - (r.top  + r.height / 2)) / Math.max(1, r.height);
-        el.style.setProperty('--mx', (dx * 10).toFixed(1) + 'px');
-        el.style.setProperty('--my', (dy * 6).toFixed(1)  + 'px');
-      });
+        if(ev.pointerType && ev.pointerType !== 'mouse') return;
+        magnetZiel = el; magnetX = ev.clientX; magnetY = ev.clientY;
+        if(!magnetAn){ magnetAn = true; requestAnimationFrame(magnetSchreiben); }
+      }, { passive:true });
       el.addEventListener('pointerleave', ()=>{
+        if(magnetZiel === el) magnetZiel = null;
         el.style.setProperty('--mx', '0px');
         el.style.setProperty('--my', '0px');
       });
@@ -1563,7 +1619,7 @@
       });
     }
   }
-  function alles(){ navHoehe(); messen(); updateStages(); updateMotion(); updateKino(); }
+  function alles(){ navHoehe(true); messen(); updateStages(); updateMotion(); updateKino(); }
   window.addEventListener('scroll', onScroll, { passive:true });
 
   /* ---- Der Bestandskundenbereich ----
@@ -2281,6 +2337,6 @@
      Rückfallwert 78 px, während die Kopfzeile bei 1440 px 98 px hoch ist.
      Die Höhe ist aber keine Frage der Bewegung, sondern eine Tatsache über
      das Layout. Sie wird jetzt in jeder Lage geschrieben. */
-  window.addEventListener('resize', ()=>{ navHoehe(); onScrollTop(); if(!reduce) alles(); });
-  navHoehe(); onScrollTop(); if(!reduce) alles();
+  window.addEventListener('resize', ()=>{ navHoehe(true); onScrollTop(); if(!reduce) alles(); });
+  navHoehe(true); onScrollTop(); if(!reduce) alles();
 })();

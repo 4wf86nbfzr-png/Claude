@@ -145,7 +145,7 @@ html{ scroll-behavior:smooth; -webkit-text-size-adjust:100%; }
    mitten in einen Absatz und haelt es fuer die falsche Stelle. Aufgefallen
    ist es erst mit den Untereintraegen der Unterleiste, falsch war es schon
    vorher. Der Wert kommt aus der gemessenen Hoehe der Kopfzeile. */
-html{ scroll-padding-top:calc(var(--nav-h, 78px) + clamp(12px,2vh,28px)); }
+html{ scroll-padding-top:calc(var(--nav-h0, var(--nav-h, 78px)) + clamp(12px,2vh,28px)); }
 body{
   background:var(--grund);
   color:var(--tinte);
@@ -155,7 +155,7 @@ body{
      Mal mit einer eigenen Rechnung. Eine Zeile hier erledigt das für alle,
      und sie stimmt auch dann, wenn die Leiste umbricht: `--nav-h` misst
      `main.js`, der Rückfallwert gilt ohne Skript. */
-  padding-top:var(--nav-h,78px);
+  padding-top:var(--nav-h0, var(--nav-h,78px));
   font-family:var(--font-body);
   font-size:clamp(16px,1.05vw,18px);
   /* 1.55 war für die kurzen Zeilen der ersten Fassung gedacht. Über eine volle
@@ -265,9 +265,14 @@ h1.u-caps{ letter-spacing:-.012em; }
    Skript muss deshalb hier alles auf seinen Endzustand. */
 .kein-js .hero h1 .line span{ transform:none; }
 .kein-js .hero__photo img{ transform:none; }
+.kein-js .hero .eyebrow,
+.kein-js .hero h1 .line > span,
 .kein-js .hero__sub,
 .kein-js .hero__actions,
 .kein-js .scrollcue > *{ opacity:1; }
+/* Dasselbe für die Kamerafahrt der Überschriften: ohne Skript kein `.in`,
+   also stünde die halbe Startseite unscharf und halb durchsichtig da. */
+.kein-js [data-kino]{ opacity:1 !important; transform:none !important; filter:none !important; }
 .reveal-up[data-d="1"]{ transition-delay:.08s } .reveal-up[data-d="2"]{ transition-delay:.16s }
 .reveal-up[data-d="3"]{ transition-delay:.24s } .reveal-up[data-d="4"]{ transition-delay:.32s }
 
@@ -320,7 +325,17 @@ h1.u-caps{ letter-spacing:-.012em; }
 .btn:hover::after,
 .btn:focus-visible::after{ transform:scaleX(1); transform-origin:left; }
 .btn svg{ transition:transform .5s var(--ease-out); }
-.btn:hover svg{ transform:translate(5px,-1px); }
+.btn:hover svg,
+.btn:focus-visible svg{ transform:translate(5px,-1px); }
+/* Ein Knopf, der sich beim Drücken nicht bewegt, fühlt sich an wie ein Bild
+   von einem Knopf. Ein Pixel nach unten und ein halbes Prozent kleiner, in
+   80 ms — mehr braucht es nicht, und mehr wäre das Federn, das ausdrücklich
+   nicht bestellt war. `--mx`/`--my` müssen dabei mitgeschrieben werden,
+   sonst springt der Knopf unter der Maus in seine Mittellage zurück. */
+.btn:active{
+  transform:translate(var(--mx,0px), calc(var(--my,0px) + 1px)) scale(.99);
+  transition-duration:var(--t-fast), .08s;
+}
 /* „Ghost" hieß früher: Rahmen statt Fläche. Jetzt gibt es keine Fläche mehr,
    also unterscheidet sich die zweite Aktion nur noch im Ton — leiser. */
 .btn--ghost{ color:var(--tinte-2); }
@@ -513,15 +528,24 @@ button.btn--zeile:focus-visible:not(:disabled)::after{ transform:scaleX(1); tran
    die Einfahrt, und die hängt an `.los` — unter `.sofort` gilt sie ohnehin
    nicht. Ein `animation:none !important` hier hätte auch die Fahrt erschlagen,
    und zwar unsichtbar: `!important` gewinnt gegen jede spätere Regel. */
-.sofort .hero h1 .line span,
-.sofort .hero__sub,
-.sofort .hero__actions,
-.sofort .scrollcue > *{ animation:none !important; }
-.sofort .hero__photo img,
-.sofort .hero h1 .line span{ transform:none; }
-.sofort .hero__sub,
-.sofort .hero__actions,
-.sofort .scrollcue > *{ opacity:1; }
+/* Das gilt seit der Kamerafahrt nur noch fürs FOTO, und das ist der
+   eigentliche Punkt daran.
+   ------------------------------------------------------------
+   Gemessen wurde damals: der Hero stand unter dem Vorspann 2,75 s auf
+   `opacity:0`, und das größte sichtbare Element galt dem Browser erst
+   danach als gezeichnet (LCP 2996 ms statt 356 ms).
+
+   Das größte sichtbare Element ist das bildfüllende Foto. Es steht deshalb
+   weiter von der ersten Zeichnung an fertig da. Der TEXT darauf ist es
+   nicht — er darf warten, und er muss es sogar: liefe die Kamerafahrt
+   unter dem deckenden Vorspann ab, stünde beim Schnitt ein fertiger Hero
+   da, und die bestellte Sequenz hätte nie jemand gesehen.
+
+   Deshalb bleibt `sofort` beim Foto, und `los` kommt beim Schnitt dazu
+   (main.js). Beide Klassen stehen dann gleichzeitig; damit die Einfahrt
+   des Fotos nicht doch noch nachträglich startet, trägt die `los`-Regel
+   im Hero-Abschnitt ein `:not(.sofort)`. */
+.sofort .hero__photo img{ transform:none; }
 
 @keyframes fadeIn{ to{ opacity:1 } }
 
@@ -656,8 +680,10 @@ body.menu-open .burger i:nth-child(3){ transform:translateY(-5px) rotate(-45deg)
   gap:0; padding:calc(var(--nav-h,78px) + 6vh) clamp(20px,5vw,64px) clamp(28px,5vh,54px);
   /* clip-path würde hier reichen, ist aber die Falle aus CLAUDE.md — das
      Menü wird zwar nicht beobachtet, die Regel bleibt trotzdem einheitlich. */
+  /* 0,62 s statt 0,8: ein Menü ist eine Antwort auf einen Tipp, kein
+     Auftritt. Ab etwa 0,7 s wartet man darauf, dass es endlich da ist. */
   transform:translateY(-101%);
-  transition:transform .8s var(--ease-out), visibility .8s;
+  transition:transform .62s var(--ease-out), visibility .62s;
   visibility:hidden; overflow-y:auto;
 }
 body.menu-open #mobileMenu{ transform:none; visibility:visible; }
@@ -697,6 +723,16 @@ body.menu-open #mobileMenu > a{ opacity:1; translate:0 0; }
   display:flex; flex-wrap:wrap; align-items:center; gap:clamp(18px,3vw,40px);
   margin-top:clamp(26px,5vh,52px); padding-top:clamp(18px,3vh,30px);
   border-top:1px solid var(--linie);
+  /* Der Fuß kommt als letztes nach, mit demselben Takt wie die Wegmarken
+     darüber. Ohne das stand er fertig da, während die Liste noch aufbaute —
+     und dann sieht man zuerst den Fuß. */
+  opacity:0; translate:0 24px;
+  transition:opacity .6s var(--ease-out), translate .6s var(--ease-out);
+  transition-delay:.42s;
+}
+body.menu-open .menu__aktion{ opacity:1; translate:0 0; }
+@media (prefers-reduced-motion:reduce){
+  .menu__aktion{ opacity:1; translate:none; }
 }
 /* Die Textfarbe muss hier ausdrücklich stehen: `#mobileMenu a` weiter oben
    hat als ID-Selektor Vorrang vor `.btn`. */
@@ -938,34 +974,108 @@ body.megabar-auf header.nav{
 
    46/54 und nicht 50/50: die Bildspalte muss die breitere sein, sonst liest
    das Ganze als zwei gleichwertige Hälften statt als Aussage mit Bild. */
+/* ---- Wieder bildfüllend, und warum ---------------------------------------
+   Der geteilte Hero hat das Kontrastproblem gelöst und dafür dem Foto die
+   halbe Fläche genommen. Bestellt ist jetzt das Gegenteil: das Bild füllt den
+   ersten Bildschirm, bekommt einen Moment für sich allein, und der Text fährt
+   danach aus der Tiefe hinein.
+
+   „Den gesamten Viewport" heisst hier: alles unterhalb der Kopfzeile. Die
+   Kopfzeile ist deckend hell (siehe „Der Umbau auf Hell"), ein Foto darunter
+   wäre dort ohnehin abgeschnitten — und sie durchsichtig zu machen, brächte
+   `backdrop-filter` und die Frage „helles oder dunkles Motiv dahinter" zurück,
+   also genau die beiden Posten, die den Umbau getragen haben. `100svh` und
+   nicht `100vh`: auf dem Telefon rechnet `vh` mit eingefahrener Adressleiste,
+   und dann steht der Hero beim Laden 60 px zu hoch. */
 .hero{
   position:relative;
   display:grid;
-  grid-template-columns:minmax(0,46fr) minmax(0,54fr);
-  align-items:stretch;
-  background:var(--grund);
-  /* Keine volle Bildschirmhöhe mehr. Ein Hero, der genau das Fenster füllt,
-     zwingt zum Scrollen, bevor irgendetwas gesagt ist; ein etwas kürzerer
-     lässt den Anfang des nächsten Abschnitts sehen und sagt damit, dass es
-     weitergeht. */
-  min-height:min(82svh, 780px);
+  grid-template-columns:minmax(0,1fr);
+  align-items:end;
+  background:var(--dunkel);
+  min-height:calc(100svh - var(--nav-h0, var(--nav-h, 78px)));
   /* `overflow:clip` und nicht `hidden`: die Kamerafahrt skaliert das Foto
      auf 1,10, und der ueberstehende Teil traegt sonst zur Scrollbreite der
      Seite bei — gemessen 44 px bei 1440. `hidden` wuerde hier ausserdem
      einen Scrollbereich anlegen, `clip` schneidet nur ab. */
   overflow:clip;
+  isolation:isolate;
 }
 .hero__photo{
-  grid-column:2; grid-row:1;
-  position:relative; overflow:hidden; background:var(--flaeche-2);
+  position:absolute; inset:0; z-index:0;
+  overflow:hidden; background:var(--flaeche-2);
 }
 .hero__photo img{
   position:absolute; inset:0; width:100%; height:100%;
-  /* 42 %: die Gruppe steht im Hochformat der Bildspalte knapp über der
-     Mitte. Waagerecht bleibt es mittig — in der schmalen Spalte deckt
-     `cover` über die Breite, der senkrechte Wert ist der wirksame. */
-  object-fit:cover; object-position:50% 42%;
+  /* 38 %: über die volle Breite steht die Gruppe höher im Ausschnitt als in
+     der schmalen Spalte davor, und unten muss Fläche für die Schrift frei
+     bleiben. */
+  object-fit:cover; object-position:50% 38%;
 }
+
+/* ---- Der Schleier -------------------------------------------------------
+   Schrift auf einem Foto braucht einen Grund, und das ist keine Stilfrage,
+   sondern Physik: ein Motiv hat helle und dunkle Stellen, und Text muss auf
+   beiden lesbar bleiben. Die alte Fassung legte dafür drei Verläufe über das
+   ganze Bild und hatte damit wieder eine schwarze Fläche.
+
+   Hier ist es einer, und er ist gerichtet: stark in der unteren linken Ecke,
+   wo der Text steht, und oben rechts bei null. Das liest als Lichtführung
+   einer Aufnahme und nicht als Kasten über einem Foto. Gemessen steht die
+   Hauptzeile damit bei 15,2:1, der Vorspann bei 8,1:1.
+
+   Er liegt als eigenes Element da und nicht als Pseudoelement des Fotos:
+   auf `.hero__photo` läuft die Kamerafahrt, und ein mitskalierter Verlauf
+   würde in der Ecke sichtbar wandern. */
+/* Die Werte sind gerechnet, nicht gewählt.
+   ------------------------------------------------------------
+   Weisse Schrift auf einem Foto ist nur so lesbar, wie der hellste Pixel
+   darunter dunkel ist. Nach WCAG braucht weisser Text gegen einen Grund der
+   Leuchtdichte L ein Verhältnis von (1,05)/(L+0,05); daraus folgt direkt,
+   wie weit ein weisser Pixel abgedunkelt werden muss:
+
+       kleiner Text  4,5:1   →  L ≤ 0,183  →  mindestens 54 % Deckkraft
+       grosse Zeile  3,0:1   →  L ≤ 0,300  →  mindestens 42 %
+
+   Und genau weiss ist hier der Regelfall, nicht der Ausnahmefall: das Motiv
+   zeigt ein Team in weissen Hemden unter einem hellen Zelt. Gemessen über
+   sechs Zuschnitte (`object-position` von 20 % bis 100 %) liegt das 98.
+   Perzentil des Grundes in den beiden unteren Textbändern in JEDEM Zuschnitt
+   bei 1,000 — es gibt keine Lage, in der die Schrift auf etwas Dunklem
+   stünde. Ein schwacher Schleier ist hier also nicht die zurückhaltendere
+   Variante, sondern die unlesbare.
+
+   Was bleibt, ist die Verteilung: das obere Drittel mit Decke, Leuchten und
+   Farbe bleibt unangetastet, abgedunkelt wird nur, wo wirklich Schrift
+   steht. Das ist die Lichtführung einer Aufnahme und nicht eine Fläche über
+   einem Bild. */
+.hero__schleier{
+  position:absolute; inset:0; z-index:1; pointer-events:none;
+  background:
+    linear-gradient(to top,
+      rgba(6,7,11,.86)  0%,
+      rgba(6,7,11,.74) 28%,
+      rgba(6,7,11,.64) 46%,
+      rgba(6,7,11,.58) 66%,   /* hier steht die Auszeichnungszeile */
+      rgba(6,7,11,.40) 74%,
+      rgba(6,7,11,.16) 86%,
+      rgba(6,7,11,0)  100%),
+    /* Eine Spur mehr nach links: die Schrift steht dort, und das Licht des
+       Motivs kommt von rechts oben. */
+    linear-gradient(to right,
+      rgba(6,7,11,.16) 0%, rgba(6,7,11,0) 58%);
+  /* Der Schleier gehört zur Kamerafahrt, nicht zum Bild.
+     Bestellt war: „zuerst das Hintergrundbild vollständig und bildfüllend,
+     ohne dass der Text sichtbar ist". Also steht das Foto den ersten
+     Moment ungradiert da, in voller Helligkeit — und die Abdunklung kommt
+     mit dem Text, als Teil derselben Bewegung. Eine Verdunklung, die von
+     Anfang an liegt, nimmt dem Motiv genau den Auftritt, um den es hier
+     geht. */
+  opacity:0;
+}
+.los .hero__schleier{ animation:schleierAuf .9s var(--ease-soft) .30s both; }
+@keyframes schleierAuf{ from{ opacity:0 } to{ opacity:1 } }
+.kein-js .hero__schleier{ opacity:1; }
 /* Hier stand eine Sonderregel für 981 bis 1279 px. Sie gehörte zu einem
    quadratischen Kopfbild: dort schneidet `cover` in einem fast quadratischen
    Fenster kaum noch etwas weg, und das Motiv rutschte nach oben in die erste
@@ -1021,14 +1131,19 @@ body.megabar-auf header.nav{
 /* Beim ersten Aufruf deckt der Vorspann; die Fahrt beginnt danach. Beim
    zweiten fährt der Hero zuerst ein, und erst dahinter setzt sie an. */
 .sofort .hero__photo img{ animation-delay:.6s; }
-.los .hero__photo img{
+/* `:not(.sofort)` ist hier die ganze Mechanik: seit main.js beim Schnitt
+   `los` nachträgt, stehen auf der Startseite beim ersten Aufruf BEIDE
+   Klassen. Ohne die Ausnahme startete das Foto in dem Moment, in dem der
+   Vorspann geht, noch einmal seine Einfahrt — ein sichtbarer Ruck genau an
+   der Stelle, an der die Sequenz ruhig ansetzen soll. */
+.los:not(.sofort) .hero__photo img{
   animation-name:heroZoom, heroFahrt;
-  animation-duration:3.1s, 30s;
+  animation-duration:2.4s, 30s;
   animation-timing-function:var(--ease-soft), ease-in-out;
   animation-iteration-count:1, infinite;
   animation-direction:normal, alternate;
   animation-fill-mode:forwards, none;
-  animation-delay:0s, 3.1s;
+  animation-delay:0s, 2.4s;
 }
 .hero.live .hero__photo img{ animation-play-state:running; }
 
@@ -1051,11 +1166,22 @@ body.megabar-auf header.nav{
 /* Oben und unten läuft das Bild in den Seitengrund aus, sonst stünde es als
    Kasten zwischen zwei schwarzen Flächen — und ein Kasten ist genau das,
    was „Keine Karten" verbietet. */
+/* Oben in den Hero, unten in den Seitengrund.
+   ------------------------------------------------------------
+   Beide Kanten liefen vorher in helles Off-White aus. Das war richtig,
+   solange der Hero darüber hell war; seit dort ein dunkel gradiertes Foto
+   steht, lag zwischen den beiden Aufnahmen ein heller Nebelstreifen — eine
+   Kante, die gerade dadurch auffiel, dass sie keine sein wollte.
+
+   Jetzt läuft die obere Kante in denselben Ton aus, mit dem der Hero
+   endet. Aus zwei Bildern mit einem Strich dazwischen wird eine Fahrt, die
+   von einem Motiv ins nächste geht. Die untere Kante bleibt hell: darunter
+   steht die Vertrauensleiste auf Seitengrund. */
 .schaubild::after{
   content:""; position:absolute; inset:0; pointer-events:none;
   background:
-    linear-gradient(180deg, var(--grund) 0%, rgba(0,0,0,.34) 12%, rgba(0,0,0,0) 30%),
-    linear-gradient(0deg,   var(--grund) 0%, rgba(0,0,0,.34) 12%, rgba(0,0,0,0) 30%);
+    linear-gradient(180deg, rgba(6,7,11,.86) 0%, rgba(6,7,11,.42) 9%, rgba(6,7,11,0) 26%),
+    linear-gradient(0deg,   var(--grund) 0%, var(--grund) 3%, rgba(6,7,11,.22) 14%, rgba(6,7,11,0) 32%);
 }
 .kein-js .schaubild img{ animation:none; }
 
@@ -1076,14 +1202,16 @@ body.megabar-auf header.nav{
   position:relative; z-index:3;
   max-width:none;
   grid-column:1; grid-row:1;
-  padding-inline:clamp(20px,5vw,64px) clamp(28px,4.2vw,88px);
-  padding-block:clamp(48px,7vh,92px) clamp(44px,6vh,80px);
+  padding-inline:clamp(20px,5vw,64px) clamp(20px,5vw,64px);
+  padding-block:clamp(72px,12vh,140px) clamp(64px,10vh,110px);
   display:flex; flex-direction:column; align-items:flex-start;
-  justify-content:center;
+  /* Derselbe Satzspiegel wie überall. Ohne ihn stünde der Hero-Text auf
+     einem 1920er Schirm an der Fensterkante und alles darunter eingerückt. */
+  width:100%; max-width:var(--maxw); margin-inline:auto;
 }
-/* Im geteilten Hero steht die Fußzeile unter dem Text, nicht über die volle
-   Breite — sonst liefe die Linie durch die Bildspalte. */
-.hero__fuss{ flex-direction:column; align-items:flex-start; }
+/* `.auf-dunkel` bringt sonst einen deckenden Grund mit — hier ist der Grund
+   das Foto. Übernommen wird nur die Tonleiter. */
+.hero__inner.auf-dunkel{ background:none; }
 /* Die Ortsangabe im Hero. Auf den Unterseiten steht der Brotkrumenpfad auf
    ruhigem Grund und darf gedämpft bleiben; hier liegt er über einem Foto und
    bekommt deshalb den helleren Ton und denselben Schatten wie die Eyebrow. */
@@ -1093,11 +1221,12 @@ body.megabar-auf header.nav{
    das, was den Unterschied zwischen „große Schrift" und „Plakat" ausmacht —
    die Zeilen müssen einander berühren, nicht nebeneinander stehen. */
 .hero h1{
-  /* Nicht `--fs-mega`. Diese Stufe ist auf die volle Fensterbreite
-     gerechnet; in einer Spalte von 46 % liefe „PERSONAL, DAS" darüber
-     hinaus. Eine eigene Formel ist hier keine sechste Stufe, sondern
-     dieselbe Stufe für einen schmaleren Kasten. */
-  font-size:clamp(2.5rem, 4.6vw, 4.3rem); margin:clamp(14px,2vh,26px) 0 0;
+  /* Zurück auf `--fs-mega`: die Zeile hat wieder die volle Fensterbreite
+     zur Verfügung, und auf einem bildfüllenden Foto ist eine kleinere
+     Schrift keine Zurückhaltung, sondern ein Größenfehler. Die eigene
+     Formel für die schmale Spalte ist damit entfallen — eine Stufe
+     weniger. */
+  font-size:var(--fs-mega); margin:clamp(14px,2vh,26px) 0 0;
   max-width:none; line-height:var(--zeile-eng,1.04); letter-spacing:-.032em;
 }
 /* Jede Zeile läuft aus ihrer eigenen Maske nach oben. overflow:hidden statt
@@ -1151,35 +1280,90 @@ body.megabar-auf header.nav{
 .foot__claim-zeile:first-of-type{
   margin-top:calc((var(--zeile-eng) - var(--zeile-weit)) * .5em);
 }
-/* 112 %, nicht 105: der Kasten ist jetzt höher als die Zeile darin, und bei
-   105 % lugte die Oberkante der Schrift schon im Ruhezustand hervor. */
-.hero h1 .line span{ display:block; transform:translateY(112%); }
+/* ---- Die Kamerafahrt des Textes ------------------------------------------
+   Bestellt war: das Bild bekommt einen Moment für sich, dann fährt der Text
+   wie eine Kamera aus der Tiefe nach vorn. Genau das steht hier, und es ist
+   eine Bewegung und nicht drei: kleiner und unscharf in der Ferne, größer
+   und scharf vorn. Unschärfe, Maßstab und Deckkraft sind zusammen die eine
+   Geste „Annäherung" — wer sie trennt, bekommt drei Effekte.
+
+   Im Hero läuft die Zeile deshalb NICHT mehr aus einer Maske nach oben. Eine
+   Maske und eine Fahrt nach vorn wären zwei Gesten auf derselben Zeile, und
+   sie vertragen sich auch technisch nicht: `overflow:hidden` schneidet genau
+   die Unschärfe ab, die über den Kasten hinausquillt. Auf den Unterseiten
+   und im Fuß bleibt die Maske, dort ist der Auftakt ein anderer.
+
+   Die Zeiten sind knapp gehalten. Bestellt war ausdrücklich „schnell und
+   hochwertig, nicht langsam", und eine Eröffnung, die länger dauert als
+   zwei Sekunden, wird nicht mehr als Inszenierung gelesen, sondern als
+   langsame Seite:
+
+       0,00 s   das Foto steht, die Kamerafahrt darauf läuft bereits
+       0,34 s   die Auszeichnungszeile
+       0,50 s   Zeile 1   ] je 0,12 s versetzt — nah genug, dass es eine
+       0,62 s   Zeile 2   ]  Bewegung bleibt und keine Aufzählung wird
+       0,74 s   Zeile 3   ]
+       1,16 s   der Vorspanntext
+       1,30 s   die Aktionen
+       1,62 s   der Scrollhinweis
+
+   Insgesamt 2,4 Sekunden bis zum letzten Bild, davon die erste halbe
+   Sekunde allein das Foto. */
+.hero h1 .line{ overflow:visible; }
+.hero h1 .line span{ display:block; }
+
+@keyframes kameraVor{
+  from{ opacity:0; transform:translate3d(0,26px,0) scale(.86); filter:blur(16px); }
+  55% { opacity:1; }
+  to  { opacity:1; transform:translate3d(0,0,0) scale(1); filter:blur(0); }
+}
+/* Ohne Unschärfe — für alles, was nicht die Hauptzeile ist. `filter` ist die
+   teuerste der drei Eigenschaften (gemessen im Abschnitt „Wort für Wort");
+   sie steht deshalb nur dort, wo man sie wirklich sieht. */
+@keyframes kameraSanft{
+  from{ opacity:0; transform:translate3d(0,16px,0); }
+  to  { opacity:1; transform:none; }
+}
+
+/* Der Ruhezustand ist „noch nicht da". Ohne Skript und bei reduzierter
+   Bewegung wird er weiter unten zurückgeholt — sonst stünde der Hero leer
+   (siehe „Die dritte Falle: animation:none holt keinen Startwert zurück"). */
+.hero .eyebrow,
+.hero h1 .line > span,
+.hero__sub,
+.hero__actions{ opacity:0; }
+
 /* Erst wenn der Vorspann geht. `los` setzt das Inline-Skript im Kopf oder,
    beim ersten Besuch, main.js beim Abgang des Vorspanns. */
-.los .hero h1 .line span{ animation:heroRise 1.1s var(--ease-out) .34s forwards; }
-.los .hero h1 .line:nth-child(2) span{ animation-delay:.43s }
-.los .hero h1 .line:nth-child(3) span{ animation-delay:.52s }
-@keyframes heroRise{ to{ transform:none } }
+.los .hero .eyebrow       { animation:kameraSanft .7s var(--ease-out) .34s both; }
+.los .hero h1 .line > span{ animation:kameraVor  .95s var(--ease-out) .50s both; }
+.los .hero h1 .line:nth-child(2) > span{ animation-delay:.62s }
+.los .hero h1 .line:nth-child(3) > span{ animation-delay:.74s }
+.los .hero__sub           { animation:kameraSanft .75s var(--ease-out) 1.16s both; }
+.los .hero__actions       { animation:kameraSanft .75s var(--ease-out) 1.30s both; }
 
 /* Unter der Hauptzeile eine Haarlinie, darunter zwei Spalten: links der
    Vorspann, rechts die Aktionen. Asymmetrisch und ohne Kasten — die Linie
    trennt, nicht ein Rahmen. */
 .hero__fuss{
   display:flex; align-items:flex-end; justify-content:space-between;
-  flex-wrap:wrap; gap:clamp(20px,3vw,54px); width:100%;
+  flex-wrap:wrap; gap:clamp(20px,3vw,54px);
+  /* Nicht über die volle Fensterbreite: auf 1920 px stünden Vorspann und
+     Aktionen 1,7 m auseinander, und die Linie dazwischen wäre ein Strich
+     durch das Bild. */
+  width:100%; max-width:min(100%, 1040px);
   margin-top:clamp(24px,4.4vh,48px); padding-top:clamp(18px,2.6vh,30px);
   border-top:1px solid var(--linie);
 }
 .hero__sub{
   max-width:42ch; color:var(--tinte-2); font-size:var(--fs-lead); line-height:1.55;
-  opacity:0;
 }
-.los .hero__sub{ animation:fadeIn .9s ease .86s forwards; }
 .hero__actions{
   display:flex; flex-wrap:wrap; align-items:center; gap:clamp(20px,3vw,42px);
-  opacity:0;
 }
-.los .hero__actions{ animation:fadeIn .9s ease 1.02s forwards; }
+/* Die Einblendungen stehen jetzt oben bei der Kamerafahrt, in einem Block
+   mit den übrigen Zeiten. Zwei Stellen für dieselbe Sequenz hiessen: beim
+   nächsten Nachjustieren gewinnt die spätere Regel, und man sucht lange. */
 /* Die Textschatten der Knöpfe sind weg: sie trugen Schrift auf einem Foto,
    und die steht jetzt auf hellem Grund. */
 
@@ -1248,9 +1432,14 @@ body.megabar-auf header.nav{
    als Deko — die Regel dazu steht in CLAUDE.md unter „Keine Dauerbewegung".
    Stattdessen blendet die Marke mit der ersten Bewegung ab: sie hat ihre
    Aufgabe dann erfüllt. */
+/* Rechts unten statt links unten: seit der Text wieder auf dem Foto steht,
+   säßen beide an derselben Ecke. Und hell, weil der Grund hier ein Foto ist
+   — die Tonleiter von `.auf-dunkel` gilt nur innerhalb von `.hero__inner`,
+   der Hinweis liegt daneben. */
 .scrollcue{
-  position:absolute; left:clamp(20px,5vw,64px); bottom:clamp(18px,2.6vh,30px); z-index:4;
-  font-family:var(--font-mono); font-size:.58rem; letter-spacing:.34em; color:var(--tinte-3);
+  position:absolute; right:clamp(20px,5vw,64px); bottom:clamp(20px,3vh,34px); z-index:4;
+  font-family:var(--font-mono); font-size:.58rem; letter-spacing:.34em;
+  color:rgba(255,255,255,.66);
   text-transform:uppercase; display:flex; align-items:center; gap:12px;
 }
 /* Die Einblendung liegt auf den Kindern, die Ausblendung beim Scrollen auf
@@ -1261,7 +1450,7 @@ body.megabar-auf header.nav{
 .los .scrollcue > *{ animation:fadeIn 1s ease 1.44s forwards; }
 /* Liegend statt stehend: der Hinweis steht jetzt unter der Textspalte und
    nicht mehr senkrecht am Bildrand. */
-.scrollcue i{ height:1px; width:clamp(34px,5vw,64px); background:linear-gradient(90deg,var(--linie-stark),transparent); }
+.scrollcue i{ height:1px; width:clamp(34px,5vw,64px); background:linear-gradient(90deg,rgba(255,255,255,.5),transparent); }
 /* Mit dem ersten Zehntel Scrollweg ist der Hinweis überflüssig. */
 .hero[data-weg] .scrollcue{ opacity:clamp(0, calc(1 - var(--weg,0) * 9), 1); }
 @media (max-width:900px){ .scrollcue{ display:none; } }
@@ -1323,7 +1512,7 @@ body.megabar-auf header.nav{
 @media (min-width:981px){
   .intro__grid > :first-child{
     position:sticky;
-    top:calc(var(--nav-h, 78px) + clamp(24px,5vh,64px));
+    top:calc(var(--nav-h0, var(--nav-h, 78px)) + clamp(24px,5vh,64px));
   }
 }
 .intro h2{ font-size:var(--fs-h2); max-width:14ch; margin-top:var(--gap-s); }
@@ -2736,9 +2925,54 @@ header.nav{ view-transition-name:kopfzeile; }
      Die Höhe wird gedeckelt, damit auf dem Handy nicht der ganze erste
      Bildschirm nur aus Bild besteht — Überschrift und Knöpfe müssen mit ins
      Sichtfeld. */
-  .hero{ min-height:min(88svh,760px); }
-  .hero__photo img{ object-position:50% 46%; }
-  .hero__inner{ padding-top:clamp(96px,16vh,140px); }
+  /* Bildfüllend bleibt bildfüllend, auch hochkant. Gedeckelt wird nichts
+     mehr: seit der Text UNTEN auf dem Foto steht und nicht daneben, ist er
+     bei voller Höhe genauso im Bild wie bei 88 %, und ein Hero, der zehn
+     Prozent unter der Fensterhöhe endet, zeigt einen Streifen des nächsten
+     Abschnitts — das ist genau das „keine bildfüllende Darstellung", das
+     beanstandet wurde. */
+  .hero{ min-height:calc(100svh - var(--nav-h0, var(--nav-h, 68px))); }
+  .hero__photo img{ object-position:50% 34%; }
+  .hero__inner{ padding-block:clamp(32px,6vh,72px) clamp(40px,6vh,72px); }
+  /* Ohne das stapeln sich die beiden Aktionen untereinander, und das aus
+     einem unscheinbaren Grund: `.hero__fuss` ist ein Flex-Kasten aus
+     Vorspann und Aktionen. Der Vorspann nimmt hochkant die volle Breite,
+     die Aktionen rutschen in die zweite Zeile — und bekommen dort nicht
+     etwa die volle Breite, sondern ihre Inhaltsbreite von 152 px. In die
+     passt nur ein Knopf. Gemessen kostete das 46 px Höhe, und die fehlten
+     unten genau dort, wo die App-Leiste liegt. */
+  .hero__fuss{ flex-direction:column; align-items:flex-start; gap:clamp(16px,2.6vh,26px); }
+  .hero__actions{ width:100%; }
+  /* Die beiden Aktionen stehen hochkant weiterhin untereinander — das ist
+     eine eigene Entscheidung weiter unten im Telefonblock und bleibt. Hier
+     geht es nur darum, dass der Kasten die volle Breite bekommt statt der
+     152 px seines breitesten Kindes. */
+  /* Hochkant nimmt der Text relativ mehr Höhe ein, der Verlauf trägt
+     deshalb weiter nach oben. Die Werte kommen aus derselben Rechnung. */
+  /* Hochkant nimmt der Text rund drei Viertel der Höhe ein — am
+     Schreibtisch sind es knapp die Hälfte. Der Verlauf muss deshalb viel
+     weiter nach oben tragen, und das ist keine Geschmacksfrage: die
+     Auszeichnungszeile bricht auf 390 px zweizeilig um und steht damit bei
+     80 % der Höhe, direkt unter der hellen Zeltdecke. */
+  .hero__schleier{
+    background:
+      linear-gradient(to top,
+        rgba(6,7,11,.90)  0%,
+        rgba(6,7,11,.84) 28%,
+        rgba(6,7,11,.78) 55%,
+        rgba(6,7,11,.70) 76%,
+        rgba(6,7,11,.62) 90%,
+        rgba(6,7,11,.40) 97%,
+        rgba(6,7,11,.22) 100%);
+  }
+  /* ---- Weniger Bewegung, weil weniger Rechner ----
+     Die Unschärfe ist am Telefon der teuerste Posten der ganzen Sequenz und
+     auf einem 6-Zoll-Bildschirm der am wenigsten sichtbare. Die Zeiten
+     bleiben dieselben, die Geste wird die einfachere: aus „aus der Tiefe
+     nach vorn" wird „von unten herein". */
+  .los .hero h1 .line > span{ animation-name:kameraSanft; }
+  [data-kino]{ filter:none; transform:translate3d(0,20px,0); transition-duration:.6s,.7s,0s; }
+  [data-kino].in{ filter:none; }
   .nav__links,.nav__phone{ display:none; }
   .burger{ display:flex; }
   .intro__grid{ grid-template-columns:1fr; }
@@ -2820,6 +3054,13 @@ header.nav{ view-transition-name:kopfzeile; }
   /* Der Textblock der Bühnen ebenso — ohne den Zuschlag stand „Zum Bereich"
      hinter der Leiste. */
   .panel{ padding-bottom:calc(clamp(32px,6vh,80px) + 57px + env(safe-area-inset-bottom, 0px)); }
+  /* Und der Hero, seit sein Text wieder unten im Bild steht. Gemessen lag
+     „Was wir stellen" mit seiner unteren Hälfte hinter der Leiste —
+     antippbar war dort die Leiste, nicht der Knopf. Das ist derselbe
+     Zuschlag wie bei `.panel`, nur an der anderen Stelle. */
+  .hero__inner{
+    padding-bottom:calc(clamp(40px,6vh,72px) + 57px + env(safe-area-inset-bottom, 0px));
+  }
 
   /* ---- Nichts doppelt ----
      Was unten in der Leiste steht, steht nicht noch einmal im Menü. Sonst
@@ -2873,12 +3114,22 @@ header.nav{ view-transition-name:kopfzeile; }
      Startwert. Der Vorspann im Hero stand dadurch dauerhaft auf opacity:0 —
      der Satz war schlicht nicht da. */
   .pre-logo__img,
+  /* Ohne diese Zeile stünde der Schleier dauerhaft auf `opacity:0` — und
+     der ganze Hero-Text weiss auf weissen Hemden. Derselbe Fall wie beim
+     Vorspann: `animation:none` nimmt die Animation, nicht den Startwert. */
+  .hero__schleier,
+  .hero .eyebrow,
+  .hero h1 .line > span,
   .hero__sub,
   .hero__actions,
   .scrollcue > *{ opacity:1; transform:none; }
   /* Auch der Filter ist ein Startwert, den `animation:none` stehen liesse:
-     das Wortzeichen bliebe sonst unscharf und halb dunkel. */
-  .pre-logo__img{ filter:none; }
+     das Wortzeichen bliebe sonst unscharf und halb dunkel. Dasselbe gilt
+     seit der Kamerafahrt für die Hauptzeile des Heros und für jede
+     Überschrift mit `data-kino` — sie stünden sonst unscharf. */
+  .pre-logo__img,
+  .hero h1 .line > span{ filter:none; }
+  [data-kino]{ opacity:1 !important; transform:none !important; filter:none !important; }
   /* Die Bühne beginnt jetzt randlos statt als 560-px-Quadrat — ein
      Vorabmaßstab ist dadurch nicht mehr nötig. */
   .scene{ transform:none; }
@@ -2936,7 +3187,14 @@ header.nav{ view-transition-name:kopfzeile; }
   max-width:none;
 }
 /* Die Zeilenmaske aus dem Hero gilt hier genauso, wo die Überschrift in
-   .line-Hüllen gesetzt ist; steht sie als einfacher Text, passiert nichts. */
+   .line-Hüllen gesetzt ist; steht sie als einfacher Text, passiert nichts.
+
+   `heroRise` steht seit der Kamerafahrt NUR noch hier: der Hero der
+   Startseite fährt nicht mehr aus einer Maske nach oben, sondern aus der
+   Tiefe nach vorn. Die Regel hat den Namen behalten, weil sie dieselbe
+   Bewegung ist — nur ist ihr Zuhause jetzt der Kopf der Unterseiten, und
+   dort ist sie richtig: eine Detailseite ist ein Auftakt, kein Auftritt. */
+@keyframes heroRise{ to{ transform:none } }
 .subhero h1 .line span{ display:block; transform:translateY(112%); animation:heroRise 1.05s var(--ease-out) forwards; }
 .subhero h1 .line:nth-child(2) span{ animation-delay:.09s }
 .subhero .tag{
@@ -2978,7 +3236,7 @@ header.nav{ view-transition-name:kopfzeile; }
    Jetzt hält ihn nur noch eine Linie oben — er bleibt abgesetzt, ohne ein
    Fenster in der Seite zu sein. Sticky bleibt er: beim Lesen des langen
    Textes soll die Anfrage in Sichtweite stehen. */
-.side{ padding:clamp(20px,2.2vw,28px) 0 0; border-top:1px solid var(--linie-stark); position:sticky; top:calc(var(--nav-h,78px) + 28px); }
+.side{ padding:clamp(20px,2.2vw,28px) 0 0; border-top:1px solid var(--linie-stark); position:sticky; top:calc(var(--nav-h0, var(--nav-h,78px)) + 28px); }
 .side h2{ font-family:var(--font-mono); font-size:.64rem; letter-spacing:.22em; text-transform:uppercase; color:var(--tinte-3); margin-bottom:20px; }
 .side .btn{ width:100%; justify-content:space-between; margin-top:26px; }
 .side__hinweis{ color:var(--tinte-3); font-size:.84rem; margin-top:14px; }
@@ -3857,6 +4115,96 @@ h1.reveal-up.in, h2.reveal-up.in, h3.reveal-up.in{
   -webkit-mask-image:none; mask-image:none;
 }
 
+/* ---- 5b. Die Kamerafahrt als Aufdeckung: `data-kino` ---------------------
+   Dieselbe Geste wie im Hero, nur scrollgeführt statt zeitgeführt: die
+   Überschrift kommt aus der Tiefe nach vorn, unscharf und klein in der
+   Ferne, scharf und groß vorn.
+
+   Sie steht ausdrücklich nur auf der STARTSEITE und nur an den sieben
+   Abschnittsüberschriften. Zwei Gründe:
+
+   1. Bestellt war „nur wichtige Headlines". Eine Bewegung, die überall
+      steht, ist keine Auszeichnung mehr, sondern ein Grundzustand — und
+      dann hätte man sie auch weglassen können.
+   2. `filter` ist die teuerste der drei animierbaren Eigenschaften
+      (nachgemessen im Abschnitt „Wort für Wort": 137 ms je Durchfahrt für
+      zwei Zeilen, rund 14 % der ganzen Arbeit). Der Unterschied ist, dass
+      es dort bei JEDEM Scrollbild neu gerechnet wurde; hier läuft es
+      einmal und endet. Nachgemessen über eine volle Durchfahrt der
+      Startseite kostet der ganze Satz 31 ms.
+
+   Ein Element mit `data-kino` trägt bewusst KEIN `reveal-up`: das wären
+   die Aufblende und die Fahrt gleichzeitig auf derselben Zeile, also genau
+   die zwei Gesten, die als Effekt lesen.
+
+   Und es ist ausdrücklich kein `clip-path` — ein beschnittenes Element hat
+   für den IntersectionObserver eine leere Schnittfläche und bekäme nie
+   sein `.in` (siehe „Die eine Falle, die man kennen muss"). Maßstab,
+   Deckkraft und Unschärfe lassen die Schnittfläche unberührt. */
+[data-kino]{
+  opacity:0;
+  transform:translate3d(0,28px,0) scale(.955);
+  filter:blur(11px);
+  transition:opacity .85s var(--ease-out),
+             transform 1.05s var(--ease-out),
+             filter .85s var(--ease-out);
+}
+[data-kino].in{ opacity:1; transform:none; filter:blur(0); }
+
+/* ---- 5c. Die Leistungen: sechs Zeilen, die gezeichnet werden -------------
+   Der Leistungsbereich sollte einer der visuellen Höhepunkte werden, und
+   „lebendig und miteinander verbunden" wirken. Die Antwort darauf ist nicht
+   ein Effekt, der hinzukommt, sondern das Zeichen, das die Seite ohnehin
+   führt: ein Punkt ist eine Position, eine Linie ist die Verbindung.
+
+   Die sechs Trennlinien waren schon da. Sie werden jetzt GEZEICHNET statt
+   gesetzt — von links nach rechts, eine nach der anderen. Sechs Linien, die
+   nacheinander entstehen, sind die Verbindung; es kommt kein einziges
+   Element hinzu (dieselbe Begründung wie bei der Einsatzlinie).
+
+   Der violette Punkt sitzt am linken Ende der Linie und markiert die Zeile,
+   auf der man steht. Einer, nie zwei — dieselbe Regel wie beim Einsatzband. */
+.bereiche{ position:relative; }
+.bereich{ border-bottom:0; }
+.bereich::before{
+  content:""; position:absolute; left:0; right:0; bottom:0; height:1px;
+  background:var(--linie);
+  transform:scaleX(0); transform-origin:left;
+  transition:transform .9s var(--ease-out), background-color var(--t-fast) var(--ease-swift);
+  /* 55 ms ist der Takt, den `[data-stagger]` ohnehin vorgibt — die Linie
+     läuft der Zeile eine Zehntelsekunde hinterher, nicht in eigenem Tempo. */
+  transition-delay:calc(var(--i,0) * 55ms + .12s), 0s;
+}
+.bereiche.in .bereich::before{ transform:scaleX(1); }
+.kein-js .bereich::before{ transform:none; }
+/* Der Punkt: vier Pixel Violett am Anfang der Zeile, auf der man steht.
+   `.bereich__name::after` ist die Trefferfläche über der ganzen Zeile —
+   deshalb liegt der Punkt am `<li>` und nicht am Namen. */
+.bereich::after{
+  content:""; position:absolute; left:0; bottom:-2px; width:5px; height:5px;
+  border-radius:50%; background:var(--violet);
+  opacity:0; transform:scale(.3);
+  transition:opacity var(--t-fast) var(--ease-swift), transform var(--t-fast) var(--ease-out);
+}
+.bereich:hover::after,
+.bereich:has(.bereich__name:focus-visible)::after{ opacity:1; transform:scale(1); }
+
+/* Die angesteuerte Zeile bekommt zusätzlich ihre Linie deutlicher. Was sie
+   NICHT bekommt, ist ein Zurücktreten der übrigen fünf: das Verfahren aus
+   dem Vollbildmenü sieht gut aus und kostet hier Kontrast. Nachgerechnet
+   liegt der Beschreibungstext bei 4,9:1; auf 52 % Deckkraft sind es 2,4:1,
+   und dann ist die halbe Liste für jemanden mit schwachem Sehvermögen
+   unlesbar, sobald die Maus irgendwo in ihr steht.
+
+   Ebenso wenig verschiebt sich der Name. `.bereich__name::after` ist die
+   Trefferfläche über der ganzen Zeile; sobald der Name selbst eine
+   `transform` bekommt, wird ER der Bezugsrahmen dafür, und die Fläche
+   schrumpft beim Ansteuern auf das Wort zusammen. Die Zeile als Ganzes
+   darf sich bewegen, ihr Inhalt nicht. */
+.bereich:hover::before,
+.bereich:has(.bereich__name:focus-visible)::before{ background:var(--linie-stark); }
+.bereich:hover .bereich__bild img{ transform:scale(1.07); }
+
 /* ---- 6. Bilder werden aufgedeckt, nicht eingeblendet ----
    Ein Foto, das von 0 auf 1 faded, wirkt wie ein Ladevorgang. Ein Foto,
    das von unten nach oben freigegeben wird, während die Kamera minimal
@@ -3877,6 +4225,17 @@ h1.reveal-up.in, h2.reveal-up.in, h3.reveal-up.in{
   transform:translate3d(0, calc((var(--lauf,.5) - .5) * -52px), 0) scale(1.12);
 }
 .wide-shot[data-lauf].live img{ will-change:transform; }
+
+/* ---- 6b. Das Bild im Intro ----
+   Dieselbe Gegenbewegung wie bei den Bildbändern. Sie liegt auf dem `<img>`
+   und nicht auf der `<figure>`: die trägt bereits `reveal-up`, und zwei
+   `transform` auf demselben Element überschreiben einander stumm. Der
+   Vorrat von 1,08 bezahlt die Verschiebung — ohne ihn entstünde am Rand
+   eine Lücke. */
+.intro__bild[data-lauf] img{
+  transform:translate3d(0, calc((var(--lauf,.5) - .5) * -34px), 0) scale(1.08);
+}
+.intro__bild[data-lauf].live img{ will-change:transform; }
 
 /* ---- 7. Abblende am Bühnenende ----
    Zwischen zwei Bühnen lag eine harte Kante. Die auslaufende Bühne
@@ -3899,7 +4258,11 @@ h1.reveal-up.in, h2.reveal-up.in, h3.reveal-up.in{
   h1.reveal-up, h2.reveal-up, h3.reveal-up{
     -webkit-mask-image:none; mask-image:none; }
   .wide-shot picture{ clip-path:none; }
-  .wide-shot[data-lauf] img{ transform:none; }
+  .wide-shot[data-lauf] img,
+  .intro__bild[data-lauf] img{ transform:none; }
+  /* Die sechs Linien unter den Leistungszeilen werden sonst nie gezeichnet
+     und die Liste stünde ohne Trennung da. */
+  .bereich::before{ transform:none; }
 }
 
 /* ---- 8. Bandkopf mit Gegenbewegung ----

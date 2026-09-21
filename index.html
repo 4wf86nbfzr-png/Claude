@@ -260,13 +260,25 @@ document.documentElement.classList.remove("kein-js");
 
 <!-- ============ HERO ============ -->
 <!-- Randlose Aufnahme vom Einsatzort statt des Markendetails aus dem Büroflur:
-     der erste Bildschirm soll zeigen, auf welchem Niveau gearbeitet wird. -->
+     der erste Bildschirm soll zeigen, auf welchem Niveau gearbeitet wird.
+
+     Das Foto füllt wieder den ganzen ersten Bildschirm, und der Text steht
+     darauf. Die geteilte Fassung davor war die richtige Antwort auf „zu viel
+     Schwarz" — nur nimmt sie dem Foto die Hälfte weg, und bestellt ist jetzt
+     ausdrücklich das Gegenteil: erst das Bild, dann der Text darauf. Lesbar
+     bleibt es über `.hero__schleier`, einen gerichteten Verlauf nach unten
+     links statt einer flächigen Abdunklung. -->
 <section class="hero" id="hero" data-weg>
   <div class="hero__photo" aria-hidden="true">
     <picture><source type="image/avif" srcset="assets/img/team-einsatz.avif" /><source type="image/webp" srcset="assets/img/team-einsatz.webp" /><img src="assets/img/team-einsatz.jpg" alt="" fetchpriority="high" width="1600" height="1200" /></picture>
   </div>
+  <div class="hero__schleier" aria-hidden="true"></div>
 
-  <div class="hero__inner">
+  <!-- `auf-dunkel` dreht die Textstufen um, ohne dass hier eine einzige Farbe
+       steht: dieselben Tokennamen, andere Werte. Den Grund, den die Klasse
+       sonst mitbringt, nimmt der Hero-Abschnitt im Stylesheet wieder weg —
+       hier ist der Grund das Foto. -->
+  <div class="hero__inner auf-dunkel">
     <!-- Hier stand „Startseite". Ein Brotkrumenpfad ist ein Weg zurueck;
          auf der Startseite selbst hat er kein Ziel und war nur eine
          Beschriftung. Zurueck kommt man ueber das Wortzeichen links oben. -->
@@ -358,7 +370,7 @@ document.documentElement.classList.remove("kein-js");
            dadurch kurz genug, dass die Überschrift beim Scrollen stehen
            bleiben kann. Als Beleg, dass es das Büro in der Gertigstraße
            wirklich gibt, nicht als Titelbild. -->
-      <figure class="intro__bild reveal-up" data-d="2">
+      <figure class="intro__bild reveal-up" data-d="2" data-lauf>
         <picture><source type="image/avif" srcset="assets/img/hero.avif" /><source type="image/webp" srcset="assets/img/hero.webp" /><img src="assets/img/hero.jpg" alt="Das Neon-Logo des HERM Service Team am Büro in der Gertigstraße in Hamburg" loading="lazy" width="1086" height="655" /></picture>
         <figcaption>Büro Gertigstraße · Hamburg-Winterhude</figcaption>
       </figure>
@@ -374,14 +386,14 @@ document.documentElement.classList.remove("kein-js");
 <section class="angebot" id="leistungen">
   <div class="wrap angebot__kopf">
     <span class="eyebrow reveal-up">Was wir stellen</span>
-    <h2 class="reveal-up u-caps">Sechs Bereiche, ein Ansprechpartner.</h2>
+    <h2 class="u-caps" data-kino>Sechs Bereiche, ein Ansprechpartner.</h2>
     <p class="lead reveal-up" data-d="1">Sie buchen nicht sechs Dienstleister, sondern
       einen. Wer bei uns anfragt, bekommt für jeden Bereich dieselbe Disposition,
       dieselbe Abrechnung und denselben Ansprechpartner vor Ort.</p>
   </div>
   <div class="wrap">
-    <ul class="bereiche">
-      <li class="bereich reveal-up">
+    <ul class="bereiche" data-stagger>
+      <li class="bereich">
         <span class="bereich__nr" aria-hidden="true">01</span>
         <span class="bereich__bild"><img src="assets/img/gastro-detail-mini.webp" alt="" loading="lazy" width="480" height="480" /></span>
         <span class="bereich__text">
@@ -390,7 +402,7 @@ document.documentElement.classList.remove("kein-js");
         </span>
         <span class="bereich__pfeil" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
       </li>
-      <li class="bereich reveal-up">
+      <li class="bereich">
         <span class="bereich__nr" aria-hidden="true">02</span>
         <span class="bereich__bild"><img src="assets/img/sicherheit-mini.webp" alt="" loading="lazy" width="480" height="480" /></span>
         <span class="bereich__text">
@@ -399,7 +411,7 @@ document.documentElement.classList.remove("kein-js");
         </span>
         <span class="bereich__pfeil" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
       </li>
-      <li class="bereich reveal-up">
+      <li class="bereich">
         <span class="bereich__nr" aria-hidden="true">03</span>
         <span class="bereich__bild"><img src="assets/img/promotion-messe-mini.webp" alt="" loading="lazy" width="341" height="480" /></span>
         <span class="bereich__text">
@@ -408,7 +420,7 @@ document.documentElement.classList.remove("kein-js");
         </span>
         <span class="bereich__pfeil" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
       </li>
-      <li class="bereich reveal-up">
+      <li class="bereich">
         <span class="bereich__nr" aria-hidden="true">04</span>
         <span class="bereich__bild"><img src="assets/img/logistik-mini.webp" alt="" loading="lazy" width="480" height="480" /></span>
         <span class="bereich__text">
@@ -417,7 +429,7 @@ document.documentElement.classList.remove("kein-js");
         </span>
         <span class="bereich__pfeil" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
       </li>
-      <li class="bereich reveal-up">
+      <li class="bereich">
         <span class="bereich__nr" aria-hidden="true">05</span>
         <span class="bereich__bild"><img src="assets/img/fahrservice-door-mini.webp" alt="" loading="lazy" width="480" height="320" /></span>
         <span class="bereich__text">
@@ -426,7 +438,7 @@ document.documentElement.classList.remove("kein-js");
         </span>
         <span class="bereich__pfeil" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
       </li>
-      <li class="bereich reveal-up">
+      <li class="bereich">
         <span class="bereich__nr" aria-hidden="true">06</span>
         <span class="bereich__bild"><img src="assets/img/reinigung-mini.webp" alt="" loading="lazy" width="480" height="320" /></span>
         <span class="bereich__text">
@@ -464,7 +476,7 @@ document.documentElement.classList.remove("kein-js");
 <section class="film" id="film" aria-labelledby="film-titel">
   <div class="wrap film__kopf">
     <span class="eyebrow reveal-up">In 45 Sekunden</span>
-    <h2 class="reveal-up u-caps" data-d="1" id="film-titel">Wer wir sind</h2>
+    <h2 class="u-caps" id="film-titel" data-kino>Wer wir sind</h2>
   </div>
 
   <div class="film__buehne reveal-up" data-d="2">
@@ -516,7 +528,7 @@ document.documentElement.classList.remove("kein-js");
   <div class="wrap">
     <div class="ablauf__kopf">
       <span class="eyebrow reveal-up">Zusammenarbeit</span>
-      <h2 class="reveal-up u-caps" data-d="1">So läuft eine Anfrage</h2>
+      <h2 class="u-caps" data-kino>So läuft eine Anfrage</h2>
       <p class="reveal-up" data-d="2">Kein Portal, kein Konto, kein Formularmarathon. Vier
         Schritte, und Sie wissen, woran Sie sind.</p>
     </div>
@@ -552,7 +564,7 @@ document.documentElement.classList.remove("kein-js");
   <div class="wrap">
     <div class="testi__head">
       <span class="eyebrow reveal-up">Referenzen</span>
-      <h2 class="reveal-up u-caps" data-d="1">Wer mit uns arbeitet</h2>
+      <h2 class="u-caps" data-kino>Wer mit uns arbeitet</h2>
     </div>
 
     <div class="tlead reveal-up">
@@ -595,7 +607,7 @@ document.documentElement.classList.remove("kein-js");
   <div class="wrap expect__grid">
     <div>
       <span class="eyebrow reveal-up">Unser Anspruch</span>
-      <h2 class="reveal-up u-caps" data-d="1">Was Sie erwarten können</h2>
+      <h2 class="u-caps" data-kino>Was Sie erwarten können</h2>
       <p class="reveal-up" data-d="2">Jeder Einsatz, jeder Bereich, derselbe Standard.
         Das hier können Sie einfordern.</p>
     </div>

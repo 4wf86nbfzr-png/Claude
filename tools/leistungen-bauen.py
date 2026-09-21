@@ -36,7 +36,11 @@ PFEIL = ('<svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidde
 def zeilen(vor=''):
     aus = []
     for nr, name, datei, bild, b, h, teile in BEREICHE:
-        aus.append(f'''      <li class="bereich reveal-up">
+        # Kein `reveal-up` je Zeile: die Liste deckt als Gruppe auf
+        # (`data-stagger` an <ul>), damit die sechs Zeilen einen Takt
+        # bekommen statt jede fuer sich einzublenden. Der Index --i, den
+        # main.js dabei setzt, fuehrt auch die Linie unter der Zeile.
+        aus.append(f'''      <li class="bereich">
         <span class="bereich__nr" aria-hidden="true">{nr}</span>
         <span class="bereich__bild"><img src="{vor}assets/img/{bild}" alt="" loading="lazy" width="{b}" height="{h}" /></span>
         <span class="bereich__text">
@@ -57,13 +61,13 @@ BLOCK = '''
 <section class="angebot" id="leistungen">
   <div class="wrap angebot__kopf">
     <span class="eyebrow reveal-up">Was wir stellen</span>
-    <h2 class="reveal-up u-caps">Sechs Bereiche, ein Ansprechpartner.</h2>
+    <h2 class="u-caps" data-kino>Sechs Bereiche, ein Ansprechpartner.</h2>
     <p class="lead reveal-up" data-d="1">Sie buchen nicht sechs Dienstleister, sondern
       einen. Wer bei uns anfragt, bekommt für jeden Bereich dieselbe Disposition,
       dieselbe Abrechnung und denselben Ansprechpartner vor Ort.</p>
   </div>
   <div class="wrap">
-    <ul class="bereiche">
+    <ul class="bereiche" data-stagger>
 {ZEILEN}
     </ul>
     <div class="angebot__fuss">

@@ -202,6 +202,242 @@ nicht gezeichnet, zählt aber zur Scrollbreite der Seite — gemessen 44 px bei
 1440. `overflow:hidden` hätte dort zusätzlich einen Scrollbereich angelegt;
 richtig ist `overflow:clip`, das nur abschneidet.
 
+---
+
+## Die Kamerafahrt, 2026
+
+Der zweite Auftrag nach dem Umbau auf Hell: das Bewegungsdesign soll auf
+Kinoniveau, und die Startseite soll sich beim Öffnen anfühlen wie ein
+Imagefilm. Ausdrücklich bestellt war dabei eine Umkehrung des geteilten
+Heros:
+
+> „Beim Öffnen soll zuerst das Hintergrundbild vollständig und bildfüllend
+> erscheinen, ohne dass der Text direkt sichtbar ist. Anschließend zoomt der
+> Text wie eine Kamerafahrt langsam aus der Tiefe nach vorne."
+
+### Der Hero ist wieder bildfüllend
+
+Der geteilte Hero hat das Kontrastproblem gelöst und dafür dem Foto die
+halbe Fläche genommen. Jetzt füllt das Bild wieder den ganzen ersten
+Bildschirm, und der Text steht darauf.
+
+„Den gesamten Viewport" heisst dabei: alles unterhalb der Kopfzeile
+(`min-height:calc(100svh - var(--nav-h))`). Die Kopfzeile durchsichtig zu
+machen, brächte `backdrop-filter` und die Frage „helles oder dunkles Motiv
+dahinter" zurück — also genau die beiden Posten, die den Umbau auf Hell
+getragen haben. `svh` und nicht `vh`: sonst steht der Hero am Telefon beim
+Laden 60 px zu hoch.
+
+Die Hauptzeile steht wieder auf `--fs-mega`. Die eigene Formel für die
+schmale Spalte ist damit entfallen: eine Stufe weniger.
+
+### Der Schleier ist gerechnet, nicht gewählt
+
+Weisse Schrift auf einem Foto ist nur so lesbar, wie der hellste Pixel
+darunter dunkel ist. Aus der WCAG-Formel folgt direkt, wie weit ein weisser
+Pixel abgedunkelt werden muss:
+
+| | nötiges Verhältnis | L des Grundes | Deckkraft |
+|---|---|---|---|
+| kleiner Text | 4,5:1 | ≤ 0,183 | **54 %** |
+| grosse Zeile | 3,0:1 | ≤ 0,300 | **42 %** |
+
+Und genau weiss ist hier der Regelfall: das Motiv zeigt ein Team in weissen
+Hemden unter einem hellen Zelt. Gemessen über sechs Zuschnitte
+(`object-position` von 20 % bis 100 %) liegt das 98. Perzentil des Grundes
+in den beiden unteren Textbändern in **jedem** Zuschnitt bei 1,000. Es gibt
+keine Lage, in der die Schrift auf etwas Dunklem stünde.
+
+**Ein schwacher Schleier ist hier also nicht die zurückhaltendere Variante,
+sondern die unlesbare.** Der erste Versuch mit einem dezenten Verlauf in der
+Ecke ergab 1,35:1 an der Auszeichnungszeile — weiss auf weiss.
+
+Was bleibt, ist die Verteilung: das obere Drittel mit Decke, Leuchten und
+Farbe bleibt unangetastet, abgedunkelt wird nur, wo Schrift steht. Am
+Telefon muss der Verlauf viel weiter nach oben tragen, weil der Text dort
+drei Viertel der Höhe einnimmt statt der Hälfte — deshalb zwei getrennte
+Sätze Werte.
+
+**Und der Schleier gehört zur Kamerafahrt, nicht zum Bild.** Er liegt bei
+`opacity:0` und kommt bei 0,30 s mit dem Text. Damit steht das Foto den
+ersten Moment ungradiert in voller Helligkeit da: das ist die bestellte
+Eröffnung, und zugleich der einzige Weg, ein Foto bildfüllend zu zeigen und
+Text darauf lesbar zu halten.
+
+### Die Falle: Kontrast auf einem Foto lässt sich nicht aus dem DOM rechnen
+
+`scratchpad/kontrast.js` sucht den ersten deckenden Vorfahr und nimmt dessen
+Farbe. Über einem Bild gibt es den nicht — der Grund ist an jeder Stelle ein
+anderer. Der Prüfer meldete den Hero deshalb als „bestanden": er rechnete
+gegen `.hero{ background:var(--dunkel) }` und sah das Foto gar nicht.
+
+Gemessen wird dort seitdem **am gerenderten Bild**
+(`scratchpad/heroKontrast.js` plus `heroKontrast.py`): einmal mit Text, um
+die Rechtecke zu bekommen, einmal ohne, um den Grund zu fotografieren. Für
+helle Schrift ist der hellste Grundpixel der schlechteste Fall. Berichtet
+werden zwei Zahlen, das 98. Perzentil und der schlechteste Pixel — ein
+einzelner heller Punkt an einer Buchstabenkante ist kein
+Lesbarkeitsproblem, zwei Prozent der Fläche sind eins.
+
+Stand: alle acht Textflächen am Schreibtisch und alle sieben am Telefon
+bestehen, auch am schlechtesten Pixel (5,2:1 bis 13,1:1).
+
+### Die Sequenz, und warum `sofort` nur noch das Foto meint
+
+| ab | was |
+|---|---|
+| 0,00 s | das Foto steht, die stehende Fahrt darauf läuft bereits |
+| 0,30 s | der Schleier kommt |
+| 0,34 s | die Auszeichnungszeile |
+| 0,50 / 0,62 / 0,74 s | die drei Zeilen der Hauptzeile |
+| 1,16 s | der Vorspanntext |
+| 1,30 s | die Aktionen |
+| 1,62 s | der Scrollhinweis |
+
+Bestellt war ausdrücklich „schnell und hochwertig, nicht langsam". 2,4
+Sekunden bis zum letzten Bild, davon die erste halbe Sekunde allein das
+Foto.
+
+`sofort` stand bisher für „der ganze Hero steht von der ersten Zeichnung an
+fertig da", und der gemessene Grund dafür war der LCP (2996 ms gegen
+356 ms). Das größte sichtbare Element ist aber das **Foto**, nicht die
+Schrift darauf. Das Foto steht deshalb weiter sofort; der Text wartet auf
+den Schnitt, und `los` fällt jetzt in `main.js` beim Abgang des Vorspanns.
+Liefe die Kamerafahrt unter dem deckenden Vorspann ab, wäre sie vorbei,
+bevor irgendjemand sie sehen kann.
+
+Beide Klassen stehen danach gleichzeitig. Damit die Einfahrt des Fotos
+nicht doch noch nachträglich startet, trägt die `los`-Regel ein
+`:not(.sofort)` — ohne das gibt es beim Schnitt einen sichtbaren Ruck.
+
+### Fünf Gesten, mehr nicht
+
+Bestellt war Bewegung „gezielt, nicht überall". Das ganze Vokabular:
+
+| | wo | was |
+|---|---|---|
+| `kameraVor` | Hero-Hauptzeile, `[data-kino]` | aus der Tiefe nach vorn: Maßstab, Deckkraft und Unschärfe zusammen |
+| `kameraSanft` | Auszeichnungszeile, Vorspann, Aktionen | von unten herein, ohne Unschärfe |
+| `[data-stagger]` | Gruppen und Listen | Kinder nacheinander, Index aus `--i` |
+| `--weg` / `--lauf` | Fotos | Gegenbewegung, scrollgeführt |
+| Linie zeichnen (`scaleX`) | Leistungszeilen | eine Haarlinie, die schon da war, bekommt eine Richtung |
+
+**Maßstab, Deckkraft und Unschärfe sind zusammen EINE Geste** — „Annäherung".
+Wer sie trennt, bekommt drei Effekte. Deshalb trägt ein Element mit
+`data-kino` bewusst **kein** `reveal-up`: das wären die Aufblende und die
+Fahrt gleichzeitig auf derselben Zeile.
+
+`data-kino` steht nur auf der Startseite und nur an den fünf
+Abschnittsüberschriften. Eine Bewegung, die überall steht, ist keine
+Auszeichnung mehr, sondern ein Grundzustand.
+
+**Im Hero fährt die Zeile nicht mehr aus einer Maske nach oben.** Das
+vertrüge sich auch technisch nicht: `overflow:hidden` schneidet genau die
+Unschärfe ab, die über den Kasten hinausquillt. Auf den Unterseiten und im
+Fuß bleibt die Maske.
+
+### Was die Unschärfe kostet
+
+`filter` ist die teuerste der drei animierbaren Eigenschaften — gemessen
+137 ms je Durchfahrt im Abschnitt „Wort für Wort". Der Unterschied ist, dass
+es dort bei **jedem** Scrollbild neu gerechnet wird; bei `data-kino` läuft
+es einmal und endet. Gemessen über eine volle Durchfahrt der Startseite
+(`scratchpad/arbeit.js`, Summe aus Stil, Layout, Malen und Rastern, Median
+aus je neun Läufen):
+
+| | Arbeit je Durchfahrt |
+|---|---|
+| mit Unschärfe | 56 ms |
+| ohne Unschärfe | 55 ms |
+| ganz ohne die Kamerafahrten | 57 ms |
+
+Der Unterschied liegt im Rauschen. Am Telefon fällt die Unschärfe trotzdem
+weg (`filter:none` im 980-px-Block, und die Hero-Zeilen laufen dort auf
+`kameraSanft`): auf sechs Zoll sieht man sie ohnehin nicht, und Messwerte
+von einem Rechner sind kein Beleg für ein Telefon.
+
+### Die Falle: ein `@keyframes`, das noch jemand braucht
+
+Der Hero fährt nicht mehr aus der Maske, also fiel mit seiner Regel auch
+`@keyframes heroRise` weg. Gebraucht wird es aber weiter — von
+`.subhero h1 .line span`, also von **fünfzehn Unterseiten**. Eine
+Animation, deren Name nirgends definiert ist, wirft keinen Fehler: die
+Regel gilt einfach nicht, der Startwert bleibt stehen, und die Zeile stand
+dauerhaft auf `translateY(112%)`, also unsichtbar.
+
+Gefunden hat es ein `grep` nach dem Namen, nicht der Browser und nicht
+esbuild. **Wer eine Animation löscht, sucht vorher nach ihrem Namen** —
+dasselbe gilt für Klassen, Variablen und `@keyframes`.
+
+### Die Falle: ein Flex-Kind bekommt nicht die volle Breite
+
+`.hero__fuss` ist ein Flex-Kasten aus Vorspann und Aktionen. Hochkant nimmt
+der Vorspann die volle Breite, die Aktionen rutschen in die zweite Zeile —
+und bekommen dort **nicht** die volle Breite, sondern ihre Inhaltsbreite von
+152 px. In die passt genau ein Knopf, also stapelten sich beide
+untereinander. Gemessen kostete das 46 px Höhe, und die fehlten unten genau
+dort, wo die App-Leiste liegt: „Was wir stellen" lag mit seiner unteren
+Hälfte dahinter, antippbar war die Leiste.
+
+Zwei Zeilen: `flex-direction:column` am Kasten, `width:100%` am Kind. Und
+der Hero bekommt denselben Zuschlag für die Leiste wie `.panel` und
+`#mobileMenu` — es ist die dritte Stelle mit derselben Rechnung.
+
+### Die Leistungen: sechs Linien, die gezeichnet werden
+
+Der Leistungsbereich sollte „lebendig und miteinander verbunden" wirken.
+Die Antwort darauf ist nicht ein Effekt, der hinzukommt, sondern das
+Zeichen, das die Seite ohnehin führt: ein Punkt ist eine Position, eine
+Linie ist die Verbindung.
+
+Die sechs Trennlinien waren schon da. Sie werden jetzt **gezeichnet** statt
+gesetzt, von links nach rechts, eine nach der anderen, im selben 55-ms-Takt
+wie die Zeilen darüber. Sechs Linien, die nacheinander entstehen, sind die
+Verbindung — und es kommt kein einziges Element hinzu (dieselbe Begründung
+wie bei der Einsatzlinie).
+
+Der violette Punkt am linken Ende markiert die Zeile, auf der man steht.
+Einer, nie zwei.
+
+**Was die Zeile NICHT bekommt**, und beides aus einem nachgerechneten Grund:
+
+- **Kein Zurücktreten der übrigen fünf.** Das Verfahren aus dem
+  Vollbildmenü sieht gut aus und kostet hier Kontrast: der
+  Beschreibungstext liegt bei 4,9:1, auf 52 % Deckkraft sind es 2,4:1. Dann
+  ist die halbe Liste unlesbar, sobald die Maus irgendwo in ihr steht.
+- **Keine Verschiebung des Namens.** `.bereich__name::after` ist die
+  Trefferfläche über der ganzen Zeile. Sobald der Name selbst eine
+  `transform` bekommt, wird **er** der Bezugsrahmen dafür, und die Fläche
+  schrumpft beim Ansteuern auf das Wort zusammen. Die Zeile als Ganzes darf
+  sich bewegen, ihr Inhalt nicht.
+
+### Der Übergang zwischen zwei Fotos
+
+Kopfbild und Bildband stehen direkt übereinander. Beide Kanten des Bandes
+liefen in helles Off-White aus — richtig, solange der Hero hell war. Seit
+dort ein dunkel gradiertes Foto steht, lag zwischen den beiden Aufnahmen
+ein heller Nebelstreifen: eine Kante, die gerade dadurch auffiel, dass sie
+keine sein wollte.
+
+Die obere Kante läuft jetzt in denselben Ton aus, mit dem der Hero endet.
+Die untere bleibt hell, darunter steht die Vertrauensleiste auf
+Seitengrund. Aus zwei Bildern mit einem Strich dazwischen wird eine Fahrt,
+die von einem Motiv ins nächste geht.
+
+### Was am Motiv nicht zu retten ist
+
+Bestellt war „komplett 4K, gestochen scharf". Die Vorlage hat **0,31
+Megapixel** (640 × 480). Bildfüllend auf einem 1440er Schirm mit doppelter
+Pixeldichte werden 2880 × 1630 angefordert — das ist das
+Sechsundzwanzigfache der Fläche, die die Datei hat.
+
+Hochrechnen erzeugt keine Details (siehe „Was das leistet und was nicht").
+Die Kamerafahrt, der Schnitt und der Schleier sind gebaut und gemessen; die
+Schärfe kann nur eine echte Aufnahme liefern. Gebraucht werden mindestens
+2400 px an der langen Kante (`docs/foto-briefing.md`). Sobald sie vorliegt,
+ist es ein Handgriff: dieselben Dateinamen, `team-einsatz` zurück in
+`BEDARF`, einmal `bilder-vergroessern.py`.
+
 ## Bewegung
 
 Das gesamte Bewegungssystem steht am Ende von `styles.css` unter der
@@ -2151,6 +2387,39 @@ Sie wird jetzt in jeder Lage geschrieben. Nachgezogen wird sie beim Scrollen
 aber **nur, wenn `.scrolled` wirklich umschlägt** — ein
 `getBoundingClientRect()` in jedem Scrollbild wäre ein erzwungenes Layout je
 Bild, und genau davor warnt „Erst messen, dann schreiben".
+
+### Die zweite Falle: eine Zahl für zwei verschiedene Dinge
+
+Die Kopfzeile ist oben 85 px hoch und gescrollt 63. Beides stand in
+**einer** Variablen, und daran hingen zwei Sachen, die sich widersprechen:
+
+| | Bedeutung | darf sich ändern? |
+|---|---|---|
+| `--nav-h` | wie hoch die Leiste **gerade** ist | ja, die Unterleiste und die Kinobalken folgen ihr |
+| `--nav-h0` | wieviel Platz für sie **reserviert** ist | nein |
+
+Am reservierten Platz hängen `body{padding-top}`, `scroll-padding-top` und
+seit der Kamerafahrt die Höhe des Heros. Gemessen wuchs der Hero beim
+Zurückscrollen von 815 auf 839 px, weil `100svh - var(--nav-h)` mitwanderte.
+
+**Und der Wert selbst war falsch.** Die Umschaltung blendet über: die
+Polsterung in 0,4 s, die Logohöhe in 0,6 s. Gemessen wurde im selben Bild,
+in dem die Klasse fällt — also mittendrin. `--nav-h` stand auf 61 px,
+während die Leiste 68 hoch war, und auf 85, während sie 63 war.
+
+Nachgemessen, vorher und nachher:
+
+| Scrollstand | Leiste wirklich | `--nav-h` vorher | nachher |
+|---|---|---|---|
+| oben | 85 px | 85 | 85 |
+| gescrollt | 61 px | 85 | 61 |
+| wieder oben | 85 px | 61 | 85 |
+
+Zwei Zeilen lösen beides: der reservierte Platz wird nur aus dem
+Ruhezustand geschrieben, und nach dem Ende der Überblendung wird noch
+einmal nachgemessen (`transitionend` blubbert, die Logohöhe zählt also
+mit). **Wer eine Höhe misst, während sie sich gerade ändert, misst eine
+Zwischenstellung.**
 
 ### Die Falle: `scroll-padding-top` gehört zu jeder festen Kopfzeile
 
