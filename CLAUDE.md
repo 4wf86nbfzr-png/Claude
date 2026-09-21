@@ -803,9 +803,149 @@ im Bild. **Ein Zuschnitt, der zum Rahmen passt, ist jeder
 das ist der Teil, der hier stehen bleibt: für das Schild-Motiv ergaben sich
 .52 am Schreibtisch und .58 am Telefon (am schlechtesten Pixel 4,88:1 an
 der Auszeichnungszeile bei .52, 3,17:1 bei .38). Mit der Rückkehr zur
-Restauranttafel gelten wieder deren Werte — .56 und .62, gemessen mit
-denselben fünf Phasen. **Der Schleier gehört zum Motiv, nicht zum Hero:
-wer das Kopfbild tauscht, misst ihn neu, in beide Richtungen.**
+Restauranttafel gelten wieder deren Werte, gemessen mit denselben fünf
+Phasen. **Der Schleier gehört zum Motiv, nicht zum Hero: wer das Kopfbild
+tauscht, misst ihn neu, in beide Richtungen.** Mit dem Wechsel auf
+Dunkelblau sind aus .56/.62 dann .59/.65 geworden, und auch das ist
+gemessen, nicht gedreht: die Tinte ist von Weiß auf Beige gegangen, und
+#F6F1E8 trägt gegen einen hellen Bildpunkt rund sechs Prozent weniger als
+#FFFFFF. Die Auszeichnungszeile fiel dadurch auf 4,17:1 und brauchte 4,5.
+**Wer die Tinte ändert, ändert jeden Schleier mit** — auch wenn er das
+Foto gar nicht angefasst hat.
+
+---
+
+## Dunkelblau und Beige, September 2026
+
+Dritter Durchgang derselben Bewegung, und der billigste. Bestellt war
+Dunkelblau als Grund mit Beige und Weiß darauf: „Dunkelblau erzeugt
+sofort ein Gefühl von Vertrauen, Stabilität und Professionalität. In
+Kombination mit warmem Beige wirkt es nahbar und exklusiv statt steif."
+Sonst nichts verändern.
+
+| | Anthrazit | Dunkelblau |
+|---|---|---|
+| `--grund` | #15161B | **#0F1C2E** |
+| `--flaeche` | #21232B | #1B2C44 |
+| `--tinte` | #FFFFFF | **#F6F1E8** |
+| `--tinte-3` | rgba(255,255,255,.58) | rgba(246,241,232,.58) |
+| Marke | #A78BFA (Violett) | #D9C2A0 (Beige) |
+| Kontrastfehler nach WCAG | 0 | **0** von 16 Seiten, Schreibtisch und Telefon |
+
+**Nicht Weiß auf dem Blau.** Weiß auf Dunkelblau ist das Bild jeder
+Bank-App; das Warme, das bestellt war, kommt allein aus der Tinte.
+#F6F1E8 liegt mit 15,2:1 praktisch so hoch wie Weiß (16,4:1) und sieht
+über eine ganze Seite Fließtext deutlich weicher aus.
+
+### Was drei Umbauten bewiesen haben, und was sie kosten
+
+Die Tokennamen tragen seit 2026 die Rolle und nicht die Farbe. Der
+Ertrag daraus lässt sich inzwischen beziffern: Schwarz → Off-White →
+Anthrazit → Dunkelblau sind vier Grundtöne, und der letzte Wechsel hat
+**null neue Regeln** gekostet. Umgestellt sind die Werte in `:root` und
+dieselben Werte in `.auf-dunkel`.
+
+Kostenlos ist er trotzdem nicht, und die Rechnung steht unten: **was ein
+Farbwechsel nicht erreicht, sind die Stellen, die eine Farbe fest
+eingetragen haben.** Es waren sieben, und drei davon waren Fehler, die
+seit dem Umbau auf Dunkel in der Auslieferung standen.
+
+### `--violet` hieß `--violet`, und das war der letzte Name mit einer Farbe
+
+Der Markenton ist jetzt Beige. Eine Regel mit `var(--violet)`, die Beige
+malt, liest niemand mehr richtig — dieselbe Falle wie `--ink`/`--paper`
+2026, nur kleiner. Er heißt deshalb `--marke`, und `--orchid` heißt
+`--marke-2`. 22 Stellen, maschinell, kein Pixel Unterschied.
+
+`--glow` ist dabei ersatzlos entfallen: definiert, nirgends benutzt.
+Gefunden mit einem `grep` nach dem Namen — derselbe Handgriff wie bei
+`@keyframes heroRise`, nur ging er diesmal gut aus.
+
+**Und die zweite Stufe geht jetzt nach UNTEN.** `--orchid` war das
+*hellere* Violett. In Beige wäre das hellere fast die Tinte: der
+Markenpunkt im aktiven Menüpunkt stünde in #EADCC4 neben Schrift in
+#F6F1E8 und wäre kein Punkt mehr, sondern ein Tippfehler. `--marke-2`
+ist deshalb #C8A87A — eine Stufe tiefer, deutlich gesättigter, 7,6:1.
+
+**Das ist der allgemeine Unterschied zwischen einem bunten und einem
+warmen Akzent:** Violett trägt neben weißer Schrift durch den Farbton,
+Beige nur durch den Abstand zur Tinte. Wer von bunt auf warm wechselt,
+muss jede Stelle ansehen, an der Marke und Tinte nebeneinanderstehen.
+
+Genau dort steckte auch ein Fehler, der zwei Farbschemata überlebt hat:
+im Einsatzband standen alle fünf Punkte auf voller Tinte, weil
+`.einsatzband i{ opacity:.55 }` wirkungslos ist —
+`[data-stagger].in > *{ opacity:1 }` gewinnt mit 0,2,1 gegen 0,1,1. Mit
+Violett fiel das nicht auf, weil eine andere Farbe auch neben voller
+Tinte noch trug. Die gedämpfte Stufe steht jetzt als **Farbe**
+(`var(--tinte-3)`), und keine Deckkraftregel kann sie mehr überholen.
+
+### Drei helle Flächen, die seit dem Umbau auf Dunkel ausgeliefert wurden
+
+Alle drei am Telefon, alle drei unlesbar, alle drei von keiner Prüfung
+gemeldet:
+
+| Wo | stand auf | sichtbar ab |
+|---|---|---|
+| `.appleiste` | rgba(255,255,255,.94) | sofort — weiße Leiste, weiße Beschriftung, weißes Wortzeichen |
+| `.appleiste.faehrt` | Verlauf in rgba(247,246,243,…) | beim Scrollen |
+| `header.nav.scrolled` (≤980 px) | rgba(247,246,243,.94) | nach dem ersten Scrollen |
+
+Die Leiste unten ist der Hauptweg am Telefon — Start, Leistungen, Jobs,
+Anfrage. Sie war seit dem Umbau eine weiße Fläche mit weißer Schrift
+darauf, gemessen 1,05:1.
+
+**Warum die Kontrastprüfung sie nicht gefunden hat**, und das ist der
+Teil, der hier stehen bleibt: `rgba(…,.94)` ist **nicht deckend**. Der
+Prüfer sucht den ersten deckenden Vorfahren und findet den dunklen
+`body`; gegen den besteht weiße Schrift natürlich. Das ist exakt
+dieselbe Lücke wie beim Foto im Hero („Kontrast auf einem Foto lässt
+sich nicht aus dem DOM rechnen") — nur dass hier kein Foto im Spiel war
+und deshalb niemand daran gedacht hat.
+
+Die anderen beiden waren zusätzlich **an einen Zustand gebunden**
+(`.scrolled`, `.faehrt`). Eine Prüfung, die eine frisch geladene Seite
+ansieht, sieht keinen davon.
+
+Zwei Regeln daraus:
+
+- **Eine durchscheinende Fläche ist für eine DOM-Prüfung kein Grund.**
+  Wer eine baut, prüft sie im Bild.
+- **Ein Verlauf, der eine Fläche auflösen soll, nimmt die Farbe der
+  Fläche** — keine eigene. Beide Verläufe hier hatten eine eigene, und
+  beide sind deshalb beim Farbwechsel hängengeblieben.
+
+### Die Symbole gehörten zwei verschiedenen Schemata an
+
+`site.webmanifest` nennt drei Symbole. Zwei davon (`app-icon-192`,
+`app-icon-512`) waren ein **dunkles** Zeichen auf **Weiß**, das dritte
+(`app-icon-maskable-512`) ein helles auf Schwarz. Welches ein Telefon
+nimmt, hängt allein an seiner Auflösung — auf dem einen Gerät lag das
+Zeichen also auf einer weißen Kachel, auf dem nächsten auf einer
+schwarzen. Dazu trug das Manifest `background_color: #F7F6F3`, den Grund
+der hellen Fassung: der Startbildschirm der abgelegten Anwendung blitzte
+hell auf, bevor die dunkle Seite kam.
+
+Abgeleitete Dateien, die von Hand gepflegt werden, laufen beim ersten
+Farbwechsel auseinander — dasselbe Argument wie bei den Bildstufen.
+`tools/symbole-bauen.py` rechnet deshalb alle acht (drei App-Symbole,
+Apple-Touch-Icon, drei Favicons, `favicon.ico`) aus **einer** Vorlage
+und **zwei** Zahlen, die `--grund` und `--tinte` entsprechen. Ein
+Farbwechsel ist danach ein Lauf.
+
+### Der eine Wert, der dem Farbschema NICHT folgen darf
+
+`.team-buero` steht nicht auf `--grund`, sondern auf dem gemessenen
+Hintergrundton der Porträtaufnahmen. Nachgemessen läuft deren
+Studiohintergrund als Vignette von (48,46,51) oben links auf (20,20,22)
+unten rechts; der Wert stand auf #2E2D33, also auf der hellsten Ecke.
+
+Er ist auf **#272C38** gerückt: dieselbe Helligkeit, eine Spur ins
+Blaue. Gegen die Ecke sind das sieben Stufen im Blaukanal — die Vignette
+selbst überstreicht neunundzwanzig, eine Kante entsteht dadurch nicht.
+Wer ihn dagegen auf `--grund` setzt, bekommt vier graue Rechtecke mit
+sichtbarem Rand auf blauem Papier zurück. **Er folgt der Aufnahme, nicht
+der Seite, und er ändert sich erst mit ihr.**
 
 ---
 
@@ -2036,7 +2176,7 @@ CRF 36 bei zwei Durchgängen ergibt SSIM 0,9917 und PSNR 46,8 dB — beides
 jenseits dessen, was ein Auge unterscheidet — bei 4,7 statt 6,6 MB. Tonspur
 und Länge bleiben unangetastet (`-c:a copy`, weiterhin 44,92 s).
 
-Ergebnis: **21 MB → 15,4 MiB** (16.149.781 Bytes) — und das mit AVIF, das für sich genommen 4,1 MB hinzugefügt hätte. Wer nachsehen will, dass dabei nichts fehlt:
+Ergebnis: **21 MB → 16,6 MiB** (17.420.726 Bytes, 185 Dateien) — und das mit AVIF, das für sich genommen 4,1 MB hinzugefügt hätte. Wer nachsehen will, dass dabei nichts fehlt:
 das Skript prüft am Ende selbst, ob jede Datei aus `assets/` im ZIP steht
 (bis auf die eine ausgenommene Quelldatei), und ein `unzip` in einen leeren
 Ordner mit anschließendem `git diff --stat` gegen das Original zeigt nur die
@@ -2137,6 +2277,27 @@ Seitdem wird nicht mehr ausgeschlossen, sondern **der ganze Baum in einen
 Zwischenordner gespiegelt** und dort verändert. Was im Paket landen soll,
 liegt dann vorher vollständig da; ausgelassen wird nur, was ausdrücklich in
 der Ausnahmeliste steht.
+
+### Die Kehrseite: `zip -r .` nimmt auch, was gerade herumliegt
+
+Die Vollständigkeitsprüfung sucht nach **Fehlendem**. Nach Überzähligem hat
+sie nie gesucht — und `zip -qr "$ZIEL" .` packt den ganzen Arbeitsordner.
+
+Aufgefallen ist das beim Farbwechsel, und zwar an der Paketgröße: 35 MB
+statt 17. Ein Prüfskript hatte seine Bildschirmaufnahmen mangels gesetzter
+Umgebungsvariablen nach `undefined/` geschrieben, und neunzehn PNG davon
+lagen anschließend im Paket. Sie wären unter `https://…/undefined/`
+öffentlich abrufbar gewesen.
+
+Seitdem prüft das Skript auch die Gegenrichtung: **jede oberste Ebene im
+Paket muss auf der Liste stehen** (`assets`, `netlify`, `dienstleistungen`,
+die sechs Einzeldateien, dazu die HTML-Seiten). `tools/`, `docs/`, `api/`
+und `db/` stehen ohnehin in der Ausnahmeliste; durchrutschen kann nur, was
+es vorher nicht gab — und genau das ist der Fall, den niemand erwartet.
+
+**Die allgemeine Form davon:** eine Prüfung, die nur „ist alles da?" fragt,
+beantwortet nicht „ist nur das da?". Auf einem Webserver ist die zweite
+Frage die mit dem Schadenspotenzial.
 
 ## Der PDF-Beleg
 

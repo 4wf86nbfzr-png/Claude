@@ -448,8 +448,31 @@ if dick:
         print(f"     {n}  ({g/1048576:.1f} MB)")
     sys.exit(1)
 
+# 4) Nichts Fremdes im Paket.
+#    `zip -r .` nimmt den ganzen Arbeitsordner; was hier gerade
+#    herumliegt, wird mit veroeffentlicht. Genau das ist passiert: ein
+#    Pruefskript hatte seine Bildschirmaufnahmen mangels gesetzter
+#    Umgebungsvariablen in einen Ordner `undefined/` geschrieben, und
+#    neunzehn PNG davon lagen anschliessend im Paket — 20 MB, und sie
+#    waeren unter https://…/undefined/ oeffentlich abrufbar gewesen.
+#    Gemeldet hat es niemand: Pruefung 1 sucht nach FEHLENDEM, nicht nach
+#    Ueberzaehligem.
+#    Geprueft wird die oberste Ebene, denn tools/, docs/, api/ und db/
+#    stehen ohnehin in AUSSEN — durchrutschen kann nur ein Ordner oder
+#    eine Datei, die es vorher nicht gab.
+ERLAUBT = {"assets", "netlify", "dienstleistungen", "robots.txt",
+           "sitemap.xml", "site.webmanifest", "netlify.toml", "_headers",
+           "_redirects"}
+fremd = sorted({n.split("/")[0] for n in drin
+                if n.split("/")[0] not in ERLAUBT and not n.endswith(".html")})
+if fremd:
+    print("   Fremdes im Paket — gehoert das wirklich auf den Webserver?",
+          *fremd, sep="\n     ")
+    sys.exit(1)
+
 print(f"   {len(drin)} Dateien, keine Lücke in assets/,"
-      f" keine tote Bildadresse im Markup, keine erzeugte Seite")
+      f" keine tote Bildadresse im Markup, keine erzeugte Seite,"
+      f" nichts Fremdes")
 PY
 
 echo

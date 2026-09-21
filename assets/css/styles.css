@@ -45,78 +45,104 @@
      `var(--tinte)` schreibt, stimmt dadurch in beiden Lagen — ohne zweite
      Regel und ohne Medienabfrage. */
   /* ------------------------------------------------------------------
-     Der Grund ist wieder dunkel — und diesmal überall
+     Dunkelblau und Beige
      ------------------------------------------------------------------
-     Bestellt war: „nicht mehr überwiegend weiß", Schwarz beziehungsweise
-     sehr dunkle Grautöne als Grund, Weiß als Akzent für Text, Linien und
-     Bedienelemente, und sonst nichts verändern.
+     Bestellt war: Dunkelblau als Grund, warmes Beige beziehungsweise Weiß
+     darauf — „Vertrauen, Stabilität und Professionalität", und durch das
+     Beige nahbar statt steif. Sonst nichts verändern.
 
-     Genau das kostet hier keine einzige neue Regel. Die dunkle Tonleiter
-     stand schon vollständig da (siehe `.auf-dunkel` weiter unten) und trug
-     Fuß, Vollbildmenü, Kopfband und die vier Kontrastbahnen der
-     Startseite. Umgestellt werden deshalb nur die sechs Grundwerte hier —
-     jede Regel, die `var(--grund)` oder `var(--tinte)` schreibt, stimmt
-     danach von selbst. Das ist der Ertrag daraus, dass die Tokennamen die
-     ROLLE tragen und nicht die Farbe.
+     Genau das kostet hier keine einzige neue Regel, und zwar zum zweiten
+     Mal: die Umstellung von hell auf dunkel im September ging schon so.
+     Die Tokennamen tragen die ROLLE und nicht die Farbe, deshalb sind es
+     wieder nur die Grundwerte hier und dieselben Werte im `.auf-dunkel`
+     weiter unten. Jede Regel, die `var(--grund)` oder `var(--tinte)`
+     schreibt, stimmt danach von selbst.
 
-     NICHT #000. Auf einem OLED-Bildschirm schaltet reines Schwarz die
-     Pixel ab; ein angeschnittenes Foto hat dann keinen Rand mehr, an dem
-     es aufhört, und genau daran ist die erste schwarze Fassung 2026
-     gescheitert. #15161B ist die Farbe, die im Fuß und im Menü ohnehin
-     schon stand, und ihre Textstufen sind gemessen.
+     WARUM NICHT REINES WEISS AUF DEM BLAU. Weiß auf Dunkelblau ist der
+     Bildschirmlook jeder Bank-App; das Warme, das bestellt war, kommt
+     allein aus der Tinte. #F6F1E8 ist gegen #0F1C2E mit 15,2:1 praktisch
+     so kontraststark wie Weiß (16,4:1) und sieht auf einer ganzen Seite
+     Fließtext deutlich weicher aus. Reines Weiß steht nur noch dort, wo
+     der Browser selbst zeichnet.
+
+     NICHT #000 und nicht #001133 — dieselbe Begründung wie im September:
+     auf einem OLED-Bildschirm schaltet ein Kanal auf 0 die Pixel ab, und
+     ein angeschnittenes Foto hat dann keinen Rand mehr, an dem es
+     aufhört. #0F1C2E hat in jedem Kanal Substanz.
 
      Der Takt bleibt: ein Abschnitt darf mit `--flaeche` eine Spur heller
-     stehen als der Grund. Aus dem Wechsel Weiß/Off-White wird der Wechsel
-     #15161B/#21232B — dieselbe Mechanik, dieselben Klassen. */
-  --grund:      #15161B;   /* Seitengrund, Anthrazit */
-  --flaeche:    #21232B;   /* erhobene Fläche: Karte, Feld, Panel */
-  --flaeche-2:  #1A1C22;   /* zweite Bahn, zum Abwechseln */
-  --flaeche-3:  #262932;   /* Kante, Geisterzahlen, Füllung */
-  --dunkel:     #15161B;   /* Anthrazit: Fuß, Kontrastbahn, Bildgrund */
-  --dunkel-2:   #21232B;
-  /* Die helle Tonleiter von 2026 steht hier, damit sie nicht aus dem
-     Gedächtnis rekonstruiert werden muss:
-       --grund #F7F6F3 · --flaeche #FFFFFF · --flaeche-2 #EFEDE7
-       --flaeche-3 #E4E1D9 · --tinte #15161B · --tinte-2 rgba(21,22,27,.70)
-       --tinte-3 rgba(21,22,27,.62) · --linie rgba(21,22,27,.13)
-       --linie-stark rgba(21,22,27,.30) · --offen-ton #B0350B
-       --violet #5B21B6 · --orchid #7C3AED
-     Wer zurückdreht, muss ausserdem die Wortzeichen im Markup tauschen
-     (`logo-herm.png` -> `logo-herm-dunkel.png`) und `theme-color`. */
+     stehen als der Grund. Aus dem Wechsel #15161B/#21232B wird der
+     Wechsel #0F1C2E/#1B2C44 — dieselbe Mechanik, dieselben Klassen. */
+  --grund:      #0F1C2E;   /* Seitengrund, Dunkelblau */
+  --flaeche:    #1B2C44;   /* erhobene Fläche: Karte, Feld, Panel */
+  --flaeche-2:  #142338;   /* zweite Bahn, zum Abwechseln */
+  --flaeche-3:  #21334D;   /* Kante, Geisterzahlen, Füllung */
+  --dunkel:     #0F1C2E;   /* Dunkelblau: Fuß, Kontrastbahn, Bildgrund */
+  --dunkel-2:   #1B2C44;
+  /* Die beiden vorigen Tonleitern stehen hier, damit sie nicht aus dem
+     Gedächtnis rekonstruiert werden müssen:
+       Anthrazit  --grund #15161B · --flaeche #21232B · --flaeche-2 #1A1C22
+                  --flaeche-3 #262932 · --tinte #FFFFFF
+                  --marke #A78BFA · --marke-2 #C4B5FD
+       Off-White  --grund #F7F6F3 · --flaeche #FFFFFF · --flaeche-2 #EFEDE7
+                  --flaeche-3 #E4E1D9 · --tinte #15161B
+                  --tinte-2 rgba(21,22,27,.70) · --tinte-3 rgba(21,22,27,.62)
+                  --linie rgba(21,22,27,.13) · --linie-stark rgba(21,22,27,.30)
+                  --offen-ton #B0350B · --marke #5B21B6 · --marke-2 #7C3AED
+     Wer auf Off-White zurückdreht, muss ausserdem die Wortzeichen im
+     Markup tauschen (`logo-herm.png` -> `logo-herm-dunkel.png`) und
+     `theme-color`. */
 
-  --tinte:      #FFFFFF;                  /* Fließtext und Überschriften */
-  --tinte-2:    rgba(255,255,255,.74);    /* Sekundärtext */
-  /* **Eine Tonleiter ist nicht symmetrisch, und das gilt in beide
-     Richtungen.** Auf hellem Grund brauchte diese Stufe .62 (Anthrazit bei
+  --tinte:      #F6F1E8;                  /* Fließtext und Überschriften */
+  --tinte-2:    rgba(246,241,232,.74);    /* Sekundärtext */
+  /* **Eine Tonleiter ist nicht symmetrisch, und das gilt in jede
+     Richtung.** Auf hellem Grund brauchte diese Stufe .62 (Anthrazit bei
      .52 auf #F7F6F3 sind nur 3,58:1, und genau das hat die Prüfung 2026 an
-     sechzig Stellen gemeldet). Auf dunklem Grund trägt Weiß mehr: .58
-     ergibt gegen #15161B nachgerechnet 6,67:1. Wer beim Umdrehen die .62
-     mitnimmt, nimmt keinen Mangel mit, aber eine Stufe, die nicht mehr
-     gedämpft aussieht — der Unterschied zwischen `--tinte-2` und
-     `--tinte-3` verschwände.
+     sechzig Stellen gemeldet). Auf dunklem Grund trägt die helle Tinte
+     mehr. Beige auf Dunkelblau liegt dabei eine Spur unter Weiß auf
+     Anthrazit, aber nicht so weit, dass die Stufe wandern müsste:
 
-         hell (#F7F6F3)          dunkel (#15161B)
-         .52  3,58:1             .52  5,79:1
-         .58  4,31:1             .58  6,67:1   <- so
-         .62  4,92:1             .62  7,29:1 */
-  --tinte-3:    rgba(255,255,255,.58);    /* gedämpft */
-  --linie:      rgba(255,255,255,.16);
-  --linie-stark:rgba(255,255,255,.34);
+         hell (#F7F6F3)   Anthrazit (#15161B)   Blau (#0F1C2E)
+         .52  3,58:1      .52  5,79:1           .52  5,04:1
+         .58  4,31:1      .58  6,67:1           .58  5,90:1   <- so
+         .62  4,92:1      .62  7,29:1           .62  6,48:1 */
+  --tinte-3:    rgba(246,241,232,.58);    /* gedämpft */
+  --linie:      rgba(246,241,232,.16);
+  --linie-stark:rgba(246,241,232,.34);
 
-  /* Markenviolett. Es trägt nichts, es markiert nur: Hover, aktiver
-     Menüpunkt, laufende Fortschrittslinie, Fokusdetail. Wer es großflächig
-     einsetzt, kippt den Auftritt sofort ins Templatehafte.
+  /* Der Markenton. Er trägt nichts, er markiert nur: Hover, aktiver
+     Menüpunkt, laufende Fortschrittslinie, Fokusdetail. Wer ihn
+     großflächig einsetzt, kippt den Auftritt sofort ins Templatehafte.
 
-     Die Richtung dreht mit dem Grund. Auf hellem Grund musste es tiefer
-     stehen (#5B21B6 gegen #F7F6F3 sind 8,9:1, #7C3AED nur 5,1:1); auf
-     Anthrazit ist dasselbe #5B21B6 mit 2,4:1 unlesbar, und es braucht die
-     helle Fassung: #A78BFA gegen #15161B sind 7,6:1. */
-  /* Der Warnton fuer noch offene Angaben. #B0350B war der Wert fuer hellen
-     Grund (5,78:1); auf Anthrazit liegt er bei 2,1:1. #F0A19D sind 8,7:1. */
+     Er hiess bis zum Farbwechsel `--violet` und war es auch. Das war der
+     letzte Name im Stylesheet, der eine FARBE nannte statt einer ROLLE —
+     und beim Wechsel auf Beige wäre daraus dieselbe Falle geworden, die
+     `--ink`/`--paper` schon einmal war: eine Regel mit `var(--marke)`,
+     die Beige malt, liest niemand mehr richtig. Deshalb einmal umbenannt.
+
+     Die Richtung dreht mit dem Grund. Auf hellem Grund musste er tiefer
+     stehen (#5B21B6 gegen #F7F6F3 sind 8,9:1); auf Dunkelblau braucht es
+     die helle Fassung: #D9C2A0 sind 10,2:1.
+
+     **Die zweite Stufe geht nach UNTEN, nicht nach oben** — und das ist
+     der eine Punkt, an dem ein Beige-Akzent anders funktioniert als ein
+     violetter. `--marke-2` war als das hellere Violett gedacht (#C4B5FD
+     gegen #A78BFA). In Beige wäre das hellere aber fast die Tinte: ein
+     Markenpunkt neben einer Zeile in #F6F1E8 unterscheidet sich dann
+     nicht mehr von ihr, und genau dort steht er — im aktiven Menüpunkt
+     und auf einer Kontaktangabe im Hover. Deshalb #C8A87A, eine Stufe
+     TIEFER: 7,6:1, deutlich gesättigter, unverwechselbar neben Tinte.
+
+     Beige darf hier mehr Fläche als das Violett, aber nicht viel mehr:
+     ein Punkt von vier Pixeln, eine Linie, ein Hover. Die grosse warme
+     Fläche der Seite ist die Tinte, nicht die Marke. */
+  /* Der Warnton fuer noch offene Angaben. Er ist BEWUSST nicht der
+     Markenton: eine offene Angabe soll nach Hinweis aussehen und nicht
+     nach Auszeichnung. #B0350B war der Wert fuer hellen Grund (5,78:1);
+     auf Dunkelblau liegt er bei 1,9:1. #F0A19D sind 8,4:1. */
   --offen-ton:  #F0A19D;
-  --violet:     #A78BFA;
-  --orchid:     #C4B5FD;
-  --glow:       #A78BFA;
+  --marke:      #D9C2A0;   /* warmes Beige: Punkt, Linie, Fokus */
+  --marke-2:    #C8A87A;   /* eine Stufe tiefer, wo die Tinte danebensteht */
 
   /* Standardakzent ist die Tinte; Farbe kommt nur pro Leistungsbereich */
   --accent:     var(--tinte);
@@ -223,23 +249,31 @@ a{ color:inherit; text-decoration:none; }
    Das ist der Grund, warum es im ganzen Stylesheet keine zweite Fassung
    der Textfarben gibt und keine Medienabfrage dafür.
 
-   Die Werte sind nicht die gespiegelten: Weiß auf Anthrazit trägt mehr als
-   Anthrazit auf Weiß, die Sekundärstufen stehen deshalb eine Spur höher. */
+   Die Werte sind nicht die gespiegelten: die helle Tinte auf dunklem Grund
+   trägt mehr als umgekehrt, die Sekundärstufen stehen deshalb eine Spur
+   höher.
+
+   Seit der Grund durchgehend dunkel ist, stehen hier dieselben Werte wie in
+   `:root`. Der Block bleibt trotzdem stehen, und zwar aus einem Grund: er
+   ist die Stelle, an der die Seite die Tonleiter UMSCHALTEN kann. Wer ihn
+   auflöst, weil er gerade nichts ändert, nimmt der nächsten hellen Fassung
+   ihren Angriffspunkt — und die gab es in diesem Projekt schon zweimal.
+   Wer hier etwas ändert, ändert es oben mit. */
 .auf-dunkel,
 #mobileMenu,
 .subhero,
 body > footer{
   --grund:      var(--dunkel);
   --flaeche:    var(--dunkel-2);
-  --flaeche-2:  #1A1C22;
-  --flaeche-3:  #262932;
-  --tinte:      #FFFFFF;
-  --tinte-2:    rgba(255,255,255,.74);
-  --tinte-3:    rgba(255,255,255,.58);
-  --linie:      rgba(255,255,255,.16);
-  --linie-stark:rgba(255,255,255,.34);
-  --violet:     #A78BFA;
-  --orchid:     #C4B5FD;
+  --flaeche-2:  #142338;
+  --flaeche-3:  #21334D;
+  --tinte:      #F6F1E8;
+  --tinte-2:    rgba(246,241,232,.74);
+  --tinte-3:    rgba(246,241,232,.58);
+  --linie:      rgba(246,241,232,.16);
+  --linie-stark:rgba(246,241,232,.34);
+  --marke:      #D9C2A0;
+  --marke-2:    #C8A87A;
   --accent:     var(--tinte);
   background:var(--grund);
   color:var(--tinte);
@@ -445,7 +479,7 @@ button.btn--zeile:focus-visible:not(:disabled){ color:var(--tinte); }
 button.btn--zeile:hover:not(:disabled)::after,
 button.btn--zeile:focus-visible:not(:disabled)::after{ transform:scaleX(1); transform-origin:left; }
 
-:focus-visible{ outline:2px solid var(--violet); outline-offset:4px; border-radius:var(--r-s); }
+:focus-visible{ outline:2px solid var(--marke); outline-offset:4px; border-radius:var(--r-s); }
 
 /* ============================================================
    Preloader
@@ -491,9 +525,9 @@ button.btn--zeile:focus-visible:not(:disabled)::after{ transform:scaleX(1); tran
   content:""; position:absolute; inset:-12% -35%;
   background:linear-gradient(112deg,
     transparent 34%,
-    rgba(255,255,255,.05) 45%,
-    rgba(255,255,255,.11) 50%,
-    rgba(255,255,255,.05) 55%,
+    rgba(246,241,232,.05) 45%,
+    rgba(246,241,232,.11) 50%,
+    rgba(246,241,232,.05) 55%,
     transparent 66%);
   transform:translateX(-46%);
   animation:preLicht 2s var(--ease-soft) .1s forwards;
@@ -599,7 +633,7 @@ button.btn--zeile:focus-visible:not(:disabled)::after{ transform:scaleX(1); tran
    ============================================================ */
 /* Der Fortschrittsbalken ist auf eine Haarlinie zurückgenommen und leuchtet
    nicht mehr. Er soll am Rand des Blickfelds ablesbar sein, nicht auffallen. */
-#scrollbar{ position:fixed; top:0; left:0; height:1px; width:0; z-index:9999; background:var(--violet); opacity:.85; }
+#scrollbar{ position:fixed; top:0; left:0; height:1px; width:0; z-index:9999; background:var(--marke); opacity:.85; }
 
 /* ---- Kopfzeile ----
    Sie liegt über den Bildern, nicht davor: kein Grund, keine Kante, nichts,
@@ -669,7 +703,7 @@ body > footer .brand__logo{ height:44px; }
 .nav__links a[aria-current="page"]{ color:var(--tinte); }
 .nav__links a[aria-current="page"]::before{
   content:""; position:absolute; left:-11px; top:calc(50% - 2px);
-  width:4px; height:4px; border-radius:50%; background:var(--orchid);
+  width:4px; height:4px; border-radius:50%; background:var(--marke-2);
 }
 .nav__cta{ display:flex; align-items:center; gap:clamp(14px,1.8vw,26px); }
 .nav__phone{ font-family:var(--font-mono); font-size:.68rem; letter-spacing:.1em; color:var(--tinte-3); transition:color var(--t-fast) var(--ease-swift); }
@@ -760,7 +794,7 @@ body.menu-open #mobileMenu > a{ opacity:1; translate:0 0; }
 #mobileMenu > a[aria-current="page"]{ color:var(--tinte); }
 #mobileMenu > a[aria-current="page"]::after{
   content:""; width:.32em; height:.32em; border-radius:50%;
-  background:var(--orchid); align-self:center; margin-left:.1em; flex:none;
+  background:var(--marke-2); align-self:center; margin-left:.1em; flex:none;
 }
 
 /* Fuß des Menüs: Aktion, Telefon, Netzwerke — auf einer Linie abgesetzt. */
@@ -873,7 +907,7 @@ body.megabar-auf header.nav{
 .megabar__liste a{ transition-delay:calc(var(--n, 0) * .04s + .04s); }
 
 .megabar__bild{
-  display:block; overflow:hidden; aspect-ratio:4/3; background:#0A0A0A;
+  display:block; overflow:hidden; aspect-ratio:4/3; background:var(--flaeche-2);
 }
 .megabar__bild img{
   width:100%; height:100%; object-fit:cover; display:block;
@@ -1107,17 +1141,17 @@ body.megabar-auf header.nav{
          Stellen. Bei 50 % fällt die Auszeichnungszeile auf 3,74:1; sie ist
          kleine Schrift, braucht 4,5, und bestimmt damit den ganzen
          Verlauf. */
-      rgba(6,7,11,.56)  0%,
-      rgba(6,7,11,.53) 22%,
-      rgba(6,7,11,.53) 42%,
-      rgba(6,7,11,.53) 56%,   /* hier steht die Auszeichnungszeile */
-      rgba(6,7,11,.30) 66%,
-      rgba(6,7,11,.10) 80%,
-      rgba(6,7,11,0)   92%),
+      rgba(5,10,18,.59)  0%,
+      rgba(5,10,18,.56) 22%,
+      rgba(5,10,18,.56) 42%,
+      rgba(5,10,18,.56) 56%,   /* hier steht die Auszeichnungszeile */
+      rgba(5,10,18,.32) 66%,
+      rgba(5,10,18,.10) 80%,
+      rgba(5,10,18,0)   92%),
     /* Eine Spur mehr nach links: die Schrift steht dort, und das Licht des
        Motivs kommt von rechts oben. */
     linear-gradient(to right,
-      rgba(6,7,11,.12) 0%, rgba(6,7,11,0) 58%);
+      rgba(5,10,18,.12) 0%, rgba(5,10,18,0) 58%);
   /* Der Schleier gehört zur Kamerafahrt, nicht zum Bild.
      Bestellt war: „zuerst das Hintergrundbild vollständig und bildfüllend,
      ohne dass der Text sichtbar ist". Also steht das Foto den ersten
@@ -1234,8 +1268,8 @@ body.megabar-auf header.nav{
 .schaubild::after{
   content:""; position:absolute; inset:0; pointer-events:none;
   background:
-    linear-gradient(180deg, rgba(6,7,11,.86) 0%, rgba(6,7,11,.42) 9%, rgba(6,7,11,0) 26%),
-    linear-gradient(0deg,   var(--grund) 0%, var(--grund) 3%, rgba(6,7,11,.22) 14%, rgba(6,7,11,0) 32%);
+    linear-gradient(180deg, rgba(5,10,18,.86) 0%, rgba(5,10,18,.42) 9%, rgba(5,10,18,0) 26%),
+    linear-gradient(0deg,   var(--grund) 0%, var(--grund) 3%, rgba(5,10,18,.22) 14%, rgba(5,10,18,0) 32%);
 }
 .kein-js .schaubild img{ animation:none; }
 
@@ -1519,7 +1553,7 @@ body.megabar-auf header.nav{
 .scrollcue{
   position:absolute; right:clamp(20px,5vw,64px); bottom:clamp(20px,3vh,34px); z-index:4;
   font-family:var(--font-mono); font-size:.58rem; letter-spacing:.34em;
-  color:rgba(255,255,255,.66);
+  color:rgba(246,241,232,.66);
   text-transform:uppercase; display:flex; align-items:center; gap:12px;
 }
 /* Die Einblendung liegt auf den Kindern, die Ausblendung beim Scrollen auf
@@ -1530,7 +1564,7 @@ body.megabar-auf header.nav{
 .los .scrollcue > *{ animation:fadeIn 1s ease 1.44s forwards; }
 /* Liegend statt stehend: der Hinweis steht jetzt unter der Textspalte und
    nicht mehr senkrecht am Bildrand. */
-.scrollcue i{ height:1px; width:clamp(34px,5vw,64px); background:linear-gradient(90deg,rgba(255,255,255,.5),transparent); }
+.scrollcue i{ height:1px; width:clamp(34px,5vw,64px); background:linear-gradient(90deg,rgba(246,241,232,.5),transparent); }
 /* Mit dem ersten Zehntel Scrollweg ist der Hinweis überflüssig. */
 .hero[data-weg] .scrollcue{ opacity:clamp(0, calc(1 - var(--weg,0) * 9), 1); }
 @media (max-width:900px){ .scrollcue{ display:none; } }
@@ -1747,7 +1781,7 @@ body.megabar-auf header.nav{
   color:var(--tinte-3); display:grid; place-items:center;
   transition:transform var(--t-fast) var(--ease-swift), color var(--t-fast) var(--ease-swift);
 }
-.bereich:hover .bereich__pfeil{ transform:translateX(5px); color:var(--violet); }
+.bereich:hover .bereich__pfeil{ transform:translateX(5px); color:var(--marke); }
 .bereich:has(.bereich__name:focus-visible){ background:var(--grund); }
 
 .angebot__fuss{
@@ -1855,7 +1889,7 @@ body.megabar-auf header.nav{
 .film__buehne::after{
   content:"";
   position:absolute; inset:auto 0 0; height:52%;
-  background:linear-gradient(to top, rgba(4,4,6,.88) 0%, rgba(4,4,6,.55) 38%, transparent 100%);
+  background:linear-gradient(to top, rgba(4,8,14,.88) 0%, rgba(4,8,14,.55) 38%, transparent 100%);
   pointer-events:none;
 }
 
@@ -1870,7 +1904,7 @@ body.megabar-auf header.nav{
   font-size:clamp(1.02rem, 1.9vw, 1.6rem);
   line-height:1.35;
   font-weight:600;
-  color:#FFF;
+  color:var(--tinte);
   /* doppelte Absicherung der Lesbarkeit: Schatten trägt auch dort, wo der
      Verlauf durch ein sehr helles Bild durchscheint */
   text-shadow:0 2px 14px rgba(0,0,0,.9), 0 1px 3px rgba(0,0,0,.8);
@@ -1888,7 +1922,7 @@ body.megabar-auf header.nav{
   display:inline-flex; align-items:center; justify-content:center; gap:8px;
   padding:.6em 1em; min-height:44px;
   border-radius:0;
-  border:1px solid rgba(255,255,255,.28);
+  border:1px solid rgba(246,241,232,.28);
   background:rgba(0,0,0,.55);
   backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
   color:var(--tinte);
@@ -1899,17 +1933,17 @@ body.megabar-auf header.nav{
              border-color var(--t-fast) var(--ease-swift),
              color var(--t-fast) var(--ease-swift);
 }
-.film__knopf:hover{ background:rgba(255,255,255,.92); color:#000; border-color:transparent; }
+.film__knopf:hover{ background:rgba(246,241,232,.92); color:var(--grund); border-color:transparent; }
 /* Der Film soll mit Ton laufen. Verweigert der Browser das Selbststarten mit
    Ton — was er in den meisten Fällen tut —, muss der Schalter auffallen,
-   sonst bleibt der Film für die Besucher einfach stumm. Weiße Fläche,
+   sonst bleibt der Film für die Besucher einfach stumm. Helle Fläche,
    dunkle Schrift: derselbe Zustand wie ein Hauptknopf. */
 .film__knopf--wartet{
-  background:#FFF; color:#000; border-color:transparent;
+  background:var(--tinte); color:var(--grund); border-color:transparent;
   box-shadow:0 6px 24px -10px rgba(0,0,0,.8);
 }
-.film__knopf--wartet:hover{ background:rgba(255,255,255,.86); }
-.film__knopf:focus-visible{ outline:2px solid #FFF; outline-offset:3px; }
+.film__knopf--wartet:hover{ background:rgba(246,241,232,.86); }
+.film__knopf:focus-visible{ outline:2px solid var(--tinte); outline-offset:3px; }
 .film__knopf svg{ flex:none; }
 
 @media (max-width:640px){
@@ -2271,10 +2305,10 @@ body.megabar-auf header.nav{
   counter-increment:schritt; content:counter(schritt,decimal-leading-zero);
   font-family:var(--font-display); font-weight:800; letter-spacing:-.04em;
   font-size:clamp(2.4rem,4.4vw,4.2rem); line-height:.9;
-  color:rgba(255,255,255,.16); margin-bottom:6px;
+  color:rgba(246,241,232,.16); margin-bottom:6px;
   transition:color var(--t-base) var(--ease-swift);
 }
-.schritt:hover::before{ color:rgba(255,255,255,.5); }
+.schritt:hover::before{ color:rgba(246,241,232,.5); }
 /* Der Strich über dem aktiven Schritt läuft beim Ansteuern durch — eine Geste,
    kein Effekt. */
 .schritt::after{
@@ -2402,7 +2436,7 @@ body.megabar-auf header.nav{
 .ccard{ padding:clamp(18px,2vw,24px) 0 0; border-top:1px solid var(--linie); }
 .ccard small{ font-family:var(--font-mono); font-size:.62rem; letter-spacing:.2em; text-transform:uppercase; color:var(--tinte-3); display:block; margin-bottom:12px; }
 .ccard a,.ccard address{ font-style:normal; font-size:1.02rem; color:var(--tinte); line-height:1.55; }
-.ccard a:hover{ color:var(--orchid); }
+.ccard a:hover{ color:var(--marke-2); }
 @media (max-width:560px){
   .ansprech{ flex-direction:column; align-items:flex-start; text-align:left; }
 }
@@ -2477,7 +2511,7 @@ body > footer ul li.foot__fakt{ color:var(--tinte-3); font-size:.92rem; }
   transition:color var(--t-fast) var(--ease-swift), transform var(--t-base) var(--ease-out);
 }
 .socials a svg{ width:18px; height:18px; }
-.socials a:hover{ color:#fff; transform:translateY(-2px); }
+.socials a:hover{ color:var(--tinte); transform:translateY(-2px); }
 .foot__bottom{ display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-top:clamp(40px,5vw,72px); padding-top:24px; border-top:1px solid var(--linie); font-family:var(--font-mono); font-size:.66rem; letter-spacing:.1em; color:var(--tinte-3); }
 
 /* ============================================================
@@ -2705,7 +2739,7 @@ body > footer ul li.foot__fakt{ color:var(--tinte-3); font-size:.92rem; }
    Ein Punkt ist eine Position — dieselbe Sprache wie die Einsatzlinie. */
 .kb-art__name::before{
   content:""; position:absolute; left:-14px; top:calc(50% - 2px);
-  width:4px; height:4px; border-radius:50%; background:var(--violet);
+  width:4px; height:4px; border-radius:50%; background:var(--marke);
   opacity:0; transform:scale(.4);
   transition:opacity var(--t-base) var(--ease-out), transform var(--t-base) var(--ease-out);
 }
@@ -2865,7 +2899,18 @@ header.nav{ view-transition-name:kopfzeile; }
 .appleiste{
   position:fixed; z-index:930; left:0; right:0; bottom:0;
   display:none;                       /* nur am Telefon, siehe unten */
-  background:rgba(255,255,255,.94);
+  /* **Hier stand bis zum Farbwechsel rgba(246,241,232,.94).** Das war der
+     Wert der hellen Fassung und ist beim Umbau auf Dunkel stehen geblieben:
+     eine weisse Leiste mit weissen Beschriftungen darauf, gemessen 1,05:1.
+     Am Telefon war die ganze untere Leiste unlesbar — Wortzeichen, Zeichen
+     und Beschriftung.
+     Gefunden hat es nicht die Kontrastprüfung, und das ist der lehrreiche
+     Teil: `rgba(…,.94)` ist nicht deckend, der Prüfer sucht deshalb weiter
+     oben nach einem Grund und findet den dunklen `body`. Gegen den besteht
+     weisse Schrift natürlich. **Eine durchscheinende Fläche ist für eine
+     DOM-Prüfung kein Grund** — dieselbe Lücke wie beim Foto im Hero, und
+     derselbe Ausweg: hinsehen, im Bild messen. */
+  background:rgba(15,28,46,.94);
   backdrop-filter:blur(20px) saturate(1.2); -webkit-backdrop-filter:blur(20px) saturate(1.2);
   border-top:1px solid var(--linie);
   /* Die Heimtaste des iPhones liegt über dem unteren Rand. Ohne diese
@@ -2887,11 +2932,14 @@ header.nav{ view-transition-name:kopfzeile; }
 
    .faehrt setzt main.js beim Scrollen und nimmt es eine halbe Sekunde nach
    dem letzten Bild wieder weg. */
-/* Beim Scrollen tritt die Leiste zurueck, statt zu verschwinden. Der
-   Verlauf ist jetzt hell — mit dem schwarzen von vorher standen weisse
-   Beschriftungen ueber hellem Seiteninhalt, gemessen 1,05:1. */
+/* Der Verlauf hat dieselbe Geschichte wie die Fläche darüber: er war einmal
+   schwarz, wurde für die helle Fassung auf Off-White gedreht — und blieb
+   dort stehen. Er läuft jetzt wieder in den Seitengrund, weil der Grund
+   wieder dunkel ist. Die Regel dahinter ist stumpf, aber sie hätte beide
+   Fehler verhindert: **ein Verlauf, der eine Fläche auflösen soll, nimmt
+   die Farbe der Fläche, nicht eine eigene.** */
 .appleiste.faehrt{
-  background:linear-gradient(to top, rgba(247,246,243,.92) 0%, rgba(247,246,243,.72) 55%, rgba(247,246,243,0) 100%);
+  background:linear-gradient(to top, rgba(15,28,46,.92) 0%, rgba(15,28,46,.72) 55%, rgba(15,28,46,0) 100%);
   border-top-color:transparent;
 }
 .appleiste.faehrt a{ color:var(--tinte-2); }
@@ -3013,8 +3061,13 @@ header.nav{ view-transition-name:kopfzeile; }
 
      Die Balken selbst bleiben — sie bewegen sich über transform und kosten
      nichts. */
+  /* Dritte Stelle derselben Sorte: die gescrollte Kopfzeile stand am
+     Telefon auf Off-White, während ihre Schrift auf die helle Tonleiter
+     zeigt. Sichtbar wurde das erst nach dem ersten Scrollen — genau
+     deshalb hat es keine Prüfung gefunden, die eine frisch geladene Seite
+     ansieht. Der Wert ist der Seitengrund. */
   header.nav.scrolled{
-    background:rgba(247,246,243,.94);
+    background:rgba(15,28,46,.94);
     backdrop-filter:none; -webkit-backdrop-filter:none;
   }
   .appleiste{ backdrop-filter:none; -webkit-backdrop-filter:none; }
@@ -3049,7 +3102,7 @@ header.nav{ view-transition-name:kopfzeile; }
 .zeiger{
   position:fixed; top:0; left:0; z-index:9990; pointer-events:none;
   width:34px; height:34px; border-radius:50%;
-  border:1px solid rgba(255,255,255,.55);
+  border:1px solid rgba(246,241,232,.55);
   display:grid; place-items:center;
   opacity:0; mix-blend-mode:difference;
   transition:width .45s var(--ease-out), height .45s var(--ease-out),
@@ -3057,9 +3110,9 @@ header.nav{ view-transition-name:kopfzeile; }
              background-color .45s var(--ease-out);
 }
 .zeiger.an{ opacity:1; }
-.zeiger--aktiv{ width:52px; height:52px; border-color:rgba(255,255,255,.85); }
+.zeiger--aktiv{ width:52px; height:52px; border-color:rgba(246,241,232,.85); }
 /* Über den sechs Szenen und der Galerie sagt der Ring, was ein Klick tut. */
-.zeiger--sehen{ width:88px; height:88px; background:rgba(255,255,255,.9); border-color:transparent; mix-blend-mode:normal; }
+.zeiger--sehen{ width:88px; height:88px; background:rgba(246,241,232,.9); border-color:transparent; mix-blend-mode:normal; }
 .zeiger__wort{
   font-family:var(--font-mono); font-size:.56rem; letter-spacing:.2em;
   text-transform:uppercase; color:var(--dunkel); opacity:0;
@@ -3099,13 +3152,13 @@ header.nav{ view-transition-name:kopfzeile; }
   .hero__schleier{
     background:
       linear-gradient(to top,
-        rgba(6,7,11,.62)  0%,
-        rgba(6,7,11,.58) 30%,
-        rgba(6,7,11,.55) 55%,
-        rgba(6,7,11,.54) 70%,
-        rgba(6,7,11,.28) 82%,
-        rgba(6,7,11,.08) 92%,
-        rgba(6,7,11,0)  100%);
+        rgba(5,10,18,.65)  0%,
+        rgba(5,10,18,.61) 30%,
+        rgba(5,10,18,.58) 55%,
+        rgba(5,10,18,.57) 70%,
+        rgba(5,10,18,.30) 82%,
+        rgba(5,10,18,.08) 92%,
+        rgba(5,10,18,0)  100%);
   }
   /* ---- Weniger Bewegung, weil weniger Rechner ----
      Die Unschärfe ist am Telefon der teuerste Posten der ganzen Sequenz und
@@ -3342,7 +3395,7 @@ header.nav{ view-transition-name:kopfzeile; }
   display:block; color:var(--tinte-2); font-family:var(--font-body);
   font-size:var(--fs-lead); margin-top:clamp(20px,2.6vh,30px); max-width:46ch;
   text-shadow:0 1px 16px rgba(0,0,0,.7);
-  padding-top:clamp(16px,2.2vh,24px); border-top:1px solid rgba(255,255,255,.22);
+  padding-top:clamp(16px,2.2vh,24px); border-top:1px solid rgba(246,241,232,.22);
 }
 /* .bignum ist entfallen: eine konturierte Riesenzahl über dem Kopfbild ist
    Dekoration, die mit der Überschrift um dieselbe Ecke konkurriert. Die
@@ -3418,13 +3471,27 @@ header.nav{ view-transition-name:kopfzeile; }
   background:var(--flaeche-2); aspect-ratio:4/5; margin-bottom:20px;
 }
 /* ---- Das Bueroteam auf dunklem Grund ------------------------------------
-   Der Grund ist nicht `--dunkel`, sondern der gemessene Hintergrundton der
-   Aufnahmen selbst (#2A292E gegen #2C2B30 in der Datei). Damit hat das
-   Portraet keine sichtbare Kante mehr: der Studiohintergrund IST die Seite.
-   Genau das ist der Unterschied zwischen vier Kacheln und einer Reihe von
-   Menschen. */
-.team-buero.auf-dunkel{ background:#2E2D33; }
-.team-buero .member__img{ background:#2E2D33; }
+   Der Grund ist hier NICHT `--dunkel`, sondern der gemessene
+   Hintergrundton der Aufnahmen selbst. Damit hat das Portraet keine
+   sichtbare Kante mehr: der Studiohintergrund IST die Seite. Genau das ist
+   der Unterschied zwischen vier Kacheln und einer Reihe von Menschen.
+
+   Nachgemessen an den vier Dateien laeuft der Studiohintergrund als
+   Vignette von (48,46,51) oben links auf (20,20,22) unten rechts. Der Wert
+   hier stand auf #2E2D33 = (46,45,51), also auf der hellsten Ecke.
+
+   Mit dem blauen Seitengrund ist er auf #272C38 = (39,44,56) gerueckt:
+   dieselbe Helligkeit, eine Spur ins Blaue. Gegen die Ecke sind das sieben
+   Stufen im Blaukanal — die Vignette der Aufnahme selbst ueberstreicht
+   neunundzwanzig. Eine Kante entsteht dadurch nicht, der Block gehoert
+   aber sichtbar zur blauen Seite und nicht zu einer grauen Insel darin.
+
+   **Dieser eine Wert darf dem Farbschema nicht folgen.** Wer ihn auf
+   `--grund` setzt, bekommt vier graue Rechtecke mit sichtbarem Rand auf
+   blauem Papier zurueck. Er folgt der Aufnahme, und er aendert sich erst
+   mit ihr. */
+.team-buero.auf-dunkel{ background:#272C38; }
+.team-buero .member__img{ background:#272C38; }
 /* Versucht und wieder verworfen: wechselnde Kachelformate (hochkant,
    quadratisch, hochkant), damit die vier nicht wie Kopien desselben Bildes
    wirken. Im Bild sah das nicht abwechslungsreich aus, sondern unsortiert —
@@ -3447,7 +3514,7 @@ header.nav{ view-transition-name:kopfzeile; }
 }
 .member__initialen{
   font-family:var(--font-display); font-weight:800; font-size:2.8rem;
-  letter-spacing:.02em; color:rgba(255,255,255,.20); line-height:1;
+  letter-spacing:.02em; color:rgba(246,241,232,.20); line-height:1;
 }
 .member__wartet{
   font-family:var(--font-mono); font-size:.6rem; letter-spacing:.22em;
@@ -3610,7 +3677,7 @@ header.nav{ view-transition-name:kopfzeile; }
 /* Keine eigene Maximalbreite: das Zitat steht in der Textspalte und wird von
    ihr begrenzt. Mit 34ch in der Auszeichnungsschrift lief es über sechs
    Zeilen und las sich wie ein Gedicht. */
-.pullquote{ margin:var(--gap-l) 0 0; padding-left:clamp(18px,2.4vw,28px); border-left:2px solid rgba(255,255,255,.35); }
+.pullquote{ margin:var(--gap-l) 0 0; padding-left:clamp(18px,2.4vw,28px); border-left:2px solid rgba(246,241,232,.35); }
 .pullquote blockquote{ font-family:var(--font-display); font-weight:700; font-size:clamp(1.25rem,2vw,1.7rem); line-height:1.22; letter-spacing:-.02em; }
 .pullquote figcaption{ font-family:var(--font-mono); font-size:.64rem; letter-spacing:.18em; text-transform:uppercase; color:var(--tinte-3); margin-top:14px; }
 
@@ -3639,7 +3706,7 @@ header.nav{ view-transition-name:kopfzeile; }
   transition:color var(--t-fast) var(--ease-swift);
 }
 .faq summary::-webkit-details-marker{ display:none; }
-.faq summary:hover{ color:var(--violet); }
+.faq summary:hover{ color:var(--marke); }
 .faq summary::after{
   content:""; position:absolute; right:6px; top:50%; width:12px; height:12px;
   border-right:1.5px solid currentColor; border-bottom:1.5px solid currentColor;
@@ -3657,7 +3724,7 @@ header.nav{ view-transition-name:kopfzeile; }
 
 /* Rückmeldung nach dem Absenden des Formulars */
 .form__status{ margin-top:var(--gap-s); font-size:.95rem; color:var(--tinte-2); }
-.form__status[data-stand="fehler"]{ color:#FFB4B4; }
+.form__status[data-stand="fehler"]{ color:var(--offen-ton); }
 
 /* padding-block aus demselben Grund wie bei .trust__grid: das Element traegt
    auch .wrap, und eine Kurzschreibweise loeschte dort den Seitenrand. */
@@ -3755,7 +3822,7 @@ header.nav{ view-transition-name:kopfzeile; }
   transition:border-color var(--t-fast) var(--ease-swift),
              box-shadow var(--t-fast) var(--ease-swift);
 }
-.form input::placeholder,.form textarea::placeholder{ color:rgba(255,255,255,.3); }
+.form input::placeholder,.form textarea::placeholder{ color:rgba(246,241,232,.3); }
 .form input:hover,.form select:hover,.form textarea:hover{ border-bottom-color:var(--linie-stark); }
 /* box-shadow statt border-width: eine dickere Linie würde das Feld um einen
    Pixel höher machen und die ganze Spalte beim Hineinklicken verschieben. */
@@ -3788,7 +3855,7 @@ header.nav{ view-transition-name:kopfzeile; }
    Frage nicht beantwortet: „Einsatz bis" fuellt man nur bei mehreren Tagen
    aus. Er steht ueber aria-describedby am Feld, wird also mitgelesen. */
 .feld__hinweis{ color:var(--tinte-3); font-size:.8rem; margin-top:7px; }
-.feld__fehler{ display:none; color:#F0A19D; font-size:.86rem; margin-top:7px; }
+.feld__fehler{ display:none; color:var(--offen-ton); font-size:.86rem; margin-top:7px; }
 .feld--fehler .feld__fehler{ display:block; }
 
 /* Einwilligung */
@@ -3799,7 +3866,7 @@ header.nav{ view-transition-name:kopfzeile; }
 .form .zustimmung{ display:flex; align-items:flex-start; gap:12px; flex-wrap:wrap; }
 .form .zustimmung .feld__fehler{ width:100%; margin-top:2px; }
 .form .zustimmung input[type="checkbox"]{
-  width:20px; height:20px; flex:none; margin-top:2px; accent-color:var(--violet);
+  width:20px; height:20px; flex:none; margin-top:2px; accent-color:var(--marke);
   border-radius:4px; padding:0;
 }
 .form .zustimmung label{
@@ -3828,7 +3895,7 @@ header.nav{ view-transition-name:kopfzeile; }
 /* Rückmeldung nach dem Absenden */
 .form__status{ font-size:.95rem; color:var(--tinte-2); }
 .form__status:empty{ display:none; }
-.form__status[data-stand="fehler"]{ color:#F0A19D; }
+.form__status[data-stand="fehler"]{ color:var(--offen-ton); }
 .form__status[data-stand="laeuft"]{ color:var(--tinte-3); }
 .btn[aria-busy="true"]{ opacity:.6; pointer-events:none; }
 
@@ -3839,7 +3906,7 @@ header.nav{ view-transition-name:kopfzeile; }
 }
 .danke__haken{
   width:46px; height:46px; border-radius:50%; display:grid; place-items:center;
-  background:var(--violet); color:#FFF; margin-bottom:6px;
+  background:var(--marke); color:var(--grund); margin-bottom:6px;
 }
 .danke h2{ font-size:var(--fs-h3); }
 .danke p{ color:var(--tinte-2); max-width:46ch; }
@@ -3864,7 +3931,7 @@ header.nav{ view-transition-name:kopfzeile; }
 .gal__item figcaption{
   position:absolute; inset:auto 0 0; z-index:2; padding:14px 16px;
   font-size:.86rem; color:var(--tinte);
-  background:linear-gradient(to top, rgba(5,5,8,.88), rgba(5,5,8,0));
+  background:linear-gradient(to top, rgba(5,10,17,.88), rgba(5,10,17,0));
   opacity:0; transform:translateY(6px);
   transition:opacity var(--t-base) var(--ease-swift), transform var(--t-base) var(--ease-swift);
 }
@@ -3879,11 +3946,11 @@ header.nav{ view-transition-name:kopfzeile; }
 .lightbox{
   position:fixed; inset:0; z-index:9600; border:0; padding:0; margin:0;
   width:100%; height:100%; max-width:none; max-height:none;
-  background:rgba(5,5,8,.94); color:var(--tinte);
+  background:rgba(5,10,17,.94); color:var(--tinte);
   display:none; place-items:center;
 }
 .lightbox[open]{ display:grid; }
-.lightbox::backdrop{ background:rgba(5,5,8,.94); }
+.lightbox::backdrop{ background:rgba(5,10,17,.94); }
 .lightbox__bild{ max-width:min(1400px,94vw); max-height:82vh; width:auto; height:auto; object-fit:contain; border-radius:var(--r-s); }
 .lightbox__bu{ text-align:center; margin-top:16px; color:var(--tinte-2); font-size:.95rem; }
 .lightbox__zaehler{ font-family:var(--font-mono); font-size:.66rem; letter-spacing:.2em; color:var(--tinte-3); display:block; margin-top:6px; }
@@ -3893,7 +3960,7 @@ header.nav{ view-transition-name:kopfzeile; }
   display:grid; place-items:center; cursor:pointer;
   transition:border-color var(--t-fast) var(--ease-swift), background var(--t-fast) var(--ease-swift);
 }
-.lightbox__knopf:hover{ border-color:rgba(255,255,255,.55); background:rgba(32,32,38,.9); }
+.lightbox__knopf:hover{ border-color:rgba(246,241,232,.55); background:rgba(27,44,68,.9); }
 .lightbox__knopf svg{ width:20px; height:20px; }
 .lightbox__zu{ top:clamp(14px,2.4vw,26px); right:clamp(14px,2.4vw,26px); }
 .lightbox__vor{ right:clamp(14px,2.4vw,26px); top:50%; translate:0 -50%; }
@@ -3963,7 +4030,7 @@ header.nav{ view-transition-name:kopfzeile; }
   content:"";
   position:absolute; top:-2.5px; left:0;
   width:4px; height:4px; border-radius:50%;
-  background:var(--violet);
+  background:var(--marke);
   transform:translateX(calc(var(--lauf, 0) * (100vw - clamp(38px, 5vw, 64px)) + clamp(38px, 5vw, 64px) - 4px));
   will-change:auto;
 }
@@ -4028,14 +4095,22 @@ body > footer[data-spur]::before{ opacity:.3; }
 .einsatzband i{
   position:absolute; top:-2px;
   width:5px; height:5px; border-radius:50%;
-  background:var(--tinte); opacity:.55;
+  /* Die gedaempfte Stufe steht hier als FARBE und nicht als `opacity:.55`.
+     Die Deckkraft war wirkungslos: `[data-stagger].in > *{ opacity:1 }`
+     gewinnt gegen sie (0,2,1 gegen 0,1,1), und seit es den Stagger gibt,
+     standen alle fuenf Punkte auf voller Tinte. Aufgefallen ist das erst
+     mit dem Beige: neben vier vollen Punkten hatte der markierte keine
+     Chance mehr, sich zu unterscheiden — beim Violett fiel es nicht auf,
+     weil eine andere FARBE auch neben voller Tinte noch trug.
+     Als Farbe geschrieben kann keine Deckkraftregel sie mehr ueberholen. */
+  background:var(--tinte-3);
   transform:translateX(-50%) scale(0);
   transition:transform .5s var(--ease-out);
   transition-delay:calc(.28s + var(--i, 0) * .07s);
 }
 .einsatzband.in i{ transform:translateX(-50%) scale(1); }
 /* Der eine Punkt der Marke. Welcher es ist, sagt die Figur. */
-.einsatzband i.leitung{ background:var(--violet); opacity:1; }
+.einsatzband i.leitung{ background:var(--marke); opacity:1; }
 
 /* Die sechs Figuren. Nur Positionen — Farbe, Groesse und Takt stehen oben. */
 [data-figur="reihe"]  i:nth-child(1){ left:10% }
@@ -4162,7 +4237,7 @@ body > footer[data-spur]::before{ opacity:.3; }
   display:block; width:clamp(84px,11vw,148px); height:1px;
   background:
     linear-gradient(var(--tinte),var(--tinte)) left center / calc(var(--kapitel,0) * 100%) 100% no-repeat,
-    rgba(255,255,255,.2);
+    rgba(246,241,232,.2);
 }
 
 /* ---- 3. Kapitelrail ----
@@ -4211,7 +4286,7 @@ body > footer[data-spur]::before{ opacity:.3; }
 .kino{ position:fixed; inset:0; z-index:860; pointer-events:none; contain:strict; }
 .kino__balken{
   position:absolute; left:0; right:0;
-  height:clamp(18px,4vh,46px); background:#040406;
+  height:clamp(18px,4vh,46px); background:#05090F;
   transform:scaleY(var(--kino,0));
   will-change:transform;
 }
@@ -4345,7 +4420,7 @@ h1.reveal-up.in, h2.reveal-up.in, h3.reveal-up.in{
    deshalb liegt der Punkt am `<li>` und nicht am Namen. */
 .bereich::after{
   content:""; position:absolute; left:0; bottom:-2px; width:5px; height:5px;
-  border-radius:50%; background:var(--violet);
+  border-radius:50%; background:var(--marke);
   opacity:0; transform:scale(.3);
   transition:opacity var(--t-fast) var(--ease-swift), transform var(--t-fast) var(--ease-out);
 }
@@ -4409,7 +4484,7 @@ h1.reveal-up.in, h2.reveal-up.in, h3.reveal-up.in{
    zu zählen beginnt, wenn sie das Fenster füllt. */
 .stage__sticky::before{
   content:""; position:absolute; inset:0; z-index:8; pointer-events:none;
-  background:#040406;
+  background:#05090F;
   opacity:calc(clamp(0, calc((var(--kapitel,0) - .9) / .1), 1) * .55);
 }
 
@@ -4417,7 +4492,7 @@ h1.reveal-up.in, h2.reveal-up.in, h3.reveal-up.in{
   .kino, .kapitel{ display:none; }
   .stage__sticky::before{ display:none; }
   .stage__index{ opacity:1; }
-  .stage__linie{ background:rgba(255,255,255,.2); }
+  .stage__linie{ background:rgba(246,241,232,.2); }
   h1.reveal-up, h2.reveal-up, h3.reveal-up{
     -webkit-mask-image:none; mask-image:none; }
   .wide-shot picture{ clip-path:none; }

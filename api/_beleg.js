@@ -38,8 +38,14 @@ const LOGO = require('./_logo.js');
 const LOGO_URI = 'data:image/png;base64,' + LOGO.toString('base64');
 
 
+/* `ink` ist das Band oben, also die einzige Flaeche, auf der die Marke
+   ausserhalb des Browsers auftritt. Es traegt deshalb den Seitengrund der
+   Website und nicht irgendein Schwarz: mit dem Wechsel auf Dunkelblau ist
+   aus #0b0b0c das #0F1C2E des Stylesheets geworden. Die uebrigen vier
+   Werte sind Drucktoene auf weissem Papier und haben mit dem Farbschema
+   des Bildschirms nichts zu tun — sie bleiben. */
 const FARBE = {
-  ink:     '#0b0b0c',
+  ink:     '#0F1C2E',
   text:    '#17171a',
   leise:   '#6f6f77',
   linie:   '#e3e3e7',
