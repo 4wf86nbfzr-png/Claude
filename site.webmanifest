@@ -7,28 +7,58 @@
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "display_override": ["standalone", "minimal-ui"],
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
   "orientation": "portrait",
-  "background_color": "#000000",
-  "theme_color": "#000000",
-  "categories": ["business"],
+  "background_color": "#F7F6F3",
+  "theme_color": "#F7F6F3",
+  "categories": [
+    "business"
+  ],
   "icons": [
-    { "src": "/assets/logo/app-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "/assets/logo/app-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "/assets/logo/app-icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "/assets/logo/app-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/logo/app-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/logo/app-icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ],
   "shortcuts": [
     {
       "name": "Personal anfragen",
       "short_name": "Anfrage",
       "url": "/kontakt.html",
-      "icons": [{ "src": "/assets/logo/app-icon-192.png", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "/assets/logo/app-icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
     },
     {
       "name": "Bewerben",
       "short_name": "Jobs",
       "url": "/jobs.html",
-      "icons": [{ "src": "/assets/logo/app-icon-192.png", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "/assets/logo/app-icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
     }
   ]
 }

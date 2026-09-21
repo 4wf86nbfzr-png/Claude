@@ -22,7 +22,7 @@
      ============================================================ -->
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
 <link rel="canonical" href="https://hermserviceteam.com/dienstleistungen.html" />
-<meta name="theme-color" content="#000000" />
+<meta name="theme-color" content="#F7F6F3" />
 <!-- Vorschau beim Teilen in Messengern und sozialen Netzwerken -->
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="HERM Service Team" />
@@ -84,10 +84,6 @@
 <!-- Kinofassung: zwei duenne Balken und ein Lichtabfall zum Rand. Sie
      liegen nur ueber den sechs Buehnen; main.js faehrt sie ueber --kino
      ein und wieder aus. Rein dekorativ, deshalb aria-hidden. -->
-<div class="kino" aria-hidden="true">
-  <span class="kino__balken kino__balken--oben"></span>
-  <span class="kino__balken kino__balken--unten"></span>
-</div>
 
 <div id="scrollbar"></div>
 <button id="toTop" aria-label="Zur&uuml;ck nach oben">
@@ -96,7 +92,7 @@
 
 <header class="nav scrolled" id="nav">
   <a class="brand" href="index.html" aria-label="HERM Service Team, Startseite">
-    <img class="brand__logo" src="assets/logo/logo-herm.png" alt="HERM Service Team" width="800" height="305" />
+    <img class="brand__logo" src="assets/logo/logo-herm-dunkel.png" alt="HERM Service Team" width="800" height="305" />
   </a>
   <nav class="nav__links" aria-label="Hauptnavigation">
     <a href="dienstleistungen.html">Dienstleistungen</a>
@@ -169,228 +165,110 @@
   <!-- Die Bühnen sind der Signature-Effekt der Seite: beim Scrollen fährt die
        Kamera in die Szene, die Nahaufnahme blendet auf, dann läuft der Text ein.
        Gesteuert über --zoom / --detail / --panel aus main.js (updateStages). -->
-  <section class="stage" data-stage="gastro" id="gastro-personal">
-    <div class="stage__sticky">
-      <!-- Kapitelmarke: liegt im festen Rahmen, damit sie die ganze
-           Buehne ueber stehen bleibt. Die Linie darunter fuellt sich
-           aus --kapitel, das main.js beim Scrollen schreibt. -->
-      <div class="stage__index">
-        <span class="stage__zeile"><span class="stage__nr">01 / 06</span><span class="stage__titel">Gastronomie</span></span>
-        <span class="stage__linie" aria-hidden="true"></span>
-      </div>
-      <div class="scene">
-        <div class="scene__frame art">
-          <!-- Weitwinkel -->
-          <picture><source type="image/avif" srcset="assets/img/gastro.avif 1600w, assets/img/gastro-gross.avif 2560w" sizes="(max-width:980px) 100vw, 142vw" /><source type="image/webp" srcset="assets/img/gastro.webp 1600w, assets/img/gastro-gross.webp 2560w" sizes="(max-width:980px) 100vw, 142vw" /><img class="scene__photo" src="assets/img/gastro.jpg" alt="" loading="lazy" decoding="async" width="1600" height="1600" /></picture>
-          <!-- Anschluss für bewegtes Material: poster/data-src setzen. -->
-          <video class="stagevid" muted playsinline loop preload="metadata"
-                 aria-hidden="true" tabindex="-1"></video>
-          <div class="detail">
-            <!-- Nahaufnahme: blendet über --detail auf. -->
-            <picture><source type="image/avif" srcset="assets/img/gastro-detail.avif 1600w, assets/img/gastro-detail-gross.avif 2560w" sizes="(max-width:980px) 100vw, 142vw" /><source type="image/webp" srcset="assets/img/gastro-detail.webp 1600w, assets/img/gastro-detail-gross.webp 2560w" sizes="(max-width:980px) 100vw, 142vw" /><img class="scene__photo" src="assets/img/gastro-detail.jpg" alt="" loading="lazy" decoding="async" width="1600" height="1600" /></picture>
-            <video class="stagevid" muted playsinline loop preload="metadata"
-                   aria-hidden="true" tabindex="-1"></video>
-          </div>
-        </div>
-      </div>
-      <div class="panel">
-        <span class="num">01 Gastronomie</span>
-        <h2 class="u-caps">Servicekräfte mieten</h2>
-        <span class="tag">Wir lieben und leben guten Service.</span>
-        <p>Geschultes, dynamisches Gastro- und Hotellerie-Personal, vom Menü-Service über
+  <section class="bereichsblock" id="gastro-personal" data-bild="links">
+    <div class="wrap bereichsblock__reihe">
+      <figure class="bereichsblock__bild reveal-up"><picture><source type="image/avif" srcset="assets/img/gastro.avif 1600w, assets/img/gastro-gross.avif 2560w" sizes="(max-width:900px) 100vw, 46vw" /><source type="image/webp" srcset="assets/img/gastro.webp 1600w, assets/img/gastro-gross.webp 2560w" sizes="(max-width:900px) 100vw, 46vw" /><img src="assets/img/gastro.jpg" alt="Gastronomie, Einsatz des HERM Service Team" loading="lazy" decoding="async" width="1600" height="1600" /></picture></figure>
+      <div class="bereichsblock__text">
+        <span class="eyebrow reveal-up">01 / 06 &middot; Gastronomie</span>
+        <h2 class="reveal-up u-caps">Servicekräfte mieten</h2>
+        <p class="bereichsblock__merksatz reveal-up" data-d="1">Wir lieben und leben guten Service.</p>
+        <p class="reveal-up" data-d="1">Geschultes, dynamisches Gastro- und Hotellerie-Personal, vom Menü-Service über
           Catering und Bankett bis zur Bar. Dank großer Datenbank decken wir jeden Bereich
           rund um Hamburg ab.</p>
-        <div class="chips"><span class="chip">Kellner</span><span class="chip">Barkeeper</span><span class="chip">Partyhilfe</span><span class="chip">Runner</span><span class="chip">Küchenhilfe</span></div>
-        <a class="btn go" href="dienstleistungen/gastro-personal.html">Zum Bereich <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <div class="chips reveal-up" data-d="2"><span class="chip">Kellner</span><span class="chip">Barkeeper</span><span class="chip">Partyhilfe</span><span class="chip">Runner</span><span class="chip">Küchenhilfe</span></div>
+        <a class="btn" href="dienstleistungen/gastro-personal.html" data-d="2">Zum Bereich <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="bereichsblock" id="sicherheit" data-bild="rechts">
+    <div class="wrap bereichsblock__reihe">
+      <figure class="bereichsblock__bild reveal-up"><picture><source type="image/avif" srcset="assets/img/sicherheit.avif 1600w, assets/img/sicherheit-gross.avif 2560w" sizes="(max-width:900px) 100vw, 46vw" /><source type="image/webp" srcset="assets/img/sicherheit.webp 1600w, assets/img/sicherheit-gross.webp 2560w" sizes="(max-width:900px) 100vw, 46vw" /><img src="assets/img/sicherheit.jpg" alt="Sicherheit, Einsatz des HERM Service Team" loading="lazy" decoding="async" width="1600" height="1600" /></picture></figure>
+      <div class="bereichsblock__text">
+        <span class="eyebrow reveal-up">02 / 06 &middot; Sicherheit</span>
+        <h2 class="reveal-up u-caps">Veranstaltungsschutz</h2>
+        <p class="bereichsblock__merksatz reveal-up" data-d="1">Wir schützen Sie und Ihre Veranstaltung.</p>
+        <p class="reveal-up" data-d="1">Ob TV-Show, Gala oder Sportevent, nach einer Sicherheitsanalyse sorgen wir mit
+          fachkundigem Personal für einen geordneten Ablauf. Crowdmanagement, Personenschutz
+          und Veranstaltungsschutz behandeln wir getrennt, damit jeder Bereich abgedeckt ist.</p>
+        <div class="chips reveal-up" data-d="2"><span class="chip">Event Security</span><span class="chip">Crowdmanager</span><span class="chip">Personenschutz</span><span class="chip">Einlass</span></div>
+        <a class="btn" href="dienstleistungen/sicherheit.html" data-d="2">Zum Bereich <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="bereichsblock" id="promotion-hostess" data-bild="links">
+    <div class="wrap bereichsblock__reihe">
+      <figure class="bereichsblock__bild reveal-up"><picture><source type="image/avif" srcset="assets/img/promotion-messe.avif 1129w, assets/img/promotion-messe-gross.avif 1817w" sizes="(max-width:900px) 100vw, 46vw" /><source type="image/webp" srcset="assets/img/promotion-messe.webp 1129w, assets/img/promotion-messe-gross.webp 1817w" sizes="(max-width:900px) 100vw, 46vw" /><img src="assets/img/promotion-messe.jpg" alt="Promotion &amp; Hostess, Einsatz des HERM Service Team" loading="lazy" decoding="async" width="1129" height="1591" /></picture></figure>
+      <div class="bereichsblock__text">
+        <span class="eyebrow reveal-up">03 / 06 &middot; Promotion &amp; Hostess</span>
+        <h2 class="reveal-up u-caps">Hostessen &amp; Promoter</h2>
+        <p class="bereichsblock__merksatz reveal-up" data-d="1">Der erste Eindruck zählt.</p>
+        <p class="reveal-up" data-d="1">Mehrsprachige Hostessen und Promoter für Messen, Empfänge und Kampagnen, von der
+          Standbetreuung über Akkreditierung bis zur Gästebegleitung. Ihr Auftritt, unser
+          Personal.</p>
+        <div class="chips reveal-up" data-d="2"><span class="chip">Messehostess</span><span class="chip">Empfang</span><span class="chip">VIP / Info</span><span class="chip">Promotion</span></div>
+        <a class="btn" href="dienstleistungen/promotion-hostess.html" data-d="2">Zum Bereich <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="bereichsblock" id="logistik" data-bild="rechts">
+    <div class="wrap bereichsblock__reihe">
+      <figure class="bereichsblock__bild reveal-up"><picture><source type="image/avif" srcset="assets/img/logistik.avif 1600w, assets/img/logistik-gross.avif 2560w" sizes="(max-width:900px) 100vw, 46vw" /><source type="image/webp" srcset="assets/img/logistik.webp 1600w, assets/img/logistik-gross.webp 2560w" sizes="(max-width:900px) 100vw, 46vw" /><img src="assets/img/logistik.jpg" alt="Logistik, Einsatz des HERM Service Team" loading="lazy" decoding="async" width="1600" height="1600" /></picture></figure>
+      <div class="bereichsblock__text">
+        <span class="eyebrow reveal-up">04 / 06 &middot; Logistik</span>
+        <h2 class="reveal-up u-caps">Eventlogistik</h2>
+        <p class="bereichsblock__merksatz reveal-up" data-d="1">Wir sorgen dafür, dass alles an seinem Platz ist.</p>
+        <p class="reveal-up" data-d="1">Auf- und Abbau, Transport von Event-Equipment sowie Bühnen- und Messelogistik, vor, während und nach Ihrer Veranstaltung. Auf Wunsch deutschlandweit, nach
+          rechtzeitiger Absprache.</p>
+        <div class="chips reveal-up" data-d="2"><span class="chip">Auf- &amp; Abbau</span><span class="chip">Transport</span><span class="chip">Messe-Logistik</span><span class="chip">Lager</span></div>
+        <a class="btn" href="dienstleistungen/logistik.html" data-d="2">Zum Bereich <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="bereichsblock" id="fahrservice" data-bild="links">
+    <div class="wrap bereichsblock__reihe">
+      <figure class="bereichsblock__bild reveal-up"><picture><source type="image/avif" srcset="assets/img/fahrservice-door.avif 1536w, assets/img/fahrservice-door-gross.avif 2560w" sizes="(max-width:900px) 100vw, 46vw" /><source type="image/webp" srcset="assets/img/fahrservice-door.webp 1536w, assets/img/fahrservice-door-gross.webp 2560w" sizes="(max-width:900px) 100vw, 46vw" /><img src="assets/img/fahrservice-door.jpg" alt="Fahrservice, Einsatz des HERM Service Team" loading="lazy" decoding="async" width="1536" height="1024" /></picture></figure>
+      <div class="bereichsblock__text">
+        <span class="eyebrow reveal-up">05 / 06 &middot; Fahrservice</span>
+        <h2 class="reveal-up u-caps">Sicher ans Ziel</h2>
+        <p class="bereichsblock__merksatz reveal-up" data-d="1">Sicher, diskret, pünktlich.</p>
+        <p class="reveal-up" data-d="1">Erfahrene Fahrer für Flughafentransfer, Shuttle-Service, Geschäftsreisen oder als
+          Chauffeur für Ihre Gäste. Auf Wunsch begleitet Sie Ihr Fahrer anschließend auch als
+          Personenschutz, deutschlandweit.</p>
+        <div class="chips reveal-up" data-d="2"><span class="chip">Flughafentransfer</span><span class="chip">Shuttle</span><span class="chip">Chauffeur</span><span class="chip">Personenschutz</span></div>
+        <a class="btn" href="dienstleistungen/fahrservice.html" data-d="2">Zum Bereich <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="bereichsblock" id="reinigung" data-bild="rechts">
+    <div class="wrap bereichsblock__reihe">
+      <figure class="bereichsblock__bild reveal-up"><picture><source type="image/avif" srcset="assets/img/reinigung.avif 1536w, assets/img/reinigung-gross.avif 2560w" sizes="(max-width:900px) 100vw, 46vw" /><source type="image/webp" srcset="assets/img/reinigung.webp 1536w, assets/img/reinigung-gross.webp 2560w" sizes="(max-width:900px) 100vw, 46vw" /><img src="assets/img/reinigung.jpg" alt="Reinigung, Einsatz des HERM Service Team" loading="lazy" decoding="async" width="1536" height="1024" /></picture></figure>
+      <div class="bereichsblock__text">
+        <span class="eyebrow reveal-up">06 / 06 &middot; Reinigung</span>
+        <h2 class="reveal-up u-caps">Reinigung</h2>
+        <p class="bereichsblock__merksatz reveal-up" data-d="1">Wenn wir da waren, ist es sauber.</p>
+        <p class="reveal-up" data-d="1">Gebäude-, Büro- und Praxisreinigung, mit Blick auf Sauberkeit, Qualität und
+          nachhaltige Produkte. Auf Wunsch unterstützen wir mit Desinfektionshilfen, damit
+          nach dem Event alles wieder stimmt.</p>
+        <div class="chips reveal-up" data-d="2"><span class="chip">Gebäude</span><span class="chip">Büro</span><span class="chip">Praxis</span><span class="chip">Desinfektion</span></div>
+        <a class="btn" href="dienstleistungen/reinigung.html" data-d="2">Zum Bereich <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
       </div>
     </div>
   </section>
 
   <!-- ============ STAGE 02 · SICHERHEIT ============ -->
-  <section class="stage" data-stage="sicherheit" id="sicherheit">
-    <div class="stage__sticky">
-      <!-- Kapitelmarke: liegt im festen Rahmen, damit sie die ganze
-           Buehne ueber stehen bleibt. Die Linie darunter fuellt sich
-           aus --kapitel, das main.js beim Scrollen schreibt. -->
-      <div class="stage__index">
-        <span class="stage__zeile"><span class="stage__nr">02 / 06</span><span class="stage__titel">Sicherheit</span></span>
-        <span class="stage__linie" aria-hidden="true"></span>
-      </div>
-      <div class="scene">
-        <div class="scene__frame art">
-          <picture><source type="image/avif" srcset="assets/img/sicherheit.avif 1600w, assets/img/sicherheit-gross.avif 2560w" sizes="(max-width:980px) 100vw, 142vw" /><source type="image/webp" srcset="assets/img/sicherheit.webp 1600w, assets/img/sicherheit-gross.webp 2560w" sizes="(max-width:980px) 100vw, 142vw" /><img class="scene__photo" src="assets/img/sicherheit.jpg" alt="" loading="lazy" decoding="async" width="1600" height="1600" /></picture>
-          <video class="stagevid" muted playsinline loop preload="metadata"
-                 aria-hidden="true" tabindex="-1"></video>
-          <div class="detail">
-            <picture><source type="image/avif" srcset="assets/img/sicherheit-detail.avif 1400w, assets/img/sicherheit-detail-gross.avif 2560w" sizes="(max-width:980px) 100vw, 135vw" /><source type="image/webp" srcset="assets/img/sicherheit-detail.webp 1400w, assets/img/sicherheit-detail-gross.webp 2560w" sizes="(max-width:980px) 100vw, 135vw" /><img class="scene__photo" src="assets/img/sicherheit-detail.jpg" alt="" loading="lazy" decoding="async" width="1400" height="1400" /></picture>
-            <video class="stagevid" muted playsinline loop preload="metadata"
-                   aria-hidden="true" tabindex="-1"></video>
-          </div>
-        </div>
-      </div>
-      <div class="panel">
-        <span class="num">02 Sicherheit</span>
-        <h2 class="u-caps">Veranstaltungsschutz</h2>
-        <span class="tag">Wir schützen Sie und Ihre Veranstaltung.</span>
-        <p>Ob TV-Show, Gala oder Sportevent, nach einer Sicherheitsanalyse sorgen wir mit
-          fachkundigem Personal für einen geordneten Ablauf. Crowdmanagement, Personenschutz
-          und Veranstaltungsschutz behandeln wir getrennt, damit jeder Bereich abgedeckt ist.</p>
-        <div class="chips"><span class="chip">Event Security</span><span class="chip">Crowdmanager</span><span class="chip">Personenschutz</span><span class="chip">Einlass</span></div>
-        <a class="btn go" href="dienstleistungen/sicherheit.html">Zum Bereich <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-      </div>
-    </div>
-  </section>
 
   <!-- ============ STAGE 03 · PROMOTION ============ -->
-  <section class="stage" data-stage="promotion" id="promotion-hostess">
-    <div class="stage__sticky">
-      <!-- Kapitelmarke: liegt im festen Rahmen, damit sie die ganze
-           Buehne ueber stehen bleibt. Die Linie darunter fuellt sich
-           aus --kapitel, das main.js beim Scrollen schreibt. -->
-      <div class="stage__index">
-        <span class="stage__zeile"><span class="stage__nr">03 / 06</span><span class="stage__titel">Promotion &amp; Hostess</span></span>
-        <span class="stage__linie" aria-hidden="true"></span>
-      </div>
-      <div class="scene">
-        <div class="scene__frame art">
-          <picture><source type="image/avif" srcset="assets/img/promotion-messe.avif 1129w, assets/img/promotion-messe-gross.avif 1817w" sizes="(max-width:980px) 100vw, 142vw" /><source type="image/webp" srcset="assets/img/promotion-messe.webp 1129w, assets/img/promotion-messe-gross.webp 1817w" sizes="(max-width:980px) 100vw, 142vw" /><img class="scene__photo" src="assets/img/promotion-messe.jpg" alt="" loading="lazy" decoding="async" width="1129" height="1591" /></picture>
-          <video class="stagevid" muted playsinline loop preload="metadata"
-                 aria-hidden="true" tabindex="-1"></video>
-          <div class="detail">
-            <picture><source type="image/avif" srcset="assets/img/promotion.avif 1600w, assets/img/promotion-gross.avif 2560w" sizes="(max-width:980px) 100vw, 135vw" /><source type="image/webp" srcset="assets/img/promotion.webp 1600w, assets/img/promotion-gross.webp 2560w" sizes="(max-width:980px) 100vw, 135vw" /><img class="scene__photo" src="assets/img/promotion.jpg" alt="" loading="lazy" decoding="async" width="1600" height="1600" /></picture>
-            <video class="stagevid" muted playsinline loop preload="metadata"
-                   aria-hidden="true" tabindex="-1"></video>
-          </div>
-        </div>
-      </div>
-      <div class="panel">
-        <span class="num">03 Promotion &amp; Hostess</span>
-        <h2 class="u-caps">Hostessen &amp; Promoter</h2>
-        <span class="tag">Der erste Eindruck zählt.</span>
-        <p>Mehrsprachige Hostessen und Promoter für Messen, Empfänge und Kampagnen, von der
-          Standbetreuung über Akkreditierung bis zur Gästebegleitung. Ihr Auftritt, unser
-          Personal.</p>
-        <div class="chips"><span class="chip">Messehostess</span><span class="chip">Empfang</span><span class="chip">VIP / Info</span><span class="chip">Promotion</span></div>
-        <a class="btn go" href="dienstleistungen/promotion-hostess.html">Zum Bereich <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-      </div>
-    </div>
-  </section>
 
   <!-- ============ STAGE 04 · LOGISTIK ============ -->
-  <section class="stage" data-stage="logistik" id="logistik">
-    <div class="stage__sticky">
-      <!-- Kapitelmarke: liegt im festen Rahmen, damit sie die ganze
-           Buehne ueber stehen bleibt. Die Linie darunter fuellt sich
-           aus --kapitel, das main.js beim Scrollen schreibt. -->
-      <div class="stage__index">
-        <span class="stage__zeile"><span class="stage__nr">04 / 06</span><span class="stage__titel">Logistik</span></span>
-        <span class="stage__linie" aria-hidden="true"></span>
-      </div>
-      <div class="scene">
-        <div class="scene__frame art">
-          <!-- Grundebene: der Saal hinter dem Tor. -->
-          <picture><source type="image/avif" srcset="assets/img/logistik.avif 1600w, assets/img/logistik-gross.avif 2560w" sizes="(max-width:980px) 100vw, 142vw" /><source type="image/webp" srcset="assets/img/logistik.webp 1600w, assets/img/logistik-gross.webp 2560w" sizes="(max-width:980px) 100vw, 142vw" /><img class="scene__photo" src="assets/img/logistik.jpg" alt="" loading="lazy" decoding="async" width="1600" height="1600" /></picture>
-          <!-- Das geschlossene Tor, in zwei Flügel geteilt. Beide Aufnahmen haben
-               denselben Ausschnitt, deshalb sitzt der Saal beim Aufschieben exakt
-               an der Stelle, an der das Tor war. --door schiebt die Flügel auf. -->
-          <div class="gate door" aria-hidden="true">
-            <span class="gate__leaf gate__leaf--l"></span>
-            <span class="gate__leaf gate__leaf--r"></span>
-          </div>
-          <video class="stagevid" muted playsinline loop preload="metadata"
-                 aria-hidden="true" tabindex="-1"></video>
-          <div class="detail">
-            <picture><source type="image/avif" srcset="assets/img/logistik-detail.avif 1400w, assets/img/logistik-detail-gross.avif 2560w" sizes="(max-width:980px) 100vw, 135vw" /><source type="image/webp" srcset="assets/img/logistik-detail.webp 1400w, assets/img/logistik-detail-gross.webp 2560w" sizes="(max-width:980px) 100vw, 135vw" /><img class="scene__photo" src="assets/img/logistik-detail.jpg" alt="" loading="lazy" decoding="async" width="1400" height="1400" /></picture>
-            <video class="stagevid" muted playsinline loop preload="metadata"
-                   aria-hidden="true" tabindex="-1"></video>
-          </div>
-        </div>
-      </div>
-      <div class="panel">
-        <span class="num">04 Logistik</span>
-        <h2 class="u-caps">Eventlogistik</h2>
-        <span class="tag">Wir sorgen dafür, dass alles an seinem Platz ist.</span>
-        <p>Auf- und Abbau, Transport von Event-Equipment sowie Bühnen- und Messelogistik, vor, während und nach Ihrer Veranstaltung. Auf Wunsch deutschlandweit, nach
-          rechtzeitiger Absprache.</p>
-        <div class="chips"><span class="chip">Auf- &amp; Abbau</span><span class="chip">Transport</span><span class="chip">Messe-Logistik</span><span class="chip">Lager</span></div>
-        <a class="btn go" href="dienstleistungen/logistik.html">Zum Bereich <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-      </div>
-    </div>
-  </section>
 
   <!-- ============ STAGE 05 · FAHRSERVICE ============ -->
-  <section class="stage" data-stage="fahrservice" id="fahrservice">
-    <div class="stage__sticky">
-      <!-- Kapitelmarke: liegt im festen Rahmen, damit sie die ganze
-           Buehne ueber stehen bleibt. Die Linie darunter fuellt sich
-           aus --kapitel, das main.js beim Scrollen schreibt. -->
-      <div class="stage__index">
-        <span class="stage__zeile"><span class="stage__nr">05 / 06</span><span class="stage__titel">Fahrservice</span></span>
-        <span class="stage__linie" aria-hidden="true"></span>
-      </div>
-      <div class="scene">
-        <div class="scene__frame art" style="width:min(680px,86vmin)">
-          <!-- Bildausschnitt wird per object-position gesteuert (siehe styles.css),
-               damit die Hand am Türgriff im Zoom-Zentrum liegt. -->
-          <picture><source type="image/avif" srcset="assets/img/fahrservice-door.avif 1536w, assets/img/fahrservice-door-gross.avif 2560w" sizes="(max-width:980px) 100vw, 133vw" /><source type="image/webp" srcset="assets/img/fahrservice-door.webp 1536w, assets/img/fahrservice-door-gross.webp 2560w" sizes="(max-width:980px) 100vw, 133vw" /><img class="scene__photo" src="assets/img/fahrservice-door.jpg" alt="" loading="lazy" decoding="async" width="1536" height="1024" /></picture>
-          <!-- Anschluss für bewegtes Material: poster/data-src setzen, dann
-               übernimmt der Clip diese Ebene und wird über --door vom Scroll gescrubbt. -->
-          <video class="stagevid door" data-scrub muted playsinline loop preload="metadata"
-                 aria-hidden="true" tabindex="-1"></video>
-          <div class="detail">
-            <picture><source type="image/avif" srcset="assets/img/fahrservice-detail.avif 1400w, assets/img/fahrservice-detail-gross.avif 2560w" sizes="(max-width:980px) 100vw, 112vw" /><source type="image/webp" srcset="assets/img/fahrservice-detail.webp 1400w, assets/img/fahrservice-detail-gross.webp 2560w" sizes="(max-width:980px) 100vw, 112vw" /><img class="scene__photo" src="assets/img/fahrservice-detail.jpg" alt="" loading="lazy" decoding="async" width="1400" height="1400" /></picture>
-            <video class="stagevid" muted playsinline loop preload="metadata"
-                   aria-hidden="true" tabindex="-1"></video>
-          </div>
-        </div>
-      </div>
-      <div class="panel">
-        <span class="num">05 Fahrservice</span>
-        <h2 class="u-caps">Sicher ans Ziel</h2>
-        <span class="tag">Sicher, diskret, pünktlich.</span>
-        <p>Erfahrene Fahrer für Flughafentransfer, Shuttle-Service, Geschäftsreisen oder als
-          Chauffeur für Ihre Gäste. Auf Wunsch begleitet Sie Ihr Fahrer anschließend auch als
-          Personenschutz, deutschlandweit.</p>
-        <div class="chips"><span class="chip">Flughafentransfer</span><span class="chip">Shuttle</span><span class="chip">Chauffeur</span><span class="chip">Personenschutz</span></div>
-        <a class="btn go" href="dienstleistungen/fahrservice.html">Zum Bereich <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-      </div>
-    </div>
-  </section>
 
   <!-- ============ STAGE 06 · REINIGUNG ============ -->
-  <section class="stage" data-stage="reinigung" id="reinigung">
-    <div class="stage__sticky">
-      <!-- Kapitelmarke: liegt im festen Rahmen, damit sie die ganze
-           Buehne ueber stehen bleibt. Die Linie darunter fuellt sich
-           aus --kapitel, das main.js beim Scrollen schreibt. -->
-      <div class="stage__index">
-        <span class="stage__zeile"><span class="stage__nr">06 / 06</span><span class="stage__titel">Reinigung</span></span>
-        <span class="stage__linie" aria-hidden="true"></span>
-      </div>
-      <div class="scene">
-        <div class="scene__frame art">
-          <picture><source type="image/avif" srcset="assets/img/reinigung.avif 1536w, assets/img/reinigung-gross.avif 2560w" sizes="(max-width:980px) 100vw, 142vw" /><source type="image/webp" srcset="assets/img/reinigung.webp 1536w, assets/img/reinigung-gross.webp 2560w" sizes="(max-width:980px) 100vw, 142vw" /><img class="scene__photo" src="assets/img/reinigung.jpg" alt="" loading="lazy" decoding="async" width="1536" height="1024" /></picture>
-          <video class="stagevid" muted playsinline loop preload="metadata"
-                 aria-hidden="true" tabindex="-1"></video>
-          <div class="detail">
-            <picture><source type="image/avif" srcset="assets/img/reinigung-detail.avif 1200w, assets/img/reinigung-detail-gross.avif 2560w" sizes="(max-width:980px) 100vw, 135vw" /><source type="image/webp" srcset="assets/img/reinigung-detail.webp 1200w, assets/img/reinigung-detail-gross.webp 2560w" sizes="(max-width:980px) 100vw, 135vw" /><img class="scene__photo" src="assets/img/reinigung-detail.jpg" alt="" loading="lazy" decoding="async" width="1200" height="1200" /></picture>
-            <video class="stagevid" muted playsinline loop preload="metadata"
-                   aria-hidden="true" tabindex="-1"></video>
-          </div>
-        </div>
-      </div>
-      <div class="panel">
-        <span class="num">06 Reinigung</span>
-        <h2 class="u-caps">Reinigung</h2>
-        <span class="tag">Wenn wir da waren, ist es sauber.</span>
-        <p>Gebäude-, Büro- und Praxisreinigung, mit Blick auf Sauberkeit, Qualität und
-          nachhaltige Produkte. Auf Wunsch unterstützen wir mit Desinfektionshilfen, damit
-          nach dem Event alles wieder stimmt.</p>
-        <div class="chips"><span class="chip">Gebäude</span><span class="chip">Büro</span><span class="chip">Praxis</span><span class="chip">Desinfektion</span></div>
-        <a class="btn go" href="dienstleistungen/reinigung.html">Zum Bereich <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-      </div>
-    </div>
-  </section>
 
   <section class="cta">
     <div class="wrap cta__inner">
@@ -399,7 +277,7 @@
       <p class="reveal-up" data-d="2">Oft ist es eine Mischung aus mehreren Bereichen, das kl&auml;ren
         wir in einem Gespr&auml;ch schneller als &uuml;ber jedes Formular.</p>
       <div class="cta__actions reveal-up" data-d="3">
-        <a class="btn" href="kontakt.html">Anfrage stellen <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <a class="btn" href="kontakt.html">Zum Anfrageformular <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
         <a class="btn btn--ghost" href="tel:+494027075100">+49 (40) 27075100</a>
       </div>
     </div>
@@ -482,7 +360,7 @@
        Wo sie steht, entscheidet das Stylesheet anhand des aktiven Reiters;
        hier steht sie nur einmal. -->
   <span class="appleiste__marke" aria-hidden="true">
-    <img src="assets/logo/logo-herm-mark.png" alt="" width="540" height="540" />
+    <img src="assets/logo/logo-herm-mark-dunkel.png" alt="" width="540" height="540" />
   </span>
   <a href="index.html">
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20h-5v-5.5H9V20H4z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>

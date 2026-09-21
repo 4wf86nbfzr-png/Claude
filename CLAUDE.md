@@ -13,10 +13,24 @@ Die Seite soll nach Handwerk aussehen, nicht nach Baukasten. Konkret heißt das:
 - **Ein Stylesheet, eine Wahrheit.** Alle Werte kommen aus den Tokens ganz
   oben in `assets/css/styles.css`. Keine Einzelfarben, keine Einzelabstände
   irgendwo im Markup.
-- **Der Grund ist echtes Schwarz** (`--ink: #000000`). Nicht #08080A, nicht
-  „fast schwarz". Auf einem OLED-Bildschirm schaltet #000 die Pixel ab: ein
-  angeschnittenes Foto hat dann keinen Rand mehr, an dem es aufhört. Genau
-  davon lebt der Auftritt.
+- **Der Grund ist ein warmes Off-White** (`--grund: #F7F6F3`). Bis 2026 war
+  er echtes Schwarz, und das hatte einen guten Grund: auf einem
+  OLED-Bildschirm schaltet #000 die Pixel ab, ein angeschnittenes Foto hat
+  dann keinen Rand mehr, an dem es aufhört. Getragen hat es die Fotos —
+  aber über zehn Bildschirmhöhen liest sich eine schwarze Fläche als Loch
+  und nicht als Ruhe, und alles zwischen den Bildern wirkte leer. Schwarz
+  ist deshalb vom Material zum Werkzeug geworden: es steht noch im Fuß, im
+  Vollbildmenü und unter einem Foto, und dort tut es etwas.
+- **Die Tokennamen sagen die Rolle, nicht die Farbe.** `--grund`,
+  `--flaeche`, `--tinte`, `--tinte-2`, `--tinte-3`, `--linie`. Vorher hießen
+  sie `--ink` (die Grundfläche) und `--paper` (der Text) — die Metapher
+  stand von Anfang an auf dem Kopf, und beim Hellerdrehen wäre daraus eine
+  Falle geworden.
+- **Zwei Tonleitern, dieselben Namen.** `.auf-dunkel` schaltet die Textstufen
+  um; alles, was auf Anthrazit oder auf einem Foto liegt, trägt die Klasse
+  (Fuß, Vollbildmenü, Kopfband der Unterseiten). Eine Regel, die
+  `var(--tinte)` schreibt, stimmt dadurch in beiden Lagen, ohne zweite
+  Fassung und ohne Medienabfrage.
 - **Fotos tragen die Seite.** Wo ein Bild die Aussage trägt, braucht es keine
   Grafik, keinen Farbverlauf und keinen Leuchteffekt daneben. Bilder laufen
   im Zweifel bis an die Fensterkante, nicht bis zum Satzspiegel.
@@ -24,9 +38,13 @@ Die Seite soll nach Handwerk aussehen, nicht nach Baukasten. Konkret heißt das:
   trägt nicht: aktiver Menüpunkt, Hover auf einer Kontaktangabe, ein Punkt
   von vier Pixeln. Wer daraus eine Fläche macht, kippt den ganzen Auftritt
   ins Templatehafte.
-- **Keine Karten.** Kein Rahmen, kein eigener Grund, keine runde Ecke um
-  einen Inhalt herum. Getrennt wird durch Haarlinien und Abstand. `--r-m`
-  steht deshalb auf 0.
+- **Keine Karten, aber Flächen.** Kein Rahmen um einen Inhalt, keine runde
+  Ecke, kein Schlagschatten als Schmuck. Getrennt wird weiter durch
+  Haarlinien und Abstand; `--r-m` steht auf 0. Was hinzugekommen ist, ist
+  die abgesetzte **Fläche** (`--flaeche`): ein Abschnitt darf heller stehen
+  als der Grund, damit die Folge einen Takt bekommt. Das ist ein Wechsel
+  des Grundes, kein Kasten um einen Inhalt — der Unterschied ist, dass die
+  Fläche bis an die Fensterkante läuft und keine Kante hat, die man sieht.
 - **Keine Pillen.** Eine Aktion ist ein Textlink mit einer Linie darunter,
   die beim Ansteuern durchläuft (`.btn`). Die einzige Ausnahme ist der
   Absendeknopf eines Formulars — er ist groß und hat Linien oben und unten,
@@ -70,6 +88,119 @@ Die Seite soll nach Handwerk aussehen, nicht nach Baukasten. Konkret heißt das:
   Trenner, kein Unterstrich, und der bleibt (Stellenliste, Abschnittskanten).
 
 ---
+
+## Der Umbau auf Hell, 2026
+
+Der Auftrag war nicht „etwas heller", sondern: zu viel Schwarz, an Stellen
+zu leer, der Leistungsbereich soll neu gedacht werden. Was daraufhin
+passiert ist, und was davon gemessen wurde:
+
+| | vorher | nachher |
+|---|---|---|
+| Grundton | #000000 | #F7F6F3 |
+| Startseite, Höhe bei 1280 px | 10 013 px | 8 800 px |
+| davon reines Abschnittspolster | rund 2 750 px | rund 1 600 px |
+| dienstleistungen.html | rund 15 Bildschirmhöhen, sechs Kamerafahrten | 6 400 px, sechs helle Blöcke |
+| Kontrastfehler nach WCAG | — | 0 von 16 Seiten, Schreibtisch und Telefon |
+
+**Der Abschnittsrhythmus war das größte Einzelstück.** `--sec` stand auf
+`clamp(96px, 12vw, 184px)`. Das war richtig, solange Leerraum das Material
+war, das die Bilder freistellt — auf hellem Grund ist derselbe Abstand
+einfach eine Lücke. Neun Abschnitte kamen so auf ein gutes Viertel der
+ganzen Seite.
+
+**Die Falle dabei: eine Tonleiter ist nicht symmetrisch.** `--tinte-3` trug
+auf dunklem Grund `.52` Deckkraft — Weiß bei `.52` ergibt dort rund 4,5:1.
+Dieselbe Deckkraft in Anthrazit auf #F7F6F3 sind aber nur **3,58:1**. Wer
+die Werte beim Umdrehen mitnimmt, nimmt einen Mangel mit, und zwar einen,
+den man nicht sieht: die Prüfung hat ihn an sechzig Stellen über alle
+sechzehn Seiten gefunden. Jetzt `.62` und damit 4,92:1.
+
+    .52  3,58:1        .60  4,60:1
+    .56  4,05:1        .62  4,92:1   <- so
+    .58  4,31:1        .64  5,25:1
+
+Derselbe Fehler steckte im Warnton für offene Angaben (#F0A19D, auf hellem
+Grund 1,89:1) und im Fokusring, der auf `outline:2px solid #FFF` stand —
+ein weißer Fokusring auf hellem Grund ist kein Fokusring.
+
+**Die Körnung ist ersatzlos weg.** `mix-blend-mode:screen` hellt auf; auf
+Off-White zeigt sie nichts mehr. Sie war gleichzeitig der teuerste Posten
+beim Scrollen am Telefon. Eine Dekoration, die nichts zeigt und etwas
+kostet, ist kein Gestaltungsmittel, sondern ein Rest.
+
+**Die Kopfzeile ist deckend statt durchsichtig.** Damit fällt der
+`backdrop-filter` weg (der zweite teure Posten), die Frage nach hellem oder
+dunklem Bild dahinter, und der Farbwechsel beim Scrollen. Was sich noch
+ändert, ist Höhe und Schatten. Das Wortzeichen steht dafür in Anthrazit —
+dieselbe Deckmaske, andere Farbe, erzeugt aus der vorhandenen Datei.
+
+### Der Hero ist geteilt, nicht überblendet
+
+Vorher lag die Schrift auf dem Foto und wurde von drei schwarzen Verläufen
+lesbar gehalten. Das kostete dreierlei: das Foto war unter dem Verlauf halb
+weg, die Schrift stand grau auf grau, und die erste Bildschirmhöhe war eine
+dunkle Fläche. Jetzt steht links die Aussage auf hellem Grund und rechts
+das Foto in voller Helligkeit. **Kein Verlauf, kein Overlay, kein
+Textschatten** — die Trennung macht die Arbeit, die vorher der Abdunkler
+machen musste.
+
+`.hero__inner` trägt dabei bewusst **kein** `.wrap`: im geteilten Hero ist
+der rechte Rand die Spaltenkante und darf größer sein als der linke. Eine
+Klasse, deren Zusage man bricht, gehört weg.
+
+### Der Leistungsbereich, dritter Anlauf
+
+Zweimal verworfen, und beide Male aus einem nachvollziehbaren Grund:
+
+1. **Ein Kachelraster aus sechs gleichen Feldern.** Sagte nichts — sechs
+   identische Kacheln haben keine Reihenfolge und kein Gewicht.
+2. **Sechs bildschirmfüllende Szenen mit Kamerafahrt.** Sagten zu viel: vier
+   Bildschirme scrollen für vier Zeilen Text.
+
+Jetzt eine **Liste aus sechs Zeilen** über die volle Breite: Nummer, Foto,
+Name und die vier Leistungen, die auf der Bereichsseite wirklich stehen.
+Eine Zeile ist in einem Blick erfasst, sechs in einem Scrollweg, und der
+Unterschied zwischen ihnen liegt im Inhalt statt im Kasten. Keine Zeile hat
+einen eigenen Rahmen.
+
+Der Block steht auf der **Startseite** (`.angebot`) und ersetzt auf
+`dienstleistungen.html` die Bühnen durch sechs größere Blöcke, bei denen
+das Bild die Seite wechselt. Erzeugt werden beide von Skripten
+(`tools/leistungen-bauen.py`, `tools/bereiche-bauen.py`), die den Inhalt aus
+den sechs Bereichsseiten lesen — abgetippt liefen dreißig Angaben beim
+ersten Namenswechsel auseinander.
+
+**Damit ist eine frühere Entscheidung aufgehoben:** „Die Bereiche stehen im
+Menü, nicht auf der Startseite". Der Grund dafür war ihre Länge (6 × 76 svh
+= 4700 px). Die Liste braucht 1 540 px und löst das Problem nicht wieder
+aus, das sie damals verursacht hat.
+
+### Die Falle: `.leistungen` war schon vergeben
+
+Der neue Abschnitt hieß zuerst `.leistungen` — und genau so heißt auf den
+sechs Bereichsseiten das Raster für die `.leistung`-Blöcke. Die spätere
+Regel gewann, der Abschnitt wurde zu einem vierspaltigen Raster, und im
+Browser stand alles in schmalen Säulen übereinander. Das Stylesheet meldet
+so etwas nicht: zwei Dinge mit demselben Namen sind für CSS kein Fehler.
+Der Abschnitt heißt jetzt `.angebot`.
+
+### Die Falle: `1fr` ist `minmax(auto,1fr)`
+
+Im einspaltigen Raster der Bereichsblöcke stand `grid-template-columns:1fr`.
+Das Minimum einer Spalte ist dann ihre min-content-Breite — bei einer
+Überschrift also das längste Wort. „VERANSTALTUNGSSCHUTZ" machte die Spalte
+dadurch 412 px breit in einem 320-px-Fenster und schob die ganze Seite
+hinaus. `overflow-wrap:break-word` hilft dabei **nicht**: es erlaubt den
+Umbruch, verkleinert aber die min-content-Breite nicht. Richtig ist
+`minmax(0,1fr)`.
+
+### Die Falle: eine Kamerafahrt trägt zur Scrollbreite bei
+
+`heroFahrt` skaliert das Kopfbild auf 1,10. Der überstehende Teil wird zwar
+nicht gezeichnet, zählt aber zur Scrollbreite der Seite — gemessen 44 px bei
+1440. `overflow:hidden` hätte dort zusätzlich einen Scrollbereich angelegt;
+richtig ist `overflow:clip`, das nur abschneidet.
 
 ## Bewegung
 
@@ -840,10 +971,13 @@ Unterseiten.
 - **Fünf Stufen, sonst nichts:** `--fs-mega` (Hero, Schluss,
   Fußzeile), `--fs-display` (Titel der Unterseiten), `--fs-h2`, `--fs-h3`,
   `--fs-h4`. Wer eine sechste clamp-Formel schreibt, hat eine Stufe zu viel.
-- **`--fs-mega` ist keine Schriftgröße, sondern eine Fläche.** Eine Zeile
-  über die halbe Fensterbreite wird nicht gelesen, sie wird gesehen. Sie
-  steht deshalb nur dort, wo eine Aussage den ganzen Bildschirm tragen darf,
-  und immer mit `line-height` um 0,9 — die Zeilen müssen einander berühren.
+- **`--fs-mega` ist eine Fläche, aber eine kleinere als früher.** Eine Zeile
+  über die halbe Fensterbreite wird nicht gelesen, sie wird gesehen. Der
+  Wert stand auf `clamp(3rem, 10.5vw, 9.5rem)` und war auf schwarzen Grund
+  gerechnet: dort wirkt dieselbe Schrift kleiner. Auf hellem Grund mit
+  dichterem Abschnittsrhythmus ist 9,5 rem eine Wand. Jetzt
+  `clamp(2.4rem, 6.4vw, 5.4rem)`, und sie steht nur noch an zwei Stellen,
+  im Schlussblock und in der Fußzeile.
 - **Versalien nur da, wo sie etwas leisten** (`.u-caps`, Eyebrows,
   Kapitelmarken, Bühnentitel). Ein ganzer Satz in gesperrten Versalien wird
   entziffert, nicht gelesen.
