@@ -1052,18 +1052,11 @@ body.megabar-auf header.nav{
 }
 .hero__photo img{
   position:absolute; inset:0; width:100%; height:100%;
-  /* Das Motiv ist auf 1,73:1 zugeschnitten und der Hero misst rund 1,77:1.
-     Beide Werte liegen so nah beieinander, dass `cover` am Schreibtisch
-     praktisch nichts wegschneidet — deshalb steht hier die Mitte, und
-     deshalb ist das Schild ganz zu sehen.
-
-     Am Telefon ist es etwas anderes: hochkant deckt `cover` über die HÖHE,
-     und von der Breite bleibt knapp ein Drittel. Mittig wäre das ein
-     Ausschnitt aus dem Logo — also dasselbe Zeichen, das zwei Zentimeter
-     darüber schon in der Kopfzeile steht. Der Wert steht dort deshalb
-     weiter links, wo eine Person mit Hemd, Arm und Hand die Schildkante
-     hält. Siehe den Block APP-ANSICHT. */
-  object-fit:cover; object-position:50% 50%;
+  /* 38 %: das Motiv ist eine Restauranttafel, und der Tisch soll unter der
+     Schriftfläche liegen, nicht dahinter. Der senkrechte Wert wirkt nur am
+     Schreibtisch — am Telefon deckt `cover` über die Höhe, dort zählt der
+     waagerechte (siehe den Block APP-ANSICHT). */
+  object-fit:cover; object-position:50% 38%;
 }
 
 /* ---- Der Schleier -------------------------------------------------------
@@ -1106,24 +1099,18 @@ body.megabar-auf header.nav{
   position:absolute; inset:0; z-index:1; pointer-events:none;
   background:
     linear-gradient(to top,
-      /* Die Werte sind je Motiv nachgemessen, nicht gewählt — zum
-         `bankett`-Foto gehörten .56/.53. Das jetzige Kopfbild ist dunkler
-         (die Schrift steht auf dem schwarzen Schild), trägt aber in der
-         Mitte das hellgraue Wortzeichen des Schildes, und genau dort liegt
-         die erste Hero-Zeile. Gemessen über alle fünf Phasen der
-         Kamerafahrt, jeweils am schlechtesten Pixel:
-
-             .38   Auszeichnungszeile 3,17:1   erste Zeile 2,81:1
-             .52   Auszeichnungszeile 4,88:1   erste Zeile 4,37:1   <- so
-             .58   Auszeichnungszeile 5,35:1   erste Zeile 5,32:1
-
-         Die Auszeichnungszeile ist kleine Schrift und braucht 4,5 — sie
-         allein bestimmt den Verlauf. Alles darüber dunkelt das Foto ohne
-         Gegenwert ab. */
-      rgba(6,7,11,.54)  0%,
-      rgba(6,7,11,.52) 22%,
-      rgba(6,7,11,.52) 42%,
-      rgba(6,7,11,.52) 56%,   /* hier steht die Auszeichnungszeile */
+      /* Die Werte sind je Motiv nachgemessen, nicht gewählt. Sie gehören zu
+         diesem Foto: einer dunklen Restauranttafel, deren Kerzenflammen und
+         Glaskanten reines Weiss sind — ohne Schleier gemessen 1,00:1 am
+         schlechtesten Pixel, und zwar genau dort, wo die Hauptzeile liegt.
+         Ein dunkles Foto ist nicht dasselbe wie ein Foto ohne helle
+         Stellen. Bei 50 % fällt die Auszeichnungszeile auf 3,74:1; sie ist
+         kleine Schrift, braucht 4,5, und bestimmt damit den ganzen
+         Verlauf. */
+      rgba(6,7,11,.56)  0%,
+      rgba(6,7,11,.53) 22%,
+      rgba(6,7,11,.53) 42%,
+      rgba(6,7,11,.53) 56%,   /* hier steht die Auszeichnungszeile */
       rgba(6,7,11,.30) 66%,
       rgba(6,7,11,.10) 80%,
       rgba(6,7,11,0)   92%),
@@ -1639,7 +1626,13 @@ body.megabar-auf header.nav{
 .intro__ort picture{ display:block; }
 .intro__ort img{
   display:block; width:100%; height:auto;
-  aspect-ratio:1/1; object-fit:cover; object-position:50% 42%;
+  /* 4:3, das Seitenverhältnis der Aufnahme — beschnitten wird nichts. Ein
+     Quadrat stand hier, solange das Motiv hochkant war; mit einem
+     querformatigen Foto nähme es links und rechts je ein Achtel weg, und
+     das Team steht bis an beide Bildkanten. Die Spalte wird dadurch
+     flacher, was dem Kleben der Überschrift sogar zugutekommt (siehe den
+     Absatz zum Klebeweg weiter oben). */
+  aspect-ratio:4/3; object-fit:cover; object-position:50% 50%;
 }
 @media (min-width:981px){
   .intro__ort{ max-width:clamp(300px,31vw,440px); }
@@ -2339,6 +2332,30 @@ body.megabar-auf header.nav{
   display:flex; flex-wrap:wrap; gap:clamp(22px,3.4vw,52px);
   margin-top:clamp(28px,4vw,46px); padding-top:clamp(18px,2.4vw,28px);
   border-top:1px solid var(--linie);
+}
+
+/* ---- Der Schlussblock hat eine zweite Spalte ----------------------------
+   Links Absatz, Aktionen und Disposition, rechts ein Foto. Der Absatz ist
+   auf `46ch` begrenzt und die Aktionen sind noch schmaler; auf 1440 px
+   stand rechts daneben gemessen eine halbe Bildschirmbreite nichts.
+
+   `align-items:end` und nicht `start`: die Unterkante des Fotos liegt damit
+   auf der Unterkante der Dispositionszeile. Zwei Spalten unterschiedlicher
+   Länge stehen unten zusammen ruhiger als oben — oben trennt sie die
+   Überschrift ohnehin.
+
+   Unter 981 px steht das Foto unter dem Text und nimmt die volle Breite;
+   dieselbe Grenze wie überall auf der Seite. */
+.cta__spalten{ display:grid; gap:clamp(30px,4vw,64px); align-items:end; }
+.cta__bild{ margin:0; }
+.cta__bild img{
+  display:block; width:100%; height:auto;
+  /* 3:4, das Seitenverhältnis der Aufnahme — beschnitten wird nichts. */
+  aspect-ratio:3/4; object-fit:cover;
+}
+@media (min-width:981px){
+  .cta__spalten{ grid-template-columns:minmax(0,1fr) minmax(0,.58fr); }
+  .cta__bild{ max-width:360px; justify-self:end; }
 }
 
 /* Ansprechpartner mit Gesicht und Durchwahl. Wer Personal einkauft, will
@@ -3070,7 +3087,7 @@ header.nav{ view-transition-name:kopfzeile; }
      Abschnitts — das ist genau das „keine bildfüllende Darstellung", das
      beanstandet wurde. */
   .hero{ min-height:calc(100svh - var(--nav-h0, var(--nav-h, 68px))); }
-  .hero__photo img{ object-position:14% 50%; }
+  .hero__photo img{ object-position:50% 34%; }
   .hero__inner{ padding-block:clamp(32px,6vh,72px) clamp(40px,6vh,72px); }
   /* Hochkant nimmt der Text relativ mehr Höhe ein, der Verlauf trägt
      deshalb weiter nach oben. Die Werte kommen aus derselben Rechnung. */
@@ -3082,9 +3099,9 @@ header.nav{ view-transition-name:kopfzeile; }
   .hero__schleier{
     background:
       linear-gradient(to top,
-        rgba(6,7,11,.60)  0%,
+        rgba(6,7,11,.62)  0%,
         rgba(6,7,11,.58) 30%,
-        rgba(6,7,11,.56) 55%,
+        rgba(6,7,11,.55) 55%,
         rgba(6,7,11,.54) 70%,
         rgba(6,7,11,.28) 82%,
         rgba(6,7,11,.08) 92%,

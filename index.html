@@ -277,7 +277,7 @@ document.documentElement.classList.remove("kein-js");
      640 px und bekam deshalb nur eine. -->
 <section class="hero" id="hero" data-weg>
   <div class="hero__photo" aria-hidden="true">
-    <picture><source type="image/avif" srcset="assets/img/team-schild.avif" /><source type="image/webp" srcset="assets/img/team-schild.webp" /><img src="assets/img/team-schild.jpg" alt="" fetchpriority="high" width="1600" height="924" /></picture>
+    <picture><source type="image/avif" srcset="assets/img/bankett.avif 1600w, assets/img/bankett-gross.avif 2560w" sizes="(max-width:980px) 200vw, 100vw" /><source type="image/webp" srcset="assets/img/bankett.webp 1600w, assets/img/bankett-gross.webp 2560w" sizes="(max-width:980px) 200vw, 100vw" /><img src="assets/img/bankett.jpg" alt="" fetchpriority="high" width="1600" height="900" /></picture>
   </div>
   <div class="hero__schleier" aria-hidden="true"></div>
 
@@ -372,7 +372,7 @@ document.documentElement.classList.remove("kein-js");
            Gegenbewegung in einer Spalte, die gerade steht, wäre eine zweite
            Bewegung auf demselben Element. -->
       <figure class="intro__ort reveal-up" data-d="1">
-        <picture><source type="image/avif" srcset="assets/img/scheune.avif" /><source type="image/webp" srcset="assets/img/scheune.webp" /><img src="assets/img/scheune.jpg" alt="Geschmückter Scheuneneingang bei einer Abendveranstaltung: Blumen in Milchkannen, weiße Vorhänge, Lampions und Lichterketten im Inneren" loading="lazy" width="931" height="1200" /></picture>
+        <picture><source type="image/avif" srcset="assets/img/crew-weiss.avif" /><source type="image/webp" srcset="assets/img/crew-weiss.webp" /><img src="assets/img/crew-weiss.jpg" alt="Serviceteam in weißer Dienstkleidung im Veranstaltungszelt, vor dem Einlass an der gedeckten Tafel" loading="lazy" width="1100" height="825" /></picture>
       </figure>
     </div>
     <div class="intro__lead">
@@ -534,18 +534,26 @@ document.documentElement.classList.remove("kein-js");
   <div class="wrap cta__inner">
     <span class="eyebrow reveal-up">Haben Sie noch Fragen?</span>
     <h2 class="u-caps" data-worte data-lauf>Lassen Sie uns Ihr Event tragen.</h2>
-    <p class="reveal-up" data-d="2">Schreiben Sie uns, was ansteht, wir erstellen Ihnen ein
-      persönliches Angebot. Telefonisch, per E-Mail oder über das Formular.</p>
-    <div class="cta__actions reveal-up" data-d="3">
-      <a class="btn" href="kontakt.html">Zum Anfrageformular
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </a>
-      <a class="btn btn--ghost" href="tel:+494027075100">+49 (40) 27075100</a>
-    </div>
+    <!-- Zwei Spalten, und die rechte ist ein Foto.
+         Der Schlussblock war bis hierher reiner Text: Zeile, Absatz, zwei
+         Knöpfe, vier Karten. Auf einem breiten Fenster stand rechts daneben
+         gemessen eine halbe Bildschirmbreite nichts — und das ist genau die
+         Leere, an der eine Seite beliebig wirkt. Jetzt steht dort jemand
+         bei der Arbeit. -->
+    <div class="cta__spalten">
+      <div class="cta__wort">
+        <p class="reveal-up" data-d="2">Schreiben Sie uns, was ansteht, wir erstellen Ihnen ein
+          persönliches Angebot. Telefonisch, per E-Mail oder über das Formular.</p>
+        <div class="cta__actions reveal-up" data-d="3">
+          <a class="btn" href="kontakt.html">Zum Anfrageformular
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <a class="btn btn--ghost" href="tel:+494027075100">+49 (40) 27075100</a>
+        </div>
 
-    <!-- Gesichter statt anonymer Sammeladresse — aber die ganze Disposition,
-         nicht eine einzelne Person. -->
-    <div class="ansprech reveal-up" data-d="4">
+        <!-- Gesichter statt anonymer Sammeladresse — aber die ganze Disposition,
+             nicht eine einzelne Person. -->
+        <div class="ansprech reveal-up" data-d="4">
       <div class="ansprech__leute" aria-hidden="true">
         <span class="ansprech__kopf"><picture><source type="image/webp" srcset="assets/img/team/shayan-wahedi.webp" /><img src="assets/img/team/shayan-wahedi.jpg" alt="" loading="lazy" width="1000" height="1250" /></picture></span>
         <span class="ansprech__kopf"><picture><source type="image/webp" srcset="assets/img/team/mohamad-hamade.webp" /><img src="assets/img/team/mohamad-hamade.jpg" alt="" loading="lazy" width="1000" height="1250" /></picture></span>
@@ -557,10 +565,16 @@ document.documentElement.classList.remove("kein-js");
            Dreimal dieselbe Nummer auf einem Bildschirm hilft niemandem beim
            Anrufen. Dieser Block sagt jetzt nur noch, WER die Anfrage bekommt;
            WIE man ihn erreicht, steht darunter. -->
-      <div class="ansprech__txt">
-        <small>Ihre Anfrage landet hier</small>
-        <b>Unsere Disposition</b>
+          <div class="ansprech__txt">
+            <small>Ihre Anfrage landet hier</small>
+            <b>Unsere Disposition</b>
+          </div>
+        </div>
       </div>
+
+      <figure class="cta__bild reveal-up" data-d="3">
+        <picture><source type="image/avif" srcset="assets/img/zapfen.avif" /><source type="image/webp" srcset="assets/img/zapfen.webp" /><img src="assets/img/zapfen.jpg" alt="Barkeeper zapft an der Theke einer Veranstaltungsbar" loading="lazy" width="825" height="1100" /></picture>
+      </figure>
     </div>
 
     <div class="contact-cards reveal-up" data-d="4" data-stagger>

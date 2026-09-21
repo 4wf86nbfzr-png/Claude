@@ -15,20 +15,25 @@ nichts zu suchen, geladen wird er von keiner Seite.
 
 | Datei | Größe | wofür |
 |---|---|---|
-| `team-schild.jpg` | 1290 × 745 (0,96 MP) | Kopfbild der Startseite |
+| `bankett.jpg` | 1672 × 941 (1,57 MP) | Kopfbild der Startseite |
 | `bar-gruen.jpg` | 679 × 452 (0,31 MP) | Bildband unter dem Kopfbild |
-| `scheune.jpg` | 1290 × 1663 (2,15 MP) | Foto in der linken Intro-Spalte |
-| `bankett.jpg` | 1672 × 941 (1,57 MP) | stillgelegt, war bis September das Kopfbild |
+| `crew-weiss.jpg` | 640 × 480 (0,31 MP) | linke Intro-Spalte |
+| `zapfen.jpg` | 480 × 640 (0,31 MP) | zweite Spalte im Schlussblock |
+| `team-schild.jpg` | 1290 × 745 (0,96 MP) | Kopfband von `team.html` |
+| `scheune.jpg` | 1290 × 1663 (2,15 MP) | stillgelegt, stand kurz im Intro |
 
-`bankett` ist in `MOTIVE` auskommentiert und hat deshalb keine Dateien
-unter `assets/img/` mehr — rund 1 MB, die keine Seite mehr lädt. Die
-Vorlage bleibt: eine Zeile einkommentieren, einmal laufen lassen, und das
-Motiv ist zurück.
+**Stillgelegt heisst: in `MOTIVE` auskommentiert.** Die Vorlage bleibt
+liegen, die abgeleiteten Dateien unter `assets/img/` sind heraus, weil
+keine Seite sie mehr lädt und die Paketgrösse das einzige ist, woran der
+Netlify-Weg schon einmal gescheitert ist. Eine Zeile einkommentieren,
+einmal laufen lassen, und das Motiv ist zurück.
 
-`bar-gruen` ist für eine randlose Darstellung zu klein (siehe „Was eine
-Vorlage tragen kann, und was nicht" in `CLAUDE.md`) und bekommt deshalb
-keine zweite Stufe. `scheune` bekommt aus dem umgekehrten Grund keine: es
-steht im Satzspiegel und wird nie bildfüllend gezogen, also fordert kein
-Gerät mehr als rund 1050 Pixel an. Beides steht als Feld in `MOTIVE`. Sobald eine Aufnahme mit mindestens 2400 px an der
-langen Kante vorliegt: hier hineinlegen, Namen behalten, einmal
-`python3 tools/motive-bauen.py`.
+Eine zweite Stufe bekommt nur `bankett`, und das hat zwei Gründe, die
+nichts miteinander zu tun haben: `bar-gruen` und `team-schild` sind dafür
+zu klein (siehe „Was eine Vorlage tragen kann, und was nicht" in
+`CLAUDE.md`), `crew-weiss` und `zapfen` stehen im Satzspiegel und werden
+nie bildfüllend gezogen — dort fordert kein Gerät mehr als rund 1050 Pixel
+an. Beides steht als Feld in `MOTIVE`.
+
+Sobald eine Aufnahme mit mindestens 2400 px an der langen Kante vorliegt:
+hier hineinlegen, Namen behalten, einmal `python3 tools/motive-bauen.py`.

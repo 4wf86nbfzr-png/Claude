@@ -88,30 +88,43 @@ MOTIVE = [
     # mehr Gewicht fuer Pixel, die kein Geraet je anfordert. Nachgemessen
     # als AVIF: 1100 -> 104 KB, 1200 -> 115 KB, 1400 -> 137 KB,
     # 1600 -> 161 KB.
-    # `bankett` war das Kopfbild bis September und ist stillgelegt, nicht
-    # geloescht: die Vorlage liegt weiter in assets/quellen/, die vier
-    # abgeleiteten Dateien (rund 1 MB) sind aus assets/img/ heraus, weil
-    # keine Seite sie mehr laedt und die Paketgroesse das einzige ist,
-    # woran der Netlify-Weg schon einmal gescheitert ist. Ein Handgriff
-    # holt es zurueck: diese Zeile einkommentieren, einmal laufen lassen.
-    # ("bankett.jpg",   "bankett",     True,  GRUND),
+    # Das Kopfbild der Startseite. Es war einen Nachmittag lang stillgelegt
+    # und ist auf Wunsch zurueck — die Restauranttafel bleibt der Einstieg.
+    ("bankett.jpg",     "bankett",     True,  GRUND),
     ("bar-gruen.jpg",   "bar-gruen",   True,  GRUND),
-    ("scheune.jpg",     "scheune",     False, 1200),
-    # Das Kopfbild der Startseite: das Teamfoto der Teamseite, zugeschnitten
-    # ab der Schulterlinie, also ohne Gesichter.
+    # `scheune` stand einen Tag lang in der linken Intro-Spalte und ist
+    # stillgelegt, nicht geloescht — dort steht jetzt das Teamfoto. Die
+    # Vorlage bleibt, die drei abgeleiteten Dateien sind heraus, weil keine
+    # Seite sie mehr laedt. Zurueckholen: Zeile einkommentieren, laufen
+    # lassen.
+    # ("scheune.jpg",   "scheune",     False, 1200),
+    # Das Kopfband der TEAMSEITE: das Teamfoto mit dem Schild, zugeschnitten
+    # ab der Schulterlinie, also ohne Gesichter. Es war kurz das Kopfbild
+    # der Startseite und steht jetzt dort, wo es hingehoert.
     #
     # **Der Zuschnitt kam fertig herein** (1290 x 745), und das ist der
-    # Grund, warum er hier steht und nicht gerechnet wird. Mein eigener
+    # Grund, warum er hier steht und nicht gerechnet wird. Ein eigener
     # Ausschnitt aus `assets/img/team-herm.jpg` war 1600 x 520, also
-    # 3,08:1 — in einem Hero von 1,77:1 muss der Browser so einen Streifen
+    # 3,08:1 — in einem Rahmen von 1,77:1 muss der Browser so einen Streifen
     # um das 1,74-fache vergroessern und schneidet zwei Fuenftel der Breite
     # weg. Der gelieferte Zuschnitt liegt mit 1,73:1 fast genau auf dem
-    # Seitenverhaeltnis des Heros: kein Zoom, kein Beschnitt.
+    # Seitenverhaeltnis des Kopfbands: kein Zoom, kein Beschnitt.
     #
     # Keine zweite Stufe, und das entscheidet LOHNT_GROSS von selbst: 1290
     # Pixel lange Kante. Eine 2560er Datei waere eine Verdopplung ohne ein
     # einziges zusaetzliches Bilddetail.
     ("team-schild.jpg", "team-schild", True,  GRUND),
+    # Die beiden Aufnahmen aus dem Betrieb, beide 0,31 MP und beide mit
+    # Menschen darauf — das ist ihr Wert, nicht die Aufloesung. Sie stehen
+    # im Satzspiegel, nie randlos, und bekommen deshalb weder eine zweite
+    # Stufe noch die volle Grundstufe.
+    #
+    #   crew-weiss  quer (640 x 480), Team in Weiss unter dem Zelt.
+    #               Linke Intro-Spalte, hoechstens 440 CSS-Pixel breit.
+    #   zapfen      hoch (480 x 640), Zapfen an der Theke.
+    #               Schlussblock, hoechstens 380 CSS-Pixel breit.
+    ("crew-weiss.jpg",  "crew-weiss",  False, 1100),
+    ("zapfen.jpg",      "zapfen",      False, 1100),
 ]
 
 

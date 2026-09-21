@@ -747,11 +747,45 @@ ein. Ein gelöschtes Skript wäre eine Entscheidung, die niemand mehr
 zurücknehmen kann — und seine Tabelle ist weiterhin die einzige Stelle, an
 der Nummer, Name, Adresse und Kachel der sechs Bereiche zusammenstehen.
 
+### Echte Fotos aus dem Betrieb schlagen jede Gestaltung
+
+Der wiederkehrende Einwand war „sieht langweilig aus und nach KI". Der
+Grund dafür stand nicht im Stylesheet: die Startseite zeigte einen leeren
+Restauranttisch, eine leere Bar, einen geschmückten Scheuneneingang und ein
+Neonschild — **vier Motive, auf denen niemand arbeitet.** Ein
+Personaldienstleister, dessen Seite keine Menschen zeigt, sieht aus wie ein
+Vorlagenkauf, und zwar völlig unabhängig von Farbe, Raster und Bewegung.
+
+Zwei Aufnahmen aus dem Betrieb haben das erledigt, und beide sind 0,31 MP
+klein:
+
+| | wo | was darauf ist |
+|---|---|---|
+| `crew-weiss` | linke Intro-Spalte | das Serviceteam in Weiss unter dem Zelt, vor dem Einlass |
+| `zapfen` | Schlussblock, zweite Spalte | jemand zapft an der Theke |
+
+**Die Auflösung ist hier nicht das Kriterium.** Beide Bilder stehen im
+Satzspiegel und werden nie über 440 CSS-Pixel breit; gebaut sind sie auf
+1100 px lange Kante, das reicht auch für dreifache Pixeldichte. Ein
+gestochen scharfes Bild ohne Menschen hilft dieser Seite nichts, ein
+körniges mit Menschen sehr wohl.
+
+**Der Schlussblock hat dafür eine zweite Spalte bekommen.** Er war reiner
+Text — Zeile, Absatz, zwei Knöpfe, vier Karten — und der Absatz ist auf
+`46ch` begrenzt: auf 1440 px stand rechts daneben gemessen eine halbe
+Bildschirmbreite nichts. Genau diese Leere liest sich als Beliebigkeit.
+`align-items:end` setzt die Unterkante des Fotos auf die Unterkante der
+Dispositionszeile; unter 981 px steht es unter dem Text.
+
 ### Das Kopfbild: ein Zuschnitt schlägt einen Zoom
 
-Das Kopfbild ist zum vierten Mal gewechselt, diesmal auf das Teamfoto der
-Teamseite — bestellt mit der Bedingung, dass oben keine Gesichter zu
-erkennen sind.
+**Dieser Abschnitt beschreibt einen Zwischenstand.** Das Kopfbild der
+Startseite ist die Restauranttafel (`bankett`) und bleibt es; das Teamfoto
+mit dem Schild steht auf `team.html`, wo es hingehört. Die Messung darunter
+gilt weiter, denn sie gilt dem Zuschnitt, nicht der Seite.
+
+Zwischenzeitlich stand das Teamfoto im Hero der Startseite — bestellt mit
+der Bedingung, dass oben keine Gesichter zu erkennen sind.
 
 Der erste Versuch war ein eigener Ausschnitt aus `assets/img/team-herm.jpg`
 (1600 × 880) ab der Schulterlinie: 1600 × 520, also **3,08:1**. In einem
@@ -765,25 +799,13 @@ dem Seitenverhältnis des Heros: kein Zoom, kein Beschnitt, das Schild ganz
 im Bild. **Ein Zuschnitt, der zum Rahmen passt, ist jeder
 `object-position` überlegen** — und er kostet keine einzige Zeile CSS.
 
-Am Telefon bleibt der Beschnitt trotzdem: hochkant deckt `cover` über die
-Höhe, von der Breite bleibt knapp ein Drittel. Mittig wäre das ein
-Ausschnitt aus dem Logo, also dasselbe Zeichen, das zwei Zentimeter
-darüber in der Kopfzeile steht. `object-position` steht dort deshalb bei
-14 %, wo eine Person mit Hemd, Arm und Hand die Schildkante hält.
-
-**Der Schleier wurde wieder neu gemessen**, wie bei jedem Motivwechsel.
-Das Bild ist dunkler als das vorige, trägt aber in der Mitte das hellgraue
-Wortzeichen des Schildes — und genau dort liegt die erste Hero-Zeile.
-Gemessen über alle fünf Phasen der Kamerafahrt, am schlechtesten Pixel:
-
-| Deckkraft unten | Auszeichnungszeile (4,5 nötig) | erste Zeile (3,0 nötig) |
-|---|---|---|
-| .38 | 3,17:1 | 2,81:1 |
-| **.52** | **4,88:1** | **4,37:1** |
-| .58 | 5,35:1 | 5,32:1 |
-
-Am Telefon bestimmt dieselbe Zeile den Wert, dort .58. Alles darüber
-dunkelt das Foto ohne Gegenwert ab.
+**Der Schleier wurde dabei neu gemessen**, wie bei jedem Motivwechsel, und
+das ist der Teil, der hier stehen bleibt: für das Schild-Motiv ergaben sich
+.52 am Schreibtisch und .58 am Telefon (am schlechtesten Pixel 4,88:1 an
+der Auszeichnungszeile bei .52, 3,17:1 bei .38). Mit der Rückkehr zur
+Restauranttafel gelten wieder deren Werte — .56 und .62, gemessen mit
+denselben fünf Phasen. **Der Schleier gehört zum Motiv, nicht zum Hero:
+wer das Kopfbild tauscht, misst ihn neu, in beide Richtungen.**
 
 ---
 
