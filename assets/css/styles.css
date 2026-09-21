@@ -79,6 +79,19 @@
   --flaeche-3:  #21334D;   /* Kante, Geisterzahlen, Füllung */
   --dunkel:     #0F1C2E;   /* Dunkelblau: Fuß, Kontrastbahn, Bildgrund */
   --dunkel-2:   #1B2C44;
+  /* Die Gegenfläche. `--dunkel` und `--hell` sind die beiden ANKER des
+     Farbtakts: sie werden von keiner Tonleiter umgeschaltet und bleiben
+     deshalb auch innerhalb von `.auf-hell` das, was sie sind. Nur so kann
+     eine helle Bahn wissen, in welche Farbe sie an ihren Kanten ausläuft.
+     Wer sie in `.auf-hell` oder `.auf-dunkel` überschreibt, nimmt der
+     Blende ihren Bezugspunkt, und die Kante wird wieder hart. */
+  --hell:       #E9E0D1;   /* warmes Beige, die helle Bahn */
+  --hell-2:     #F2EBDE;   /* die erhobene Fläche darauf */
+  /* Wie weit die Blende an jeder Kante einer hellen Bahn trägt. Sie muss
+     UNTER dem knappsten Abschnittspolster bleiben — das ist nicht `--sec`
+     (64 bis 116 px), sondern `.bereichsblock` mit 40 px am Telefon. Sonst
+     steht die erste Zeile im Verlauf und liest sich schmutzig. */
+  --blende:     clamp(36px, 5.4vw, 96px);
   /* Die beiden vorigen Tonleitern stehen hier, damit sie nicht aus dem
      Gedächtnis rekonstruiert werden müssen:
        Anthrazit  --grund #15161B · --flaeche #21232B · --flaeche-2 #1A1C22
@@ -258,10 +271,25 @@ a{ color:inherit; text-decoration:none; }
    ist die Stelle, an der die Seite die Tonleiter UMSCHALTEN kann. Wer ihn
    auflöst, weil er gerade nichts ändert, nimmt der nächsten hellen Fassung
    ihren Angriffspunkt — und die gab es in diesem Projekt schon zweimal.
-   Wer hier etwas ändert, ändert es oben mit. */
+   Wer hier etwas ändert, ändert es oben mit.
+
+   Dreimal, genauer gesagt: `.auf-hell` gleich darunter ist die dritte, und
+   sie steht nicht mehr abwechselnd im Kalender, sondern gleichzeitig auf
+   derselben Seite. */
 .auf-dunkel,
 #mobileMenu,
 .subhero,
+/* Zwei Stellen, die auf einem FOTO liegen und deshalb die dunkle Tonleiter
+   behalten müssen, auch wenn der Abschnitt um sie herum hell ist: die
+   Bühne des Imagefilms (Untertitel und die beiden Schalter liegen auf dem
+   Bild) und die Kacheln der Galerie (die Bildunterschrift liegt im
+   dunklen Verlauf über der Aufnahme). Ohne sie stünde dort mit dem
+   Farbtakt dunkelblaue Schrift auf einem dunklen Verlauf.
+   Die Regel ist allgemein und steht schon über `.subhero`: **wer auf
+   einem Foto liegt, trägt die dunkle Tonleiter, nicht die seines
+   Abschnitts.** */
+.film__buehne,
+.gal__item,
 body > footer{
   --grund:      var(--dunkel);
   --flaeche:    var(--dunkel-2);
@@ -278,6 +306,106 @@ body > footer{
   background:var(--grund);
   color:var(--tinte);
 }
+
+/* ---- Die helle Bahn: der Farbtakt ----------------------------------------
+   Bestellt war ein Wechselspiel: ein Abschnitt in Dunkelblau, der nächste
+   in warmem Beige, und dazwischen ein weicher Übergang statt einer Kante.
+
+   **Es ist dieselbe Mechanik wie `.auf-dunkel`, nur andersherum**, und
+   deshalb kostet sie keine einzige neue Regel im übrigen Stylesheet: die
+   Klasse dreht die Tonleiter, alles, was `var(--tinte)` oder `var(--linie)`
+   schreibt, stimmt dann von selbst. Was hinzukommt, sind genau diese
+   zwanzig Zeilen.
+
+   DIE WERTE SIND NICHT DIE GESPIEGELTEN, und das ist in diesem Projekt
+   inzwischen dreimal nachgemessen: helle Tinte auf dunklem Grund trägt
+   mehr als dunkle auf hellem. Die gedämpfte Stufe steht auf dunklem Grund
+   auf .58 und hier auf **.66** — mit .58 wären es gegen #E9E0D1 nur
+   4,04:1, mit .62 noch 4,41:1, also beides unter der Grenze. Gerechnet:
+
+       .58  4,04:1      .62  4,41:1      .66  4,94:1   <- so
+
+   UND DER MARKENTON DREHT MIT. #D9C2A0 auf Beige sind 1,2:1 — dasselbe
+   Beige auf sich selbst. Auf der hellen Bahn braucht er die tiefe Fassung
+   (#7A5A2C, 4,8:1), und die zweite Stufe geht hier nach unten statt nach
+   oben (#5E421C, 7,1:1). Derselbe Gedanke wie beim Warnton: #F0A19D ist
+   ein helles Lachs und auf Beige unsichtbar, auf der hellen Bahn gilt
+   wieder #B0350B (4,8:1). */
+.auf-hell{
+  --grund:      var(--hell);
+  --flaeche:    var(--hell-2);
+  --flaeche-2:  #E2D8C6;
+  --flaeche-3:  #D8CCB6;
+  --tinte:      #0F1C2E;
+  --tinte-2:    rgba(15,28,46,.78);
+  --tinte-3:    rgba(15,28,46,.66);
+  --linie:      rgba(15,28,46,.14);
+  --linie-stark:rgba(15,28,46,.30);
+  --offen-ton:  #B0350B;
+  --marke:      #7A5A2C;
+  --marke-2:    #5E421C;
+  --accent:     var(--tinte);
+  /* Auf hellem Grund trägt ein Schatten aus Blau wieder etwas — auf
+     dunklem war er unsichtbar und musste aus reinem Schwarz kommen. */
+  --schatten:   0 1px 2px rgba(15,28,46,.07), 0 8px 24px -12px rgba(15,28,46,.18);
+  --schatten-2: 0 2px 4px rgba(15,28,46,.09), 0 18px 44px -18px rgba(15,28,46,.24);
+  color:var(--tinte);
+  /* Das Gegenstueck zu `color-scheme:dark` an `html`: was der BROWSER
+     zeichnet, weiss nichts von Tokens. Der Pfeil eines `<select>`, das
+     Kalendersymbol, die Uhr und jeder Rollbalken stuenden in einer hellen
+     Bahn sonst hell auf Beige. Auf jobs.html steht das Bewerbungsformular
+     auf einer solchen Bahn, und das sind zwei Auswahlfelder. Eine Zeile,
+     dieselbe Sache wie oben, nur andersherum. */
+  color-scheme:light;
+
+  /* Der Grund und die beiden Blenden sind ZWEI verschiedene Eigenschaften,
+     und das ist keine Schreibweise, sondern der ganze Trick. `.cta` und
+     `.bereichsblock` tragen einen eigenen `background-color`; stünde die
+     Blende in der Kurzschreibweise `background`, löschten die beiden sie
+     wieder — dieselbe Falle wie `padding` gegen `.wrap`. Als
+     `background-image` kann keine Farbregel sie mehr erreichen, und
+     umgekehrt darf eine Bahn ihre Fläche eine Spur heller setzen, ohne
+     dass die Kanten verlorengehen. */
+  background-color:var(--grund);
+  background-image:linear-gradient(to bottom,
+    var(--dunkel)        0,
+    rgba(15,28,46,0)     min(var(--blende), 22%),
+    rgba(15,28,46,0)     max(calc(100% - var(--blende)), 78%),
+    var(--dunkel)        100%);
+}
+/* **`min(…, 22%)` ist keine Vorsicht, sondern eine gemessene Korrektur.**
+   Die Blende steht in Pixeln, die Bahn ist aber unterschiedlich hoch. Die
+   Vertrauensleiste der Startseite misst 243 px; mit 78 px an jeder Kante
+   waren 156 davon Verlauf, und von der hellen Bahn blieb ein Streifen von
+   87 px uebrig — im Bild sah der Abschnitt schlicht blau aus. Die Grenze
+   in Prozent bezieht sich auf die Hoehe des Verlaufskastens und haelt
+   deshalb in JEDER Bahn mindestens 56 % volle Farbe.
+
+   Die Regel dahinter ist allgemeiner als der Fall: **ein Effekt, der in
+   absoluten Werten an beiden Kanten eines Kastens sitzt, muss wissen, wie
+   hoch der Kasten ist.** Sonst trifft er sich in der Mitte. */
+/* **Der Endpunkt eines Verlaufs heisst `rgba(15,28,46,0)` und nicht
+   `transparent`.** `transparent` ist rgba(0,0,0,0); dazwischen
+   interpoliert der Browser im sRGB-Raum, und der Weg von Dunkelblau nach
+   durchsichtigem SCHWARZ führt durch einen grauen Streifen. Genau der
+   sähe an jeder Kante aus wie Schmutz auf dem Papier. Dieselbe Farbe mit
+   Deckkraft null blendet sauber aus. */
+
+/* Eine Bahn, die oben oder unten an ein FOTO stösst, braucht dort keine
+   Blende: das Foto läuft ohnehin schon in den Seitengrund aus (der
+   Schleier des Kopfbilds, die beiden Kanten des Bildbands). Zwei Blenden
+   hintereinander wären ein doppelter Nebel. */
+.auf-hell[data-blende="unten"]{
+  background-image:linear-gradient(to bottom,
+    rgba(15,28,46,0)  calc(100% - var(--blende)),
+    var(--dunkel)     100%);
+}
+.auf-hell[data-blende="oben"]{
+  background-image:linear-gradient(to bottom,
+    var(--dunkel)     0,
+    rgba(15,28,46,0)  var(--blende));
+}
+.auf-hell[data-blende="keine"]{ background-image:none; }
 
 /* Die Körnung über der ganzen Seite ist weg. Zwei Gründe, beide zählen:
    auf hellem Grund tut `mix-blend-mode:screen` sichtbar nichts (Screen
@@ -1816,7 +1944,11 @@ body.megabar-auf header.nav{
    und kippt beim nächsten eingefügten Abschnitt still um.
    ============================================================ */
 .bereichsblock{ padding-block:clamp(40px,4.6vw,72px); }
-.bereichsblock:nth-of-type(odd){ background:var(--flaeche); }
+/* Hier stand `:nth-of-type(odd){ background:var(--flaeche) }` — die sechs
+   Bloecke wechselten um eine Spur Helligkeit. Den Wechsel macht jetzt der
+   Farbtakt selbst (Blau, Beige, Blau, …), und zwei Wechsel uebereinander
+   sind einer zu viel: die helle Bahn stuende dann in `--hell-2` statt in
+   `--hell` und waere ein anderes Beige als ueberall sonst. */
 .bereichsblock__reihe{
   display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr);
   gap:clamp(26px,3.6vw,64px); align-items:center;
@@ -2243,6 +2375,23 @@ body.megabar-auf header.nav{
 }
 .tcard:hover .who__logo img,
 .tcard:focus-within .who__logo img{ opacity:1; }
+/* ---- Fremde Zeichen auf der hellen Bahn ----------------------------------
+   Die fuenf Referenzlogos sind WEISS auf durchsichtigem Grund — gemessen
+   an jedem deckenden Pixel: 255,255,255. Auf Beige sind sie damit nicht
+   gedaempft, sondern weg. Auf der Startseite faellt das nicht auf, dort
+   steht die Reihe auf Blau; auf referenzen.html steht sie seit dem
+   Farbtakt auf der hellen Bahn.
+
+   `invert(1)` dreht eine einfarbig weisse Zeichnung exakt um und macht
+   sie schwarz — verlustfrei, weil es nur einen Farbwert gibt. Das ist
+   ausserdem die Fassung, die diese Haeuser selbst auf hellem Papier
+   benutzen. Eingefaerbt in unser Blau waere es eine groessere Freiheit
+   mit einem fremden Zeichen als die Umkehr.
+
+   **Es gilt nur fuer diese Dateien.** Ein `filter:invert` auf alles, was
+   in einer hellen Bahn liegt, wuerde jedes Foto ins Negativ drehen. */
+.auf-hell .tcard .who__logo img,
+.auf-hell .reflogos__reihe img{ filter:invert(1); }
 
 .tcard .who b{ font-weight:600; font-size:.95rem; }
 .tcard .who small{ font-family:var(--font-mono); font-size:.62rem; letter-spacing:.16em; color:var(--tinte-3); text-transform:uppercase; display:block; }
@@ -2305,10 +2454,15 @@ body.megabar-auf header.nav{
   counter-increment:schritt; content:counter(schritt,decimal-leading-zero);
   font-family:var(--font-display); font-weight:800; letter-spacing:-.04em;
   font-size:clamp(2.4rem,4.4vw,4.2rem); line-height:.9;
-  color:rgba(246,241,232,.16); margin-bottom:6px;
-  transition:color var(--t-base) var(--ease-swift);
+  /* Die Deckkraft steht am Element und nicht in der Farbe. Sonst ist die
+     Geisterzahl an die HELLE Tinte genagelt — und der Ablauf steht seit
+     dem Farbtakt auf der hellen Bahn, wo eine helle Zahl keine ist.
+     `color:var(--tinte)` plus `opacity` folgt jeder Tonleiter von selbst
+     und kostet kein zusaetzliches Token. */
+  color:var(--tinte); opacity:.16; margin-bottom:6px;
+  transition:opacity var(--t-base) var(--ease-swift);
 }
-.schritt:hover::before{ color:rgba(246,241,232,.5); }
+.schritt:hover::before{ opacity:.5; }
 /* Der Strich über dem aktiven Schritt läuft beim Ansteuern durch — eine Geste,
    kein Effekt. */
 .schritt::after{
@@ -2357,8 +2511,11 @@ body.megabar-auf header.nav{
    waere weiss geblieben, waehrend seine Schrift auf die helle Tonleiter
    umschaltet. Der Grund kommt jetzt aus dem Token, und damit stimmt er in
    beiden Lagen. */
-.cta{ position:relative; padding:var(--sec) 0 var(--sec-end); border-top:1px solid var(--linie); background:var(--flaeche); }
-.cta.auf-dunkel{ background:var(--grund); }
+/* `background-color` und nicht die Kurzschreibweise: sonst loescht diese
+   Regel die Blende, die `.auf-hell` als `background-image` setzt. Die
+   Begruendung steht dort. */
+.cta{ position:relative; padding:var(--sec) 0 var(--sec-end); border-top:1px solid var(--linie); background-color:var(--flaeche); }
+.cta.auf-dunkel{ background-color:var(--grund); }
 .cta__inner{ position:relative; z-index:2; text-align:left; }
 .cta h2{ font-size:var(--fs-mega); line-height:1.02; letter-spacing:-.03em; text-wrap:balance; margin:clamp(14px,2vh,26px) 0 0; }
 .cta p{ color:var(--tinte-2); max-width:46ch; margin:clamp(24px,3vw,38px) 0 0; font-size:var(--fs-lead); }
@@ -3514,7 +3671,7 @@ header.nav{ view-transition-name:kopfzeile; }
 }
 .member__initialen{
   font-family:var(--font-display); font-weight:800; font-size:2.8rem;
-  letter-spacing:.02em; color:rgba(246,241,232,.20); line-height:1;
+  letter-spacing:.02em; color:var(--tinte); opacity:.20; line-height:1;
 }
 .member__wartet{
   font-family:var(--font-mono); font-size:.6rem; letter-spacing:.22em;
@@ -3677,7 +3834,9 @@ header.nav{ view-transition-name:kopfzeile; }
 /* Keine eigene Maximalbreite: das Zitat steht in der Textspalte und wird von
    ihr begrenzt. Mit 34ch in der Auszeichnungsschrift lief es über sechs
    Zeilen und las sich wie ein Gedicht. */
-.pullquote{ margin:var(--gap-l) 0 0; padding-left:clamp(18px,2.4vw,28px); border-left:2px solid rgba(246,241,232,.35); }
+/* Das Zitat steht auf referenzen.html auf der hellen Bahn — die Kante
+   kommt deshalb aus dem Token und nicht aus einer festen Farbe. */
+.pullquote{ margin:var(--gap-l) 0 0; padding-left:clamp(18px,2.4vw,28px); border-left:2px solid var(--linie-stark); }
 .pullquote blockquote{ font-family:var(--font-display); font-weight:700; font-size:clamp(1.25rem,2vw,1.7rem); line-height:1.22; letter-spacing:-.02em; }
 .pullquote figcaption{ font-family:var(--font-mono); font-size:.64rem; letter-spacing:.18em; text-transform:uppercase; color:var(--tinte-3); margin-top:14px; }
 
@@ -3822,7 +3981,12 @@ header.nav{ view-transition-name:kopfzeile; }
   transition:border-color var(--t-fast) var(--ease-swift),
              box-shadow var(--t-fast) var(--ease-swift);
 }
-.form input::placeholder,.form textarea::placeholder{ color:rgba(246,241,232,.3); }
+/* Der Platzhalter war auf die helle Tinte festgelegt und auf der hellen
+   Bahn dadurch unsichtbar — auf jobs.html steht das Bewerbungsformular
+   dort. Auch hier traegt die Deckkraft das Gedaempfte, nicht die Farbe.
+   .42 statt .3: ein Hinweis darf leise sein, aber er muss lesbar sein, und
+   dunkle Tinte auf Beige traegt weniger als helle auf Blau. */
+.form input::placeholder,.form textarea::placeholder{ color:var(--tinte); opacity:.42; }
 .form input:hover,.form select:hover,.form textarea:hover{ border-bottom-color:var(--linie-stark); }
 /* box-shadow statt border-width: eine dickere Linie würde das Feld um einen
    Pixel höher machen und die ganze Spalte beim Hineinklicken verschieben. */

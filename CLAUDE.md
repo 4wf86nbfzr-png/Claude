@@ -13,32 +13,35 @@ Die Seite soll nach Handwerk aussehen, nicht nach Baukasten. Konkret heißt das:
 - **Ein Stylesheet, eine Wahrheit.** Alle Werte kommen aus den Tokens ganz
   oben in `assets/css/styles.css`. Keine Einzelfarben, keine Einzelabstände
   irgendwo im Markup.
-- **Der Grund ist Anthrazit** (`--grund: #15161B`), seit September 2026
-  wieder durchgehend. Die Seite hat beide Richtungen einmal ganz
-  durchlaufen — schwarz, dann Off-White, dann abwechselnd, jetzt dunkel —
-  und aus jedem Durchgang bleibt eine Regel stehen: **nicht #000** (auf
-  OLED schaltet reines Schwarz die Pixel ab, und ein angeschnittenes Foto
-  hat dann keinen Rand mehr, an dem es aufhört), und **nicht durchgehend
-  eine Fläche** (`--flaeche` setzt einzelne Abschnitte eine Spur heller ab,
-  damit die Folge einen Takt behält). Die Begründung und die gemessenen
-  Werte stehen unter „Der Umbau auf Dunkel, September 2026".
+- **Der Grund ist Dunkelblau** (`--grund: #0F1C2E`), und er wechselt sich
+  ab: jede zweite Bahn steht in warmem Beige (`--hell: #E9E0D1`), dazwischen
+  eine weiche Blende. Die Seite hat alle Richtungen einmal ganz durchlaufen —
+  schwarz, dann Off-White, dann abwechselnd, dann Anthrazit, jetzt Blau und
+  Beige — und aus jedem Durchgang bleibt eine Regel stehen: **nicht #000**
+  (auf OLED schaltet ein Kanal auf 0 die Pixel ab, und ein angeschnittenes
+  Foto hat dann keinen Rand mehr, an dem es aufhört), und **nicht
+  durchgehend eine Fläche**. Die Begründung und die gemessenen Werte stehen
+  unter „Dunkelblau und Beige" und „Der Farbtakt".
 - **Die Tokennamen sagen die Rolle, nicht die Farbe.** `--grund`,
   `--flaeche`, `--tinte`, `--tinte-2`, `--tinte-3`, `--linie`. Vorher hießen
   sie `--ink` (die Grundfläche) und `--paper` (der Text) — die Metapher
   stand von Anfang an auf dem Kopf, und beim Hellerdrehen wäre daraus eine
   Falle geworden.
-- **Zwei Tonleitern, dieselben Namen.** `.auf-dunkel` schaltet die Textstufen
-  um; alles, was auf Anthrazit oder auf einem Foto liegt, trägt die Klasse
-  (Fuß, Vollbildmenü, Kopfband der Unterseiten). Eine Regel, die
-  `var(--tinte)` schreibt, stimmt dadurch in beiden Lagen, ohne zweite
-  Fassung und ohne Medienabfrage.
+- **Die Tonleiter hängt am Abschnitt, nicht an der Seite.** `.auf-dunkel`
+  und `.auf-hell` schalten die Textstufen um; alles, was auf einem Foto
+  liegt, trägt die dunkle (Fuß, Vollbildmenü, Kopfband, Filmbühne,
+  Galeriekacheln). Eine Regel, die `var(--tinte)` schreibt, stimmt dadurch
+  überall, ohne zweite Fassung und ohne Medienabfrage.
 - **Fotos tragen die Seite.** Wo ein Bild die Aussage trägt, braucht es keine
   Grafik, keinen Farbverlauf und keinen Leuchteffekt daneben. Bilder laufen
   im Zweifel bis an die Fensterkante, nicht bis zum Satzspiegel.
-- **95 % schwarzweiß, 5 % Marke.** Lila (`--violet`, `--orchid`) markiert und
-  trägt nicht: aktiver Menüpunkt, Hover auf einer Kontaktangabe, ein Punkt
-  von vier Pixeln. Wer daraus eine Fläche macht, kippt den ganzen Auftritt
-  ins Templatehafte.
+- **Zwei Farben, sonst nichts.** Dunkelblau und Beige tragen die Seite;
+  der Markenton (`--marke`, `--marke-2`) markiert und trägt nicht: aktiver
+  Menüpunkt, Hover auf einer Kontaktangabe, ein Punkt von vier Pixeln. Wer
+  daraus eine Fläche macht, kippt den ganzen Auftritt ins Templatehafte.
+- **Drei Tonleitern, dieselben Namen.** `:root` ist blau, `.auf-dunkel`
+  auch, `.auf-hell` ist beige. Eine Regel, die `var(--tinte)` schreibt,
+  stimmt in allen drei Lagen.
 - **Keine Karten, aber Flächen.** Kein Rahmen um einen Inhalt, keine runde
   Ecke, kein Schlagschatten als Schmuck. Getrennt wird weiter durch
   Haarlinien und Abstand; `--r-m` steht auf 0. Was hinzugekommen ist, ist
@@ -932,6 +935,141 @@ Farbwechsel auseinander — dasselbe Argument wie bei den Bildstufen.
 Apple-Touch-Icon, drei Favicons, `favicon.ico`) aus **einer** Vorlage
 und **zwei** Zahlen, die `--grund` und `--tinte` entsprechen. Ein
 Farbwechsel ist danach ein Lauf.
+
+## Der Farbtakt: blau, beige, blau
+
+Auf den Farbwechsel folgte der Auftrag, aus den beiden Farben ein Spiel zu
+machen: „ein Textfeld zum Beispiel blau und dann mit sanftem Farbübergang
+modernes Beige im nächsten, so auch abwechselnd bei den Leistungen,
+komplett auf der Website umsetzen."
+
+**Es ist dieselbe Mechanik wie `.auf-dunkel`, nur andersherum.** `.auf-hell`
+dreht die Tonleiter, und jede Regel im Stylesheet, die `var(--tinte)` oder
+`var(--linie)` schreibt, stimmt dann von selbst. Hinzugekommen sind rund
+zwanzig Zeilen CSS und eine Tabelle; angefasst wurde keine einzige Regel
+eines Abschnitts.
+
+| | blau | beige |
+|---|---|---|
+| Grund | `--dunkel` #0F1C2E | `--hell` #E9E0D1 |
+| Fläche | #1B2C44 | #F2EBDE |
+| Tinte | #F6F1E8 | #0F1C2E |
+| gedämpft | rgba(…,.58) | rgba(…,**.66**) |
+| Marke | #D9C2A0 | **#7A5A2C** |
+| Warnton | #F0A19D | **#B0350B** |
+
+Die drei fetten Werte sind die Stelle, an der ein Farbwechsel immer
+schiefgeht: **eine Tonleiter ist nicht symmetrisch.** Das steht seit 2026
+dreimal in dieser Datei, und es gilt hier zum vierten Mal. Die gedämpfte
+Stufe mit .58 mitzunehmen ergäbe gegen #E9E0D1 nur 4,04:1; .62 sind 4,41:1,
+also immer noch unter der Grenze; .66 sind 4,94:1. Und der Markenton kippt
+ganz: #D9C2A0 auf Beige sind **1,2:1** — dasselbe Beige auf sich selbst.
+
+### Der Übergang ist ein Hintergrund, kein Element
+
+Die Blende zwischen zwei Bahnen ist ein Verlauf im `background-image` der
+hellen Bahn selbst: oben von Dunkelblau nach Beige, unten zurück. Das ist
+die billigste aller Lösungen und die einzige ohne Nebenwirkung — **es kommt
+kein Element hinzu**, es gibt kein Pseudoelement, das mit dem Inhalt um die
+Stapelreihenfolge streitet, und keine Regel, die an der Nachbarschaft
+hängt.
+
+Vier Dinge daran sind nicht beliebig:
+
+1. **Grund und Blende sind zwei verschiedene Eigenschaften.**
+   `background-color` für die Farbe, `background-image` für den Verlauf.
+   `.cta` und `.bereichsblock` tragen einen eigenen Grund; stünde die
+   Blende in der Kurzschreibweise `background`, löschten die beiden sie
+   wieder — dieselbe Falle wie `padding` gegen `.wrap`. Beide Regeln sind
+   deshalb auf `background-color` umgestellt.
+2. **Der Endpunkt heisst `rgba(15,28,46,0)`, nicht `transparent`.**
+   `transparent` ist rgba(0,0,0,0); der Browser interpoliert im
+   sRGB-Raum, und der Weg von Dunkelblau nach durchsichtigem SCHWARZ führt
+   durch einen grauen Streifen. Der sähe an jeder Kante aus wie Schmutz.
+3. **Die Blende ist gedeckelt: `min(var(--blende), 22%)`.** Sie steht in
+   Pixeln, die Bahnen sind aber verschieden hoch. Die Vertrauensleiste der
+   Startseite misst 243 px; mit 78 px an jeder Kante waren 156 davon
+   Verlauf, und übrig blieb ein Streifen von 87 px — im Bild sah der
+   Abschnitt schlicht blau aus. Die Grenze in Prozent bezieht sich auf die
+   Höhe des Verlaufskastens und hält in jeder Bahn mindestens 56 % volle
+   Farbe. **Ein Effekt, der in absoluten Werten an beiden Kanten eines
+   Kastens sitzt, muss wissen, wie hoch der Kasten ist.**
+4. **Wo die Bahn an ein Foto stösst, fällt die Blende weg**
+   (`data-blende="oben"` / `"unten"` / `"keine"`). Ein Foto läuft ohnehin
+   schon in den Seitengrund aus; zwei Verläufe hintereinander sind ein
+   doppelter Nebel.
+
+### Was WO steht, entscheidet eine Tabelle
+
+`tools/farbtakt.py` setzt `auf-hell` und `data-blende` auf die
+`<section>`-Tags. Es sind sechzehn Dateien und rund fünfzig Abschnitte; von
+Hand gesetzt fällt der Takt beim ersten neuen Abschnitt auseinander, und
+zwar unbemerkt — zwei helle Bahnen nebeneinander sehen auf einem
+Bildschirmfoto nur nach einem etwas breiteren Block aus. Das Skript prüft
+genau das und bricht ab. Es ist mehrfach ausführbar, `--stand` zeigt nur,
+`--aus` nimmt den Takt zurück.
+
+Drei Regeln stehen hinter der Tabelle:
+
+- **Nie zwei helle Bahnen hintereinander.**
+- **Was auf einem Foto sitzt, bleibt blau.** Kopfbild, Bildband, Kopfband
+  der Unterseiten.
+- **Zwei Abschnitte, die zusammengehören, bekommen dieselbe Farbe.** Wo
+  `padding-top:0` steht, ist der Abschnitt die Fortsetzung des vorigen (das
+  Bildband der Leistungsseiten, der Ansprechpartner unter dem Formular).
+  Eine Farbkante mitten in einem Gedanken liest als Fehler.
+
+Das Anfrageformular auf `kontakt.html` bleibt bewusst blau. Technisch
+spräche nichts dagegen — `color-scheme:light` in `.auf-hell` erledigt die
+Bedienteile, die der Browser zeichnet, und das Bewerbungsformular auf
+`jobs.html` steht auf einer hellen Bahn. Es ist eine Frage des Zeitpunkts:
+das ist der Weg, über den Geld hereinkommt, und er wird am Tag vor dem
+Live-Gang nicht als letztes umgestellt.
+
+### Vier Stellen, die eine Farbe fest eingetragen hatten
+
+Die Tonleiter dreht alles, was über Tokens läuft. Was sie nicht erreicht,
+ist eine Farbe, die in einer Regel steht — und genau das waren die vier
+Fehler, die der Takt sichtbar gemacht hat:
+
+| Wo | stand auf | auf der hellen Bahn |
+|---|---|---|
+| `.form ::placeholder` | rgba(246,241,232,.3) | unsichtbar (Bewerbungsformular) |
+| `.schritt::before` | rgba(246,241,232,.16) | unsichtbar (die vier Schritte auf kontakt.html) |
+| `.pullquote` | rgba(246,241,232,.35) | unsichtbar (das Zitat auf referenzen.html) |
+| `.member__initialen` | rgba(246,241,232,.20) | (noch blau, aber dieselbe Bauart) |
+
+Die Lösung ist in allen vier Fällen dieselbe und braucht **kein neues
+Token**: die Farbe kommt aus `var(--tinte)`, das Gedämpfte aus `opacity`
+am Element. Eine Deckkraft ist tonleiterneutral, eine Farbe ist es nicht.
+
+### Fremde Zeichen kann eine Tonleiter nicht drehen
+
+Die fünf Referenzlogos sind **weiss auf durchsichtigem Grund** — gemessen
+an jedem deckenden Pixel: 255,255,255. Auf der Startseite steht die Reihe
+auf Blau und alles ist gut; auf `referenzen.html` steht sie seit dem Takt
+auf Beige, und dort waren die Zeichen nicht gedämpft, sondern weg.
+
+`filter:invert(1)` dreht eine einfarbig weisse Zeichnung exakt um und macht
+sie schwarz — verlustfrei, weil es nur einen Farbwert gibt, und es ist die
+Fassung, die diese Häuser selbst auf hellem Papier benutzen. In unser Blau
+eingefärbt wäre es eine grössere Freiheit mit einem fremden Zeichen als die
+Umkehr. **Die Regel gilt nur für diese Dateien:** ein `filter:invert` auf
+alles, was in einer hellen Bahn liegt, drehte jedes Foto ins Negativ.
+
+### Gemessen wird die Lage, nicht die Regel
+
+Die Frage, die eine Blende aufwirft, ist nicht „stimmt der Verlauf", sondern
+**„steht Text darin".** Dunkle Tinte im dunklen Teil der Blende ist dunkel
+auf dunkel, und im DOM sieht man das nicht: der Abschnitt hat ja die
+richtige Grundfarbe.
+
+`scratchpad/imnebel.js` rechnet deshalb für jede Bahn die Zone aus (mit
+demselben Deckel von 22 %) und hält jedes Textelement dagegen. Stand über
+dreizehn Seiten: **25 helle Bahnen, 0 Textstellen in der Blende**, am
+Schreibtisch wie am Telefon.
+
+---
 
 ### Der eine Wert, der dem Farbschema NICHT folgen darf
 
