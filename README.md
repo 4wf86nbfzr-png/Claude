@@ -484,14 +484,20 @@ liegen kann, gibt es keine Freigabe. `speichern()` ist dafür vorbereitet.
 
 ### Warum Bewerbungen einen eigenen Verteiler haben
 
-Bewerbungen sollen gleichzeitig an zwei Postfächer gehen — an das öffentliche
-und an eines, das auf der Website **nicht** auftauchen soll. Deshalb steht der
-Verteiler in `MAIL_BEWERBUNG` und nicht im Markup:
+Anfragen **und** Bewerbungen gehen an `info@hermserviceteam.com`. Das ist die
+Adresse, die auch überall auf der Website steht, und sie ist ausdrücklich die
+einzige:
 
 ```
 MAIL_AN         info@hermserviceteam.com
-MAIL_BEWERBUNG  info@hermserviceteam.com, dispo@hermserviceteam.com
+MAIL_BEWERBUNG  info@hermserviceteam.com
 ```
+
+Hier stand einmal ein zweiter Empfänger als Beispiel (`dispo@…`). Wer die
+Zeile abschreibt, richtet damit einen Verteiler ein, den niemand bestellt
+hat — deshalb steht dort jetzt dieselbe Adresse. `MAIL_BEWERBUNG` bleibt als
+Variable erhalten: **soll** eine Bewerbung einmal woandershin gehen, ist das
+die Stelle dafür, und zwar auf dem Server statt im Markup.
 
 Eine Environment Variable liegt auf dem Server. Im Browser landet davon
 nichts — weder im HTML noch im JavaScript, weder sichtbar noch im Quelltext.

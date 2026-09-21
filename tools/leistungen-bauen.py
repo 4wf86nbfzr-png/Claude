@@ -40,12 +40,19 @@ def zeilen(vor=''):
         # (`data-stagger` an <ul>), damit die sechs Zeilen einen Takt
         # bekommen statt jede fuer sich einzublenden. Der Index --i, den
         # main.js dabei setzt, fuehrt auch die Linie unter der Zeile.
+        # Die vier Unterleistungen je Bereich stehen hier NICHT mehr.
+        # ------------------------------------------------------------
+        # Vierundzwanzig Stichworte auf der Startseite sind das vollstaendige
+        # Leistungsverzeichnis — und dann hat die Uebersichtsseite nichts
+        # mehr zu sagen, was man nicht schon gelesen hat. Die Zeile nennt
+        # jetzt den Bereich, die Seite dahinter erklaert ihn. Die Tabelle
+        # oben behaelt die Stichworte trotzdem: sie ist die einzige Stelle,
+        # an der die sechs Bereiche mit ihren Adressen zusammenstehen.
         aus.append(f'''      <li class="bereich">
         <span class="bereich__nr" aria-hidden="true">{nr}</span>
         <span class="bereich__bild"><img src="{vor}assets/img/{bild}" alt="" loading="lazy" width="{b}" height="{h}" /></span>
         <span class="bereich__text">
           <a class="bereich__name" href="{vor}dienstleistungen/{datei}.html">{name}</a>
-          <span class="bereich__teile">{teile}</span>
         </span>
         <span class="bereich__pfeil" aria-hidden="true">{PFEIL}</span>
       </li>''')
@@ -63,8 +70,7 @@ BLOCK = '''
     <span class="eyebrow reveal-up">Was wir stellen</span>
     <h2 class="u-caps" data-kino>Sechs Bereiche, ein Ansprechpartner.</h2>
     <p class="lead reveal-up" data-d="1">Sie buchen nicht sechs Dienstleister, sondern
-      einen. Wer bei uns anfragt, bekommt für jeden Bereich dieselbe Disposition,
-      dieselbe Abrechnung und denselben Ansprechpartner vor Ort.</p>
+      einen. Was in jedem Bereich dazugehört, steht auf seiner Seite.</p>
   </div>
   <div class="wrap">
     <ul class="bereiche" data-stagger>

@@ -262,12 +262,15 @@ document.documentElement.classList.remove("kein-js");
 <!-- Randlose Aufnahme vom Einsatzort statt des Markendetails aus dem Büroflur:
      der erste Bildschirm soll zeigen, auf welchem Niveau gearbeitet wird.
 
-     Das Foto füllt wieder den ganzen ersten Bildschirm, und der Text steht
-     darauf. Die geteilte Fassung davor war die richtige Antwort auf „zu viel
-     Schwarz" — nur nimmt sie dem Foto die Hälfte weg, und bestellt ist jetzt
-     ausdrücklich das Gegenteil: erst das Bild, dann der Text darauf. Lesbar
-     bleibt es über `.hero__schleier`, einen gerichteten Verlauf nach unten
-     links statt einer flächigen Abdunklung. -->
+     Das Foto füllt den ganzen ersten Bildschirm, und darauf steht genau eine
+     Aussage: die Hauptzeile. Alles Weitere, der Vorspanntext und die beiden
+     Aktionen, ist ins dunkle Auftaktband darunter gewandert.
+
+     Das ist keine Kosmetik, sondern der einzige Weg zu einem hellen Foto:
+     kleine Schrift braucht auf reinem Weiss 54 % Abdunklung, eine grosse
+     Zeile nur 42 %, und kleine Schrift stand hier ganz oben im Textblock,
+     also im hellsten Teil des Bildes. Mit nur noch einer Zeile auf dem Foto
+     bleiben die oberen zwei Drittel unangetastet. -->
 <section class="hero" id="hero" data-weg>
   <div class="hero__photo" aria-hidden="true">
     <picture><source type="image/avif" srcset="assets/img/team-einsatz.avif" /><source type="image/webp" srcset="assets/img/team-einsatz.webp" /><img src="assets/img/team-einsatz.jpg" alt="" fetchpriority="high" width="1600" height="1200" /></picture>
@@ -288,27 +291,35 @@ document.documentElement.classList.remove("kein-js");
       <span class="line"><span>Ihr Event</span></span>
       <span class="line"><span>trägt.</span></span>
     </h1>
-    <!-- Vorspann und Aktionen stehen auf einer Linie unter der Hauptzeile:
-         links, was wir tun, rechts, was man tun kann. -->
-    <div class="hero__fuss">
-      <p class="hero__sub">Bevor der erste Gast kommt, steht unser Team. Service, Sicherheit,
-        Hostessen, Logistik, Fahrservice und Reinigung, aus einem Haus, aus Hamburg.</p>
-      <div class="hero__actions">
-        <a class="btn" href="kontakt.html">Personal anfragen
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </a>
-        <!-- Zeigte auf #leistungen, solange die sechs Bereiche weiter unten
-             standen. Sie stehen dort nicht mehr; ein Sprung ins Leere waere
-             der schlechteste aller Zustaende. Jetzt fuehrt der Knopf auf die
-             Uebersicht — dorthin, wo die Bereiche wirklich liegen. -->
-        <a class="btn btn--ghost" href="dienstleistungen.html">Was wir stellen
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </a>
-      </div>
-    </div>
   </div>
 
   <div class="scrollcue" aria-hidden="true"><span>Scrollen</span><i></i></div>
+</section>
+
+<!-- ============ AUFTAKT ============ -->
+<!-- Der Satz unter der Hauptzeile und die beiden Wege, dunkel gesetzt. Er
+     schliesst den Hero ab, statt ihn zu belasten: was hier steht, musste
+     vorher auf dem Foto lesbar gemacht werden und hat es dafür abgedunkelt.
+     Gleichzeitig ist es der erste der dunklen Abschnitte, die der Seite ihr
+     Verhältnis von Schwarz zu Off-White geben. -->
+<section class="auftakt auf-dunkel">
+  <div class="wrap auftakt__reihe">
+    <p class="auftakt__satz reveal-up">Bevor der erste Gast kommt, steht unser Team. Service,
+      Sicherheit, Hostessen, Logistik, Fahrservice und Reinigung, aus einem Haus,
+      aus Hamburg.</p>
+    <div class="auftakt__wege reveal-up" data-d="1">
+      <a class="btn" href="kontakt.html">Personal anfragen
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <!-- Zeigte auf #leistungen, solange die sechs Bereiche weiter unten
+           standen. Sie stehen dort nicht mehr; ein Sprung ins Leere waere
+           der schlechteste aller Zustaende. Jetzt fuehrt der Knopf auf die
+           Uebersicht — dorthin, wo die Bereiche wirklich liegen. -->
+      <a class="btn btn--ghost" href="dienstleistungen.html">Was wir stellen
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+  </div>
 </section>
 
 <!-- ============ BILDBAND ============ -->
@@ -388,8 +399,7 @@ document.documentElement.classList.remove("kein-js");
     <span class="eyebrow reveal-up">Was wir stellen</span>
     <h2 class="u-caps" data-kino>Sechs Bereiche, ein Ansprechpartner.</h2>
     <p class="lead reveal-up" data-d="1">Sie buchen nicht sechs Dienstleister, sondern
-      einen. Wer bei uns anfragt, bekommt für jeden Bereich dieselbe Disposition,
-      dieselbe Abrechnung und denselben Ansprechpartner vor Ort.</p>
+      einen. Was in jedem Bereich dazugehört, steht auf seiner Seite.</p>
   </div>
   <div class="wrap">
     <ul class="bereiche" data-stagger>
@@ -398,7 +408,6 @@ document.documentElement.classList.remove("kein-js");
         <span class="bereich__bild"><img src="assets/img/gastro-detail-mini.webp" alt="" loading="lazy" width="480" height="480" /></span>
         <span class="bereich__text">
           <a class="bereich__name" href="dienstleistungen/gastro-personal.html">Gastro-Personal</a>
-          <span class="bereich__teile">Menü-Service &amp; Bankett · Bar &amp; Kaffee-Theke · Küchenhilfe &amp; Runner · Partyhilfe</span>
         </span>
         <span class="bereich__pfeil" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
       </li>
@@ -407,7 +416,6 @@ document.documentElement.classList.remove("kein-js");
         <span class="bereich__bild"><img src="assets/img/sicherheit-mini.webp" alt="" loading="lazy" width="480" height="480" /></span>
         <span class="bereich__text">
           <a class="bereich__name" href="dienstleistungen/sicherheit.html">Sicherheit</a>
-          <span class="bereich__teile">Einlass &amp; Akkreditierung · Crowdmanagement · Veranstaltungsschutz · Personenschutz</span>
         </span>
         <span class="bereich__pfeil" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
       </li>
@@ -416,7 +424,6 @@ document.documentElement.classList.remove("kein-js");
         <span class="bereich__bild"><img src="assets/img/promotion-messe-mini.webp" alt="" loading="lazy" width="341" height="480" /></span>
         <span class="bereich__text">
           <a class="bereich__name" href="dienstleistungen/promotion-hostess.html">Promotion &amp; Hostess</a>
-          <span class="bereich__teile">Messehostessen · Empfang &amp; Akkreditierung · VIP- &amp; Gästebetreuung · Promotion &amp; Sampling</span>
         </span>
         <span class="bereich__pfeil" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
       </li>
@@ -425,7 +432,6 @@ document.documentElement.classList.remove("kein-js");
         <span class="bereich__bild"><img src="assets/img/logistik-mini.webp" alt="" loading="lazy" width="480" height="480" /></span>
         <span class="bereich__text">
           <a class="bereich__name" href="dienstleistungen/logistik.html">Logistik</a>
-          <span class="bereich__teile">Auf- &amp; Abbau · Transport · Bühnen- &amp; Messelogistik · Saalumbau</span>
         </span>
         <span class="bereich__pfeil" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
       </li>
@@ -434,7 +440,6 @@ document.documentElement.classList.remove("kein-js");
         <span class="bereich__bild"><img src="assets/img/fahrservice-door-mini.webp" alt="" loading="lazy" width="480" height="320" /></span>
         <span class="bereich__text">
           <a class="bereich__name" href="dienstleistungen/fahrservice.html">Fahrservice</a>
-          <span class="bereich__teile">Flughafentransfer · Shuttle-Service · Chauffeur · Fahrer mit Personenschutz</span>
         </span>
         <span class="bereich__pfeil" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
       </li>
@@ -443,7 +448,6 @@ document.documentElement.classList.remove("kein-js");
         <span class="bereich__bild"><img src="assets/img/reinigung-mini.webp" alt="" loading="lazy" width="480" height="320" /></span>
         <span class="bereich__text">
           <a class="bereich__name" href="dienstleistungen/reinigung.html">Reinigung</a>
-          <span class="bereich__teile">Gebäudereinigung · Büroreinigung · Praxis &amp; Kanzlei · Nach der Veranstaltung</span>
         </span>
         <span class="bereich__pfeil" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
       </li>
@@ -473,7 +477,7 @@ document.documentElement.classList.remove("kein-js");
      Die Ansage spricht tools/film-vertonen.py aus dieser VTT-Datei.
      Sobald bewegtes Material vorliegt: Datei unter assets/video/ ersetzen und
      die Zeiten in imagefilm-de.vtt nachziehen. -->
-<section class="film" id="film" aria-labelledby="film-titel">
+<section class="film auf-dunkel" id="film" aria-labelledby="film-titel">
   <div class="wrap film__kopf">
     <span class="eyebrow reveal-up">In 45 Sekunden</span>
     <h2 class="u-caps" id="film-titel" data-kino>Wer wir sind</h2>
@@ -523,39 +527,6 @@ document.documentElement.classList.remove("kein-js");
      Versionsgeschichte; die Regeln dazu stehen in CLAUDE.md unter
      „Szene != Buehne". -->
 
-<!-- ============ ABLAUF ============ -->
-<section class="ablauf" id="ablauf">
-  <div class="wrap">
-    <div class="ablauf__kopf">
-      <span class="eyebrow reveal-up">Zusammenarbeit</span>
-      <h2 class="u-caps" data-kino>So läuft eine Anfrage</h2>
-      <p class="reveal-up" data-d="2">Kein Portal, kein Konto, kein Formularmarathon. Vier
-        Schritte, und Sie wissen, woran Sie sind.</p>
-    </div>
-    <div class="ablauf__schritte reveal-up" data-d="1" data-stagger>
-      <div class="schritt">
-        <h3>Sie melden sich</h3>
-        <p>Datum, Ort, wie viele Leute und welcher Bereich, mehr brauchen wir für den
-          Anfang nicht. Telefon, E-Mail oder Formular, ganz wie es Ihnen passt.</p>
-      </div>
-      <div class="schritt">
-        <h3>Wir klären und rechnen</h3>
-        <p>Wir fragen nach, wo es unklar ist, und sagen offen, was geht und was nicht.
-          Danach bekommen Sie ein Angebot mit klaren Zahlen.</p>
-      </div>
-      <div class="schritt">
-        <h3>Team und Briefing</h3>
-        <p>Wir stellen die Leute zusammen, die zu Ihrem Haus passen. Auf Wunsch mit
-          detailliertem Briefing und vorher festgelegtem Dresscode.</p>
-      </div>
-      <div class="schritt">
-        <h3>Einsatztag</h3>
-        <p>Am Tag selbst sind wir erreichbar. Kommt kurzfristig etwas dazwischen, ist das
-          unser Problem, nicht Ihres.</p>
-      </div>
-    </div>
-  </div>
-</section>
 
 <!-- ============ REFERENZEN ============ -->
 <!-- Die Stimmen standen vorher in zwei Endlosbändern und liefen am Auge vorbei.
@@ -602,42 +573,9 @@ document.documentElement.classList.remove("kein-js");
   </div>
 </section>
 
-<!-- ============ ANSPRUCH ============ -->
-<section class="expect" id="erwarten">
-  <div class="wrap expect__grid">
-    <div>
-      <span class="eyebrow reveal-up">Unser Anspruch</span>
-      <h2 class="u-caps" data-kino>Was Sie erwarten können</h2>
-      <p class="reveal-up" data-d="2">Jeder Einsatz, jeder Bereich, derselbe Standard.
-        Das hier können Sie einfordern.</p>
-    </div>
-    <div class="versprechen reveal-up" data-d="1" data-stagger>
-      <div>
-        <h3>Gepflegtes Auftreten</h3>
-        <p>Der Dresscode wird vorher festgelegt und eingehalten. Wer bei Ihnen steht, sieht
-          so aus, wie Ihr Haus es erwartet.</p>
-      </div>
-      <div>
-        <h3>Pünktlich vor Ort</h3>
-        <p>Anfahrt und Einsatzbeginn klären wir im Briefing. Das ist unsere Aufgabe, nicht
-          Ihre.</p>
-      </div>
-      <div>
-        <h3>Eingearbeitet statt abgestellt</h3>
-        <p>Unsere Leute kennen Menü-Service, Bankett und Bar. Sie fangen bei Ihnen nicht
-          bei null an.</p>
-      </div>
-      <div>
-        <h3>Mehrsprachig, wo es zählt</h3>
-        <p>Für Messe, Empfang und internationale Gäste stellen wir Personal mit
-          Fremdsprachenkenntnissen.</p>
-      </div>
-    </div>
-  </div>
-</section>
 
 <!-- ============ CTA / KONTAKT ============ -->
-<section class="cta" id="kontakt">
+<section class="cta auf-dunkel" id="kontakt">
   <div class="wrap cta__inner">
     <span class="eyebrow reveal-up">Haben Sie noch Fragen?</span>
     <h2 class="u-caps" data-worte data-lauf>Lassen Sie uns Ihr Event tragen.</h2>

@@ -267,8 +267,6 @@ h1.u-caps{ letter-spacing:-.012em; }
 .kein-js .hero__photo img{ transform:none; }
 .kein-js .hero .eyebrow,
 .kein-js .hero h1 .line > span,
-.kein-js .hero__sub,
-.kein-js .hero__actions,
 .kein-js .scrollcue > *{ opacity:1; }
 /* Dasselbe für die Kamerafahrt der Überschriften: ohne Skript kein `.in`,
    also stünde die halbe Startseite unscharf und halb durchsichtig da. */
@@ -1053,17 +1051,17 @@ body.megabar-auf header.nav{
   position:absolute; inset:0; z-index:1; pointer-events:none;
   background:
     linear-gradient(to top,
-      rgba(6,7,11,.86)  0%,
-      rgba(6,7,11,.74) 28%,
-      rgba(6,7,11,.64) 46%,
-      rgba(6,7,11,.58) 66%,   /* hier steht die Auszeichnungszeile */
-      rgba(6,7,11,.40) 74%,
-      rgba(6,7,11,.16) 86%,
-      rgba(6,7,11,0)  100%),
+      rgba(6,7,11,.58)  0%,
+      rgba(6,7,11,.55) 22%,
+      rgba(6,7,11,.54) 42%,
+      rgba(6,7,11,.53) 56%,   /* hier steht die Auszeichnungszeile */
+      rgba(6,7,11,.32) 66%,
+      rgba(6,7,11,.11) 80%,
+      rgba(6,7,11,0)   92%),
     /* Eine Spur mehr nach links: die Schrift steht dort, und das Licht des
        Motivs kommt von rechts oben. */
     linear-gradient(to right,
-      rgba(6,7,11,.16) 0%, rgba(6,7,11,0) 58%);
+      rgba(6,7,11,.12) 0%, rgba(6,7,11,0) 58%);
   /* Der Schleier gehört zur Kamerafahrt, nicht zum Bild.
      Bestellt war: „zuerst das Hintergrundbild vollständig und bildfüllend,
      ohne dass der Text sichtbar ist". Also steht das Foto den ersten
@@ -1329,9 +1327,7 @@ body.megabar-auf header.nav{
    Bewegung wird er weiter unten zurückgeholt — sonst stünde der Hero leer
    (siehe „Die dritte Falle: animation:none holt keinen Startwert zurück"). */
 .hero .eyebrow,
-.hero h1 .line > span,
-.hero__sub,
-.hero__actions{ opacity:0; }
+.hero h1 .line > span{ opacity:0; }
 
 /* Erst wenn der Vorspann geht. `los` setzt das Inline-Skript im Kopf oder,
    beim ersten Besuch, main.js beim Abgang des Vorspanns. */
@@ -1339,31 +1335,59 @@ body.megabar-auf header.nav{
 .los .hero h1 .line > span{ animation:kameraVor  .95s var(--ease-out) .50s both; }
 .los .hero h1 .line:nth-child(2) > span{ animation-delay:.62s }
 .los .hero h1 .line:nth-child(3) > span{ animation-delay:.74s }
-.los .hero__sub           { animation:kameraSanft .75s var(--ease-out) 1.16s both; }
-.los .hero__actions       { animation:kameraSanft .75s var(--ease-out) 1.30s both; }
+/* Vorspanntext und Aktionen stehen seit dem Auftaktband nicht mehr auf dem
+   Foto; sie kommen dort beim Scrollen herein (`reveal-up`) statt hier auf
+   die Sekunde. Die Sequenz auf dem Foto endet damit nach 1,45 s. */
 
-/* Unter der Hauptzeile eine Haarlinie, darunter zwei Spalten: links der
-   Vorspann, rechts die Aktionen. Asymmetrisch und ohne Kasten — die Linie
-   trennt, nicht ein Rahmen. */
-.hero__fuss{
+/* ---- Das Auftaktband --------------------------------------------------
+   Vorspanntext und die beiden Wege, dunkel gesetzt, direkt unter dem Foto.
+
+   Sie standen bis hierher auf dem Bild, und das war der teuerste Posten am
+   ganzen Hero: kleine Schrift braucht auf reinem Weiss 54 % Abdunklung,
+   eine grosse Zeile nur 42 % — und der Vorspanntext stand ganz unten, wo
+   der Verlauf ohnehin am dichtesten ist, die Auszeichnungszeile dagegen
+   ganz oben im Textblock, also im hellsten Teil des Motivs. Um DIESE eine
+   Zeile lesbar zu halten, musste der Verlauf bis auf 66 % Höhe tragen.
+
+   Jetzt steht auf dem Foto nur noch die Hauptzeile. Der Verlauf endet bei
+   52 % statt bei 100, und die oberen zwei Drittel des Bildes sind
+   unberührt. Der Preis ist, dass „Personal anfragen" nicht mehr im ersten
+   Bildschirm steht — in der Kopfzeile steht es ohnehin dauerhaft, und am
+   Telefon in der Leiste unten. */
+.auftakt{
+  padding-block:clamp(44px,5.4vw,84px);
+  border-bottom:1px solid var(--linie);
+}
+.auftakt__reihe{
   display:flex; align-items:flex-end; justify-content:space-between;
-  flex-wrap:wrap; gap:clamp(20px,3vw,54px);
-  /* Nicht über die volle Fensterbreite: auf 1920 px stünden Vorspann und
-     Aktionen 1,7 m auseinander, und die Linie dazwischen wäre ein Strich
-     durch das Bild. */
-  width:100%; max-width:min(100%, 1040px);
-  margin-top:clamp(24px,4.4vh,48px); padding-top:clamp(18px,2.6vh,30px);
-  border-top:1px solid var(--linie);
+  flex-wrap:wrap; gap:clamp(24px,4vw,64px);
 }
-.hero__sub{
-  max-width:42ch; color:var(--tinte-2); font-size:var(--fs-lead); line-height:1.55;
+.auftakt__satz{
+  /* `flex-basis:auto` heisst bei einem Absatz: die Breite, die er braucht,
+     um in EINE Zeile zu passen. Das sind hier 1600 px, also mehr als die
+     Zeile hergibt — die Aktionen rutschten darunter und liessen die rechte
+     Hälfte des Bandes leer. Mit einer echten Basis teilen sich beide die
+     Zeile. */
+  flex:1 1 34ch;
+  margin:0; max-width:52ch;
+  font-family:var(--font-display); font-weight:500;
+  font-size:clamp(1.12rem,1.9vw,1.6rem); line-height:1.42;
+  letter-spacing:-.015em; color:var(--tinte); text-wrap:pretty;
 }
-.hero__actions{
+.auftakt__wege{
   display:flex; flex-wrap:wrap; align-items:center; gap:clamp(20px,3vw,42px);
 }
-/* Die Einblendungen stehen jetzt oben bei der Kamerafahrt, in einem Block
-   mit den übrigen Zeiten. Zwei Stellen für dieselbe Sequenz hiessen: beim
-   nächsten Nachjustieren gewinnt die spätere Regel, und man sucht lange. */
+@media (max-width:760px){
+  .auftakt__reihe{ flex-direction:column; align-items:stretch; }
+  /* `flex:1 1 34ch` meint in der Zeile eine Breite — in der Spalte meint
+     dieselbe Angabe eine HÖHE. Der Satz bekam dadurch 34ch als
+     Mindesthöhe und wuchs weiter: zwischen ihm und den beiden Knöpfen
+     stand ein schwarzes Loch von 600 px. In der Spalte gilt wieder die
+     Inhaltshöhe. */
+  .auftakt__satz{ flex:0 1 auto; }
+  .auftakt__wege{ display:grid; grid-template-columns:1fr; gap:2px; }
+  .auftakt__wege .btn{ justify-self:start; }
+}
 /* Die Textschatten der Knöpfe sind weg: sie trugen Schrift auf einem Foto,
    und die steht jetzt auf hellem Grund. */
 
@@ -1591,12 +1615,18 @@ body.megabar-auf header.nav{
   transition:background var(--t-fast) var(--ease-swift);
 }
 .bereich:hover{ background:var(--grund); }
+/* Nummer, Foto und Name sind mitgewachsen, seit die vier Stichworte je
+   Bereich nicht mehr auf der Startseite stehen. Ohne sie war die Zeile
+   rechts leer — eine kleine Schrift links und ein Pfeil 1100 px weiter
+   rechts, dazwischen nichts. Eine Zeile, die die Breite tragen soll, muss
+   auch in ihr stehen. */
 .bereich__nr{
-  font-family:var(--font-mono); font-size:.72rem; letter-spacing:.14em;
+  font-family:var(--font-mono); font-size:clamp(.82rem,1.1vw,1.02rem);
+  letter-spacing:.1em;
   color:var(--tinte-3); font-variant-numeric:tabular-nums;
 }
 .bereich__bild{
-  display:block; width:clamp(84px,9vw,132px); aspect-ratio:4/3;
+  display:block; width:clamp(96px,12vw,178px); aspect-ratio:4/3;
   overflow:hidden; border-radius:var(--r-s); background:var(--flaeche-2);
 }
 .bereich__bild img{
@@ -1607,16 +1637,17 @@ body.megabar-auf header.nav{
 .bereich__text{ display:flex; flex-direction:column; gap:5px; min-width:0; }
 .bereich__name{
   font-family:var(--font-display); font-weight:700;
-  font-size:clamp(1.25rem,1.9vw,1.75rem); line-height:1.12;
-  letter-spacing:-.02em; color:var(--tinte);
+  font-size:clamp(1.5rem,2.9vw,2.6rem); line-height:1.1;
+  letter-spacing:-.025em; color:var(--tinte); text-transform:uppercase;
 }
 /* Die ganze Zeile als Trefferfläche, ohne den Namen des Verweises zu
    verlängern. */
 .bereich__name::after{ content:""; position:absolute; inset:0; }
-.bereich__teile{
-  font-size:.92rem; line-height:1.5; color:var(--tinte-2);
-  text-wrap:pretty;
-}
+/* `.bereich__teile` gab es hier einmal: die vier Stichworte je Bereich. Sie
+   sind entfallen, weil die Startseite damit das vollstaendige
+   Leistungsverzeichnis abdruckte und die Uebersichtsseite dahinter nichts
+   mehr zu sagen hatte. Die Regel ist mit ihnen weg — eine Klasse, die in
+   keiner Datei mehr steht, ist toter Code. */
 .bereich__pfeil{
   color:var(--tinte-3); display:grid; place-items:center;
   transition:transform var(--t-fast) var(--ease-swift), color var(--t-fast) var(--ease-swift);
@@ -1633,11 +1664,10 @@ body.megabar-auf header.nav{
   /* Am Telefon fällt die Nummer weg: sie ist eine Ordnungshilfe für das
      Auge, und in einer einspaltigen Liste ordnet die Reihenfolge schon
      selbst. Der Pfeil bleibt — er sagt, dass es weitergeht. */
-  .bereich{ grid-template-columns:auto minmax(0,1fr) auto; gap:14px; padding:14px 0; }
+  .bereich{ grid-template-columns:auto minmax(0,1fr) auto; gap:16px; padding:16px 0; }
   .bereich__nr{ display:none; }
-  .bereich__bild{ width:68px; }
-  .bereich__name{ font-size:1.12rem; }
-  .bereich__teile{ font-size:.84rem; }
+  .bereich__bild{ width:82px; }
+  .bereich__name{ font-size:1.22rem; }
   .angebot__fuss{ flex-direction:column; align-items:stretch; gap:14px; }
 }
 
@@ -2193,7 +2223,13 @@ body.megabar-auf header.nav{
    letzter Kasten. */
 /* Der Schlussblock ist die letzte Gelegenheit, nicht die groesste Flaeche.
    Der Zuschlag von 1,15 stammt aus der Zeit, als Leerraum das Material war. */
+/* `background:var(--flaeche)` stand hier fest. Das gewinnt gegen
+   `.auf-dunkel` (gleiche Spezifitaet, spaetere Regel) — der Schlussblock
+   waere weiss geblieben, waehrend seine Schrift auf die helle Tonleiter
+   umschaltet. Der Grund kommt jetzt aus dem Token, und damit stimmt er in
+   beiden Lagen. */
 .cta{ position:relative; padding:var(--sec) 0 var(--sec-end); border-top:1px solid var(--linie); background:var(--flaeche); }
+.cta.auf-dunkel{ background:var(--grund); }
 .cta__inner{ position:relative; z-index:2; text-align:left; }
 .cta h2{ font-size:var(--fs-mega); line-height:1.02; letter-spacing:-.03em; text-wrap:balance; margin:clamp(14px,2vh,26px) 0 0; }
 .cta p{ color:var(--tinte-2); max-width:46ch; margin:clamp(24px,3vw,38px) 0 0; font-size:var(--fs-lead); }
@@ -2934,19 +2970,6 @@ header.nav{ view-transition-name:kopfzeile; }
   .hero{ min-height:calc(100svh - var(--nav-h0, var(--nav-h, 68px))); }
   .hero__photo img{ object-position:50% 34%; }
   .hero__inner{ padding-block:clamp(32px,6vh,72px) clamp(40px,6vh,72px); }
-  /* Ohne das stapeln sich die beiden Aktionen untereinander, und das aus
-     einem unscheinbaren Grund: `.hero__fuss` ist ein Flex-Kasten aus
-     Vorspann und Aktionen. Der Vorspann nimmt hochkant die volle Breite,
-     die Aktionen rutschen in die zweite Zeile — und bekommen dort nicht
-     etwa die volle Breite, sondern ihre Inhaltsbreite von 152 px. In die
-     passt nur ein Knopf. Gemessen kostete das 46 px Höhe, und die fehlten
-     unten genau dort, wo die App-Leiste liegt. */
-  .hero__fuss{ flex-direction:column; align-items:flex-start; gap:clamp(16px,2.6vh,26px); }
-  .hero__actions{ width:100%; }
-  /* Die beiden Aktionen stehen hochkant weiterhin untereinander — das ist
-     eine eigene Entscheidung weiter unten im Telefonblock und bleibt. Hier
-     geht es nur darum, dass der Kasten die volle Breite bekommt statt der
-     152 px seines breitesten Kindes. */
   /* Hochkant nimmt der Text relativ mehr Höhe ein, der Verlauf trägt
      deshalb weiter nach oben. Die Werte kommen aus derselben Rechnung. */
   /* Hochkant nimmt der Text rund drei Viertel der Höhe ein — am
@@ -2957,13 +2980,13 @@ header.nav{ view-transition-name:kopfzeile; }
   .hero__schleier{
     background:
       linear-gradient(to top,
-        rgba(6,7,11,.90)  0%,
-        rgba(6,7,11,.84) 28%,
-        rgba(6,7,11,.78) 55%,
-        rgba(6,7,11,.70) 76%,
-        rgba(6,7,11,.62) 90%,
-        rgba(6,7,11,.40) 97%,
-        rgba(6,7,11,.22) 100%);
+        rgba(6,7,11,.66)  0%,
+        rgba(6,7,11,.62) 30%,
+        rgba(6,7,11,.58) 55%,
+        rgba(6,7,11,.56) 70%,
+        rgba(6,7,11,.30) 82%,
+        rgba(6,7,11,.09) 92%,
+        rgba(6,7,11,0)  100%);
   }
   /* ---- Weniger Bewegung, weil weniger Rechner ----
      Die Unschärfe ist am Telefon der teuerste Posten der ganzen Sequenz und
@@ -3030,9 +3053,8 @@ header.nav{ view-transition-name:kopfzeile; }
   /* Untereinander, aber linksbündig. Zentriert war richtig, solange die
      Aktionen Flächen waren; als Textlinks liest ein zentrierter Link wie ein
      verrutschter Absatz. */
-  .hero__actions{ display:grid; grid-template-columns:1fr; gap:2px; }
   .cta__actions{ display:grid; grid-template-columns:1fr; gap:2px; }
-  .hero__actions .btn, .cta__actions .btn{ justify-self:start; }
+  .cta__actions .btn{ justify-self:start; }
 }
 
 /* ---- Block 2: alles, was es nur mit der Leiste gibt ----
@@ -3054,12 +3076,14 @@ header.nav{ view-transition-name:kopfzeile; }
   /* Der Textblock der Bühnen ebenso — ohne den Zuschlag stand „Zum Bereich"
      hinter der Leiste. */
   .panel{ padding-bottom:calc(clamp(32px,6vh,80px) + 57px + env(safe-area-inset-bottom, 0px)); }
-  /* Und der Hero, seit sein Text wieder unten im Bild steht. Gemessen lag
-     „Was wir stellen" mit seiner unteren Hälfte hinter der Leiste —
-     antippbar war dort die Leiste, nicht der Knopf. Das ist derselbe
-     Zuschlag wie bei `.panel`, nur an der anderen Stelle. */
+  /* Und der Hero, seit sein Text unten im Bild steht. Gemessen lag „Was wir
+     stellen" einmal mit seiner unteren Hälfte hinter der Leiste — antippbar
+     war dort die Leiste, nicht der Knopf. Die Aktionen stehen inzwischen im
+     Auftaktband darunter, die Hauptzeile aber weiterhin hier, und die soll
+     ebenso wenig hinter der Leiste anfangen. Derselbe Zuschlag wie bei
+     `.panel`, nur an der anderen Stelle. */
   .hero__inner{
-    padding-bottom:calc(clamp(40px,6vh,72px) + 57px + env(safe-area-inset-bottom, 0px));
+    padding-bottom:calc(clamp(28px,4vh,56px) + 57px + env(safe-area-inset-bottom, 0px));
   }
 
   /* ---- Nichts doppelt ----
@@ -3120,8 +3144,6 @@ header.nav{ view-transition-name:kopfzeile; }
   .hero__schleier,
   .hero .eyebrow,
   .hero h1 .line > span,
-  .hero__sub,
-  .hero__actions,
   .scrollcue > *{ opacity:1; transform:none; }
   /* Auch der Filter ist ein Startwert, den `animation:none` stehen liesse:
      das Wortzeichen bliebe sonst unscharf und halb dunkel. Dasselbe gilt
@@ -3276,6 +3298,28 @@ header.nav{ view-transition-name:kopfzeile; }
   border-radius:0; overflow:hidden; border:0;
   background:var(--flaeche-2); aspect-ratio:4/5; margin-bottom:20px;
 }
+/* ---- Das Bueroteam auf dunklem Grund ------------------------------------
+   Der Grund ist nicht `--dunkel`, sondern der gemessene Hintergrundton der
+   Aufnahmen selbst (#2A292E gegen #2C2B30 in der Datei). Damit hat das
+   Portraet keine sichtbare Kante mehr: der Studiohintergrund IST die Seite.
+   Genau das ist der Unterschied zwischen vier Kacheln und einer Reihe von
+   Menschen. */
+.team-buero.auf-dunkel{ background:#2E2D33; }
+.team-buero .member__img{ background:#2E2D33; }
+/* Versucht und wieder verworfen: wechselnde Kachelformate (hochkant,
+   quadratisch, hochkant), damit die vier nicht wie Kopien desselben Bildes
+   wirken. Im Bild sah das nicht abwechslungsreich aus, sondern unsortiert —
+   die Namen standen nicht mehr auf einer Linie, und genau dafuer gibt es
+   `align-content:start` eine Regel weiter oben. Eine Unregelmaessigkeit,
+   die niemand als Absicht liest, ist ein Fehler.
+
+   Was wirklich fehlt, ist eine zweite Aufnahme je Person. Bestellt waren
+   unterschiedliche Bueroszenen; die lassen sich aus vorhandenen Portraets
+   nicht herstellen, ohne den Hintergrund zu erfinden, hinter dem echte
+   Menschen mit Namen stehen. Was gebraucht wird, steht in
+   `docs/foto-briefing.md`. */
+.team-buero .member__img picture{ display:block; height:100%; }
+.team-buero .member__img img{ width:100%; height:100%; object-fit:cover; }
 /* Platzhalter, solange kein Foto vorliegt — bewusst gesetzt statt leer:
    Initialen plus Hinweis, gleiche Kachelform wie die Porträts. */
 .member__img--leer{

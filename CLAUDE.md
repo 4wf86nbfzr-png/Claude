@@ -424,19 +424,167 @@ Die untere bleibt hell, darunter steht die Vertrauensleiste auf
 Seitengrund. Aus zwei Bildern mit einem Strich dazwischen wird eine Fahrt,
 die von einem Motiv ins nächste geht.
 
-### Was am Motiv nicht zu retten ist
+### Was am Motiv nicht zu retten ist, und was doch
 
 Bestellt war „komplett 4K, gestochen scharf". Die Vorlage hat **0,31
 Megapixel** (640 × 480). Bildfüllend auf einem 1440er Schirm mit doppelter
 Pixeldichte werden 2880 × 1630 angefordert — das ist das
 Sechsundzwanzigfache der Fläche, die die Datei hat.
 
-Hochrechnen erzeugt keine Details (siehe „Was das leistet und was nicht").
-Die Kamerafahrt, der Schnitt und der Schleier sind gebaut und gemessen; die
-Schärfe kann nur eine echte Aufnahme liefern. Gebraucht werden mindestens
-2400 px an der langen Kante (`docs/foto-briefing.md`). Sobald sie vorliegt,
-ist es ein Handgriff: dieselben Dateinamen, `team-einsatz` zurück in
-`BEDARF`, einmal `bilder-vergroessern.py`.
+**Eine zweite Stufe macht es messbar schlechter, nicht besser.** Das ist
+das Gegenteil dessen, was man erwartet, deshalb steht es hier mit Zahlen.
+Gerechnet wurden 2560 px und 3840 px aus der Originalvorlage, gerendert bei
+doppelter Pixeldichte, gemessen am mittleren Gradientenbetrag der
+Bildmitte:
+
+| Quelle | Kantenschärfe der Darstellung | Datei (AVIF) |
+|---|---|---|
+| 1600 px (so wie jetzt) | **4,47** | 92 KB |
+| 2560 px | 4,40 | 124 KB |
+| 3840 px | 4,06 | 202 KB |
+
+Der Grund ist die Nachschärfung: die 1600er Datei wird für 1600 geschärft
+und vom Browser auf 2880 hochgerechnet — die Schärfung wächst mit. Die
+3840er wird bei 3840 geschärft, wo derselbe Radius relativ feiner ist, und
+danach auf 2880 **herunter**gerechnet, was sie wieder wegmittelt. Detail
+kommt in keinem Fall dazu, es ist in der Vorlage nicht drin.
+
+**Was wirklich hilft, kostet 5 KB.** Wenn die Schärfung ohnehin die
+Hochrechnung überleben muss, darf sie stärker sein. Nachgemessen am
+gerenderten Bild:
+
+| Nachschärfung bei 1600 px | Kantenschärfe |
+|---|---|
+| 52 % (bisher) | 4,44 |
+| **85 %** | **5,02** |
+| 110 % | 4,77 |
+| 140 % | 4,50 |
+
+85 % ist das Maximum; darüber frisst die Wiedervergrößerung mehr weg, als
+die stärkere Schärfung einbringt. Im direkten Vergleich sind Gesichter und
+Hemdkanten sichtbar definierter, ohne Halos. `UNSCHARF` in
+`neue-motive.py` steht deshalb auf `(1.6, 85, 2)`.
+
+**Echte Schärfe kann nur eine echte Aufnahme liefern.** Gebraucht werden
+mindestens 2400 px an der langen Kante (`docs/foto-briefing.md`). Und der
+Hinweis, der in diesem Fall der wichtigste ist: in ein Gespräch
+**eingefügte** Bilder werden auf dem Weg verkleinert. Zwei Aufnahmen
+desselben Betriebs kamen in dieser Sitzung mit 24,5 und 16,8 Megapixel an,
+weil sie als Datei angehängt waren. Das Kopfbild kam mit 0,31 — das Original
+existiert also mit hoher Wahrscheinlichkeit, es ist nur nie hier angekommen.
+
+### Der Schleier, zweiter Durchgang: weniger Text auf dem Foto
+
+Die erste Fassung deckte bis auf 66 % Höhe ab und lag unten bei 86 %
+Deckkraft. Beanstandet, zu Recht: das Foto war zu dunkel.
+
+Der Hebel ist nicht der Verlauf, sondern **was auf dem Foto steht**. Kleine
+Schrift braucht 54 % Abdunklung, eine grosse Zeile nur 42 %. Auf dem Foto
+standen Auszeichnungszeile, Hauptzeile, Vorspanntext und zwei Aktionen —
+also viermal kleine Schrift, und die Auszeichnungszeile ganz oben im
+Textblock, im hellsten Teil des Motivs. Um DIESE eine Zeile lesbar zu
+halten, musste der Verlauf zwei Drittel der Bildhöhe tragen.
+
+Vorspanntext und Aktionen stehen jetzt im **Auftaktband** darunter, einem
+dunklen Streifen. Auf dem Foto bleiben Auszeichnungszeile und Hauptzeile.
+
+| | vorher | nachher |
+|---|---|---|
+| Deckkraft unten | 86 % | **58 %** |
+| Verlauf reicht bis | 100 % der Höhe | **92 %**, ab 66 % unter 32 % |
+| oberes Drittel | abgedunkelt | **unberührt** |
+| schlechtester Pixel | 4,59:1 | 4,55:1 |
+
+Der Kontrast bleibt also derselbe, die Abdunklung fällt um 28 Punkte. Das
+ist der allgemeine Punkt daran: **ein Verlauf über einem Foto ist kein
+Regler, sondern eine Folge davon, wie viel Text darauf steht.**
+
+Der Preis ist, dass „Personal anfragen" nicht mehr im ersten Bildschirm
+steht. In der Kopfzeile steht es dauerhaft, am Telefon in der Leiste unten.
+
+---
+
+## Schwarz und Off-White, 2026
+
+Nach dem Umbau auf Hell kam die Gegenbewegung: **zu weiss.** Bestellt war
+ein Verhältnis, in dem Schwarz die tragende Farbe ist und Off-White die
+Ruhefläche, und zwar abwechselnd statt durchgehend.
+
+Die Startseite liest sich seitdem so:
+
+| | Grund |
+|---|---|
+| Kopfbild | Foto |
+| Auftaktband | dunkel |
+| Bildband | Foto |
+| Vertrauensleiste, Intro | Off-White |
+| Leistungen | Weiss |
+| Imagefilm | **dunkel** |
+| Referenzen | Off-White |
+| Schlussblock, Fuss | **dunkel** |
+
+Gemessen sind das 3 945 von 8 135 Pixeln auf dunklem Grund, also **48 %** —
+und nicht eine durchgehende schwarze Strecke, sondern vier Wechsel. Dazu
+kommt das Büroteam auf `team.html`.
+
+Umgeschaltet wird über `.auf-dunkel` im Markup, nicht über neue Regeln:
+die Klasse dreht die Tonleiter um, alles Übrige bleibt.
+
+**Die Falle dabei:** `.cta` hatte `background:var(--flaeche)` fest
+eingetragen. Das gewinnt gegen `.auf-dunkel` (gleiche Spezifität, spätere
+Regel) — der Schlussblock wäre weiss geblieben, während seine Schrift auf
+die helle Tonleiter umschaltet, also weiss auf weiss. Ein fest
+eingetragener Grund und eine umschaltbare Tonleiter schliessen einander
+aus; der Grund muss aus demselben Token kommen.
+
+### Das Büroteam steht auf dem Hintergrund seiner eigenen Aufnahme
+
+Bestellt war: jede Person vor einer anderen Büroszene. Die vorhandenen
+Porträts sind Studioaufnahmen vor anthrazitfarbenem Hintergrund (gemessen
+#2C2B30 oben links, #171719 unten rechts — ein Vignettenverlauf).
+
+Unterschiedliche Bürohintergründe lassen sich daraus nicht herstellen: man
+müsste die Personen freistellen und in erfundene Räume setzen. Das sind
+reale, mit Namen genannte Mitarbeiter, und ein erfundenes Büro hinter ihnen
+ist eine Aussage über den Betrieb, die nicht stimmt. Was gebraucht wird —
+sechs Szenen, eine Lichtführung, dieselbe Brennweite — steht in
+`docs/foto-briefing.md`.
+
+Was ohne neue Aufnahme möglich war: der Abschnitt steht auf **#2E2D33**,
+also auf dem Ton des Studiohintergrunds. Damit hat das Porträt keine
+sichtbare Kante mehr, die Aufnahme läuft in die Seite hinein, und übrig
+bleiben die Menschen statt vier grauer Rechtecke auf hellem Papier.
+
+**Versucht und wieder verworfen:** wechselnde Kachelformate (hochkant,
+quadratisch, hochkant), damit die vier nicht wie Kopien wirken. Im Bild sah
+das nicht abwechslungsreich aus, sondern unsortiert — die Namen standen
+nicht mehr auf einer Linie, und genau dafür gibt es `align-content:start`.
+**Eine Unregelmässigkeit, die niemand als Absicht liest, ist ein Fehler.**
+
+### Die Startseite nimmt nicht mehr alles vorweg
+
+Bestellt war, dass die Startseite neugierig macht statt die ganze Website
+aufzuzählen — bei weiterhin mehreren eigenständigen Unterseiten. Verschoben
+wurde deshalb, nicht gelöscht:
+
+| Was | von | nach | warum |
+|---|---|---|---|
+| „So läuft eine Anfrage" | Startseite | `kontakt.html` | der Ablauf gehört neben das Formular, mit dem man ihn auslöst |
+| „Was Sie erwarten können" | Startseite | `dienstleistungen.html` | derselbe Standard in allen sechs Bereichen, also einmal auf der Übersicht |
+| die 24 Unterleistungen | Leistungszeilen | die sechs Bereichsseiten | sie standen dort ohnehin; auf der Startseite waren sie das vollständige Verzeichnis |
+
+Die sechs Zeilen selbst bleiben. Ohne sie sagt die Startseite nicht, was
+das Haus tut — und „weniger aufzählen" heisst nicht „nichts nennen".
+
+**Was dabei nachzuziehen war:** ohne die vier Stichworte je Zeile stand
+links ein kleiner Name und 1 100 px weiter rechts ein Pfeil, dazwischen
+nichts. Nummer, Foto und Name sind deshalb mitgewachsen (Name auf
+`clamp(1.5rem, 2.9vw, 2.6rem)`, Versalien). Eine Zeile, die die volle
+Breite tragen soll, muss auch in ihr stehen.
+
+Gesamthöhe der Startseite bei 1280 px: **8 926 → 8 135** Pixel.
+
+---
 
 ## Bewegung
 
