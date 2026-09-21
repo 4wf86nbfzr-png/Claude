@@ -844,16 +844,13 @@ body.megabar-auf header.nav{
      allem das Sonnensegel und über ihnen viel Himmel. */
   object-fit:cover; object-position:50% 32%;
 }
-/* Je quadratischer das Fenster, desto weniger schneidet `cover` oben und
-   unten weg — und desto weiter rutscht der Stand nach oben ins Bild, genau
-   dorthin, wo die erste Zeile der Überschrift steht. Zwischen 981 und
-   1279 px liegt deshalb der Anschnitt ganz oben: dann steht das Motiv so
-   tief wie möglich, und die Zeile geht darüber hinweg statt darüber.
-   Gemessen bei 1024 x 768: Unterkante der ersten Zeile 357 px, die Köpfe
-   wandern dabei um 82 px nach unten. */
-@media (min-width:981px) and (max-width:1279px){
-  .hero__photo img{ object-position:50% 0%; }
-}
+/* Hier stand eine Sonderregel für 981 bis 1279 px. Sie gehörte zu einem
+   quadratischen Kopfbild: dort schneidet `cover` in einem fast quadratischen
+   Fenster kaum noch etwas weg, und das Motiv rutschte nach oben in die erste
+   Zeile der Überschrift. Das jetzige Kopfbild ist 4:3 — bei 1024 x 768 deckt
+   es das Fenster genau aus, `object-position` hat dort überhaupt keine
+   Wirkung mehr, und die Regel wäre eine Anweisung ohne Adressat. Eine Regel,
+   die zu einem Bild gehört, das nicht mehr da ist, gehört weg. */
 
 /* Die Kamerafahrt in die Seite hinein. Sie beginnt in dem Moment, in dem das
    Wortzeichen zurueckzutreten anfaengt — deshalb `los` und kein Startzeitpunkt
@@ -912,6 +909,33 @@ body.megabar-auf header.nav{
   animation-delay:0s, 3.1s;
 }
 .hero.live .hero__photo img{ animation-play-state:running; }
+
+/* ---- Das Bildband unter dem Kopfbild ------------------------------------
+   Dasselbe Motivprinzip, eine Etage tiefer: randlos, mit derselben
+   stehenden Fahrt und aus demselben Grund an `.live` gehängt. Es ist
+   bewusst kein `.wide-shot` — das sitzt im Satzspiegel und hat ein festes
+   Seitenverhältnis; hier geht das Bild bis an die Fensterkante. */
+.schaubild{
+  position:relative; overflow:hidden; background:var(--ink);
+  height:clamp(320px, 62svh, 720px);
+}
+.schaubild picture{ display:block; height:100%; }
+.schaubild img{
+  position:absolute; inset:0; width:100%; height:100%;
+  object-fit:cover; object-position:50% 46%;
+  animation:heroFahrt 30s ease-in-out infinite alternate paused;
+}
+.schaubild.live img{ animation-play-state:running; }
+/* Oben und unten läuft das Bild in den Seitengrund aus, sonst stünde es als
+   Kasten zwischen zwei schwarzen Flächen — und ein Kasten ist genau das,
+   was „Keine Karten" verbietet. */
+.schaubild::after{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background:
+    linear-gradient(180deg, var(--ink) 0%, rgba(0,0,0,.34) 12%, rgba(0,0,0,0) 30%),
+    linear-gradient(0deg,   var(--ink) 0%, rgba(0,0,0,.34) 12%, rgba(0,0,0,0) 30%);
+}
+.kein-js .schaubild img{ animation:none; }
 
 /* Der Text sitzt unten links, wie ein Bildtitel. Der Verlauf trägt ihn und
    läuft nach unten in den Seitengrund aus — dadurch gibt es keine sichtbare
@@ -2563,7 +2587,8 @@ header.nav{ view-transition-name:kopfzeile; }
      `scale(1.16)` — der Anfangszustand der Einfahrt. `animation:none` nimmt
      die Fahrt weg, nicht den Startwert, und das Foto stand bei reduzierter
      Bewegung dauerhaft 16 % zu nah. Genau der Fall aus „Die dritte Falle". */
-  .hero__photo img{ transform:none; }
+  .hero__photo img,
+  .schaubild img{ transform:none; }
   /* Alles, was seine Sichtbarkeit einer Einblendung verdankt, muss hier
      zurückgeholt werden: `animation:none` nimmt die Animation weg, nicht den
      Startwert. Der Vorspann im Hero stand dadurch dauerhaft auf opacity:0 —

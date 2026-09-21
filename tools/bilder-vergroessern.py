@@ -79,9 +79,13 @@ IMG = os.path.join(ROOT, "assets/img")
 # seitlich beschnitten. Deshalb fordert ein 1440er Fenster bis zu 4090 px.
 # Nur Bilder ueber 1,3-fach stehen hier — alles andere ist scharf genug.
 BEDARF = {
-    # Das Kopfbild der Startseite. Derselbe Bedarf wie gastro: es steht an
-    # derselben Stelle, im selben Rahmen, mit demselben `sizes`.
-    "tageskasse":         4090,
+    # Das Kopfbild der Startseite steht hier bewusst NICHT.
+    # `team-einsatz` und `bar-gruen` kommen aus Vorlagen mit 0,31 Megapixel
+    # (640 x 480 und 679 x 452). Eine zweite Stufe mit 2560 px waere daraus
+    # eine Vervierfachung der Kantenlaenge — Gewicht ohne ein einziges
+    # zusaetzliches Bilddetail. Sobald die Aufnahmen in voller Groesse
+    # vorliegen, gehoeren beide hier hinein und der Eintrag ist die halbe
+    # Arbeit; bis dahin waere er ein Schaden.
     "gastro":             4090,
     "sicherheit":         4090,
     "logistik":           4090,

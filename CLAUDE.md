@@ -257,6 +257,40 @@ Drei Dinge daran sind nicht beliebig:
    und gibt sie beim Anhalten wieder frei. `will-change` nähme ihr genau
    das.
 
+**Dieselbe Fahrt trägt das Bildband darunter** (`.schaubild`, zweites Motiv,
+randlos, direkt unter dem Kopfbild). Es ist bewusst kein `.wide-shot` — das
+sitzt im Satzspiegel und hat ein festes Seitenverhältnis; hier geht das Bild
+bis an die Fensterkante und bekommt oben und unten einen Verlauf in den
+Seitengrund, sonst stünde es als Kasten zwischen zwei schwarzen Flächen.
+
+### Was eine Vorlage tragen kann, und was nicht
+
+Die beiden Motive der Startseite kommen aus Dateien mit **0,31 Megapixel**
+(640 × 480 und 679 × 452). Zum Vergleich: 4K sind 8,29 MP, das vorige
+Kopfbild hatte 16,8 MP. Das ist ein Siebenundzwanzigstel von 4K und ein
+Vierundfünfzigstel der vorigen Vorlage.
+
+Was daraus folgt, und warum es so und nicht anders im Code steht:
+
+- **Keine zweite Stufe.** `team-einsatz` und `bar-gruen` stehen deshalb
+  **nicht** in `BEDARF` von `bilder-vergroessern.py`. Eine `…-gross`-Datei
+  mit 2560 px wäre aus 640 px eine Vervierfachung der Kantenlänge: Gewicht
+  ohne ein einziges zusätzliches Bilddetail, und damit genau das, was „Die
+  Obergrenze kommt nicht von der Dateigröße" verbietet.
+- **Hochgerechnet wird trotzdem**, auf 1600 px, mit Lanczos und der
+  gemessenen Nachschärfung. Das ist kein Detailgewinn, sondern eine
+  Arbeitsteilung: einmal hier statt bei jedem Aufruf im Browser mit dem
+  einfachsten Filter, den es gibt. Aus einer schlechten Vorlage wird dadurch
+  keine gute, nur die bestmögliche Darstellung der vorhandenen.
+- **Ein Video wäre hier doppelt falsch.** Ein Bild ohne Detail in 4K zu
+  kodieren erzeugt eine große Datei, die genau so wenig zeigt wie die
+  Vorlage. Die Rechnung dazu steht oben.
+
+Sobald die Aufnahmen in voller Größe vorliegen, ist es ein Handgriff:
+dieselben Dateinamen unter `assets/img/`, beide Stämme zurück in `BEDARF`,
+einmal `bilder-vergroessern.py`. Gebraucht werden mindestens 2400 px an der
+langen Kante (`docs/foto-briefing.md`).
+
 **Der Zuschnitt des Kopfbilds ist Teil der Typografie, nicht der Fotografie.**
 Die Überschrift ist drei Zeilen hoch und nimmt die linke Hälfte der unteren
 Bildhälfte ein. Ein Motiv in der Mitte liegt dann zwangsläufig darunter,
@@ -298,8 +332,8 @@ await p.waitForFunction(() => {
 });
 ```
 
-**Zwei Geschwister derselben Falle**, beide bei der Abnahme aufgetreten und
-beide zuerst als Fehler der Website gemeldet:
+**Drei Geschwister derselben Falle**, alle bei der Abnahme aufgetreten und
+alle zuerst als Fehler der Website gemeldet:
 
 - **Die Seite wächst beim Durchscrollen.** Faul geladene Bilder kommen
   dazu und schieben alles nach unten. Ein Test, der `scrollHeight` einmal
@@ -312,8 +346,16 @@ beide zuerst als Fehler der Website gemeldet:
   (und müssen es sein, siehe „Die Unterleisten unter der Kopfzeile"), und
   der Test meldete sie als unsichtbaren Text. Gefragt werden muss die
   ganze Elternkette nach `display`, `visibility` und `hidden`.
+- **Ein Test, der zu schnell scrollt, hängt den Beobachter ab.** Mit 500 px
+  je 60 ms sind das 8000 px je Sekunde — schneller, als ein Mensch je
+  scrollt, und schneller, als der IntersectionObserver meldet. Der Test sah
+  dann zwei Aufblenden als offen, die bei normalem Tempo längst ihr `.in`
+  hatten; beim nächsten Lauf waren es andere, und einmal keine. **Ein
+  Befund, der zwischen zwei Läufen wandert, ist keiner.** Nachgemessen bei
+  900 px/s, je drei Läufe im Repository und im Paket: null. Der Test läuft
+  seitdem mit 200 px je 45 ms.
 
-Beides sind Messfehler, keine Befunde. Die Regel dahinter ist dieselbe wie
+Alle drei sind Messfehler, keine Befunde. Die Regel dahinter ist dieselbe wie
 bei den drei Messungen zu totem Code: **wer eine Auffälligkeit auf allen
 sechzehn Seiten gleichzeitig findet, hat meistens seinen Test gemessen und
 nicht die Website.**

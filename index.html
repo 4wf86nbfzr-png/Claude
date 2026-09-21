@@ -263,7 +263,7 @@ document.documentElement.classList.remove("kein-js");
      der erste Bildschirm soll zeigen, auf welchem Niveau gearbeitet wird. -->
 <section class="hero" id="hero" data-weg>
   <div class="hero__photo" aria-hidden="true">
-    <picture><source type="image/avif" srcset="assets/img/tageskasse.avif 1600w, assets/img/tageskasse-gross.avif 2560w" sizes="(max-width:980px) 200vw, 142vw" /><source type="image/webp" srcset="assets/img/tageskasse.webp 1600w, assets/img/tageskasse-gross.webp 2560w" sizes="(max-width:980px) 200vw, 142vw" /><img src="assets/img/tageskasse.jpg" alt="" fetchpriority="high" width="1600" height="1600" /></picture>
+    <picture><source type="image/avif" srcset="assets/img/team-einsatz.avif" /><source type="image/webp" srcset="assets/img/team-einsatz.webp" /><img src="assets/img/team-einsatz.jpg" alt="" fetchpriority="high" width="1600" height="1200" /></picture>
   </div>
 
   <div class="wrap hero__inner">
@@ -297,6 +297,15 @@ document.documentElement.classList.remove("kein-js");
   </div>
 
   <div class="scrollcue" aria-hidden="true"><span>Scrollen</span><i></i></div>
+</section>
+
+<!-- ============ BILDBAND ============ -->
+<!-- Das zweite Motiv, randlos, direkt unter dem Kopfbild. Es traegt dieselbe
+     stehende Kamerafahrt wie der Hero und laeuft aus demselben Grund nur,
+     solange es zu sehen ist: `data-weg` gibt ihm `.live` vom vorhandenen
+     Motor, ohne eine Zeile JavaScript. -->
+<section class="schaubild" data-weg>
+  <picture><source type="image/avif" srcset="assets/img/bar-gruen.avif" /><source type="image/webp" srcset="assets/img/bar-gruen.webp" /><img src="assets/img/bar-gruen.jpg" alt="Aufgebaute Bar mit begrünter Rückwand und Barhockern auf einer Veranstaltung" loading="lazy" width="1600" height="1065" /></picture>
 </section>
 
 <!-- ============ VERTRAUENSLEISTE ============ -->
