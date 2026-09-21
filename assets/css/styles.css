@@ -44,43 +44,78 @@
      auf dunklem Grund schaltet `.auf-dunkel` sie um. Eine Regel, die
      `var(--tinte)` schreibt, stimmt dadurch in beiden Lagen — ohne zweite
      Regel und ohne Medienabfrage. */
-  --grund:      #F7F6F3;   /* Seitengrund, warmes Off-White */
-  --flaeche:    #FFFFFF;   /* erhobene Fläche: Karte, Feld, Panel */
-  --flaeche-2:  #EFEDE7;   /* zweite Bahn, zum Abwechseln */
-  --flaeche-3:  #E4E1D9;   /* Kante, Geisterzahlen, Füllung */
+  /* ------------------------------------------------------------------
+     Der Grund ist wieder dunkel — und diesmal überall
+     ------------------------------------------------------------------
+     Bestellt war: „nicht mehr überwiegend weiß", Schwarz beziehungsweise
+     sehr dunkle Grautöne als Grund, Weiß als Akzent für Text, Linien und
+     Bedienelemente, und sonst nichts verändern.
+
+     Genau das kostet hier keine einzige neue Regel. Die dunkle Tonleiter
+     stand schon vollständig da (siehe `.auf-dunkel` weiter unten) und trug
+     Fuß, Vollbildmenü, Kopfband und die vier Kontrastbahnen der
+     Startseite. Umgestellt werden deshalb nur die sechs Grundwerte hier —
+     jede Regel, die `var(--grund)` oder `var(--tinte)` schreibt, stimmt
+     danach von selbst. Das ist der Ertrag daraus, dass die Tokennamen die
+     ROLLE tragen und nicht die Farbe.
+
+     NICHT #000. Auf einem OLED-Bildschirm schaltet reines Schwarz die
+     Pixel ab; ein angeschnittenes Foto hat dann keinen Rand mehr, an dem
+     es aufhört, und genau daran ist die erste schwarze Fassung 2026
+     gescheitert. #15161B ist die Farbe, die im Fuß und im Menü ohnehin
+     schon stand, und ihre Textstufen sind gemessen.
+
+     Der Takt bleibt: ein Abschnitt darf mit `--flaeche` eine Spur heller
+     stehen als der Grund. Aus dem Wechsel Weiß/Off-White wird der Wechsel
+     #15161B/#21232B — dieselbe Mechanik, dieselben Klassen. */
+  --grund:      #15161B;   /* Seitengrund, Anthrazit */
+  --flaeche:    #21232B;   /* erhobene Fläche: Karte, Feld, Panel */
+  --flaeche-2:  #1A1C22;   /* zweite Bahn, zum Abwechseln */
+  --flaeche-3:  #262932;   /* Kante, Geisterzahlen, Füllung */
   --dunkel:     #15161B;   /* Anthrazit: Fuß, Kontrastbahn, Bildgrund */
   --dunkel-2:   #21232B;
+  /* Die helle Tonleiter von 2026 steht hier, damit sie nicht aus dem
+     Gedächtnis rekonstruiert werden muss:
+       --grund #F7F6F3 · --flaeche #FFFFFF · --flaeche-2 #EFEDE7
+       --flaeche-3 #E4E1D9 · --tinte #15161B · --tinte-2 rgba(21,22,27,.70)
+       --tinte-3 rgba(21,22,27,.62) · --linie rgba(21,22,27,.13)
+       --linie-stark rgba(21,22,27,.30) · --offen-ton #B0350B
+       --violet #5B21B6 · --orchid #7C3AED
+     Wer zurückdreht, muss ausserdem die Wortzeichen im Markup tauschen
+     (`logo-herm.png` -> `logo-herm-dunkel.png`) und `theme-color`. */
 
-  --tinte:      #15161B;                  /* Fließtext und Überschriften */
-  --tinte-2:    rgba(21,22,27,.70);       /* Sekundärtext */
-  /* .62, und die Zahl ist nachgerechnet, nicht übernommen. Auf dunklem
-     Grund trug diese Stufe .52 — dort ergibt Weiß bei .52 rund 4,5:1. Auf
-     hellem Grund ist dieselbe Deckkraft NICHT dasselbe: Anthrazit bei .52
-     auf #F7F6F3 sind nur 3,58:1, und genau das hat die Kontrastprüfung
-     über alle sechzehn Seiten an sechzig Stellen gemeldet. Die Tonleiter
-     ist nicht symmetrisch, und wer sie beim Umdrehen einfach mitnimmt,
-     nimmt einen Mangel mit.
+  --tinte:      #FFFFFF;                  /* Fließtext und Überschriften */
+  --tinte-2:    rgba(255,255,255,.74);    /* Sekundärtext */
+  /* **Eine Tonleiter ist nicht symmetrisch, und das gilt in beide
+     Richtungen.** Auf hellem Grund brauchte diese Stufe .62 (Anthrazit bei
+     .52 auf #F7F6F3 sind nur 3,58:1, und genau das hat die Prüfung 2026 an
+     sechzig Stellen gemeldet). Auf dunklem Grund trägt Weiß mehr: .58
+     ergibt gegen #15161B nachgerechnet 6,67:1. Wer beim Umdrehen die .62
+     mitnimmt, nimmt keinen Mangel mit, aber eine Stufe, die nicht mehr
+     gedämpft aussieht — der Unterschied zwischen `--tinte-2` und
+     `--tinte-3` verschwände.
 
-         .52  3,58:1      .60  4,60:1
-         .56  4,05:1      .62  4,92:1   <- so
-         .58  4,31:1      .64  5,25:1
-
-     .60 bestünde auch. .62 steht hier, weil ein Wert, der gerade eben
-     besteht, beim nächsten Eingriff nicht mehr besteht. */
-  --tinte-3:    rgba(21,22,27,.62);       /* gedämpft */
-  --linie:      rgba(21,22,27,.13);
-  --linie-stark:rgba(21,22,27,.30);
+         hell (#F7F6F3)          dunkel (#15161B)
+         .52  3,58:1             .52  5,79:1
+         .58  4,31:1             .58  6,67:1   <- so
+         .62  4,92:1             .62  7,29:1 */
+  --tinte-3:    rgba(255,255,255,.58);    /* gedämpft */
+  --linie:      rgba(255,255,255,.16);
+  --linie-stark:rgba(255,255,255,.34);
 
   /* Markenviolett. Es trägt nichts, es markiert nur: Hover, aktiver
      Menüpunkt, laufende Fortschrittslinie, Fokusdetail. Wer es großflächig
-     einsetzt, kippt den Auftritt sofort ins Templatehafte. Auf hellem Grund
-     muss es tiefer stehen als vorher, sonst hält es den Kontrast nicht:
-     #5B21B6 gegen #F7F6F3 sind 8,9:1, das alte #7C3AED nur 5,1:1. */
-  /* Der Warnton fuer noch offene Angaben. #F0A19D kam von dunklem Grund
-     und lag auf hellem bei 1,89:1. #B0350B sind 5,78:1. */
-  --offen-ton:  #B0350B;
-  --violet:     #5B21B6;
-  --orchid:     #7C3AED;
+     einsetzt, kippt den Auftritt sofort ins Templatehafte.
+
+     Die Richtung dreht mit dem Grund. Auf hellem Grund musste es tiefer
+     stehen (#5B21B6 gegen #F7F6F3 sind 8,9:1, #7C3AED nur 5,1:1); auf
+     Anthrazit ist dasselbe #5B21B6 mit 2,4:1 unlesbar, und es braucht die
+     helle Fassung: #A78BFA gegen #15161B sind 7,6:1. */
+  /* Der Warnton fuer noch offene Angaben. #B0350B war der Wert fuer hellen
+     Grund (5,78:1); auf Anthrazit liegt er bei 2,1:1. #F0A19D sind 8,7:1. */
+  --offen-ton:  #F0A19D;
+  --violet:     #A78BFA;
+  --orchid:     #C4B5FD;
   --glow:       #A78BFA;
 
   /* Standardakzent ist die Tinte; Farbe kommt nur pro Leistungsbereich */
@@ -88,8 +123,13 @@
 
   /* Erhebung. Keine Schlagschatten im Barock, sondern zwei Stufen, die eine
      Fläche gerade eben vom Grund abheben. Auf Off-White genügt sehr wenig. */
-  --schatten:   0 1px 2px rgba(21,22,27,.05), 0 8px 24px -12px rgba(21,22,27,.14);
-  --schatten-2: 0 2px 4px rgba(21,22,27,.06), 0 18px 44px -18px rgba(21,22,27,.22);
+  /* Auf Off-White genügte sehr wenig. Auf Anthrazit trägt ein Schatten aus
+     derselben Farbe gar nichts mehr — was den Grund abdunkeln soll, ist
+     schon so dunkel wie der Grund. Die Werte sind deshalb tiefer und
+     kräftiger; sichtbar sind sie nur noch dort, wo eine Fläche wirklich
+     über dem Grund liegt (Kopfzeile im gescrollten Zustand, Lightbox). */
+  --schatten:   0 1px 2px rgba(0,0,0,.30), 0 8px 24px -12px rgba(0,0,0,.55);
+  --schatten-2: 0 2px 4px rgba(0,0,0,.34), 0 18px 44px -18px rgba(0,0,0,.70);
 
   --font-display:'Bricolage Grotesque', 'Arial Black', system-ui, sans-serif;
   --font-body:   'Instrument Sans', system-ui, -apple-system, sans-serif;
@@ -138,7 +178,14 @@
 }
 
 *{ box-sizing:border-box; margin:0; padding:0; }
-html{ scroll-behavior:smooth; -webkit-text-size-adjust:100%; }
+/* `color-scheme:dark` ist die eine Zeile, die das Stylesheet nicht selbst
+   erreicht: die Bedienteile, die der BROWSER zeichnet. Das Kalendersymbol
+   in einem `<input type=date>`, die Uhr in `type=time`, der Pfeil eines
+   `<select>`, der Rollbalken und die Auswahlliste eines Datumsfeldes sind
+   ohne sie schwarz auf schwarz — im Formular auf kontakt.html sind das
+   sechs Felder. Sie gehört zum Grundton und nicht zum Formular, deshalb
+   steht sie hier und nicht dort. */
+html{ scroll-behavior:smooth; -webkit-text-size-adjust:100%; color-scheme:dark; }
 /* Jedes Sprungziel muss unter der festen Kopfzeile anfangen, nicht dahinter.
    Ohne diese Zeile landet „Zum Inhalt springen" und jeder Knopf, der auf
    #bewerbung zeigt, mit der Ueberschrift hinter der Leiste — man sieht dann
@@ -1005,10 +1052,18 @@ body.megabar-auf header.nav{
 }
 .hero__photo img{
   position:absolute; inset:0; width:100%; height:100%;
-  /* 38 %: über die volle Breite steht die Gruppe höher im Ausschnitt als in
-     der schmalen Spalte davor, und unten muss Fläche für die Schrift frei
-     bleiben. */
-  object-fit:cover; object-position:50% 38%;
+  /* Das Motiv ist auf 1,73:1 zugeschnitten und der Hero misst rund 1,77:1.
+     Beide Werte liegen so nah beieinander, dass `cover` am Schreibtisch
+     praktisch nichts wegschneidet — deshalb steht hier die Mitte, und
+     deshalb ist das Schild ganz zu sehen.
+
+     Am Telefon ist es etwas anderes: hochkant deckt `cover` über die HÖHE,
+     und von der Breite bleibt knapp ein Drittel. Mittig wäre das ein
+     Ausschnitt aus dem Logo — also dasselbe Zeichen, das zwei Zentimeter
+     darüber schon in der Kopfzeile steht. Der Wert steht dort deshalb
+     weiter links, wo eine Person mit Hemd, Arm und Hand die Schildkante
+     hält. Siehe den Block APP-ANSICHT. */
+  object-fit:cover; object-position:50% 50%;
 }
 
 /* ---- Der Schleier -------------------------------------------------------
@@ -1051,10 +1106,24 @@ body.megabar-auf header.nav{
   position:absolute; inset:0; z-index:1; pointer-events:none;
   background:
     linear-gradient(to top,
-      rgba(6,7,11,.56)  0%,
-      rgba(6,7,11,.53) 22%,
-      rgba(6,7,11,.53) 42%,
-      rgba(6,7,11,.53) 56%,   /* hier steht die Auszeichnungszeile */
+      /* Die Werte sind je Motiv nachgemessen, nicht gewählt — zum
+         `bankett`-Foto gehörten .56/.53. Das jetzige Kopfbild ist dunkler
+         (die Schrift steht auf dem schwarzen Schild), trägt aber in der
+         Mitte das hellgraue Wortzeichen des Schildes, und genau dort liegt
+         die erste Hero-Zeile. Gemessen über alle fünf Phasen der
+         Kamerafahrt, jeweils am schlechtesten Pixel:
+
+             .38   Auszeichnungszeile 3,17:1   erste Zeile 2,81:1
+             .52   Auszeichnungszeile 4,88:1   erste Zeile 4,37:1   <- so
+             .58   Auszeichnungszeile 5,35:1   erste Zeile 5,32:1
+
+         Die Auszeichnungszeile ist kleine Schrift und braucht 4,5 — sie
+         allein bestimmt den Verlauf. Alles darüber dunkelt das Foto ohne
+         Gegenwert ab. */
+      rgba(6,7,11,.54)  0%,
+      rgba(6,7,11,.52) 22%,
+      rgba(6,7,11,.52) 42%,
+      rgba(6,7,11,.52) 56%,   /* hier steht die Auszeichnungszeile */
       rgba(6,7,11,.30) 66%,
       rgba(6,7,11,.10) 80%,
       rgba(6,7,11,0)   92%),
@@ -3001,7 +3070,7 @@ header.nav{ view-transition-name:kopfzeile; }
      Abschnitts — das ist genau das „keine bildfüllende Darstellung", das
      beanstandet wurde. */
   .hero{ min-height:calc(100svh - var(--nav-h0, var(--nav-h, 68px))); }
-  .hero__photo img{ object-position:50% 34%; }
+  .hero__photo img{ object-position:14% 50%; }
   .hero__inner{ padding-block:clamp(32px,6vh,72px) clamp(40px,6vh,72px); }
   /* Hochkant nimmt der Text relativ mehr Höhe ein, der Verlauf trägt
      deshalb weiter nach oben. Die Werte kommen aus derselben Rechnung. */
@@ -3013,9 +3082,9 @@ header.nav{ view-transition-name:kopfzeile; }
   .hero__schleier{
     background:
       linear-gradient(to top,
-        rgba(6,7,11,.62)  0%,
+        rgba(6,7,11,.60)  0%,
         rgba(6,7,11,.58) 30%,
-        rgba(6,7,11,.55) 55%,
+        rgba(6,7,11,.56) 55%,
         rgba(6,7,11,.54) 70%,
         rgba(6,7,11,.28) 82%,
         rgba(6,7,11,.08) 92%,

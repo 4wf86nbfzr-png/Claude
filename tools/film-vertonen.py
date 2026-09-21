@@ -46,6 +46,9 @@ VIDEO = os.path.join(ROOT, "assets/video")
 FILM = os.path.join(VIDEO, "imagefilm.webm")
 MUSIK = os.path.join(VIDEO, "imagefilm-musik.webm")
 VTT = os.path.join(VIDEO, "imagefilm-de.vtt")
+# Hier liegen echte Sprachaufnahmen, eine Datei je Untertitelzeile
+# (`01.wav` bis `09.wav`). Was hier liegt, schlaegt das Sprachmodell.
+ANSAGE = os.path.join(ROOT, "assets/audio/ansage")
 
 # Sprachmodell. Es liegt nicht im Repository — 110 MB fuer einen Platzhalter
 # waeren unverhaeltnismaessig. Bezug siehe README.
@@ -54,6 +57,42 @@ STIMME = os.environ.get("STIMME", os.path.join(ROOT, "tools/stimme/de_DE-thorste
 # Etwas langsamer als die Vorgabe. Gemessen bleibt damit auch der laengste
 # Satz (3,90 s) im kuerzesten Fenster (4,20 s) — und er klingt ruhiger.
 TEMPO = 1.06
+
+# ---------------------------------------------------------------------------
+# Was gegen „klingt gelangweilt" NICHT hilft
+#
+# Bestellt war eine lebendigere Ansage. Der naheliegende Griff sind die
+# beiden Streuungsregler des Modells: `noise_scale` (Klangfarbe) und
+# `noise_w_scale` (Dauer der Phoneme, also Rhythmus). Nachgemessen an der
+# Grundfrequenz — Standardabweichung in Halbtoenen, je vier Laeufe ueber
+# vier Saetze, Median und Spanne:
+#
+#     Vorgabe          ns .667  nw .80    3,91   (3,58 bis 4,04)
+#     mehr Rhythmus    ns .667  nw 1.00   4,00   (3,85 bis 4,20)
+#     mehr Klangfarbe  ns .85   nw .80    4,02   (3,68 bis 4,23)
+#     beides           ns .85   nw 1.00   3,90   (3,64 bis 4,23)
+#
+# Die Spannen decken einander vollstaendig: **der Unterschied liegt im
+# Rauschen.** Vier Halbtoene Streuung sind ausserdem bereits der Bereich
+# normal lebendiger Sprache — monoton waere unter 1,5. Woran man die
+# Maschine hoert, ist nicht die fehlende Tonhoehenbewegung, sondern die
+# fehlende BETONUNGSLOGIK, und die steuert keiner dieser Regler.
+#
+# Dasselbe gilt fuer die Interpunktion. Die Vermutung war, der Doppelpunkt
+# in „Gastronomie: Servicekraefte, ..." werde verschluckt. Gemessen an der
+# laengsten Pause im Satzinneren ist das Gegenteil der Fall:
+#
+#     Gastronomie:  ...   0,32 s      <- traegt am weitesten
+#     Gastronomie.  ...   0,26 s
+#     Gastronomie — ...   0,24 s
+#
+# Deshalb steht hier nichts Neues. Wer wirklich eine echte Stimme will,
+# nimmt eine auf — dafuer gibt es ANSAGE weiter unten und
+# docs/sprecher-briefing.md.
+#
+# (Gemessen mit de_DE-thorsten-low, weil dieses Modell aus der Werkstatt
+# erreichbar war. Die Regler wirken bei jedem Piper-Modell gleichartig; die
+# absoluten Zahlen koennen mit einem anderen Modell etwas anders liegen.)
 
 # ---------------------------------------------------------------------------
 # Aussprache
@@ -86,6 +125,14 @@ AUSSPRACHE = {
     "diskret":         "diskreet",            # d ɪ s k r eː t
     "Auf- und Abbau":  "Auf und Ab-Bau",      # a ʊ f ʊ n t a p b a ʊ
     "Moin":            "Meun",                # m ɔø n  — einsilbig, wie gesprochen
+    # Der einzige Eintrag, bei dem es nicht um Wohlklang geht, sondern um
+    # die BEDEUTUNG: „Promotion" deutsch gelesen ist p r oː m oː ts j ˈoː n,
+    # und das ist der Doktortitel. Gemeint ist das englische Wort, und so
+    # sagt es auch jeder im Betrieb. Gemessen mit --lautschrift:
+    #     Promotion    p r oː m oː ts j ˈoː n     <- Doktorarbeit
+    #     Promoschen   p r oː m ˈɔ ʃ ə n          zu kurzes o, volles „-en"
+    #     Promohschn   p r oː m ˈoː ʃ n           <- so
+    "Promotion":       "Promohschn",
 }
 
 
@@ -141,28 +188,77 @@ def laenge(ff, datei):
     return int(m[1]) * 3600 + int(m[2]) * 60 + float(m[3]) if m else 45.01
 
 
-def sprechen(zeilen, gesamtlaenge):
-    """Eine durchgehende Sprachspur bauen, jede Zeile an ihrer Zeit."""
-    try:
-        from piper import PiperVoice, SynthesisConfig
-    except ImportError:
-        sys.exit("piper-tts fehlt — bitte 'pip install piper-tts' ausfuehren.")
-    if not os.path.exists(STIMME):
-        sys.exit(f"Sprachmodell fehlt: {STIMME}\nBezug steht in README.md unter „Der Imagefilm\".")
+def aufnahme(i):
+    """Liegt fuer Zeile i eine echte Aufnahme bereit?"""
+    for endung in (".wav", ".flac", ".aiff", ".aif", ".m4a", ".mp3", ".ogg", ".opus"):
+        pfad = os.path.join(ANSAGE, f"{i:02d}{endung}")
+        if os.path.exists(pfad):
+            return pfad
+    return None
 
-    stimme = PiperVoice.load(STIMME, config_path=STIMME + ".json")
-    rate = stimme.config.sample_rate
+
+def einlesen(ff, pfad, rate):
+    """Eine Aufnahme als Mono-PCM in der Zielabtastrate."""
+    roh = subprocess.run([ff, "-v", "error", "-i", pfad, "-ac", "1",
+                          "-ar", str(rate), "-f", "s16le", "-"],
+                         capture_output=True, check=True).stdout
+    return array.array("h", roh)
+
+
+def sprechen(ff, zeilen, gesamtlaenge):
+    """Eine durchgehende Sprachspur bauen, jede Zeile an ihrer Zeit.
+
+    Je Zeile wird zuerst nach einer **echten Aufnahme** gesucht
+    (`assets/audio/ansage/01.wav` und so weiter). Nur wo keine liegt,
+    springt das Sprachmodell ein. Beides darf gemischt sein: wer erst drei
+    Zeilen aufgenommen hat, bekommt drei echte und sechs synthetische.
+
+    Das Sprachmodell wird deshalb **erst geladen, wenn es wirklich
+    gebraucht wird**. Vorher brach das Skript ohne Modell ab — auch dann,
+    wenn alle neun Aufnahmen vorlagen und gar nichts zu synthetisieren war.
+    """
+    echte = {i: aufnahme(i) for i in range(1, len(zeilen) + 1)}
+    fehlen = [i for i, p in echte.items() if not p]
+    stimme = None
+    rate = 48000                      # fuer echte Aufnahmen; Modell kann anders
+
+    if fehlen:
+        try:
+            from piper import PiperVoice, SynthesisConfig
+        except ImportError:
+            sys.exit("piper-tts fehlt — bitte 'pip install piper-tts' ausfuehren.\n"
+                     "Oder Aufnahmen nach assets/audio/ansage/ legen, "
+                     "siehe docs/sprecher-briefing.md.")
+        if not os.path.exists(STIMME):
+            sys.exit(f"Sprachmodell fehlt: {STIMME}\n"
+                     "Bezug steht in README.md unter „Der Imagefilm\".\n"
+                     "Oder Aufnahmen nach assets/audio/ansage/ legen, "
+                     "siehe docs/sprecher-briefing.md.")
+        stimme = PiperVoice.load(STIMME, config_path=STIMME + ".json")
+        rate = stimme.config.sample_rate
+        if len(fehlen) < len(zeilen):
+            print(f"  {len(zeilen)-len(fehlen)} Zeilen als Aufnahme, "
+                  f"{len(fehlen)} aus dem Sprachmodell")
+    else:
+        print(f"  alle {len(zeilen)} Zeilen liegen als Aufnahme vor — "
+              "kein Sprachmodell noetig")
+
     gesamt = array.array("h", bytes(0))
     zu_kurz = []
 
     for i, (anfang, ende, text) in enumerate(zeilen, 1):
-        gesprochen = sprechfassung(text)
-        puffer = io.BytesIO()
-        with wave.open(puffer, "wb") as w:
-            stimme.synthesize_wav(gesprochen, w, syn_config=SynthesisConfig(length_scale=TEMPO))
-        puffer.seek(0)
-        r = wave.open(puffer)
-        proben = array.array("h", r.readframes(r.getnframes()))
+        if echte[i]:
+            gesprochen = text
+            proben = einlesen(ff, echte[i], rate)
+        else:
+            gesprochen = sprechfassung(text)
+            puffer = io.BytesIO()
+            with wave.open(puffer, "wb") as w:
+                stimme.synthesize_wav(gesprochen, w,
+                                      syn_config=SynthesisConfig(length_scale=TEMPO))
+            puffer.seek(0)
+            r = wave.open(puffer)
+            proben = array.array("h", r.readframes(r.getnframes()))
         dauer = len(proben) / rate
         if dauer > ende - anfang:
             zu_kurz.append((i, dauer, ende - anfang))
@@ -173,8 +269,8 @@ def sprechen(zeilen, gesamtlaenge):
         # Falls eine Zeile doch ueberlappt, wird nicht abgeschnitten, sondern
         # hinten angehaengt — ein abgehackter Satz waere schlimmer.
         gesamt.extend(proben)
-        anders = " *" if gesprochen != text else "  "
-        print(f"  {i}{anders} bei {anfang:5.1f}s  {dauer:4.2f}s / {ende-anfang:4.1f}s  {text[:44]}")
+        marke = " o" if echte[i] else (" *" if gesprochen != text else "  ")
+        print(f"  {i}{marke} bei {anfang:5.1f}s  {dauer:4.2f}s / {ende-anfang:4.1f}s  {text[:44]}")
 
     if zu_kurz:
         for i, d, f in zu_kurz:
@@ -242,15 +338,50 @@ def lautschrift():
         print(f"   {laute(gesprochen)}\n")
 
 
+def woerter():
+    """Jedes Wort des Films einzeln, so wie es gesprochen wird.
+
+    Die Lautschrift einer ganzen Zeile ist lang und man überliest darin
+    genau das eine Wort, um das es geht. Diese Liste steht Wort für Wort
+    da — und sie ist der Grund, warum „Promotion" gefunden wurde: in der
+    Zeile las es sich unauffällig, einzeln stand da der Doktortitel.
+
+    Nach jeder Textänderung einmal laufen lassen. Mehrwortige Einträge der
+    Tabelle („Auf- und Abbau") sieht man hier nicht als ersetzt — die
+    stehen in `--lautschrift`, weil sie erst im Satz greifen.
+    """
+    from piper import PiperVoice
+    stimme = PiperVoice.load(STIMME, config_path=STIMME + ".json")
+    laute = lambda t: "".join(x for s in stimme.phonemize(t) for x in s)
+
+    gesehen = []
+    for _, _, text in untertitel():
+        for wort in re.findall(r"[A-Za-zÄÖÜäöüß][A-Za-zÄÖÜäöüß\-]*", text):
+            if wort not in gesehen:
+                gesehen.append(wort)
+
+    print(f"{len(gesehen)} verschiedene Woerter\n")
+    for wort in gesehen:
+        ersetzt = sprechfassung(wort)
+        marke = " *" if ersetzt != wort else "  "
+        print(f"{marke} {wort:18s} {laute(ersetzt)}"
+              + (f"   (als „{ersetzt}\")" if ersetzt != wort else ""))
+    print("\n* = aus der Tabelle AUSSPRACHE. Ein Wort, das hier falsch steht,")
+    print("  gehoert dort hinein — nie in den Untertitel.")
+
+
 def main():
     if "--lautschrift" in sys.argv:
         lautschrift()
+        return
+    if "--woerter" in sys.argv:
+        woerter()
         return
     ff = ffmpeg()
     zeilen = untertitel()
     print(f"{len(zeilen)} Untertitelzeilen aus {os.path.relpath(VTT, ROOT)}")
     musik_sichern(ff)
-    sprache = sprechen(zeilen, laenge(ff, MUSIK))
+    sprache = sprechen(ff, zeilen, laenge(ff, MUSIK))
     ton = mischen(ff, sprache)
     einbauen(ff, ton)
     print(f"\nFertig: {os.path.relpath(FILM, ROOT)} "

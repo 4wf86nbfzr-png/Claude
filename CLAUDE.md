@@ -13,14 +13,15 @@ Die Seite soll nach Handwerk aussehen, nicht nach Baukasten. Konkret heißt das:
 - **Ein Stylesheet, eine Wahrheit.** Alle Werte kommen aus den Tokens ganz
   oben in `assets/css/styles.css`. Keine Einzelfarben, keine Einzelabstände
   irgendwo im Markup.
-- **Der Grund ist ein warmes Off-White** (`--grund: #F7F6F3`). Bis 2026 war
-  er echtes Schwarz, und das hatte einen guten Grund: auf einem
-  OLED-Bildschirm schaltet #000 die Pixel ab, ein angeschnittenes Foto hat
-  dann keinen Rand mehr, an dem es aufhört. Getragen hat es die Fotos —
-  aber über zehn Bildschirmhöhen liest sich eine schwarze Fläche als Loch
-  und nicht als Ruhe, und alles zwischen den Bildern wirkte leer. Schwarz
-  ist deshalb vom Material zum Werkzeug geworden: es steht noch im Fuß, im
-  Vollbildmenü und unter einem Foto, und dort tut es etwas.
+- **Der Grund ist Anthrazit** (`--grund: #15161B`), seit September 2026
+  wieder durchgehend. Die Seite hat beide Richtungen einmal ganz
+  durchlaufen — schwarz, dann Off-White, dann abwechselnd, jetzt dunkel —
+  und aus jedem Durchgang bleibt eine Regel stehen: **nicht #000** (auf
+  OLED schaltet reines Schwarz die Pixel ab, und ein angeschnittenes Foto
+  hat dann keinen Rand mehr, an dem es aufhört), und **nicht durchgehend
+  eine Fläche** (`--flaeche` setzt einzelne Abschnitte eine Spur heller ab,
+  damit die Folge einen Takt behält). Die Begründung und die gemessenen
+  Werte stehen unter „Der Umbau auf Dunkel, September 2026".
 - **Die Tokennamen sagen die Rolle, nicht die Farbe.** `--grund`,
   `--flaeche`, `--tinte`, `--tinte-2`, `--tinte-3`, `--linie`. Vorher hießen
   sie `--ink` (die Grundfläche) und `--paper` (der Text) — die Metapher
@@ -175,6 +176,12 @@ ersten Namenswechsel auseinander.
 Menü, nicht auf der Startseite". Der Grund dafür war ihre Länge (6 × 76 svh
 = 4700 px). Die Liste braucht 1 540 px und löst das Problem nicht wieder
 aus, das sie damals verursacht hat.
+
+**Und seit September 2026 gilt wieder das Gegenteil:** der Block ist auf
+Wunsch ausgebaut, die Bereiche sind nur noch über den Menüpunkt
+erreichbar. Die Begründung und der Weg zurück stehen unter „Die Startseite
+zeigt die Dienstleistungen nicht mehr". Die sechs Blöcke auf
+`dienstleistungen.html`, die dasselbe Skript erzeugt, sind unberührt.
 
 ### Die Falle: `.leistungen` war schon vergeben
 
@@ -572,7 +579,7 @@ Nach dem Umbau auf Hell kam die Gegenbewegung: **zu weiss.** Bestellt war
 ein Verhältnis, in dem Schwarz die tragende Farbe ist und Off-White die
 Ruhefläche, und zwar abwechselnd statt durchgehend.
 
-Die Startseite liest sich seitdem so:
+Die Startseite las sich danach so:
 
 | | Grund |
 |---|---|
@@ -585,9 +592,14 @@ Die Startseite liest sich seitdem so:
 | Referenzen | Off-White |
 | Schlussblock, Fuss | **dunkel** |
 
-Gemessen sind das 3 945 von 8 135 Pixeln auf dunklem Grund, also **48 %** —
-und nicht eine durchgehende schwarze Strecke, sondern vier Wechsel. Dazu
-kommt das Büroteam auf `team.html`.
+Gemessen waren das 3 945 von 8 135 Pixeln auf dunklem Grund, also **48 %** —
+und nicht eine durchgehende schwarze Strecke, sondern vier Wechsel.
+
+**Dieser Abschnitt beschreibt einen Zwischenstand.** Seit September 2026
+ist der Grund durchgehend dunkel (siehe „Der Umbau auf Dunkel"); aus dem
+Wechsel Weiss/Off-White ist der Wechsel #15161B/#21232B geworden. Was
+bleibt, ist die Mechanik darunter, und die steht hier: umgeschaltet wird
+über `.auf-dunkel` im Markup, nicht über neue Regeln.
 
 Umgeschaltet wird über `.auf-dunkel` im Markup, nicht über neue Regeln:
 die Klasse dreht die Tonleiter um, alles Übrige bleibt.
@@ -645,6 +657,133 @@ nichts. Nummer, Foto und Name sind deshalb mitgewachsen (Name auf
 Breite tragen soll, muss auch in ihr stehen.
 
 Gesamthöhe der Startseite bei 1280 px: **8 926 → 8 135** Pixel.
+
+---
+
+## Der Umbau auf Dunkel, September 2026
+
+Nach „Schwarz und Off-White" kam die nächste Stufe derselben Bewegung:
+**nicht mehr überwiegend weiß.** Bestellt war Schwarz beziehungsweise sehr
+dunkle Grautöne als Grund, Weiß als Akzent für Text, Linien und
+Bedienelemente — und ausdrücklich: „Alle anderen funktionalen Elemente,
+Layouts, Abstände und Inhalte sollen ansonsten exakt unverändert bleiben."
+
+**Genau das hat null neue Regeln gekostet.** Umgestellt sind sechs
+Farbwerte in `:root`, und zwar auf die Werte, die im Stylesheet ohnehin
+schon standen: die dunkle Tonleiter von `.auf-dunkel` trug bereits Fuß,
+Vollbildmenü, Kopfband der Unterseiten und die vier Kontrastbahnen der
+Startseite. Jede Regel, die `var(--grund)` oder `var(--tinte)` schreibt,
+stimmt seitdem von selbst.
+
+Das ist der Ertrag aus einer Entscheidung von 2026, die damals nur nach
+Ordnungsliebe aussah: **die Tokennamen tragen die Rolle, nicht die Farbe.**
+Hießen sie `--weiss` und `--schwarz`, wäre dieselbe Umstellung eine
+Suchen-und-Ersetzen-Aktion über 250 Stellen — mit der Gewissheit, ein
+Dutzend davon zu übersehen.
+
+| | vorher | nachher |
+|---|---|---|
+| `--grund` | #F7F6F3 | **#15161B** |
+| `--flaeche` | #FFFFFF | #21232B |
+| `--tinte` | #15161B | #FFFFFF |
+| `--tinte-3` | rgba(21,22,27,.62) | rgba(255,255,255,.58) |
+| `--violet` | #5B21B6 | #A78BFA |
+| `--offen-ton` | #B0350B | #F0A19D |
+| Kontrastfehler nach WCAG | 0 | **0** von 16 Seiten, Schreibtisch und Telefon |
+
+**Nicht #000**, und das ist dieselbe Begründung wie 2026: auf einem
+OLED-Bildschirm schaltet reines Schwarz die Pixel ab, ein angeschnittenes
+Foto hat dann keinen Rand mehr, an dem es aufhört. #15161B ist der Ton,
+der im Fuß ohnehin stand, und seine Textstufen sind gemessen.
+
+**Der Takt bleibt.** Ein Abschnitt darf mit `--flaeche` eine Spur heller
+stehen als der Grund; aus dem Wechsel Weiß/Off-White wird der Wechsel
+#15161B/#21232B. Dieselben Klassen, dieselben Stellen.
+
+### Drei Dinge, die das Stylesheet nicht von selbst erreicht
+
+1. **Die Wortzeichen.** Es gibt jede Fassung zweimal: `logo-herm.png` ist
+   die helle für dunklen Grund, `logo-herm-dunkel.png` die dunkle für
+   hellen. Kopfzeile, Vorspann und App-Leiste trugen die dunkle — auf
+   Anthrazit wäre das ein unsichtbares Logo, und zwar an der auffälligsten
+   Stelle der Seite. Getauscht in allen sechzehn Dateien, zusammen mit
+   `<meta name="theme-color">`.
+2. **`color-scheme:dark` an `html`.** Das Kalendersymbol in einem
+   `<input type=date>`, die Uhr in `type=time`, der Pfeil eines `<select>`
+   und der Rollbalken zeichnet der **Browser**, nicht das Stylesheet. Ohne
+   diese eine Zeile stehen sie schwarz auf schwarz — im Anfrageformular
+   sind das sechs Felder.
+3. **Die Schatten.** `--schatten` war aus `rgba(21,22,27,…)` gemischt. Was
+   den Grund abdunkeln soll, ist auf Anthrazit schon so dunkel wie der
+   Grund; die Werte kommen jetzt aus `rgba(0,0,0,…)` und stehen tiefer.
+
+### Die Tonleiter ist auch in dieser Richtung nicht symmetrisch
+
+2026 stand hier die Warnung, `--tinte-3` beim Hellerdrehen nicht einfach
+mitzunehmen (.52 auf dunkel ergab 4,5:1, dieselbe Deckkraft auf hell nur
+3,58:1). Zurück gilt dasselbe, nur mit umgekehrtem Vorzeichen: Weiß trägt
+auf Anthrazit **mehr**. Die .62, die auf hellem Grund nötig waren, ergeben
+auf #15161B 7,29:1 — kein Mangel, aber die Stufe sähe nicht mehr gedämpft
+aus, und der Unterschied zwischen `--tinte-2` und `--tinte-3` verschwände.
+Sie steht deshalb auf .58 (6,67:1).
+
+### Die Startseite zeigt die Dienstleistungen nicht mehr
+
+Bestellt war, dass die sechs Bereiche **nur** über den Menüpunkt
+erreichbar sind. Der Leistungsblock ist deshalb ausgebaut; die Startseite
+ist damit von 8 787 auf **7 109** Pixel gefallen (1440 px Fenster).
+
+Damit ist die Entscheidung von „Der Umbau auf Hell" wieder aufgehoben, und
+zwar ausdrücklich: dort stand „Die sechs Zeilen selbst bleiben. Ohne sie
+sagt die Startseite nicht, was das Haus tut." Das Gegenargument des
+Auftraggebers wiegt schwerer — es gibt vier Wege zu den Bereichen, und
+keiner davon ist die Startseite: der Balken unter der Kopfzeile, der
+Menüpunkt selbst (auch ohne JavaScript), „Leistungen" in der App-Leiste
+und die sechs Adressen im Fuß jeder Seite.
+
+**Das Skript bleibt stehen.** `tools/leistungen-bauen.py` baut den Block
+ohne Schalter **aus** (mehrfach ausführbar) und mit `--einsetzen` wieder
+ein. Ein gelöschtes Skript wäre eine Entscheidung, die niemand mehr
+zurücknehmen kann — und seine Tabelle ist weiterhin die einzige Stelle, an
+der Nummer, Name, Adresse und Kachel der sechs Bereiche zusammenstehen.
+
+### Das Kopfbild: ein Zuschnitt schlägt einen Zoom
+
+Das Kopfbild ist zum vierten Mal gewechselt, diesmal auf das Teamfoto der
+Teamseite — bestellt mit der Bedingung, dass oben keine Gesichter zu
+erkennen sind.
+
+Der erste Versuch war ein eigener Ausschnitt aus `assets/img/team-herm.jpg`
+(1600 × 880) ab der Schulterlinie: 1600 × 520, also **3,08:1**. In einem
+Hero von 1,77:1 muss der Browser so einen Streifen um das 1,74-fache
+vergrößern und schneidet zwei Fünftel der Breite weg — das Schild füllte
+das Bild, die Überschrift lag auf dem Logo, und gemessen waren es 3,1
+Hochrechnung von echten Pixeln.
+
+Der gelieferte Zuschnitt (1290 × 745) liegt mit **1,73:1** fast genau auf
+dem Seitenverhältnis des Heros: kein Zoom, kein Beschnitt, das Schild ganz
+im Bild. **Ein Zuschnitt, der zum Rahmen passt, ist jeder
+`object-position` überlegen** — und er kostet keine einzige Zeile CSS.
+
+Am Telefon bleibt der Beschnitt trotzdem: hochkant deckt `cover` über die
+Höhe, von der Breite bleibt knapp ein Drittel. Mittig wäre das ein
+Ausschnitt aus dem Logo, also dasselbe Zeichen, das zwei Zentimeter
+darüber in der Kopfzeile steht. `object-position` steht dort deshalb bei
+14 %, wo eine Person mit Hemd, Arm und Hand die Schildkante hält.
+
+**Der Schleier wurde wieder neu gemessen**, wie bei jedem Motivwechsel.
+Das Bild ist dunkler als das vorige, trägt aber in der Mitte das hellgraue
+Wortzeichen des Schildes — und genau dort liegt die erste Hero-Zeile.
+Gemessen über alle fünf Phasen der Kamerafahrt, am schlechtesten Pixel:
+
+| Deckkraft unten | Auszeichnungszeile (4,5 nötig) | erste Zeile (3,0 nötig) |
+|---|---|---|
+| .38 | 3,17:1 | 2,81:1 |
+| **.52** | **4,88:1** | **4,37:1** |
+| .58 | 5,35:1 | 5,32:1 |
+
+Am Telefon bestimmt dieselbe Zeile den Wert, dort .58. Alles darüber
+dunkelt das Foto ohne Gegenwert ab.
 
 ---
 
@@ -1754,7 +1893,56 @@ Untertitel und Stimme nie auseinanderlaufen.
 - **Die Stimme ist ein Platzhalter**, genau wie die Bilder des Films: ein
   lokales Sprachmodell (Thorsten, deutsche Männerstimme, 22 kHz). Sie klingt
   ruhig, aber sie klingt synthetisch. Vor dem Live-Gang gehört dort eine
-  echte Aufnahme hin.
+  echte Aufnahme hin — und dafür gibt es jetzt beides: den Weg im Skript
+  (`assets/audio/ansage/01.wav` bis `09.wav`, was dort liegt, schlägt das
+  Modell) und das Briefing in `docs/sprecher-briefing.md`.
+
+### An den Reglern zu drehen hilft nicht
+
+Bestellt war „nicht so gelangweilt, wie eine echte Stimme". Der
+naheliegende Griff sind die beiden Streuungsregler des Modells:
+`noise_scale` (Klangfarbe) und `noise_w_scale` (Dauer der Phoneme, also
+Rhythmus). Nachgemessen an der Grundfrequenz, Standardabweichung in
+Halbtönen, je vier Läufe über vier Sätze:
+
+| | Median | Spanne |
+|---|---|---|
+| Vorgabe (.667 / .80) | 3,91 | 3,58 – 4,04 |
+| mehr Rhythmus (.667 / 1.00) | 4,00 | 3,85 – 4,20 |
+| mehr Klangfarbe (.85 / .80) | 4,02 | 3,68 – 4,23 |
+| beides (.85 / 1.00) | 3,90 | 3,64 – 4,23 |
+
+**Die Spannen decken einander vollständig — der Unterschied liegt im
+Rauschen.** Vier Halbtöne sind außerdem bereits der Bereich normal
+lebendiger Sprache; monoton wäre unter 1,5. Woran man die Maschine hört,
+ist nicht die fehlende Tonhöhenbewegung, sondern die fehlende
+**Betonungslogik**, und die steuert keiner dieser Regler.
+
+Dasselbe beim Satzzeichen. Die Vermutung war, der Doppelpunkt in
+„Gastronomie: Servicekräfte, …" werde verschluckt. Gemessen an der
+längsten Pause im Satzinneren ist das Gegenteil der Fall: `:` trägt 0,32 s,
+ein Punkt 0,26 s, ein Gedankenstrich 0,24 s. Also bleibt es beim
+Doppelpunkt.
+
+**Was messbar falsch war, ist die Aussprache.** `--woerter` zerlegt den
+Film in seine 56 verschiedenen Wörter und zeigt jedes einzeln in
+Lautschrift — in der ganzen Zeile überliest man genau das eine. Gefunden
+wurde so „Promotion": deutsch gelesen ist das `p r oː m oː ts j ˈoː n`,
+und das ist der **Doktortitel**. Gemeint ist das englische Wort. Es steht
+jetzt als `Promohschn` in der Tabelle, und alle 56 Wörter stehen richtig.
+
+Geändert wird dabei nie der Untertitel, immer nur der Sprechtext.
+
+Der Film ist damit neu abgemischt: gleiche Länge (44,92 s), gleiche
+Musikspur (unberührt, wie immer aus `imagefilm-musik.webm`), gemessen
+−16,1 LUFS bei −1,4 dBTP. Jeder der neun Sätze passt in sein Fenster,
+der längste mit 3,98 s in 4,2 s.
+
+**Das Sprachmodell kommt nicht von HuggingFace**, auch wenn es dort
+zuhause ist: aus dieser Werkstatt ist der Host gesperrt. Es liegt als
+Spiegel in den `tts-models`-Releases von `k2-fsa/sherpa-onnx`, und genau
+der Befehl steht schon in README.md. Wer die Ansage neu bauen will und
+einen 403 bekommt, sucht nicht nach einem Fehler im Skript.
 - **Fremdwörter werden für die Stimme anders geschrieben.** Das Modell liest
   nach deutschen Regeln; in Zusammensetzungen geht das schief. Nachprüfbar,
   bevor irgendetwas gesprochen wird: `python3 tools/film-vertonen.py

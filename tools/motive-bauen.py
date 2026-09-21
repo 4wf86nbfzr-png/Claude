@@ -88,9 +88,30 @@ MOTIVE = [
     # mehr Gewicht fuer Pixel, die kein Geraet je anfordert. Nachgemessen
     # als AVIF: 1100 -> 104 KB, 1200 -> 115 KB, 1400 -> 137 KB,
     # 1600 -> 161 KB.
-    ("bankett.jpg",   "bankett",   True,  GRUND),
-    ("bar-gruen.jpg", "bar-gruen", True,  GRUND),
-    ("scheune.jpg",   "scheune",   False, 1200),
+    # `bankett` war das Kopfbild bis September und ist stillgelegt, nicht
+    # geloescht: die Vorlage liegt weiter in assets/quellen/, die vier
+    # abgeleiteten Dateien (rund 1 MB) sind aus assets/img/ heraus, weil
+    # keine Seite sie mehr laedt und die Paketgroesse das einzige ist,
+    # woran der Netlify-Weg schon einmal gescheitert ist. Ein Handgriff
+    # holt es zurueck: diese Zeile einkommentieren, einmal laufen lassen.
+    # ("bankett.jpg",   "bankett",     True,  GRUND),
+    ("bar-gruen.jpg",   "bar-gruen",   True,  GRUND),
+    ("scheune.jpg",     "scheune",     False, 1200),
+    # Das Kopfbild der Startseite: das Teamfoto der Teamseite, zugeschnitten
+    # ab der Schulterlinie, also ohne Gesichter.
+    #
+    # **Der Zuschnitt kam fertig herein** (1290 x 745), und das ist der
+    # Grund, warum er hier steht und nicht gerechnet wird. Mein eigener
+    # Ausschnitt aus `assets/img/team-herm.jpg` war 1600 x 520, also
+    # 3,08:1 — in einem Hero von 1,77:1 muss der Browser so einen Streifen
+    # um das 1,74-fache vergroessern und schneidet zwei Fuenftel der Breite
+    # weg. Der gelieferte Zuschnitt liegt mit 1,73:1 fast genau auf dem
+    # Seitenverhaeltnis des Heros: kein Zoom, kein Beschnitt.
+    #
+    # Keine zweite Stufe, und das entscheidet LOHNT_GROSS von selbst: 1290
+    # Pixel lange Kante. Eine 2560er Datei waere eine Verdopplung ohne ein
+    # einziges zusaetzliches Bilddetail.
+    ("team-schild.jpg", "team-schild", True,  GRUND),
 ]
 
 

@@ -1,14 +1,25 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Baut den neuen Leistungsblock und setzt ihn in die Startseite.
+"""Der Leistungsblock der Startseite — seit September ausgebaut.
 
-Warum ein Skript und nicht von Hand: sechs Zeilen mit je fünf Feldern sind
-dreißig Angaben, und jede davon steht schon woanders im Projekt. Von Hand
-abgetippt laufen sie beim ersten Namenswechsel auseinander. Die Tabelle hier
-ist die einzige Stelle, an der sie zusammenstehen — gelesen sind sie aus den
-sechs Leistungsseiten selbst (h3 der `.leistung`-Blöcke).
+**Ohne Schalter nimmt dieses Skript den Block aus `index.html` heraus**, und
+zwar mehrfach ausführbar: ist er schon weg, meldet es null Änderungen. Mit
+`--einsetzen` kommt er zurück.
+
+Der Grund für die Umkehr steht in CLAUDE.md unter „Die Bereiche stehen im
+Menü, nicht auf der Startseite": bestellt war, dass die sechs Bereiche nur
+noch über den Menüpunkt erreichbar sind und auf der Startseite nicht mehr
+auftauchen. Das Skript bleibt trotzdem stehen — ein gelöschtes Skript ist
+eine Entscheidung, die niemand mehr zurücknehmen kann, und die Tabelle unten
+ist weiterhin die einzige Stelle, an der Nummer, Name, Adresse und Kachel
+der sechs Bereiche zusammenstehen.
+
+Warum überhaupt ein Skript: sechs Zeilen mit je fünf Feldern sind dreißig
+Angaben, und jede davon steht schon woanders im Projekt. Von Hand abgetippt
+laufen sie beim ersten Namenswechsel auseinander.
 """
 import re
+import sys
 
 # Reihenfolge wie im Balken unter der Kopfzeile (main.js, BEREICHE) — zwei
 # verschiedene Reihenfolgen für dieselben sechs Bereiche wären genau die Art
@@ -88,16 +99,43 @@ BLOCK = '''
 </section>
 '''
 
+FORT = '''
+<!-- ============ HIER STAND DER LEISTUNGSBLOCK ============
+     Sechs Zeilen mit Nummer, Kachel und Name. Sie sind auf Wunsch
+     ausgebaut: die Bereiche sollen nur noch über den Menüpunkt
+     „Dienstleistungen" erreichbar sein und auf der Startseite nicht mehr
+     stehen.
+
+     Verloren geht dadurch kein Weg. Der Menüpunkt öffnet beim
+     Darüberfahren den Balken mit allen sechs (`.megabar`, gebaut von
+     main.js), ohne JavaScript führt derselbe Punkt direkt auf
+     dienstleistungen.html, am Telefon steht „Leistungen" in der Leiste
+     unten, und im Fuß jeder Seite stehen die sechs Adressen ohnehin.
+
+     Zurückholen: python3 tools/leistungen-bauen.py --einsetzen
+     ======================================================== -->
+'''
+
 if __name__ == '__main__':
-    s = open('index.html', encoding='utf-8').read()
-    if 'class="angebot"' in s:
-        # Schon da: austauschen statt ein zweites Mal einsetzen.
+    einsetzen = '--einsetzen' in sys.argv
+    s = alt = open('index.html', encoding='utf-8').read()
+    da = 'class="angebot"' in s
+
+    if einsetzen and da:
         s = re.sub(r'\n<!-- =+ LEISTUNGEN =+ -->.*?</section>\n',
                    BLOCK.replace('{ZEILEN}', zeilen()), s, flags=re.S)
         print('Leistungsblock ersetzt')
-    else:
+    elif einsetzen:
         anker = '\n<!-- ============ IMAGEFILM ============ -->'
         assert anker in s, 'Anker nicht gefunden'
+        s = s.replace(FORT, '\n', 1)
         s = s.replace(anker, BLOCK.replace('{ZEILEN}', zeilen()) + anker, 1)
         print('Leistungsblock eingesetzt, vor dem Imagefilm')
-    open('index.html', 'w', encoding='utf-8').write(s)
+    elif da:
+        s = re.sub(r'\n<!-- =+ LEISTUNGEN =+ -->.*?</section>\n', FORT, s, flags=re.S)
+        print('Leistungsblock ausgebaut, Begründung steht als Kommentar an seiner Stelle')
+    else:
+        print('Leistungsblock steht nicht in index.html — nichts zu tun')
+
+    if s != alt:
+        open('index.html', 'w', encoding='utf-8').write(s)

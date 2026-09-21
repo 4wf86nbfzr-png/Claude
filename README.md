@@ -46,6 +46,10 @@ assets/img/             Fotos, je als .avif, .webp und .jpg
                         Safari 15–16.3 holt sie) — im Repository und auf
                         Vercel ist sie da.
 assets/video/           Imagefilm + Untertitel
+assets/audio/ansage/    echte Sprachaufnahmen, eine je Untertitelzeile
+                        (01.wav bis 09.wav). Was hier liegt, schlaegt das
+                        Sprachmodell — siehe docs/sprecher-briefing.md.
+                        Solange der Ordner fehlt, spricht das Modell.
 
 tools/bilder-vergroessern.py  erzeugt die grosse Bildstufe
 tools/bilder-einhaengen.py    haengt sie ins Markup ein
@@ -53,6 +57,11 @@ tools/bilder-menue.py         die sechs Miniaturen fuer den Balken
                               unter der Kopfzeile
 tools/film-bauen.js           baut den Imagefilm neu (Bild fuer Bild)
 tools/film-vertonen.py        spricht die Untertitel und mischt sie unter die Musik
+                              --woerter zeigt jedes Wort des Films in Lautschrift
+                              --lautschrift dasselbe zeilenweise
+tools/leistungen-bauen.py     baut den Leistungsblock der Startseite aus
+                              (--einsetzen holt ihn zurueck)
+tools/motive-bauen.py         die randlosen Motive aus assets/quellen/
 tools/striche-ersetzen.py     Gedankenstriche im Text durch Kommas ersetzen
 tools/strukturdaten.py        schreibt Breadcrumb-, FAQ- und Service-Daten
                               aus dem, was auf der Seite steht
@@ -902,10 +911,16 @@ Diese Punkte müssen erledigt sein. Erst danach die Sperren lösen.
 - [ ] **Die Ansage im Film neu einsprechen.** Sie kommt derzeit aus einem
       Sprachmodell (Thorsten, deutsche Männerstimme) und klingt ruhig, aber
       hörbar synthetisch — als Platzhalter gedacht, nicht als Endfassung.
-      Der Text steht in `assets/video/imagefilm-de.vtt`, die Zeiten stehen
-      dort ebenfalls. Liegt eine echte Aufnahme vor, ersetzt sie in
-      `tools/film-vertonen.py` den Synthese-Schritt; Mischung, Absenkung der
-      Musik und Lautheit bleiben wie sie sind.
+
+      **Dafür braucht niemand mehr in den Code zu greifen.** Eine Datei je
+      Satz nach `assets/audio/ansage/` legen (`01.wav` bis `09.wav`),
+      einmal `python3 tools/film-vertonen.py` — was dort liegt, schlägt das
+      Sprachmodell, und für die übrigen Zeilen springt es ein. Liegen alle
+      neun, wird gar kein Modell mehr gebraucht. Tonfall, Zeiten,
+      Aussprache und Aufnahmeformat stehen in `docs/sprecher-briefing.md`.
+
+      Mischung, Absenkung der Musik und Lautheit bleiben davon unberührt.
+      Die Aufnahmen deshalb **ohne** Kompressor, EQ und Noisegate abgeben.
 
       Das Sprachmodell liegt **nicht** im Repository (110 MB). Es kommt aus
       den Modellen des sherpa-onnx-Projekts und gehört nach `tools/stimme/`:

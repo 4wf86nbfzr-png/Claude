@@ -15,9 +15,15 @@ nichts zu suchen, geladen wird er von keiner Seite.
 
 | Datei | Größe | wofür |
 |---|---|---|
-| `bankett.jpg` | 1672 × 941 (1,57 MP) | Kopfbild der Startseite |
+| `team-schild.jpg` | 1290 × 745 (0,96 MP) | Kopfbild der Startseite |
 | `bar-gruen.jpg` | 679 × 452 (0,31 MP) | Bildband unter dem Kopfbild |
 | `scheune.jpg` | 1290 × 1663 (2,15 MP) | Foto in der linken Intro-Spalte |
+| `bankett.jpg` | 1672 × 941 (1,57 MP) | stillgelegt, war bis September das Kopfbild |
+
+`bankett` ist in `MOTIVE` auskommentiert und hat deshalb keine Dateien
+unter `assets/img/` mehr — rund 1 MB, die keine Seite mehr lädt. Die
+Vorlage bleibt: eine Zeile einkommentieren, einmal laufen lassen, und das
+Motiv ist zurück.
 
 `bar-gruen` ist für eine randlose Darstellung zu klein (siehe „Was eine
 Vorlage tragen kann, und was nicht" in `CLAUDE.md`) und bekommt deshalb
