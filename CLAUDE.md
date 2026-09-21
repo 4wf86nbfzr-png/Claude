@@ -32,6 +32,12 @@ Die Seite soll nach Handwerk aussehen, nicht nach Baukasten. Konkret heißt das:
   Absendeknopf eines Formulars — er ist groß und hat Linien oben und unten,
   aber auch er hat keine Fläche im Ruhezustand.
 - **Keine Dauerbewegung.** Nichts pulsiert, nichts wandert von allein.
+  **Eine Ausnahme, und sie ist bestellt:** das Kopfbild der Startseite geht
+  in sehr langsamer Fahrt ins Bild hinein und wieder heraus (siehe „Die
+  stehende Kamerafahrt im Kopfbild"). Sie läuft nur, solange der Hero zu
+  sehen ist, und bei reduzierter Bewegung gar nicht. Für jede weitere
+  Ausnahme gilt derselbe Maßstab: sie muss bestellt sein, sie muss
+  aufhören, wenn niemand hinsieht, und sie muss sich abschalten lassen.
 - **Nicht alles auf die Mittelachse.** Überschriften stehen links, Text sitzt
   unten links im Bild, die sechs Bühnen wechseln die Seite.
   Zentrierter Satz stellt nichts in ein Verhältnis.
@@ -216,6 +222,62 @@ dem letzten Bild der letzten Animation kommen — ein Vorspann, der mitten in
 seiner eigenen Bewegung abgeschnitten wird, liest als Fehler und nicht als
 Tempo.
 
+### Die stehende Kamerafahrt im Kopfbild
+
+Bestellt war „das Foto als bewegtes Hintergrundvideo". Gebaut ist eine
+Kamerafahrt auf dem Standbild, und das ist nicht dasselbe in schlechter,
+sondern dasselbe in besser. Der Film wurde gebaut und gewogen, dieselbe
+Fahrt, dasselbe Motiv:
+
+| Fassung | Größe |
+|---|---|
+| 1280 px, 25 B/s, VP9 crf 40 | 2255 KB |
+| 1152 px, 20 B/s, Rauschfilter, VP9 crf 42 | 1794 KB |
+| 1152 px, 20 B/s, Rauschfilter, VP9 crf 46 | 1213 KB, sichtbar weich |
+
+Ein langsam wanderndes Foto hat in keinem Bild eine ruhende Fläche —
+deshalb kostet jedes Bild voll, und der Encoder kann nichts einsparen. Die
+Startseite lädt heute 760 KB an Bildern; der Film hätte sie verdreifacht,
+und zwar auf dem kritischen Pfad. Dieselbe Bewegung kostet als
+`@keyframes` null Byte, bleibt in jeder Auflösung scharf und läuft auf der
+Grafikkarte. **Ein Standbild, das sich bewegt, ist eine Animation und kein
+Video — wer daraus eine Datei macht, kauft Unschärfe für Geld.**
+
+Drei Dinge daran sind nicht beliebig:
+
+1. **`alternate` mit `ease-in-out` ist die ganze Mechanik der Schleife.** An
+   beiden Enden ist die Geschwindigkeit null, die Umkehr ist deshalb nicht
+   zu sehen. Eine gleichförmige Fahrt müsste am Ende zurückspringen.
+2. **Sie läuft nur, solange der Hero zu sehen ist.** `.live` setzt der
+   vorhandene Motor ohnehin an jedes `[data-weg]` — es kommt keine Zeile
+   JavaScript dazu. Eine dauerhaft laufende Animation hielte die
+   bildschirmfüllende Ebene für immer im Grafikspeicher, und genau davor
+   warnt „Die teuerste Falle".
+3. **Kein `will-change`.** Die laufende Animation legt die Ebene selbst an
+   und gibt sie beim Anhalten wieder frei. `will-change` nähme ihr genau
+   das.
+
+**Der Zuschnitt des Kopfbilds ist Teil der Typografie, nicht der Fotografie.**
+Die Überschrift ist drei Zeilen hoch und nimmt die linke Hälfte der unteren
+Bildhälfte ein. Ein Motiv in der Mitte liegt dann zwangsläufig darunter,
+und zwar in *jeder* senkrechten Lage: schiebt man den Ausschnitt hoch,
+steht es hinter der ersten Zeile, schiebt man ihn runter, hinter der
+dritten. Waagerecht verschieben hilft nicht — die Vorlage ist quadratisch,
+das Fenster quer, `object-fit:cover` deckt also über die Breite, und
+`object-position` waagerecht ist wirkungslos. Am Telefon ist es genau
+umgekehrt: dort deckt es über die Höhe, und der senkrechte Wert ist
+wirkungslos. Beide Werte lassen sich deshalb getrennt einstellen, ohne
+Medienabfrage.
+
+Bleibt der Zuschnitt: aus dem Quadrat wird ein kleineres Quadrat
+geschnitten, das weiter links ansetzt — dadurch wandert das Motiv nach
+rechts, aus der Schriftfläche heraus. Bei Fenstern zwischen 981 und 1279 px
+reicht das nicht, weil `cover` dort kaum noch etwas wegschneidet und das
+Motiv nach oben in die erste Zeile rutscht; dort steht der Anschnitt
+deshalb ganz oben (`object-position:50% 0%`). Nachgemessen bei 1024 × 768:
+Unterkante der ersten Zeile 357 px, die Köpfe wandern dabei um 82 px nach
+unten.
+
 ### Die Falle: Tests, die blind warten
 
 Der Vorspann ist zweimal länger geworden, und zweimal fielen dadurch Tests
@@ -235,6 +297,26 @@ await p.waitForFunction(() => {
   return cs.display === 'none' || cs.visibility === 'hidden';
 });
 ```
+
+**Zwei Geschwister derselben Falle**, beide bei der Abnahme aufgetreten und
+beide zuerst als Fehler der Website gemeldet:
+
+- **Die Seite wächst beim Durchscrollen.** Faul geladene Bilder kommen
+  dazu und schieben alles nach unten. Ein Test, der `scrollHeight` einmal
+  am Anfang misst, hört zu früh auf und meldet dann die letzten Aufblenden
+  als offen — auf der Startseite waren das 25 Elemente, die in Wahrheit
+  alle ihr `.in` hatten. Die Höhe gehört bei **jedem** Schritt neu gemessen.
+- **`offsetParent !== null` heißt nicht sichtbar.** Ein Element mit
+  `visibility:hidden` behält seinen Platz im Layout. Die geschlossenen
+  Unterleisten und das geschlossene Vollbildmenü sind genau so gebaut
+  (und müssen es sein, siehe „Die Unterleisten unter der Kopfzeile"), und
+  der Test meldete sie als unsichtbaren Text. Gefragt werden muss die
+  ganze Elternkette nach `display`, `visibility` und `hidden`.
+
+Beides sind Messfehler, keine Befunde. Die Regel dahinter ist dieselbe wie
+bei den drei Messungen zu totem Code: **wer eine Auffälligkeit auf allen
+sechzehn Seiten gleichzeitig findet, hat meistens seinen Test gemessen und
+nicht die Website.**
 
 ### Die Falle: ein Vorspann, der sich nicht wegnehmen lässt
 

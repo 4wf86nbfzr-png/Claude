@@ -434,7 +434,11 @@ button.btn--zeile:focus-visible:not(:disabled)::after{ transform:scaleX(1); tran
    es am Seitenende, liefe die Einfahrt schon, bevor die Klasse da ist, und
    man saehe ein Aufblitzen; kaeme es erst beim Schnitt, haette die Seite
    bis dahin kein sichtbares Element (LCP 2996 ms statt 356 ms). */
-.sofort .hero__photo img,
+/* Das Kopfbild steht hier bewusst NICHT mehr: es bekommt seine stehende
+   Kamerafahrt (`heroFahrt`, siehe Hero-Abschnitt). Weggenommen wird ihm nur
+   die Einfahrt, und die hängt an `.los` — unter `.sofort` gilt sie ohnehin
+   nicht. Ein `animation:none !important` hier hätte auch die Fahrt erschlagen,
+   und zwar unsichtbar: `!important` gewinnt gegen jede spätere Regel. */
 .sofort .hero h1 .line span,
 .sofort .hero__sub,
 .sofort .hero__actions,
@@ -514,6 +518,13 @@ body > footer .brand__logo{ height:44px; }
 .nav__phone:hover{ color:var(--paper); }
 .nav__cta .btn{ font-family:var(--font-mono); font-size:.68rem; letter-spacing:.16em; text-transform:uppercase; font-weight:400; min-height:40px; padding:10px 0; }
 .nav__phone{ display:inline-flex; align-items:center; min-height:40px; }
+/* Eine Telefonnummer, die mitten im Block umbricht, ist keine Telefonnummer
+   mehr. Bei 1024 px stand in der Kopfzeile „+49 (40)" über „27075100" und
+   daneben „ANFRAGE" über „STARTEN" — beide zweizeilig, die ganze Zeile
+   schief. Beides sind geschlossene Wendungen und brechen nicht. Platz
+   nachgeben soll stattdessen der Abstand, und der ist bereits ein `clamp`. */
+.nav__phone,
+.nav__cta .btn{ white-space:nowrap; }
 
 /* Der Menüknopf ist jetzt ein Wort plus zwei Striche statt eines Kastens mit
    drei Balken. Der Kasten war das letzte Bedienelement der Seite, das noch
@@ -828,10 +839,20 @@ body.megabar-auf header.nav{
 .hero__photo{ position:absolute; inset:0; z-index:0; overflow:hidden; background:var(--ink); }
 .hero__photo img{
   position:absolute; inset:0; width:100%; height:100%;
-  /* 58 % statt Bildmitte: die gedeckten Tafeln liegen in der unteren Bildhälfte
-     und sind das, was die Aufnahme erzählt — bei mittigem Anschnitt sieht man
-     vor allem Decke und Vorhang. */
-  object-fit:cover; object-position:50% 60%;
+  /* 54 % statt Bildmitte: die beiden Kolleginnen am Stand stehen knapp
+     unterhalb der Mitte. Bei mittigem Anschnitt sieht man im Querformat vor
+     allem das Sonnensegel und über ihnen viel Himmel. */
+  object-fit:cover; object-position:50% 32%;
+}
+/* Je quadratischer das Fenster, desto weniger schneidet `cover` oben und
+   unten weg — und desto weiter rutscht der Stand nach oben ins Bild, genau
+   dorthin, wo die erste Zeile der Überschrift steht. Zwischen 981 und
+   1279 px liegt deshalb der Anschnitt ganz oben: dann steht das Motiv so
+   tief wie möglich, und die Zeile geht darüber hinweg statt darüber.
+   Gemessen bei 1024 x 768: Unterkante der ersten Zeile 357 px, die Köpfe
+   wandern dabei um 82 px nach unten. */
+@media (min-width:981px) and (max-width:1279px){
+  .hero__photo img{ object-position:50% 0%; }
 }
 
 /* Die Kamerafahrt in die Seite hinein. Sie beginnt in dem Moment, in dem das
@@ -839,8 +860,58 @@ body.megabar-auf header.nav{
    beim Laden. 1,16 statt 1,09: der Weg muss lang genug sein, dass man ihn als
    Fahrt und nicht als Ruckeln liest. */
 .hero__photo img{ transform:scale(1.16); }
-.los .hero__photo img{ animation:heroZoom 3.1s var(--ease-soft) forwards; }
 @keyframes heroZoom{ from{ transform:scale(1.16) } to{ transform:none } }
+
+/* ---- Die stehende Kamerafahrt im Kopfbild --------------------------------
+   Das Kopfbild bleibt nach der Einfahrt nicht stehen: die Kamera geht in
+   sehr langsamer Fahrt weiter ins Bild hinein und wieder heraus. Gewünscht
+   war ein Hintergrundfilm; gebaut ist es eine Fahrt auf dem Standbild, und
+   das ist nicht dasselbe in schlechter — es ist dasselbe in besser. Ein
+   Film derselben Fahrt wurde gebaut und gewogen:
+
+       1280 px, 25 B/s, VP9 crf 40                       2255 KB
+       1152 px, 20 B/s, Rauschfilter, VP9 crf 46         1213 KB   sichtbar weich
+
+   Ein langsam wanderndes Foto hat in keinem Bild eine ruhende Fläche,
+   deshalb kostet jedes Bild voll. Die Fahrt hier kostet null Byte, bleibt
+   in jeder Auflösung scharf und läuft auf der Grafikkarte. Dieselbe
+   Bewegung für 1,2 MB einzukaufen und dabei an Schärfe zu verlieren, wäre
+   ein schlechtes Geschäft.
+
+   `alternate` mit `ease-in-out` ist dabei die ganze Mechanik der Schleife:
+   an beiden Enden ist die Geschwindigkeit null, die Umkehr ist deshalb
+   nicht zu sehen. Eine gleichförmige Fahrt müsste am Ende zurückspringen.
+
+   Und sie läuft nur, solange der Hero zu sehen ist. `.live` setzt der
+   vorhandene Motor ohnehin an jedes `[data-weg]` — eine dauerhaft laufende
+   Animation hielte die bildschirmfüllende Ebene für immer im
+   Grafikspeicher, und genau davor warnt „Die teuerste Falle". */
+@keyframes heroFahrt{
+  from{ transform:scale(1) }
+  to  { transform:scale(1.10) translate3d(0,-1.4%,0) }
+}
+.sofort .hero__photo img,
+.los .hero__photo img{
+  animation-name:heroFahrt;
+  animation-duration:30s;
+  animation-timing-function:ease-in-out;
+  animation-iteration-count:infinite;
+  animation-direction:alternate;
+  animation-play-state:paused;
+}
+/* Beim ersten Aufruf deckt der Vorspann; die Fahrt beginnt danach. Beim
+   zweiten fährt der Hero zuerst ein, und erst dahinter setzt sie an. */
+.sofort .hero__photo img{ animation-delay:.6s; }
+.los .hero__photo img{
+  animation-name:heroZoom, heroFahrt;
+  animation-duration:3.1s, 30s;
+  animation-timing-function:var(--ease-soft), ease-in-out;
+  animation-iteration-count:1, infinite;
+  animation-direction:normal, alternate;
+  animation-fill-mode:forwards, none;
+  animation-delay:0s, 3.1s;
+}
+.hero.live .hero__photo img{ animation-play-state:running; }
 
 /* Der Text sitzt unten links, wie ein Bildtitel. Der Verlauf trägt ihn und
    läuft nach unten in den Seitengrund aus — dadurch gibt es keine sichtbare
@@ -2488,6 +2559,11 @@ header.nav{ view-transition-name:kopfzeile; }
   .hero h1 .line span,
   .subhero h1 .line span,
   .foot__claim-zeile > span{ transform:none; }
+  /* Das Kopfbild fehlte hier, und zwar von Anfang an: sein Ruhewert ist
+     `scale(1.16)` — der Anfangszustand der Einfahrt. `animation:none` nimmt
+     die Fahrt weg, nicht den Startwert, und das Foto stand bei reduzierter
+     Bewegung dauerhaft 16 % zu nah. Genau der Fall aus „Die dritte Falle". */
+  .hero__photo img{ transform:none; }
   /* Alles, was seine Sichtbarkeit einer Einblendung verdankt, muss hier
      zurückgeholt werden: `animation:none` nimmt die Animation weg, nicht den
      Startwert. Der Vorspann im Hero stand dadurch dauerhaft auf opacity:0 —

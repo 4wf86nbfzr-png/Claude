@@ -79,6 +79,9 @@ IMG = os.path.join(ROOT, "assets/img")
 # seitlich beschnitten. Deshalb fordert ein 1440er Fenster bis zu 4090 px.
 # Nur Bilder ueber 1,3-fach stehen hier — alles andere ist scharf genug.
 BEDARF = {
+    # Das Kopfbild der Startseite. Derselbe Bedarf wie gastro: es steht an
+    # derselben Stelle, im selben Rahmen, mit demselben `sizes`.
+    "tageskasse":         4090,
     "gastro":             4090,
     "sicherheit":         4090,
     "logistik":           4090,

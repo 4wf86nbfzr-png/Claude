@@ -145,6 +145,11 @@ AUSSEN=(
   # Quelldatei des Wortzeichens, 157 KB. Sie gehoert ins Repository, aber
   # keine Seite laedt sie.
   "assets/logo/logo-herm-original.png"
+  # Dieselbe Sache, 646 KB: die unvertonte Musikspur ist die Vorlage, aus
+  # der film-vertonen.py mischt (und zwar immer aus ihr, nie aus einer schon
+  # gemischten Fassung — siehe „Der Imagefilm"). Keine Seite verweist
+  # darauf; nachgesehen mit grep ueber HTML, JS, CSS und das Manifest.
+  "assets/video/imagefilm-musik.webm"
 )
 
 # ---------------------------------------------------------------------------
@@ -240,7 +245,18 @@ if [ -f "$FILM" ]; then
   if [ ! -f "$FILM_KLEIN" ] || [ "$(cat "$LAGER/imagefilm.stempel" 2>/dev/null)" != "$STEMPEL" ]; then
     echo "→ Imagefilm für das Paket dichter packen (dauert ein paar Minuten)"
     mkdir -p "$LAGER"
-    FF="$(python3 -c 'import imageio_ffmpeg;print(imageio_ffmpeg.get_ffmpeg_exe())')"
+    # Erst das ffmpeg des Systems, dann das aus imageio. Umgekehrt scheiterte
+    # der Bau auf einer frischen Maschine mit „No module named imageio_ffmpeg",
+    # obwohl /usr/bin/ffmpeg danebenlag — eine Abhaengigkeit, die nur der
+    # Bequemlichkeit dient, darf den Bau nicht anhalten.
+    FF="$(command -v ffmpeg || true)"
+    if [ -z "$FF" ]; then
+      FF="$(python3 -c 'import imageio_ffmpeg;print(imageio_ffmpeg.get_ffmpeg_exe())' 2>/dev/null || true)"
+    fi
+    if [ -z "$FF" ]; then
+      echo "   ffmpeg fehlt — bitte installieren (apt-get install ffmpeg)." >&2
+      exit 1
+    fi
     "$FF" -y -i "$FILM" -c:v libvpx-vp9 -b:v 0 -crf 36 -cpu-used 1 -row-mt 1 \
           -deadline good -pass 1 -passlogfile "$LAGER/log" -an -f null /dev/null 2>/dev/null
     "$FF" -y -i "$FILM" -c:v libvpx-vp9 -b:v 0 -crf 36 -cpu-used 1 -row-mt 1 \
@@ -377,7 +393,8 @@ drin = set(z.namelist())
 
 # 1) Jede Datei aus assets/ muss im Paket sein — bis auf das, was
 #    absichtlich draussen bleibt.
-AUSGENOMMEN = ("assets/logo/logo-herm-original.png",)
+AUSGENOMMEN = ("assets/logo/logo-herm-original.png",
+               "assets/video/imagefilm-musik.webm")
 fehlt = [os.path.join(w, d)
          for w, _, ds in os.walk("assets") for d in ds
          if os.path.join(w, d) not in drin
