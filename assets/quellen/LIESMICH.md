@@ -17,9 +17,12 @@ nichts zu suchen, geladen wird er von keiner Seite.
 |---|---|---|
 | `bankett.jpg` | 1672 × 941 (1,57 MP) | Kopfbild der Startseite |
 | `bar-gruen.jpg` | 679 × 452 (0,31 MP) | Bildband unter dem Kopfbild |
+| `scheune.jpg` | 1290 × 1663 (2,15 MP) | Foto in der linken Intro-Spalte |
 
 `bar-gruen` ist für eine randlose Darstellung zu klein (siehe „Was eine
 Vorlage tragen kann, und was nicht" in `CLAUDE.md`) und bekommt deshalb
-keine zweite Stufe. Sobald eine Aufnahme mit mindestens 2400 px an der
+keine zweite Stufe. `scheune` bekommt aus dem umgekehrten Grund keine: es
+steht im Satzspiegel und wird nie bildfüllend gezogen, also fordert kein
+Gerät mehr als rund 1050 Pixel an. Beides steht als Feld in `MOTIVE`. Sobald eine Aufnahme mit mindestens 2400 px an der
 langen Kante vorliegt: hier hineinlegen, Namen behalten, einmal
 `python3 tools/motive-bauen.py`.

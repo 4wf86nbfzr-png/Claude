@@ -458,6 +458,16 @@ Die Entscheidung steht als `LOHNT_GROSS = 1400` in
 wegen, sondern des Rasterns (siehe „Die Obergrenze kommt nicht von der
 Dateigröße").
 
+**Die ganze Messung rechnet allerdings gegen ein Ziel: bildfüllend.** Ein
+Motiv, das im Satzspiegel steht, wird nie auf 2880 Gerätepixel gezogen —
+das Foto in der linken Intro-Spalte misst höchstens 440 CSS-Pixel, am
+Telefon 350 bei dreifacher Dichte, also rund 1050. Für so eines ist die
+zweite Stufe kein Gewinn, sondern Gewicht, das kein Gerät je anfordert, und
+auch die Grundstufe darf kleiner sein. `MOTIVE` trägt deshalb zwei weitere
+Felder, `randlos` und die Kantenlänge. Nachgemessen als AVIF: 1100 px →
+104 KB, 1200 → 115, 1400 → 137, 1600 → 161. Bei 1200 wird nichts
+hochgerechnet, was jemand sieht.
+
 **Die Vorlagen liegen seit dem Wechsel im Repository**, unter
 `assets/quellen/`. Vorher lagen sie ausschließlich außerhalb des Projekts,
 und damit war jede Neuberechnung eine Frage des Glücks. `paket-bauen.sh`
@@ -966,7 +976,29 @@ Zwei Bedingungen müssen deshalb zusammenkommen:
    aus der linken in die rechte Spalte gewandert.
 
 Nachmessen lässt sich das in einer Zeile: klebt es wirklich, bleibt `top`
-konstant, während die andere Spalte weiterwandert.
+konstant, während die andere Spalte weiterwandert. **Mit ausgeschaltetem
+`scroll-behavior:smooth`** — sonst misst man mitten in einer laufenden
+Fahrt und sieht beide Spalten gleich stehen, was wie „klebt gar nicht"
+aussieht und nur heißt, dass das Intro noch unter dem Fenster liegt.
+
+**Was dort unter der Überschrift steht, ist deshalb gedeckelt.** In der
+linken Spalte sitzt seit September ein Foto (`.intro__ort`, ein
+geschmückter Scheuneneingang). Es füllt genau die Fläche, die das Kleben
+zwangsläufig frei lässt — auf dem Schreibtisch kostet es dadurch **null
+Pixel Seitenhöhe**. Der Preis steht in der anderen Richtung: der Klebeweg
+ist die Differenz beider Spalten, und die schrumpft mit jedem Pixel, den
+das Foto hoch ist.
+
+| | linke Spalte | rechte Spalte | Klebeweg |
+|---|---|---|---|
+| ohne Foto | 230 px | 945 px | 715 px |
+| mit Foto (440 px) | 714 px | 945 px | **231 px** |
+
+Deshalb `max-width:clamp(300px,31vw,440px)` — und zwar in **derselben**
+Medienabfrage wie das Kleben, denn unter 981 px steht die Spalte ohnehin
+über dem Text und das Foto nimmt die volle Breite. Wer den Deckel hebt,
+nimmt der Überschrift das Kleben weg, ohne dass eine einzige Zeile CSS
+dabei falsch aussieht.
 
 ### Wort für Wort
 

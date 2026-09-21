@@ -364,6 +364,16 @@ document.documentElement.classList.remove("kein-js");
     <div>
       <span class="eyebrow reveal-up">Moin, moin</span>
       <h2 data-worte data-lauf>Wir stellen die Leute, die Ihr Event am Laufen halten.</h2>
+      <!-- Das Foto sitzt unter der stehenbleibenden Überschrift und füllt die
+           Lücke, die `position:sticky` in dieser Spalte zwangsläufig lässt.
+           Seine Höhe ist gedeckelt, und daran hängt das Kleben: eine
+           klebende Spalte muss kürzer sein als die andere (siehe CLAUDE.md,
+           „position:sticky braucht einen Weg"). Kein `data-lauf` — eine
+           Gegenbewegung in einer Spalte, die gerade steht, wäre eine zweite
+           Bewegung auf demselben Element. -->
+      <figure class="intro__ort reveal-up" data-d="1">
+        <picture><source type="image/avif" srcset="assets/img/scheune.avif" /><source type="image/webp" srcset="assets/img/scheune.webp" /><img src="assets/img/scheune.jpg" alt="Geschmückter Scheuneneingang bei einer Abendveranstaltung: Blumen in Milchkannen, weiße Vorhänge, Lampions und Lichterketten im Inneren" loading="lazy" width="931" height="1200" /></picture>
+      </figure>
     </div>
     <div class="intro__lead">
       <p class="reveal-up">Das HERM Service Team ist Ihr Ansprechpartner, wenn es um

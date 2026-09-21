@@ -71,9 +71,26 @@ UNSCHARF = (1.6, 85, 2)
 LOHNT_GROSS = 1400
 
 MOTIVE = [
-    # Vorlage in assets/quellen/, Stamm unter assets/img/
-    ("bankett.jpg",   "bankett"),
-    ("bar-gruen.jpg", "bar-gruen"),
+    # Vorlage in assets/quellen/, Stamm unter assets/img/, randlos?, Kante
+    #
+    # `randlos` ist die zweite Bedingung fuer die grosse Stufe, und sie ist
+    # keine Geschmacksfrage. Die ganze Messung oben rechnet gegen EIN Ziel:
+    # bildfuellend auf 2880 Geraetepixeln. Ein Motiv, das im Satzspiegel
+    # steht, wird nie so gross gezogen — das Foto in der linken Intro-Spalte
+    # misst hoechstens 440 CSS-Pixel, also 880 Geraetepixel. Eine 2560er
+    # Datei dafuer waere Gewicht, das niemand je anfordert, und sie fiele
+    # ausserdem unter dieselbe Rasterrechnung wie in „Die Obergrenze kommt
+    # nicht von der Dateigroesse".
+    #
+    # Aus demselben Grund darf ein solches Motiv auch die Grundstufe kleiner
+    # bekommen. Gebraucht werden hier hoechstens 1050 Pixel (350 CSS-Pixel
+    # Spaltenbreite am Telefon, dreifache Dichte); 1600 waere ein Drittel
+    # mehr Gewicht fuer Pixel, die kein Geraet je anfordert. Nachgemessen
+    # als AVIF: 1100 -> 104 KB, 1200 -> 115 KB, 1400 -> 137 KB,
+    # 1600 -> 161 KB.
+    ("bankett.jpg",   "bankett",   True,  GRUND),
+    ("bar-gruen.jpg", "bar-gruen", True,  GRUND),
+    ("scheune.jpg",   "scheune",   False, 1200),
 ]
 
 
@@ -112,7 +129,7 @@ def schreiben(bild, stamm, mit_jpeg):
 def main():
     if not os.path.isdir(QUELLEN):
         sys.exit(f"Ordner fehlt: {QUELLEN}")
-    for datei, stamm in MOTIVE:
+    for datei, stamm, randlos, kante in MOTIVE:
         pfad = os.path.join(QUELLEN, datei)
         if not os.path.exists(pfad):
             print(f"  fehlt: assets/quellen/{datei}")
@@ -120,12 +137,15 @@ def main():
         im = ImageOps.exif_transpose(Image.open(pfad)).convert("RGB")
         b, h = im.size
 
-        wege = schreiben(stufe(im, GRUND), stamm, mit_jpeg=True)
+        wege = schreiben(stufe(im, kante), stamm, mit_jpeg=True)
         zeile = "  ".join(f"{e} {g // 1024} KB" for e, g in wege.items())
         print(f"{stamm:14s} Vorlage {b:>5} x {h:<5} ({b * h / 1e6:.2f} MP)"
-              f"  ->  {GRUND} px   {zeile}")
+              f"  ->  {kante} px   {zeile}")
 
-        if max(b, h) >= LOHNT_GROSS:
+        if not randlos:
+            print(f"{'':14s} keine zweite Stufe: steht im Satzspiegel, wird nie"
+                  f" bildfuellend gezogen")
+        elif max(b, h) >= LOHNT_GROSS:
             wege2 = schreiben(stufe(im, GROSS), stamm + "-gross", mit_jpeg=False)
             zeile2 = "  ".join(f"{e} {g // 1024} KB" for e, g in wege2.items())
             print(f"{'':14s} zweite Stufe  ->  {GROSS} px   {zeile2}")

@@ -1543,6 +1543,39 @@ body.megabar-auf header.nav{
 .intro__lead{ color:var(--tinte-2); font-size:var(--fs-lead); max-width:var(--measure); }
 .intro__lead p+p{ margin-top:1.05em; }
 .intro__lead strong{ color:var(--tinte); font-weight:600; }
+/* ---- Das Foto in der linken Spalte --------------------------------------
+   Die klebende Überschrift ist kurz, die Spalte daneben lang: unter der
+   Überschrift bleibt zwangsläufig eine Fläche frei, so lange wie der
+   Klebeweg. Genau dort steht das Foto.
+
+   Zwei Dinge sind daran nicht beliebig:
+
+   1. Die Höhe ist gedeckelt. Eine klebende Spalte muss KÜRZER sein als die
+      andere, sonst hat sie keinen Weg — das ist dieselbe Falle, an der das
+      Intro schon einmal hing („position:sticky braucht einen Weg"). Die
+      rechte Spalte misst gemessen 945 px; mit dem Deckel kommt die linke
+      auf rund 710 und behält damit gut 200 px Weg. Wer den Deckel hebt,
+      nimmt der Überschrift das Kleben weg, ohne dass eine Zeile CSS dafür
+      falsch aussieht.
+   2. Der Deckel steht in derselben Medienabfrage wie das Kleben selbst.
+      Unter 981 px steht die Spalte ohnehin über dem Text, dort nimmt das
+      Foto die volle Breite.
+
+   Quadratisch zugeschnitten, nicht im Hochformat der Vorlage: der
+   Zuschnitt lässt die Lampions oben und die Milchkanne unten stehen, und
+   1:1 ist neben einer Überschrift die ruhigere Form. `height:auto` gehört
+   zwingend dazu — das `height`-Attribut im Markup schlägt sonst das
+   Seitenverhältnis (siehe „aspect-ratio und das height-Attribut"). */
+.intro__ort{ margin-top:clamp(26px,3.4vw,44px); }
+.intro__ort picture{ display:block; }
+.intro__ort img{
+  display:block; width:100%; height:auto;
+  aspect-ratio:1/1; object-fit:cover; object-position:50% 42%;
+}
+@media (min-width:981px){
+  .intro__ort{ max-width:clamp(300px,31vw,440px); }
+}
+
 /* Kein Rahmen, keine runde Ecke: das Foto ist eine Fläche, kein Bildchen in
    einem Kasten. Die Beschriftung liegt darunter frei im Schwarzen. */
 .intro__bild{ margin-top:clamp(28px,4vw,52px); }
