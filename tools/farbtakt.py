@@ -60,9 +60,15 @@ TAKT = {
         None,        # schaubild, Bildband
         "hell",      # trust, die Vertrauensleiste
         None,        # intro
-        "hell",      # film
-        None,        # testi
-        "hell",      # cta, Schlussblock
+        # Der Imagefilm bleibt blau, und das ist Regel 2 und kein Geschmack:
+        # die Buehne ist ein randloses Bewegtbild ueber die volle Breite.
+        # Auf einer hellen Bahn deckt sie die Blende des Abschnitts zu — das
+        # Video liegt ueber dem Hintergrund, nicht darunter — und es stand
+        # eine harte Kante zwischen Beige und Bild. Was auf einem Foto sitzt,
+        # bleibt blau; ein Film ist ein Foto, das laeuft.
+        None,        # film
+        "hell",      # testi, Zitat und Zeichen
+        None,        # cta, Schlussblock
     ],
     "dienstleistungen.html": [
         None,        # subhero

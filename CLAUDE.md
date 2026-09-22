@@ -1104,6 +1104,136 @@ Vier Dinge daran sind nicht beliebig:
    schon in den Seitengrund aus; zwei Verläufe hintereinander sind ein
    doppelter Nebel.
 
+---
+
+## Keine Kante bleibt stehen, September 2026
+
+Beanstandet, mit einem Bildschirmfoto vom Telefon: „Es soll nicht so kantig
+enden, alles soll ein Farbverlauf sein wie das Meer." Auf dem Bild stiessen
+das Kopfbild, das Auftaktband und das Bildband jeweils an einer geraden
+Linie aneinander.
+
+Gemessen wird das ohne Auge: `scratchpad/kante.js` nimmt an jeder
+waagerechten Abschnittskante einen Streifen von 180 px auf,
+`scratchpad/kante.py` mittelt jede Bildzeile und sucht den groessten Sprung
+zwischen zwei benachbarten Zeilen. **Ein weicher Verlauf steigt in kleinen
+Schritten, eine Kante springt.** Die Zahl ist der Abstand in Stufen von
+255; alles ueber etwa 15 an der Kante selbst sieht man.
+
+| Stelle | vorher | nachher |
+|---|---|---|
+| Kopfbild → Auftaktband | hart | aufgeloest |
+| Auftaktband → Bildband | hart | aufgeloest |
+| Imagefilm → Referenzen | **33,8** | 5,8 |
+| Kopfband → Bildband (Leistungsseiten) | **78,4** | 4,8 |
+| helle Bahn → naechster Abschnitt | **36,3** | 4,8 |
+| Bueroteam → helle Bahn | **22,0** | 4,9 |
+
+Fuenf verschiedene Ursachen steckten dahinter, und nur eine davon war ein
+fehlender Verlauf.
+
+### 1. Der Ton muss derselbe sein wie der des Nachbarn
+
+Die meisten Kanten hatten bereits einen Verlauf — er lief nur in die
+falsche Farbe. Das Bildband endete oben in `rgba(8,26,28,.86)`, der
+Imagefilm unten in `rgba(6,20,22,.88)`, das Kopfband der Unterseiten in
+`rgba(4,4,7,.72)`: drei Fast-Schwarz aus der Zeit, als die Seite schwarz
+war. Daneben steht heute Petrol. **Zwei Verlaeufe, die sich nicht treffen,
+sind eine Kante mit Verlauf ringsum** — und sie faellt mehr auf als eine
+ehrliche Linie, weil das Auge den Nebel davor als Fehler liest.
+
+Alle Kanten laufen jetzt in `var(--grund)`. Das ist nicht nur richtiger,
+sondern auch dauerhafter: der naechste Farbwechsel nimmt sie mit.
+
+### 2. Ein linearer Verlauf hat an beiden Enden eine Ecke
+
+Die Blende der hellen Bahnen war ein linearer Deckkraftverlauf. Die
+Aenderungsrate springt dort von null auf konstant, und genau das sieht das
+Auge als Linie (Machsche Baender). Im Bild sah es aus, als *finge* der
+Verlauf an einer Kante an.
+
+Die Stufen folgen jetzt `3t² − 2t³`, also einer Kurve, die an beiden Enden
+waagerecht auslaeuft — sechs Stopps statt zwei, kein Element mehr, keine
+Zeile JavaScript. Dieselbe Kurve liegt auf jeder Fotokante.
+
+Nebenbei sind aus einem Verlauf mit vier Stopps zwei geworden, einer `to
+bottom` und einer `to top`. Beide messen von *ihrer* Kante, und damit
+stehen die Zwischenstufen in Prozent derselben Zone, statt ueber
+`calc(100% - …)` gespiegelt zu werden. Sie liegen als `--blende-oben` und
+`--blende-unten` in einer eigenen Regel, weil `.team-buero` sie auch
+braucht.
+
+### 3. Am Telefon fiel die Blende auf ihren Boden
+
+`--blende` stand auf `clamp(36px, 5.4vw, 96px)`. Bei 390 px Fensterbreite
+sind `5.4vw` 21 px — die Formel lag also **ueberall am Telefon** auf ihrem
+unteren Anschlag, und aus dem Uebergang wurde ein Streifen von
+anderthalb Fingerbreiten. Genau das war auf dem eingeschickten
+Bildschirmfoto zu sehen.
+
+Jetzt 56 px. Der Boden war nicht willkuerlich gewaehlt: er musste unter dem
+knappsten Abschnittspolster bleiben, und das ist `.bereichsblock` mit 40 px.
+Dieser eine Block bekommt seinen alten Wert im Telefonblock zurueck — eine
+Zeile, statt die Formel fuer alle anderen kleinzuhalten.
+
+### 4. Eine Blende, die mitfaehrt, ist keine
+
+Die naheliegende Stelle fuer die Aufloesung des Kopfbilds ist das Foto.
+Sie ist falsch: `.hero[data-weg] .hero__photo` skaliert beim Scrollen bis
+1,16 und schiebt 6vh nach unten. Ein Verlauf darin waende mit — die weiche
+Unterkante liefe genau dann aus dem Beschnitt heraus, **wenn man scrollt,
+also in dem Moment, in dem man die Kante ueberhaupt sieht.**
+
+Sie liegt deshalb an `.hero` selbst (z 2, zwischen Schleier und Text) und
+an `.subhero`. Am Foto bleibt nur, was keine Kante beruehrt: der
+waagerechte Verlauf, der die Ueberschrift traegt.
+
+Der Schleier (`.hero__schleier`) scheidet aus einem zweiten Grund aus: er
+kommt erst bei 0,30 s mit dem Text. Die Kante waere in der ersten halben
+Sekunde hart und danach weich, und das liest als Fehler.
+
+### 5. Ein Film ist ein Foto, das laeuft
+
+Der Imagefilm stand auf einer hellen Bahn. Seine Buehne ist ein randloses
+Bewegtbild ueber die volle Breite — sie liegt also **ueber** dem
+Hintergrund der Bahn und deckt deren Blende zu. Zwischen Beige und Bild
+stand eine gerade Linie, und unten war es der haerteste Sprung der ganzen
+Startseite.
+
+Das ist kein Sonderfall, sondern Regel 2 der Tabelle in `farbtakt.py`, nur
+nicht zu Ende gedacht: *was auf einem Foto sitzt, bleibt blau.* Der Film
+steht wieder auf dem Seitengrund, die Bahn ist dafuer an die Referenzen
+gewandert. An der Zahl der hellen Bahnen aendert sich nichts.
+
+### Und: wo eine Blende die Farbe wechselt, steht kein Strich mehr
+
+`.section-soft`, `.ablauf`, `.expect` und `.cta` tragen eine Haarlinie an
+der Oberkante. Zwischen zwei Textbloecken auf demselben Grund ist sie
+richtig und bleibt. Am Ende einer hellen Bahn ist sie das Gegenteil: der
+Verlauf hat die Kante gerade weggenommen, und die Linie baut sie wieder
+ein. Gemessen war sie dort der groesste Sprung des ganzen Uebergangs.
+
+```css
+section.auf-hell:not([data-blende="unten"]):not([data-blende="keine"]){ border-top-color:transparent; }
+section.auf-hell:not([data-blende="oben"]):not([data-blende="keine"]) + section{ border-top-color:transparent; }
+```
+
+Zwei Dinge daran sind nicht beliebig. **`border-top-color:transparent` und
+nicht `border-top:0`:** an der Linie haengt ein Pixel Hoehe, und eine Farbe
+wegzunehmen verschiebt nichts. **Und der Selektor beginnt mit `section`:**
+bei gleicher Spezifitaet gewaenne die spaetere Regel, und `.section-soft`
+steht 3600 Zeilen weiter unten. Ein Element mehr im Selektor ist hier kein
+Schmuck, sondern die ganze Wirkung.
+
+Dieselbe Begruendung hat den Trenner unter dem Auftaktband gekostet. Er
+stand zwischen einem Farbband und einem Foto, das sich in genau diesen Ton
+aufloest.
+
+**Was stehen bleibt**, und das ist die Grenze: das Einsatzband auf den
+sechs Leistungsseiten sitzt weiter an der Kante zwischen Kopfbild und Text.
+Es ist kein Trenner, sondern das Zeichen der Seite, und es traegt je Seite
+eine andere Figur. Ein Trenner, der etwas sagt, ist kein Zierrat.
+
 ### Was WO steht, entscheidet eine Tabelle
 
 `tools/farbtakt.py` setzt `auf-hell` und `data-blende` auf die
