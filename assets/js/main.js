@@ -916,47 +916,48 @@
     }
   }
 
-  /* ---- Der Imagefilm als Hintergrund der Startseite ----
+  /* ---- Der Imagefilm als GRUND der Startseite ----
      ------------------------------------------------------------
      Er war einmal ein Abspieler in einem eigenen Abschnitt: Poster, Knopf,
-     Tonschalter, Untertitel, schwarzer Vorspann. Jetzt liegt er hinter dem
-     Text der Startseite und laeuft von selbst, stumm und endlos.
+     Tonschalter, Untertitel, schwarzer Vorspann. Jetzt liegt er als feste
+     Lage hinter der ganzen Seite und laeuft von selbst, stumm und endlos.
+
+     Nicht im Kopfbild: dort steht weiter das Foto der Tafel mit seiner
+     stehenden Kamerafahrt, darunter das Bildband mit der begruenten Wand.
+     Beide tragen ihren eigenen Grund und decken den Film zu. Sichtbar wird
+     er ab der Vertrauensleiste, hinter dem Text der Seite.
 
      Fuenf Dinge sind daran nicht beliebig:
 
      1. **Die Tonspur ist nicht stumm, sie ist weg.** `tools/hintergrundfilm.sh`
         schneidet sie mit `-an` heraus. Ein `muted`, das jemand aufheben kann,
         ist bei einem Hintergrund eine Falle.
-     2. **Das Standbild darunter ist das erste Bild des Films.** Deshalb gibt
-        es beim Uebergang nichts zu sehen — und deshalb gibt es keine
-        schwarze Flaeche, waehrend der Film laedt.
+     2. **Er blendet auf, er springt nicht an.** Davor steht der
+        Seitengrund; laedt der Film langsam oder gar nicht, sieht die Seite
+        aus wie ohne ihn.
      3. **Gestartet wird nicht blind.** Ein `play()`, das der Browser
         ablehnt, wirft eine Ausnahme; ohne `catch` stuerbe der Rest dieses
-        Blocks. Lehnt er ab, bleibt das Standbild stehen, und das sieht
-        genauso aus wie vorher.
-     4. **Er laeuft nur, solange er zu sehen ist.** Dieselbe Begruendung wie
-        bei den Kamerafahrten: ein Video, das unter zehn Bildschirmen Text
-        weiterlaeuft, kostet Akku und Rechenzeit fuer nichts.
-     5. **Bei reduzierter Bewegung und bei „Datensparmodus" laeuft er gar
+        Blocks. Lehnt er ab, bleibt der Seitengrund stehen.
+     4. **Bei reduzierter Bewegung und bei „Datensparmodus" laeuft er gar
         nicht** — und wird dann auch nicht geladen. Der `<video>` steht im
         Markup ohne Quelle; hier wird gar nicht erst eine eingehaengt.
-     6. **Der Zuschnitt wird hier gewaehlt, nicht im Markup.** `media` am
+     5. **Der Zuschnitt wird hier gewaehlt, nicht im Markup.** `media` am
         `<source>` wirkt nur im `<picture>`; in einem `<video>` werten es
         weder Chromium noch Safari aus. Wer sich darauf verlaesst, liefert
         dem Telefon die Querfassung — gemessen das 3,5-fache Hochrechnen,
         also genau die Unschaerfe, die beanstandet war. */
   (function(){
-    const film = document.querySelector('.hero__film');
+    const film = document.querySelector('.filmgrund video');
     if(!film) return;
 
     const knausrig = navigator.connection && (navigator.connection.saveData ||
                      /2g/.test(navigator.connection.effectiveType || ''));
 
     if(reduce || knausrig){
-      /* Nicht verstecken, sondern ausbauen: ein leeres <video> kostet zwar
-         nichts, aber es soll auch keins im Baum stehen, das spaeter jemand
-         versehentlich startet. */
-      film.remove();
+      /* Die ganze Lage geht, nicht nur der Film: sie traegt `--grund` und
+         stuende sonst als zweite, gleichfarbige Flaeche hinter der Seite. */
+      const lage = film.closest('.filmgrund');
+      (lage || film).remove();
       return;
     }
 
@@ -980,10 +981,10 @@
     }
     film.load();
 
-    /* `.laeuft` blendet den Film ueber das Standbild. Das ist keine
-       Gestaltung, sondern eine Versicherung: faellt das erste Bild des Films
-       aus irgendeinem Grund anders aus als das Standbild, sieht man einen
-       weichen Wechsel statt eines Sprungs. */
+    /* `.laeuft` blendet den Film auf. Davor steht der Seitengrund, und
+       das ist keine Gestaltung, sondern eine Versicherung: laedt der Film
+       langsam oder gar nicht, sieht die Seite aus wie vorher, statt eine
+       halbe Sekunde lang in ein schwarzes Rechteck zu schauen. */
     const sichtbar = ()=> film.classList.add('laeuft');
     if(film.readyState >= 2) sichtbar();
     film.addEventListener('loadeddata', sichtbar, { once:true });
@@ -998,14 +999,15 @@
       if(document.visibilityState === 'visible' && film.paused) los();
     });
 
-    if('IntersectionObserver' in window){
-      new IntersectionObserver((eintraege)=>{
-        for(const e of eintraege){
-          if(e.isIntersecting) los();
-          else if(!film.paused) film.pause();
-        }
-      }, { threshold: 0.01 }).observe(film);
-    }
+    /* Frueher hing hier ein IntersectionObserver: der Film lag im Hero und
+       sollte anhalten, sobald man daran vorbeigescrollt war. Als GRUND der
+       Seite ist er immer zu sehen — ein Beobachter, der nie „draussen"
+       meldet, ist eine Zeile, die nichts tut. Was bleibt, ist das
+       Anhalten, wenn der Reiter im Hintergrund liegt, und das erledigt der
+       Browser von selbst.
+       Kein `will-change`: die laufende Animation legt ihre Ebene selbst an
+       und gibt sie beim Anhalten wieder frei (siehe „Die teuerste Falle"
+       in CLAUDE.md). */
   })();
 
   /* Hier stand der Uebergang von einer Szene der Startseite auf ihre

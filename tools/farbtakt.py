@@ -54,13 +54,19 @@ HIER = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Der Kommentar hinter jeder Zeile ist der Abschnitt, damit die Tabelle auch
 # dann noch lesbar ist, wenn man die Datei nicht daneben offen hat.
 TAKT = {
+    # Die Startseite hat seit dem Hintergrundfilm KEINE helle Bahn mehr.
+    # Das ist keine Geschmacksfrage: eine beige Bahn ist deckend und wuerde
+    # den Film auf ihrer ganzen Hoehe zudecken; durchscheinend waere sie
+    # dunkle Tinte ueber einem Bild, dessen Helligkeit sich 44 Sekunden
+    # lang aendert. Der Takt bleibt auf den uebrigen fuenfzehn Seiten.
     "index.html": [
-        None,        # hero, der Imagefilm als Hintergrund
-        "dunkel",    # auftakt, der dunkle Streifen unter dem Film
-        "hell",      # trust, die Vertrauensleiste
-        None,        # intro
-        "hell",      # testi, Zitat und Zeichen
-        None,        # cta, Schlussblock
+        None,        # hero, das Kopfbild mit der Tafel
+        "dunkel",    # auftakt, der dunkle Streifen darunter
+        None,        # schaubild, das Bildband
+        None,        # trust, ueber dem Film
+        None,        # intro, ueber dem Film
+        None,        # testi, ueber dem Film
+        None,        # cta, ueber dem Film
     ],
     "dienstleistungen.html": [
         None,        # subhero

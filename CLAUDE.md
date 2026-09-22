@@ -3113,6 +3113,30 @@ soll kein Abspieler mehr sein, sondern der Grund der Startseite. Wörtlich:
 Dazu: automatisch starten, ohne Benutzerinteraktion, endlos, ohne
 Bedienteile, ohne Ton, ohne harten Schnitt, ohne leeren Ladezustand.
 
+### Der erste Anlauf hat „Hintergrund" als „Kopfbild" gelesen
+
+Und das war falsch. Der Film ersetzte das Foto im Hero, das Bildband fiel
+mit weg, und beanstandet wurde genau das:
+
+> „Du sollst das Foto mit Video-Effekt von der Tafel ganz oben lassen, den
+> Film als Hintergrund unter dem Foto mit den Pflanzen, und über dem Film
+> im Hintergrund der Text der Website."
+
+**Ein Hintergrund ist keine Lage im Kopfbild, sondern der Grund der Seite.**
+Die Reihenfolge steht seitdem so:
+
+| | |
+|---|---|
+| Kopfbild | das Foto der Tafel, mit seiner stehenden Kamerafahrt |
+| Auftaktband | dunkel, Auszeichnungszeile und die beiden Wege |
+| Bildband | das Foto mit der begrünten Wand |
+| **ab hier** | **der Film, fest hinter allem, der Text der Seite darüber** |
+
+Was dabei gelernt ist, gilt über den Fall hinaus: **wer „als Hintergrund"
+liest, prüft, ob das vorhandene Bild dadurch ersetzt oder hinterlegt werden
+soll.** Die beiden Fassungen unterscheiden sich um ein einziges Wort und um
+die halbe Startseite.
+
 **Das ist kein Umbau des Abspielers, sondern sein Ersatz.** Was dabei
 weggefallen ist, ist mehr als das, was hinzugekommen ist:
 
@@ -3137,16 +3161,17 @@ Drei Dinge waren schwarz, und jedes hatte eine eigene Ursache:
    64×36-Rasters) liegt das Bild bis 0,8 s bei **6,6** und ab 1,2 s bei
    **49**. `tools/hintergrundfilm.sh` schneidet deshalb bei 1,0 s: das erste
    Bild des Hintergrunds ist schon ein Motiv.
-3. **Die Zeit, bis der Film geladen ist.** Dagegen hilft kein Schnitt,
-   sondern nur ein Bild, das schon da ist. Unter dem Film liegt ein
-   `<picture>` mit **genau dessen erstem Bild** — aus derselben Quelle
-   geschnitten, im selben Lauf. Es trägt `fetchpriority="high"` und ist das
-   grösste sichtbare Element der Seite.
+3. **Die Zeit, bis der Film geladen ist.** Hinter ihm liegt der
+   Seitengrund — dieselbe Farbe, die dort ohnehin stand —, und er blendet
+   darauf auf. Lädt er langsam oder gar nicht, sieht die Seite aus wie
+   vorher, statt eine halbe Sekunde lang ein schwarzes Rechteck zu zeigen.
 
-**Der letzte Punkt ist der eigentliche.** Ein `poster` hätte dasselbe
-geleistet und wäre die naheliegende Lösung gewesen — aber es gibt zwei
-Zuschnitte, und `poster` kennt nur eine Datei. Das `<picture>` wählt den
-richtigen; deshalb hat der `<video>` hier **kein** `poster`.
+**Der letzte Punkt ist der eigentliche.** Solange der Film im Kopfbild lag,
+brauchte er dort ein Standbild, und zwar sein eigenes erstes Bild — sonst
+stand eine halbe Sekunde lang nichts. Als Grund der Seite braucht er keins:
+der Grund ist schon da. Die beiden `filmstart`-Dateien sind mit dem Umbau
+deshalb wieder verschwunden, und `hintergrundfilm.sh` schneidet sie nicht
+mehr.
 
 ### Zwei Zuschnitte, nicht zwei Grössen
 
@@ -3217,28 +3242,20 @@ Der vertonte Imagefilm bleibt trotzdem im Repository liegen. Er ist jetzt
 die **Vorlage**, aus der die vier Hintergrundfassungen geschnitten werden —
 dieselbe Rolle wie `imagefilm-musik.webm` für die Mischung.
 
-### Der Schleier misst sich am Film, nicht an einem Bild
+### Der Schleier im Kopfbild ist unverändert
 
-Der Grund unter der Hauptzeile ist jetzt eine Montage aus neun
-Einstellungen. Eine einzelne Aufnahme misst davon ein einzelnes Bild — und
-die schlechteste Einstellung liegt gemessen bei Sekunde 39, also im letzten
-Fünftel.
+Das Kopfbild ist wieder die Restauranttafel, und damit gelten wieder deren
+Werte: .59 am Schreibtisch, .61 am Telefon, nachgemessen über die fünf
+Phasen der stehenden Kamerafahrt (`scratchpad/heroPhasen.js` plus
+`phasen.py`). Stand: schlechtester Pixel 3,23:1 bei nötigen 3,0.
 
-`scratchpad/filmPhasen.js` tastet zwölf Stellen über die ganze Laufzeit ab,
-`filmphasen.py` nimmt je Textfläche die schlechteste.
-
-| | .59 / .64 (vom Foto übernommen) | jetzt .64 / .69 |
-|---|---|---|
-| Hauptzeile, schlechtester Pixel, Schreibtisch | 3,14:1 | **3,70:1** |
-| Hauptzeile, schlechtester Pixel, Telefon | 3,23:1 | **3,79:1** |
-| Scrollhinweis | 4,82:1 | 4,87:1 |
-| nötig | 3,0 bzw. 4,5 | |
-
-**Die alten Werte bestanden schon** — mit 0,14 Stufen Luft. Das ist der Fall
-aus „Barrierefreiheit": ein Wert, der gerade eben besteht, besteht beim
-nächsten Eingriff nicht mehr, und beim nächsten Eingriff heisst hier: beim
-nächsten Schnitt des Films. Fünf Punkte Deckkraft mehr kaufen eine halbe
-Stufe Kontrast.
+Für den Zwischenstand, in dem dort der Film lag, wurde er neu gemessen —
+gegen zwölf Stellen der Montage statt gegen ein Bild
+(`scratchpad/filmPhasen.js`, `filmphasen.py`). Die beiden Skripte bleiben
+liegen: **wer je wieder Text über bewegtes Bild legt, misst so und nicht
+mit einer einzelnen Aufnahme.** Der schlechteste Moment lag damals bei
+Sekunde 39 von 44, also im letzten Fünftel — eine einzelne Aufnahme hätte
+ihn mit grosser Wahrscheinlichkeit verfehlt.
 
 **Der Schleier bleibt dabei bewusst fast schwarz** (`rgba(8,26,28,…)`) und
 nicht `var(--grund)`. Das ist die einzige Stelle im Stylesheet, an der eine
@@ -3247,6 +3264,104 @@ Schleier soll abdunkeln, nicht einfärben. Über dem Petrol des Grundes
 (Helligkeit 46 statt 22) müsste dieselbe Wirkung mit höherer Deckkraft
 erkauft werden, und die hebt die Tiefen an — ein schwarzer Bildpunkt stünde
 danach bei 35 statt bei 15. Aus einem Abdunkler würde ein Milchglas.
+
+### „Das Bild mit den Pflanzen in 4K" — was daran geht und was nicht
+
+Bestellt war, das Motiv des Bildbands in 4K zu liefern. Die Vorlage liegt
+unter `assets/quellen/bar-gruen.jpg` und hat **679 × 452 Pixel, also 0,31
+Megapixel.** 4K sind 8,29 Megapixel: das Sechsundzwanzigfache der Fläche.
+Diese Pixel gibt es nicht, und kein Verfahren erfindet sie.
+
+Nachgemessen, was eine grössere Datei wirklich bringt — dieselbe Vorlage,
+dieselbe Nachschärfung, jede Stufe auf die Fläche gerechnet, die das
+Bildband am 1920er Schirm bei doppelter Dichte belegt (3840 × 1440,
+`object-fit:cover`), Kantenschärfe als mittlerer Gradientenbetrag der
+Bildmitte:
+
+| Stufe | Kantenschärfe | AVIF |
+|---|---|---|
+| 1200 px | 6,09 | 117 KB |
+| **1600 px (so)** | **5,68** | 150 KB |
+| 2000 px | 5,32 | 180 KB |
+| 2560 px | 4,95 | 221 KB |
+| 3840 px („4K") | **4,51** | 323 KB |
+
+**Eine 4K-Datei wäre gemessen 21 % weniger scharf bei 2,2-facher
+Dateigrösse.** Der Grund ist derselbe wie in „Wie viele Stufen eine Vorlage
+trägt": die Schärfung wird bei der Stufengrösse gerechnet und danach
+mitvergrössert. Je grösser die Stufe, desto weicher das Ergebnis auf dem
+Schirm.
+
+Dass die Zahl nach unten immer weiter steigt (679 px nativ ergäbe 6,32),
+ist **kein Argument für eine kleinere Datei**, sondern die Grenze des
+Messwerts: der mittlere Gradientenbetrag belohnt auch den Schärfungssaum,
+und der überlebt eine fünffache Hochrechnung als Treppe, nicht als Detail.
+Es bleibt deshalb bei den 1600 px, die die browsergerenderte Messung
+ausgewählt hat.
+
+**Was wirklich hilft, ist die Originaldatei.** Gebraucht werden mindestens
+2400 px an der langen Kante (`docs/foto-briefing.md`); für echte 4K über
+die volle Breite sind es 3840. Und der Hinweis, der hier der wichtigste
+ist: **in ein Gespräch eingefügte Bilder werden auf dem Weg verkleinert.**
+Zwei Aufnahmen desselben Betriebs kamen in einer früheren Sitzung mit 24,5
+und 16,8 Megapixel an, weil sie als Datei angehängt waren. Dieses kam mit
+0,31 — das Original existiert also mit hoher Wahrscheinlichkeit, es ist nur
+nie hier angekommen. Liegt es vor: dieselbe Datei nach
+`assets/quellen/bar-gruen.jpg`, einmal `python3 tools/motive-bauen.py`, und
+`LOHNT_GROSS` zieht die zweite Stufe von selbst.
+
+### Über einem Film gibt es keinen Grund, gegen den man rechnen kann
+
+Der Film liegt als feste Lage hinter allem (`position:fixed`), und darüber
+liegt der Grund der Abschnitte — derselbe Petrolton, nur nicht ganz
+deckend (`--grund-film`). Wie stark, ist gerechnet und dann gemessen.
+
+**`z-index:-1`, und nichts anderes.** Ein `position:fixed` mit `z-index:0`
+malt nach den Hintergründen der Abschnitte (Schritt 8 gegen Schritt 4 der
+Malreihenfolge) — der Film läge dann über dem Text. Bei −1 malt er in
+Schritt 3: nach dem Grund des `body`, vor jedem Abschnittshintergrund.
+
+**Und dann kam die Stufung.** Der erste Wert war .78, gerechnet für die
+volle Tinte: #D8D4D1 hat L 0,664, für 4,5:1 darf der Grund höchstens
+L 0,109 haben, der hellste Bildpunkt ist 255, das Petrol entspricht 46 —
+`253 − 207a = 93` ergibt a = 0,77. Gemessen fielen damit **15 Textflächen
+durch**, und zwar ausschliesslich kleine, gedämpfte Schrift.
+
+Der Grund ist derselbe wie immer, nur ein Stockwerk tiefer: **die
+gedämpfte Stufe ist durchscheinend.** `--tinte-3` ist
+`rgba(216,212,209,.70)` — steigt der Grund, steigt die Schrift mit, und
+der Abstand zwischen beiden fällt schneller, als der Schleier ihn
+aufholen kann.
+
+| Schleier | voller Text | `--tinte-3` mit .70 |
+|---|---|---|
+| .78 | 4,55:1 | **3,10:1** |
+| .88 | 6,33:1 | 4,01:1 |
+| .92 | — | 4,40:1 |
+| .95 | — | 4,54:1 |
+
+Ein Schleier von .95 wäre der Film ohne Film. Die Lösung liegt deshalb auf
+der anderen Seite: **`.auf-film` dreht die beiden gedämpften Stufen mit
+hoch** (.90 und .80 statt .82 und .70). Sie sehen weiter gedämpft aus, nur
+nicht mehr knapp. Zum fünften Mal dieselbe Lehre: **eine Tonleiter ist
+nicht symmetrisch** — und diesmal gilt sie nicht gegen einen anderen
+Grundton, sondern gegen einen, der sich 44 Sekunden lang ändert.
+
+Stand mit .88 und den hochgedrehten Stufen: **0 Textflächen unter der
+Grenze**, Schreibtisch und Telefon, über drei Durchläufe.
+
+**Die Falle dabei, und es ist die von 2026 zum zweiten Mal:** `.cta` trägt
+`background-color:var(--flaeche)` fest eingetragen. Bei gleicher
+Spezifität gewinnt die spätere Regel, und `.cta` steht 1100 Zeilen unter
+`.auf-film` — der Schlussblock wäre der einzige Abschnitt gewesen, hinter
+dem der Film verschwindet, und zwar ausgerechnet der mit der Anfrage
+darin.
+
+**Und die Startseite hat seitdem keine helle Bahn mehr.** Eine beige Bahn
+ist deckend und würde den Film auf ihrer ganzen Höhe zudecken;
+durchscheinend wäre sie dunkle Tinte über einem Bild, dessen Helligkeit
+sich laufend ändert. Der Farbtakt bleibt auf den übrigen fünfzehn Seiten,
+`tools/farbtakt.py` trägt die Begründung in seiner Tabelle.
 
 ### Die Falle: `python3 -m http.server` beantwortet keine Range-Anfragen
 
@@ -3304,20 +3419,20 @@ Poster in vier Fassungen.
 
 ### Was am Hero sonst noch anders ist
 
-- **`.hero__photo` heisst `.hero__medien`** und hält zwei Lagen statt einer.
-  Die Kamerafahrt beim Scrollen (`--weg`) hängt jetzt an der Lage, nicht am
-  Bild — sonst liefe sie nur auf einem von beiden.
+- **`.hero__photo` heisst wieder `.hero__photo`.** Einen Nachmittag lang
+  hiess es `.hero__medien` und hielt zwei Lagen; mit der Rückkehr des Fotos
+  ist der alte Name der richtige.
 - **Die Auszeichnungszeile steht weiter im Auftaktband**, nicht auf dem
-  Film. Die Begründung ist dieselbe wie beim Foto und wiegt beim Film noch
-  schwerer: sie ist kleine Schrift (4,5:1 gegen 3,0:1) und wäre über neun
-  wechselnden Einstellungen die bindende Bedingung für den ganzen Verlauf.
-- **Bei reduzierter Bewegung wird der `<video>` ausgebaut**, nicht
-  versteckt, und es wird nie eine Quelle eingehängt. Stehen bleibt das
-  Standbild — also dasselbe Bild, nur ohne Bewegung.
-- **Er läuft nur, solange er zu sehen ist.** Dieselbe Begründung wie bei den
-  Kamerafahrten: ein Video, das unter sechs Bildschirmen Text weiterläuft,
-  kostet Akku für nichts. Ein `IntersectionObserver` hält ihn an und startet
-  ihn wieder, `visibilitychange` ebenso.
+  Foto. Die Begründung ist unverändert: sie ist kleine Schrift (4,5:1 gegen
+  3,0:1) und hat als einzige den ganzen Verlauf bestimmt.
+- **Bei reduzierter Bewegung wird die ganze Lage ausgebaut**, nicht
+  versteckt, und es wird nie eine Quelle eingehängt. Stehen bleibt der
+  Seitengrund — also genau das, was ohne den Film dort stünde.
+- **Kein `IntersectionObserver`.** Er stand da, solange der Film im Hero
+  lag und beim Weiterscrollen anhalten sollte. Als Grund der Seite ist er
+  immer zu sehen; ein Beobachter, der nie „draussen" meldet, ist eine Zeile,
+  die nichts tut. Was bleibt, ist `visibilitychange` für den Fall, dass der
+  Reiter in den Hintergrund geht.
 
 ---
 

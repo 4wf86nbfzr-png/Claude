@@ -77,16 +77,13 @@ bauen "scale=1600:900:flags=lanczos" 30 36 assets/video/hintergrund
 # falsche Kante"), nur mit bewegtem Bild.
 bauen "crop=608:1080:656:0,scale=810:1440:flags=lanczos" 33 38 assets/video/hintergrund-hoch
 
-# Die beiden Standbilder sind die ERSTEN BILDER der beiden Fassungen, nicht
-# irgendein Motiv. Nur so ist der Wechsel vom Standbild auf den Film nicht zu
-# sehen, und nur deshalb gibt es keine schwarze Flaeche davor.
-echo "→ Standbilder aus dem jeweils ersten Bild"
-ffmpeg -hide_banner -v error -y -i assets/video/hintergrund.mp4 \
-  -frames:v 1 -q:v 2 assets/img/filmstart.jpg
-ffmpeg -hide_banner -v error -y -i assets/video/hintergrund-hoch.mp4 \
-  -frames:v 1 -q:v 2 assets/img/filmstart-hoch.jpg
-python3 -c "from PIL import Image; import sys; [print('  ', p, Image.open(p).size) for p in sys.argv[1:]]" \
-  assets/img/filmstart.jpg assets/img/filmstart-hoch.jpg
+# Standbilder werden hier KEINE mehr geschnitten, und das ist eine
+# Entscheidung, keine Auslassung. Sie waren noetig, solange der Film im
+# Kopfbild lag und dort vom ersten Augenblick an etwas stehen musste. Als
+# GRUND der Seite liegt hinter ihm der Seitengrund — dieselbe Farbe, die
+# dort ohnehin stand —, und die beiden Aufnahmen darueber (die Tafel im
+# Kopfbild, die begruente Wand im Bildband) sind echte Fotos und kein
+# Einzelbild aus einem Film.
 
 echo
-echo "Fertig. Danach: python3 tools/bilder-vergroessern.py (Standbilder in AVIF/WebP)"
+echo "Fertig."

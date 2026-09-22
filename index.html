@@ -176,6 +176,27 @@ document.documentElement.classList.remove("kein-js");
      muss sonst auf jeder Seite durch die ganze Navigation. -->
 <a class="sprunglink" href="#top">Zum Inhalt springen</a>
 
+
+<!-- ============ DER FILM ALS GRUND DER SEITE ============ -->
+<!-- Er liegt hinter allem und bleibt beim Scrollen stehen. Was ihn verdeckt,
+     sind die beiden Aufnahmen darueber: das Kopfbild mit der Tafel und das
+     Bildband mit der begruenten Wand tragen ihren eigenen Grund. Alles
+     darunter traegt `auf-film` und laesst ihn durch.
+
+     Ohne Quelle im Markup, aus zwei Gruenden: `media` am source-Element
+     wirkt nur im picture-Element (Chromium und Safari werten es im
+     video-Element NICHT aus), und bei reduzierter Bewegung oder im
+     Datensparmodus soll gar nichts geladen werden. Beides erledigt
+     `main.js`. -->
+<div class="filmgrund" aria-hidden="true">
+  <video muted loop playsinline preload="auto"
+         disablepictureinpicture disableremoteplayback tabindex="-1"
+         data-quer-mp4="assets/video/hintergrund.mp4"
+         data-quer-webm="assets/video/hintergrund.webm"
+         data-hoch-mp4="assets/video/hintergrund-hoch.mp4"
+         data-hoch-webm="assets/video/hintergrund-hoch.webm"></video>
+</div>
+
 <!-- ============ FORTSCHRITTSBALKEN ============ -->
 <div id="scrollbar"></div>
 
@@ -253,51 +274,8 @@ document.documentElement.classList.remove("kein-js");
      (nachgemessen, siehe tools/motive-bauen.py). Das Motiv davor kam aus
      640 px und bekam deshalb nur eine. -->
 <section class="hero" id="hero" data-weg>
-  <!-- Der Hintergrund ist der Imagefilm, und er besteht aus zwei Lagen.
-       ------------------------------------------------------------
-       ZUERST das Standbild. Es ist nicht irgendein Motiv, sondern das ERSTE
-       BILD des Films (`tools/hintergrundfilm.sh` schneidet beides aus
-       derselben Quelle). Damit steht in der ersten Zeichnung schon das
-       richtige Bild da, der Wechsel auf den Film ist nicht zu sehen, und es
-       gibt zu keinem Zeitpunkt eine schwarze Flaeche. Es traegt
-       `fetchpriority="high"` und ist damit das groesste sichtbare Element
-       (LCP) — der Film selbst kommt danach und laesst sich Zeit.
-
-       DANN der Film. Stumm, in Schleife, ohne Bedienteile, ohne Tonspur in
-       der Datei. Zwei Zuschnitte statt zwei Groessen: quer fuer den
-       Schreibtisch, hochkant fuers Telefon. `object-fit:cover` deckt ueber
-       die laengere relative Kante, und in einem Hochkantfenster ist das die
-       HOEHE — eine 16:9-Datei muesste dort um das 3,5-fache hochgerechnet
-       werden. Mit dem 9:16-Schnitt sind es 1,76.
-
-       DIE FALLE DABEI, und sie hat einen Testlauf gekostet: `media` am
-       source-Element wirkt nur im picture-Element. In einem video-Element
-       steht es zwar in der Norm, Chromium und Safari werten es aber NICHT
-       aus — das Handy holte damit die Querfassung. Der Zuschnitt wird
-       deshalb unten in `main.js` gewaehlt, und das video-Element steht hier
-       bewusst OHNE Quelle: so laedt kein Geraet eine Datei, die es gleich
-       wieder verwirft.
-       (Und deshalb steht hier kein einziges rohes Tag: ein `picture` in
-       spitzen Klammern in einem Kommentar hat tools/testdatei-bauen.py
-       genau einmal das halbe Kopfbild gekostet.)
-       Die Adressen stehen als `data-`Attribute daneben, der Rest ist eine
-       Zeile `matchMedia`.
-
-       Auch `poster` fehlt mit Absicht. Das Standbild liegt schon darunter
-       und ist der richtige Zuschnitt; ein Poster kennt nur EINE Datei und
-       waere am Telefon die falsche. -->
-  <div class="hero__medien" aria-hidden="true">
-    <picture class="hero__still">
-      <source type="image/avif" media="(max-width:900px)" srcset="assets/img/filmstart-hoch.avif" /><source type="image/webp" media="(max-width:900px)" srcset="assets/img/filmstart-hoch.webp" />
-      <source type="image/avif" srcset="assets/img/filmstart.avif" /><source type="image/webp" srcset="assets/img/filmstart.webp" />
-      <img src="assets/img/filmstart.jpg" alt="" fetchpriority="high" width="1600" height="900" />
-    </picture>
-    <video class="hero__film" muted loop playsinline preload="auto"
-           disablepictureinpicture disableremoteplayback tabindex="-1"
-           data-quer-mp4="assets/video/hintergrund.mp4"
-           data-quer-webm="assets/video/hintergrund.webm"
-           data-hoch-mp4="assets/video/hintergrund-hoch.mp4"
-           data-hoch-webm="assets/video/hintergrund-hoch.webm"></video>
+  <div class="hero__photo" aria-hidden="true">
+    <picture><source type="image/avif" srcset="assets/img/bankett.avif 1600w, assets/img/bankett-gross.avif 2560w" sizes="(max-width:980px) 200vw, 100vw" /><source type="image/webp" srcset="assets/img/bankett.webp 1600w, assets/img/bankett-gross.webp 2560w" sizes="(max-width:980px) 200vw, 100vw" /><img src="assets/img/bankett.jpg" alt="" fetchpriority="high" width="1600" height="900" /></picture>
   </div>
   <div class="hero__schleier" aria-hidden="true"></div>
 
@@ -359,9 +337,18 @@ document.documentElement.classList.remove("kein-js");
      mindestens 2400 px an der langen Kante (docs/foto-briefing.md), ist
      der Abschnitt zwei Zeilen Markup. -->
 
+<!-- ============ BILDBAND ============ -->
+<!-- Das zweite Motiv, randlos, direkt unter dem Kopfbild. Es traegt dieselbe
+     stehende Kamerafahrt wie der Hero und laeuft aus demselben Grund nur,
+     solange es zu sehen ist: `data-weg` gibt ihm `.live` vom vorhandenen
+     Motor, ohne eine Zeile JavaScript. -->
+<section class="schaubild" data-weg>
+  <picture><source type="image/avif" srcset="assets/img/bar-gruen.avif" /><source type="image/webp" srcset="assets/img/bar-gruen.webp" /><img src="assets/img/bar-gruen.jpg" alt="Aufgebaute Bar mit begrünter Rückwand und Barhockern auf einer Veranstaltung" loading="lazy" width="1600" height="1065" /></picture>
+</section>
+
 <!-- ============ VERTRAUENSLEISTE ============ -->
 <!-- Vier nachprüfbare Angaben statt Kennzahlen wie „100 % Fokus". -->
-<section class="trust auf-hell" aria-label="Auf einen Blick">
+<section class="trust auf-film" aria-label="Auf einen Blick">
   <div class="wrap trust__grid" data-stagger>
     <div class="trust__item">
       <b>Über 20 Jahre</b>
@@ -383,7 +370,7 @@ document.documentElement.classList.remove("kein-js");
 </section>
 
 <!-- ============ INTRO ============ -->
-<section class="intro" id="ueber">
+<section class="intro auf-film" id="ueber">
   <div class="wrap intro__grid">
     <div>
       <span class="eyebrow reveal-up">Moin, moin</span>
@@ -482,7 +469,7 @@ document.documentElement.classList.remove("kein-js");
 <!-- ============ REFERENZEN ============ -->
 <!-- Die Stimmen standen vorher in zwei Endlosbändern und liefen am Auge vorbei.
      Jetzt lesbar: ein Zitat als Anker, die übrigen als ruhiges Raster. -->
-<section class="testi auf-hell">
+<section class="testi auf-film">
   <div class="wrap">
     <div class="testi__head">
       <span class="eyebrow reveal-up">Referenzen</span>
@@ -526,7 +513,7 @@ document.documentElement.classList.remove("kein-js");
 
 
 <!-- ============ CTA / KONTAKT ============ -->
-<section class="cta" id="kontakt">
+<section class="cta auf-film" id="kontakt">
   <div class="wrap cta__inner">
     <span class="eyebrow reveal-up">Haben Sie noch Fragen?</span>
     <h2 class="u-caps" data-worte data-lauf>Lassen Sie uns Ihr Event tragen.</h2>
@@ -588,7 +575,7 @@ document.documentElement.classList.remove("kein-js");
 </main>
 
 <!-- ============ FOOTER ============ -->
-<footer>
+<footer class="auf-film">
   <div class="wrap">
     <!-- Schlusszeile des Fusses. Sie greift die Aussage der Startseite noch
          einmal auf und ist gleichzeitig der letzte Weg zur Anfrage — wer bis

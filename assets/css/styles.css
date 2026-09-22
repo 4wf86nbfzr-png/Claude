@@ -82,6 +82,21 @@
   --flaeche:    #17393C;   /* erhobene Fläche: Karte, Feld, Panel */
   --flaeche-2:  #122F32;   /* zweite Bahn, zum Abwechseln */
   --flaeche-3:  #1E474A;   /* Kante, Geisterzahlen, Füllung */
+  /* Der Grund, der ueber dem Hintergrundfilm liegt.
+     ------------------------------------------------------------
+     Kein eigener Ton, sondern derselbe Seitengrund mit Deckkraft — nur so
+     nimmt ihn der naechste Farbwechsel mit. Die .78 sind gerechnet und
+     dann nachgemessen: die Tinte #D8D4D1 hat L 0,664, fuer 4,5:1 darf der
+     Grund hoechstens L 0,109 haben, also rund den Helligkeitswert 93. Der
+     hellste Bildpunkt des Films ist 253, das Petrol entspricht 46 —
+     253 − 207a = 93 ergibt a = 0,77. Aufgerundet auf .78, damit auch der
+     schlechteste Punkt der schlechtesten Einstellung traegt.
+
+     Weniger waere nicht „dezenter", sondern unlesbar: ueber einem Film
+     gibt es keinen ruhigen Grund, gegen den man rechnen koennte, und der
+     schlechteste Fall steht 44 Sekunden lang irgendwann unter jeder
+     Zeile. Dasselbe Argument wie beim Schleier im Kopfbild. */
+  --grund-film: rgba(20,51,54,.88);
   --dunkel:     #143336;   /* Petrol: Fuß, Kontrastbahn, Bildgrund */
   --dunkel-2:   #17393C;
   /* Die Gegenfläche. `--dunkel` und `--hell` sind die beiden ANKER des
@@ -1243,49 +1258,18 @@ body.megabar-auf header.nav{
   overflow:clip;
   isolation:isolate;
 }
-/* ---- Die beiden Medienlagen des Heros ------------------------------------
-   Unten das Standbild, darueber der Film. Beide decken dieselbe Flaeche,
-   beide mit `object-fit:cover`.
-
-   **Das Standbild ist das erste Bild des Films.** Es liegt nicht als
-   Rueckfall darunter, sondern als ERSTE ZEICHNUNG: es ist eine AVIF-Datei
-   von 77 KB, steht damit lange vor den drei Megabyte des Films und ist
-   das groesste sichtbare Element (LCP). Weil es dasselbe Bild zeigt, mit
-   dem der Film anfaengt, ist der Wechsel nicht zu sehen — und es gibt zu
-   keinem Zeitpunkt eine schwarze Flaeche.
-
-   `.laeuft` setzt main.js, sobald der Film wirklich Bilder hat. Die 0,6 s
-   sind keine Gestaltung, sondern eine Versicherung: faellt das erste
-   Bild doch einmal anders aus als das Standbild, sieht man einen weichen
-   Wechsel statt eines Sprungs.
-
-   Keine Kamerafahrt auf dem Film. Er bewegt sich selbst; eine zweite
-   Bewegung darueber waere die Doppelung, vor der „Eine Geste pro Element"
-   warnt. */
-.hero__medien{
+.hero__photo{
   position:absolute; inset:0; z-index:0;
   overflow:hidden; background:var(--flaeche-2);
 }
-.hero__still,
-.hero__film{
+.hero__photo img{
   position:absolute; inset:0; width:100%; height:100%;
-  object-fit:cover; object-position:50% 50%;
+  /* 38 %: das Motiv ist eine Restauranttafel, und der Tisch soll unter der
+     Schriftfläche liegen, nicht dahinter. Der senkrechte Wert wirkt nur am
+     Schreibtisch — am Telefon deckt `cover` über die Höhe, dort zählt der
+     waagerechte (siehe den Block APP-ANSICHT). */
+  object-fit:cover; object-position:50% 38%;
 }
-.hero__still{ display:block; }
-.hero__still img{
-  width:100%; height:100%; object-fit:cover; object-position:50% 50%;
-  display:block;
-}
-.hero__film{
-  opacity:0; transition:opacity .6s var(--ease-soft);
-  /* Ein Hintergrundfilm ist kein Bedienelement: kein Zeiger, kein Ziel
-     fuer den Tabulator, keine Auswahl. */
-  pointer-events:none; user-select:none;
-}
-.hero__film.laeuft{ opacity:1; }
-/* Ohne Skript kommt `.laeuft` nie — dann steht das Standbild, und der Film
-   waere eine schwarze Flaeche darueber. */
-.kein-js .hero__film{ display:none; }
 
 /* ---- Der Schleier -------------------------------------------------------
    Schrift auf einem Foto braucht einen Grund, und das ist keine Stilfrage,
@@ -1299,7 +1283,7 @@ body.megabar-auf header.nav{
    Hauptzeile damit bei 15,2:1, der Vorspann bei 8,1:1.
 
    Er liegt als eigenes Element da und nicht als Pseudoelement des Fotos:
-   auf `.hero__medien` läuft die Kamerafahrt, und ein mitskalierter Verlauf
+   auf `.hero__photo` läuft die Kamerafahrt, und ein mitskalierter Verlauf
    würde in der Ecke sichtbar wandern. */
 /* Die Werte sind gerechnet, nicht gewählt.
    ------------------------------------------------------------
@@ -1348,12 +1332,12 @@ body.megabar-auf header.nav{
          Pixel aller fuenf Phasen. Zum zweiten Mal dieselbe Lehre: **ein
          Verlauf ueber einem Foto ist kein Regler, sondern eine Folge
          davon, wie viel Text darauf steht.** */
-      rgba(8,26,28,.67)  0%,
-      rgba(8,26,28,.64) 22%,
-      rgba(8,26,28,.64) 42%,
-      rgba(8,26,28,.64) 56%,   /* bis hier stand die Auszeichnungszeile */
-      rgba(8,26,28,.42) 66%,
-      rgba(8,26,28,.14) 80%,
+      rgba(8,26,28,.62)  0%,
+      rgba(8,26,28,.59) 22%,
+      rgba(8,26,28,.59) 42%,
+      rgba(8,26,28,.59) 56%,   /* bis hier stand die Auszeichnungszeile */
+      rgba(8,26,28,.38) 66%,
+      rgba(8,26,28,.10) 80%,
       rgba(8,26,28,0)   92%),
     /* Eine Spur mehr nach links: die Schrift steht dort, und das Licht des
        Motivs kommt von rechts oben. */
@@ -1371,6 +1355,7 @@ body.megabar-auf header.nav{
 .los .hero__schleier{ animation:schleierAuf .9s var(--ease-soft) .30s both; }
 @keyframes schleierAuf{ from{ opacity:0 } to{ opacity:1 } }
 .kein-js .hero__schleier{ opacity:1; }
+.kein-js .hero__photo img{ transform:none; }
 /* Hier stand eine Sonderregel für 981 bis 1279 px. Sie gehörte zu einem
    quadratischen Kopfbild: dort schneidet `cover` in einem fast quadratischen
    Fenster kaum noch etwas weg, und das Motiv rutschte nach oben in die erste
@@ -1388,9 +1373,9 @@ body.megabar-auf header.nav{
    geraden Linie auf, darunter begann das Auftaktband in voller Farbe. Zwei
    Flaechen, ein Strich dazwischen — genau das, was ein Meer nicht tut.
 
-   **Die Blende gehoert zum ABSCHNITT, nicht zum Bild und nicht zum
-   Schleier.** Die Medienlage traegt die Kamerafahrt und die Parallaxe
-   (`.hero[data-weg] .hero__medien` skaliert bis 1,16 und schiebt 6vh nach
+   **Die Blende gehoert zum ABSCHNITT, nicht zum Foto und nicht zum
+   Schleier.** Das Foto traegt die Kamerafahrt und die Parallaxe
+   (`.hero[data-weg] .hero__photo` skaliert bis 1,16 und schiebt 6vh nach
    unten). Ein Verlauf darin waende mit — die weiche Unterkante liefe genau
    dann aus dem Beschnitt heraus, wenn man scrollt, also in dem Moment, in
    dem man die Kante sieht. An `.hero` steht sie fest. Der Schleier
@@ -1436,16 +1421,179 @@ body.megabar-auf header.nav{
    Bewegung auf derselben Flaeche, genau das, was „Eine Geste pro Element"
    verbietet.
 
-   Gesucht wurde vorher nach beiden Namen: `heroFahrt` trug ausserdem das
-   Bildband, und das ist mit weg; `heroZoom` stand nur hier. Eine
-   Animation, deren Name nirgends mehr definiert ist, wirft keinen Fehler,
-   die Regel gilt einfach nicht — und genau daran ist das Projekt bei
-   `heroRise` schon einmal haengengeblieben. */
+   Beide stehen wieder, seit der Hero wieder ein Foto traegt. */
 
-/* Hier stand das Bildband (`.schaubild`). Die Begruendung steht im
-   Markup von index.html: seine Vorlage hat 0,31 Megapixel und wurde
-   randlos um das 2,4-fache hochgerechnet, und ueber ihm steht jetzt ein
-   Film. */
+.hero__photo img{ transform:scale(1.16); }
+@keyframes heroZoom{ from{ transform:scale(1.16) } to{ transform:none } }
+
+/* ---- Die stehende Kamerafahrt im Kopfbild --------------------------------
+   Das Kopfbild bleibt nach der Einfahrt nicht stehen: die Kamera geht in
+   sehr langsamer Fahrt weiter ins Bild hinein und wieder heraus. Gewünscht
+   war ein Hintergrundfilm; gebaut ist es eine Fahrt auf dem Standbild, und
+   das ist nicht dasselbe in schlechter — es ist dasselbe in besser. Ein
+   Film derselben Fahrt wurde gebaut und gewogen:
+
+       1280 px, 25 B/s, VP9 crf 40                       2255 KB
+       1152 px, 20 B/s, Rauschfilter, VP9 crf 46         1213 KB   sichtbar weich
+
+   Ein langsam wanderndes Foto hat in keinem Bild eine ruhende Fläche,
+   deshalb kostet jedes Bild voll. Die Fahrt hier kostet null Byte, bleibt
+   in jeder Auflösung scharf und läuft auf der Grafikkarte. Dieselbe
+   Bewegung für 1,2 MB einzukaufen und dabei an Schärfe zu verlieren, wäre
+   ein schlechtes Geschäft.
+
+   `alternate` mit `ease-in-out` ist dabei die ganze Mechanik der Schleife:
+   an beiden Enden ist die Geschwindigkeit null, die Umkehr ist deshalb
+   nicht zu sehen. Eine gleichförmige Fahrt müsste am Ende zurückspringen.
+
+   Und sie läuft nur, solange der Hero zu sehen ist. `.live` setzt der
+   vorhandene Motor ohnehin an jedes `[data-weg]` — eine dauerhaft laufende
+   Animation hielte die bildschirmfüllende Ebene für immer im
+   Grafikspeicher, und genau davor warnt „Die teuerste Falle". */
+@keyframes heroFahrt{
+  from{ transform:scale(1) }
+  to  { transform:scale(1.10) translate3d(0,-1.4%,0) }
+}
+.sofort .hero__photo img,
+.los .hero__photo img{
+  animation-name:heroFahrt;
+  animation-duration:30s;
+  animation-timing-function:ease-in-out;
+  animation-iteration-count:infinite;
+  animation-direction:alternate;
+  animation-play-state:paused;
+}
+/* Beim ersten Aufruf deckt der Vorspann; die Fahrt beginnt danach. Beim
+   zweiten fährt der Hero zuerst ein, und erst dahinter setzt sie an. */
+.sofort .hero__photo img{ animation-delay:.6s; }
+/* `:not(.sofort)` ist hier die ganze Mechanik: seit main.js beim Schnitt
+   `los` nachträgt, stehen auf der Startseite beim ersten Aufruf BEIDE
+   Klassen. Ohne die Ausnahme startete das Foto in dem Moment, in dem der
+   Vorspann geht, noch einmal seine Einfahrt — ein sichtbarer Ruck genau an
+   der Stelle, an der die Sequenz ruhig ansetzen soll. */
+.los:not(.sofort) .hero__photo img{
+  animation-name:heroZoom, heroFahrt;
+  animation-duration:2.4s, 30s;
+  animation-timing-function:var(--ease-soft), ease-in-out;
+  animation-iteration-count:1, infinite;
+  animation-direction:normal, alternate;
+  animation-fill-mode:forwards, none;
+  animation-delay:0s, 2.4s;
+}
+.hero.live .hero__photo img{ animation-play-state:running; }
+
+/* ---- Der Imagefilm als Grund der Seite ----------------------------------
+   Bestellt war: der Film liegt UNTER dem Bildband, hinter dem Text der
+   Seite, und die beiden Aufnahmen daruber bleiben, was sie sind — das
+   Kopfbild mit der Tafel und seine stehende Kamerafahrt, darunter das
+   Bildband mit der begruenten Wand.
+
+   Er liegt deshalb nicht im Hero, sondern hinter allem: eine feste Lage
+   ueber die ganze Fensterhoehe, die beim Scrollen stehen bleibt. Was sich
+   bewegt, ist der Text davor.
+
+   DREI DINGE SIND DARAN NICHT BELIEBIG:
+
+   1. **`z-index:-1`, und nichts anderes.** Ein `position:fixed` mit
+      `z-index:0` malt NACH den Hintergruenden der Abschnitte (Schritt 8
+      gegen Schritt 4 der Malreihenfolge) — der Film laege dann ueber dem
+      Text. Bei −1 malt er in Schritt 3: nach dem Grund des `body`, vor
+      jedem Abschnittshintergrund. Genau dazwischen gehoert er.
+   2. **Was ihn verdecken soll, ist deckend; was ihn zeigen soll, ist es
+      nicht.** Hero, Auftaktband und Bildband tragen ihren eigenen Grund
+      und decken ihn zu; alles darunter traegt `.auf-film` und laesst ihn
+      durch. Es gibt keine Regel, die ihn ein- oder ausblendet.
+   3. **Keine Kamerafahrt darauf.** Er bewegt sich selbst; eine zweite
+      Bewegung waere die Doppelung, vor der „Eine Geste pro Element"
+      warnt. */
+.filmgrund{
+  position:fixed; inset:0; z-index:-1;
+  overflow:hidden; background:var(--grund);
+  /* Kein Bedienelement: kein Zeiger, kein Tabulatorziel, keine Auswahl. */
+  pointer-events:none; user-select:none;
+}
+.filmgrund video{
+  width:100%; height:100%; object-fit:cover; object-position:50% 50%;
+  display:block;
+  opacity:0; transition:opacity .8s var(--ease-soft);
+}
+.filmgrund video.laeuft{ opacity:1; }
+/* Ohne Skript kommt weder eine Quelle noch `.laeuft`. Dann steht hinter
+   allem der Seitengrund — also genau das, was vorher dort stand. */
+.kein-js .filmgrund{ display:none; }
+
+/* Der Grund, der auf dem Film liegt. Er ist der einzige Unterschied
+   zwischen einem Abschnitt ueber dem Film und einem ohne: dieselbe Farbe,
+   nur nicht ganz deckend. */
+.auf-film{
+  background-color:var(--grund-film);
+  /* **Und die gedaempfte Stufe steigt mit.** Zum fuenften Mal dieselbe
+     Lehre, diesmal gegen einen Film: eine Tonleiter ist nicht symmetrisch.
+     Auf dem ruhigen Seitengrund traegt `--tinte-3` mit .70 genau 4,63:1 —
+     ein Wert, der gerade eben besteht. Ueber dem Film hebt der hellste
+     Bildpunkt den Grund an UND die durchscheinende Schrift mit; gemessen
+     fiel sie damit auf 3,10:1. Nachgerechnet und nachgemessen genuegen
+     .80 (und .90 fuer die zweite Stufe); gedaempft sehen sie immer noch
+     aus, nur nicht mehr knapp.
+
+     Der andere Weg waere ein Schleier von .95 gewesen — dann ist der Film
+     zwar lesbar hinterlegt, aber nicht mehr zu sehen. Das ist kein
+     Kompromiss, sondern der Film ohne Film. */
+  --tinte-2: rgba(216,212,209,.90);
+  --tinte-3: rgba(216,212,209,.80);
+}
+/* Eine Blende an einer Kante malt in `background-image` und liesse den
+   Grund darunter stehen — das ist hier richtig und gewollt: der Film
+   scheint auch durch die Blende. */
+
+/* ---- Das Bildband unter dem Kopfbild ------------------------------------
+   Dasselbe Motivprinzip, eine Etage tiefer: randlos, mit derselben
+   stehenden Fahrt und aus demselben Grund an `.live` gehängt. Es ist
+   bewusst kein `.wide-shot` — das sitzt im Satzspiegel und hat ein festes
+   Seitenverhältnis; hier geht das Bild bis an die Fensterkante. */
+.schaubild{
+  position:relative; overflow:clip; background:var(--flaeche-2);
+  height:clamp(320px, 62vh, 720px);
+  height:clamp(320px, 62svh, 720px);
+}
+.schaubild picture{ display:block; height:100%; }
+.schaubild img{
+  position:absolute; inset:0; width:100%; height:100%;
+  object-fit:cover; object-position:50% 46%;
+  animation:heroFahrt 30s ease-in-out infinite alternate paused;
+}
+.schaubild.live img{ animation-play-state:running; }
+/* Oben und unten läuft das Bild in den Seitengrund aus, sonst stünde es als
+   Kasten zwischen zwei schwarzen Flächen — und ein Kasten ist genau das,
+   was „Keine Karten" verbietet. */
+/* Oben in den Hero, unten in den Seitengrund.
+   ------------------------------------------------------------
+   Beide Kanten liefen vorher in helles Off-White aus. Das war richtig,
+   solange der Hero darüber hell war; seit dort ein dunkel gradiertes Foto
+   steht, lag zwischen den beiden Aufnahmen ein heller Nebelstreifen — eine
+   Kante, die gerade dadurch auffiel, dass sie keine sein wollte.
+
+   Jetzt läuft die obere Kante in denselben Ton aus, mit dem der Hero
+   endet. Aus zwei Bildern mit einem Strich dazwischen wird eine Fahrt, die
+   von einem Motiv ins nächste geht. Die untere Kante bleibt hell: darunter
+   steht die Vertrauensleiste auf Seitengrund. */
+.schaubild::after{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  /* Beide Kanten laufen in den SEITENGRUND, nicht in ein eigenes Schwarz.
+     Vorher stand oben `rgba(8,26,28,.86)`: ein fast schwarzer Ton, der
+     gegen das Auftaktband darueber eine sichtbare Linie ergab — zwei
+     Verlaeufe, die sich nicht treffen, sind eine Kante mit Verlauf
+     ringsum. Der Ton MUSS derselbe sein wie der des Nachbarn, sonst hilft
+     die Weichheit nichts. */
+  background:
+    linear-gradient(180deg, var(--grund) 0%, rgba(20,51,54,.88) 2%, rgba(20,51,54,.62) 5%,
+                            rgba(20,51,54,.38) 10%, rgba(20,51,54,.18) 16%, rgba(20,51,54,.05) 23%,
+                            rgba(20,51,54,0) 30%),
+    linear-gradient(0deg,   var(--grund) 0%, rgba(20,51,54,.90) 2%, rgba(20,51,54,.66) 5%,
+                            rgba(20,51,54,.42) 11%, rgba(20,51,54,.20) 18%, rgba(20,51,54,.06) 26%,
+                            rgba(20,51,54,0) 34%);
+}
+.kein-js .schaubild img{ animation:none; }
 
 /* Der Text sitzt unten links, wie ein Bildtitel. Der Verlauf trägt ihn und
    läuft nach unten in den Seitengrund aus — dadurch gibt es keine sichtbare
@@ -2493,6 +2641,12 @@ body.megabar-auf header.nav{
    Begruendung steht dort. */
 .cta{ position:relative; padding:var(--sec) 0 var(--sec-end); border-top:1px solid var(--linie); background-color:var(--flaeche); }
 .cta.auf-dunkel{ background-color:var(--grund); }
+/* Und dieselbe Falle ein zweites Mal: `.cta` traegt seinen Grund fest
+   eingetragen, und eine spaetere Regel gewinnt bei gleicher Spezifitaet
+   gegen `.auf-film` weiter oben. Ohne diese Zeile waere der Schlussblock
+   der einzige Abschnitt, hinter dem der Film verschwindet — und zwar
+   ausgerechnet der, in dem die Anfrage steht. */
+.cta.auf-film{ background-color:var(--grund-film); }
 .cta__inner{ position:relative; z-index:2; text-align:left; }
 .cta h2{ font-size:var(--fs-mega); line-height:1.02; letter-spacing:-.03em; text-wrap:balance; margin:clamp(14px,2vh,26px) 0 0; }
 .cta p{ color:var(--tinte-2); max-width:46ch; margin:clamp(24px,3vw,38px) 0 0; font-size:var(--fs-lead); }
@@ -3275,7 +3429,7 @@ header.nav{ view-transition-name:kopfzeile; }
   /* Hochkant deckt `cover` ueber die HOEHE; der waagerechte Wert waere
      wirkungslos. Beide Fassungen sind hochkant geschnitten, der
      Ausschnitt stimmt also schon aus der Datei. */
-  .hero__still img{ object-position:50% 50%; }
+  .hero__photo img{ object-position:50% 34%; }
   .hero__inner{ padding-block:clamp(32px,6vh,72px) clamp(40px,6vh,72px); }
   /* Hochkant nimmt der Text relativ mehr Höhe ein, der Verlauf trägt
      deshalb weiter nach oben. Die Werte kommen aus derselben Rechnung. */
@@ -3287,12 +3441,12 @@ header.nav{ view-transition-name:kopfzeile; }
   .hero__schleier{
     background:
       linear-gradient(to top,
-        rgba(8,26,28,.69)  0%,
-        rgba(8,26,28,.66) 30%,
-        rgba(8,26,28,.63) 55%,
-        rgba(8,26,28,.62) 70%,
-        rgba(8,26,28,.40) 82%,
-        rgba(8,26,28,.12) 92%,
+        rgba(8,26,28,.64)  0%,
+        rgba(8,26,28,.61) 30%,
+        rgba(8,26,28,.58) 55%,
+        rgba(8,26,28,.57) 70%,
+        rgba(8,26,28,.36) 82%,
+        rgba(8,26,28,.08) 92%,
         rgba(8,26,28,0)  100%);
   }
   /* ---- Weniger Bewegung, weil weniger Rechner ----
@@ -3438,7 +3592,8 @@ header.nav{ view-transition-name:kopfzeile; }
      `scale(1.16)` — der Anfangszustand der Einfahrt. `animation:none` nimmt
      die Fahrt weg, nicht den Startwert, und das Foto stand bei reduzierter
      Bewegung dauerhaft 16 % zu nah. Genau der Fall aus „Die dritte Falle". */
-  .hero__still img,
+  .hero__photo img,
+  .schaubild img,
   /* Ohne diese Zeile stuende der Schleier dauerhaft auf `opacity:0` — und
      der ganze Hero-Text hell auf hellen Bildstellen. `animation:none`
      nimmt die Animation, nicht den Startwert. */
@@ -3458,7 +3613,6 @@ header.nav{ view-transition-name:kopfzeile; }
   /* Zweite Sicherung fuer den Hintergrundfilm. main.js baut ihn bei
      reduzierter Bewegung ganz aus (nur so wird er auch nicht geladen);
      diese Zeile greift, wenn kein Skript laeuft. */
-  .hero__film{ display:none; }
   /* Der Ring am Zeiger wird gar nicht erst angelegt; die Regel steht im
      Zeiger-Abschnitt und ist hier nur der Vollständigkeit halber erwähnt. */
 }
@@ -4408,7 +4562,7 @@ body > footer[data-spur]::before{ opacity:.3; }
    Die Kamera bleibt im Bild hängen, während der Text vorauszieht: das
    Foto läuft langsamer mit als die Seite, die Schrift schneller. Genau
    dieser Geschwindigkeitsunterschied macht Tiefe. */
-.hero[data-weg] .hero__medien{
+.hero[data-weg] .hero__photo{
   transform:translate3d(0, calc(var(--weg,0) * 6vh), 0) scale(calc(1 + var(--weg,0) * .16));
   will-change:transform;
 }

@@ -911,6 +911,18 @@ Diese Punkte müssen erledigt sein. Erst danach die Sperren lösen.
       Freigabe vorliegt — derzeit stehen dort nur Branchenangaben.
 - [ ] Porträts von Maik Herm und Valeria Occhipinto ergänzen
       (`assets/img/team/`, Format wie die vorhandenen: 1000 × 1250).
+- [ ] **Das Bildband der Startseite (`bar-gruen`, die Bar mit der begrünten
+      Wand) in Originalgröße nachliefern.** Die Vorlage unter
+      `assets/quellen/bar-gruen.jpg` hat 679 × 452 Pixel, also 0,31
+      Megapixel — 4K sind das Sechsundzwanzigfache der Fläche. Größere
+      Dateien daraus zu rechnen macht es gemessen schlechter, nicht besser
+      (CLAUDE.md, „Das Bild mit den Pflanzen in 4K"). Gebraucht werden
+      mindestens 2400 px an der langen Kante, für echte 4K über die volle
+      Breite 3840. **Wichtig: als Datei anhängen, nicht ins Gespräch
+      einfügen** — eingefügte Bilder werden auf dem Weg verkleinert, und
+      genau daher kommen die 679 px. Liegt die Datei vor: nach
+      `assets/quellen/bar-gruen.jpg`, dann
+      `python3 tools/motive-bauen.py`.
 - [ ] Bewegtes Material für den Imagefilm (Bild ist noch ein Platzhalter
       aus Fotos; die Musik liegt vor und ist freigegeben). Der Platzhalter
       läuft in 1920 × 1080. Größer bringt derzeit nichts: die Fotos, aus
