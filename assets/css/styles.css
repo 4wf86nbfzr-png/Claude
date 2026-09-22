@@ -166,8 +166,26 @@
      nach Auszeichnung. #B0350B war der Wert fuer hellen Grund (5,78:1);
      auf Dunkelblau liegt er bei 1,9:1. #F0A19D sind 8,4:1. */
   --offen-ton:  #F0A19D;
-  --marke:      #6F928E;   /* Salbei: Punkt, Linie, Fokus */
-  --marke-2:    #8FB0AC;   /* eine Stufe heller, wo Schrift daran haengt */
+  /* Der Akzent ist warm, nicht gruen.
+     ------------------------------------------------------------
+     Bestellt fuer den Live-Gang: „ein sehr dezenter warmer Beige-/
+     Champagner-Ton". Vorher stand hier der Salbei aus der gelieferten
+     Palette (#6F928E / #8FB0AC). Er ist derselben Familie wie der
+     Petrolgrund — gruen auf gruen liest als Variante des Grundes, nicht
+     als Auszeichnung.
+
+     Champagner traegt dagegen ueber den FARBTON: er steht warm neben
+     einer neutralen Tinte (#D8D4D1), und genau deshalb funktioniert die
+     Stufung hier, die mit Beige neben beiger Tinte einmal geschritten
+     ist (siehe „Dunkelblau und Beige"). Gemessen gegen #143336:
+
+         #BFA77F   5,81:1     Punkt, Linie, Fokus
+         #CDBA97   7,11:1     eine Stufe heller, wo Schrift daran haengt
+
+     Beide liegen ueber 4,5 — der Akzent traegt also auch dort Text, wo
+     er frueher nur Punkt sein durfte. Flaeche wird er trotzdem nicht. */
+  --marke:      #BFA77F;   /* Champagner: Punkt, Linie, Fokus */
+  --marke-2:    #CDBA97;   /* eine Stufe heller, wo Schrift daran haengt */
 
   /* Standardakzent ist die Tinte; Farbe kommt nur pro Leistungsbereich */
   --accent:     var(--tinte);
@@ -312,8 +330,8 @@ body > footer{
   --tinte-3:    rgba(216,212,209,.70);
   --linie:      rgba(216,212,209,.18);
   --linie-stark:rgba(216,212,209,.36);
-  --marke:      #6F928E;
-  --marke-2:    #8FB0AC;
+  --marke:      #BFA77F;
+  --marke-2:    #CDBA97;
   --accent:     var(--tinte);
   background:var(--grund);
   color:var(--tinte);
@@ -364,8 +382,11 @@ body > footer{
   --linie:      rgba(20,51,54,.20);
   --linie-stark:rgba(20,51,54,.38);
   --offen-ton:  #97290A;
-  --marke:      #285E60;
-  --marke-2:    #1F4C4E;
+  /* Das dunkle Gegenstueck zum Champagner. Ein heller Akzent waere auf
+     der hellen Bahn unsichtbar, ein gruener gehoerte nicht mehr zur
+     Familie. Gemessen gegen #D8D4D1: 5,21:1 und 6,28:1. */
+  --marke:      #6B4E1F;
+  --marke-2:    #5C4318;
   --accent:     var(--tinte);
   /* Auf hellem Grund trägt ein Schatten aus Blau wieder etwas — auf
      dunklem war er unsichtbar und musste aus reinem Schwarz kommen. */
@@ -526,6 +547,28 @@ h1,h2,h3,h4{ font-family:var(--font-display); font-weight:800; line-height:1.06;
   overflow-wrap:break-word; }
 h1{ letter-spacing:-.03em; }
 .u-caps{ text-transform:uppercase; letter-spacing:-.005em; }
+/* Zwei Textstufen als Klasse, weil sie im Markup gebraucht werden.
+   ------------------------------------------------------------
+   Sie ersetzen dreizehn `style="color:var(--paper)"` und drei
+   `style="color:var(--muted)"`, die beim Umbenennen der Tokens 2026
+   stehengeblieben sind. **Beide Namen gibt es seitdem nicht mehr** —
+   `--paper` hiess einmal der Text, `--muted` die gedaempfte Stufe. Ein
+   `var()` auf ein Token, das niemand definiert, ist zur Berechnungszeit
+   ungueltig: die ganze Deklaration faellt weg, und die Farbe kommt
+   stumm vom Elternelement. Im Bild sah das nach Absicht aus, deshalb hat
+   es drei Farbwechsel ueberlebt — betroffen waren unter anderem die
+   Telefonnummer auf allen sechs Leistungsseiten und die Faxnummer im
+   Schlussblock der Startseite.
+
+   Als Klasse statt als Inline-Stil, aus demselben Grund, aus dem es
+   ueberhaupt Tokens gibt: der naechste Farbwechsel nimmt sie mit, und
+   `.auf-hell` dreht sie von selbst. */
+.u-tinte{ color:var(--tinte); }
+/* Die Bereichszeile der Fehlerseite. Sechs Wegmarken, durch Mittelpunkte
+   getrennt — kein Fliesstext. Der weite Durchschuss ist kein Geschmack:
+   er ist der Platz, aus dem die 44er Trefferflaeche unten bezahlt wird. */
+.fehlseite__bereiche{ margin-top:var(--gap-l); line-height:2.4; }
+.u-leise{ color:var(--tinte-3); }
 h1.u-caps{ letter-spacing:-.012em; }
 .reveal-up{
   opacity:0; transform:translateY(28px);
@@ -623,6 +666,43 @@ h1.u-caps{ letter-spacing:-.012em; }
    also unterscheidet sich die zweite Aktion nur noch im Ton — leiser. */
 .btn--ghost{ color:var(--tinte-2); }
 .btn--ghost:hover{ color:var(--tinte); }
+
+/* ---- Die eine Aktion je Seite, die eine Flaeche bekommt -----------------
+   „Keine Pillen" bleibt die Regel: eine Aktion ist ein Textlink mit einer
+   Linie darunter. Fuer den Live-Gang ist eine zweite Ausnahme bestellt
+   worden, neben dem Absendeknopf: **der wichtigste Weg einer Seite muss
+   auf einen Blick der wichtigste sein.** Zwei Textlinks nebeneinander
+   sind gleich laut — „Personal anfragen" und „Was wir stellen" sahen im
+   Hero aus wie zwei gleichwertige Angebote.
+
+   Er bleibt trotzdem kein Baukastenknopf:
+
+   * **Keine runde Ecke.** `--r-m` steht auf 0 und bleibt dort.
+   * **Keine Farbe.** Die Flaeche ist die Tinte, die Schrift der Grund —
+     es kommt kein Ton hinzu, die beiden vorhandenen tauschen nur die
+     Plaetze. Damit stimmt er in jeder Tonleiter von selbst: auf der
+     hellen Bahn wird aus Warmgrau-auf-Petrol Petrol-auf-Warmgrau.
+   * **Keine Unterlinie.** Unter einer Flaeche ist sie doppelt gemoppelt.
+   * **Der Hover ist der einzige Ort, an dem der Champagner Flaeche sein
+     darf** (7,1:1 gegen den Grund). Eine Bewegung von Neutral nach Warm
+     liest als Zuwendung; eine zweite Flaeche in derselben Farbe waere
+     nur ein helleres Rechteck. */
+.btn--primaer{
+  background:var(--tinte); color:var(--grund);
+  padding:.85em 1.25em;
+  transition:background var(--t-fast) var(--ease-swift),
+             color var(--t-fast) var(--ease-swift),
+             transform .34s var(--ease-out);
+}
+.btn--primaer::before,
+.btn--primaer::after{ content:none; }
+.btn--primaer:hover,
+.btn--primaer:focus-visible{ background:var(--marke-2); color:var(--grund); }
+.btn--primaer:focus-visible{ outline-offset:3px; }
+/* In der Kopfzeile steht er in derselben Schreibmaschinenschrift wie die
+   Wegmarken daneben — nur als Flaeche. Das Polster ist kleiner, damit die
+   Leiste nicht hoeher wird: 11 + 18 + 11 ergibt dieselben 40 px wie vorher. */
+.nav__cta .btn--primaer{ padding:11px 16px; }
 /* Der Absendeknopf eines Formulars ist die einzige Ausnahme von „keine
    Pillen": er ist das Ziel der ganzen Seite. Er bleibt trotzdem ohne Pille
    und ohne Fläche — stattdessen wird er groß und bekommt eine Linie oben und
@@ -1276,6 +1356,10 @@ body.megabar-auf header.nav{
   grid-template-columns:minmax(0,1fr);
   align-items:end;
   background:var(--dunkel);
+  /* Die vh-Zeile davor ist der Rueckfall fuer Browser ohne `svh`
+     (Safari unter 15.4, Chrome unter 108). Ohne sie faellt die ganze
+     Deklaration weg und der Hero ist nur so hoch wie sein Text. */
+  min-height:calc(100vh - 78px);
   min-height:calc(100svh - var(--nav-h0, var(--nav-h, 78px)));
   /* `overflow:clip` und nicht `hidden`: die Kamerafahrt skaliert das Foto
      auf 1,10, und der ueberstehende Teil traegt sonst zur Scrollbreite der
@@ -1502,6 +1586,7 @@ body.megabar-auf header.nav{
    Seitenverhältnis; hier geht das Bild bis an die Fensterkante. */
 .schaubild{
   position:relative; overflow:clip; background:var(--flaeche-2);
+  height:clamp(320px, 62vh, 720px);
   height:clamp(320px, 62svh, 720px);
 }
 .schaubild picture{ display:block; height:100%; }
@@ -3500,7 +3585,7 @@ header.nav{ view-transition-name:kopfzeile; }
      Prozent unter der Fensterhöhe endet, zeigt einen Streifen des nächsten
      Abschnitts — das ist genau das „keine bildfüllende Darstellung", das
      beanstandet wurde. */
-  .hero{ min-height:calc(100svh - var(--nav-h0, var(--nav-h, 68px))); }
+  .hero{ min-height:calc(100vh - 68px); min-height:calc(100svh - var(--nav-h0, var(--nav-h, 68px))); }
   .hero__photo img{ object-position:50% 34%; }
   .hero__inner{ padding-block:clamp(32px,6vh,72px) clamp(40px,6vh,72px); }
   /* Hochkant nimmt der Text relativ mehr Höhe ein, der Verlauf trägt
@@ -3706,7 +3791,7 @@ header.nav{ view-transition-name:kopfzeile; }
    Unterseite fing an wie ein Artikel. Eine Detailseite darf einen eigenen
    Auftakt haben; sie darf ihn nur nicht lauter setzen als die Startseite.
    Deshalb: dieselbe Höhe, aber eine Stufe kleiner im Titelgrad. */
-.subhero{ position:relative; min-height:min(92svh,900px); display:flex; align-items:flex-end; overflow:hidden; padding:clamp(140px,18vh,190px) 0 clamp(40px,7vh,80px); }
+.subhero{ position:relative; min-height:min(92vh,900px); min-height:min(92svh,900px); display:flex; align-items:flex-end; overflow:hidden; padding:clamp(140px,18vh,190px) 0 clamp(40px,7vh,80px); }
 /* Bild der Dienstleistung als Kopf der Detailseite. Es startet leicht
    vergrößert und läuft in seine Endlage — so setzt sich die Fahrt fort, mit
    der man von der Übersicht hierher gekommen ist. */
@@ -3828,7 +3913,19 @@ header.nav{ view-transition-name:kopfzeile; }
    Steht in einem Punkt mehr als ein Element, addieren sich deren
    Mindestbreiten und sprengen bei 320 px die Spalte. Diese zwei Zeilen
    erlauben das Umbrechen und nehmen der Liste diese Wirkung. */
-.ticklist li > *{ min-width:0; }
+/* `flex:1 1 0` und nicht nur `min-width:0` — der Unterschied entscheidet,
+   ob der Punkt einzeilig bleibt.
+   ------------------------------------------------------------
+   `flex-wrap:wrap` bricht eine Zeile anhand der HYPOTHETISCHEN Groesse der
+   Teile um, also ihrer Inhaltsbreite, und erst danach wird innerhalb der
+   Zeile geschrumpft. Ein Text, der laenger ist als der Platz neben dem
+   Haken, wandert deshalb unter ihn, obwohl er schrumpfen duerfte. Genau
+   das ist bei „Buero erreichbar: Mo–Fr 10–17 Uhr" passiert: der Haken
+   stand allein in seiner Zeile, der Satz darunter. Mit der Basis 0 hat der
+   Text keine eigene Breite mehr, die eine Zeile sprengen koennte — er
+   nimmt, was neben dem Haken uebrig ist. Dieselbe Loesung wie bei
+   `.zustimmung label`. */
+.ticklist li > *{ min-width:0; flex:1 1 0; }
 .ticklist li{ flex-wrap:wrap; }
 .ticklist li::before{ content:""; width:18px; height:18px; flex:none; margin-top:2px; border-radius:var(--r-s); background:color-mix(in srgb,var(--accent) 22%,transparent); box-shadow:inset 0 0 0 1px var(--accent); background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M5 12l5 5 9-10' stroke='%23fff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-size:14px; background-repeat:no-repeat; background-position:center; }
 
@@ -3976,7 +4073,11 @@ header.nav{ view-transition-name:kopfzeile; }
 .rechtstext p, .rechtstext li{ color:var(--tinte-2); }
 .rechtstext p + p{ margin-top:.9em; }
 .rechtstext ul{ margin:.7em 0 0 1.1em; display:flex; flex-direction:column; gap:.45em; }
-.rechtstext address{ font-style:normal; color:var(--tinte-2); }
+/* Der Anschriftenblock steht luftiger als Fliesstext. Zwei Gruende, und
+   beide zaehlen: eine Anschrift wird gelesen wie eine Liste, nicht wie ein
+   Satz — und aus dem weiteren Durchschuss wird unten die Trefferflaeche
+   von Telefonnummer und Adresse bezahlt (20 + 2 x 12 = 44). */
+.rechtstext address{ font-style:normal; color:var(--tinte-2); line-height:2; }
 .rechtstext a{ color:var(--tinte); text-decoration:underline; text-underline-offset:2px; }
 .rechtstext dl{ display:grid; grid-template-columns:auto 1fr; gap:.5em 1.4em; margin-top:.8em; }
 .rechtstext dt{ color:var(--tinte-3); font-family:var(--font-mono); font-size:.72rem;
@@ -4001,7 +4102,7 @@ header.nav{ view-transition-name:kopfzeile; }
 .offen-kasten p{ color:var(--tinte-2); font-size:.95rem; }
 
 /* ---- 404 ---- */
-.fehlseite{ min-height:70svh; display:grid; place-items:center; text-align:center; padding:var(--sec) 0; }
+.fehlseite{ min-height:70vh; min-height:70svh; display:grid; place-items:center; text-align:center; padding:var(--sec) 0; }
 .fehlseite .nummer{
   font-family:var(--font-display); font-weight:800; font-size:clamp(5rem,16vw,11rem);
   line-height:.9; letter-spacing:-.04em; color:var(--flaeche-3);
@@ -4227,6 +4328,35 @@ header.nav{ view-transition-name:kopfzeile; }
 .form input:focus,.form select:focus,.form textarea:focus{
   outline:none; border-bottom-color:var(--tinte); box-shadow:0 1px 0 0 var(--tinte);
 }
+/* Und fuer die Tastatur zusaetzlich der Ring.
+   ------------------------------------------------------------
+   `outline:none` oben trifft auch `:focus-visible` — ein Feld, das mit dem
+   Tabulator angesteuert wird, haette sonst nur eine um einen Pixel hellere
+   Linie als Hinweis. Mit der Maus bleibt es dabei (man weiss ja, wohin man
+   geklickt hat); wer sich durchtabbt, bekommt denselben Ring wie ueberall
+   sonst auf der Seite. */
+.form input:focus-visible,.form select:focus-visible,.form textarea:focus-visible,
+.kb-tag__feld input:focus-visible{
+  outline:2px solid var(--marke); outline-offset:3px;
+}
+/* Datum und Uhrzeit sind keine einfachen Felder.
+   ------------------------------------------------------------
+   Chromium baut `input[type=date]` und `[type=time]` aus mehreren
+   Teilfeldern. Wer mit dem Tabulator hineingeht, landet im ERSTEN Teil —
+   und das Wirtselement matcht dann gemessen weder `:focus` noch
+   `:focus-visible`. Ergebnis: drei Felder im Anfrageformular, die beim
+   Durchtabben als einzige gar keine Auszeichnung bekamen, obwohl die
+   Regel darueber voellig richtig aussieht.
+
+   `:focus-within` am umgebenden `.feld` fragt die Frage, die hier
+   wirklich gilt: steht der Fokus IRGENDWO in diesem Feld? Gefunden hat
+   es kein Blick ins Stylesheet, sondern ein Test, der wirklich tabbt
+   (`scratchpad/fokus.js`). */
+.form .feld:focus-within input[type="date"],
+.form .feld:focus-within input[type="time"]{
+  border-bottom-color:var(--tinte); box-shadow:0 1px 0 0 var(--tinte);
+  outline:2px solid var(--marke); outline-offset:3px;
+}
 .form textarea{ min-height:132px; resize:vertical; }
 /* Eigene Pfeilspitze: das Standard-Select ist auf dunklem Grund je nach System
    ein weißer Kasten. */
@@ -4263,8 +4393,13 @@ header.nav{ view-transition-name:kopfzeile; }
    im Raster, nicht im Flex. */
 .form .zustimmung{ display:flex; align-items:flex-start; gap:12px; flex-wrap:wrap; }
 .form .zustimmung .feld__fehler{ width:100%; margin-top:2px; }
+/* 24 und nicht 20: das ist die Untergrenze aus WCAG 2.5.8, und sie gilt
+   fuer das Kaestchen selbst. Dass die Beschriftung daneben ueber `for`
+   mitschaltet und damit in Wahrheit eine sehr grosse Flaeche ergibt,
+   zaehlt dort nicht — gemessen wird das Bedienelement. Vier Pixel, die
+   neben 0,92 rem Text ausserdem besser stehen. */
 .form .zustimmung input[type="checkbox"]{
-  width:20px; height:20px; flex:none; margin-top:2px; accent-color:var(--marke);
+  width:24px; height:24px; flex:none; margin-top:1px; accent-color:var(--marke);
   border-radius:4px; padding:0;
 }
 .form .zustimmung label{
@@ -5001,13 +5136,37 @@ main:focus{ outline:none; }
    4 dazu. */
 @media (max-width:640px){
   footer ul a, .breadcrumb a, .menu__tel, .kontakt-fakten a,
-  .ccard a, .ansprech__txt a{
+  .ccard a, .ansprech__txt a, .rechtstext dl a, .rechtstext address a,
+  .fehlseite__bereiche a, .side__hinweis a{
     position:relative;
   }
   footer ul a::after, .breadcrumb a::after, .menu__tel::after,
-  .kontakt-fakten a::after, .ccard a::after, .ansprech__txt a::after{
+  .kontakt-fakten a::after, .ccard a::after, .ansprech__txt a::after,
+  .rechtstext dl a::after, .rechtstext address a::after,
+  .fehlseite__bereiche a::after, .side__hinweis a::after{
     content:""; position:absolute; inset:-4px -3px;
   }
+  /* Die Angabenliste auf Impressum und Datenschutz und die Bereichszeile
+     der Fehlerseite sind Daten und Wegmarken, keine Saetze — dort gilt die
+     Ausnahme fuer Links im Fliesstext nicht. Die Bereichszeile bekommt
+     dafuer den Durchschuss, in den das Feld hineinpasst (siehe unten). */
+  .rechtstext dl a::after, .fehlseite__bereiche a::after{ inset:-10px -4px; }
+  .rechtstext address a::after{ inset:-12px -4px; }
+  /* Die Zeile unter dem Anfrageknopf ist die zweite Aktion, kein Satz: sie
+     steht allein in ihrem Absatz, darueber 14 px Abstand und darunter
+     entweder nichts oder der abgesetzte Mitarbeiter-Login. 16 + 2 x 14
+     ergibt 44, und es ueberlappt nichts. */
+  .side__hinweis a::after{ inset:-14px -4px; }
+}
+/* Das Wortzeichen in der Kopfzeile ist 38 px hoch — gemessen die letzte
+   Trefferflaeche der Seite unter 44. Es waechst nicht, es bekommt nur
+   dasselbe unsichtbare Feld: 38 + 2 x 3 = 44. An `pointer:coarse`
+   gebunden, weil es um den Daumen geht; mit der Maus trifft man 38 px
+   sicher, und ein unsichtbares Feld neben der Navigation waere dort nur
+   eine Flaeche, die Klicks schlucken kann. */
+@media (pointer:coarse){
+  .brand{ position:relative; }
+  .brand::after{ content:""; position:absolute; inset:-3px -6px; }
 }
 
 /* ---- Einsatzleitung (Sicherheit) ----

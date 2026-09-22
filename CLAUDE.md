@@ -3079,6 +3079,156 @@ vorbei in den Inhalt zu kommen.
 
 ---
 
+## Der Live-Gang, September 2026
+
+Letzter Durchgang vor der Freischaltung: kein Konzept mehr, sondern ein
+Abnahmelauf über alle sechzehn Seiten und sieben Breiten (390, 393, 430,
+768, 1024, 1440, 1920), dazu drei gezielte Änderungen am Bild.
+
+**Gemessen, bevor irgendetwas geändert wurde:**
+
+| | |
+|---|---|
+| fehlende Dateien, 404, Netzfehler | **0** |
+| waagerechter Überlauf | **0** in allen sieben Breiten |
+| Konsolenfehler | 0 (der lokale `501` auf `POST /api/konto` ist der Testserver, nicht die Seite) |
+| doppelte IDs | 0 |
+| doppelte `<title>` / `description` | 0 |
+| Seiten ohne canonical | 0 |
+| `<h1>` je Seite | genau eine |
+| Open Graph / Twitter / JSON-LD | vollständig (die Fehlerseite bewusst ohne JSON-LD) |
+
+### Der Fehler, den drei Farbwechsel überlebt haben
+
+Sechzehn Stellen im Markup standen auf `style="color:var(--paper)"` oder
+`var(--muted)`. **Beide Tokennamen gibt es seit 2026 nicht mehr** —
+`--paper` hieß einmal der Text, `--muted` die gedämpfte Stufe.
+
+Ein `var()` auf ein Token, das niemand definiert, ist zur Berechnungszeit
+ungültig: die ganze Deklaration fällt weg, und die Farbe kommt stumm vom
+Elternelement. **Es sieht also nicht kaputt aus, sondern nur anders** —
+deshalb hat es Schwarz, Off-White, Anthrazit, Dunkelblau und Petrol
+überstanden. Betroffen waren unter anderem die Telefonnummer auf allen
+sechs Leistungsseiten, die Faxnummer im Schlussblock und die sechs
+Bereichsadressen der Fehlerseite.
+
+Gefunden hat es kein Auge und kein Browser, sondern ein Abgleich: **jedes
+`var(--…)` aus Stylesheet, Markup und Skript gegen die Liste der
+tatsächlich deklarierten Tokens.** Das ist derselbe Handgriff wie bei
+`@keyframes heroRise` und `--glow`, nur in die andere Richtung — und er
+gehört zu jedem Farbwechsel dazu:
+
+```bash
+grep -ohE '\-\-[a-z0-9-]+\s*:' assets/css/styles.css | sed 's/\s*:$//' | sort -u > /tmp/tok
+grep -ohE 'var\(\s*--[a-z0-9-]+' assets/css/styles.css *.html dienstleistungen/*.html assets/js/main.js \
+  | sed -E 's/var\(\s*//' | sort -u | while read -r t; do grep -qxF -- "$t" /tmp/tok || echo "$t"; done
+```
+
+Übrig bleiben danach nur die Werte, die `main.js` zur Laufzeit schreibt
+(`--weg`, `--lauf`, `--kapitel`, `--zoom`, `--i`, `--nav-h` …) — die haben
+alle einen Rückfallwert im `var()`.
+
+Ersetzt sind die sechzehn Stellen durch zwei Klassen, `.u-tinte` und
+`.u-leise`. **Als Klasse und nicht als Inline-Stil**, aus demselben Grund,
+aus dem es überhaupt Tokens gibt: der nächste Farbwechsel nimmt sie mit,
+und `.auf-hell` dreht sie von selbst.
+
+### Der Akzent ist warm, nicht grün
+
+Bestellt für den Live-Gang: „ein sehr dezenter warmer Beige-/
+Champagner-Ton". Vorher stand dort der Salbei aus der gelieferten Palette.
+
+Der Einwand dahinter ist gestalterisch richtig: **Salbei ist derselben
+Familie wie der Petrolgrund.** Grün auf Grün liest als Variante des
+Grundes, nicht als Auszeichnung. Champagner trägt über den Farbton — er
+steht warm neben einer neutralen Tinte, und genau deshalb funktioniert
+hier die Stufung, die mit Beige neben beiger Tinte einmal gescheitert ist
+(siehe „Dunkelblau und Beige").
+
+| | dunkel | hell |
+|---|---|---|
+| `--marke` | #BFA77F (5,81:1) | #6B4E1F (5,21:1) |
+| `--marke-2` | #CDBA97 (7,11:1) | #5C4318 (6,28:1) |
+
+Beide liegen über 4,5 — der Akzent trägt also auch dort Text, wo er früher
+nur Punkt sein durfte. Fläche wird er trotzdem nicht; die Regel „ein Punkt,
+eine Linie, ein Hover" bleibt. Kontrastfehler nach dem Wechsel: **0 von 16
+Seiten**, Schreibtisch und Telefon.
+
+### Die eine Aktion je Seite, die eine Fläche bekommt
+
+„Keine Pillen" war bis hierher absolut, mit einer Ausnahme: dem
+Absendeknopf. Jetzt gibt es eine zweite, und sie ist bestellt: **der
+wichtigste Weg einer Seite muss auf einen Blick der wichtigste sein.**
+Zwei Textlinks nebeneinander sind gleich laut — „Personal anfragen" und
+„Was wir stellen" sahen im Hero aus wie zwei gleichwertige Angebote.
+
+`.btn--primaer` bleibt trotzdem kein Baukastenknopf:
+
+- **Keine runde Ecke.** `--r-m` steht auf 0 und bleibt dort.
+- **Keine Farbe.** Die Fläche ist die Tinte, die Schrift der Grund. Es
+  kommt kein Ton hinzu, die beiden vorhandenen tauschen die Plätze — und
+  damit stimmt er in jeder Tonleiter von selbst: auf der hellen Bahn wird
+  aus Warmgrau-auf-Petrol Petrol-auf-Warmgrau.
+- **Keine Unterlinie.** Unter einer Fläche ist sie doppelt gemoppelt.
+- **Der Hover ist der einzige Ort, an dem der Champagner Fläche sein
+  darf.** Eine Bewegung von Neutral nach Warm liest als Zuwendung.
+
+Gesetzt wird er maschinell: die **erste** Aktion in `nav__cta`,
+`menu__aktion`, `hero__actions`, `auftakt__wege`, `cta__actions`,
+`side__aktion` und auf der Fehlerseite. 44 Stellen über sechzehn Dateien;
+von Hand gesetzt wäre die Hälfte davon beim nächsten Abschnitt vergessen.
+
+### Vier Trefferflächen, die wirklich zu klein waren
+
+Der Abnahmelauf meldet jede Fläche unter 44 px. Die meisten Meldungen sind
+Bauart und kein Mangel — der Sprunglink ist absichtlich 1 × 1 bis zum
+Fokus, der Honigtopf ist geklemmt, und ein Link mitten in einem Satz ist
+nach WCAG 2.5.8 ausdrücklich ausgenommen. Vier waren echt:
+
+| Wo | war | ist |
+|---|---|---|
+| Wortzeichen in der Kopfzeile | 38 px | 44 (unsichtbares Feld, nur `pointer:coarse`) |
+| Einwilligungskästchen | 20 × 20 | **24 × 24** — die Untergrenze aus WCAG 2.5.8, und sie gilt für das Bedienelement, nicht für die Beschriftung daneben |
+| Angabenliste auf Impressum und Datenschutz | 20 px | 44 (der Anschriftenblock bekommt dafür den Durchschuss) |
+| Zeile unter dem Anfrageknopf | 16 px | 44 |
+
+Von 135 Meldungen bleiben 72, und alle 72 sind Bauart.
+
+### Die Falle: `flex-wrap:wrap` bricht nach Inhaltsbreite um, nicht nach Platz
+
+In der Hakenliste auf `kontakt.html` stand der Haken allein in seiner Zeile
+und der Satz darunter — aber nur bei dem einen Punkt, der zwei Zeilen
+lang ist.
+
+Der Grund ist eine Feinheit von Flexbox: **der Zeilenumbruch wird aus der
+hypothetischen Größe der Teile gerechnet, also aus ihrer Inhaltsbreite,
+und erst danach wird innerhalb der Zeile geschrumpft.** Ein Text, der
+länger ist als der Platz neben dem Haken, wandert deshalb unter ihn,
+obwohl er schrumpfen dürfte. `min-width:0` hilft dabei nicht — es erlaubt
+das Schrumpfen, ändert aber die hypothetische Größe nicht.
+
+Was hilft, ist `flex:1 1 0`: mit der Basis 0 hat der Text keine eigene
+Breite mehr, die eine Zeile sprengen könnte. Dieselbe Lösung wie bei
+`.zustimmung label`, und derselbe Satz gilt: **wer `flex-wrap` setzt, muss
+jedem Kind eine Basis geben, das länger werden kann als seine Zeile.**
+
+### Was am Versand nachgezogen wurde
+
+Die Kette ist unverändert und stimmt: `/api/formular` → Netlify-Formular →
+Meldung mit Telefonnummer. Ein „Danke" gibt es **nur**, wenn eine Stelle
+die Anfrage wirklich angenommen hat; 404/405/501/503 reichen weiter, alles
+andere meldet den Fehler.
+
+Nachgezogen ist ein Boden: fehlt `MAIL_AN`, gilt `info@hermserviceteam.com`
+statt 503. Das ist kein Geheimnis und keine Bequemlichkeit, sondern die
+Antwort auf den einen Fehler, der hier wirklich weh tut — SMTP steht, die
+Empfängervariable ist vergessen, und die Anfrage liegt in einem
+Formularspeicher, den niemand ansieht. Die Adresse steht ohnehin im Fuß
+jeder Seite.
+
+---
+
 ## Suchmaschinen: Testbetrieb und Live-Gang
 
 Die Sperre gegen Suchmaschinen steht an **neunzehn** Stellen: fünfzehn

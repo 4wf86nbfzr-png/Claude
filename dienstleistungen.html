@@ -13,14 +13,9 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin
       href="assets/fonts/instrument-sans-var-latin.woff2" />
 <link rel="stylesheet" href="assets/css/fonts.css">
-<!-- ============================================================
-     TESTBETRIEB — VOR DEM LIVE-GANG ENTFERNEN
-     Diese Zeile haelt Suchmaschinen von der internen Vorschau fern.
-     Solange sie hier steht, wird die Seite nicht indexiert.
-     Zusaetzlich sperrt robots.txt und der Header X-Robots-Tag.
-     Umschalten: python3 tools/live-schalten.py --live
-     ============================================================ -->
-<meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
+<!-- Freigegeben. Zurueck in den Testbetrieb:
+     python3 tools/live-schalten.py --test -->
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
 <link rel="canonical" href="https://hermserviceteam.com/dienstleistungen.html" />
 <meta name="theme-color" content="#143336" />
 <!-- Vorschau beim Teilen in Messengern und sozialen Netzwerken -->
@@ -104,7 +99,7 @@
   </nav>
   <div class="nav__cta">
     <a class="nav__phone" href="tel:+494027075100">+49 (40) 27075100</a>
-    <a class="btn" href="kontakt.html">Anfrage starten
+    <a class="btn btn--primaer" href="kontakt.html">Anfrage starten
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </a>
     <button class="burger" id="burger" aria-label="Men&uuml; &ouml;ffnen" aria-expanded="false"><i></i><i></i><i></i></button>
@@ -119,7 +114,7 @@
   <a href="jobs.html">Jobs</a>
   <a href="kontakt.html">Kontakt</a>
   <div class="menu__aktion">
-    <a class="btn" href="kontakt.html">Anfrage starten <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    <a class="btn btn--primaer" href="kontakt.html">Anfrage starten <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
     <a class="menu__tel" href="tel:+494027075100">+49 (40) 27075100</a>
   </div>
   <div class="menu__socials" aria-label="Soziale Netzwerke">
@@ -314,7 +309,7 @@
       <p class="reveal-up" data-d="2">Oft ist es eine Mischung aus mehreren Bereichen, das kl&auml;ren
         wir in einem Gespr&auml;ch schneller als &uuml;ber jedes Formular.</p>
       <div class="cta__actions reveal-up" data-d="3">
-        <a class="btn" href="kontakt.html">Zum Anfrageformular <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <a class="btn btn--primaer" href="kontakt.html">Zum Anfrageformular <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
         <a class="btn btn--ghost" href="tel:+494027075100">+49 (40) 27075100</a>
       </div>
     </div>

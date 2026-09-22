@@ -34,7 +34,8 @@
      SMTP_PORT     465 (SSL) oder 587 (STARTTLS)
      SMTP_USER     das Postfach, über das versendet wird
      SMTP_PASS     dessen Kennwort
-     MAIL_AN       Empfänger der Anfragen, mehrere durch Komma getrennt
+     MAIL_AN       Empfänger der Anfragen, mehrere durch Komma getrennt.
+                   Fehlt sie, gilt info@hermserviceteam.com.
      MAIL_BEWERBUNG  Empfänger der Bewerbungen; fehlt sie, gilt MAIL_AN.
                      Hier steht auch das Postfach, das auf der Website nicht
                      auftauchen soll — als Variable bleibt es auf dem Server.
@@ -194,9 +195,20 @@ async function verarbeite(daten){
 
      Ist MAIL_BEWERBUNG nicht gesetzt, gilt MAIL_AN. Ein vergessener Eintrag
      führt so nie dazu, dass eine Bewerbung nirgends ankommt.               */
+  /* Und wenn gar nichts gesetzt ist, geht es an das Postfach, das auf jeder
+     Seite der Website steht.
+     ------------------------------------------------------------------------
+     Das ist kein Geheimnis und keine Bequemlichkeit, sondern die Antwort auf
+     den einen Fehler, der hier wirklich weh tut: SMTP ist eingerichtet, die
+     Empfaengervariable aber vergessen. Dann faellt die Funktion auf 503, die
+     Website nimmt ihren Ersatzweg, und die Anfrage liegt bestenfalls in einem
+     Formularspeicher, den niemand ansieht. Die Adresse steht ohnehin im Fuss
+     jeder Seite; sie hier als Boden einzuziehen kostet nichts und schliesst
+     die Luecke. `MAIL_AN` schlaegt sie weiterhin. */
+  const REGELEMPFAENGER = 'info@hermserviceteam.com';
   const an = art === 'bewerbung'
-    ? (process.env.MAIL_BEWERBUNG || process.env.MAIL_AN)
-    : process.env.MAIL_AN;
+    ? (process.env.MAIL_BEWERBUNG || process.env.MAIL_AN || REGELEMPFAENGER)
+    : (process.env.MAIL_AN || REGELEMPFAENGER);
 
   if(!host || !user || !pass || !an){
     // Kein Postfach hinterlegt: die Website nimmt ihren bisherigen Weg.

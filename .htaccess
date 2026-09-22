@@ -22,7 +22,7 @@
 
 # ---- TESTBETRIEB: VOR DEM LIVE-GANG ENTFERNEN ----
 <IfModule mod_headers.c>
-  Header set X-Robots-Tag "noindex, nofollow, noarchive, nosnippet"
+  # Header set X-Robots-Tag "noindex, nofollow, noarchive, nosnippet"   # Live: aus
 </IfModule>
 
 # ---- Sicherheit ----
