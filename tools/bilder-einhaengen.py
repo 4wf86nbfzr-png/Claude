@@ -42,6 +42,12 @@ ANTEIL = {
     "sicherheit-einsatzleitung": 135,
     "fahrservice-door": 133, "team-herm": 125, "halle45": 113,
     "fahrservice-detail": 112, "promotion-team": 112, "reinigung-boden": 112,
+    # Das Kopfband der Teamseite. Es traegt keine Kamerafahrt
+    # (`.subhero--band` ist vom Zoom ausgenommen), deshalb der kleinste
+    # Anteil der Tabelle — die zweite Stufe braucht es trotzdem: ohne sie
+    # rechnete der Browser die 1600er Datei am 1920er Schirm auf das
+    # 2,65-fache hoch.
+    "team-schild": 112,
 }
 
 PICTURE = re.compile(r"<picture\b.*?</picture>", re.S)

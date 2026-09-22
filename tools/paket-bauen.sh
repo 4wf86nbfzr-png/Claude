@@ -154,6 +154,20 @@ AUSSEN=(
   # gemischten Fassung — siehe „Der Imagefilm"). Keine Seite verweist
   # darauf; nachgesehen mit grep ueber HTML, JS, CSS und das Manifest.
   "assets/video/imagefilm-musik.webm"
+  # Und der vertonte Imagefilm selbst, 6,9 MB. Er ist seit September nicht
+  # mehr die ausgelieferte Datei, sondern die VORLAGE, aus der
+  # `tools/hintergrundfilm.sh` die vier Hintergrundfassungen schneidet —
+  # ohne Vorspann, ohne Ton, in zwei Zuschnitten. Ausgeliefert werden die.
+  # Mit ihm fallen die Dateien weg, die nur der Abspieler brauchte: das
+  # Poster in vier Fassungen und die Untertitelspur. Ein Hintergrund hat
+  # kein Poster (das Standbild liegt als <picture> darunter) und keine
+  # Untertitel (er hat keinen Ton).
+  "assets/video/imagefilm.webm"
+  "assets/video/imagefilm-de.vtt"
+  "assets/img/imagefilm-poster.jpg"
+  "assets/img/imagefilm-poster.webp"
+  "assets/img/imagefilm-poster.avif"
+  "assets/img/imagefilm-poster-gross.jpg"
 )
 
 # ---------------------------------------------------------------------------
@@ -174,11 +188,12 @@ AUSSEN=(
 #  verhaeltnisse bleiben exakt gleich, damit die width/height-Angaben im
 #  Markup weiter stimmen.
 #
-#  Nicht angefasst werden drei Dateien, die WIRKLICH angezeigt werden und
-#  nicht in einem `<picture>` stehen:
+#  Nicht angefasst wird die eine Datei, die WIRKLICH angezeigt wird und
+#  nicht in einem `<picture>` steht:
 #      og-bild.jpg                Vorschau beim Teilen, von Crawlern direkt geholt
-#      imagefilm-poster.jpg       poster="" des Videos
-#      imagefilm-poster-gross.jpg dieselbe, scharfe Fassung fuer Retina
+#  Die beiden Posterdateien des Films standen hier bis September daneben.
+#  Der Hintergrundfilm hat kein `poster` mehr: unter ihm liegt das erste
+#  Bild des Films als `<picture>`, und das ist dieselbe Aufnahme in AVIF.
 # ---------------------------------------------------------------------------
 BUEHNE="$(mktemp -d)"
 trap 'rm -rf "$BUEHNE"' EXIT
@@ -190,9 +205,7 @@ from PIL import Image
 
 buehne = sys.argv[1]
 # Drei Dateien werden WIRKLICH angezeigt und stehen in keinem `<picture>`.
-ECHT = {"assets/img/og-bild.jpg",
-        "assets/img/imagefilm-poster.jpg",
-        "assets/img/imagefilm-poster-gross.jpg"}
+ECHT = {"assets/img/og-bild.jpg"}
 # 1100 px war richtig, solange das JPEG die ZWEITE Ebene war. Seit es AVIF
 # gibt, ist es die vierte: AVIF, WebP, JPEG — und geholt wird es nur von
 # Browsern ohne WebP, also von vor 2020. Die stolpern ohnehin ueber
@@ -226,51 +239,87 @@ print(f"   {vorher/1048576:.2f} MB  ->  {nachher/1048576:.2f} MB"
 PY
 
 # ---------------------------------------------------------------------------
-#  Den Imagefilm für das Paket dichter packen
+#  Den Hintergrundfilm für das Paket dichter packen
 # ---------------------------------------------------------------------------
-#  Im Repository liegt der Film so, wie ihn `film-bauen.js` und
-#  `film-vertonen.py` erzeugen: CRF 31, ein Durchgang. Das ist der richtige
-#  Wert beim Bauen aus Einzelbildern (nachgemessen, siehe CLAUDE.md).
+#  Der Film ist seit September kein Abspieler mehr, sondern der Hintergrund
+#  der Startseite — und damit liegt er auf dem kritischen Pfad JEDES Aufrufs
+#  statt nur bei denen, die auf einen Knopf drücken. Er liegt in vier
+#  Dateien vor: zwei Zuschnitte (quer, hochkant) in je zwei Formaten
+#  (H.264 für die Hardware-Dekodierung, VP9 für die Chromium-Baureihen ohne
+#  H.264). Zusammen sind das im Repository 9,2 MB.
 #
-#  Für die Auslieferung lässt sich derselbe Film noch einmal dichter packen:
-#  zwei Durchgänge, `-cpu-used 1`, CRF 36. Nachgemessen gegen die Vorlage
-#  ergibt das SSIM 0,9917 und PSNR 46,8 dB — jenseits dessen, was ein Auge
-#  unterscheidet — bei 6,56 statt 4,69 MB. Tonspur und Länge bleiben
-#  unangetastet (`-c:a copy`, 44,92 s).
+#  Im Repository ist das richtig: `tools/hintergrundfilm.sh` baut sie mit
+#  CRF 30/33 beziehungsweise 36/38 in einem Durchgang, und das ist die
+#  Fassung, an der die Kontrastmessung hängt.
 #
-#  Das kostet rund vier Minuten. Deshalb wird das Ergebnis zwischengespeichert
-#  und nur neu gerechnet, wenn sich die Vorlage geändert hat.
+#  Für die Auslieferung wird dieselbe Fassung noch einmal dichter gepackt:
+#  vier Stufen höheres CRF, dazu das langsamere Preset (H.264) bzw. zwei
+#  Durchgänge (VP9). Dieselbe Rechnung wie beim früheren Imagefilm — und
+#  derselbe Grund, sie zu puffern: es kostet Minuten, und die Vorlagen
+#  ändern sich selten.
+#
+#  **Was hier NICHT passiert, ist Auflösung wegnehmen.** Bestellt war
+#  ausdrücklich, die Bildqualität des Films nicht für die Ladezeit zu
+#  opfern. Ein zweiter Durchgang packt dichter, er rechnet nicht kleiner:
+#  Kantenlänge, Laufzeit und Zuschnitt bleiben Pixel für Pixel dieselben.
 # ---------------------------------------------------------------------------
-FILM="assets/video/imagefilm.webm"
 LAGER=".paket-cache"
-FILM_KLEIN="$LAGER/imagefilm.webm"
-if [ -f "$FILM" ]; then
-  STEMPEL="$(stat -c '%Y-%s' "$FILM")"
-  if [ ! -f "$FILM_KLEIN" ] || [ "$(cat "$LAGER/imagefilm.stempel" 2>/dev/null)" != "$STEMPEL" ]; then
-    echo "→ Imagefilm für das Paket dichter packen (dauert ein paar Minuten)"
-    mkdir -p "$LAGER"
-    # Erst das ffmpeg des Systems, dann das aus imageio. Umgekehrt scheiterte
-    # der Bau auf einer frischen Maschine mit „No module named imageio_ffmpeg",
-    # obwohl /usr/bin/ffmpeg danebenlag — eine Abhaengigkeit, die nur der
-    # Bequemlichkeit dient, darf den Bau nicht anhalten.
-    FF="$(command -v ffmpeg || true)"
-    if [ -z "$FF" ]; then
-      FF="$(python3 -c 'import imageio_ffmpeg;print(imageio_ffmpeg.get_ffmpeg_exe())' 2>/dev/null || true)"
-    fi
+FF="$(command -v ffmpeg || true)"
+if [ -z "$FF" ]; then
+  FF="$(python3 -c 'import imageio_ffmpeg;print(imageio_ffmpeg.get_ffmpeg_exe())' 2>/dev/null || true)"
+fi
+
+FILME=()
+dichter(){   # $1 Datei  $2 crf
+  local quelle="$1" crf="$2" stamm ziel stempel
+  [ -f "$quelle" ] || return 0
+  stamm="$(basename "$quelle")"
+  ziel="$LAGER/$stamm"
+  stempel="$(stat -c '%Y-%s' "$quelle")"
+  if [ ! -f "$ziel" ] || [ "$(cat "$LAGER/$stamm.stempel" 2>/dev/null)" != "$stempel" ]; then
     if [ -z "$FF" ]; then
       echo "   ffmpeg fehlt — bitte installieren (apt-get install ffmpeg)." >&2
       exit 1
     fi
-    "$FF" -y -i "$FILM" -c:v libvpx-vp9 -b:v 0 -crf 36 -cpu-used 1 -row-mt 1 \
-          -deadline good -pass 1 -passlogfile "$LAGER/log" -an -f null /dev/null 2>/dev/null
-    "$FF" -y -i "$FILM" -c:v libvpx-vp9 -b:v 0 -crf 36 -cpu-used 1 -row-mt 1 \
-          -deadline good -pass 2 -passlogfile "$LAGER/log" -c:a copy "$FILM_KLEIN" 2>/dev/null
-    echo "$STEMPEL" > "$LAGER/imagefilm.stempel"
-  else
-    echo "→ Imagefilm: die dichtere Fassung liegt schon vor"
+    echo "→ $stamm dichter packen"
+    mkdir -p "$LAGER"
+    case "$quelle" in
+      *.mp4)
+        # EIN Durchgang, dafuer ein langsameres Preset. x264 lehnt CRF mit
+        # zwei Durchgaengen ausdruecklich ab („CRF/CQP is incompatible with
+        # 2pass") — zwei Durchgaenge setzen eine Zielbitrate voraus, CRF
+        # setzt eine Zielqualitaet. Was hier gebraucht wird, ist die
+        # Qualitaet; dichter wird es ueber `veryslow` statt ueber einen
+        # zweiten Lauf.
+        "$FF" -y -v error -i "$quelle" -an -c:v libx264 -profile:v high -level 4.0 \
+              -pix_fmt yuv420p -crf "$crf" -preset veryslow -g 125 -tune film \
+              -movflags +faststart "$ziel" ;;
+      *.webm)
+        "$FF" -y -v error -i "$quelle" -an -c:v libvpx-vp9 -b:v 0 -crf "$crf" \
+              -cpu-used 1 -row-mt 1 -deadline good -g 125 -pix_fmt yuv420p \
+              -pass 1 -passlogfile "$LAGER/$stamm.log" -f null /dev/null
+        "$FF" -y -v error -i "$quelle" -an -c:v libvpx-vp9 -b:v 0 -crf "$crf" \
+              -cpu-used 1 -row-mt 1 -deadline good -g 125 -pix_fmt yuv420p \
+              -pass 2 -passlogfile "$LAGER/$stamm.log" "$ziel"
+        # Die Tonspur wird nicht kopiert, sondern bleibt weg: der
+        # Hintergrundfilm hat keine (`-an` schon beim Bauen). Ein `-c:a copy`
+        # waere hier eine Zeile, die nie etwas tut — und beim naechsten
+        # Motiv haette sie stillschweigend Ton eingeschleppt.
+        ;;
+    esac
+    echo "$stempel" > "$LAGER/$stamm.stempel"
   fi
-  echo "   $(du -h "$FILM" | cut -f1)  ->  $(du -h "$FILM_KLEIN" | cut -f1)"
-  AUSSEN+=("$FILM" "$LAGER/*")
+  echo "   $stamm  $(du -h "$quelle" | cut -f1)  ->  $(du -h "$ziel" | cut -f1)"
+  FILME+=("$quelle")
+}
+
+echo "→ Hintergrundfilm für das Paket dichter packen"
+dichter assets/video/hintergrund.mp4       34
+dichter assets/video/hintergrund.webm      40
+dichter assets/video/hintergrund-hoch.mp4  36
+dichter assets/video/hintergrund-hoch.webm 42
+if [ ${#FILME[@]} -gt 0 ]; then
+  AUSSEN+=("${FILME[@]}" "$LAGER/*")
 fi
 
 # ---------------------------------------------------------------------------
@@ -381,11 +430,11 @@ zip -qr "$ZIEL" . -x "${AUSSEN[@]}" "assets/img/*.jpg" \
   "assets/css/styles.css" "assets/js/main.js" "*.html"
 ( cd "$BUEHNE" && zip -qr "$OLDPWD/$ZIEL" assets )
 ( cd "$BUEHNE" && zip -qr "$OLDPWD/$ZIEL" . -i "*.html" )
-# Der dichter gepackte Film kommt unter seinem richtigen Namen ins Paket.
-if [ -f "$FILM_KLEIN" ]; then
+# Die dichter gepackten Filme kommen unter ihren richtigen Namen ins Paket.
+if [ ${#FILME[@]} -gt 0 ]; then
   mkdir -p "$BUEHNE/assets/video"
-  cp "$FILM_KLEIN" "$BUEHNE/$FILM"
-  ( cd "$BUEHNE" && zip -qr "$OLDPWD/$ZIEL" "$FILM" )
+  for f in "${FILME[@]}"; do cp "$LAGER/$(basename "$f")" "$BUEHNE/$f"; done
+  ( cd "$BUEHNE" && zip -qr "$OLDPWD/$ZIEL" assets/video )
 fi
 
 echo "→ Nachsehen, dass wirklich alles drin ist"
@@ -399,6 +448,12 @@ drin = set(z.namelist())
 #    absichtlich draussen bleibt.
 AUSGENOMMEN = ("assets/logo/logo-herm-original.png",
                "assets/video/imagefilm-musik.webm",
+               "assets/video/imagefilm.webm",
+               "assets/video/imagefilm-de.vtt",
+               "assets/img/imagefilm-poster.jpg",
+               "assets/img/imagefilm-poster.webp",
+               "assets/img/imagefilm-poster.avif",
+               "assets/img/imagefilm-poster-gross.jpg",
                "assets/quellen/")
 fehlt = [os.path.join(w, d)
          for w, _, ds in os.walk("assets") for d in ds

@@ -101,6 +101,11 @@ BEDARF = {
     "halle45":            3254,
     "sicherheit-einsatzleitung": 3254,
     "fahrservice-detail": 3226,
+    # Das Kopfband der Teamseite. Es stand hier nicht und war damit die
+    # einzige randlose Aufnahme ohne zweite Stufe — gemessen rechnete der
+    # Browser sie auf einem 1920er Schirm mit doppelter Dichte um das
+    # 2,65-fache hoch, mit Abstand der schlechteste Wert der Website.
+    "team-schild":        4236,
 }
 
 HOECHST = 3         # mehr als das Dreifache bringt nichts — es ist kein Detail da

@@ -72,17 +72,37 @@ SEITEN_LISTE = [
     '404.html',
 ]
 
-# Der Film liegt im Repository mit CRF 31; fuers Paket wird eine dichtere
-# Fassung gerechnet und zwischengespeichert. Fuer die Testdatei ist genau
-# die richtig: 4,7 statt 6,6 MB, und ein Auge sieht den Unterschied nicht
-# (siehe CLAUDE.md, „Das Netlify-Paket ist keine Kopie des Repositorys").
-FILM_DICHT = os.path.join(WURZEL, '.paket-cache', 'imagefilm.webm')
-FILM_ROH = os.path.join(WURZEL, 'assets', 'video', 'imagefilm.webm')
+# Der Hintergrundfilm liegt im Repository in vier Dateien: zwei Zuschnitte
+# (quer, hochkant) in je zwei Formaten. Fuers Paket wird jede davon dichter
+# gepackt und zwischengespeichert; fuer die Testdatei ist genau die richtig.
+#
+# **Die beiden VP9-Fassungen bleiben hier ganz draussen.** Sie sind im Paket
+# die Rueckfallebene fuer Chromium-Baureihen ohne H.264 — die Testdatei ist
+# ein Werkzeug fuer uns und wird in einem gewoehnlichen Browser geoeffnet,
+# der H.264 kann. Eingebettet wuerden sie 5,2 MB roh und rund 7 MB als
+# base64 kosten, und zwar fuer einen Fall, den es hier nicht gibt.
+FILM_LAGER = os.path.join(WURZEL, '.paket-cache')
+FILM_AUS = ('assets/video/hintergrund.webm', 'assets/video/hintergrund-hoch.webm')
 
 
 # ---------------------------------------------------------------------------
 #  Dateien einsammeln
 # ---------------------------------------------------------------------------
+
+KOMMENTAR = re.compile(r'<!--.*?-->', re.S)
+
+
+def ohne_kommentare(html):
+    """Adressen in Kommentaren sind keine gebrauchten Dateien.
+
+    Das ist keine Feinheit: in `index.html` steht seit dem Umbau auf den
+    Hintergrundfilm ein Kommentar, der `assets/video/imagefilm.webm` als
+    VORLAGE nennt. Ohne diese Zeile zog genau dieser Satz die 6,9 MB der
+    Vorlage in die Testdatei — sie wuchs von 12 auf 18 MB, ohne dass sich
+    eine einzige sichtbare Zeile geaendert haette.
+    """
+    return KOMMENTAR.sub(' ', html)
+
 
 def datauri(pfad):
     typ, _ = mimetypes.guess_type(pfad)
@@ -209,7 +229,25 @@ def leichter(html, vorhanden):
 
 
 def seite_umbauen(quelle, vorhanden):
-    h = quelle
+    # ZUERST die Kommentare weg, und das ist keine Sparmassnahme.
+    # `picture_eindampfen` sucht nach `<picture>`; steht dasselbe Wort in
+    # einem Kommentar (und in dieser Werkstatt steht die Begruendung immer
+    # daneben), greift der Ausdruck dort und frisst alles bis zum naechsten
+    # echten `</picture>` — samt dem `-->`, das den Kommentar beendet
+    # haette. Danach verschluckt der naechste Kommentarfilter das halbe
+    # Kopfbild, und die Testdatei ist um vier Dateien aermer, ohne dass
+    # irgendwo ein Fehler steht. Genau das ist passiert.
+    #
+    # Die Kommentare gehoeren in die Testdatei ohnehin nicht: sie ist ein
+    # Werkzeug zum Durchklicken, die Begruendung steht im Repository.
+    h = ohne_kommentare(quelle)
+    # Die VP9-Fassungen liegen der Testdatei nicht bei (siehe FILM_AUS).
+    # Ihre Adressen muessen deshalb auch aus dem Markup: als relativer Pfad
+    # loesen sie sich nur dort auf, wo zufaellig der Ordner `assets/`
+    # danebenliegt — also hier in der Werkstatt und sonst nirgends. Eine
+    # Adresse, die nur auf der eigenen Platte stimmt, ist schlimmer als
+    # keine.
+    h = re.sub(r'\s*data-(?:quer|hoch)-webm="[^"]*"', '', h)
     h = picture_eindampfen(h, vorhanden)
     h = leichter(h, vorhanden)
     for muster in WEG:
@@ -493,7 +531,7 @@ def main():
     # Pflicht — sonst passt das Muster auch auf den Ordner selbst.
     adresse = re.compile(r'(?:\.\./)*assets/[a-z]+/(?:[A-Za-z0-9._-]+/)*[A-Za-z0-9_-]+\.[a-z0-9]{2,5}')
     for h in quellen.values():
-        for t in adresse.findall(h):
+        for t in adresse.findall(ohne_kommentare(h)):
             gebraucht.add(normieren(t))
 
     # Die Kacheln der Unterleiste setzt `main.js` erst im Browser zusammen;
@@ -521,7 +559,7 @@ def main():
     # Nach dem Eindampfen der <picture> stehen andere Adressen da als vorher.
     gebraucht = set()
     for h in seiten.values():
-        for t in adresse.findall(h):
+        for t in adresse.findall(ohne_kommentare(h)):
             gebraucht.add(normieren(t))
     for d in sorted(os.listdir(os.path.join(WURZEL, 'assets/img'))):
         if d.endswith('-mini.webp'):
@@ -589,11 +627,15 @@ def main():
     for p in sorted(gebraucht):
         if p.startswith('assets/css/') or p.startswith('assets/js/') or p.startswith('assets/fonts/'):
             continue
-        if ohne_film and p.endswith('.webm'):
+        if p in FILM_AUS:
+            continue
+        if ohne_film and p.startswith('assets/video/'):
             continue
         voll = os.path.join(WURZEL, p)
-        if p == 'assets/video/imagefilm.webm' and os.path.exists(FILM_DICHT):
-            voll = FILM_DICHT
+        if p.startswith('assets/video/'):
+            dicht = os.path.join(FILM_LAGER, os.path.basename(p))
+            if os.path.exists(dicht):
+                voll = dicht
         if not os.path.exists(voll):
             # `-gross` faellt bewusst weg: die Huelle nimmt dann die
             # kleine Stufe. Alles andere ist eine echte Luecke.

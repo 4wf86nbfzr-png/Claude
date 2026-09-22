@@ -45,7 +45,11 @@ assets/img/             Fotos, je als .avif, .webp und .jpg
                         …-gross.webp fehlt im Netlify-Paket (3 MB, und nur
                         Safari 15–16.3 holt sie) — im Repository und auf
                         Vercel ist sie da.
-assets/video/           Imagefilm + Untertitel
+assets/video/           hintergrund*.mp4 / *.webm: der Film, der als
+                        Hintergrund der Startseite laeuft. Zwei Zuschnitte
+                        (quer, hochkant) in zwei Formaten, ohne Tonspur.
+                        imagefilm.webm ist die VORLAGE dazu (mit Ton und
+                        Vorspann) und wird nicht ausgeliefert.
 assets/audio/ansage/    echte Sprachaufnahmen, eine je Untertitelzeile
                         (01.wav bis 09.wav). Was hier liegt, schlaegt das
                         Sprachmodell — siehe docs/sprecher-briefing.md.
@@ -56,6 +60,9 @@ tools/bilder-einhaengen.py    haengt sie ins Markup ein
 tools/bilder-menue.py         die sechs Miniaturen fuer den Balken
                               unter der Kopfzeile
 tools/film-bauen.js           baut den Imagefilm neu (Bild fuer Bild)
+tools/hintergrundfilm.sh      schneidet daraus die vier Hintergrundfassungen
+                              (ohne Vorspann, ohne Ton, zwei Zuschnitte)
+                              und die beiden Standbilder dazu
 tools/film-vertonen.py        spricht die Untertitel und mischt sie unter die Musik
                               --woerter zeigt jedes Wort des Films in Lautschrift
                               --lautschrift dasselbe zeilenweise
@@ -549,13 +556,15 @@ keine Fehlermeldung, die ihn ein zweites Mal schicken ließe.
 Zum Herumzeigen ohne Server, ohne Hoster und ohne Internet:
 
 ```bash
-python3 tools/testdatei-bauen.py          # herm-website-testdatei.html, rund 12 MB
-python3 tools/testdatei-bauen.py --ohne-film   # ohne Imagefilm, rund 5 MB
+python3 tools/testdatei-bauen.py          # herm-website-testdatei.html, rund 9 MB
+python3 tools/testdatei-bauen.py --ohne-film   # ohne Hintergrundfilm, rund 6 MB
 ```
 
 Die Datei doppelklicken, fertig. Alle sechzehn Seiten sind darin, die
-Navigation funktioniert, Schriften, Fotos und der Imagefilm sind
-eingebettet. Nachgemessen holt sie über einen Durchgang durch alle Seiten
+Navigation funktioniert, Schriften, Fotos und der Hintergrundfilm sind
+eingebettet. Vom Film liegt nur die H.264-Fassung bei; ein Browser ohne
+H.264 (Chromium auf manchen Linux-Distributionen) zeigt im Kopfbild das
+Standbild statt des Films. Nachgemessen holt sie über einen Durchgang durch alle Seiten
 **keine einzige** Datei von außen.
 
 Wie das geht: jede Datei liegt genau einmal darin — Stylesheet, Skript und
@@ -732,12 +741,12 @@ Kein Konto bei GitHub nötig, kein Build, keine Kreditkarte.
 
 ```bash
 bash tools/paket-bauen.sh
-# → herm-website-netlify.zip  (rund 16 MB)
+# → herm-website-netlify.zip  (rund 19 MB)
 ```
 
-Der erste Lauf dauert ein paar Minuten (er packt den Imagefilm einmal
-dichter und legt das Ergebnis unter `.paket-cache/` ab); jeder weitere Lauf
-ist schnell, solange sich der Film nicht ändert.
+Der erste Lauf dauert ein paar Minuten (er packt die vier Fassungen des
+Hintergrundfilms einmal dichter und legt sie unter `.paket-cache/` ab);
+jeder weitere Lauf ist schnell, solange sich der Film nicht ändert.
 
 **Warum ein eigenes Skript?** Beim Ziehen-und-Ablegen führt Netlify keinen
 Build aus — es veröffentlicht, was im Paket liegt. Eine Funktion, die
@@ -1005,8 +1014,10 @@ Die Testskripte liegen nicht im Repository; geprüft wurde vor der Übergabe:
 - `prefers-reduced-motion` und Betrieb ohne JavaScript
 - Seitenrand und waagerechter Überlauf zusätzlich bei 1024, 1920, 2560 und
   3840 px — der Satzspiegel bleibt ab 1280 px stehen, statt mitzuwachsen
-- LCP und CLS je Seite. Der Hero der Startseite gilt seit dem Umbau des
-  Vorspanns nach **356 ms** als gezeichnet statt nach 2996 ms. CLS liegt in
+- LCP und CLS je Seite. Der Hero der Startseite gilt seit dem Wegfall des
+  Vorspanns nach **356 ms** als gezeichnet statt nach 2996 ms; das grösste
+  sichtbare Element ist dabei das Standbild unter dem Film, nicht der Film
+  selbst. CLS liegt in
   zehn von zwölf Ladevorgängen bei 0,00008, in zweien bei 0,0099 — beides
   weit unter der Schwelle von 0,1; der Rest ist der Schriftwechsel des
   Heros (siehe CLAUDE.md, „der vierte Preload")

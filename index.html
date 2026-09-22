@@ -53,26 +53,18 @@
      Seite sonst leer — diese Zeile nimmt die Sperre sofort zurück. -->
 <script>
 document.documentElement.classList.remove("kein-js");
-/* Der Vorspann und die Einfahrt des Heros sind EINE Bewegung: das Wortzeichen
-   tritt zurueck, waehrend die Kamera ins Bild faehrt. Damit das zusammenpasst,
-   duerfen die Hero-Animationen nicht beim Laden starten — sonst sind sie
-   vorbei, bevor der Vorspann weg ist. Sie haengen deshalb an `los`, und `los`
-   faellt erst, wenn der Vorspann geht (main.js).
+/* Es gibt keinen Vorspann mehr. Die Startseite traegt den Imagefilm als
+   Hintergrund, und eine schwarze Flaeche davor waere genau das, was daran
+   beanstandet war. Damit faellt `los` hier, vor dem ersten Bild, statt
+   spaeter beim Schnitt — die Einfahrten sind wieder der Einstieg.
 
-   Diese Entscheidung muss hier oben fallen, vor dem ersten Bild. Stuende sie
-   in main.js am Seitenende, gaebe es ein sichtbares Aufblitzen. */
+   Diese Entscheidung muss oben stehen. Stuende sie in main.js am
+   Seitenende, liefe die Einfahrt schon, bevor die Klasse gesetzt ist, und
+   man saehe ein Aufblitzen. */
 (function(){
-  var d = document.documentElement, erstesMal = true;
-  try { erstesMal = sessionStorage.getItem("hst-intro") !== "1"; } catch(e){}
-  var ruhig = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  /* Kommt ein Vorspann, steht der Hero von der ersten Zeichnung an fertig
-     da — der Vorspann liegt ja ohnehin deckend darueber. Frueher wartete
-     er in seiner Startposition und sprang erst beim Schnitt hinein; damit
-     hatte die Seite bis dahin kein einziges sichtbares Element, und der
-     LCP lag bei 3,0 statt 0,35 Sekunden.
-     Ohne Vorspann (zweiter Aufruf, reduzierte Bewegung) faehrt der Hero
-     ein — dort IST die Einfahrt der Einstieg. */
-  d.classList.add(erstesMal && !ruhig ? "sofort" : "los");
+  var d = document.documentElement;
+  d.classList.add("los");
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches) d.classList.add("ruhig");
 })();
 </script>
 <!-- Strukturierte Daten für Suchmaschinen und Kartendienste -->
@@ -184,17 +176,7 @@ document.documentElement.classList.remove("kein-js");
      muss sonst auf jeder Seite durch die ganze Navigation. -->
 <a class="sprunglink" href="#top">Zum Inhalt springen</a>
 
-<!-- ============ PRELOADER ============ -->
-<!-- Eine Lichtbahn zieht durch das Dunkel, das Wortzeichen taucht langsam
-     aus der Unschärfe auf, ein Glanz läuft durch die Buchstaben — dann der
-     Schnitt auf die Seite. Alles Schwarzweiss, alles CSS; die Schritte und
-     ihre Gründe stehen im Preloader-Abschnitt von styles.css. -->
-<div id="preloader" aria-hidden="true">
-  <div class="pre-logo">
-    <img class="pre-logo__img" src="assets/logo/logo-herm.png" alt="HERM Service Team" width="800" height="305" />
-  </div>
-</div>
-
+<!-- ============ FORTSCHRITTSBALKEN ============ -->
 <div id="scrollbar"></div>
 
 <!-- Sofort nach oben, ohne die Scroll-Effekte rückwärts abzuspielen -->
@@ -271,26 +253,59 @@ document.documentElement.classList.remove("kein-js");
      (nachgemessen, siehe tools/motive-bauen.py). Das Motiv davor kam aus
      640 px und bekam deshalb nur eine. -->
 <section class="hero" id="hero" data-weg>
-  <div class="hero__photo" aria-hidden="true">
-    <picture><source type="image/avif" srcset="assets/img/bankett.avif 1600w, assets/img/bankett-gross.avif 2560w" sizes="(max-width:980px) 200vw, 100vw" /><source type="image/webp" srcset="assets/img/bankett.webp 1600w, assets/img/bankett-gross.webp 2560w" sizes="(max-width:980px) 200vw, 100vw" /><img src="assets/img/bankett.jpg" alt="" fetchpriority="high" width="1600" height="900" /></picture>
+  <!-- Der Hintergrund ist der Imagefilm, und er besteht aus zwei Lagen.
+       ------------------------------------------------------------
+       ZUERST das Standbild. Es ist nicht irgendein Motiv, sondern das ERSTE
+       BILD des Films (`tools/hintergrundfilm.sh` schneidet beides aus
+       derselben Quelle). Damit steht in der ersten Zeichnung schon das
+       richtige Bild da, der Wechsel auf den Film ist nicht zu sehen, und es
+       gibt zu keinem Zeitpunkt eine schwarze Flaeche. Es traegt
+       `fetchpriority="high"` und ist damit das groesste sichtbare Element
+       (LCP) — der Film selbst kommt danach und laesst sich Zeit.
+
+       DANN der Film. Stumm, in Schleife, ohne Bedienteile, ohne Tonspur in
+       der Datei. Zwei Zuschnitte statt zwei Groessen: quer fuer den
+       Schreibtisch, hochkant fuers Telefon. `object-fit:cover` deckt ueber
+       die laengere relative Kante, und in einem Hochkantfenster ist das die
+       HOEHE — eine 16:9-Datei muesste dort um das 3,5-fache hochgerechnet
+       werden. Mit dem 9:16-Schnitt sind es 1,76.
+
+       DIE FALLE DABEI, und sie hat einen Testlauf gekostet: `media` am
+       source-Element wirkt nur im picture-Element. In einem video-Element
+       steht es zwar in der Norm, Chromium und Safari werten es aber NICHT
+       aus — das Handy holte damit die Querfassung. Der Zuschnitt wird
+       deshalb unten in `main.js` gewaehlt, und das video-Element steht hier
+       bewusst OHNE Quelle: so laedt kein Geraet eine Datei, die es gleich
+       wieder verwirft.
+       (Und deshalb steht hier kein einziges rohes Tag: ein `picture` in
+       spitzen Klammern in einem Kommentar hat tools/testdatei-bauen.py
+       genau einmal das halbe Kopfbild gekostet.)
+       Die Adressen stehen als `data-`Attribute daneben, der Rest ist eine
+       Zeile `matchMedia`.
+
+       Auch `poster` fehlt mit Absicht. Das Standbild liegt schon darunter
+       und ist der richtige Zuschnitt; ein Poster kennt nur EINE Datei und
+       waere am Telefon die falsche. -->
+  <div class="hero__medien" aria-hidden="true">
+    <picture class="hero__still">
+      <source type="image/avif" media="(max-width:900px)" srcset="assets/img/filmstart-hoch.avif" /><source type="image/webp" media="(max-width:900px)" srcset="assets/img/filmstart-hoch.webp" />
+      <source type="image/avif" srcset="assets/img/filmstart.avif" /><source type="image/webp" srcset="assets/img/filmstart.webp" />
+      <img src="assets/img/filmstart.jpg" alt="" fetchpriority="high" width="1600" height="900" />
+    </picture>
+    <video class="hero__film" muted loop playsinline preload="auto"
+           disablepictureinpicture disableremoteplayback tabindex="-1"
+           data-quer-mp4="assets/video/hintergrund.mp4"
+           data-quer-webm="assets/video/hintergrund.webm"
+           data-hoch-mp4="assets/video/hintergrund-hoch.mp4"
+           data-hoch-webm="assets/video/hintergrund-hoch.webm"></video>
   </div>
   <div class="hero__schleier" aria-hidden="true"></div>
 
   <!-- `auf-dunkel` dreht die Textstufen um, ohne dass hier eine einzige Farbe
        steht: dieselben Tokennamen, andere Werte. Den Grund, den die Klasse
        sonst mitbringt, nimmt der Hero-Abschnitt im Stylesheet wieder weg —
-       hier ist der Grund das Foto. -->
+       hier ist der Grund der Film. -->
   <div class="hero__inner auf-dunkel">
-    <!-- Hier stand „Startseite". Ein Brotkrumenpfad ist ein Weg zurueck;
-         auf der Startseite selbst hat er kein Ziel und war nur eine
-         Beschriftung. Zurueck kommt man ueber das Wortzeichen links oben. -->
-    <!-- Die Auszeichnungszeile stand hier auf dem Foto und hat als einzige
-         KLEINE Schrift darauf den ganzen Schleier bestimmt: sie braucht
-         4,5:1, die Hauptzeile nur 3,0. Gemessen kostete sie elf Punkte
-         Deckkraft ueber die halbe Bildhoehe. Sie steht jetzt im
-         Auftaktband darunter, auf dunklem Grund, wo sie nichts kostet.
-         Siehe „Der Schleier ist eine Folge davon, wie viel Text auf dem
-         Foto steht" in CLAUDE.md. -->
     <h1 class="u-caps">
       <span class="line"><span>Personal, das</span></span>
       <span class="line"><span>Ihr Event</span></span>
@@ -330,14 +345,19 @@ document.documentElement.classList.remove("kein-js");
   </div>
 </section>
 
-<!-- ============ BILDBAND ============ -->
-<!-- Das zweite Motiv, randlos, direkt unter dem Kopfbild. Es traegt dieselbe
-     stehende Kamerafahrt wie der Hero und laeuft aus demselben Grund nur,
-     solange es zu sehen ist: `data-weg` gibt ihm `.live` vom vorhandenen
-     Motor, ohne eine Zeile JavaScript. -->
-<section class="schaubild" data-weg>
-  <picture><source type="image/avif" srcset="assets/img/bar-gruen.avif" /><source type="image/webp" srcset="assets/img/bar-gruen.webp" /><img src="assets/img/bar-gruen.jpg" alt="Aufgebaute Bar mit begrünter Rückwand und Barhockern auf einer Veranstaltung" loading="lazy" width="1600" height="1065" /></picture>
-</section>
+<!-- Hier stand ein zweites randloses Standbild („Bildband", `bar-gruen`).
+     Es ist aus zwei Gruenden weg, und beide sind gemessen:
+
+     1. Seine Vorlage hat 679 x 452 Pixel. Randlos ueber 1920 px bei
+        doppelter Dichte gerechnet ist das eine 2,4-fache Hochrechnung —
+        der mit Abstand unschaerfste Punkt der ganzen Website.
+     2. Ueber ihm steht jetzt ein Film von 44 Sekunden. Ein zweites
+        stehendes Bild in voller Breite direkt darunter sagt nichts mehr,
+        was der Film nicht schon gesagt hat.
+
+     Das Motiv selbst bleibt im Bestand. Kommt eine Aufnahme mit
+     mindestens 2400 px an der langen Kante (docs/foto-briefing.md), ist
+     der Abschnitt zwei Zeilen Markup. -->
 
 <!-- ============ VERTRAUENSLEISTE ============ -->
 <!-- Vier nachprüfbare Angaben statt Kennzahlen wie „100 % Fokus". -->
@@ -422,52 +442,24 @@ document.documentElement.classList.remove("kein-js");
      Zurückholen: python3 tools/leistungen-bauen.py --einsetzen
      ======================================================== -->
 
-<!-- ============ IMAGEFILM ============ -->
-<!-- Bild: Platzhalter aus vorhandenen Fotos. Ton: eigene Musik, 45 s, als
-     Opus-Spur im selben WebM. Der Film startet mit Ton, sofern der Browser
-     das zulaesst — die Regeln dazu stehen in main.js beim Tonschalter.
-     Die ersten 0,8 s sind ein schwarzer Vorspann mit dem Logo; danach laeuft
-     der Film. Gesamtlaenge bleibt 45 s, damit Musik und Untertitel passen.
-     Gebaut wird er von tools/film-bauen.js, Bild fuer Bild, 1920x1080.
-     Groesser waere sinnlos: die Fotos, aus denen er besteht, haben 1129 bis
-     1600 px — eine 2560er Fassung wurde gebaut und gemessen und war exakt
-     gleich gut (PSNR 12,48 gegen 12,47). Sobald echtes Material vorliegt,
-     baut `node tools/film-bauen.js --gross` sie wieder.
-     Die Ansage spricht tools/film-vertonen.py aus dieser VTT-Datei.
-     Sobald bewegtes Material vorliegt: Datei unter assets/video/ ersetzen und
-     die Zeiten in imagefilm-de.vtt nachziehen. -->
-<section class="film" id="film" aria-labelledby="film-titel">
-  <div class="wrap film__kopf">
-    <span class="eyebrow reveal-up">In 45 Sekunden</span>
-    <h2 class="u-caps" id="film-titel" data-kino>Wer wir sind</h2>
-  </div>
+<!-- Hier stand der Imagefilm als Abspieler: eigener Abschnitt, Poster,
+     Pausenknopf, Tonschalter, Untertitel, davor ein schwarzer Vorspann von
+     0,8 Sekunden.
 
-  <div class="film__buehne reveal-up" data-d="2">
-    <video class="film__video" muted playsinline loop preload="none"
-           poster="assets/img/imagefilm-poster.jpg"
-           data-poster="assets/img/imagefilm-poster-gross.jpg"
-           data-src="assets/video/imagefilm.webm">
-      <track kind="subtitles" srclang="de" label="Deutsch" default
-             src="assets/video/imagefilm-de.vtt" />
-    </video>
+     Er steht jetzt dort, wo er hingehoert — als Hintergrund des Heros, vom
+     ersten Bild an, stumm und endlos. Damit faellt beides weg, was an ihm
+     beanstandet war: die schwarze Flaeche davor und die Sprachspur.
 
-    <!-- Untertitel werden aus der Spur selbst gesetzt statt vom Browser
-         gezeichnet: dessen Darstellung ist je nach Gerät unterschiedlich groß
-         und teils schlecht lesbar. -->
-    <p class="film__untertitel" aria-live="polite"></p>
+     Was dabei bewusst verlorengeht, und warum es vertretbar ist: die
+     Untertitel. Sie waren die Tonspur in Text. Ohne Ton gibt es nichts zu
+     untertiteln — der Film ist jetzt ein dekorativer Hintergrund und
+     traegt deshalb `aria-hidden`. Die Aussagen, die dort gesprochen
+     wurden, stehen als Text auf der Seite: im Auftaktband, in der
+     Vertrauensleiste und im Intro.
 
-    <div class="film__leiste">
-      <button class="film__knopf" type="button" data-film-abspielen aria-label="Film pausieren">
-        <svg viewBox="0 0 24 24" aria-hidden="true" width="16" height="16"><rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor"/></svg>
-        <span>Pause</span>
-      </button>
-      <button class="film__knopf" type="button" data-film-ton aria-label="Ton einschalten" hidden>
-        <svg viewBox="0 0 24 24" aria-hidden="true" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 9.5a4 4 0 010 5"/></svg>
-        <span>Ton an</span>
-      </button>
-    </div>
-  </div>
-</section>
+     `assets/video/imagefilm.webm` bleibt liegen: es ist die Vorlage, aus
+     der `tools/hintergrundfilm.sh` den Hintergrund schneidet. -->
+
 
 <!-- ============ HIER STANDEN DIE SECHS BEREICHE ============
      Sechs bildschirmfuellende Szenen, zusammen rund 4700 Pixel. Sie sind

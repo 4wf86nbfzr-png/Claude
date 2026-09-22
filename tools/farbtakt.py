@@ -55,18 +55,10 @@ HIER = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # dann noch lesbar ist, wenn man die Datei nicht daneben offen hat.
 TAKT = {
     "index.html": [
-        None,        # hero, Kopfbild
-        "dunkel",    # auftakt, der dunkle Streifen unter dem Foto
-        None,        # schaubild, Bildband
+        None,        # hero, der Imagefilm als Hintergrund
+        "dunkel",    # auftakt, der dunkle Streifen unter dem Film
         "hell",      # trust, die Vertrauensleiste
         None,        # intro
-        # Der Imagefilm bleibt blau, und das ist Regel 2 und kein Geschmack:
-        # die Buehne ist ein randloses Bewegtbild ueber die volle Breite.
-        # Auf einer hellen Bahn deckt sie die Blende des Abschnitts zu — das
-        # Video liegt ueber dem Hintergrund, nicht darunter — und es stand
-        # eine harte Kante zwischen Beige und Bild. Was auf einem Foto sitzt,
-        # bleibt blau; ein Film ist ein Foto, das laeuft.
-        None,        # film
         "hell",      # testi, Zitat und Zeichen
         None,        # cta, Schlussblock
     ],

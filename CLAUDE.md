@@ -1397,7 +1397,16 @@ hängt ihre Messung mit in `messen()` — nicht in die eigene Schleife.
 
 ### Der Vorspann: auftauchen, polieren, schneiden
 
-Beim ersten Öffnen läuft ein Einstieg in drei Schritten, alles in
+**Diesen Vorspann gibt es nicht mehr.** Er ist mit dem Umbau auf den
+Hintergrundfilm ersatzlos entfallen — eine deckende schwarze Fläche vor der
+Startseite war genau das, was daran beanstandet war (siehe „Der Film ist
+der Hintergrund"). Mit ihm sind `sofort` und `vorspann` weggefallen; im
+Kopf der Seite steht nur noch `los`. Der Abschnitt bleibt stehen, weil die
+Messung darin weitergilt: **eine Einfahrt unter einer deckenden Fläche ist
+keine Gestaltung, sondern nur eine späte Messung** (LCP 2996 ms gegen
+356 ms).
+
+Beim ersten Öffnen lief ein Einstieg in drei Schritten, alles in
 Schwarzweiss und alles in CSS — kein Video, keine Bibliothek:
 
 | ab | was | wie |
@@ -1475,7 +1484,13 @@ Tempo.
 
 ### Die stehende Kamerafahrt im Kopfbild
 
-Bestellt war „das Foto als bewegtes Hintergrundvideo". Gebaut ist eine
+**Auch diese Fahrt gibt es nicht mehr** (`@keyframes heroFahrt` und
+`heroZoom` sind weg): im Kopfbild läuft jetzt der Film selbst. Die Rechnung
+darin ist trotzdem die, auf die man sich beim nächsten Wunsch nach einem
+Hintergrundvideo berufen muss — sie sagt, wann ein Standbild das bessere
+Video ist, und beim Hero war es das, solange dort ein Foto stand.
+
+Bestellt war „das Foto als bewegtes Hintergrundvideo". Gebaut war eine
 Kamerafahrt auf dem Standbild, und das ist nicht dasselbe in schlechter,
 sondern dasselbe in besser. Der Film wurde gebaut und gewogen, dieselbe
 Fahrt, dasselbe Motiv:
@@ -2379,6 +2394,13 @@ Hand ändert, verliert sie beim nächsten Lauf.
 
 ### Der Imagefilm
 
+**Er wird nicht mehr ausgeliefert, sondern geschnitten.** Seit September
+liegt er als Hintergrund der Startseite (siehe „Der Film ist der
+Hintergrund"); `assets/video/imagefilm.webm` ist die Vorlage, aus der
+`tools/hintergrundfilm.sh` vier Fassungen ohne Vorspann und ohne Ton baut.
+Alles, was hier steht, gilt weiter — es ist die Beschreibung dieser
+Vorlage.
+
 Der Film ist ein Platzhalter: neun der vorhandenen Fotos, je fünf Sekunden,
 jedes mit einer langsamen Kamerafahrt. Gebaut wird er von
 `tools/film-bauen.js`.
@@ -3076,6 +3098,226 @@ Seitenrand (`left:clamp(20px,5vw,64px)`), nicht in der Ecke.
 Der Sprunglink bleibt dabei erhalten. Er ist keine zweite Ausgabe des Logos,
 sondern die einzige Möglichkeit, mit der Tastatur an Navigation und Menü
 vorbei in den Inhalt zu kommen.
+
+---
+
+## Der Film ist der Hintergrund, September 2026
+
+Bestellt war eine Umkehrung, und sie ist deutlich formuliert: der Imagefilm
+soll kein Abspieler mehr sein, sondern der Grund der Startseite. Wörtlich:
+
+> „Der Film soll bereits hinter dem Text beginnen und dauerhaft als
+> Hintergrund laufen. Es darf keine schwarze Seite / schwarze Zwischenfläche
+> vor dem Film mehr geben."
+
+Dazu: automatisch starten, ohne Benutzerinteraktion, endlos, ohne
+Bedienteile, ohne Ton, ohne harten Schnitt, ohne leeren Ladezustand.
+
+**Das ist kein Umbau des Abspielers, sondern sein Ersatz.** Was dabei
+weggefallen ist, ist mehr als das, was hinzugekommen ist:
+
+| weg | Zeilen |
+|---|---|
+| der Vorspann (`#preloader`, `.pre-logo`, `.pre-glanz`, vier `@keyframes`, zwei `setTimeout`) | rund 180 |
+| der Abspieler (`.film`, `.film__kopf`, `.film__buehne`, `.film__video`, `.film__untertitel`, `.film__leiste`, `.film__knopf`) | rund 140 |
+| das Bildband darunter (`.schaubild`) | rund 40 |
+| `@keyframes heroZoom`, `@keyframes heroFahrt` | rund 20 |
+| **hinzugekommen** (`.hero__medien`, `.hero__still`, `.hero__film`) | **rund 30** |
+
+### Die schwarze Fläche verschwindet nicht durch eine Regel, sondern durch einen Schnitt
+
+Drei Dinge waren schwarz, und jedes hatte eine eigene Ursache:
+
+1. **Der Vorspann.** Eine deckende schwarze Fläche über der ganzen Seite,
+   2,75 Sekunden lang. Sie ist ersatzlos weg. Damit fällt auch die
+   Unterscheidung `sofort`/`los` weg: es gibt keinen Vorspann mehr, unter
+   dem eine Einfahrt ablaufen könnte, also ist die Einfahrt wieder der
+   Einstieg. Im Kopf der Seite steht jetzt nur noch `los`.
+2. **Der Vorspann des Films selbst.** Gemessen (mittlere Helligkeit eines
+   64×36-Rasters) liegt das Bild bis 0,8 s bei **6,6** und ab 1,2 s bei
+   **49**. `tools/hintergrundfilm.sh` schneidet deshalb bei 1,0 s: das erste
+   Bild des Hintergrunds ist schon ein Motiv.
+3. **Die Zeit, bis der Film geladen ist.** Dagegen hilft kein Schnitt,
+   sondern nur ein Bild, das schon da ist. Unter dem Film liegt ein
+   `<picture>` mit **genau dessen erstem Bild** — aus derselben Quelle
+   geschnitten, im selben Lauf. Es trägt `fetchpriority="high"` und ist das
+   grösste sichtbare Element der Seite.
+
+**Der letzte Punkt ist der eigentliche.** Ein `poster` hätte dasselbe
+geleistet und wäre die naheliegende Lösung gewesen — aber es gibt zwei
+Zuschnitte, und `poster` kennt nur eine Datei. Das `<picture>` wählt den
+richtigen; deshalb hat der `<video>` hier **kein** `poster`.
+
+### Zwei Zuschnitte, nicht zwei Grössen
+
+`object-fit:cover` deckt über die **längere relative Kante**. In einem
+Fenster von 390 × 844 bei dreifacher Dichte sind das 2532 Gerätepixel Höhe.
+
+| | Datei | Hochrechnung am Telefon |
+|---|---|---|
+| 16:9 quer | 1600 × 900 | **3,5-fach** |
+| 9:16 hochkant | 810 × 1440 | **1,76-fach** |
+
+Das ist dieselbe Rechnung wie bei den Fotos („bei `object-fit:cover` misst
+man die falsche Kante"), nur mit bewegtem Bild — und es ist genau die
+Unschärfe, die beanstandet war. Der Hochkantschnitt nimmt 608 von 1600
+Spalten aus der Bildmitte; das ist ein anderer Ausschnitt, nicht dieselbe
+Aufnahme kleiner.
+
+### Die Falle: `media` am `<source>` wirkt nur im `<picture>`
+
+In einem `<video>` steht das Attribut in der Norm, und **weder Chromium noch
+Safari werten es aus**. Der erste Entwurf hatte
+
+```html
+<source src="…hintergrund-hoch.mp4" media="(max-width:900px)" />
+<source src="…hintergrund.mp4" />
+```
+
+und lieferte dem Telefon die Querfassung — also genau das 3,5-fache
+Hochrechnen, das der Zuschnitt gerade vermeiden sollte. Kein Fehler, keine
+Meldung: der Browser nimmt schlicht die erste Quelle, die er abspielen kann.
+
+Der `<video>` steht deshalb **ohne jede Quelle** im Markup; die vier
+Adressen hängen als `data-`Attribute daran, und `main.js` hängt die
+richtige ein. Das hat einen zweiten Ertrag: bei reduzierter Bewegung oder im
+Datensparmodus wird gar keine eingehängt, und es lädt kein Gerät eine Datei,
+die es gleich wieder verwirft.
+
+### Zwei Formate, und H.264 steht zuerst
+
+Sonst gilt im Projekt „das modernste Format zuerst" (AVIF vor WebP vor
+JPEG). Beim Film ist es umgekehrt, und zwar aus einem Grund, den es bei
+Standbildern nicht gibt: **er läuft dauernd.** H.264 wird auf jedem Telefon
+von eigener Hardware dekodiert, VP9 nicht überall; auf einem Akku ist das
+der Unterschied zwischen warm und heiss.
+
+VP9 steht trotzdem daneben, und das ist kein Vorrat: **das Chromium dieser
+Werkstatt kann kein H.264.** Gemessen mit `canPlayType`:
+
+| | |
+|---|---|
+| `video/mp4; codecs="avc1.64001f"` | `""` |
+| `video/webm; codecs="vp9"` | `"probably"` |
+
+Jede Linux-Distribution, die die patentbehafteten Codecs auslässt, baut ihr
+Chromium so. Ohne die WebM-Fassung sähen diese Browser nur das Standbild.
+Im Testlauf meldet der MP4-Zweig deshalb `net::ERR_ABORTED` — das ist der
+Rückfall bei der Arbeit, kein Fehler.
+
+### Die Tonspur ist nicht stumm, sie ist weg
+
+Bestellt war, die gesprochene Ansage vollständig zu entfernen. `muted` am
+Element wäre dafür zu wenig: ein Hintergrundfilm, dessen Ansage nur
+stummgeschaltet ist, spielt sie ab, sobald irgendetwas die Stummschaltung
+aufhebt. `hintergrundfilm.sh` schneidet sie mit `-an` **aus der Datei**.
+Nachgemessen über `webkitAudioDecodedByteCount`: **0**.
+
+Der vertonte Imagefilm bleibt trotzdem im Repository liegen. Er ist jetzt
+die **Vorlage**, aus der die vier Hintergrundfassungen geschnitten werden —
+dieselbe Rolle wie `imagefilm-musik.webm` für die Mischung.
+
+### Der Schleier misst sich am Film, nicht an einem Bild
+
+Der Grund unter der Hauptzeile ist jetzt eine Montage aus neun
+Einstellungen. Eine einzelne Aufnahme misst davon ein einzelnes Bild — und
+die schlechteste Einstellung liegt gemessen bei Sekunde 39, also im letzten
+Fünftel.
+
+`scratchpad/filmPhasen.js` tastet zwölf Stellen über die ganze Laufzeit ab,
+`filmphasen.py` nimmt je Textfläche die schlechteste.
+
+| | .59 / .64 (vom Foto übernommen) | jetzt .64 / .69 |
+|---|---|---|
+| Hauptzeile, schlechtester Pixel, Schreibtisch | 3,14:1 | **3,70:1** |
+| Hauptzeile, schlechtester Pixel, Telefon | 3,23:1 | **3,79:1** |
+| Scrollhinweis | 4,82:1 | 4,87:1 |
+| nötig | 3,0 bzw. 4,5 | |
+
+**Die alten Werte bestanden schon** — mit 0,14 Stufen Luft. Das ist der Fall
+aus „Barrierefreiheit": ein Wert, der gerade eben besteht, besteht beim
+nächsten Eingriff nicht mehr, und beim nächsten Eingriff heisst hier: beim
+nächsten Schnitt des Films. Fünf Punkte Deckkraft mehr kaufen eine halbe
+Stufe Kontrast.
+
+**Der Schleier bleibt dabei bewusst fast schwarz** (`rgba(8,26,28,…)`) und
+nicht `var(--grund)`. Das ist die einzige Stelle im Stylesheet, an der eine
+festgeschriebene Farbe richtig ist, und sie hat einen messbaren Grund: ein
+Schleier soll abdunkeln, nicht einfärben. Über dem Petrol des Grundes
+(Helligkeit 46 statt 22) müsste dieselbe Wirkung mit höherer Deckkraft
+erkauft werden, und die hebt die Tiefen an — ein schwarzer Bildpunkt stünde
+danach bei 35 statt bei 15. Aus einem Abdunkler würde ein Milchglas.
+
+### Die Falle: `python3 -m http.server` beantwortet keine Range-Anfragen
+
+Die erste Fassung der Messung **suchte** die zwölf Stellen
+(`video.currentTime = t`). Das Ergebnis sah vollkommen plausibel aus: alle
+Textflächen bestanden, mit komfortablem Abstand.
+
+Zwölf Aufnahmen, **eine Prüfsumme.** Der Testserver sendet kein
+`Accept-Ranges`; Chromium meldet daraufhin
+
+```
+seekable: [[0, 0]]      buffered: [[0, 43.9]]      readyState: 4
+```
+
+Die Datei liegt also vollständig im Speicher, und gesucht werden darf
+trotzdem nicht. Eine Zuweisung an `currentTime` fällt dann **still auf 0
+zurück** — kein Fehler, kein `error`-Ereignis, und `seeked` feuert sogar.
+Gemessen wurde zwölfmal dasselbe Bild.
+
+Gefunden hat es nicht das Auge, sondern `md5sum` über die zwölf Aufnahmen.
+Die Regel dahinter steht schon dreimal in dieser Datei, hier zum vierten
+Mal: **wer eine Auffälligkeit über die ganze Messreihe gleichmässig
+vorfindet, hat meistens seinen Test gemessen und nicht die Website.** Und
+die neue Hälfte davon: **eine Messreihe an bewegtem Bild braucht einen
+Beweis, dass sich das Bild zwischen zwei Messungen überhaupt geändert hat.**
+
+Abgetastet wird seitdem im Lauf: der Film läuft mit vierfacher
+Geschwindigkeit durch, und festgehalten wird, was gerade steht.
+
+### Was der Film kostet, und was er im Paket kostet
+
+| | Repository | Paket |
+|---|---|---|
+| `hintergrund.mp4` (1600 × 900, H.264) | 2,6 MB | 1,7 MB |
+| `hintergrund.webm` (VP9) | 3,2 MB | 2,6 MB |
+| `hintergrund-hoch.mp4` (810 × 1440) | 1,4 MB | 972 KB |
+| `hintergrund-hoch.webm` | 1,9 MB | 1,5 MB |
+| Paket gesamt | | **19 MB** (vorher 17) |
+
+Verdichtet wird über CRF und Preset, **nicht über die Kantenlänge**:
+bestellt war ausdrücklich, die Bildqualität nicht für die Ladezeit zu
+opfern. Zuschnitt, Laufzeit und Auflösung sind im Paket Pixel für Pixel
+dieselben.
+
+**Die Falle dabei:** x264 lehnt CRF mit zwei Durchgängen ab („CRF/CQP is
+incompatible with 2pass") — zwei Durchgänge setzen eine Zielbitrate voraus,
+CRF eine Zielqualität. Der MP4-Zweig läuft deshalb in einem Durchgang mit
+`-preset veryslow`, der VP9-Zweig in zweien. Aufgefallen ist es nur, weil
+`paket-bauen.sh` bei jedem Fehler abbricht; die Ausgabe hätte man sonst
+überlesen.
+
+Mit dem Abspieler sind fünf Dateien aus dem Paket gefallen, die niemand mehr
+anfordert: der vertonte Imagefilm (6,9 MB), seine Untertitelspur und das
+Poster in vier Fassungen.
+
+### Was am Hero sonst noch anders ist
+
+- **`.hero__photo` heisst `.hero__medien`** und hält zwei Lagen statt einer.
+  Die Kamerafahrt beim Scrollen (`--weg`) hängt jetzt an der Lage, nicht am
+  Bild — sonst liefe sie nur auf einem von beiden.
+- **Die Auszeichnungszeile steht weiter im Auftaktband**, nicht auf dem
+  Film. Die Begründung ist dieselbe wie beim Foto und wiegt beim Film noch
+  schwerer: sie ist kleine Schrift (4,5:1 gegen 3,0:1) und wäre über neun
+  wechselnden Einstellungen die bindende Bedingung für den ganzen Verlauf.
+- **Bei reduzierter Bewegung wird der `<video>` ausgebaut**, nicht
+  versteckt, und es wird nie eine Quelle eingehängt. Stehen bleibt das
+  Standbild — also dasselbe Bild, nur ohne Bewegung.
+- **Er läuft nur, solange er zu sehen ist.** Dieselbe Begründung wie bei den
+  Kamerafahrten: ein Video, das unter sechs Bildschirmen Text weiterläuft,
+  kostet Akku für nichts. Ein `IntersectionObserver` hält ihn an und startet
+  ihn wieder, `visibilitychange` ebenso.
 
 ---
 

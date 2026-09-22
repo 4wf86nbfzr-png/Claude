@@ -4,55 +4,24 @@
 (function(){
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* Preloader: Lichtbahn, das Wortzeichen taucht aus der Unschärfe auf, ein
-     Glanz läuft durch die Buchstaben — dann der direkte Sprung auf die Seite.
-     Nur beim ersten Öffnen — wer im selben Besuch zurück auf die Startseite
-     kommt, soll nicht jedes Mal warten.
+  /* Hier stand der Vorspann: eine schwarze, deckende Flaeche mit dem
+     Wortzeichen, 2,75 Sekunden lang, beim ersten Oeffnen.
 
-     Die Zeiten hängen an den Animationen in styles.css und müssen mit ihnen
-     zusammen geändert werden:
-        0,30 s  das Zeichen beginnt aufzutauchen
-        2,10 s  es ist scharf, steht aber erst auf 66 % Helligkeit
-        2,70 s  der Glanz ist durch (1,85 + 0,85) und das Zeichen
-                gleichzeitig auf vollem Weiss (2,10 + 0,60)
-     Der Schnitt kommt bei 2,75 s, also erst danach. Ein Vorspann, der
-     mitten in seiner eigenen Bewegung abgeschnitten wird, liest als Fehler
-     und nicht als Tempo. */
-  (function(){
-    const pre = document.getElementById('preloader');
-    if(!pre) return;
-    let gesehen = false;
-    try { gesehen = sessionStorage.getItem('hst-intro') === '1'; } catch(e){}
-    if(gesehen || reduce){ pre.classList.add('instant','done'); return; }
-    try { sessionStorage.setItem('hst-intro','1'); } catch(e){}
-    /* `los` und `.done` fallen im selben Moment. Anders als vorher ist das
-       kein Übergang mehr, sondern ein Schnitt: der Vorspann ist zu Ende,
-       und die Startseite steht da.
+     **Er ist ersatzlos weg, und das ist eine Entscheidung gegen etwas, das
+     gut aussah.** Die Startseite traegt jetzt den Imagefilm als
+     Hintergrund. Ein Vorspann davor waere genau das, was daran beanstandet
+     war: eine schwarze Flaeche vor dem Film. Zwei Eroeffnungen
+     hintereinander sind ausserdem eine zu viel — die erste Bewegung, die
+     jemand sieht, soll der Film selbst sein.
 
-       `sofort` schaltet dabei die Einfahrt des Heros ab. Ohne das liefen
-       zwei Vorspänne hintereinander — erst das Zeichen, dann eine Seite,
-       die sich auch noch aufbaut. Beim zweiten Aufruf im selben Besuch
-       (oben, `gesehen`) wird `sofort` nicht gesetzt: dort IST die Einfahrt
-       der Einstieg. */
-    /* `los` faellt erst hier — und nicht schon im Kopf der Seite.
-       ------------------------------------------------------------
-       Unter `sofort` steht das Foto von der ersten Zeichnung an fertig da
-       (LCP). Der Text darauf wartet dagegen auf den Schnitt: liefe seine
-       Kamerafahrt unter dem deckenden Vorspann ab, waere sie vorbei, bevor
-       irgendjemand sie sehen kann, und beim Schnitt stuende einfach ein
-       fertiger Hero da.
+     Was damit verschwindet: `sofort`, `.done`, `sessionStorage` und die
+     beiden `setTimeout`. `los` faellt seitdem im Kopf der Seite, vor dem
+     ersten Bild (siehe das Inline-Skript in index.html).
 
-       Die Klasse steht hier und nicht weiter unten in main.js, weil dieser
-       Block als erster laeuft: was danach kommt, kann fehlschlagen, ohne
-       dass die Startseite textlos bleibt. */
-    const fertig = ()=>{
-      if(pre.classList.contains('done')) return;   // der Notausstieg kommt nur, wenn noetig
-      pre.classList.add('done');
-      document.documentElement.classList.add('los');
-    };
-    setTimeout(fertig, 2750);          // nach dem Glanz: Schnitt
-    setTimeout(fertig, 4400);          // Notausstieg, falls etwas hängt
-  })();
+     Was davon bleibt: die Regel, aus der der Vorspann kam. Eine Ueberlagerung
+     muss sich ohne die Technik wegnehmen lassen, die sie aufgebaut hat. Der
+     Hintergrundfilm hat deshalb keine — er liegt UNTER allem. */
+
 
   /* Year */
   const jahr = document.getElementById('year');
@@ -947,195 +916,96 @@
     }
   }
 
-  /* ---- Imagefilm ----
-     Läuft in Schleife, stumm, und lädt erst, wenn der Abschnitt in Sicht kommt.
-     Die Untertitel zeichnen wir selbst: die Browser-Darstellung von <track> ist
-     je nach Gerät unterschiedlich groß, sitzt mal im, mal unter dem Bild und
-     ist auf hellen Szenen schlecht lesbar. Die Spur bleibt trotzdem eine echte
-     WebVTT-Datei — Vorlesewerkzeuge und der Austausch des Films hängen daran. */
+  /* ---- Der Imagefilm als Hintergrund der Startseite ----
+     ------------------------------------------------------------
+     Er war einmal ein Abspieler in einem eigenen Abschnitt: Poster, Knopf,
+     Tonschalter, Untertitel, schwarzer Vorspann. Jetzt liegt er hinter dem
+     Text der Startseite und laeuft von selbst, stumm und endlos.
+
+     Fuenf Dinge sind daran nicht beliebig:
+
+     1. **Die Tonspur ist nicht stumm, sie ist weg.** `tools/hintergrundfilm.sh`
+        schneidet sie mit `-an` heraus. Ein `muted`, das jemand aufheben kann,
+        ist bei einem Hintergrund eine Falle.
+     2. **Das Standbild darunter ist das erste Bild des Films.** Deshalb gibt
+        es beim Uebergang nichts zu sehen — und deshalb gibt es keine
+        schwarze Flaeche, waehrend der Film laedt.
+     3. **Gestartet wird nicht blind.** Ein `play()`, das der Browser
+        ablehnt, wirft eine Ausnahme; ohne `catch` stuerbe der Rest dieses
+        Blocks. Lehnt er ab, bleibt das Standbild stehen, und das sieht
+        genauso aus wie vorher.
+     4. **Er laeuft nur, solange er zu sehen ist.** Dieselbe Begruendung wie
+        bei den Kamerafahrten: ein Video, das unter zehn Bildschirmen Text
+        weiterlaeuft, kostet Akku und Rechenzeit fuer nichts.
+     5. **Bei reduzierter Bewegung und bei „Datensparmodus" laeuft er gar
+        nicht** — und wird dann auch nicht geladen. Der `<video>` steht im
+        Markup ohne Quelle; hier wird gar nicht erst eine eingehaengt.
+     6. **Der Zuschnitt wird hier gewaehlt, nicht im Markup.** `media` am
+        `<source>` wirkt nur im `<picture>`; in einem `<video>` werten es
+        weder Chromium noch Safari aus. Wer sich darauf verlaesst, liefert
+        dem Telefon die Querfassung — gemessen das 3,5-fache Hochrechnen,
+        also genau die Unschaerfe, die beanstandet war. */
   (function(){
-    const film  = document.querySelector('.film__video');
+    const film = document.querySelector('.hero__film');
     if(!film) return;
-    const buehne = film.closest('.film__buehne');
-    const zeile  = buehne && buehne.querySelector('.film__untertitel');
-    const btnPlay = buehne && buehne.querySelector('[data-film-abspielen]');
-    const btnTon  = buehne && buehne.querySelector('[data-film-ton]');
-    const sparsam = !!(navigator.connection && navigator.connection.saveData);
-    /* Bei reduzierter Bewegung und im Datensparmodus bleibt es beim Poster,
-       bis jemand selbst auf Abspielen drückt. */
-    const vonSelbst = !reduce && !sparsam;
-    let vomNutzerPausiert = !vonSelbst;
 
-    function knopfStand(){
-      if(!btnPlay) return;
-      const laeuft = !film.paused;
-      btnPlay.querySelector('span').textContent = laeuft ? 'Pause' : 'Abspielen';
-      btnPlay.setAttribute('aria-label', laeuft ? 'Film pausieren' : 'Film abspielen');
-      btnPlay.classList.toggle('film__knopf--laeuft', laeuft);
+    const knausrig = navigator.connection && (navigator.connection.saveData ||
+                     /2g/.test(navigator.connection.effectiveType || ''));
+
+    if(reduce || knausrig){
+      /* Nicht verstecken, sondern ausbauen: ein leeres <video> kostet zwar
+         nichts, aber es soll auch keins im Baum stehen, das spaeter jemand
+         versehentlich startet. */
+      film.remove();
+      return;
     }
 
-    /* Eine grössere Fassung des Films wurde gebaut und wieder verworfen: die
-       Fotos, aus denen er besteht, haben 1129 bis 1600 px, 1920 liegt also
-       schon über der Vorlage. Gemessen war 2560 exakt gleich gut und doppelt
-       so schwer. Liegt einmal echtes Material vor, kommt `data-src-gross`
-       zurück — dann lohnt es sich. */
-    function quelleSetzen(){
-      if(film.src || !film.dataset.src) return;
-      const weit = window.matchMedia('(min-width:981px)').matches;
-      const knausrig = !!(navigator.connection && navigator.connection.saveData);
-      film.src = (weit && !knausrig && film.dataset.srcGross) || film.dataset.src;
+    /* Der Zuschnitt: hochkant unter 901 px, sonst quer. Gemessen einmal,
+       beim Laden — den Schnitt mitten im Betrieb zu tauschen hiesse, den
+       Film neu zu laden, und das sieht man. */
+    const hoch = matchMedia('(max-width:900px)').matches;
+    const mp4  = film.getAttribute(hoch ? 'data-hoch-mp4'  : 'data-quer-mp4');
+    const webm = film.getAttribute(hoch ? 'data-hoch-webm' : 'data-quer-webm');
+
+    /* H.264 zuerst: wo beides geht, ist es das Format mit der
+       Hardware-Dekodierung, und ein Hintergrundfilm laeuft dauernd. VP9
+       steht daneben fuer die Chromium-Baureihen ohne H.264 (jede
+       Linux-Distribution, die die patentbehafteten Codecs auslaesst) —
+       ohne diese Zeile saehen die nur das Standbild. */
+    for(const [adresse, typ] of [[mp4, 'video/mp4'], [webm, 'video/webm']]){
+      if(!adresse) continue;
+      const q = document.createElement('source');
+      q.src = adresse; q.type = typ;
+      film.appendChild(q);
     }
+    film.load();
 
-    /* Das scharfe Vorschaubild wiegt gut das Doppelte des kleinen. Es wird
-       deshalb erst geholt, wenn der Abschnitt in die Nähe kommt — wer nie so
-       weit scrollt, lädt es nie. Erst wenn es vollständig da ist, wird
-       getauscht; sonst blitzt für einen Moment gar kein Bild auf.
-       Ohne JavaScript bleibt das kleine stehen. Das ist richtig so: ohne
-       JavaScript läuft auch der Film nicht, das Vorschaubild ist dann alles,
-       was der Abschnitt zeigt. */
-    if(film.dataset.poster && 'IntersectionObserver' in window){
-      const pio = new IntersectionObserver((eintraege, beob)=>{
-        if(!eintraege.some(e=> e.isIntersecting)) return;
-        beob.disconnect();
-        const gross = new Image();
-        gross.onload = ()=>{ if(!film.currentTime) film.poster = film.dataset.poster; };
-        gross.src = film.dataset.poster;
-      }, { rootMargin:'200% 0px' });
-      pio.observe(film);
-    }
+    /* `.laeuft` blendet den Film ueber das Standbild. Das ist keine
+       Gestaltung, sondern eine Versicherung: faellt das erste Bild des Films
+       aus irgendeinem Grund anders aus als das Standbild, sieht man einen
+       weichen Wechsel statt eines Sprungs. */
+    const sichtbar = ()=> film.classList.add('laeuft');
+    if(film.readyState >= 2) sichtbar();
+    film.addEventListener('loadeddata', sichtbar, { once:true });
+    film.addEventListener('playing', sichtbar);
 
-    /* Untertitel */
-    const spurEl = film.querySelector('track');
-    function spurUebernehmen(){
-      const spur = spurEl && spurEl.track;
-      if(!spur || !zeile) return false;
-      spur.mode = 'hidden';               // wir zeichnen selbst
-      if(!spur.cues || !spur.cues.length) return false;
-      spur.addEventListener('cuechange', ()=>{
-        const aktiv = spur.activeCues;
-        const text = aktiv && aktiv.length
-          ? [...aktiv].map(c=> c.text).join(' ').replace(/<[^>]+>/g,'')
-          : '';
-        zeile.textContent = text;
-        zeile.classList.toggle('an', !!text);
-      });
-      return true;
-    }
-    if(!spurUebernehmen() && spurEl){
-      spurEl.addEventListener('load', spurUebernehmen, { once:true });
-      /* Safari meldet den Ladevorgang nicht immer über load — einmal nachfassen */
-      setTimeout(spurUebernehmen, 1200);
-    }
+    const los = ()=>{ const v = film.play(); if(v && v.catch) v.catch(()=>{}); };
+    los();
 
-    /* ---- Ton ----
-       Der Film soll mit Ton starten. Genau das erlauben Browser aber nicht:
-       ein Video, das von selbst anläuft, muss stumm sein — sonst wird es gar
-       nicht erst abgespielt (Chrome, Safari, Firefox gleichermaßen; auf dem
-       iPhone ausnahmslos). Deshalb dieser Ablauf:
+    /* Manche Browser brechen ein Autoplay ab, wenn der Reiter im Hintergrund
+       geoeffnet wurde. Beim Zurueckkommen noch einmal anstossen. */
+    document.addEventListener('visibilitychange', ()=>{
+      if(document.visibilityState === 'visible' && film.paused) los();
+    });
 
-         1. Erst unstumm versuchen. Erlaubt der Browser es, läuft der Film
-            sofort mit Ton — der Wunschzustand.
-         2. Wird es abgelehnt, läuft er stumm weiter und der Tonschalter tritt
-            sichtbar hervor. Ein Antippen genügt.
-         3. Sobald der Besucher irgendwo auf der Seite klickt oder tippt, gilt
-            das als Zustimmung: dann wird der Ton noch einmal versucht.
-         4. Wer den Ton bewusst ausschaltet, bekommt ihn nicht wieder
-            aufgedrängt — auch nicht auf der nächsten Seite. */
-    const TON_SCHLUESSEL = 'hst-ton';
-    let tonGewollt = true;                       // Vorgabe: Ton an
-    try {
-      if(sessionStorage.getItem(TON_SCHLUESSEL) === 'aus') tonGewollt = false;
-    } catch(e){}
-
-    function tonStand(){
-      if(!btnTon) return;
-      const an = !film.muted;
-      btnTon.querySelector('span').textContent = an ? 'Ton aus' : 'Ton an';
-      btnTon.setAttribute('aria-label', an ? 'Ton ausschalten' : 'Ton einschalten');
-      btnTon.setAttribute('aria-pressed', String(an));
-      /* Ist Ton gewollt, aber vom Browser noch nicht erlaubt, hebt sich der
-         Schalter hervor — sonst übersieht man ihn. */
-      btnTon.classList.toggle('film__knopf--wartet', !an && tonGewollt);
-    }
-
-    /* Versucht abzuspielen; erst mit Ton, bei Ablehnung stumm. */
-    async function abspielen(){
-      quelleSetzen();
-      if(tonGewollt && film.muted){
-        film.muted = false;
-        try {
-          await film.play();
-          knopfStand(); tonStand();
-          return;
-        } catch(e){
-          film.muted = true;               // Browser hat abgelehnt
+    if('IntersectionObserver' in window){
+      new IntersectionObserver((eintraege)=>{
+        for(const e of eintraege){
+          if(e.isIntersecting) los();
+          else if(!film.paused) film.pause();
         }
-      }
-      try { await film.play(); } catch(e){}
-      knopfStand(); tonStand();
+      }, { threshold: 0.01 }).observe(film);
     }
-
-    /* Erste Berührung mit der Seite zählt als Zustimmung — danach lassen
-       Browser den Ton zu. */
-    if(btnTon){
-      const nachfassen = ()=>{
-        if(tonGewollt && film.muted && !film.paused){
-          film.muted = false;
-          film.play().catch(()=>{ film.muted = true; }).finally(tonStand);
-        }
-      };
-      ['pointerdown','keydown','touchstart'].forEach(art =>
-        window.addEventListener(art, nachfassen, { once:true, passive:true }));
-    }
-
-    /* Nur im Viewport laufen lassen */
-    const fio = new IntersectionObserver((entries)=>{
-      entries.forEach(e=>{
-        if(e.isIntersecting){
-          if(vonSelbst && !vomNutzerPausiert) abspielen();
-        } else if(!film.paused){
-          film.pause();
-          knopfStand();
-        }
-      });
-    }, { threshold:.25 });
-    fio.observe(film);
-
-    if(btnPlay){
-      btnPlay.addEventListener('click', ()=>{
-        if(film.paused){
-          vomNutzerPausiert = false;
-          abspielen();
-        } else {
-          vomNutzerPausiert = true;
-          film.pause();
-        }
-        knopfStand();
-      });
-    }
-    film.addEventListener('play', knopfStand);
-    film.addEventListener('pause', knopfStand);
-    film.addEventListener('volumechange', tonStand);
-
-    /* Tonschalter. Er erscheint nur, wenn der Film wirklich eine Tonspur hat —
-       sonst wäre der Knopf eine Lüge. */
-    if(btnTon){
-      if(film.hasAttribute('data-ohne-ton')){
-        btnTon.remove();
-      } else {
-        btnTon.hidden = false;
-        btnTon.addEventListener('click', ()=>{
-          tonGewollt = film.muted;                 // umschalten
-          film.muted = !film.muted;
-          try { sessionStorage.setItem(TON_SCHLUESSEL, tonGewollt ? 'an' : 'aus'); } catch(e){}
-          if(tonGewollt && film.paused) abspielen();
-          tonStand();
-        });
-        tonStand();
-      }
-    }
-
-    knopfStand();
   })();
 
   /* Hier stand der Uebergang von einer Szene der Startseite auf ihre
@@ -1524,7 +1394,7 @@
       magnetZiel.style.setProperty('--mx', (dx * 10).toFixed(1) + 'px');
       magnetZiel.style.setProperty('--my', (dy * 6).toFixed(1)  + 'px');
     }
-    document.querySelectorAll('.btn, .form__submit, .film__knopf').forEach(el => {
+    document.querySelectorAll('.btn, .form__submit').forEach(el => {
       el.addEventListener('pointermove', (ev)=>{
         if(ev.pointerType && ev.pointerType !== 'mouse') return;
         magnetZiel = el; magnetX = ev.clientX; magnetY = ev.clientY;
@@ -1591,7 +1461,7 @@
     document.addEventListener('pointerover', (ev)=>{
       const el = ev.target.closest ? ev.target : ev.target.parentElement;
       if(!el || !el.closest) return;
-      ring.classList.toggle('zeiger--sehen', !!el.closest('.gal__item, .film__buehne'));
+      ring.classList.toggle('zeiger--sehen', !!el.closest('.gal__item'));
       ring.classList.toggle('zeiger--aktiv',
         !!el.closest('a, button, [role="button"], input, select, textarea, summary, label'));
     }, true);
