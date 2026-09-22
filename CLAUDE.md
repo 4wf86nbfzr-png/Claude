@@ -3129,8 +3129,10 @@ Die Reihenfolge steht seitdem so:
 |---|---|
 | Kopfbild | das Foto der Tafel, mit seiner stehenden Kamerafahrt |
 | Auftaktband | dunkel, Auszeichnungszeile und die beiden Wege |
-| Bildband | das Foto mit der begrünten Wand |
 | **ab hier** | **der Film, fest hinter allem, der Text der Seite darüber** |
+
+(Das Bildband mit der begrünten Wand stand hier einen Tag lang und ist
+seitdem ganz unten — siehe „Drei Gründe übereinander".)
 
 Was dabei gelernt ist, gilt über den Fall hinaus: **wer „als Hintergrund"
 liest, prüft, ob das vorhandene Bild dadurch ersetzt oder hinterlegt werden
@@ -3309,6 +3311,78 @@ und 16,8 Megapixel an, weil sie als Datei angehängt waren. Dieses kam mit
 nie hier angekommen. Liegt es vor: dieselbe Datei nach
 `assets/quellen/bar-gruen.jpg`, einmal `python3 tools/motive-bauen.py`, und
 `LOHNT_GROSS` zieht die zweite Stufe von selbst.
+
+### Drei Gründe übereinander: Foto, Film, Foto
+
+Nach dem Film kam die dritte Anweisung, und sie ist die genaueste:
+
+> „Lass den Film jetzt da, wo er ist, aber füge dieses Bild unter den Film
+> in den Hintergrund und den Text der Website darüber. Das Bild mit den
+> Pflanzen kommt dann nach ganz unten."
+
+Die Startseite hat seitdem drei Gründe, in dieser Reihenfolge:
+
+| von | bis | Grund |
+|---|---|---|
+| Kopfbild | Auftaktband | das Foto der Tafel, mit stehender Kamerafahrt |
+| Vertrauensleiste | Referenzen | **der Film**, fest hinter der Seite |
+| Schlussblock | Fuß | **dasselbe Foto der Tafel**, als Grund |
+| ganz unten | | das Bildband mit der begrünten Wand |
+
+**Dass das Motiv der Tafel zweimal vorkommt, ist ausdrücklich bestellt** —
+und es widerspricht „Zweimal dasselbe Foto auf *einer* Seite ist eine
+Doppelung" nur scheinbar. Oben trägt es die Aussage und steht scharf; unten
+trägt es den Raum, ist abgedunkelt und trägt nichts als Licht. Die Seite
+fährt am Ende an ihren Anfang zurück.
+
+### Der zweite Grund liegt NICHT fest, und das ist der Unterschied
+
+Der Film ist `position:fixed` und bleibt beim Scrollen stehen. Das Foto
+darunter ist es nicht: es liegt im Abschnitt und scrollt mit.
+
+Das ist keine Inkonsequenz, sondern das, was ohne JavaScript überhaupt
+geht. **Zwei feste Lagen übereinander sind ein Schalter**, und der
+Zeitpunkt zum Umlegen hängt am Scrollstand. Ein Bild im Abschnitt braucht
+davon nichts: es deckt den Film ab der Kante des Abschnitts zu, und
+„unter dem Film" ist damit wörtlich und ohne eine Zeile Skript wahr.
+
+**`isolation:isolate` ist dabei die ganze Mechanik.** Ohne sie gehört ein
+Kind mit `z-index:0` in den Stapel des Wurzelelements, und der Grund des
+Abschnitts (Schritt 4 der Malreihenfolge) läge darüber — das Bild wäre
+unsichtbar. Mit ihr bildet der Abschnitt einen eigenen Stapel, und in dem
+liegt die Bildlage über seinem Grund und unter seinem Inhalt.
+
+### Die Falle: `object-fit:cover` in zwei verschieden hohen Kästen
+
+Schlussblock und Fuß tragen dasselbe Foto, aber jeder in seinem eigenen
+Kasten — und `cover` schneidet aus zwei verschieden hohen Kästen zwei
+verschiedene Ausschnitte. An der Naht sprang das Bild sichtbar.
+
+**Eine Lage über beide wäre die saubere Lösung und geht nicht:** `.cta`
+steht in `<main>`, der Fuß dahinter. Eine gemeinsame Hülle hieße, den Fuß
+in ein `<div>` zu setzen — und damit jede Regel zu brechen, die
+`body > footer` schreibt (die Falle aus „Der Seitenrand", und es sind
+sechzehn Seiten).
+
+Aufgelöst ist die Naht deshalb so, wie in diesem Projekt jede Kante
+aufgelöst wird: das Foto läuft an der gemeinsamen Kante in den Seitengrund
+aus, unten beim Schlussblock, oben beim Fuß. Übrig bleibt ein dunkler
+Streifen zwischen zwei erhellten Flächen, und der liest als Lichtführung.
+
+**Und die Haarlinie dort fällt weg.** Gemessen war sie mit 35 von 255 der
+grösste Sprung des ganzen Übergangs — der Verlauf nimmt die Kante gerade
+weg, und die Linie baut sie wieder ein. Dieselbe Begründung wie bei den
+hellen Bahnen, und derselbe Handgriff: `border-top-color:transparent`,
+nicht `border-top:0`, denn an der Linie hängt ein Pixel Höhe. Danach 3,7.
+
+### Der Schleier über dem stehenden Bild darf schwächer sein als über dem Film
+
+.78 statt .88, und das ist gemessen: **ein Standbild hat einen hellsten
+Punkt, ein Film hat 44 Sekunden davon.** Nachgemessen über fünf Breiten
+(768, 1024, 1440, 1920 und das Telefon) besteht jede Textfläche; die
+Messreihe fängt erst unterhalb von .56 an zu wackeln, der Wert hat also
+rund vier Stufen Luft. Die angehobenen gedämpften Stufen (.90 und .80)
+gelten hier genauso wie über dem Film, aus demselben Grund.
 
 ### Über einem Film gibt es keinen Grund, gegen den man rechnen kann
 

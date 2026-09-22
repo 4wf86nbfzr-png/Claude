@@ -97,6 +97,11 @@
      schlechteste Fall steht 44 Sekunden lang irgendwann unter jeder
      Zeile. Dasselbe Argument wie beim Schleier im Kopfbild. */
   --grund-film: rgba(20,51,54,.88);
+  /* Dasselbe ueber einem STEHENDEN Bild. Es darf schwaecher sein als der
+     ueber dem Film: ein Standbild hat einen hellsten Punkt, den man
+     messen kann, ein Film hat 44 Sekunden davon. Der Wert steht unten und
+     ist nachgemessen. */
+  --grund-bild: rgba(20,51,54,.78);
   --dunkel:     #143336;   /* Petrol: Fuß, Kontrastbahn, Bildgrund */
   --dunkel-2:   #17393C;
   /* Die Gegenfläche. `--dunkel` und `--hell` sind die beiden ANKER des
@@ -1546,6 +1551,94 @@ body.megabar-auf header.nav{
    Grund darunter stehen — das ist hier richtig und gewollt: der Film
    scheint auch durch die Blende. */
 
+/* ---- Ein Foto als Grund, unter dem Film ---------------------------------
+   Bestellt war, unter den Film ein Bild zu legen und den Text der Seite
+   darueber. Es ist dasselbe Motiv wie im Kopfbild: die Seite faehrt am
+   Ende an ihren Anfang zurueck.
+
+   Es liegt NICHT fest wie der Film, sondern im Abschnitt. Zwei feste Lagen
+   uebereinander waeren ein Schalter, den irgendetwas umlegen muesste — und
+   der Zeitpunkt dafuer haengt am Scrollstand, also an JavaScript. Ein Bild
+   im Abschnitt braucht davon nichts: es scrollt mit und deckt den Film ab
+   der Kante des Abschnitts zu. „Unter dem Film" ist damit woertlich und
+   ohne Umschaltung wahr.
+
+   `isolation:isolate` ist hier die ganze Mechanik. Ohne sie gehoert ein
+   Kind mit `z-index:0` in den Stapel des Wurzelelements, und der Grund des
+   Abschnitts (Schritt 4) laege DARUEBER — das Bild waere unsichtbar. Mit
+   ihr bildet der Abschnitt einen eigenen Stapel, und in dem liegt die
+   Bildlage unter seinem Inhalt und ueber seinem Grund. */
+.auf-bild{
+  position:relative; isolation:isolate;
+  /* Der Grund darunter bleibt deckend: was den Film zudecken soll, muss
+     ihn ganz zudecken, sonst scheint er neben dem Foto durch. */
+  background-color:var(--grund);
+  /* Dieselbe Anhebung wie ueber dem Film, und aus demselben Grund: die
+     gedaempfte Stufe ist durchscheinend und steigt mit dem Grund mit. */
+  --tinte-2: rgba(216,212,209,.90);
+  --tinte-3: rgba(216,212,209,.80);
+}
+.bildgrund{
+  position:absolute; inset:0; z-index:0; overflow:hidden;
+  pointer-events:none; user-select:none;
+}
+.bildgrund picture{ display:block; width:100%; height:100%; }
+.bildgrund img{
+  width:100%; height:100%; object-fit:cover; object-position:50% 46%;
+}
+/* Der Schleier gehoert zum Bild, nicht zum Abschnitt: so bleibt der Grund
+   des Abschnitts deckend und das Bild bekommt trotzdem seine Abdunklung.
+   Der Wert ist gemessen, nicht gewaehlt — siehe CLAUDE.md. */
+.bildgrund::after{
+  content:""; position:absolute; inset:0;
+  background:var(--grund-bild);
+}
+
+/* ---- Die Kante zwischen Schlussblock und Fuss ---------------------------
+   Beide tragen dasselbe Foto, aber jeder in seinem eigenen Kasten — und
+   `object-fit:cover` schneidet in zwei verschieden hohen Kaesten zwei
+   verschiedene Ausschnitte. An der Naht springt das Bild.
+
+   EINE Lage ueber beide waere die saubere Loesung und geht nicht: die
+   beiden sind Geschwister, `.cta` steht in `<main>` und der Fuss dahinter.
+   Eine gemeinsame Huelle hiesse, den Fuss in ein `<div>` zu setzen — und
+   damit jede Regel zu brechen, die `body > footer` schreibt (und das sind
+   sechzehn Seiten).
+
+   Aufgeloest wird die Naht deshalb so, wie in diesem Projekt jede Kante
+   aufgeloest wird: das Bild laeuft an der gemeinsamen Kante in den
+   Seitengrund aus, unten beim Schlussblock, oben beim Fuss. Uebrig bleibt
+   ein dunkler Streifen zwischen zwei erhellten Flaechen — und der liest
+   als Lichtfuehrung, nicht als Schnitt. Die Stufen folgen derselben Kurve
+   wie ueberall (3t² − 2t³), damit der Verlauf an beiden Enden waagerecht
+   auslaeuft. */
+.cta.auf-bild .bildgrund::after{
+  background:
+    linear-gradient(to top,
+      var(--grund)       0%,
+      rgba(20,51,54,.94) 4%,
+      rgba(20,51,54,.72) 9%,
+      rgba(20,51,54,.42) 14%,
+      rgba(20,51,54,.14) 19%,
+      rgba(20,51,54,0)   24%),
+    var(--grund-bild);
+}
+.auf-bild:not(.cta) .bildgrund::after{
+  background:
+    linear-gradient(to bottom,
+      var(--grund)       0%,
+      rgba(20,51,54,.94) 3%,
+      rgba(20,51,54,.72) 7%,
+      rgba(20,51,54,.42) 11%,
+      rgba(20,51,54,.14) 15%,
+      rgba(20,51,54,0)   19%),
+    var(--grund-bild);
+}
+/* Alles, was im Abschnitt steht, gehoert ueber die Bildlage. `.cta__inner`
+   traegt seine Schicht schon; der Fuss bekommt sie hier. */
+.auf-bild > .wrap,
+.auf-bild > *:not(.bildgrund){ position:relative; z-index:1; }
+
 /* ---- Das Bildband unter dem Kopfbild ------------------------------------
    Dasselbe Motivprinzip, eine Etage tiefer: randlos, mit derselben
    stehenden Fahrt und aus demselben Grund an `.live` gehängt. Es ist
@@ -2647,6 +2740,18 @@ body.megabar-auf header.nav{
    der einzige Abschnitt, hinter dem der Film verschwindet — und zwar
    ausgerechnet der, in dem die Anfrage steht. */
 .cta.auf-film{ background-color:var(--grund-film); }
+/* Und dieselbe Zeile ein drittes Mal, fuer das Foto als Grund. Hier muss
+   der Abschnittsgrund DECKEND sein: die Abdunklung liegt auf der Bildlage,
+   nicht am Abschnitt. */
+.cta.auf-bild{ background-color:var(--grund); }
+/* Und die Haarlinie zwischen Schlussblock und Fuss faellt weg. Sie ist
+   richtig zwischen zwei Textbloecken auf demselben Grund — hier loest sich
+   der Grund an genau dieser Kante gerade auf, und die Linie baute sie
+   wieder ein. Gemessen war sie dort der groesste Sprung des ganzen
+   Uebergangs (35 von 255). Dieselbe Begruendung wie bei den hellen Bahnen
+   unter „Keine Kante bleibt stehen": `border-top-color:transparent`, nicht
+   `border-top:0` — an der Linie haengt ein Pixel Hoehe. */
+body > footer.auf-bild{ border-top-color:transparent; }
 .cta__inner{ position:relative; z-index:2; text-align:left; }
 .cta h2{ font-size:var(--fs-mega); line-height:1.02; letter-spacing:-.03em; text-wrap:balance; margin:clamp(14px,2vh,26px) 0 0; }
 .cta p{ color:var(--tinte-2); max-width:46ch; margin:clamp(24px,3vw,38px) 0 0; font-size:var(--fs-lead); }

@@ -337,14 +337,6 @@ document.documentElement.classList.remove("kein-js");
      mindestens 2400 px an der langen Kante (docs/foto-briefing.md), ist
      der Abschnitt zwei Zeilen Markup. -->
 
-<!-- ============ BILDBAND ============ -->
-<!-- Das zweite Motiv, randlos, direkt unter dem Kopfbild. Es traegt dieselbe
-     stehende Kamerafahrt wie der Hero und laeuft aus demselben Grund nur,
-     solange es zu sehen ist: `data-weg` gibt ihm `.live` vom vorhandenen
-     Motor, ohne eine Zeile JavaScript. -->
-<section class="schaubild" data-weg>
-  <picture><source type="image/avif" srcset="assets/img/bar-gruen.avif" /><source type="image/webp" srcset="assets/img/bar-gruen.webp" /><img src="assets/img/bar-gruen.jpg" alt="Aufgebaute Bar mit begrünter Rückwand und Barhockern auf einer Veranstaltung" loading="lazy" width="1600" height="1065" /></picture>
-</section>
 
 <!-- ============ VERTRAUENSLEISTE ============ -->
 <!-- Vier nachprüfbare Angaben statt Kennzahlen wie „100 % Fokus". -->
@@ -513,7 +505,17 @@ document.documentElement.classList.remove("kein-js");
 
 
 <!-- ============ CTA / KONTAKT ============ -->
-<section class="cta auf-film" id="kontakt">
+<section class="cta auf-bild" id="kontakt">
+  <!-- Das Kopfbild noch einmal, hier als GRUND. Bestellt war: unter dem
+       Film, hinter dem Text. Es ist dasselbe Motiv wie ganz oben, und das
+       ist Absicht — die Seite faehrt am Ende an ihren Anfang zurueck.
+       Oben traegt es die Aussage, hier traegt es den Raum: gerichteter
+       Ausschnitt, deutlich abgedunkelt, kein Text darauf, sondern Text
+       darueber. -->
+  <div class="bildgrund" aria-hidden="true">
+    <picture><source type="image/avif" srcset="assets/img/bankett.avif 1600w, assets/img/bankett-gross.avif 2560w" sizes="100vw" /><source type="image/webp" srcset="assets/img/bankett.webp 1600w, assets/img/bankett-gross.webp 2560w" sizes="100vw" /><img src="assets/img/bankett.jpg" alt="" loading="lazy" width="1600" height="900" /></picture>
+  </div>
+
   <div class="wrap cta__inner">
     <span class="eyebrow reveal-up">Haben Sie noch Fragen?</span>
     <h2 class="u-caps" data-worte data-lauf>Lassen Sie uns Ihr Event tragen.</h2>
@@ -575,7 +577,16 @@ document.documentElement.classList.remove("kein-js");
 </main>
 
 <!-- ============ FOOTER ============ -->
-<footer class="auf-film">
+<footer class="auf-bild">
+  <!-- Das Kopfbild noch einmal, hier als GRUND. Bestellt war: unter dem
+       Film, hinter dem Text. Es ist dasselbe Motiv wie ganz oben, und das
+       ist Absicht — die Seite faehrt am Ende an ihren Anfang zurueck.
+       Oben traegt es die Aussage, hier traegt es den Raum: gerichteter
+       Ausschnitt, deutlich abgedunkelt, kein Text darauf, sondern Text
+       darueber. -->
+  <div class="bildgrund" aria-hidden="true">
+    <picture><source type="image/avif" srcset="assets/img/bankett.avif 1600w, assets/img/bankett-gross.avif 2560w" sizes="100vw" /><source type="image/webp" srcset="assets/img/bankett.webp 1600w, assets/img/bankett-gross.webp 2560w" sizes="100vw" /><img src="assets/img/bankett.jpg" alt="" loading="lazy" width="1600" height="900" /></picture>
+  </div>
   <div class="wrap">
     <!-- Schlusszeile des Fusses. Sie greift die Aussage der Startseite noch
          einmal auf und ist gleichzeitig der letzte Weg zur Anfrage — wer bis
@@ -643,6 +654,23 @@ document.documentElement.classList.remove("kein-js");
     </div>
   </div>
 </footer>
+
+<!-- ============ BILDBAND, GANZ UNTEN ============ -->
+<!-- Das Foto mit der begruenten Wand. Es stand ein halbes Jahr lang direkt
+     unter dem Kopfbild und schliesst die Seite jetzt ab — auf Wunsch, und
+     es ist dort auch die bessere Stelle: oben folgten zwei randlose
+     Aufnahmen aufeinander, hier steht eine gegen den Fuss.
+
+     Randlos, mit derselben stehenden Kamerafahrt wie das Kopfbild, und aus
+     demselben Grund nur, solange es zu sehen ist: `data-weg` gibt ihm
+     `.live` vom vorhandenen Motor, ohne eine Zeile JavaScript.
+
+     Es steht AUSSERHALB von `<main>` und hinter dem Fuss, weil „ganz unten"
+     genau das heisst. Inhalt traegt es keinen; die Bildbeschreibung steht
+     im `alt`. -->
+<section class="schaubild schaubild--schluss" data-weg>
+  <picture><source type="image/avif" srcset="assets/img/bar-gruen.avif" /><source type="image/webp" srcset="assets/img/bar-gruen.webp" /><img src="assets/img/bar-gruen.jpg" alt="Aufgebaute Bar mit begrünter Rückwand und Barhockern auf einer Veranstaltung" loading="lazy" width="1600" height="1065" /></picture>
+</section>
 
 <!-- ============ APP-LEISTE (nur Handy) ============
      Am Telefon liegt der Daumen unten, nicht oben. Die vier Wege, die
