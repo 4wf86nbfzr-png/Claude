@@ -3375,6 +3375,103 @@ weg, und die Linie baut sie wieder ein. Dieselbe Begründung wie bei den
 hellen Bahnen, und derselbe Handgriff: `border-top-color:transparent`,
 nicht `border-top:0`, denn an der Linie hängt ein Pixel Höhe. Danach 3,7.
 
+### Die Folie wurde dunkler, und das war kein Kontrastproblem
+
+> „Und der Film soll dunkler sein. Also wie transparente Folie, damit man
+> die Pixel nicht so sieht."
+
+Das ist der genaueste Satz zu diesem Film, den es bisher gab, und er
+beschreibt die Ursache richtig: **der Film ist aus Fotos von 1129 bis
+1600 px gebaut und läuft bildfüllend.** Gegen das Licht sieht man ihm das
+an — Treppen an Kanten, Blöcke in den Verläufen. Das ist keine Frage der
+Kodierung, sondern der Vorlage (siehe „Was eine Vorlage tragen kann").
+
+Eine dunklere Folie nimmt genau das weg: **was nicht hell ist, hat auch
+keine sichtbare Treppe.** Der Schleier steht deshalb auf .93 statt .88,
+der über dem stehenden Bild auf .84 statt .78.
+
+**Warum kein `filter:blur()`.** Es wäre das naheliegende Mittel gegen
+sichtbare Pixel und hier das teuerste: `filter` ist die teuerste der
+animierbaren Eigenschaften (gemessen 137 ms je Durchfahrt an zwei Zeilen
+Text), und über einem Film müsste der Browser sie bei **jedem Bild** neu
+rechnen, bildschirmfüllend, 44 Sekunden lang, auf jeder Seitenhöhe. Eine
+Farbe mit Deckkraft kostet nichts.
+
+**Und die Folie zahlt sich in der Typografie aus.** Bei .88 mussten die
+gedämpften Textstufen hochgedreht werden (.90 und .80 statt .82 und .70),
+weil der hellste Bildpunkt den Grund anhob und die durchscheinende Schrift
+mit. Bei .93 steht `--tinte-3` am schlechtesten Punkt wieder bei 4,59:1 —
+die Staffelung zwischen Überschrift, Fließtext und Bildunterschrift ist
+über dem Film damit dieselbe wie überall sonst. **Über dem stehenden Bild
+bleibt die Anhebung**, dort genügen .84 nicht.
+
+Wer die Folie je wieder aufhellt, muss beides zurückdrehen — und
+nachmessen, denn eine DOM-Prüfung findet davon nichts:
+`rgba(20,51,54,.93)` ist kein deckender Vorfahr.
+
+### Keine harte Kante zwischen zwei Gründen
+
+> „Die Fotos, die du hinzufügst, sollen ohne harte Kanten sein, sondern
+> weich in einen Übergang gehen und zum nächsten Bild."
+
+Vier Kanten waren betroffen, und fast jede brauchte ein anderes Mittel:
+
+| Kante | was im Weg stand | Mittel |
+|---|---|---|
+| Auftaktband → Film | der Film ist ab der Abschnittskante einfach da | ein Verlauf im `background-image` **über** der Folie |
+| Film → Foto (Schlussblock) | das **Foto** ist deckend und fängt an seiner Oberkante an | eine **Maske** an der Bildlage |
+| Schlussblock → Fuß | zwei Ausschnitte desselben Fotos | beide Verläufe in den Seitengrund |
+| Fuß → Bildband | das Foto endete hart, darunter fing das nächste an | zweiter Verlauf am unteren Rand |
+
+**Die erste Zeile ist der billigste Trick der vier.** Ein durchscheinender
+Grund bringt ihn mit: `background-color` trägt die Folie,
+`background-image` malt darüber. Ein Verlauf, der oben deckend im
+Seitengrund anfängt und nach unten verschwindet, deckt den Film genau so
+weit zu, wie er deckend ist. Kein Element, keine Maske, kein Skript.
+
+**Die Maske ist der interessante Fall.** An den anderen beiden Kanten
+genügt es, den *Schleier* in den Seitengrund laufen zu lassen — das Foto
+darunter wird dadurch unsichtbar. Am oberen Rand des Schlussblocks geht
+das nicht: dort soll nicht der Seitengrund erscheinen, sondern **der Film**,
+und der liegt hinter dem Foto. Also wird die ganze Bildlage von oben
+hereingeblendet, Foto und Schleier zusammen, und der Grund des Abschnitts
+steht dort auf `--grund-film` statt `--grund`. Was zum Vorschein kommt,
+ist der Film. Eine echte Überblendung von einem Grund in den nächsten,
+ohne eine Zeile JavaScript.
+
+**`mask-image` und nicht `clip-path`**, und das ist keine Geschmacksfrage:
+ein beschnittenes Element hat eine leere Schnittfläche, der
+IntersectionObserver meldet sich nie, und das Element bekommt nie sein
+`.in` (siehe „Die eine Falle, die man kennen muss"). Eine Maske
+beschneidet nur die Darstellung.
+
+**Und zwei Haarlinien sind dabei gefallen** — die über dem Schlussblock
+und die über dem Fuß. Beide standen an einer Kante, die der Verlauf gerade
+weggenommen hatte. Gemessen (`scratchpad/kante.js`, größter Sprung
+zwischen zwei benachbarten Bildzeilen, ohne laufenden Film):
+
+| Kante | vorher | nachher |
+|---|---|---|
+| Schlussblock → Fuß | 35,1 | **3,7**, nicht an der Kante |
+| Film → Foto | 36,0 | 28,0, nicht an der Kante |
+| Fuß → Bildband | 30,6 | 31,9, nicht an der Kante |
+| Auftaktband → Film | — | 26,6, nicht an der Kante |
+
+Die Zahl allein sagt dabei nichts mehr: wo ein Foto steht, misst dieses
+Verfahren das Motiv. Was zählt, ist die **Zeile**, in der der größte
+Sprung liegt — steht sie in der Mitte des Streifens (Zeile 90 von 180),
+ist es die Kante; steht sie irgendwo sonst, ist es das Bild. Nach dem
+Umbau liegt keine einzige mehr in der Mitte.
+
+**Und die Messung selbst hatte einen Fehler, der dieselbe Familie ist wie
+immer.** Die erste Fassung las die Dokumentkoordinate der Kante EINMAL und
+scrollte danach hin — dazwischen wuchs die Seite durch faul geladene
+Bilder, und fotografiert wurde die Mitte des Intros. Gemeldet kam ein
+Sprung von 34, der aus zwei Zeilen Text bestand.
+`scratchpad/kante2.js` misst deshalb nach jedem Scrollschritt neu und
+schreibt die Bildzeile der Kante mit in die Ausgabe: steht dort nicht 90,
+ist die Messung ungültig.
+
 ### Der Schleier über dem stehenden Bild darf schwächer sein als über dem Film
 
 .78 statt .88, und das ist gemessen: **ein Standbild hat einen hellsten

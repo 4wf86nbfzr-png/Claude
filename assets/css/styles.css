@@ -95,13 +95,22 @@
      Weniger waere nicht „dezenter", sondern unlesbar: ueber einem Film
      gibt es keinen ruhigen Grund, gegen den man rechnen koennte, und der
      schlechteste Fall steht 44 Sekunden lang irgendwann unter jeder
-     Zeile. Dasselbe Argument wie beim Schleier im Kopfbild. */
-  --grund-film: rgba(20,51,54,.88);
+     Zeile. Dasselbe Argument wie beim Schleier im Kopfbild.
+
+     **Und er ist danach noch einmal dunkler geworden, .93 statt .88, und
+     zwar nicht der Lesbarkeit wegen.** Der Film ist aus Fotos von 1129
+     bis 1600 px gebaut und laeuft bildfuellend — gegen das Licht sieht
+     man ihm das an. Eine dunklere Folie darueber nimmt genau das weg:
+     was nicht hell ist, hat auch keine sichtbare Treppe. Das ist der
+     billigste Weg, Aufloesung zu verstecken, die nicht da ist, und er
+     kostet nichts — im Unterschied zu einem `filter:blur()`, das der
+     Browser bei JEDEM Bild des Films neu rechnen muesste. */
+  --grund-film: rgba(20,51,54,.93);
   /* Dasselbe ueber einem STEHENDEN Bild. Es darf schwaecher sein als der
      ueber dem Film: ein Standbild hat einen hellsten Punkt, den man
      messen kann, ein Film hat 44 Sekunden davon. Der Wert steht unten und
      ist nachgemessen. */
-  --grund-bild: rgba(20,51,54,.78);
+  --grund-bild: rgba(20,51,54,.84);
   --dunkel:     #143336;   /* Petrol: Fuß, Kontrastbahn, Bildgrund */
   --dunkel-2:   #17393C;
   /* Die Gegenfläche. `--dunkel` und `--hell` sind die beiden ANKER des
@@ -1532,24 +1541,46 @@ body.megabar-auf header.nav{
    nur nicht ganz deckend. */
 .auf-film{
   background-color:var(--grund-film);
-  /* **Und die gedaempfte Stufe steigt mit.** Zum fuenften Mal dieselbe
-     Lehre, diesmal gegen einen Film: eine Tonleiter ist nicht symmetrisch.
-     Auf dem ruhigen Seitengrund traegt `--tinte-3` mit .70 genau 4,63:1 —
-     ein Wert, der gerade eben besteht. Ueber dem Film hebt der hellste
-     Bildpunkt den Grund an UND die durchscheinende Schrift mit; gemessen
-     fiel sie damit auf 3,10:1. Nachgerechnet und nachgemessen genuegen
-     .80 (und .90 fuer die zweite Stufe); gedaempft sehen sie immer noch
-     aus, nur nicht mehr knapp.
+  /* **Die gedaempften Stufen sind hier wieder die normalen**, und das ist
+     eine Folge der dunkleren Folie. Bei .88 mussten sie hochgedreht
+     werden (auf .90 und .80): der hellste Bildpunkt hob den Grund an UND
+     die durchscheinende Schrift mit, und `--tinte-3` fiel auf 3,10:1.
+     Bei .93 steht sie am schlechtesten Punkt wieder bei 4,59:1, und damit
+     stimmt die Staffelung zwischen Ueberschrift, Fliesstext und
+     Bildunterschrift hier genauso wie ueberall sonst.
 
-     Der andere Weg waere ein Schleier von .95 gewesen — dann ist der Film
-     zwar lesbar hinterlegt, aber nicht mehr zu sehen. Das ist kein
-     Kompromiss, sondern der Film ohne Film. */
-  --tinte-2: rgba(216,212,209,.90);
-  --tinte-3: rgba(216,212,209,.80);
+     Wer die Folie wieder aufhellt, muss sie mit hochdrehen. Nachgemessen
+     wird das mit `scratchpad/filmtext.js` — eine DOM-Pruefung findet
+     davon nichts, `rgba(20,51,54,.93)` ist kein deckender Vorfahr. */
 }
 /* Eine Blende an einer Kante malt in `background-image` und liesse den
    Grund darunter stehen — das ist hier richtig und gewollt: der Film
    scheint auch durch die Blende. */
+
+/* ---- Wo der Film ANFAENGT, faengt er nicht an ---------------------------
+   Ueber der Vertrauensleiste steht das Auftaktband auf deckendem Grund,
+   darunter scheint der Film durch. Ohne Zutun ist das eine gerade Linie:
+   an der Kante des Abschnitts ist er ploetzlich da.
+
+   Aufgeloest wird das mit dem Mittel, das ein durchscheinender Grund
+   ohnehin mitbringt: `background-color` traegt die Folie, und darueber
+   malt `background-image` einen Verlauf, der OBEN deckend im Seitengrund
+   anfaengt und nach unten verschwindet. Wo er deckt, ist der Film weg; wo
+   er weg ist, steht die Folie. Eine Ueberblendung in zwei Zeilen, ohne
+   ein Element und ohne ein Skript.
+
+   Die Stufen folgen derselben Kurve wie jede andere Blende (3t² − 2t³),
+   damit der Verlauf an beiden Enden waagerecht auslaeuft und keine
+   Machschen Baender entstehen. */
+.trust.auf-film{
+  background-image:linear-gradient(to bottom,
+    var(--grund)       0%,
+    rgba(20,51,54,.94) 4%,
+    rgba(20,51,54,.72) 9%,
+    rgba(20,51,54,.42) 14%,
+    rgba(20,51,54,.14) 19%,
+    rgba(20,51,54,0)   24%);
+}
 
 /* ---- Ein Foto als Grund, unter dem Film ---------------------------------
    Bestellt war, unter den Film ein Bild zu legen und den Text der Seite
@@ -1625,7 +1656,18 @@ body.megabar-auf header.nav{
 }
 .auf-bild:not(.cta) .bildgrund::after{
   background:
+    /* oben in die Kante zum Schlussblock */
     linear-gradient(to bottom,
+      var(--grund)       0%,
+      rgba(20,51,54,.94) 3%,
+      rgba(20,51,54,.72) 7%,
+      rgba(20,51,54,.42) 11%,
+      rgba(20,51,54,.14) 15%,
+      rgba(20,51,54,0)   19%),
+    /* und unten in die Kante zum Bildband. Ohne diese Haelfte endete das
+       Foto des Fusses hart, und darunter fing das naechste Foto an —
+       genau die Kante, die hier nirgends stehen bleiben soll. */
+    linear-gradient(to top,
       var(--grund)       0%,
       rgba(20,51,54,.94) 3%,
       rgba(20,51,54,.72) 7%,
@@ -1634,6 +1676,38 @@ body.megabar-auf header.nav{
       rgba(20,51,54,0)   19%),
     var(--grund-bild);
 }
+
+/* ---- Die OBERE Kante des Fotos: der Film loest sich darin auf -----------
+   Die drei Gruende der Seite sollen ineinander uebergehen, nicht
+   aneinanderstossen. Unten und in der Mitte erledigen das die Verlaeufe
+   oben; die Kante vom Film zum Foto braucht etwas anderes, denn dort ist
+   nicht der SCHLEIER im Weg, sondern das Foto selbst: es ist deckend und
+   faengt an seiner Oberkante an.
+
+   Deshalb eine Maske. Sie blendet die ganze Bildlage von oben herein —
+   Foto und Schleier zusammen —, und was darunter zum Vorschein kommt, ist
+   der Grund des Abschnitts. Der ist hier `--grund-film` und nicht
+   `--grund`: so steht am oberen Rand des Schlussblocks noch der Film und
+   geht in das Foto ueber. Eine echte Ueberblendung von einem Grund in den
+   naechsten, ohne eine Zeile JavaScript.
+
+   `mask-image` und nicht `clip-path`: der Beobachter der Aufblenden misst
+   die Schnittflaeche, und ein beschnittenes Element hat keine (siehe „Die
+   eine Falle, die man kennen muss"). Eine Maske beschneidet nur die
+   Darstellung. */
+.cta.auf-bild{ background-color:var(--grund-film); }
+.cta.auf-bild .bildgrund{
+  -webkit-mask-image:linear-gradient(to bottom,
+    rgba(0,0,0,0) 0%, rgba(0,0,0,.18) 5%, rgba(0,0,0,.58) 11%,
+    rgba(0,0,0,.88) 16%, rgba(0,0,0,1) 21%);
+  mask-image:linear-gradient(to bottom,
+    rgba(0,0,0,0) 0%, rgba(0,0,0,.18) 5%, rgba(0,0,0,.58) 11%,
+    rgba(0,0,0,.88) 16%, rgba(0,0,0,1) 21%);
+}
+/* Und die Haarlinie darueber faellt weg, aus demselben Grund wie die
+   zwischen Schlussblock und Fuss: die Ueberblendung nimmt die Kante
+   gerade weg, eine Linie baute sie wieder ein. */
+.cta.auf-bild{ border-top-color:transparent; }
 /* Alles, was im Abschnitt steht, gehoert ueber die Bildlage. `.cta__inner`
    traegt seine Schicht schon; der Fuss bekommt sie hier. */
 .auf-bild > .wrap,
@@ -2743,7 +2817,6 @@ body.megabar-auf header.nav{
 /* Und dieselbe Zeile ein drittes Mal, fuer das Foto als Grund. Hier muss
    der Abschnittsgrund DECKEND sein: die Abdunklung liegt auf der Bildlage,
    nicht am Abschnitt. */
-.cta.auf-bild{ background-color:var(--grund); }
 /* Und die Haarlinie zwischen Schlussblock und Fuss faellt weg. Sie ist
    richtig zwischen zwei Textbloecken auf demselben Grund — hier loest sich
    der Grund an genau dieser Kante gerade auf, und die Linie baute sie
