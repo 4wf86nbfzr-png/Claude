@@ -781,3 +781,98 @@ Filmformat. `tools/testdatei-bauen.py` meldet ein WebM unter
 `assets/audio/` außerdem als `audio/webm` an und nicht als `video/webm`:
 eine `data:`-URI wird nach ihrem MIME entschlüsselt, nicht nach ihrem
 Inhalt.
+
+
+---
+
+# Die Anfragen gehen an info@hermserviceteam.com
+
+Personalanfragen und Bewerbungen landen im Postfach
+**info@hermserviceteam.com**, und zwar **ohne dass dafür eine Variable
+gesetzt sein muss**. Die Adresse steht als Boden in der Funktion.
+
+## Das Bündel im Paket war älter als der Quellcode
+
+Das ist der eigentliche Befund. `api/_vorgang.js` trägt den Boden seit dem
+Live-Gang-Durchgang:
+
+```js
+const REGELEMPFAENGER = 'info@hermserviceteam.com';
+const an = art === 'bewerbung'
+  ? (process.env.MAIL_BEWERBUNG || process.env.MAIL_AN || REGELEMPFAENGER)
+  : (process.env.MAIL_AN || REGELEMPFAENGER);
+```
+
+Im gelieferten Paket lag aber noch das Bündel von vorher:
+
+```js
+i = r === "bewerbung" && process.env.MAIL_BEWERBUNG || process.env.MAIL_AN;
+if (!o || !s || !a || !i) return t(503, …);
+```
+
+**Ohne `MAIL_AN` wäre also nichts angekommen** — nicht einmal mit
+eingerichtetem SMTP. Beide Funktionen sind aus dem aktuellen Quellcode neu
+gebündelt (`esbuild`, dieselben Schalter wie in `tools/paket-bauen.sh`).
+
+Die allgemeine Form davon: **ein vorgebündelter Serverteil altert still.**
+Er sieht im Paket genauso aus wie vorher, er lädt sich, er wirft keinen
+Fehler — er verhält sich nur anders als der Quellcode, aus dem er einmal
+entstanden ist. Wer am Quellcode etwas ändert, das die Auslieferung
+betrifft, muss das Bündel mitbauen.
+
+## Nachgemessen gegen ein echtes Postfach
+
+Geprüft wurde nicht der Quellcode, sondern **das Bündel, das im Paket
+liegt**, aufgerufen wie Netlify es aufruft, gegen ein SMTP-Postfach auf
+127.0.0.1 mit echtem TLS.
+
+**Ohne `MAIL_AN`, ohne `MAIL_BEWERBUNG`:**
+
+| | Status | RCPT TO | Anhänge |
+|---|---|---|---|
+| Anfrage | 200 | `info@hermserviceteam.com` | Beleg-PDF, Angebot als DOCX, Angebot als PDF |
+| Bestätigung an den Absender | | `erika@example.org` | keine |
+| Bewerbung | 200 | `info@hermserviceteam.com` | Beleg-PDF |
+| Bestätigung an den Bewerber | | `max@example.org` | keine |
+
+**Mit `MAIL_AN=disposition@example.org`:** `RCPT TO:<disposition@example.org>`
+— die Variable schlägt den Boden weiterhin.
+
+Beide Bündel laden sich und fordern **kein einziges fremdes Modul** nach.
+
+## Was jetzt noch fehlt, und es ist nicht wenig
+
+**Das Postfach, über das versendet wird.** Diese vier Angaben kann kein
+Skript aus sich heraus erzeugen; sie gehören in Netlify unter
+*Site configuration → Environment variables*:
+
+```
+SMTP_HOST   z. B. smtp.ionos.de
+SMTP_PORT   465 (SSL) oder 587 (STARTTLS)
+SMTP_USER   das Postfach, über das versendet wird
+SMTP_PASS   dessen Kennwort
+```
+
+Fehlt eine davon, antwortet die Funktion mit 503. **Das ist kein Fehler,
+sondern ein Signal:** die Website nimmt dann ihren Auffangweg über Netlify
+Forms, und kein Eingang geht verloren. Damit die dort gesammelten Eingänge
+als Mail ankommen, braucht es einen Handgriff in der Oberfläche, den keine
+Datei im Projekt vornehmen kann:
+
+> Netlify → Forms → Formular wählen → Settings → Form notifications →
+> Add notification → Email notification → `info@hermserviceteam.com`
+
+Für beide Formulare einzeln, „anfrage" und „bewerbung". Der Unterschied
+zum Weg über SMTP: Netlify Forms schickt den reinen Feldinhalt. Beleg,
+Angebotsentwurf und Eingangsbestätigung entstehen nur in der Funktion.
+
+Die ganze Liste steht jetzt als Kommentar in `netlify.toml` — also dort,
+wo jemand nachsieht, der die Seite aufsetzt.
+
+## Die Adresse steht auf allen drei Ebenen
+
+| Weg | woher die Adresse kommt |
+|---|---|
+| `/api/formular` | Boden in der Funktion (neu im Paket) |
+| Netlify Forms | Einstellung in der Netlify-Oberfläche |
+| `mailto:` als letzter Ausweg | `data-empfaenger` am `<form>`, war schon richtig |

@@ -68,12 +68,51 @@
   status = 404
   force = true
 
-# ---- Netlify Forms ----
-# Die Formulare tragen data-netlify="true"; Netlify erkennt sie beim Deploy
-# und sammelt die Eingänge unter "Forms". Das ist der Auffangweg: Solange die
-# Zugangsdaten des Postfachs fehlen, antwortet die Funktion mit 503, und die
-# Website reicht an Netlify Forms weiter. Kein Eingang geht verloren.
-# Weiterleitung per Mail: Netlify → Forms → Settings → Form notifications
+# ============================================================
+#  WOHIN DIE ANFRAGEN GEHEN
+# ------------------------------------------------------------
+#  Personalanfragen und Bewerbungen gehen an
+#
+#      info@hermserviceteam.com
+#
+#  und zwar OHNE dass dafür eine Variable gesetzt werden muss: die
+#  Adresse steht als Boden in der Funktion. `MAIL_AN` schlägt sie,
+#  `MAIL_BEWERBUNG` schlägt sie für Bewerbungen — beide sind optional
+#  und nur dann nötig, wenn es woanders hin soll.
+#
+#  Was NICHT optional ist, ist das Postfach, über das versendet wird.
+#  Diese vier Variablen gehören in Netlify unter
+#  Site configuration → Environment variables:
+#
+#      SMTP_HOST   z. B. smtp.ionos.de
+#      SMTP_PORT   465 (SSL) oder 587 (STARTTLS)
+#      SMTP_USER   das Postfach, über das versendet wird
+#      SMTP_PASS   dessen Kennwort
+#
+#  Optional daneben:
+#      MAIL_VON        Absenderadresse; sonst gilt SMTP_USER
+#      MAIL_AN         anderer Empfänger für Anfragen
+#      MAIL_BEWERBUNG  anderer Empfänger für Bewerbungen
+#
+#  Fehlt eine der ersten vier, antwortet die Funktion mit 503 — kein
+#  Fehler, sondern das Signal an die Website, den Auffangweg zu nehmen.
+#
+# ---- Der Auffangweg: Netlify Forms ----
+#  Die Formulare tragen data-netlify="true"; Netlify erkennt sie beim
+#  Deploy und sammelt die Eingänge unter "Forms". Kein Eingang geht
+#  verloren, auch ohne SMTP.
+#
+#  DAMIT SIE ALS MAIL ANKOMMEN, ist ein Handgriff in der Oberfläche
+#  nötig, den keine Datei im Projekt vornehmen kann:
+#      Netlify → Forms → (Formular wählen) → Settings → Form
+#      notifications → Add notification → Email notification
+#      → info@hermserviceteam.com
+#  Für beide Formulare einzeln, "anfrage" und "bewerbung".
+#
+#  Der Unterschied zum Weg über SMTP: Netlify Forms schickt den reinen
+#  Feldinhalt. Der PDF-Beleg, der Angebotsentwurf als Word-Datei und die
+#  Eingangsbestätigung an den Absender entstehen nur in der Funktion.
+# ============================================================
 
 [[headers]]
   for = "/*"
