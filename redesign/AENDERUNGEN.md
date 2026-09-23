@@ -396,3 +396,62 @@ war schon im vorigen Durchgang erledigt (die drei Gesichter).
 
 Stand: **16 Kacheln**, alle laden, kein waagerechter Überlauf, keine
 Konsolen- oder Netzfehler, alle Aufblenden gehen auf.
+
+
+---
+
+# Keine Striche zwischen Texten
+
+Auf dem Telefon standen beim Durchscrollen mehr als ein Dutzend
+waagerechter Trennlinien zwischen Textblöcken. Sie sind weg — auf jeder
+Seite, am Telefon wie am Schreibtisch.
+
+Gemessen wurde nicht im Stylesheet, sondern **im gerenderten Baum**: ein
+Skript geht über zehn Seiten jedes sichtbare Element durch und meldet
+jede Kante mit einer Farbe, dazu jedes absolut gesetzte Pseudoelement
+von einem Pixel Höhe.
+
+| | vorher | nachher |
+|---|---|---|
+| Selektoren mit sichtbarer Linie | 84 | 39 |
+| davon Striche zwischen Texten | 45 | **0** |
+
+Weg sind: die Abschnittskanten (`.cta`, `.ablauf`, `.expect`, `.trust`,
+`.section-soft`, die sechs Bereichsblöcke, der Fuß), die Trennlinien
+zwischen den Einträgen einer Liste (Stellen, FAQ, die sechs Zeilen der
+Bereichsübersicht, die vier Schritte, die Versprechen, die
+Referenzkarten), und die vier Linien, die als Pseudoelement gezeichnet
+wurden (die Verbindungslinie der Schritte, die der Referenzkarten, das
+Einsatzband und die Trenner zwischen den Formulargruppen).
+
+**Was getrennt wird, trennt jetzt der Abstand.** Wo er allein zu knapp
+wäre, wächst er mit: die sechs Zeilen der Bereichsübersicht standen mit
+18 px Luft aneinander, die Stellenanzeigen mit 26 — beides liest ohne
+Linie als ein Block statt als Folge.
+
+`border-*-color: transparent` und nicht `border: 0`: an der Linie hängt
+ein Pixel Höhe. Eine Farbe wegzunehmen verschiebt nichts, eine Kante
+wegzunehmen verschöbe jeden Abschnitt darunter um ein Pixel.
+
+## Was stehen geblieben ist, und warum
+
+- **Knöpfe, Chips und Badges.** Das ist die Kontur eines Bedienteils,
+  kein Strich zwischen zwei Texten — ohne sie wäre der Knopf weg.
+- **Die Schreiblinie unter einem Formularfeld.** Dasselbe Argument, und
+  ohne sie sieht man nicht mehr, wo man schreibt.
+- **Die Unterlinie eines Links** und die Oberkante der App-Leiste am
+  Telefon: die trennt die Leiste vom Inhalt, nicht zwei Texte.
+- **Bindestriche in Wörtern** — „Gastro-Personal", „Menü-Service",
+  „TV-Show", „Auf- und Abbau". Das sind keine Trennzeichen, sondern Teil
+  der Schreibweise; ohne sie stünde dort falsches Deutsch.
+
+**Silbentrennung gibt es auf dieser Seite gar nicht:** `hyphens` steht in
+keinem Stylesheet, der Browser trennt also kein Wort und setzt auch
+keinen Trennstrich am Zeilenende. Halbgeviert- und Geviertstriche (–, —)
+sowie Mittelpunkte (·) kommen im sichtbaren Text an keiner einzigen
+Stelle vor; nachgezählt über alle sechzehn Seiten.
+
+Abnahme danach unverändert: 0 waagerechter Überlauf bei sechs Breiten
+über 16 Seiten, 0 Konsolen- und Netzfehler (bis auf `POST /api/konto`
+→ 501 vom Testserver), ohne JavaScript und bei reduzierter Bewegung
+nichts verdeckt.
