@@ -62,11 +62,11 @@ TAKT = {
     "index.html": [
         None,        # hero, das Kopfbild mit der Tafel
         "dunkel",    # auftakt, der dunkle Streifen darunter
+        None,        # schaubild, das Bildband direkt unter dem Kopfbild
         None,        # trust, ueber dem Film
         None,        # intro, ueber dem Film
         None,        # testi, ueber dem Film
         None,        # cta, auf dem Foto der Tafel
-        None,        # schaubild, das Bildband ganz unten (hinter dem Fuss)
     ],
     "dienstleistungen.html": [
         None,        # subhero

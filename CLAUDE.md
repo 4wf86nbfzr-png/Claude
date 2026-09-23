@@ -3129,10 +3129,11 @@ Die Reihenfolge steht seitdem so:
 |---|---|
 | Kopfbild | das Foto der Tafel, mit seiner stehenden Kamerafahrt |
 | Auftaktband | dunkel, Auszeichnungszeile und die beiden Wege |
+| Bildband | das Foto der begrünten Wand, randlos |
 | **ab hier** | **der Film, fest hinter allem, der Text der Seite darüber** |
 
-(Das Bildband mit der begrünten Wand stand hier einen Tag lang und ist
-seitdem ganz unten — siehe „Drei Gründe übereinander".)
+(Das Bildband stand einen Tag lang hinter dem Fuß und steht seit der
+Beanstandung wieder hier — siehe „Das Bildband bleibt, wo es hingehört".)
 
 Was dabei gelernt ist, gilt über den Fall hinaus: **wer „als Hintergrund"
 liest, prüft, ob das vorhandene Bild dadurch ersetzt oder hinterlegt werden
@@ -3325,9 +3326,13 @@ Die Startseite hat seitdem drei Gründe, in dieser Reihenfolge:
 | von | bis | Grund |
 |---|---|---|
 | Kopfbild | Auftaktband | das Foto der Tafel, mit stehender Kamerafahrt |
+| Bildband | | die begrünte Wand, randlos, mit derselben Fahrt |
 | Vertrauensleiste | Referenzen | **der Film**, fest hinter der Seite |
 | Schlussblock | Fuß | **dasselbe Foto der Tafel**, als Grund |
-| ganz unten | | das Bildband mit der begrünten Wand |
+
+(Das Bildband stand bei diesem Auftrag ganz unten. Es steht seit der
+Beanstandung wieder an zweiter Stelle — siehe „Das Bildband bleibt, wo es
+hingehört".)
 
 **Dass das Motiv der Tafel zweimal vorkommt, ist ausdrücklich bestellt** —
 und es widerspricht „Zweimal dasselbe Foto auf *einer* Seite ist eine
@@ -3675,6 +3680,64 @@ diesem Projekt jetzt dreimal aufgetreten: **ein Selektor, der nur einen Ort
 meint, muss auch nur diesen Ort treffen.** Der Fehler entsteht nicht beim
 Schreiben der Regel, sondern Monate später, wenn jemand ein zweites Element
 derselben Art in denselben Abschnitt stellt.
+
+### Das Bildband bleibt, wo es hingehört
+
+> „dieses foto soll verdammt nochmal unter dem ersten foto der website mit
+> der tafel bleiben pack das doch nicht jedes mal woanders hin. das
+> fahrende logo mit loop soll natürlich bleiben"
+
+Das Bildband mit der begrünten Wand ist an einem Nachmittag dreimal
+umgezogen: es stand unter dem Kopfbild, fiel beim ersten Filmumbau ganz
+weg, kam auf Wunsch hinter dem Fuß wieder, und steht jetzt wieder an
+seiner Stelle — **direkt unter dem Kopfbild und dem Auftaktband.** Dort
+bleibt es.
+
+Der Punkt ist nicht die Stelle, sondern was dazu geführt hat. Zweimal
+stand in der Anweisung ein Satz über den Film oder über ein neues Bild,
+und zweimal habe ich das vorhandene Bild dabei mitbewegt, weil die neue
+Anordnung ohne es „aufgeräumter" aussah. Beide Male war das eine
+Entscheidung, die niemand bestellt hatte. **Eine Anweisung, die einen
+Abschnitt betrifft, ist keine Erlaubnis, einen anderen zu verschieben** —
+und wenn die Stelle eines Abschnitts wirklich falsch erscheint, ist das
+ein Satz im Bericht, kein Handgriff im Markup.
+
+Der Umzug selbst kostet nichts, und das ist der Ertrag der Bauweise: das
+Band ist ein `<section class="schaubild" data-weg>` außerhalb von
+`<main>`, seine beiden Kanten laufen in `var(--grund)` aus, und die
+Logofahrt hängt an `.live` vom vorhandenen Motor. Verschoben wird der
+Block, angefasst wird keine Regel. Nachgezogen waren zwei Kleinigkeiten:
+
+- **`schaubild--schluss` ist ersatzlos weg.** Die Klasse hatte nie eine
+  Regel — sie war der Name für „steht hinter dem Fuß", und den gibt es
+  nicht mehr. Eine Klasse ohne Regel ist eine Behauptung über das Layout,
+  die niemand einlöst.
+- **Die Tabelle in `tools/farbtakt.py` folgt der Reihenfolge der
+  Abschnitte**, nicht ihren Namen. Wer einen Abschnitt verschiebt und die
+  Tabelle stehen lässt, verteilt den Farbtakt um eine Zeile versetzt. Das
+  Skript prüft die Zahl der Abschnitte und hätte es nicht gemerkt: sieben
+  bleiben sieben.
+
+Nachgemessen mit `scratchpad/kante2.js` (größter Sprung zwischen zwei
+benachbarten Bildzeilen, Kante in Zeile 90 von 180):
+
+| Kante | Sprung | Zeile |
+|---|---|---|
+| Auftaktband → Bildband | 26,6 | 12 |
+| Bildband → Film | 21,6 | 163 |
+| Film → Foto | 28,0 | 23 |
+| Schlussblock → Fuß | 3,7 | 16 |
+| Fuß → Seitenende | 31,9 | 37 |
+
+**Keine einzige liegt in Zeile 90** — jede gemessene Zahl ist das Motiv,
+keine ist die Kante. Der Verlauf am unteren Rand des Fusses stand
+ursprünglich wegen des Bildbands darunter; er bleibt aus dem zweiten
+Grund, den es ohnehin gibt: beim Überziehen am Telefon steht dort sonst
+der Seitengrund als Kante neben dem Foto.
+
+Kontrast über Film und Foto, neu gemessen (`scratchpad/filmtext.js` plus
+`heroKontrast.py`, sechs Scrollstände am Schreibtisch, zehn am Telefon):
+**0 Textflächen unter der Grenze.**
 
 ---
 

@@ -1664,9 +1664,11 @@ body.megabar-auf header.nav{
       rgba(20,51,54,.42) 11%,
       rgba(20,51,54,.14) 15%,
       rgba(20,51,54,0)   19%),
-    /* und unten in die Kante zum Bildband. Ohne diese Haelfte endete das
-       Foto des Fusses hart, und darunter fing das naechste Foto an —
-       genau die Kante, die hier nirgends stehen bleiben soll. */
+    /* und unten in das Seitenende. Das Foto des Fusses ist das letzte, was
+       die Seite zeigt; ohne diese Haelfte endete es hart an der Unterkante,
+       und beim Ueberziehen am Telefon stuende der Seitengrund als Kante
+       daneben. Sie stand zuerst wegen des Bildbands darunter — das liegt
+       jetzt wieder oben, der Verlauf bleibt aus dem zweiten Grund. */
     linear-gradient(to top,
       var(--grund)       0%,
       rgba(20,51,54,.94) 3%,

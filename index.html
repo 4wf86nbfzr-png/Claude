@@ -323,20 +323,31 @@ document.documentElement.classList.remove("kein-js");
   </div>
 </section>
 
-<!-- Hier stand ein zweites randloses Standbild („Bildband", `bar-gruen`).
-     Es ist aus zwei Gruenden weg, und beide sind gemessen:
+<!-- ============ BILDBAND ============ -->
+<!-- Das Foto mit der begruenten Wand, randlos, direkt unter dem Kopfbild.
+     Hier gehoert es hin und hier bleibt es: es ist der zweite Blick nach
+     der Tafel, und der Auftakt dazwischen trennt die beiden Aufnahmen.
 
-     1. Seine Vorlage hat 679 x 452 Pixel. Randlos ueber 1920 px bei
-        doppelter Dichte gerechnet ist das eine 2,4-fache Hochrechnung —
-        der mit Abstand unschaerfste Punkt der ganzen Website.
-     2. Ueber ihm steht jetzt ein Film von 44 Sekunden. Ein zweites
-        stehendes Bild in voller Breite direkt darunter sagt nichts mehr,
-        was der Film nicht schon gesagt hat.
+     Dieselbe stehende Kamerafahrt wie das Kopfbild, und aus demselben
+     Grund nur, solange es zu sehen ist: `data-weg` gibt ihm `.live` vom
+     vorhandenen Motor, ohne eine Zeile JavaScript.
 
-     Das Motiv selbst bleibt im Bestand. Kommt eine Aufnahme mit
-     mindestens 2400 px an der langen Kante (docs/foto-briefing.md), ist
-     der Abschnitt zwei Zeilen Markup. -->
+     Es steht ausserhalb von `<main>`, weil es keinen Inhalt traegt; die
+     Bildbeschreibung steht im `alt`. -->
+<section class="schaubild" data-weg>
+  <!-- Das Wortzeichen faehrt langsam von links durch das Bild und rechts
+       wieder hinaus, endlos. Es ist die zweite bestellte Dauerbewegung im
+       Projekt und haelt sich an denselben Massstab wie die erste (siehe
+       „Keine Dauerbewegung" in CLAUDE.md): sie ist bestellt, sie haelt an,
+       wenn niemand hinsieht (`.live` vom vorhandenen Motor), und sie laesst
+       sich abschalten (reduzierte Bewegung).
 
+       `alt=""` und `aria-hidden`: das Zeichen steht auf derselben Seite
+       schon in der Kopfzeile und im Fuss. Hier ist es Bild, nicht Inhalt. -->
+  <img class="schaubild__marke" src="assets/logo/logo-herm.png" alt="" aria-hidden="true"
+       width="800" height="305" loading="lazy" decoding="async" />
+  <picture><source type="image/avif" srcset="assets/img/bar-gruen.avif" /><source type="image/webp" srcset="assets/img/bar-gruen.webp" /><img src="assets/img/bar-gruen.jpg" alt="Aufgebaute Bar mit begrünter Rückwand und Barhockern auf einer Veranstaltung" loading="lazy" width="1600" height="1065" /></picture>
+</section>
 
 <!-- ============ VERTRAUENSLEISTE ============ -->
 <!-- Vier nachprüfbare Angaben statt Kennzahlen wie „100 % Fokus". -->
@@ -659,34 +670,6 @@ document.documentElement.classList.remove("kein-js");
     </div>
   </div>
 </footer>
-
-<!-- ============ BILDBAND, GANZ UNTEN ============ -->
-<!-- Das Foto mit der begruenten Wand. Es stand ein halbes Jahr lang direkt
-     unter dem Kopfbild und schliesst die Seite jetzt ab — auf Wunsch, und
-     es ist dort auch die bessere Stelle: oben folgten zwei randlose
-     Aufnahmen aufeinander, hier steht eine gegen den Fuss.
-
-     Randlos, mit derselben stehenden Kamerafahrt wie das Kopfbild, und aus
-     demselben Grund nur, solange es zu sehen ist: `data-weg` gibt ihm
-     `.live` vom vorhandenen Motor, ohne eine Zeile JavaScript.
-
-     Es steht AUSSERHALB von `<main>` und hinter dem Fuss, weil „ganz unten"
-     genau das heisst. Inhalt traegt es keinen; die Bildbeschreibung steht
-     im `alt`. -->
-<section class="schaubild schaubild--schluss" data-weg>
-  <!-- Das Wortzeichen faehrt langsam von links durch das Bild und rechts
-       wieder hinaus, endlos. Es ist die zweite bestellte Dauerbewegung im
-       Projekt und haelt sich an denselben Massstab wie die erste (siehe
-       „Keine Dauerbewegung" in CLAUDE.md): sie ist bestellt, sie haelt an,
-       wenn niemand hinsieht (`.live` vom vorhandenen Motor), und sie laesst
-       sich abschalten (reduzierte Bewegung).
-
-       `alt=""` und `aria-hidden`: das Zeichen steht auf derselben Seite
-       schon in der Kopfzeile und im Fuss. Hier ist es Bild, nicht Inhalt. -->
-  <img class="schaubild__marke" src="assets/logo/logo-herm.png" alt="" aria-hidden="true"
-       width="800" height="305" loading="lazy" decoding="async" />
-  <picture><source type="image/avif" srcset="assets/img/bar-gruen.avif" /><source type="image/webp" srcset="assets/img/bar-gruen.webp" /><img src="assets/img/bar-gruen.jpg" alt="Aufgebaute Bar mit begrünter Rückwand und Barhockern auf einer Veranstaltung" loading="lazy" width="1600" height="1065" /></picture>
-</section>
 
 <!-- ============ APP-LEISTE (nur Handy) ============
      Am Telefon liegt der Daumen unten, nicht oben. Die vier Wege, die
