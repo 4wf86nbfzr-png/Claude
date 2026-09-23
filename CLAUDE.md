@@ -3605,6 +3605,77 @@ Poster in vier Fassungen.
   die nichts tut. Was bleibt, ist `visibilitychange` für den Fall, dass der
   Reiter in den Hintergrund geht.
 
+### Zwei bestellte Bewegungen mehr: das Wortzeichen und die Zahlen
+
+> „Beim Bild mit den Pflanzen möchte ich einen Effekt haben, dass sich von
+> links das HERM-Logo langsam einfährt und quasi rechts wieder verschwindet
+> und dann von links im Loop wieder kommt. … bei den Zahlen die Trennstriche
+> entfernen und eine Animation mit den Zahlen machen, dass die sich quasi
+> aufbauen und bis zu der Zahl hochzählt."
+
+**Das Wortzeichen ist die zweite Dauerbewegung im ganzen Projekt**, und sie
+hält sich an denselben Maßstab wie die erste (siehe „Keine Dauerbewegung"):
+sie ist bestellt, sie hält an, wenn niemand hinsieht (`.live` vom vorhandenen
+Motor — es kommt keine Zeile JavaScript dazu), und sie lässt sich abschalten.
+
+Der Weg steht in Vielfachen der eigenen Breite und in `vw`, nicht in Pixeln:
+bei `left:0` steht das Zeichen mit `-100%` genau außerhalb der linken Kante
+und mit `100vw` genau außerhalb der rechten. Damit stimmt die Fahrt in jeder
+Fensterbreite ohne eine einzige Medienabfrage, und der Sprung von der letzten
+auf die erste Stellung liegt außerhalb des Bildes. **`linear` und nicht
+`ease`:** eine Fahrt, die an einer Kante langsamer wird, die man ohnehin
+nicht sieht, ist in der Mitte zu schnell.
+
+Bei reduzierter Bewegung steht dort `display:none` und nicht nur
+`animation:none` — sonst bliebe das Zeichen auf seinem Startwert stehen, also
+links außerhalb: ein Element, das niemand je zu sehen bekommt und das
+trotzdem gezeichnet wird. Das ist „Die dritte Falle", einmal zu Ende gedacht.
+
+### Die Zahl zählt hoch, und die Breite steht vorher fest
+
+Vier Dinge sind am Zähler nicht beliebig:
+
+1. **Der fertige Wert steht im Markup.** Ohne Skript und bei reduzierter
+   Bewegung steht die Zahl damit einfach da. Eine „0", die erst ein Skript
+   füllt, wäre eine falsche Angabe über den Betrieb, solange es nicht läuft.
+2. **Die Breite wird vorher reserviert, und zwar auf die breiteste
+   ZWISCHENstellung.** Die letzte reicht nicht: zwischen 0 und 20 steht auch
+   die 18, und je nach Schrift ist die breiter als die 20. Gemessen wird
+   einmal, beim ersten Sichtbarwerden; danach wird die Reservierung wieder
+   freigegeben, weil sie in Pixeln steht und die Schriftgröße in `vw`.
+3. **Gezählt wird einmal.** Der Beobachter meldet sich ab, sobald es
+   losgeht. Eine Zahl, die bei jedem Vorbeiscrollen neu hochläuft, ist ein
+   Effekt und keine Angabe.
+4. **Kein `aria-live`.** Sonst liest ein Vorlesewerkzeug jede
+   Zwischenstellung vor, also sechzig Ansagen für eine Zahl.
+
+**„Sechs Bereiche" heißt jetzt „6 Bereiche".** Eine Zahl, die hochzählen
+soll, muss eine Ziffer sein; an der Aussage ändert das nichts. Mit nur einer
+Ziffer im ganzen Block läse der Effekt als Versehen statt als System.
+
+Die Trennstriche zwischen den vier Angaben sind weg, senkrecht wie
+waagerecht. **Der Abstand musste dafür wachsen:** er war vorher `gap` plus
+das Polster, das der Linie Luft gab — zusammen 32 bis 66 px. Fällt das
+Polster ersatzlos weg, rücken die vier auf die Hälfte zusammen und lesen als
+ein Block statt als vier. Die Spanne ist deshalb jetzt die alte Summe.
+
+### Zweimal derselbe Fehler an einem Nachmittag: ein Selektor, der zu viel trifft
+
+Beide Effekte sind daran zuerst hängengeblieben, und beide Male sah die
+neue Regel völlig richtig aus:
+
+| Regel | meinte | traf zusätzlich |
+|---|---|---|
+| `.schaubild img` | das randlose Motiv | das Wortzeichen — auf `inset:0` gezogen, auf volle Größe gestreckt, mit der Kamerafahrt des Motivs |
+| `.trust__item span` | die Beschreibungszeile | die Zahl im `<b>` darüber — .88rem und gedämpft, mitten in einer Überschrift von 2,1rem |
+
+Richtig sind `.schaubild picture img` und `.trust__item > span`. Das ist
+dieselbe Lehre wie bei `body > footer` („Der Seitenrand"), und sie ist in
+diesem Projekt jetzt dreimal aufgetreten: **ein Selektor, der nur einen Ort
+meint, muss auch nur diesen Ort treffen.** Der Fehler entsteht nicht beim
+Schreiben der Regel, sondern Monate später, wenn jemand ein zweites Element
+derselben Art in denselben Abschnitt stellt.
+
 ---
 
 ## Der Live-Gang, September 2026

@@ -343,11 +343,16 @@ document.documentElement.classList.remove("kein-js");
 <section class="trust auf-film" aria-label="Auf einen Blick">
   <div class="wrap trust__grid" data-stagger>
     <div class="trust__item">
-      <b>Über 20 Jahre</b>
+      <!-- Die Zahl steht als fertiger Wert im Markup, nicht als leeres
+           Feld: ohne Skript und bei reduzierter Bewegung steht sie damit
+           einfach da. `main.js` zaehlt sie nur hoch, wenn beides mitspielt. -->
+      <b>Über <span class="zahl" data-ziel="20">20</span> Jahre</b>
       <span>Erfahrung im Personalmanagement für Veranstaltungen</span>
     </div>
     <div class="trust__item">
-      <b>Sechs Bereiche</b>
+      <!-- Hier stand „Sechs" als Wort. Eine Zahl, die hochzaehlen soll,
+           muss eine Ziffer sein; an der Aussage aendert das nichts. -->
+      <b><span class="zahl" data-ziel="6">6</span> Bereiche</b>
       <span>Von der Bar bis zum Ordnungsdienst, ein Ansprechpartner</span>
     </div>
     <div class="trust__item">
@@ -669,6 +674,17 @@ document.documentElement.classList.remove("kein-js");
      genau das heisst. Inhalt traegt es keinen; die Bildbeschreibung steht
      im `alt`. -->
 <section class="schaubild schaubild--schluss" data-weg>
+  <!-- Das Wortzeichen faehrt langsam von links durch das Bild und rechts
+       wieder hinaus, endlos. Es ist die zweite bestellte Dauerbewegung im
+       Projekt und haelt sich an denselben Massstab wie die erste (siehe
+       „Keine Dauerbewegung" in CLAUDE.md): sie ist bestellt, sie haelt an,
+       wenn niemand hinsieht (`.live` vom vorhandenen Motor), und sie laesst
+       sich abschalten (reduzierte Bewegung).
+
+       `alt=""` und `aria-hidden`: das Zeichen steht auf derselben Seite
+       schon in der Kopfzeile und im Fuss. Hier ist es Bild, nicht Inhalt. -->
+  <img class="schaubild__marke" src="assets/logo/logo-herm.png" alt="" aria-hidden="true"
+       width="800" height="305" loading="lazy" decoding="async" />
   <picture><source type="image/avif" srcset="assets/img/bar-gruen.avif" /><source type="image/webp" srcset="assets/img/bar-gruen.webp" /><img src="assets/img/bar-gruen.jpg" alt="Aufgebaute Bar mit begrünter Rückwand und Barhockern auf einer Veranstaltung" loading="lazy" width="1600" height="1065" /></picture>
 </section>
 

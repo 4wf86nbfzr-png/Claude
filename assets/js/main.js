@@ -916,6 +916,82 @@
     }
   }
 
+  /* ---- Die Zahlen der Vertrauensleiste zaehlen hoch ----
+     ------------------------------------------------------------
+     Bestellt war, dass die Zahlen sich aufbauen und bis zu ihrem Wert
+     hochzaehlen. Vier Dinge sind daran nicht beliebig:
+
+     1. **Der fertige Wert steht im Markup.** Ohne Skript und bei
+        reduzierter Bewegung steht die Zahl damit einfach da. Eine „0", die
+        erst ein Skript fuellt, waere eine falsche Angabe, solange es nicht
+        laeuft — und bei einer Zahl ueber den Betrieb ist das keine
+        Kleinigkeit.
+     2. **Die Breite wird VORHER reserviert, und zwar auf die breiteste
+        ZWISCHENstellung.** Die letzte reicht nicht: zwischen 0 und 20 steht
+        auch die 18, und je nach Schrift ist die breiter als die 20. Ohne
+        die Reservierung wandert das Wort dahinter bei jedem Schritt.
+        Gemessen wird einmal, beim ersten Sichtbarwerden.
+     3. **Gezaehlt wird einmal.** Der Beobachter meldet sich ab, sobald es
+        losgeht; eine Zahl, die bei jedem Vorbeiscrollen neu hochlaeuft,
+        ist ein Effekt und keine Angabe.
+     4. **Kein `aria-live`.** Sonst liest ein Vorlesewerkzeug jede
+        Zwischenstellung vor — sechzig Ansagen fuer eine Zahl. */
+  (function(){
+    const zahlen = [...document.querySelectorAll('.zahl[data-ziel]')];
+    if(!zahlen.length || reduce || !('IntersectionObserver' in window)) return;
+
+    const DAUER = 1150;
+
+    function breiteReservieren(el, ziel){
+      const merk = el.textContent;
+      let breit = 0;
+      /* Jede Stellung einmal messen. Bei diesen Zahlen sind das ein paar
+         Dutzend Messungen, einmalig; ueber 200 wird ausgeduennt, damit die
+         Schleife bei einer grossen Zahl nicht teuer wird. */
+      const schritt = Math.max(1, Math.ceil((ziel + 1) / 200));
+      for(let i = 0; i <= ziel; i += schritt){
+        el.textContent = String(i);
+        breit = Math.max(breit, el.getBoundingClientRect().width);
+      }
+      el.textContent = merk;
+      breit = Math.max(breit, el.getBoundingClientRect().width);
+      el.style.minWidth = breit.toFixed(2) + 'px';
+    }
+
+    function zaehlen(el, ziel){
+      const start = performance.now();
+      (function bild(jetzt){
+        /* Ausklang statt gleichfoermig: die Zahl laeuft schnell an und
+           kommt auf ihrem Wert zur Ruhe. Gleichfoermig liest sie sich wie
+           ein Zaehlwerk, nicht wie eine Angabe, die sich setzt. */
+        const t = Math.min(1, (jetzt - start) / DAUER);
+        const p = 1 - Math.pow(1 - t, 3);
+        el.textContent = String(Math.round(ziel * p));
+        if(t < 1){ requestAnimationFrame(bild); return; }
+        el.textContent = String(ziel);
+        /* Die reservierte Breite wird wieder freigegeben. Sie ist in Pixeln
+           gemessen, die Schriftgroesse steht aber auf `clamp(… vw …)` — wer
+           danach das Fenster schmaler zieht, haette sonst dauerhaft eine
+           Luecke hinter der Zahl. Gebraucht wird sie nur waehrend des
+           Zaehlens. */
+        el.style.minWidth = '';
+      })(start);
+    }
+
+    const beo = new IntersectionObserver((eintraege) => {
+      for(const e of eintraege){
+        if(!e.isIntersecting) continue;
+        beo.unobserve(e.target);
+        const ziel = parseInt(e.target.dataset.ziel, 10);
+        if(!isFinite(ziel)) continue;
+        breiteReservieren(e.target, ziel);
+        e.target.textContent = '0';
+        zaehlen(e.target, ziel);
+      }
+    }, { threshold: 0.6 });
+    zahlen.forEach(z => beo.observe(z));
+  })();
+
   /* ---- Der Imagefilm als GRUND der Startseite ----
      ------------------------------------------------------------
      Er war einmal ein Abspieler in einem eigenen Abschnitt: Poster, Knopf,

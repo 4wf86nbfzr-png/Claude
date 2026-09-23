@@ -1724,12 +1724,21 @@ body.megabar-auf header.nav{
   height:clamp(320px, 62svh, 720px);
 }
 .schaubild picture{ display:block; height:100%; }
-.schaubild img{
+/* `.schaubild picture img` und nicht `.schaubild img`.
+   ------------------------------------------------------------
+   Der Abschnitt enthaelt seit dem Wortzeichen zwei Bilder, und dieses hier
+   meint nur das MOTIV: randlos, bildfuellend, mit der stehenden Fahrt. Auf
+   das Wortzeichen angewandt haette es dieses auf `inset:0` gezogen, auf
+   volle Groesse gestreckt und ihm dieselbe Fahrt gegeben — der Effekt waere
+   nicht kaputt gegangen, sondern gar nicht erst entstanden.
+   Dieselbe Regel wie bei `body > footer`: **ein Selektor, der nur einen Ort
+   meint, muss auch nur diesen Ort treffen.** */
+.schaubild picture img{
   position:absolute; inset:0; width:100%; height:100%;
   object-fit:cover; object-position:50% 46%;
   animation:heroFahrt 30s ease-in-out infinite alternate paused;
 }
-.schaubild.live img{ animation-play-state:running; }
+.schaubild.live picture img{ animation-play-state:running; }
 /* Oben und unten läuft das Bild in den Seitengrund aus, sonst stünde es als
    Kasten zwischen zwei schwarzen Flächen — und ein Kasten ist genau das,
    was „Keine Karten" verbietet. */
@@ -1760,7 +1769,54 @@ body.megabar-auf header.nav{
                             rgba(20,51,54,.42) 11%, rgba(20,51,54,.20) 18%, rgba(20,51,54,.06) 26%,
                             rgba(20,51,54,0) 34%);
 }
-.kein-js .schaubild img{ animation:none; }
+.kein-js .schaubild picture img{ animation:none; }
+
+/* ---- Das Wortzeichen faehrt durch das Bildband ---------------------------
+   Bestellt: es faehrt langsam von links ins Bild, rechts wieder hinaus, und
+   faengt von links von vorn an. Es ist die ZWEITE Dauerbewegung im ganzen
+   Projekt, und sie haelt sich an denselben Massstab wie die erste (die
+   stehende Kamerafahrt im Kopfbild):
+
+   1. **Sie ist bestellt.** Ohne diesen Satz stuende sie hier nicht.
+   2. **Sie haelt an, wenn niemand hinsieht.** `.live` setzt der vorhandene
+      Motor an jedes `[data-weg]`, und das Bildband traegt es ohnehin — es
+      kommt keine Zeile JavaScript dazu. Eine dauerhaft laufende Animation
+      hielte ihre Ebene fuer immer im Grafikspeicher, und genau davor warnt
+      „Die teuerste Falle".
+   3. **Sie laesst sich abschalten.** Bei reduzierter Bewegung faellt sie
+      ganz weg, siehe den Block dort.
+
+   Der Weg ist in Vielfachen der eigenen Breite und in `vw` gerechnet, nicht
+   in Pixeln: bei `left:0` steht das Zeichen mit `-100%` genau ausserhalb der
+   linken Kante und mit `100vw` genau ausserhalb der rechten. Damit stimmt
+   die Fahrt in jeder Fensterbreite, ohne eine einzige Medienabfrage — und
+   der Sprung von der letzten auf die erste Stellung liegt ausserhalb des
+   Bildes, ist also nicht zu sehen.
+
+   `linear` und nicht `ease`: eine Fahrt, die am Rand langsamer wird, sieht
+   an einer Kante, die man ohnehin nicht sieht, nach nichts aus — und in der
+   Mitte waere sie dann zu schnell.
+
+   Kein `will-change`: die laufende Animation legt ihre Ebene selbst an und
+   gibt sie beim Anhalten wieder frei. */
+.schaubild__marke{
+  position:absolute; top:50%; left:0; z-index:1;
+  width:clamp(150px, 20vw, 300px); height:auto;
+  opacity:.92;
+  /* Ruhestellung ist LINKS AUSSERHALB. Das ist der Startwert, den
+     `animation:none` bei reduzierter Bewegung stehen laesst — deshalb steht
+     dort zusaetzlich `display:none`, sonst haette man ein Element im Baum,
+     das niemand je zu sehen bekommt. */
+  transform:translate3d(-100%, -50%, 0);
+  animation:markeFahrt 26s linear infinite;
+  animation-play-state:paused;
+  pointer-events:none; user-select:none;
+}
+.schaubild.live .schaubild__marke{ animation-play-state:running; }
+@keyframes markeFahrt{
+  from{ transform:translate3d(-100%, -50%, 0); }
+  to  { transform:translate3d(100vw, -50%, 0); }
+}
 
 /* Der Text sitzt unten links, wie ein Bildtitel. Der Verlauf trägt ihn und
    läuft nach unten in den Seitengrund aus — dadurch gibt es keine sichtbare
@@ -1993,10 +2049,10 @@ body.megabar-auf header.nav{
 .trust{ border-bottom:1px solid var(--linie); }
 .trust__grid{
   display:grid; grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:clamp(18px,2.6vw,40px);
-  /* Getrennt wird durch Haarlinien zwischen den Angaben, nicht durch Kästen
-     um sie herum. Deshalb liegt die Linie am Element und nicht am Raster —
-     so bleibt links vom ersten und rechts vom letzten Punkt nichts stehen. */
+  gap:clamp(32px,4.4vw,66px);
+  /* Getrennt wurde hier einmal durch Haarlinien zwischen den Angaben. Sie
+     sind auf Wunsch weg; was bleibt, ist der Abstand — und der traegt jetzt
+     allein, siehe die Begruendung bei `.trust__item`. */
   /* padding-block, nicht padding.
      Das Element traegt .wrap und .trust__grid gleichzeitig. Eine
      Kurzschreibweise „padding: … 0" setzt auch links und rechts — und
@@ -2006,28 +2062,53 @@ body.megabar-auf header.nav{
      Breite. */
   padding-block:clamp(34px,4.6vw,64px);
 }
+/* ---- Ohne Trennstriche ---------------------------------------------------
+   Zwischen den vier Angaben stand eine Haarlinie, und links davon ein
+   Polster, das ihr Luft gab. Beides ist auf Wunsch weg; getrennt wird nur
+   noch durch Abstand — dasselbe Mittel, das die Aufzaehlungen der
+   Leistungsseiten benutzen.
+
+   **Der Abstand muss dafuer wachsen.** Er war vorher `gap` PLUS Polster,
+   zusammen 32 bis 66 px. Faellt das Polster ersatzlos weg, ruecken die vier
+   Angaben auf die Haelfte zusammen und lesen als ein Block statt als vier.
+   Die Spanne unten ist deshalb die alte Summe. */
 .trust__item{
   display:grid; gap:9px; align-content:start;
-  padding-left:clamp(14px,1.8vw,26px);
-  border-left:1px solid var(--linie);
 }
-.trust__item:first-child{ padding-left:0; border-left:0; }
 .trust__item b{
   font-family:var(--font-display); font-weight:800; line-height:1.02;
   font-size:clamp(1.34rem,2.2vw,2.1rem); letter-spacing:-.025em;
 }
-.trust__item span{ color:var(--tinte-3); font-size:.88rem; line-height:1.45; }
+/* ---- Die Zahl, die hochzaehlt --------------------------------------------
+   Zwei Dinge haelt diese Regel fest, und beide verhindern ein Zappeln:
+
+   `tabular-nums` gibt jeder Ziffer dieselbe Breite. Ohne sie ist die 1
+   schmaler als die 8, und der Text dahinter wackelt bei jedem Schritt.
+
+   `min-width` setzt `main.js` in Pixeln dazu — und zwar auf die breiteste
+   ZWISCHENstellung, nicht auf die letzte. Beides zusammen haelt „Jahre"
+   waehrend des ganzen Zaehlens an derselben Stelle. Die Breite steht in
+   einer eigenen Eigenschaft, damit ohne Skript nichts davon uebrig bleibt. */
+.zahl{
+  display:inline-block;
+  font-variant-numeric:tabular-nums;
+  font-feature-settings:"tnum" 1;
+  text-align:left;
+}
+/* `> span` und nicht `span`: gemeint ist die Beschreibungszeile unter der
+   Angabe. Ohne den Pfeil traf die Regel auch die Zahl im `<b>` darueber —
+   die stand dadurch in .88rem und in der gedaempften Stufe mitten in einer
+   Ueberschrift von 2,1rem. Dritte Stelle in derselben Sitzung, an der ein
+   zu weiter Selektor etwas Neues mitgenommen hat. */
+.trust__item > span{ color:var(--tinte-3); font-size:.88rem; line-height:1.45; }
 /* „Arbeitnehmerueberlassung" ist 23 Zeichen ohne Fuge. In einer schmalen
    Spalte laeuft das Wort sonst aus seinem Kasten heraus — dieselbe Vorsorge
    wie bei den Ueberschriften. */
-.trust__item b, .trust__item span{ overflow-wrap:break-word; }
+.trust__item b, .trust__item > span{ overflow-wrap:break-word; }
 /* Zwei Spalten schon ab 900 px, nicht erst ab 760. Zwischen 760 und 900 px
    blieben vier Spalten a rund 170 px — zu wenig fuer die langen Woerter. */
 @media (max-width:900px){
-  .trust__grid{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:30px clamp(20px,3vw,30px); }
-  /* Die Trennlinie gehoert an die linke Kante — bei zwei Spalten faellt sie
-     deshalb beim ersten und beim dritten Punkt weg, nicht nur beim ersten. */
-  .trust__item:nth-child(odd){ padding-left:0; border-left:0; }
+  .trust__grid{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:34px clamp(26px,4vw,40px); }
 }
 /* Am Handy eine Spalte. Zu zweit blieben auf 390 px je 165 px uebrig — dort
    passt weder „Personalmanagement" noch „Erlaubnis nach AUEG" in eine Zeile;
@@ -2035,11 +2116,10 @@ body.megabar-auf header.nav{
    Angaben untereinander lesen sich wie der uebrige Inhalt der Seite, der
    unterhalb von 520–640 px ueberall auf eine Spalte geht. */
 @media (max-width:560px){
-  .trust__grid{ grid-template-columns:1fr; gap:0; }
-  /* Einspaltig wandert die Linie nach oben: senkrechte Striche brauchen eine
-     Nachbarspalte, waagerechte trennen eine Liste. */
-  .trust__item{ padding:20px 0 0; border-left:0; border-top:1px solid var(--linie); }
-  .trust__item:first-child{ padding-top:0; border-top:0; }
+  /* Einspaltig trennt der Abstand allein. Vorher stand hier eine waagerechte
+     Haarlinie je Angabe — sie faellt aus demselben Grund weg wie die
+     senkrechten. */
+  .trust__grid{ grid-template-columns:1fr; gap:28px; }
 }
 
 /* Der Hinweis zum Scrollen stand unten rechts — genau dort, wo jetzt die
@@ -3771,7 +3851,11 @@ header.nav{ view-transition-name:kopfzeile; }
      die Fahrt weg, nicht den Startwert, und das Foto stand bei reduzierter
      Bewegung dauerhaft 16 % zu nah. Genau der Fall aus „Die dritte Falle". */
   .hero__photo img,
-  .schaubild img,
+  /* Das Wortzeichen im Bildband faehrt gar nicht erst. `animation:none`
+     allein liesse es auf seinem Startwert stehen, also links ausserhalb —
+     ein Element, das niemand sieht und das trotzdem gezeichnet wird. */
+  .schaubild__marke{ display:none; }
+  .schaubild picture img,
   /* Ohne diese Zeile stuende der Schleier dauerhaft auf `opacity:0` — und
      der ganze Hero-Text hell auf hellen Bildstellen. `animation:none`
      nimmt die Animation, nicht den Startwert. */
