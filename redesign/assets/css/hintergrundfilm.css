@@ -1,0 +1,140 @@
+/* ============================================================
+   Der Hintergrundfilm
+   ------------------------------------------------------------
+   Liegt ueber redesign.css und ist der einzige Zusatz am Stylesheet:
+   keine bestehende Regel wird geaendert, nur ergaenzt.
+
+   Der Film ist der GRUND der Seite, nicht ein Kasten darin. Er liegt
+   fest hinter allem, und die Abschnitte ab dem Intro legen sich mit
+   einem nicht ganz deckenden Schwarz darueber. Ueber dem Hero und dem
+   Vertrauensband bleibt es deckend: oben traegt das Titelbild, der Film
+   faengt erst „etwas weiter unten" an.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   Die feste Lage
+
+   `z-index:-1`, und nichts anderes. Ein `position:fixed` mit `z-index:0`
+   malt NACH den Hintergruenden der Abschnitte (Schritt 8 gegen Schritt 4
+   der Malreihenfolge) — der Film laege dann ueber dem Text. Bei −1 malt
+   er in Schritt 3: nach dem Grund des `body`, vor jedem
+   Abschnittshintergrund. Genau dazwischen gehoert er hin.
+   ------------------------------------------------------------ */
+.filmgrund {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  background: var(--ink);
+  pointer-events: none;
+  user-select: none;
+}
+.filmgrund video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 50%;
+  display: block;
+  opacity: 0;
+  transition: opacity 0.8s var(--ease-out);
+}
+.filmgrund video.laeuft {
+  opacity: 1;
+}
+/* Ohne Skript wird nie eine Quelle eingehaengt; die leere Lage haette
+   dann nur denselben Schwarzton wie die Seite und stuende als zweite
+   Flaeche dahinter. */
+.kein-js .filmgrund {
+  display: none;
+}
+
+/* ------------------------------------------------------------
+   Oben bleibt es deckend
+
+   Der Film liegt hinter der GANZEN Seite — eine feste Lage kennt keine
+   Abschnittsgrenzen. Dass er erst weiter unten zu sehen ist, entsteht
+   dadurch, dass die Abschnitte darueber ihren eigenen, deckenden Grund
+   tragen. Beim Hero macht das schon das Titelbild; das Vertrauensband
+   war bisher durchsichtig und bekommt ihn hier.
+   ------------------------------------------------------------ */
+.hero,
+.trust {
+  background-color: var(--ink);
+}
+
+/* ------------------------------------------------------------
+   Ab hier steht der Film dahinter
+
+   88 % Schwarz, gerechnet und dann im Bild nachgemessen: der hellste
+   Bildpunkt des Films kommt damit bei 31 von 255 an. Volle weisse
+   Schrift traegt darauf 15,7:1, die gedaempfte Stufe (`--muted`, 52 %)
+   noch 6,0:1 — also mit Abstand ueber den noetigen 4,5. Weniger Deckung
+   waere ein schoenerer Film und eine knappere Typografie; mehr waere ein
+   Film, den niemand sieht.
+
+   `background-color` und NICHT die Kurzschreibweise `background`: die
+   Blende am oberen Rand des Intros steht als `background-image`, und die
+   Kurzschreibweise loeschte sie wieder.
+   ------------------------------------------------------------ */
+.intro,
+.ablauf,
+.testi,
+.expect,
+.cta,
+body > footer {
+  background-color: rgba(0, 0, 0, 0.88);
+}
+
+/* Der Uebergang ist ein Hintergrund, kein Element.
+   ------------------------------------------------------------
+   Oben am Intro laeuft ein Verlauf von deckendem Schwarz in nichts: der
+   Film taucht dadurch auf, statt an einer Linie anzufangen. Die Stufen
+   folgen `3t² − 2t³`, einer Kurve, die an beiden Enden waagerecht
+   auslaeuft — ein linearer Verlauf haette an seinem Anfang eine Ecke,
+   und genau die sieht das Auge als Strich (Machsche Baender).
+
+   Der Endpunkt heisst `rgba(0,0,0,0)` und nicht `transparent`: hier ist
+   beides dasselbe, weil der Verlauf ohnehin aus Schwarz kommt — die
+   ausgeschriebene Fassung steht trotzdem da, damit sie beim naechsten
+   Farbwechsel nicht durch Grau laeuft. */
+.intro {
+  background-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0.94) 4%,
+    rgba(0, 0, 0, 0.72) 9%,
+    rgba(0, 0, 0, 0.42) 14%,
+    rgba(0, 0, 0, 0.14) 19%,
+    rgba(0, 0, 0, 0) 24%
+  );
+}
+
+/* Die Haarlinie ueber dem Intro faellt weg: sie stand an einer Kante,
+   die der Verlauf gerade weggenommen hat. `border-top-color:transparent`
+   und nicht `border-top:0` — an der Linie haengt ein Pixel Hoehe, und
+   eine Farbe wegzunehmen verschiebt nichts. */
+.intro {
+  border-top-color: transparent;
+}
+
+/* ------------------------------------------------------------
+   Reduzierte Bewegung
+
+   `hintergrundfilm.js` baut die Lage dann ganz aus. Die Abschnitte
+   bekommen ihren deckenden Grund zurueck, sonst stuenden sie als
+   88-prozentiges Schwarz auf schwarzem Papier — unsichtbar zwar, aber
+   eine Ebene, die der Browser trotzdem zusammenrechnet.
+   ------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  .intro,
+  .ablauf,
+  .testi,
+  .expect,
+  .cta,
+  body > footer {
+    background-color: var(--ink);
+  }
+  .intro {
+    background-image: none;
+  }
+}

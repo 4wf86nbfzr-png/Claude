@@ -1,0 +1,9 @@
+# ============================================================
+# TESTBETRIEB — VOR DEM LIVE-GANG ERSETZEN
+# Solange diese Datei so aussieht, darf keine Suchmaschine
+# irgendetwas von dieser Seite aufnehmen.
+#
+# Umschalten mit: python3 tools/live-schalten.py --live
+# ============================================================
+User-agent: *
+Disallow: /

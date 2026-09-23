@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="de" class="kein-js">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>HERM Service Team | Personal für Events aus Hamburg</title>
+<meta name="description" content="Personaldienstleistung aus Hamburg: Servicekräfte, Sicherheit, Hostessen, Logistik, Fahrservice und Reinigung für Events. Über 20 Jahre Erfahrung." />
+
+<!-- Fonts: Display = Bricolage Grotesque, Body = Instrument Sans, Utility = Space Mono -->
+<!-- Die beiden Schnitte, die auf jeder Seite sofort gebraucht werden.
+     crossorigin ist auch bei eigenen Dateien Pflicht, sonst laedt der
+     Browser die Schrift ein zweites Mal. -->
+<link rel="preload" as="font" type="font/woff2" crossorigin
+      href="assets/fonts/instrument-serif-normal-latin.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin
+      href="assets/fonts/instrument-sans-var-latin.woff2" />
+<link rel="stylesheet" href="assets/css/fonts.css">
+
+<!-- ============================================================
+     TESTBETRIEB — VOR DEM LIVE-GANG ENTFERNEN
+     Diese Zeile haelt Suchmaschinen von der internen Vorschau fern.
+     Solange sie hier steht, wird die Seite nicht indexiert.
+     Zusaetzlich sperrt robots.txt und der Header X-Robots-Tag.
+     Umschalten: python3 tools/live-schalten.py --live
+     ============================================================ -->
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
+<link rel="canonical" href="https://hermserviceteam.com/" />
+<meta name="theme-color" content="#000000" />
+<!-- Vorschau beim Teilen in Messengern und sozialen Netzwerken -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="HERM Service Team" />
+<meta property="og:locale" content="de_DE" />
+<meta property="og:title" content="HERM Service Team | Personal für Events aus Hamburg" />
+<meta property="og:description" content="Personaldienstleistung aus Hamburg: Servicekräfte, Sicherheit, Hostessen, Logistik, Fahrservice und Reinigung für Events. Über 20 Jahre Erfahrung." />
+<meta property="og:url" content="https://hermserviceteam.com/" />
+<meta property="og:image" content="https://hermserviceteam.com/assets/img/og-bild.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="HERM Service Team | Personaldienstleistung aus Hamburg" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="icon" href="assets/logo/favicon-32.png" sizes="32x32" type="image/png" />
+<link rel="icon" href="assets/logo/favicon-16.png" sizes="16x16" type="image/png" />
+<link rel="apple-touch-icon" href="assets/logo/apple-touch-icon.png" />
+<!-- Auf dem Startbildschirm laeuft die Seite als eigene Anwendung: ohne
+     Adresszeile, mit schwarzem Grund und dem Wortzeichen als Symbol. Das
+     Manifest liegt im Wurzelverzeichnis; die Pfade darin sind absolut. -->
+<link rel="manifest" href="site.webmanifest" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<!-- black-translucent laesst die Seite unter die Statuszeile laufen; die
+     Uhr steht dann weiss auf dem Foto. Den Platz dafuer holt sich die
+     Kopfzeile ueber env(safe-area-inset-top) zurueck. -->
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="HERM" />
+<link rel="icon" href="assets/logo/favicon.ico" sizes="any" />
+<link rel="stylesheet" href="assets/css/styles.css">
+<link rel="stylesheet" href="assets/css/redesign.css">
+<!-- Steht NACH redesign.css: der Hintergrundfilm nimmt dem Schlussblock
+     seinen deckenden Grund, und bei gleicher Spezifitaet gewinnt die
+     spaetere Regel. -->
+<link rel="stylesheet" href="assets/css/hintergrundfilm.css">
+<!-- Inhalte werden beim Scrollen eingeblendet. Ohne JavaScript bliebe die
+     Seite sonst leer — diese Zeile nimmt die Sperre sofort zurück. -->
+<script>
+document.documentElement.classList.remove("kein-js");
+/* Der Vorspann und die Einfahrt des Heros sind EINE Bewegung: das Wortzeichen
+   tritt zurueck, waehrend die Kamera ins Bild faehrt. Damit das zusammenpasst,
+   duerfen die Hero-Animationen nicht beim Laden starten — sonst sind sie
+   vorbei, bevor der Vorspann weg ist. Sie haengen deshalb an `los`, und `los`
+   faellt erst, wenn der Vorspann geht (main.js).
+
+   Diese Entscheidung muss hier oben fallen, vor dem ersten Bild. Stuende sie
+   in main.js am Seitenende, gaebe es ein sichtbares Aufblitzen. */
+(function(){
+  var d = document.documentElement, erstesMal = true;
+  try { erstesMal = sessionStorage.getItem("hst-intro") !== "1"; } catch(e){}
+  var ruhig = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  /* Kommt ein Vorspann, steht der Hero von der ersten Zeichnung an fertig
+     da — der Vorspann liegt ja ohnehin deckend darueber. Frueher wartete
+     er in seiner Startposition und sprang erst beim Schnitt hinein; damit
+     hatte die Seite bis dahin kein einziges sichtbares Element, und der
+     LCP lag bei 3,0 statt 0,35 Sekunden.
+     Ohne Vorspann (zweiter Aufruf, reduzierte Bewegung) faehrt der Hero
+     ein — dort IST die Einfahrt der Einstieg. */
+  d.classList.add(erstesMal && !ruhig ? "sofort" : "los");
+})();
+</script>
+<!-- Strukturierte Daten für Suchmaschinen und Kartendienste -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "EmploymentAgency",
+  "name": "HERM Service Team e.K.",
+  "url": "https://hermserviceteam.com/",
+  "logo": "https://hermserviceteam.com/assets/logo/logo-herm.png",
+  "image": "https://hermserviceteam.com/assets/img/og-bild.jpg",
+  "description": "Personaldienstleistung aus Hamburg: Servicekräfte, Sicherheit, Hostessen, Logistik, Fahrservice und Reinigung für Veranstaltungen.",
+  "telephone": "+49-40-27075100",
+  "faxNumber": "+49-40-6011769",
+  "email": "info@hermserviceteam.com",
+  "openingHoursSpecification": {
+    "@type": "OpeningHoursSpecification",
+    "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    "opens": "10:00",
+    "closes": "17:00"
+  },
+  "founder": {
+    "@type": "Person",
+    "name": "Maik Herm"
+  },
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Gertigstraße 12 bis 14",
+    "postalCode": "22303",
+    "addressLocality": "Hamburg",
+    "addressRegion": "Hamburg",
+    "addressCountry": "DE"
+  },
+  "areaServed": [
+    {
+      "@type": "City",
+      "name": "Hamburg"
+    },
+    {
+      "@type": "Country",
+      "name": "Deutschland"
+    }
+  ],
+  "sameAs": [
+    "https://www.facebook.com/HermServiceTeam/",
+    "https://www.instagram.com/HermServiceTeam/",
+    "https://de.linkedin.com/company/herm-service-team",
+    "https://www.xing.com/companies/hermserviceteame.k."
+  ],
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "Dienstleistungen",
+    "itemListElement": [
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Gastro-Personal",
+          "url": "https://hermserviceteam.com/dienstleistungen/gastro-personal.html"
+        }
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Veranstaltungsschutz",
+          "url": "https://hermserviceteam.com/dienstleistungen/sicherheit.html"
+        }
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Hostessen & Promoter",
+          "url": "https://hermserviceteam.com/dienstleistungen/promotion-hostess.html"
+        }
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Eventlogistik",
+          "url": "https://hermserviceteam.com/dienstleistungen/logistik.html"
+        }
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Fahrservice",
+          "url": "https://hermserviceteam.com/dienstleistungen/fahrservice.html"
+        }
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Reinigung",
+          "url": "https://hermserviceteam.com/dienstleistungen/reinigung.html"
+        }
+      }
+    ]
+  }
+}
+</script>
+</head>
+<body>
+<!-- Erstes Element im Tabulator-Lauf: wer mit der Tastatur arbeitet,
+     muss sonst auf jeder Seite durch die ganze Navigation. -->
+<a class="sprunglink" href="#top">Zum Inhalt springen</a>
+
+<!-- ============ PRELOADER ============ -->
+<!-- Eine Lichtbahn zieht durch das Dunkel, das Wortzeichen taucht langsam
+     aus der Unschärfe auf, ein Glanz läuft durch die Buchstaben — dann der
+     Schnitt auf die Seite. Alles Schwarzweiss, alles CSS; die Schritte und
+     ihre Gründe stehen im Preloader-Abschnitt von styles.css. -->
+<div id="preloader" aria-hidden="true">
+  <div class="pre-logo">
+    <img class="pre-logo__img" src="assets/logo/logo-herm.png" alt="HERM Service Team" width="800" height="305" />
+  </div>
+</div>
+
+<!-- ============ HINTERGRUNDFILM ============ -->
+<!-- Der Film ist der Grund der Seite, keine Buehne darin: eine feste Lage
+     hinter allem (`z-index:-1`). Zu sehen ist er ab dem Intro — darueber
+     tragen Titelbild und Vertrauensband ihren eigenen, deckenden Grund.
+
+     Der <video> steht bewusst OHNE Quelle da. `media` am <source> wirkt in
+     einem <video> nicht (nur im <picture>), das Telefon bekaeme also den
+     Querschnitt und muesste ihn 3,5-fach hochrechnen. Welche der vier
+     Adressen gilt, entscheidet `assets/js/hintergrundfilm.js`.
+
+     Ohne Ton: die Datei hat gar keine Tonspur, nicht nur `muted`. -->
+<div class="filmgrund" aria-hidden="true">
+  <video
+    data-quer-mp4="assets/video/hintergrund.mp4"
+    data-quer-webm="assets/video/hintergrund.webm"
+    data-hoch-mp4="assets/video/hintergrund-hoch.mp4"
+    data-hoch-webm="assets/video/hintergrund-hoch.webm"
+    autoplay muted loop playsinline preload="auto" disablepictureinpicture
+    tabindex="-1" aria-hidden="true"></video>
+</div>
+
+<div id="scrollbar"></div>
+
+<!-- Sofort nach oben, ohne die Scroll-Effekte rückwärts abzuspielen -->
+<button id="toTop" aria-label="Zurück nach oben">
+  <svg viewBox="0 0 24 24" fill="none"><path d="M12 20V6M6 12l6-6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</button>
+
+<!-- ============ NAV ============ -->
+<header class="nav" id="nav">
+  <a class="brand" href="#top" aria-label="HERM Service Team, Startseite" aria-current="page">
+    <img class="brand__logo" src="assets/logo/logo-herm.png" alt="HERM Service Team" width="800" height="305" />
+  </a>
+  <nav class="nav__links" aria-label="Hauptnavigation">
+    <a href="dienstleistungen.html">Dienstleistungen</a>
+    <a href="referenzen.html">Referenzen</a>
+    <a href="team.html">Team</a>
+    <a href="galerie.html">Galerie</a>
+    <a href="jobs.html">Jobs</a>
+    <a href="kontakt.html">Kontakt</a>
+  </nav>
+  <div class="nav__cta">
+    <a class="nav__phone" href="tel:+494027075100">+49 (40) 27075100</a>
+    <a class="btn" href="kontakt.html">Anfrage starten
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <button class="ton" type="button" aria-pressed="false" aria-label="Ton einschalten"><span class="ton__balken" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="ton__wort">Ton</span></button>
+    <button class="burger" id="burger" aria-label="Menü öffnen" aria-expanded="false"><i></i><i></i><i></i></button>
+  </div>
+</header>
+
+<nav id="mobileMenu" aria-label="Mobile Navigation">
+  <a href="dienstleistungen.html">Dienstleistungen</a>
+  <a href="referenzen.html">Referenzen</a>
+  <a href="team.html">Team</a>
+  <a href="galerie.html">Galerie</a>
+  <a href="jobs.html">Jobs</a>
+  <a href="kontakt.html">Kontakt</a>
+  <div class="menu__aktion">
+    <a class="btn" href="kontakt.html">Anfrage starten <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    <a class="menu__tel" href="tel:+494027075100">+49 (40) 27075100</a>
+  </div>
+  <div class="menu__socials" aria-label="Soziale Netzwerke">
+    <a href="https://www.instagram.com/HermServiceTeam/" target="_blank" rel="noopener" aria-label="Instagram">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.15" fill="currentColor" stroke="none"/></svg>
+    </a>
+    <a href="https://www.facebook.com/HermServiceTeam/" target="_blank" rel="noopener" aria-label="Facebook">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.6 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.25-1.45 1.55-1.45h1.65V3.68c-.29-.04-1.27-.13-2.4-.13-2.38 0-4 1.45-4 4.12v2.23H7.7V13h2.7v8h3.2z"/></svg>
+    </a>
+    <a href="https://de.linkedin.com/company/herm-service-team" target="_blank" rel="noopener" aria-label="LinkedIn">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.9 8.6H4V20h2.9V8.6zM5.45 4a1.7 1.7 0 100 3.4 1.7 1.7 0 000-3.4zM20 13.8c0-3.1-1.66-4.55-3.87-4.55-1.78 0-2.58.98-3.02 1.67V8.6H10.2c.04.83 0 11.4 0 11.4h2.9v-6.36c0-.26.02-.52.1-.7.2-.52.68-1.06 1.48-1.06 1.05 0 1.47.8 1.47 1.96V20H20v-6.2z"/></svg>
+    </a>
+    <a href="https://www.xing.com/companies/hermserviceteame.k." target="_blank" rel="noopener" aria-label="Xing">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.3 7.5h3.1l2.15 3.85-3.45 6.05H5l3.45-6.05L6.3 7.5zM19.05 3l-6.3 11.15L16.8 21h-3.1l-4.05-6.85L15.95 3h3.1z"/></svg>
+    </a>
+  </div>
+</nav>
+
+<main id="top" tabindex="-1">
+
+<!-- ============ HERO ============ -->
+<!-- Randlose Aufnahme vom Einsatzort statt des Markendetails aus dem Büroflur:
+     der erste Bildschirm soll zeigen, auf welchem Niveau gearbeitet wird. -->
+<section class="hero" id="hero" data-weg>
+  <!-- Titelbild: die gedeckte Tafel. Zwei Stufen, damit ein Bildschirm mit
+       doppelter Pixeldichte nicht die kleine hochrechnen muss — `sizes`
+       nennt am Telefon 200vw, weil `object-fit:cover` dort ueber die HOEHE
+       deckt und nicht ueber die Breite. -->
+  <div class="hero__photo" aria-hidden="true">
+    <picture><source type="image/avif" srcset="assets/img/bankett.avif 1600w, assets/img/bankett-gross.avif 2560w" sizes="(max-width:980px) 200vw, 100vw" /><source type="image/webp" srcset="assets/img/bankett.webp 1600w, assets/img/bankett-gross.webp 2560w" sizes="(max-width:980px) 200vw, 100vw" /><img src="assets/img/bankett.jpg" alt="" fetchpriority="high" width="1600" height="900" /></picture>
+  </div>
+
+  <div class="wrap hero__inner">
+    <!-- Hier stand „Startseite". Ein Brotkrumenpfad ist ein Weg zurueck;
+         auf der Startseite selbst hat er kein Ziel und war nur eine
+         Beschriftung. Zurueck kommt man ueber das Wortzeichen links oben. -->
+    <span class="eyebrow">Personaldienstleistung aus Hamburg<span class="eyebrow__mehr">, seit über 20 Jahren</span></span>
+    <h1 class="u-caps">
+      <span class="line"><span>Personal, das</span></span>
+      <span class="line"><span>Ihr Event</span></span>
+      <span class="line"><span>trägt.</span></span>
+    </h1>
+    <!-- Vorspann und Aktionen stehen auf einer Linie unter der Hauptzeile:
+         links, was wir tun, rechts, was man tun kann. -->
+    <div class="hero__fuss">
+      <p class="hero__sub">Bevor der erste Gast kommt, steht unser Team. Service, Sicherheit,
+        Hostessen, Logistik, Fahrservice und Reinigung, aus einem Haus, aus Hamburg.</p>
+      <div class="hero__actions">
+        <a class="btn" href="kontakt.html">Personal anfragen
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <!-- Zeigte auf #leistungen, solange die sechs Bereiche weiter unten
+             standen. Sie stehen dort nicht mehr; ein Sprung ins Leere waere
+             der schlechteste aller Zustaende. Jetzt fuehrt der Knopf auf die
+             Uebersicht — dorthin, wo die Bereiche wirklich liegen. -->
+        <a class="btn btn--ghost" href="dienstleistungen.html">Was wir stellen
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="scrollcue" aria-hidden="true"><span>Scrollen</span><i></i></div>
+</section>
+
+
+<!-- ============ VERTRAUENSLEISTE ============ -->
+<!-- Vier nachprüfbare Angaben statt Kennzahlen wie „100 % Fokus". -->
+<section class="trust" aria-label="Auf einen Blick">
+  <div class="wrap trust__grid" data-stagger>
+    <div class="trust__item">
+      <b>Über 20 Jahre</b>
+      <span>Erfahrung im Personalmanagement für Veranstaltungen</span>
+    </div>
+    <div class="trust__item">
+      <b>Sechs Bereiche</b>
+      <span>Von der Bar bis zum Ordnungsdienst, ein Ansprechpartner</span>
+    </div>
+    <div class="trust__item">
+      <b>Erlaubnis nach AÜG</b>
+      <span>Arbeitnehmerüberlassung mit gültiger Erlaubnis</span>
+    </div>
+    <div class="trust__item">
+      <b>Hamburg &amp; bundesweit</b>
+      <span>Einsätze außerhalb Hamburgs nach rechtzeitiger Absprache</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ INTRO ============ -->
+<section class="intro" id="ueber">
+  <div class="wrap intro__grid">
+    <div>
+      <span class="eyebrow reveal-up">Moin, moin</span>
+      <h2 data-worte data-lauf>Wir stellen die Leute, die Ihr Event am Laufen halten.</h2>
+    </div>
+    <div class="intro__lead">
+      <p class="reveal-up">Das HERM Service Team ist Ihr Ansprechpartner, wenn es um
+        <strong>erstklassiges Personal</strong> bei einem anstehenden Event geht. Mit über
+        20 Jahren Erfahrung im Personalmanagement wissen wir, worauf es ankommt und wo
+        es bei einer Veranstaltung erfahrungsgemäß eng wird.</p>
+      <p class="reveal-up" data-d="1">Ob Sicherheit, Gastronomie oder Promotion: unser Team
+        deckt alle Bereiche ab und unterstützt Sie bei Events jeder Art. Ebenso
+        professionell sind unsere Mitarbeiter in Logistik, Fahrservice und Reinigung
+        vertreten. Sie sprechen dabei immer mit demselben Haus, nicht mit sechs
+        verschiedenen Dienstleistern.</p>
+      <div class="badge-row reveal-up" data-d="2" data-stagger>
+        <span class="badge">Individuelle Konzepte</span>
+        <span class="badge">Geschultes Personal</span>
+        <span class="badge">Kurzfristig verfügbar</span>
+        <span class="badge">Arbeitnehmerüberlassung (AÜG)</span>
+      </div>
+      <!-- Das Neon-H steht jetzt in der rechten Spalte: die linke bleibt
+           dadurch kurz genug, dass die Überschrift beim Scrollen stehen
+           bleiben kann. Als Beleg, dass es das Büro in der Gertigstraße
+           wirklich gibt, nicht als Titelbild. -->
+      <figure class="intro__bild reveal-up" data-d="2">
+        <picture><source type="image/avif" srcset="assets/img/hero.avif" /><source type="image/webp" srcset="assets/img/hero.webp" /><img src="assets/img/hero.jpg" alt="Das Neon-Logo des HERM Service Team am Büro in der Gertigstraße in Hamburg" loading="lazy" width="1086" height="655" /></picture>
+        <figcaption>Büro Gertigstraße, Hamburg-Winterhude</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HIER STANDEN DIE SECHS BEREICHE ============
+     Sechs bildschirmfuellende Szenen, zusammen rund 4700 Pixel. Sie sind
+     weg, und zwar auf Wunsch: die Startseite soll den Einstiegstext, den
+     Film und die Referenzen zeigen, nicht den halben Katalog.
+
+     Verloren geht dadurch nichts. Die sechs Adressen haengen jetzt am
+     Menuepunkt „Dienstleistungen" oben: ein Klick, und ein Balken faehrt
+     unter der Kopfzeile heraus, in dem alle sechs stehen (`.megabar`,
+     gebaut von main.js). Ohne JavaScript fuehrt derselbe Menuepunkt wie
+     immer direkt auf dienstleistungen.html — es gibt also keine Lage, in
+     der man die Bereiche nicht erreicht. Im Fuss stehen sie ohnehin auf
+     jeder Seite.
+
+     Wer sie hierher zurueckholen will, findet den Bauplan in der
+     Versionsgeschichte; die Regeln dazu stehen in CLAUDE.md unter
+     „Szene != Buehne". -->
+
+<!-- ============ ABLAUF ============ -->
+<section class="ablauf" id="ablauf">
+  <div class="wrap">
+    <div class="ablauf__kopf">
+      <span class="eyebrow reveal-up">Zusammenarbeit</span>
+      <h2 class="reveal-up u-caps" data-d="1">So läuft eine Anfrage</h2>
+      <p class="reveal-up" data-d="2">Kein Portal, kein Konto, kein Formularmarathon. Vier
+        Schritte, und Sie wissen, woran Sie sind.</p>
+    </div>
+    <div class="ablauf__schritte reveal-up" data-d="1" data-stagger>
+      <div class="schritt">
+        <h3>Sie melden sich</h3>
+        <p>Datum, Ort, wie viele Leute und welcher Bereich, mehr brauchen wir für den
+          Anfang nicht. Telefon, E-Mail oder Formular, ganz wie es Ihnen passt.</p>
+      </div>
+      <div class="schritt">
+        <h3>Wir klären und rechnen</h3>
+        <p>Wir fragen nach, wo es unklar ist, und sagen offen, was geht und was nicht.
+          Danach bekommen Sie ein Angebot mit klaren Zahlen.</p>
+      </div>
+      <div class="schritt">
+        <h3>Team und Briefing</h3>
+        <p>Wir stellen die Leute zusammen, die zu Ihrem Haus passen. Auf Wunsch mit
+          detailliertem Briefing und vorher festgelegtem Dresscode.</p>
+      </div>
+      <div class="schritt">
+        <h3>Einsatztag</h3>
+        <p>Am Tag selbst sind wir erreichbar. Kommt kurzfristig etwas dazwischen, ist das
+          unser Problem, nicht Ihres.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ REFERENZEN ============ -->
+<!-- Die Stimmen standen vorher in zwei Endlosbändern und liefen am Auge vorbei.
+     Jetzt lesbar: ein Zitat als Anker, die übrigen als ruhiges Raster. -->
+<section class="testi">
+  <div class="wrap">
+    <div class="testi__head">
+      <span class="eyebrow reveal-up">Referenzen</span>
+      <h2 class="reveal-up u-caps" data-d="1">Wer mit uns arbeitet</h2>
+    </div>
+
+    <div class="tlead reveal-up">
+      <blockquote>„Maik ist nicht nur ein Freund, sondern auch ein zuverlässiger Partner.“
+        <footer>
+          <b>Tim Mälzer</b>
+          <small>Bullerei, Hamburg</small>
+        </footer>
+      </blockquote>
+    </div>
+
+    <!-- Auf der Startseite stehen nur noch das grosse Zitat und die Zeichen
+         derer, die mit uns arbeiten. Die einzelnen Stimmen stehen auf
+         referenzen.html — sie hier UND dort zu zeigen waere dieselbe
+         Doppelung, die bei den Dienstleistungen schon einmal aufgeraeumt
+         wurde. Die Zeichen tragen alt-Texte: hier steht kein Name als Text
+         daneben, anders als in den Karten auf der eigenen Seite. -->
+    <div class="reflogos reveal-up" data-d="2">
+      <ul class="reflogos__reihe">
+        <li><picture><source type="image/webp" srcset="assets/img/referenzen/henssler.webp" /><img src="assets/img/referenzen/henssler.png" alt="Hensslers Küche" loading="lazy" width="258" height="200" /></picture></li>
+        <li><picture><source type="image/webp" srcset="assets/img/referenzen/am-kai.webp" /><img src="assets/img/referenzen/am-kai.png" alt="Au Quai" loading="lazy" width="166" height="200" /></picture></li>
+        <li><picture><source type="image/webp" srcset="assets/img/referenzen/kitchen-guerilla.webp" /><img src="assets/img/referenzen/kitchen-guerilla.png" alt="kitchen guerilla" loading="lazy" width="139" height="200" /></picture></li>
+        <li><picture><source type="image/webp" srcset="assets/img/referenzen/hobenkoeoek.webp" /><img src="assets/img/referenzen/hobenkoeoek.png" alt="Hobenköök" loading="lazy" width="228" height="200" /></picture></li>
+        <li><picture><source type="image/webp" srcset="assets/img/referenzen/bugenhagen.webp" /><img src="assets/img/referenzen/bugenhagen.png" alt="Bugenhagen Catering" loading="lazy" width="266" height="200" /></picture></li>
+      </ul>
+      <a class="btn reflogos__mehr" href="referenzen.html">Alle Referenzen ansehen
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ANSPRUCH ============ -->
+<section class="expect" id="erwarten">
+  <div class="wrap expect__grid">
+    <div>
+      <span class="eyebrow reveal-up">Unser Anspruch</span>
+      <h2 class="reveal-up u-caps" data-d="1">Was Sie erwarten können</h2>
+      <p class="reveal-up" data-d="2">Jeder Einsatz, jeder Bereich, derselbe Standard.
+        Das hier können Sie einfordern.</p>
+    </div>
+    <div class="versprechen reveal-up" data-d="1" data-stagger>
+      <div>
+        <h3>Gepflegtes Auftreten</h3>
+        <p>Der Dresscode wird vorher festgelegt und eingehalten. Wer bei Ihnen steht, sieht
+          so aus, wie Ihr Haus es erwartet.</p>
+      </div>
+      <div>
+        <h3>Pünktlich vor Ort</h3>
+        <p>Anfahrt und Einsatzbeginn klären wir im Briefing. Das ist unsere Aufgabe, nicht
+          Ihre.</p>
+      </div>
+      <div>
+        <h3>Eingearbeitet statt abgestellt</h3>
+        <p>Unsere Leute kennen Menü-Service, Bankett und Bar. Sie fangen bei Ihnen nicht
+          bei null an.</p>
+      </div>
+      <div>
+        <h3>Mehrsprachig, wo es zählt</h3>
+        <p>Für Messe, Empfang und internationale Gäste stellen wir Personal mit
+          Fremdsprachenkenntnissen.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CTA / KONTAKT ============ -->
+<section class="cta" id="kontakt">
+  <div class="wrap cta__inner">
+    <span class="eyebrow reveal-up">Haben Sie noch Fragen?</span>
+    <h2 class="u-caps" data-worte data-lauf>Lassen Sie uns Ihr Event tragen.</h2>
+    <p class="reveal-up" data-d="2">Schreiben Sie uns, was ansteht, wir erstellen Ihnen ein
+      persönliches Angebot. Telefonisch, per E-Mail oder über das Formular.</p>
+    <div class="cta__actions reveal-up" data-d="3">
+      <a class="btn" href="kontakt.html">Anfrage stellen
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a class="btn btn--ghost" href="tel:+494027075100">+49 (40) 27075100</a>
+    </div>
+
+    <!-- Gesichter statt anonymer Sammeladresse — aber die ganze Disposition,
+         nicht eine einzelne Person. -->
+    <div class="ansprech reveal-up" data-d="4">
+      <div class="ansprech__leute" aria-hidden="true">
+        <span class="ansprech__kopf"><picture><source type="image/webp" srcset="assets/img/team/shayan-wahedi.webp" /><img src="assets/img/team/shayan-wahedi.jpg" alt="" loading="lazy" width="1000" height="1250" /></picture></span>
+        <span class="ansprech__kopf"><picture><source type="image/webp" srcset="assets/img/team/mohamad-hamade.webp" /><img src="assets/img/team/mohamad-hamade.jpg" alt="" loading="lazy" width="1000" height="1250" /></picture></span>
+        <span class="ansprech__kopf"><picture><source type="image/webp" srcset="assets/img/team/noah-benkhofer.webp" /><img src="assets/img/team/noah-benkhofer.jpg" alt="" loading="lazy" width="1000" height="1250" /></picture></span>
+        <span class="ansprech__kopf ansprech__kopf--leer">VO</span>
+      </div>
+      <!-- Hier standen Telefonnummer und E-Mail ein zweites Mal — zwischen dem
+           Knopf zwanzig Pixel darueber und den Karten zwanzig Pixel darunter.
+           Dreimal dieselbe Nummer auf einem Bildschirm hilft niemandem beim
+           Anrufen. Dieser Block sagt jetzt nur noch, WER die Anfrage bekommt;
+           WIE man ihn erreicht, steht darunter. -->
+      <div class="ansprech__txt">
+        <small>Ihre Anfrage landet hier</small>
+        <b>Unsere Disposition</b>
+      </div>
+    </div>
+
+    <div class="contact-cards reveal-up" data-d="4" data-stagger>
+      <div class="ccard"><small>Telefon &amp; Fax</small><a href="tel:+494027075100">+49 (40) 27075100</a><br><span style="color:var(--muted)">Fax +49 (40) 6011769</span></div>
+      <div class="ccard"><small>E-Mail</small><a href="mailto:info@hermserviceteam.com">info@hermserviceteam.com</a></div>
+      <!-- Wann jemand ans Telefon geht, ist die haeufigste Frage vor dem ersten
+           Anruf. Dieselbe Angabe steht auf kontakt.html und als
+           openingHoursSpecification in den strukturierten Daten. -->
+      <div class="ccard"><small>B&uuml;ro erreichbar</small>Montag bis Freitag, 10 bis 17 Uhr<br><span style="color:var(--muted)">Sonst per E-Mail oder Formular</span></div>
+      <div class="ccard"><small>Adresse</small><address>HERM Service Team e.K.<br>Maik Herm<br>Gertigstraße 12 bis 14, 22303 Hamburg</address></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap">
+    <!-- Schlusszeile des Fusses. Sie greift die Aussage der Startseite noch
+         einmal auf und ist gleichzeitig der letzte Weg zur Anfrage — wer bis
+         hierher gelesen hat, soll nicht erst wieder nach oben scrollen. -->
+    <a class="foot__claim" href="kontakt.html">
+      <span class="foot__claim-zeile"><span>Personal, das</span></span>
+      <span class="foot__claim-zeile"><span>Ihr Event trägt.</span></span>
+      <span class="foot__claim-go">Anfrage starten
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+    </a>
+    <div class="foot__grid">
+      <div class="foot__brand">
+        <a class="brand" href="#top">
+          <img class="brand__logo" src="assets/logo/logo-herm.png" alt="HERM Service Team" width="800" height="305" />
+        </a>
+        <p>Ihr Partner für Sicherheit, Promotion und Gastro-Personal. Personaldienstleistung aus Hamburg, mit über 20 Jahren Erfahrung.</p>
+        <div class="socials">
+          <a href="https://www.facebook.com/HermServiceTeam/" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.6 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.25-1.45 1.55-1.45h1.65V3.68c-.29-.04-1.27-.13-2.4-.13-2.38 0-4 1.45-4 4.12v2.23H7.7V13h2.7v8h3.2z"/></svg></a>
+          <a href="https://www.instagram.com/HermServiceTeam/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.15" fill="currentColor" stroke="none"/></svg></a>
+          <a href="https://de.linkedin.com/company/herm-service-team" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.9 8.6H4V20h2.9V8.6zM5.45 4a1.7 1.7 0 100 3.4 1.7 1.7 0 000-3.4zM20 13.8c0-3.1-1.66-4.55-3.87-4.55-1.78 0-2.58.98-3.02 1.67V8.6H10.2c.04.83 0 11.4 0 11.4h2.9v-6.36c0-.26.02-.52.1-.7.2-.52.68-1.06 1.48-1.06 1.05 0 1.47.8 1.47 1.96V20H20v-6.2z"/></svg></a>
+          <a href="https://www.xing.com/companies/hermserviceteame.k." target="_blank" rel="noopener" aria-label="Xing"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.3 7.5h3.1l2.15 3.85-3.45 6.05H5l3.45-6.05L6.3 7.5zM19.05 3l-6.3 11.15L16.8 21h-3.1l-4.05-6.85L15.95 3h3.1z"/></svg></a>
+        </div>
+      </div>
+      <div>
+        <h2>Sitemap</h2>
+        <ul>
+          <li><a href="#top">Home</a></li>
+          <li><a href="dienstleistungen.html">Dienstleistungen</a></li>
+          <li><a href="referenzen.html">Referenzen</a></li>
+          <li><a href="team.html">Team</a></li>
+          <li><a href="galerie.html">Galerie</a></li>
+          <li><a href="jobs.html">Jobs</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2>Dienstleistungen</h2>
+        <ul>
+          <li><a href="dienstleistungen/gastro-personal.html">Gastro-Personal</a></li>
+          <li><a href="dienstleistungen/sicherheit.html">Sicherheit</a></li>
+          <li><a href="dienstleistungen/promotion-hostess.html">Promotion / Hostess</a></li>
+          <li><a href="dienstleistungen/logistik.html">Logistik</a></li>
+          <li><a href="dienstleistungen/fahrservice.html">Fahrservice</a></li>
+          <li><a href="dienstleistungen/reinigung.html">Reinigung</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2>Kontakt</h2>
+        <ul>
+          <li><a href="kontakt.html">Anfrage &amp; Kontakt</a></li>
+          <li><a href="tel:+494027075100">+49 (40) 27075100</a></li>
+          <li><a href="mailto:info@hermserviceteam.com">info@hermserviceteam.com</a></li>
+          <!-- Keine Linie unter dieser Zeile: sie fuehrt nirgendwohin. Die
+               Aufzaehlung im Fuss besteht sonst aus Links; eine Angabe ohne
+               Ziel bekommt deshalb die Klasse .foot__fakt. -->
+          <li class="foot__fakt">B&uuml;ro Montag bis Freitag, 10 bis 17 Uhr</li>
+          <li><a href="impressum.html">Impressum</a></li>
+          <li><a href="datenschutz.html">Datenschutz</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot__bottom">
+      <span>© <span id="year"></span> HERM Service Team e.K., Erlaubnis zur Arbeitnehmerüberlassung (AÜG)</span>
+      <span>Maik Herm, Gertigstraße 12 bis 14, 22303 Hamburg</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ============ APP-LEISTE (nur Handy) ============
+     Am Telefon liegt der Daumen unten, nicht oben. Die vier Wege, die
+     jemand hier wirklich geht, stehen deshalb am unteren Rand — wie in
+     einer Anwendung. Das Vollbildmenue oben bleibt fuer alles Uebrige.
+     Auf dem Schreibtisch ist die Leiste ausgeblendet; dort ist die
+     Kopfzeile in Reichweite. -->
+<nav class="appleiste" aria-label="Schnellzugriff">
+  <!-- Die wandernde Marke. Sie zeigt, auf welchem Reiter man steht, und
+       gleitet beim Wechsel zum naechsten hinueber — auch ueber den
+       Seitenwechsel hinweg, weil sie einen eigenen Uebergangsnamen traegt.
+       Wo sie steht, entscheidet das Stylesheet anhand des aktiven Reiters;
+       hier steht sie nur einmal. -->
+  <span class="appleiste__marke" aria-hidden="true">
+    <img src="assets/logo/logo-herm-mark.png" alt="" width="540" height="540" />
+  </span>
+  <a href="index.html" aria-current="page">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20h-5v-5.5H9V20H4z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+    <span>Start</span>
+  </a>
+  <a href="dienstleistungen.html">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    <span>Leistungen</span>
+  </a>
+  <a href="jobs.html">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 8h16v11H4z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 8V6.5A1.5 1.5 0 0 1 10.5 5h3A1.5 1.5 0 0 1 15 6.5V8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    <span>Jobs</span>
+  </a>
+  <a href="kontakt.html">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16v12H4z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="m4.6 7 7.4 5.6L19.4 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span>Anfrage</span>
+  </a>
+</nav>
+
+<script src="assets/js/main.js"></script>
+<script src="assets/js/lenis.min.js"></script>
+<script src="assets/js/motion.js"></script>
+<script src="assets/js/hintergrundfilm.js"></script>
+</body>
+</html>

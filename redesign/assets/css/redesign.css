@@ -1,0 +1,1354 @@
+/* ============================================================
+   HERM Service Team, Neugestaltung
+   Schwarz und Weiß, Farben 1:1 aus der Testfassung: echtes Schwarz
+   als Fläche, Weiß als Schrift, keine Akzentfarbe.
+   Diese Datei liegt über styles.css.
+   ============================================================ */
+
+:root {
+  --ink: #000000;
+  --ink-2: #050505;
+  --ink-3: #0d0d0d;
+  --paper: #ffffff;
+  --chrome: rgba(255, 255, 255, 0.66);
+  --muted: rgba(255, 255, 255, 0.52);
+  --line: rgba(255, 255, 255, 0.12);
+  --line-stark: rgba(255, 255, 255, 0.28);
+  --accent: #ffffff;
+  --violet: #ffffff;
+  --orchid: #ffffff;
+  --glow: #ffffff;
+
+  --font-display: "Instrument Serif", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --font-body: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-label: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --fs-mega: clamp(3.4rem, 9.6vw, 9.8rem);
+  --fs-display: clamp(3rem, 7.4vw, 7rem);
+  --fs-h2: clamp(2.4rem, 4.8vw, 4.6rem);
+  --fs-h3: clamp(1.7rem, 2.7vw, 2.6rem);
+  --fs-h4: clamp(1.3rem, 1.8vw, 1.7rem);
+  --fs-lead: clamp(1.1rem, 1.45vw, 1.32rem);
+  --zeile-eng: 0.98;
+}
+
+/* ------------------------------------------------------------
+   Lenis übernimmt das Scrollen. Das native Glätten würde dagegen arbeiten.
+   ------------------------------------------------------------ */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* ------------------------------------------------------------
+   Grundfläche
+   ------------------------------------------------------------ */
+body {
+  background: var(--ink);
+  color: var(--paper);
+  -webkit-font-smoothing: antialiased;
+}
+::selection {
+  background: var(--paper);
+  color: var(--ink);
+}
+:focus-visible {
+  outline: 2px solid var(--paper);
+  outline-offset: 3px;
+}
+/* Ein Hauch Papierkorn, kaum zu sehen, aber zu spüren. */
+body:after {
+  display: none;
+}
+
+/* ------------------------------------------------------------
+   Schrift
+   ------------------------------------------------------------ */
+h1,
+h2,
+h3,
+h4,
+.foot__claim,
+.tlead blockquote,
+.pullquote blockquote,
+.faq summary,
+.pagenav a,
+.member__name,
+.fgruppe__titel,
+.kb-kopf__firma,
+.fuehrung__zeile,
+.megabar__name,
+.trust__item b,
+.ansprech__txt b,
+.danke h2,
+.kb-titel,
+.block-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  text-transform: none;
+}
+h1,
+h2,
+h3,
+h4 {
+  line-height: 1.04;
+}
+.u-caps,
+h1.u-caps,
+.foot__claim,
+#mobileMenu > a,
+.megabar__name,
+.member__name,
+.fgruppe__titel,
+.kb-kopf__firma {
+  text-transform: none;
+  letter-spacing: -0.012em;
+}
+h1.u-caps {
+  letter-spacing: -0.02em;
+}
+strong,
+b {
+  font-weight: 600;
+}
+
+/* Kleine Beschriftungen: keine Versalien, keine Sperrung, keine
+   Schreibmaschine. Ruhige Grundschrift in Halbfett. */
+.badge,
+.chip,
+.breadcrumb,
+.form label,
+.kb-tag__feld label,
+.side h2,
+.side__loginlabel,
+body > footer h2,
+.foot__bottom,
+.ccard small,
+.tcard .who small,
+.tlead blockquote footer small,
+.tlead__bild figcaption,
+.intro__bild figcaption,
+.wide-shot figcaption,
+.pullquote figcaption,
+.kontakt-fakten small,
+.ansprech__txt small,
+.member__meta,
+.member__wartet,
+.stelle__meta,
+.pagenav a small,
+.fuehrung__marke,
+.rechtstext dt,
+.lightbox__zaehler,
+.stage__index,
+.kb-kopf__nummer,
+.kb-tag__marke,
+.kb-ueber__was,
+.kb-ueber__tagmarke,
+.menu__unteralle,
+.nav__links a,
+.nav__phone,
+.burger,
+.ton,
+.appleiste a,
+#mobileMenu .menu__tel {
+  font-family: var(--font-body) !important;
+  font-weight: 500;
+  font-size: 0.82rem;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  font-stretch: 100%;
+}
+.kb-menge__zahl,
+.kb-ueber__anzahl,
+.kb-ueber__zeit,
+.kb-nummer {
+  font-family: var(--font-body);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+
+/* Die Zeile über einer Überschrift: kursive Serife, wie ein
+   Vorspann in einem Magazin. Kein Punkt davor, keine Sperrung. */
+.eyebrow {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(1.1rem, 1.5vw, 1.4rem);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--chrome);
+  display: block;
+  margin-bottom: 0.4em;
+}
+.eyebrow:before,
+.eyebrow:after {
+  display: none !important;
+}
+
+/* ------------------------------------------------------------
+   Fortschritt, Sprunglink
+   ------------------------------------------------------------ */
+#scrollbar {
+  background: var(--paper);
+  opacity: 0.7;
+  height: 1px;
+}
+.sprunglink {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+/* ------------------------------------------------------------
+   Vorspann
+   ------------------------------------------------------------ */
+#preloader {
+  background: var(--ink);
+}
+#preloader:before,
+.pre-logo:after {
+  display: none;
+}
+.pre-logo {
+  filter: none;
+}
+#preloader.instant .pre-logo__img {
+  filter: none;
+  opacity: 1;
+}
+
+/* ------------------------------------------------------------
+   Kopfzeile
+   ------------------------------------------------------------ */
+header.nav {
+  border-bottom: 1px solid transparent;
+}
+header.nav.scrolled {
+  background: rgba(0, 0, 0, 0.86);
+  backdrop-filter: blur(16px) saturate(1.1);
+  -webkit-backdrop-filter: blur(16px) saturate(1.1);
+  border-bottom-color: var(--line);
+}
+body.megabar-auf header.nav {
+  background: rgba(0, 0, 0, 0.98);
+}
+.nav__links a,
+.nav__phone {
+  color: var(--chrome);
+  font-size: 0.92rem;
+  padding: 6px 0;
+}
+.nav__links a:hover,
+.nav__links a[aria-expanded="true"],
+.nav__links a[aria-current="page"],
+.nav__phone:hover {
+  color: var(--paper);
+}
+.nav__links a[aria-current="page"]:before {
+  display: none;
+}
+.nav__links a[aria-current="page"]:after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+.nav__cta .btn {
+  font-family: var(--font-body);
+  font-size: 0.86rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  min-height: 0;
+  padding: 0.62em 1.2em;
+}
+.burger {
+  color: var(--paper);
+}
+
+/* Tonschalter: vier kleine Balken, schwarz. Kein Leuchten. */
+.ton {
+  appearance: none;
+  border: 0;
+  background: none;
+  color: var(--chrome);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+  min-height: 44px;
+  padding: 0 4px;
+  transition: color 0.2s ease;
+}
+.ton:hover,
+.ton[aria-pressed="true"] {
+  color: var(--paper);
+}
+.ton__balken {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 12px;
+}
+.ton__balken i {
+  display: block;
+  width: 2px;
+  height: 4px;
+  background: currentColor;
+  transform-origin: bottom;
+}
+.ton[aria-pressed="true"] .ton__balken i {
+  animation: tonTanz 0.9s ease-in-out infinite;
+}
+.ton[aria-pressed="true"] .ton__balken i:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.ton[aria-pressed="true"] .ton__balken i:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.ton[aria-pressed="true"] .ton__balken i:nth-child(4) {
+  animation-delay: 0.45s;
+}
+@keyframes tonTanz {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(3);
+  }
+}
+@media (max-width: 980px) {
+  .ton span.ton__wort {
+    display: none;
+  }
+}
+
+/* Eigener Zeiger: ein Punkt und ein Ring, der an Links aufgeht.
+   Nur mit echter Maus; auf Touch bleibt alles beim Alten. */
+#cursor {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 10000;
+  pointer-events: none;
+  width: 7px;
+  height: 7px;
+  margin: -3.5px 0 0 -3.5px;
+  border-radius: 50%;
+  background: var(--paper);
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+#cursorRing {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 10000;
+  pointer-events: none;
+  width: 34px;
+  height: 34px;
+  margin: -17px 0 0 -17px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  opacity: 0;
+  transition:
+    opacity 0.4s,
+    width 0.45s var(--ease-out),
+    height 0.45s var(--ease-out),
+    margin 0.45s var(--ease-out),
+    border-color 0.3s,
+    background 0.3s;
+}
+body.zeiger-an #cursor,
+body.zeiger-an #cursorRing {
+  opacity: 1;
+}
+body.zeiger-an.zeiger-link #cursorRing {
+  width: 56px;
+  height: 56px;
+  margin: -28px 0 0 -28px;
+  border-color: rgba(255, 255, 255, 0.9);
+}
+body.zeiger-an.zeiger-bild #cursorRing {
+  width: 84px;
+  height: 84px;
+  margin: -42px 0 0 -42px;
+  border-color: transparent;
+  background: rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(2px);
+}
+body.zeiger-an.zeiger-druck #cursorRing {
+  width: 18px;
+  height: 18px;
+  margin: -9px 0 0 -9px;
+}
+@media (hover: none), (pointer: coarse) {
+  #cursor,
+  #cursorRing {
+    display: none;
+  }
+}
+
+/* ------------------------------------------------------------
+   Knöpfe: eine schwarze Pille, eine umrandete. Keine Versalien.
+   ------------------------------------------------------------ */
+.btn,
+button.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6em;
+  width: auto;
+  min-height: 0;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: clamp(0.94rem, 1.05vw, 1.02rem);
+  letter-spacing: 0.01em;
+  text-transform: none;
+  line-height: 1.2;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--paper);
+  border-radius: 100px;
+  padding: 0.86em 1.55em;
+  text-shadow: none;
+  overflow: visible;
+  transition:
+    background 0.35s var(--ease-out),
+    color 0.35s var(--ease-out),
+    border-color 0.35s var(--ease-out),
+    transform 0.35s var(--ease-out);
+}
+.btn:before,
+.btn:after,
+button.btn:before,
+button.btn:after {
+  display: none !important;
+}
+.btn:hover,
+.btn:focus-visible,
+button.btn:hover:not(:disabled),
+button.btn:focus-visible:not(:disabled) {
+  background: var(--ink);
+  color: var(--paper);
+}
+.btn svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+.btn:hover svg {
+  transform: translate(4px, 0);
+}
+.btn--ghost {
+  background: none;
+  color: var(--paper);
+  border-color: var(--line-stark);
+}
+.btn--ghost:hover,
+.btn--ghost:focus-visible {
+  background: var(--paper);
+  color: var(--ink);
+  border-color: var(--paper);
+}
+button.btn:disabled {
+  opacity: 0.5;
+  cursor: progress;
+}
+button.btn--zeile,
+button.btn--zeile:hover:not(:disabled) {
+  background: none;
+  border: 0;
+  border-radius: 0;
+  padding: 0.5em 0;
+  color: var(--chrome);
+  text-decoration: underline;
+  text-underline-offset: 0.3em;
+  min-height: 44px;
+}
+button.btn--zeile:hover:not(:disabled) {
+  color: var(--paper);
+}
+.side .btn {
+  width: 100%;
+  justify-content: space-between;
+}
+.hero__actions,
+.cta__actions {
+  gap: 12px;
+}
+.hero__actions .btn,
+.cta__actions .btn {
+  text-shadow: none;
+}
+
+/* ------------------------------------------------------------
+   Hero: das Foto liegt hinter der Überschrift. Zwei Verläufe dunkeln
+   es links und unten ab, damit die Schrift auf jedem Bildschirm lesbar
+   bleibt. Keine Linie unter dem Hero, keine Punkte, keine Kamerafahrt.
+   ------------------------------------------------------------ */
+.hero {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  overflow: hidden;
+}
+.hero__photo {
+  order: 0;
+  position: absolute;
+  inset: 0;
+  width: auto;
+  height: auto;
+  margin: 0;
+  background: var(--ink);
+}
+.hero__photo picture {
+  display: block;
+  height: 100%;
+}
+.hero__photo img {
+  object-position: 50% 42%;
+}
+.hero__photo img,
+.schaubild img,
+.sofort .hero__photo img,
+.los .hero__photo img,
+.hero.live .hero__photo img,
+.schaubild.live img {
+  animation: none;
+  transform: none;
+}
+.hero__photo:after {
+  content: "";
+  display: block;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.26) 30%, rgba(0, 0, 0, 0.6) 62%, rgba(0, 0, 0, 0.96) 100%),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.34) 46%, rgba(0, 0, 0, 0.06) 100%);
+}
+.hero[data-weg] .hero__photo {
+  transform: translate3d(0, calc(var(--weg, 0) * 10vh), 0);
+}
+.hero__inner {
+  order: 0;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding-top: calc(var(--nav-h, 78px) + clamp(56px, 12vh, 150px));
+  padding-bottom: clamp(48px, 9vh, 110px);
+}
+.hero[data-weg] .hero__inner {
+  transform: none;
+  opacity: 1;
+}
+.hero .eyebrow,
+.hero .breadcrumb,
+.hero__sub {
+  text-shadow: 0 1px 16px rgba(0, 0, 0, 0.75);
+}
+.hero h1 {
+  font-size: var(--fs-mega);
+  letter-spacing: -0.02em;
+  line-height: 0.98;
+  margin-top: clamp(10px, 1.6vh, 20px);
+  text-shadow: 0 2px 30px rgba(0, 0, 0, 0.6);
+}
+.hero h1,
+.subhero h1,
+.foot__claim {
+  --zeile-eng: 0.98;
+  --zeile-weit: 1.22;
+}
+.hero h1 .line:nth-child(2) span {
+  font-style: italic;
+}
+.hero__fuss {
+  border-top: 0;
+  padding-top: 0;
+  margin-top: clamp(28px, 5vh, 56px);
+  align-items: flex-start;
+}
+.hero__fuss:before,
+.hero__fuss:after {
+  display: none;
+}
+.hero__sub {
+  max-width: 46ch;
+  color: rgba(255, 255, 255, 0.84);
+}
+.scrollcue {
+  display: none;
+}
+@media (max-width: 980px) {
+  .hero__inner {
+    padding-top: calc(var(--nav-h, 78px) + clamp(40px, 8vh, 90px));
+  }
+}
+@media (max-width: 560px) {
+  .hero {
+    min-height: 94svh;
+  }
+  .hero__photo img {
+    object-position: 50% 45%;
+  }
+  .hero__photo:after {
+    background:
+      linear-gradient(180deg, rgba(0, 0, 0, 0.66) 0%, rgba(0, 0, 0, 0.62) 38%, rgba(0, 0, 0, 0.8) 60%, rgba(0, 0, 0, 0.97) 100%);
+  }
+  .eyebrow__mehr {
+    display: none;
+  }
+}
+
+/* Vertrauensband unter dem Hero: vier ruhige Zahlen, keine Linie oben. */
+.trust {
+  border-top: 0;
+  border-bottom: 1px solid var(--line);
+}
+.trust__item b {
+  font-size: clamp(1.7rem, 2.6vw, 2.6rem);
+  letter-spacing: -0.015em;
+}
+
+/* ------------------------------------------------------------
+   Unterseiten-Kopf: gleiche Ordnung wie der Hero.
+   ------------------------------------------------------------ */
+.subhero {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: calc(var(--nav-h, 78px) + clamp(48px, 10vh, 130px)) 0 0;
+  overflow: hidden;
+}
+.subhero .wrap {
+  order: 1;
+  transform: none !important;
+  opacity: 1 !important;
+}
+.subhero__photo {
+  order: 2;
+  position: relative;
+  inset: auto;
+  height: clamp(340px, 64svh, 780px);
+  margin: clamp(32px, 5vh, 64px) clamp(20px, 5vw, 64px) 0;
+  background: var(--ink-2);
+}
+.subhero__photo:after {
+  display: none;
+}
+.subhero__photo picture {
+  display: block;
+  height: 100%;
+}
+.subhero__photo img {
+  animation: none;
+}
+.subhero[data-weg]:not(.subhero--band) .subhero__photo {
+  transform: translate3d(0, calc(var(--weg, 0) * -3vh), 0);
+}
+.subhero h1 {
+  font-size: var(--fs-display);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  text-shadow: none;
+}
+.subhero .tag {
+  border-top: 0;
+  padding-top: 0;
+  text-shadow: none;
+  color: var(--chrome);
+  max-width: 50ch;
+  margin-top: clamp(16px, 2.4vh, 26px);
+}
+.breadcrumb {
+  color: var(--muted);
+  margin-bottom: clamp(14px, 2vh, 22px);
+}
+.breadcrumb a:hover {
+  color: var(--paper);
+}
+.subhero--band {
+  padding-top: calc(var(--nav-h, 78px) + 16px);
+}
+.subhero--band .subhero__photo {
+  order: 0;
+  height: auto;
+  margin: 0;
+  aspect-ratio: 1600 / 880;
+}
+.subhero--band .wrap {
+  padding-top: clamp(30px, 4vw, 56px);
+}
+@media (max-width: 980px) {
+  .subhero__photo {
+    height: clamp(300px, 52svh, 600px);
+  }
+}
+@media (max-width: 560px) {
+  .subhero__photo {
+    margin-inline: 0;
+    height: clamp(260px, 46svh, 480px);
+  }
+}
+
+/* Großes Schaubild auf der Startseite: ohne Nebel an den Kanten. */
+.schaubild:after {
+  display: none;
+}
+.schaubild {
+  background: var(--ink-2);
+}
+
+/* ------------------------------------------------------------
+   Vorhang: Bilder werden von oben nach unten freigegeben.
+   ------------------------------------------------------------ */
+[data-vorhang] {
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path 1.4s var(--ease-out);
+}
+[data-vorhang].in,
+.kein-js [data-vorhang] {
+  clip-path: inset(0 0 0 0);
+}
+
+/* ------------------------------------------------------------
+   Film
+   ------------------------------------------------------------ */
+.film__buehne {
+  background: #000000;
+}
+.film__untertitel {
+  color: #fff;
+  font-family: var(--font-display);
+  font-style: italic;
+}
+.film__knopf {
+  border-radius: 100px;
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+}
+.film__knopf:hover,
+.film__knopf--wartet {
+  background: #fff;
+  color: #000000;
+}
+.film__knopf:focus-visible {
+  outline-color: #fff;
+}
+
+/* ------------------------------------------------------------
+   Bühnen (Übersichtsseite): dunkle Fotoflächen im hellen Blatt.
+   Die Schrift darauf bleibt weiß, alles andere wird ruhiger.
+   ------------------------------------------------------------ */
+.stage {
+  --paper: #ffffff;
+  --chrome: rgba(255, 255, 255, 0.78);
+  --muted: rgba(255, 255, 255, 0.6);
+  --line: rgba(255, 255, 255, 0.2);
+  --line-stark: rgba(255, 255, 255, 0.5);
+  --accent: #ffffff;
+}
+.stage__sticky {
+  background: #000000;
+}
+.stage__sticky:before {
+  background: #000000;
+}
+.scene__photo,
+.stagevid {
+  border-radius: 0;
+}
+.panel {
+  color: #fff;
+}
+.panel:before {
+  background:
+    radial-gradient(86% 80% at 12% 86%, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7) 34%, rgba(0, 0, 0, 0.42) 58%, rgba(0, 0, 0, 0.14) 74%, transparent 88%),
+    linear-gradient(180deg, transparent 0%, transparent 45%, rgba(0, 0, 0, 0.6) 100%);
+}
+@media (max-width: 980px) {
+  .panel:before {
+    inset: -60% -40% -40% -40%;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.55) 35%, rgba(0, 0, 0, 0.9) 100%);
+  }
+}
+.panel h2 {
+  font-size: var(--fs-h2);
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+.panel .num {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(1.1rem, 1.5vw, 1.4rem);
+  letter-spacing: 0;
+  word-spacing: normal;
+  text-transform: none;
+  color: rgba(255, 255, 255, 0.85);
+}
+.panel .num,
+.panel .tag,
+.panel p,
+.panel .chip,
+.panel .go {
+  text-shadow: none;
+}
+.panel .tag {
+  color: rgba(255, 255, 255, 0.9);
+}
+.panel p {
+  color: rgba(255, 255, 255, 0.82);
+}
+.panel .go {
+  background: #fff;
+  color: #000000;
+  border-color: #fff;
+}
+.panel .go:hover {
+  background: rgba(255, 255, 255, 0.86);
+  color: #000000;
+}
+.stage__index {
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+.stage__titel {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(1.1rem, 1.5vw, 1.4rem);
+  font-weight: 400;
+}
+.stage__linie {
+  background:
+    linear-gradient(#fff, #fff) left center / calc(var(--kapitel, 0) * 100%) 100% no-repeat,
+    rgba(255, 255, 255, 0.28);
+}
+.stage__nr,
+.megabar__num,
+.menu__unternum,
+.fgruppe__nr {
+  display: none !important;
+}
+/* Kinobalken: sie nehmen die Papierfarbe an, so wirkt es, als schöbe
+   sich das Foto ins Blatt, nicht als fielen schwarze Balken herab. */
+.kino__balken {
+  background: var(--ink);
+}
+.gate:after {
+  background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.6), transparent);
+}
+/* Kapitelmarken am rechten Rand: nur die Namen, keine Zahlen. */
+.kapitel a {
+  font-size: 0;
+  color: var(--muted);
+}
+.kapitel a span {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+.kapitel a:after {
+  background: currentColor;
+}
+.kapitel a.ist {
+  color: var(--paper);
+}
+
+/* ------------------------------------------------------------
+   Zwischenstücke: Karten, Listen, Zitate
+   ------------------------------------------------------------ */
+.badge-row,
+.chips {
+  gap: 8px 8px;
+}
+.badge,
+.chip {
+  padding: 0.38em 0.95em;
+  border: 1px solid var(--line-stark);
+  border-radius: 100px;
+  color: var(--paper);
+  font-size: 0.8rem;
+}
+.badge:before,
+.chip:before {
+  display: none;
+}
+.panel .chip {
+  border-color: rgba(0, 0, 0, 0.5);
+  color: #000000;
+}
+
+.intro__lead strong {
+  color: var(--paper);
+}
+
+/* So läuft eine Anfrage: vier Zeilen untereinander, von oben nach
+   unten gelesen. Keine Zahlen, keine Treppe, nur Haarlinien. */
+.ablauf__schritte {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  margin-top: var(--gap-l);
+  border-top: 1px solid var(--line);
+  counter-reset: none;
+}
+.schritt {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.4fr);
+  gap: 10px clamp(24px, 4vw, 72px);
+  align-items: start;
+  align-content: start;
+  padding: clamp(24px, 3.2vw, 40px) 0;
+  border-top: 0;
+  border-bottom: 1px solid var(--line);
+  grid-column: auto;
+  transition: padding-left 0.5s var(--ease-out);
+}
+.schritt:before,
+.schritt:after {
+  display: none;
+}
+.schritt h3 {
+  font-size: var(--fs-h3);
+  line-height: 1.05;
+  margin: 0;
+}
+.schritt p {
+  font-size: 1.02rem;
+  color: var(--chrome);
+  max-width: 54ch;
+  margin: 0;
+}
+.schritt:hover {
+  padding-left: clamp(8px, 1vw, 16px);
+}
+@media (max-width: 720px) {
+  .schritt {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .schritt:hover {
+    padding-left: 0;
+  }
+}
+
+/* Stimmen */
+/* Ohne Bild daneben: das Zitat trägt die Zeile allein. */
+.tlead {
+  grid-template-columns: minmax(0, 1fr);
+}
+.tlead blockquote {
+  max-width: 24ch;
+  font-size: clamp(1.8rem, 3.1vw, 3rem);
+  line-height: 1.16;
+  letter-spacing: -0.01em;
+}
+.tlead blockquote footer b {
+  font-family: var(--font-body);
+  font-weight: 600;
+}
+.tcard:after {
+  background: var(--paper);
+}
+.tcard p {
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 1.7vw, 1.55rem);
+  line-height: 1.28;
+}
+.tcard .who b {
+  font-weight: 600;
+}
+.reflogos__reihe img,
+.tcard .who__logo img {
+  opacity: 0.78;
+}
+.reflogos__reihe li:hover img,
+.tcard:hover .who__logo img {
+  opacity: 1;
+}
+
+/* Versprechen */
+.versprechen > div {
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+.versprechen h3,
+.leistung h3,
+.stelle h3 {
+  font-size: var(--fs-h4);
+}
+
+/* Zitat mit Strich */
+.pullquote {
+  border-left-color: var(--line-stark);
+}
+.pullquote blockquote {
+  font-style: italic;
+  font-size: clamp(1.4rem, 2.2vw, 1.9rem);
+  line-height: 1.22;
+}
+
+/* Häkchenliste: schwarzes Häkchen ohne Kasten. */
+.ticklist li:before {
+  background: none;
+  box-shadow: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12.5l5 5L20 6.5'/%3E%3C/svg%3E");
+  background-size: 16px;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 0;
+}
+
+/* Fragen */
+.faq summary {
+  font-size: var(--fs-h4);
+}
+.faq summary:hover {
+  color: var(--paper);
+  font-style: italic;
+}
+
+/* Team */
+.member__img,
+.gal__item,
+.megabar__bild {
+  background: var(--ink-2);
+}
+.member__img--leer {
+  background: linear-gradient(160deg, var(--ink-3), var(--ink-2));
+}
+.member__initialen {
+  font-family: var(--font-display);
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.28);
+}
+.member__name {
+  font-size: clamp(1.4rem, 1.9vw, 1.7rem);
+}
+
+/* Führung */
+.fuehrung__zeile {
+  font-size: clamp(1.3rem, 1.9vw, 1.7rem);
+}
+
+/* Galerie und Lichtkasten */
+.gal__item figcaption {
+  background: linear-gradient(to top, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0));
+  color: #000000;
+}
+.lightbox,
+.lightbox::backdrop {
+  background: rgba(0, 0, 0, 0.97);
+}
+.lightbox {
+  color: var(--paper);
+}
+.lightbox__knopf {
+  background: var(--paper);
+  color: var(--ink);
+  border-color: transparent;
+}
+.lightbox__knopf:hover {
+  background: #2b2925;
+  border-color: transparent;
+}
+
+/* Seitennavigation unten */
+.pagenav a {
+  font-size: var(--fs-h3);
+  color: var(--chrome);
+}
+.pagenav a:hover {
+  color: var(--paper);
+  font-style: italic;
+}
+
+/* Offene Stellen, Hinweise */
+.offen {
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 0 0 1px var(--line-stark);
+  color: var(--paper);
+}
+.offen-kasten {
+  background: rgba(255, 255, 255, 0.04);
+}
+.offen-kasten b {
+  color: var(--paper);
+}
+.einsatzband i.leitung {
+  background: var(--paper);
+}
+
+/* ------------------------------------------------------------
+   Aufruf zum Schluss: ein schwarzes Blatt im hellen Buch.
+   ------------------------------------------------------------ */
+.cta {
+  background: var(--ink);
+  color: var(--paper);
+  border-top: 1px solid var(--line);
+  padding: calc(var(--sec) * 1.05) 0 var(--sec);
+}
+.cta:before,
+.cta:after {
+  display: none;
+}
+.cta h2 {
+  font-size: var(--fs-mega);
+  line-height: 0.98;
+  letter-spacing: -0.02em;
+  max-width: 14ch;
+}
+.cta__actions {
+  border-top: 0;
+  padding-top: 0;
+}
+.ansprech__kopf {
+  border-color: var(--ink);
+  background: #1a1a1a;
+}
+.ansprech__kopf--leer {
+  color: var(--chrome);
+  font-family: var(--font-body);
+  font-weight: 600;
+}
+.ansprech__txt a:hover {
+  color: var(--paper);
+}
+.ccard a:hover {
+  color: var(--paper);
+  font-style: italic;
+}
+
+/* ------------------------------------------------------------
+   Fußzeile
+   ------------------------------------------------------------ */
+body > footer {
+  border-top: 1px solid var(--line);
+}
+body > footer:before,
+body > footer:after {
+  display: none;
+}
+.foot__claim {
+  font-size: var(--fs-mega);
+  line-height: 0.98;
+  letter-spacing: -0.02em;
+}
+.foot__claim-zeile:nth-of-type(2) > span {
+  font-style: italic;
+}
+.foot__claim-go {
+  color: var(--chrome);
+}
+.socials a:hover,
+.menu__socials a:hover {
+  color: var(--paper);
+}
+.foot__bottom {
+  font-size: 0.8rem;
+  letter-spacing: 0;
+}
+#toTop {
+  color: var(--chrome);
+  text-shadow: none;
+}
+#toTop:hover {
+  color: var(--paper);
+}
+
+/* ------------------------------------------------------------
+   Mobiles Menü und Untermenü
+   ------------------------------------------------------------ */
+#mobileMenu {
+  background: var(--ink);
+}
+#mobileMenu > a {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2.4rem, 8.6vw, 5rem);
+  letter-spacing: -0.015em;
+  color: var(--paper);
+}
+#mobileMenu > a[aria-current="page"] {
+  font-style: italic;
+}
+#mobileMenu > a[aria-current="page"]:after {
+  display: none;
+}
+#mobileMenu .menu__aktion a.btn {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.92rem;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  color: var(--ink);
+  padding: 0.86em 1.55em;
+}
+#mobileMenu .menu__tel {
+  color: var(--chrome);
+  font-size: 0.95rem;
+}
+.menu__unter a {
+  color: var(--chrome);
+}
+.menu__unteralle {
+  font-size: 0.86rem !important;
+  letter-spacing: 0.01em;
+  text-transform: none;
+}
+.megabar {
+  background: rgba(0, 0, 0, 0.98);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--line);
+}
+.megabar__bild img {
+  opacity: 0.88;
+}
+.megabar__liste a:hover .megabar__bild img,
+.megabar__liste a:focus-visible .megabar__bild img {
+  opacity: 1;
+}
+.megabar__name {
+  font-size: clamp(1.15rem, 1.5vw, 1.4rem);
+  min-height: 0;
+  margin-top: 12px;
+}
+.megabar--text .megabar__name {
+  font-size: clamp(1.3rem, 1.9vw, 1.7rem);
+}
+
+/* App-Leiste unten auf dem Handy */
+.appleiste {
+  background: rgba(0, 0, 0, 0.94);
+  border-top-color: var(--line);
+}
+.appleiste.faehrt {
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.96), rgba(0, 0, 0, 0.7) 55%, rgba(0, 0, 0, 0));
+}
+.appleiste a,
+.appleiste.faehrt a {
+  color: var(--muted);
+  font-size: 0.66rem;
+  letter-spacing: 0.01em;
+}
+.appleiste a:active,
+.appleiste a[aria-current="page"],
+.appleiste.faehrt a[aria-current="page"] {
+  color: var(--paper);
+}
+
+/* ------------------------------------------------------------
+   Formulare
+   ------------------------------------------------------------ */
+.form label,
+.kb-tag__feld label {
+  color: var(--muted);
+}
+.form .feld:focus-within > label {
+  color: var(--paper);
+}
+.form input,
+.form select,
+.form textarea,
+.kb-tag__feld input {
+  color: var(--paper);
+  border-bottom-color: var(--line-stark);
+}
+.form input::placeholder,
+.form textarea::placeholder {
+  color: rgba(255, 255, 255, 0.36);
+}
+.form input:hover,
+.form select:hover,
+.form textarea:hover {
+  border-bottom-color: rgba(255, 255, 255, 0.6);
+}
+.form input:focus,
+.form select:focus,
+.form textarea:focus,
+.kb-tag__feld input:focus {
+  border-bottom-color: var(--paper);
+  box-shadow: 0 1px var(--paper);
+}
+.form select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-opacity='.6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+}
+.form select option {
+  background: var(--ink);
+  color: var(--paper);
+}
+.form .zustimmung input[type="checkbox"] {
+  accent-color: var(--paper);
+}
+.form .feld--fehler input,
+.form .feld--fehler select,
+.form .feld--fehler textarea,
+.kundenbereich .feld--fehler input,
+.kundenbereich .feld--fehler textarea {
+  border-bottom-color: #000000fff;
+  box-shadow: 0 1px #000000fff;
+}
+.feld__fehler,
+.form__status[data-stand="fehler"] {
+  color: #000000fff;
+}
+.fgruppe__titel {
+  font-size: clamp(1.5rem, 2.3vw, 2.1rem);
+  color: var(--paper);
+}
+.danke__haken {
+  background: var(--paper);
+  color: var(--ink);
+}
+.kb-art__name:before {
+  background: var(--paper);
+}
+
+/* ------------------------------------------------------------
+   Rechtstexte
+   ------------------------------------------------------------ */
+.rechtstext h2 {
+  font-size: var(--fs-h3);
+}
+.rechtstext h3 {
+  font-size: var(--fs-h4);
+}
+
+/* ------------------------------------------------------------
+   Bewegung reduziert
+   ------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  .ton[aria-pressed="true"] .ton__balken i {
+    animation: none;
+  }
+  [data-vorhang] {
+    clip-path: none;
+    transition: none;
+  }
+  #cursor,
+  #cursorRing {
+    display: none;
+  }
+  .hero[data-weg] .hero__photo,
+  .subhero[data-weg] .subhero__photo {
+    transform: none;
+  }
+}

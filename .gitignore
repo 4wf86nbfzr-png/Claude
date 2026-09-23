@@ -16,3 +16,10 @@ herm-website-testdatei.html
 tools/stimme/
 .paket-cache/
 tools/__pycache__/
+
+# Das fertige Redesign-Paket — wird aus dem Ordner redesign/ geschnuert.
+herm-website-redesign-neu.zip
+
+# Der Ordner redesign/ ist eine GELIEFERTE Fassung, kein Bauergebnis: dort
+# sind auch die gebuendelten Funktionen die Quelle, die wir haben.
+!redesign/netlify/functions/
