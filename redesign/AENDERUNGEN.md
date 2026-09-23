@@ -129,6 +129,27 @@ halbe Sekunde lang ein leeres Rechteck zu zeigen.
 | reduzierte Bewegung | Lage ausgebaut, Abschnitte wieder deckend |
 | Telefon | Hochkantschnitt und die 2560er Bildstufe werden geholt |
 
+## Zum Durchklicken ohne Server
+
+```bash
+python3 tools/testdatei-bauen.py --wurzel redesign
+```
+
+Das baut `herm-website-redesign-testdatei.html` — alle sechzehn Seiten in
+einer Datei, mit echten Schriften, echten Bildern und dem Hintergrundfilm,
+13,5 MB. Dasselbe Werkzeug baut mit `--wurzel` jetzt auch aus einem
+anderen Ordner als dem Repository; welche Stylesheets und Skripte eine
+Fassung hat, liest es aus deren `index.html` statt es zu raten.
+
+**Der Film liegt darin als H.264**, nicht als VP9: die Datei wird auf
+einem gewöhnlichen Gerät geöffnet, und dort ist H.264 das Format, das
+jedes davon in Hardware dekodiert. Das Chromium dieser Werkstatt kann
+kein H.264 — dass die Verdrahtung stimmt, ist mit `--vp9` nachgeprüft
+(`readyState 4`, Film läuft). Beide Fassungen einzubetten wären 5,2 MB
+für eine Datei, die niemand anfordert.
+
+## Nachgemessen (Fortsetzung)
+
 Gemessen wird der Kontrast über bewegtem Bild **im Bild**, nicht im DOM:
 `rgba(0,0,0,.88)` ist kein deckender Vorfahr, eine DOM-Prüfung fände
 davon nichts. Abgetastet wird im Lauf — der Testserver beantwortet keine

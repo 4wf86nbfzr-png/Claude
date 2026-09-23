@@ -40,6 +40,15 @@ gewohnt und melden beim Absenden einen Fehler. Das ist so richtig: eine
 vorgetaeuschte Erfolgsmeldung waere eine Fake-Funktion.
 
     python3 tools/testdatei-bauen.py [--ohne-film]
+    python3 tools/testdatei-bauen.py --wurzel redesign [--ziel datei.html]
+
+Der Schalter `--wurzel` baut die Testdatei aus einem anderen Ordner statt
+aus dem Repository — gebraucht fuer `redesign/`, die gelieferte Fassung
+mit ihrem eigenen Stylesheet und ihren eigenen Skripten. Welche
+Stylesheets und Skripte eine Fassung hat, wird dabei NICHT geraten,
+sondern aus ihrer `index.html` gelesen: die Reihenfolge dort ist die
+Reihenfolge der Kaskade, und eine geratene waere die haeufigste Art,
+sich eine Neugestaltung zu zerlegen.
 """
 
 import base64
@@ -51,6 +60,12 @@ import sys
 
 WURZEL = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ZIEL = os.path.join(WURZEL, 'herm-website-testdatei.html')
+
+# Stylesheets und Skripte werden in `main()` aus der `index.html` der
+# jeweiligen Wurzel gelesen. Diese beiden Listen sind nur der Rueckfall,
+# falls dort nichts steht — sie beschreiben den Stand des Repositorys.
+CSS_TEILE = ['assets/css/fonts.css', 'assets/css/styles.css']
+JS_TEILE = ['assets/js/main.js']
 
 # Die Startseite steht zuerst — sie ist die Seite, die beim Oeffnen kommt.
 SEITEN_LISTE = [
@@ -76,13 +91,31 @@ SEITEN_LISTE = [
 # (quer, hochkant) in je zwei Formaten. Fuers Paket wird jede davon dichter
 # gepackt und zwischengespeichert; fuer die Testdatei ist genau die richtig.
 #
-# **Die beiden VP9-Fassungen bleiben hier ganz draussen.** Sie sind im Paket
-# die Rueckfallebene fuer Chromium-Baureihen ohne H.264 — die Testdatei ist
-# ein Werkzeug fuer uns und wird in einem gewoehnlichen Browser geoeffnet,
-# der H.264 kann. Eingebettet wuerden sie 5,2 MB roh und rund 7 MB als
-# base64 kosten, und zwar fuer einen Fall, den es hier nicht gibt.
+# **Es kommt genau EINE Fassung mit, und zwar H.264.** Die Testdatei wird
+# auf einem gewoehnlichen Geraet geoeffnet — Mac, Windows, iPhone —, und
+# dort ist H.264 das Format, das jedes davon in Hardware dekodiert. VP9
+# waere 1,1 MB schwerer und auf aelteren iPhones gar nicht abspielbar.
+# Beide einzubetten hiesse 5,2 MB fuer eine Datei, die niemand anfordert.
+#
+# Das Chromium DIESER Werkstatt kann kein H.264 (jede Linux-Distribution,
+# die die patentbehafteten Codecs auslaesst, baut es so). Zum Nachsehen,
+# dass die Verdrahtung stimmt, laesst `--vp9` die andere Fassung
+# einbetten — fuer die Auslieferung ist sie nicht gedacht.
 FILM_LAGER = os.path.join(WURZEL, '.paket-cache')
-FILM_AUS = ('assets/video/hintergrund.webm', 'assets/video/hintergrund-hoch.webm')
+FILM_FORMAT = 'mp4'
+
+
+def film_aus():
+    """Die Adressen des NICHT eingebetteten Formats.
+
+    Sie muessen auch aus dem Markup: als relativer Pfad loesen sie sich nur
+    dort auf, wo zufaellig der Ordner `assets/` danebenliegt — also hier in
+    der Werkstatt und sonst nirgends. Eine Adresse, die nur auf der eigenen
+    Platte stimmt, ist schlimmer als keine.
+    """
+    weg = 'webm' if FILM_FORMAT == 'mp4' else 'mp4'
+    return ('assets/video/hintergrund.%s' % weg,
+            'assets/video/hintergrund-hoch.%s' % weg)
 
 
 # ---------------------------------------------------------------------------
@@ -203,7 +236,26 @@ WEG = [
 ]
 
 CSS_LINK = re.compile(r'<link\s+rel="stylesheet"[^>]*>\s*', re.S)
-JS_TAG = re.compile(r'<script\s+[^>]*src="[^"]*main\.js"[^>]*>\s*</script>', re.S)
+# Frueher stand hier `main\.js` — solange es genau ein Skript gab, war das
+# dasselbe. Die Neugestaltung laedt vier (main, lenis, motion,
+# hintergrundfilm), und ein Ausdruck, der nur eins davon trifft, liesse die
+# drei anderen als tote Adressen im Dokument stehen.
+JS_TAG = re.compile(r'<script\s+[^>]*src="[^"]*assets/js/[^"]+"[^>]*>\s*</script>\s*', re.S)
+CSS_HREF = re.compile(r'<link\s+rel="stylesheet"[^>]*href="([^"]+)"', re.S)
+JS_SRC = re.compile(r'<script\s+[^>]*src="([^"]+)"', re.S)
+
+
+def teile_aus_index(quelle):
+    """Welche Stylesheets und Skripte diese Fassung laedt, in ihrer Reihenfolge.
+
+    Gelesen wird die `index.html`, nicht ein Ordnerinhalt: in `assets/css`
+    kann eine Datei liegen, die niemand einbindet, und die Reihenfolge der
+    Kaskade steht nirgends sonst.
+    """
+    css = [normieren(a) for a in CSS_HREF.findall(quelle)]
+    js = [normieren(a) for a in JS_SRC.findall(quelle)]
+    js = [a for a in js if a.startswith('assets/js/')]
+    return css, js
 
 
 # Was nach dem Eindampfen noch als JPEG dasteht, ist keins der grossen
@@ -241,13 +293,15 @@ def seite_umbauen(quelle, vorhanden):
     # Die Kommentare gehoeren in die Testdatei ohnehin nicht: sie ist ein
     # Werkzeug zum Durchklicken, die Begruendung steht im Repository.
     h = ohne_kommentare(quelle)
-    # Die VP9-Fassungen liegen der Testdatei nicht bei (siehe FILM_AUS).
-    # Ihre Adressen muessen deshalb auch aus dem Markup: als relativer Pfad
-    # loesen sie sich nur dort auf, wo zufaellig der Ordner `assets/`
-    # danebenliegt — also hier in der Werkstatt und sonst nirgends. Eine
-    # Adresse, die nur auf der eigenen Platte stimmt, ist schlimmer als
-    # keine.
-    h = re.sub(r'\s*data-(?:quer|hoch)-webm="[^"]*"', '', h)
+    # Das nicht eingebettete Filmformat muss auch aus dem Markup, sonst
+    # steht dort eine Adresse, die sich nirgends aufloest (siehe
+    # `film_aus()`). Welches das ist, sagt FILM_FORMAT — nicht dieser
+    # Ausdruck: stuende `webm` hier fest, liesse `--vp9` zwar die
+    # VP9-Dateien einbetten, naehme aber gleichzeitig ihre Adressen
+    # heraus, und der Film bliebe stumm schwarz. Genau so ist die erste
+    # Pruefung ins Leere gelaufen.
+    weg = 'webm' if FILM_FORMAT == 'mp4' else 'mp4'
+    h = re.sub(r'\s*data-(?:quer|hoch)-%s="[^"]*"' % weg, '', h)
     h = picture_eindampfen(h, vorhanden)
     h = leichter(h, vorhanden)
     for muster in WEG:
@@ -261,8 +315,12 @@ def seite_umbauen(quelle, vorhanden):
         stelle = h.find('</head>')
         h = h[:stelle] + '<!--HST-CSS-->\n' + h[stelle:]
 
+    # Alle Skript-Zeilen raus, EINE Marke an die Stelle der ersten. Mit
+    # `JS_TAG.sub(marke, h)` stuende sie viermal da — und die Huelle setzt
+    # an jede Marke das ganze Skript.
     if JS_TAG.search(h):
-        h = JS_TAG.sub('<!--HST-JS-->', h)
+        h = JS_TAG.sub('<!--HST-JS-->', h, count=1)
+        h = JS_TAG.sub('', h)
     else:
         h = h.replace('</body>', '<!--HST-JS--></body>')
 
@@ -514,7 +572,22 @@ def js_text(s):
 
 
 def main():
+    global WURZEL, ZIEL, FILM_LAGER, CSS_TEILE, JS_TEILE, FILM_FORMAT
     ohne_film = '--ohne-film' in sys.argv
+    if '--vp9' in sys.argv:
+        FILM_FORMAT = 'webm'
+
+    # --- Aus welchem Ordner wird gebaut? ----------------------------------
+    if '--wurzel' in sys.argv:
+        vorgabe = sys.argv[sys.argv.index('--wurzel') + 1]
+        WURZEL = os.path.abspath(os.path.join(os.getcwd(), vorgabe))
+        ZIEL = os.path.join(os.path.dirname(WURZEL),
+                            'herm-website-%s-testdatei.html' % os.path.basename(WURZEL))
+        FILM_LAGER = os.path.join(WURZEL, '.paket-cache')
+    if '--ziel' in sys.argv:
+        ZIEL = os.path.abspath(sys.argv[sys.argv.index('--ziel') + 1])
+    if not os.path.isdir(WURZEL):
+        sys.exit('Kein Ordner: %s' % WURZEL)
 
     quellen = {}
     for name in SEITEN_LISTE:
@@ -534,10 +607,29 @@ def main():
         for t in adresse.findall(ohne_kommentare(h)):
             gebraucht.add(normieren(t))
 
+    # --- Welche Stylesheets und Skripte hat diese Fassung? -----------------
+    css_teile, js_teile = teile_aus_index(quellen.get(SEITEN_LISTE[0], ''))
+    if css_teile:
+        CSS_TEILE = css_teile
+    if js_teile:
+        JS_TEILE = js_teile
+
     # Die Kacheln der Unterleiste setzt `main.js` erst im Browser zusammen;
     # im Quelltext der Seiten steht keine einzige davon.
-    with open(os.path.join(WURZEL, 'assets/js/main.js'), encoding='utf-8') as f:
-        js_quelle = f.read()
+    #
+    # Die Skripte werden mit `\n;\n` verbunden und nicht einfach aneinander
+    # gehaengt: eine minifizierte Datei endet nicht zwingend mit einem
+    # Semikolon, und eine folgende Datei, die mit `(` anfaengt, waere dann
+    # ein Aufruf des letzten Ausdrucks der vorigen.
+    stuecke = []
+    for teil in JS_TEILE:
+        pfad = os.path.join(WURZEL, teil)
+        if not os.path.exists(pfad):
+            print('   Skript fehlt, uebersprungen: %s' % teil)
+            continue
+        with open(pfad, encoding='utf-8') as f:
+            stuecke.append('/* %s */\n%s' % (teil, f.read()))
+    js_quelle = '\n;\n'.join(stuecke)
     for datei_name in sorted(os.listdir(os.path.join(WURZEL, 'assets/img'))):
         if datei_name.endswith('-mini.webp'):
             gebraucht.add('assets/img/' + datei_name)
@@ -565,10 +657,14 @@ def main():
         if d.endswith('-mini.webp'):
             gebraucht.add('assets/img/' + d)
 
-    # --- Stylesheet: zwei Dateien, eine Zeichenkette -----------------------
+    # --- Stylesheet: die Teile aus der index.html, eine Zeichenkette -------
     css = ''
-    for teil in ('assets/css/fonts.css', 'assets/css/styles.css'):
-        with open(os.path.join(WURZEL, teil), encoding='utf-8') as f:
+    for teil in CSS_TEILE:
+        pfad = os.path.join(WURZEL, teil)
+        if not os.path.exists(pfad):
+            print('   Stylesheet fehlt, uebersprungen: %s' % teil)
+            continue
+        with open(pfad, encoding='utf-8') as f:
             css += f.read() + '\n'
 
     def schrift(treffer):
@@ -627,7 +723,7 @@ def main():
     for p in sorted(gebraucht):
         if p.startswith('assets/css/') or p.startswith('assets/js/') or p.startswith('assets/fonts/'):
             continue
-        if p in FILM_AUS:
+        if p in film_aus():
             continue
         if ohne_film and p.startswith('assets/video/'):
             continue
