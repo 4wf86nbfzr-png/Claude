@@ -362,3 +362,37 @@ Repository.
 | dasselbe Motiv zweimal auf einer Seite | **0** |
 | Kontrast über dem Film, Schreibtisch | **0** von 120 Textflächen unter der Grenze |
 | Kontrast über dem Film, Telefon | dieselben 5 Meldungen wie in der **unveränderten** gelieferten Fassung, Wert für Wert — Messartefakte, keine Folge der Änderungen |
+
+
+---
+
+# Fünf Aufnahmen mehr in der Galerie
+
+Dazugekommen sind fünf Bilder aus dem Einsatz:
+
+| Datei | was darauf ist | Bildunterschrift |
+|---|---|---|
+| `event-modehaus` | zwei Servicekräfte reichen Getränke bei einem Store-Event | Getränkeservice bei einem Store-Event |
+| `event-doormen` | fünf Doormen in Uniform mit weißen Handschuhen | Doormen am Eingang |
+| `event-empfang` | Servicekraft mit Tablett zwischen den Gästen | Zwischen den Gästen |
+| `event-aufstellung` | Serviceteam mit Tabletts vor dem Einlass | Aufstellung vor dem Einlass |
+| `event-kaufhaus` | Abendveranstaltung auf der Treppe eines Kaufhauses | Abendveranstaltung im Kaufhaus |
+
+Jede in AVIF, WebP und JPEG, lange Kante 1600 px — dieselbe Behandlung wie
+jedes andere Motiv der Fassung. Vier der fünf Vorlagen liegen unter oder
+genau auf 1600 px, es wird also nichts hochgerechnet.
+
+**Die Bildunterschriften nennen keinen Auftraggeber.** Auf den Aufnahmen
+sind Namen zu lesen, aber ein Name unter einem Foto ist eine Aussage über
+eine Geschäftsbeziehung — und die wird hier nicht behauptet. Beschrieben
+wird, was zu sehen ist.
+
+Eingesetzt sind sie **verteilt**, nicht als Block am Ende: neben das
+passende vorhandene Motiv. Sonst stünden die fünf neuen Bilder
+ausgerechnet dort, wo am wenigsten hingesehen wird.
+
+Das Teamfoto mit dem hochgehaltenen Schild ist aus der Galerie raus — das
+war schon im vorigen Durchgang erledigt (die drei Gesichter).
+
+Stand: **16 Kacheln**, alle laden, kein waagerechter Überlauf, keine
+Konsolen- oder Netzfehler, alle Aufblenden gehen auf.
