@@ -46,7 +46,7 @@ Der Schalter `--wurzel` baut die Testdatei aus einem anderen Ordner statt
 aus dem Repository — gebraucht fuer `redesign/`, die gelieferte Fassung
 mit ihrem eigenen Stylesheet und ihren eigenen Skripten. Welche
 Stylesheets und Skripte eine Fassung hat, wird dabei NICHT geraten,
-sondern aus ihrer `index.html` gelesen: die Reihenfolge dort ist die
+sondern aus ihren Seiten gelesen: die Reihenfolge dort ist die
 Reihenfolge der Kaskade, und eine geratene waere die haeufigste Art,
 sich eine Neugestaltung zu zerlegen.
 """
@@ -608,11 +608,33 @@ def main():
             gebraucht.add(normieren(t))
 
     # --- Welche Stylesheets und Skripte hat diese Fassung? -----------------
-    css_teile, js_teile = teile_aus_index(quellen.get(SEITEN_LISTE[0], ''))
+    #  Gelesen wird JEDE Seite, nicht nur die Startseite. Die Testdatei
+    #  traegt EIN Stylesheet und EIN Skript fuer alle sechzehn Seiten; was
+    #  nur auf einer steht, muss also trotzdem mit. Zuerst stand hier nur
+    #  die index.html — dann fehlten in der Neugestaltung genau die beiden
+    #  seitenbezogenen Stylesheets (die sechs Bereichsbloecke und das
+    #  Kopfband der Teamseite), und beide Seiten sahen in der Testdatei
+    #  anders aus als auf dem Server.
+    #
+    #  Die Reihenfolge ist die der Startseite, dann die der uebrigen
+    #  Seiten — und das ist die Reihenfolge der Kaskade. Eine Regel, die
+    #  nur auf einer Seite gelten soll, braucht deshalb einen Selektor,
+    #  der auch nur dort greift; in der Testdatei liegen alle uebereinander.
+    css_teile, js_teile = [], []
+    for name in SEITEN_LISTE:
+        c, j = teile_aus_index(quellen.get(name, ''))
+        for x in c:
+            if x not in css_teile:
+                css_teile.append(x)
+        for x in j:
+            if x not in js_teile:
+                js_teile.append(x)
     if css_teile:
         CSS_TEILE = css_teile
     if js_teile:
         JS_TEILE = js_teile
+    print('   Stylesheets: %s' % ', '.join(os.path.basename(x) for x in CSS_TEILE))
+    print('   Skripte:     %s' % ', '.join(os.path.basename(x) for x in JS_TEILE))
 
     # Die Kacheln der Unterleiste setzt `main.js` erst im Browser zusammen;
     # im Quelltext der Seiten steht keine einzige davon.

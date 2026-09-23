@@ -1,0 +1,221 @@
+/* ============================================================
+   Die sechs Bereiche als ruhige Bloecke
+   ------------------------------------------------------------
+   Liegt ueber redesign.css und gilt nur auf dienstleistungen.html.
+   Farben, Schriften und Abstaende kommen restlos aus den Tokens der
+   Neugestaltung — hier steht kein einziger eigener Farbwert.
+
+   WARUM DAS SO IST
+
+   Vorher standen hier sechs Buehnen mit Kamerafahrt: je zwei
+   bildschirmfuellende Fotos uebereinander, deren Massstab und Deckkraft
+   der Browser in JEDEM Scrollbild neu rechnet — sechsmal hintereinander,
+   ueber rund fuenfzehn Bildschirmhoehen. Das ist genau der Posten, der
+   das Scrollen zaeh macht: nicht die Bewegung kostet, sondern das, was
+   in jedem Bild neu gezeichnet werden muss.
+
+   Es war ausserdem nicht uebersichtlich. Wer wissen will, WAS es gibt,
+   musste vier Bildschirme je Bereich scrollen, um sechs Namen zu lesen.
+
+   Jetzt: eine Uebersicht aus sechs Zeilen (eine Bildschirmhoehe, alles
+   auf einen Blick) und darunter sechs Bloecke, bei denen das Bild die
+   Seite wechselt. Bewegt wird nur noch, was ohnehin bewegt wird — die
+   Aufblenden beim Hereinscrollen, dieselben wie auf jeder anderen Seite
+   der Website.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   Die Uebersicht: sechs Zeilen
+
+   Es ist kein Kasten um jede Zeile, sondern eine Haarlinie zwischen
+   zwei Zeilen — dasselbe Mittel, mit dem die Website sonst trennt.
+   Die Zeile springt zu ihrem Block; der Weg auf die Bereichsseite
+   steht dort und nicht hier ein zweites Mal.
+   ------------------------------------------------------------ */
+.bindex {
+  padding: clamp(40px, 6vw, 88px) 0 0;
+}
+.bindex__liste {
+  display: block;
+  border-top: 1px solid var(--line);
+}
+.bindex__zeile {
+  display: grid;
+  grid-template-columns: minmax(0, 15ch) minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: clamp(16px, 3vw, 44px);
+  padding: clamp(18px, 2.2vw, 30px) 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--paper);
+  text-decoration: none;
+  transition: opacity 0.35s var(--ease-out);
+}
+.bindex__name {
+  font-family: var(--font-display);
+  font-size: clamp(1.3rem, 2.3vw, 2rem);
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+}
+.bindex__satz {
+  color: var(--chrome);
+  font-size: clamp(0.92rem, 1.1vw, 1.05rem);
+  line-height: 1.45;
+}
+.bindex__pfeil {
+  align-self: center;
+  opacity: 0.5;
+  transition: transform 0.35s var(--ease-out), opacity 0.35s var(--ease-out);
+}
+/* Nur die angesteuerte Zeile hebt sich, der Rest bleibt stehen. Die
+   uebrigen fuenf zuruecktreten zu lassen sieht gut aus und kostet
+   Kontrast: der Beschreibungstext liegt bei 6,6:1, auf halber Deckkraft
+   waeren es 3,0 — dann ist die halbe Liste unlesbar, sobald die Maus
+   irgendwo in ihr steht. */
+.bindex__zeile:hover .bindex__name,
+.bindex__zeile:focus-visible .bindex__name {
+  font-style: italic;
+}
+.bindex__zeile:hover .bindex__pfeil,
+.bindex__zeile:focus-visible .bindex__pfeil {
+  opacity: 1;
+  transform: translateY(3px);
+}
+
+/* ------------------------------------------------------------
+   Die sechs Bloecke
+
+   Zweispaltig, und das Bild wechselt die Seite. `minmax(0,1fr)` und
+   nicht `1fr`: das Minimum einer Spalte ist sonst ihre
+   min-content-Breite, bei einer Ueberschrift also das laengste Wort —
+   „VERANSTALTUNGSSCHUTZ" machte die Spalte damit breiter als ein
+   320-px-Fenster und schob die ganze Seite hinaus.
+   ------------------------------------------------------------ */
+.bblock {
+  padding: clamp(56px, 8vw, 128px) 0;
+  border-top: 1px solid var(--line);
+}
+.bblock:first-of-type {
+  border-top: 0;
+}
+.bblock__raster {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: clamp(28px, 5vw, 76px);
+  align-items: center;
+}
+/* Das Bild wechselt die Seite. Verschoben wird die SPALTE, nicht die
+   Reihenfolge im Markup: in der Vorlesereihenfolge steht das Bild
+   weiter vor dem Text, und das ist richtig — es gehoert zum Block, es
+   traegt ihn nicht. */
+.bblock--rechts .bblock__bild {
+  order: 2;
+}
+.bblock__bild {
+  margin: 0;
+  overflow: hidden;
+  background: var(--ink-3);
+}
+.bblock__bild picture {
+  display: block;
+}
+.bblock__bild img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  display: block;
+  transition: transform 1.1s var(--ease-out);
+}
+/* `height:auto` gehoert zwingend dazu: jedes <img> traegt width und
+   height im Markup (richtig so, das verhindert Springen beim Laden),
+   und ein gesetzter Wert schlaegt `aspect-ratio`. Ohne diese Zeile
+   stuende das Motiv in Originalhoehe da — also genau als der
+   bildschirmhohe Block, den die Regel verhindern soll. */
+.bblock:hover .bblock__bild img {
+  transform: scale(1.03);
+}
+
+.bblock__wort {
+  display: grid;
+  gap: clamp(12px, 1.4vw, 20px);
+  align-content: start;
+}
+.bblock__wort h2 {
+  font-size: var(--fs-h2);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+.bblock__satz {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(1.05rem, 1.5vw, 1.4rem);
+  line-height: 1.3;
+  color: var(--paper);
+  margin: 0;
+}
+.bblock__wort > p {
+  color: var(--chrome);
+  max-width: 46ch;
+  margin: 0;
+}
+
+/* Die Stichworte trennen durch Abstand, nicht durch Linien: eine Linie
+   unter einem kurzen Eintrag liest im Netz als Link, und hier steckt
+   nichts dahinter. Der Punkt davor faellt aus demselben Grund weg —
+   was trennt, ist der Abstand. */
+.bblock__liste {
+  list-style: none;
+  margin: clamp(2px, 0.6vw, 8px) 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px clamp(16px, 2vw, 28px);
+}
+.bblock__liste li {
+  font-family: var(--font-label);
+  font-size: 0.86rem;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+}
+.bblock__wort .btn {
+  justify-self: start;
+  margin-top: clamp(6px, 1vw, 14px);
+}
+
+/* ------------------------------------------------------------
+   Schmale Fenster: eine Spalte, Bild zuerst
+   ------------------------------------------------------------ */
+@media (max-width: 900px) {
+  .bblock__raster {
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(20px, 5vw, 32px);
+  }
+  .bblock--rechts .bblock__bild {
+    order: 0;
+  }
+  .bblock__bild img {
+    aspect-ratio: 3 / 2;
+  }
+  .bindex__zeile {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  /* Der Merksatz faellt weg, sobald er unter den Namen rutschen
+     wuerde: zwei Zeilen je Eintrag sind sechsmal zwoelf Zeilen, und
+     dann ist die Uebersicht keine mehr. */
+  .bindex__satz {
+    display: none;
+  }
+}
+
+/* Bei reduzierter Bewegung steht alles still — die Heranfahrt am Bild
+   ist eine Zugabe, kein Traeger. */
+@media (prefers-reduced-motion: reduce) {
+  .bblock__bild img,
+  .bindex__pfeil {
+    transition: none;
+  }
+  .bblock:hover .bblock__bild img {
+    transform: none;
+  }
+}

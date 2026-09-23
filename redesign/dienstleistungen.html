@@ -13,14 +13,9 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin
       href="assets/fonts/instrument-sans-var-latin.woff2" />
 <link rel="stylesheet" href="assets/css/fonts.css">
-<!-- ============================================================
-     TESTBETRIEB — VOR DEM LIVE-GANG ENTFERNEN
-     Diese Zeile haelt Suchmaschinen von der internen Vorschau fern.
-     Solange sie hier steht, wird die Seite nicht indexiert.
-     Zusaetzlich sperrt robots.txt und der Header X-Robots-Tag.
-     Umschalten: python3 tools/live-schalten.py --live
-     ============================================================ -->
-<meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
+<!-- Freigegeben. Zurueck in den Testbetrieb:
+     python3 tools/live-schalten.py --test -->
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
 <link rel="canonical" href="https://hermserviceteam.com/dienstleistungen.html" />
 <meta name="theme-color" content="#000000" />
 <!-- Vorschau beim Teilen in Messengern und sozialen Netzwerken -->
@@ -52,6 +47,9 @@
 <link rel="icon" href="assets/logo/favicon.ico" sizes="any" />
 <link rel="stylesheet" href="assets/css/styles.css">
 <link rel="stylesheet" href="assets/css/redesign.css">
+<!-- Nur auf dieser Seite: die sechs Bereiche als ruhige Bloecke
+     statt als sechs Kamerafahrten. Steht nach redesign.css. -->
+<link rel="stylesheet" href="assets/css/dienstleistungen.css">
 <!-- Inhalte werden beim Scrollen eingeblendet. Ohne JavaScript bliebe die
      Seite sonst leer — diese Zeile nimmt die Sperre sofort zurück. -->
 <script>document.documentElement.classList.remove("kein-js")</script>
@@ -160,239 +158,185 @@
 
   <section class="content" style="padding-bottom:0">
     <div class="wrap">
-      <p class="team-lead reveal-up">Sechs Bereiche, einer nach dem anderen. Zu jedem finden Sie
-        unten den &Uuml;berblick und dahinter eine eigene Seite mit allem, was wir dort genau
-        stellen, welche Einsatzarten wir kennen und was Sie von unserem Personal erwarten k&ouml;nnen.</p>
+      <p class="team-lead reveal-up">Sechs Bereiche, einer nach dem anderen. Oben stehen alle sechs
+        auf einen Blick, darunter jeder einzeln, und dahinter eine eigene Seite mit allem, was
+        wir dort genau stellen, welche Einsatzarten wir kennen und was Sie von unserem
+        Personal erwarten k&ouml;nnen.</p>
     </div>
   </section>
 
 
-  <!-- ============ STAGE 01, GASTRO ============ -->
-  <!-- Die Bühnen sind der Signature-Effekt der Seite: beim Scrollen fährt die
-       Kamera in die Szene, die Nahaufnahme blendet auf, dann läuft der Text ein.
-       Gesteuert über --zoom / --detail / --panel aus main.js (updateStages). -->
-  <section class="stage" data-stage="gastro" id="gastro-personal">
-    <div class="stage__sticky">
-      <!-- Kapitelmarke: liegt im festen Rahmen, damit sie die ganze
-           Buehne ueber stehen bleibt. Die Linie darunter fuellt sich
-           aus --kapitel, das main.js beim Scrollen schreibt. -->
-      <div class="stage__index">
-        <span class="stage__zeile"><span class="stage__titel">Gastronomie</span></span>
-        <span class="stage__linie" aria-hidden="true"></span>
-      </div>
-      <div class="scene">
-        <div class="scene__frame art">
-          <!-- Weitwinkel -->
-          <picture><source type="image/avif" srcset="assets/img/gastro.avif 1600w, assets/img/gastro-gross.avif 2560w" sizes="(max-width:980px) 100vw, 142vw" /><source type="image/webp" srcset="assets/img/gastro.webp 1600w" sizes="(max-width:980px) 100vw, 142vw" /><img class="scene__photo" src="assets/img/gastro.jpg" alt="" loading="lazy" decoding="async" width="1600" height="1600" /></picture>
-          <!-- Anschluss für bewegtes Material: poster/data-src setzen. -->
-          <video class="stagevid" muted playsinline loop preload="metadata"
-                 aria-hidden="true" tabindex="-1"></video>
-          <div class="detail">
-            <!-- Nahaufnahme: blendet über --detail auf. -->
-            <picture><source type="image/avif" srcset="assets/img/gastro-detail.avif 1600w, assets/img/gastro-detail-gross.avif 2560w" sizes="(max-width:980px) 100vw, 142vw" /><source type="image/webp" srcset="assets/img/gastro-detail.webp 1600w" sizes="(max-width:980px) 100vw, 142vw" /><img class="scene__photo" src="assets/img/gastro-detail.jpg" alt="" loading="lazy" decoding="async" width="1600" height="1600" /></picture>
-            <video class="stagevid" muted playsinline loop preload="metadata"
-                   aria-hidden="true" tabindex="-1"></video>
-          </div>
-        </div>
-      </div>
-      <div class="panel">
-        <span class="num">Gastronomie</span>
-        <h2 class="u-caps">Servicekräfte mieten</h2>
-        <span class="tag">Wir lieben und leben guten Service.</span>
-        <p>Geschultes, dynamisches Gastro- und Hotellerie-Personal, vom Menü-Service über
+
+  <!-- ============ UEBERSICHT ============ -->
+  <!-- Sechs Zeilen, eine Bildschirmhoehe: was es gibt, steht zuerst
+       vollstaendig da. Jede Zeile springt zu ihrem Block weiter unten —
+       der Weg auf die Bereichsseite steht dort, nicht hier zweimal. -->
+  <section class="bindex">
+    <div class="wrap">
+      <nav class="bindex__liste" aria-label="Die sechs Bereiche">
+        <a class="bindex__zeile reveal-up" data-d="0" href="#gastro-personal">
+          <span class="bindex__name">Gastronomie</span>
+          <span class="bindex__satz">Wir lieben und leben guten Service.</span>
+          <svg class="bindex__pfeil" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a class="bindex__zeile reveal-up" data-d="1" href="#sicherheit">
+          <span class="bindex__name">Sicherheit</span>
+          <span class="bindex__satz">Wir schützen Sie und Ihre Veranstaltung.</span>
+          <svg class="bindex__pfeil" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a class="bindex__zeile reveal-up" data-d="2" href="#promotion-hostess">
+          <span class="bindex__name">Promotion &amp; Hostess</span>
+          <span class="bindex__satz">Der erste Eindruck zählt.</span>
+          <svg class="bindex__pfeil" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a class="bindex__zeile reveal-up" data-d="3" href="#logistik">
+          <span class="bindex__name">Logistik</span>
+          <span class="bindex__satz">Wir sorgen dafür, dass alles an seinem Platz ist.</span>
+          <svg class="bindex__pfeil" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a class="bindex__zeile reveal-up" data-d="4" href="#fahrservice">
+          <span class="bindex__name">Fahrservice</span>
+          <span class="bindex__satz">Sicher, diskret, pünktlich.</span>
+          <svg class="bindex__pfeil" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a class="bindex__zeile reveal-up" data-d="5" href="#reinigung">
+          <span class="bindex__name">Reinigung</span>
+          <span class="bindex__satz">Wenn wir da waren, ist es sauber.</span>
+          <svg class="bindex__pfeil" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </nav>
+    </div>
+  </section>
+
+  <!-- ============ GASTRONOMIE ============ -->
+  <section class="bblock bblock--links" id="gastro-personal">
+    <div class="wrap bblock__raster">
+      <figure class="bblock__bild reveal-up">
+        <picture><source type="image/avif" srcset="assets/img/gastro.avif 1600w, assets/img/gastro-gross.avif 2560w" sizes="(max-width:980px) 100vw, 50vw" /><source type="image/webp" srcset="assets/img/gastro.webp 1600w" sizes="(max-width:980px) 100vw, 50vw" /><img src="assets/img/gastro.jpg" alt="" loading="lazy" decoding="async" width="1600" height="1600" /></picture>
+      </figure>
+      <div class="bblock__wort">
+        <span class="eyebrow reveal-up">Gastronomie</span>
+        <h2 class="u-caps reveal-up" data-d="1">Servicekräfte mieten</h2>
+        <p class="bblock__satz reveal-up" data-d="2">Wir lieben und leben guten Service.</p>
+        <p class="reveal-up" data-d="3">Geschultes, dynamisches Gastro- und Hotellerie-Personal, vom Menü-Service über
           Catering und Bankett bis zur Bar. Dank großer Datenbank decken wir jeden Bereich
           rund um Hamburg ab.</p>
-        <div class="chips"><span class="chip">Kellner</span><span class="chip">Barkeeper</span><span class="chip">Partyhilfe</span><span class="chip">Runner</span><span class="chip">Küchenhilfe</span></div>
-        <a class="btn go" href="dienstleistungen/gastro-personal.html">Zum Bereich <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <ul class="bblock__liste reveal-up" data-d="4" data-stagger><li>Kellner</li><li>Barkeeper</li><li>Partyhilfe</li><li>Runner</li><li>Küchenhilfe</li></ul>
+        <a class="btn reveal-up" data-d="5" href="dienstleistungen/gastro-personal.html">Zum Bereich
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
       </div>
     </div>
   </section>
 
-  <!-- ============ STAGE 02, SICHERHEIT ============ -->
-  <section class="stage" data-stage="sicherheit" id="sicherheit">
-    <div class="stage__sticky">
-      <!-- Kapitelmarke: liegt im festen Rahmen, damit sie die ganze
-           Buehne ueber stehen bleibt. Die Linie darunter fuellt sich
-           aus --kapitel, das main.js beim Scrollen schreibt. -->
-      <div class="stage__index">
-        <span class="stage__zeile"><span class="stage__titel">Sicherheit</span></span>
-        <span class="stage__linie" aria-hidden="true"></span>
-      </div>
-      <div class="scene">
-        <div class="scene__frame art">
-          <picture><source type="image/avif" srcset="assets/img/sicherheit.avif 1600w, assets/img/sicherheit-gross.avif 2560w" sizes="(max-width:980px) 100vw, 142vw" /><source type="image/webp" srcset="assets/img/sicherheit.webp 1600w" sizes="(max-width:980px) 100vw, 142vw" /><img class="scene__photo" src="assets/img/sicherheit.jpg" alt="" loading="lazy" decoding="async" width="1600" height="1600" /></picture>
-          <video class="stagevid" muted playsinline loop preload="metadata"
-                 aria-hidden="true" tabindex="-1"></video>
-          <div class="detail">
-            <picture><source type="image/avif" srcset="assets/img/sicherheit-detail.avif 1400w, assets/img/sicherheit-detail-gross.avif 2560w" sizes="(max-width:980px) 100vw, 135vw" /><source type="image/webp" srcset="assets/img/sicherheit-detail.webp 1400w" sizes="(max-width:980px) 100vw, 135vw" /><img class="scene__photo" src="assets/img/sicherheit-detail.jpg" alt="" loading="lazy" decoding="async" width="1400" height="1400" /></picture>
-            <video class="stagevid" muted playsinline loop preload="metadata"
-                   aria-hidden="true" tabindex="-1"></video>
-          </div>
-        </div>
-      </div>
-      <div class="panel">
-        <span class="num">Sicherheit</span>
-        <h2 class="u-caps">Veranstaltungsschutz</h2>
-        <span class="tag">Wir schützen Sie und Ihre Veranstaltung.</span>
-        <p>Ob TV-Show, Gala oder Sportevent, nach einer Sicherheitsanalyse sorgen wir mit
+  <!-- ============ SICHERHEIT ============ -->
+  <section class="bblock bblock--rechts" id="sicherheit">
+    <div class="wrap bblock__raster">
+      <figure class="bblock__bild reveal-up">
+        <picture><source type="image/avif" srcset="assets/img/sicherheit.avif 1600w, assets/img/sicherheit-gross.avif 2560w" sizes="(max-width:980px) 100vw, 50vw" /><source type="image/webp" srcset="assets/img/sicherheit.webp 1600w" sizes="(max-width:980px) 100vw, 50vw" /><img src="assets/img/sicherheit.jpg" alt="" loading="lazy" decoding="async" width="1600" height="1600" /></picture>
+      </figure>
+      <div class="bblock__wort">
+        <span class="eyebrow reveal-up">Sicherheit</span>
+        <h2 class="u-caps reveal-up" data-d="1">Veranstaltungsschutz</h2>
+        <p class="bblock__satz reveal-up" data-d="2">Wir schützen Sie und Ihre Veranstaltung.</p>
+        <p class="reveal-up" data-d="3">Ob TV-Show, Gala oder Sportevent, nach einer Sicherheitsanalyse sorgen wir mit
           fachkundigem Personal für einen geordneten Ablauf. Crowdmanagement, Personenschutz
           und Veranstaltungsschutz behandeln wir getrennt, damit jeder Bereich abgedeckt ist.</p>
-        <div class="chips"><span class="chip">Event Security</span><span class="chip">Crowdmanager</span><span class="chip">Personenschutz</span><span class="chip">Einlass</span></div>
-        <a class="btn go" href="dienstleistungen/sicherheit.html">Zum Bereich <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <ul class="bblock__liste reveal-up" data-d="4" data-stagger><li>Event Security</li><li>Crowdmanager</li><li>Personenschutz</li><li>Einlass</li></ul>
+        <a class="btn reveal-up" data-d="5" href="dienstleistungen/sicherheit.html">Zum Bereich
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
       </div>
     </div>
   </section>
 
-  <!-- ============ STAGE 03, PROMOTION ============ -->
-  <section class="stage" data-stage="promotion" id="promotion-hostess">
-    <div class="stage__sticky">
-      <!-- Kapitelmarke: liegt im festen Rahmen, damit sie die ganze
-           Buehne ueber stehen bleibt. Die Linie darunter fuellt sich
-           aus --kapitel, das main.js beim Scrollen schreibt. -->
-      <div class="stage__index">
-        <span class="stage__zeile"><span class="stage__titel">Promotion &amp; Hostess</span></span>
-        <span class="stage__linie" aria-hidden="true"></span>
-      </div>
-      <div class="scene">
-        <div class="scene__frame art">
-          <picture><source type="image/avif" srcset="assets/img/promotion-messe.avif 1129w, assets/img/promotion-messe-gross.avif 1817w" sizes="(max-width:980px) 100vw, 142vw" /><source type="image/webp" srcset="assets/img/promotion-messe.webp 1129w" sizes="(max-width:980px) 100vw, 142vw" /><img class="scene__photo" src="assets/img/promotion-messe.jpg" alt="" loading="lazy" decoding="async" width="1129" height="1591" /></picture>
-          <video class="stagevid" muted playsinline loop preload="metadata"
-                 aria-hidden="true" tabindex="-1"></video>
-          <div class="detail">
-            <picture><source type="image/avif" srcset="assets/img/promotion.avif 1600w, assets/img/promotion-gross.avif 2560w" sizes="(max-width:980px) 100vw, 135vw" /><source type="image/webp" srcset="assets/img/promotion.webp 1600w" sizes="(max-width:980px) 100vw, 135vw" /><img class="scene__photo" src="assets/img/promotion.jpg" alt="" loading="lazy" decoding="async" width="1600" height="1600" /></picture>
-            <video class="stagevid" muted playsinline loop preload="metadata"
-                   aria-hidden="true" tabindex="-1"></video>
-          </div>
-        </div>
-      </div>
-      <div class="panel">
-        <span class="num">Promotion &amp; Hostess</span>
-        <h2 class="u-caps">Hostessen &amp; Promoter</h2>
-        <span class="tag">Der erste Eindruck zählt.</span>
-        <p>Mehrsprachige Hostessen und Promoter für Messen, Empfänge und Kampagnen, von der
+  <!-- ============ PROMOTION &AMP; HOSTESS ============ -->
+  <section class="bblock bblock--links" id="promotion-hostess">
+    <div class="wrap bblock__raster">
+      <figure class="bblock__bild reveal-up">
+        <picture><source type="image/avif" srcset="assets/img/promotion-messe.avif 1129w, assets/img/promotion-messe-gross.avif 1817w" sizes="(max-width:980px) 100vw, 50vw" /><source type="image/webp" srcset="assets/img/promotion-messe.webp 1129w" sizes="(max-width:980px) 100vw, 50vw" /><img src="assets/img/promotion-messe.jpg" alt="" loading="lazy" decoding="async" width="1129" height="1591" /></picture>
+      </figure>
+      <div class="bblock__wort">
+        <span class="eyebrow reveal-up">Promotion &amp; Hostess</span>
+        <h2 class="u-caps reveal-up" data-d="1">Hostessen &amp; Promoter</h2>
+        <p class="bblock__satz reveal-up" data-d="2">Der erste Eindruck zählt.</p>
+        <p class="reveal-up" data-d="3">Mehrsprachige Hostessen und Promoter für Messen, Empfänge und Kampagnen, von der
           Standbetreuung über Akkreditierung bis zur Gästebegleitung. Ihr Auftritt, unser
           Personal.</p>
-        <div class="chips"><span class="chip">Messehostess</span><span class="chip">Empfang</span><span class="chip">VIP / Info</span><span class="chip">Promotion</span></div>
-        <a class="btn go" href="dienstleistungen/promotion-hostess.html">Zum Bereich <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <ul class="bblock__liste reveal-up" data-d="4" data-stagger><li>Messehostess</li><li>Empfang</li><li>VIP / Info</li><li>Promotion</li></ul>
+        <a class="btn reveal-up" data-d="5" href="dienstleistungen/promotion-hostess.html">Zum Bereich
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
       </div>
     </div>
   </section>
 
-  <!-- ============ STAGE 04, LOGISTIK ============ -->
-  <section class="stage" data-stage="logistik" id="logistik">
-    <div class="stage__sticky">
-      <!-- Kapitelmarke: liegt im festen Rahmen, damit sie die ganze
-           Buehne ueber stehen bleibt. Die Linie darunter fuellt sich
-           aus --kapitel, das main.js beim Scrollen schreibt. -->
-      <div class="stage__index">
-        <span class="stage__zeile"><span class="stage__titel">Logistik</span></span>
-        <span class="stage__linie" aria-hidden="true"></span>
-      </div>
-      <div class="scene">
-        <div class="scene__frame art">
-          <!-- Grundebene: der Saal hinter dem Tor. -->
-          <picture><source type="image/avif" srcset="assets/img/logistik.avif 1600w, assets/img/logistik-gross.avif 2560w" sizes="(max-width:980px) 100vw, 142vw" /><source type="image/webp" srcset="assets/img/logistik.webp 1600w" sizes="(max-width:980px) 100vw, 142vw" /><img class="scene__photo" src="assets/img/logistik.jpg" alt="" loading="lazy" decoding="async" width="1600" height="1600" /></picture>
-          <!-- Das geschlossene Tor, in zwei Flügel geteilt. Beide Aufnahmen haben
-               denselben Ausschnitt, deshalb sitzt der Saal beim Aufschieben exakt
-               an der Stelle, an der das Tor war. --door schiebt die Flügel auf. -->
-          <div class="gate door" aria-hidden="true">
-            <span class="gate__leaf gate__leaf--l"></span>
-            <span class="gate__leaf gate__leaf--r"></span>
-          </div>
-          <video class="stagevid" muted playsinline loop preload="metadata"
-                 aria-hidden="true" tabindex="-1"></video>
-          <div class="detail">
-            <picture><source type="image/avif" srcset="assets/img/logistik-detail.avif 1400w, assets/img/logistik-detail-gross.avif 2560w" sizes="(max-width:980px) 100vw, 135vw" /><source type="image/webp" srcset="assets/img/logistik-detail.webp 1400w" sizes="(max-width:980px) 100vw, 135vw" /><img class="scene__photo" src="assets/img/logistik-detail.jpg" alt="" loading="lazy" decoding="async" width="1400" height="1400" /></picture>
-            <video class="stagevid" muted playsinline loop preload="metadata"
-                   aria-hidden="true" tabindex="-1"></video>
-          </div>
-        </div>
-      </div>
-      <div class="panel">
-        <span class="num">Logistik</span>
-        <h2 class="u-caps">Eventlogistik</h2>
-        <span class="tag">Wir sorgen dafür, dass alles an seinem Platz ist.</span>
-        <p>Auf- und Abbau, Transport von Event-Equipment sowie Bühnen- und Messelogistik, vor, während und nach Ihrer Veranstaltung. Auf Wunsch deutschlandweit, nach
+  <!-- ============ LOGISTIK ============ -->
+  <section class="bblock bblock--rechts" id="logistik">
+    <div class="wrap bblock__raster">
+      <!-- Nicht `logistik.jpg`: das ist derselbe Blick durch dasselbe Tor
+             in dieselbe Halle wie das Kopfband dieser Seite. Zweimal
+             dasselbe Motiv auf EINER Seite ist eine Doppelung. Das
+             geschlossene Tor zeigt denselben Ort und ein anderes Bild. -->
+      <figure class="bblock__bild reveal-up">
+        <picture><source type="image/avif" srcset="assets/img/logistik-tor.avif" sizes="(max-width:980px) 100vw, 50vw" /><source type="image/webp" srcset="assets/img/logistik-tor.webp" sizes="(max-width:980px) 100vw, 50vw" /><img src="assets/img/logistik-tor.jpg" alt="" loading="lazy" decoding="async" width="1600" height="1600" /></picture>
+      </figure>
+      <div class="bblock__wort">
+        <span class="eyebrow reveal-up">Logistik</span>
+        <h2 class="u-caps reveal-up" data-d="1">Eventlogistik</h2>
+        <p class="bblock__satz reveal-up" data-d="2">Wir sorgen dafür, dass alles an seinem Platz ist.</p>
+        <p class="reveal-up" data-d="3">Auf- und Abbau, Transport von Event-Equipment sowie Bühnen- und Messelogistik, vor, während und nach Ihrer Veranstaltung. Auf Wunsch deutschlandweit, nach
           rechtzeitiger Absprache.</p>
-        <div class="chips"><span class="chip">Auf- &amp; Abbau</span><span class="chip">Transport</span><span class="chip">Messe-Logistik</span><span class="chip">Lager</span></div>
-        <a class="btn go" href="dienstleistungen/logistik.html">Zum Bereich <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <ul class="bblock__liste reveal-up" data-d="4" data-stagger><li>Auf- &amp; Abbau</li><li>Transport</li><li>Messe-Logistik</li><li>Lager</li></ul>
+        <a class="btn reveal-up" data-d="5" href="dienstleistungen/logistik.html">Zum Bereich
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
       </div>
     </div>
   </section>
 
-  <!-- ============ STAGE 05, FAHRSERVICE ============ -->
-  <section class="stage" data-stage="fahrservice" id="fahrservice">
-    <div class="stage__sticky">
-      <!-- Kapitelmarke: liegt im festen Rahmen, damit sie die ganze
-           Buehne ueber stehen bleibt. Die Linie darunter fuellt sich
-           aus --kapitel, das main.js beim Scrollen schreibt. -->
-      <div class="stage__index">
-        <span class="stage__zeile"><span class="stage__titel">Fahrservice</span></span>
-        <span class="stage__linie" aria-hidden="true"></span>
-      </div>
-      <div class="scene">
-        <div class="scene__frame art" style="width:min(680px,86vmin)">
-          <!-- Bildausschnitt wird per object-position gesteuert (siehe styles.css),
-               damit die Hand am Türgriff im Zoom-Zentrum liegt. -->
-          <picture><source type="image/avif" srcset="assets/img/fahrservice-door.avif 1536w, assets/img/fahrservice-door-gross.avif 2560w" sizes="(max-width:980px) 100vw, 133vw" /><source type="image/webp" srcset="assets/img/fahrservice-door.webp 1536w" sizes="(max-width:980px) 100vw, 133vw" /><img class="scene__photo" src="assets/img/fahrservice-door.jpg" alt="" loading="lazy" decoding="async" width="1536" height="1024" /></picture>
-          <!-- Anschluss für bewegtes Material: poster/data-src setzen, dann
-               übernimmt der Clip diese Ebene und wird über --door vom Scroll gescrubbt. -->
-          <video class="stagevid door" data-scrub muted playsinline loop preload="metadata"
-                 aria-hidden="true" tabindex="-1"></video>
-          <div class="detail">
-            <picture><source type="image/avif" srcset="assets/img/fahrservice-detail.avif 1400w, assets/img/fahrservice-detail-gross.avif 2560w" sizes="(max-width:980px) 100vw, 112vw" /><source type="image/webp" srcset="assets/img/fahrservice-detail.webp 1400w" sizes="(max-width:980px) 100vw, 112vw" /><img class="scene__photo" src="assets/img/fahrservice-detail.jpg" alt="" loading="lazy" decoding="async" width="1400" height="1400" /></picture>
-            <video class="stagevid" muted playsinline loop preload="metadata"
-                   aria-hidden="true" tabindex="-1"></video>
-          </div>
-        </div>
-      </div>
-      <div class="panel">
-        <span class="num">Fahrservice</span>
-        <h2 class="u-caps">Sicher ans Ziel</h2>
-        <span class="tag">Sicher, diskret, pünktlich.</span>
-        <p>Erfahrene Fahrer für Flughafentransfer, Shuttle-Service, Geschäftsreisen oder als
+  <!-- ============ FAHRSERVICE ============ -->
+  <section class="bblock bblock--links" id="fahrservice">
+    <div class="wrap bblock__raster">
+      <figure class="bblock__bild reveal-up">
+        <picture><source type="image/avif" srcset="assets/img/fahrservice-door.avif 1536w, assets/img/fahrservice-door-gross.avif 2560w" sizes="(max-width:980px) 100vw, 133vw" /><source type="image/webp" srcset="assets/img/fahrservice-door.webp 1536w" sizes="(max-width:980px) 100vw, 133vw" /><img src="assets/img/fahrservice-door.jpg" alt="" loading="lazy" decoding="async" width="1536" height="1024" /></picture>
+      </figure>
+      <div class="bblock__wort">
+        <span class="eyebrow reveal-up">Fahrservice</span>
+        <h2 class="u-caps reveal-up" data-d="1">Sicher ans Ziel</h2>
+        <p class="bblock__satz reveal-up" data-d="2">Sicher, diskret, pünktlich.</p>
+        <p class="reveal-up" data-d="3">Erfahrene Fahrer für Flughafentransfer, Shuttle-Service, Geschäftsreisen oder als
           Chauffeur für Ihre Gäste. Auf Wunsch begleitet Sie Ihr Fahrer anschließend auch als
           Personenschutz, deutschlandweit.</p>
-        <div class="chips"><span class="chip">Flughafentransfer</span><span class="chip">Shuttle</span><span class="chip">Chauffeur</span><span class="chip">Personenschutz</span></div>
-        <a class="btn go" href="dienstleistungen/fahrservice.html">Zum Bereich <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <ul class="bblock__liste reveal-up" data-d="4" data-stagger><li>Flughafentransfer</li><li>Shuttle</li><li>Chauffeur</li><li>Personenschutz</li></ul>
+        <a class="btn reveal-up" data-d="5" href="dienstleistungen/fahrservice.html">Zum Bereich
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
       </div>
     </div>
   </section>
 
-  <!-- ============ STAGE 06, REINIGUNG ============ -->
-  <section class="stage" data-stage="reinigung" id="reinigung">
-    <div class="stage__sticky">
-      <!-- Kapitelmarke: liegt im festen Rahmen, damit sie die ganze
-           Buehne ueber stehen bleibt. Die Linie darunter fuellt sich
-           aus --kapitel, das main.js beim Scrollen schreibt. -->
-      <div class="stage__index">
-        <span class="stage__zeile"><span class="stage__titel">Reinigung</span></span>
-        <span class="stage__linie" aria-hidden="true"></span>
-      </div>
-      <div class="scene">
-        <div class="scene__frame art">
-          <picture><source type="image/avif" srcset="assets/img/reinigung.avif 1536w, assets/img/reinigung-gross.avif 2560w" sizes="(max-width:980px) 100vw, 142vw" /><source type="image/webp" srcset="assets/img/reinigung.webp 1536w" sizes="(max-width:980px) 100vw, 142vw" /><img class="scene__photo" src="assets/img/reinigung.jpg" alt="" loading="lazy" decoding="async" width="1536" height="1024" /></picture>
-          <video class="stagevid" muted playsinline loop preload="metadata"
-                 aria-hidden="true" tabindex="-1"></video>
-          <div class="detail">
-            <picture><source type="image/avif" srcset="assets/img/reinigung-detail.avif 1200w, assets/img/reinigung-detail-gross.avif 2560w" sizes="(max-width:980px) 100vw, 135vw" /><source type="image/webp" srcset="assets/img/reinigung-detail.webp 1200w" sizes="(max-width:980px) 100vw, 135vw" /><img class="scene__photo" src="assets/img/reinigung-detail.jpg" alt="" loading="lazy" decoding="async" width="1200" height="1200" /></picture>
-            <video class="stagevid" muted playsinline loop preload="metadata"
-                   aria-hidden="true" tabindex="-1"></video>
-          </div>
-        </div>
-      </div>
-      <div class="panel">
-        <span class="num">Reinigung</span>
-        <h2 class="u-caps">Reinigung</h2>
-        <span class="tag">Wenn wir da waren, ist es sauber.</span>
-        <p>Gebäude-, Büro- und Praxisreinigung, mit Blick auf Sauberkeit, Qualität und
+  <!-- ============ REINIGUNG ============ -->
+  <section class="bblock bblock--rechts" id="reinigung">
+    <div class="wrap bblock__raster">
+      <figure class="bblock__bild reveal-up">
+        <picture><source type="image/avif" srcset="assets/img/reinigung.avif 1536w, assets/img/reinigung-gross.avif 2560w" sizes="(max-width:980px) 100vw, 50vw" /><source type="image/webp" srcset="assets/img/reinigung.webp 1536w" sizes="(max-width:980px) 100vw, 50vw" /><img src="assets/img/reinigung.jpg" alt="" loading="lazy" decoding="async" width="1536" height="1024" /></picture>
+      </figure>
+      <div class="bblock__wort">
+        <span class="eyebrow reveal-up">Reinigung</span>
+        <h2 class="u-caps reveal-up" data-d="1">Reinigung</h2>
+        <p class="bblock__satz reveal-up" data-d="2">Wenn wir da waren, ist es sauber.</p>
+        <p class="reveal-up" data-d="3">Gebäude-, Büro- und Praxisreinigung, mit Blick auf Sauberkeit, Qualität und
           nachhaltige Produkte. Auf Wunsch unterstützen wir mit Desinfektionshilfen, damit
           nach dem Event alles wieder stimmt.</p>
-        <div class="chips"><span class="chip">Gebäude</span><span class="chip">Büro</span><span class="chip">Praxis</span><span class="chip">Desinfektion</span></div>
-        <a class="btn go" href="dienstleistungen/reinigung.html">Zum Bereich <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <ul class="bblock__liste reveal-up" data-d="4" data-stagger><li>Gebäude</li><li>Büro</li><li>Praxis</li><li>Desinfektion</li></ul>
+        <a class="btn reveal-up" data-d="5" href="dienstleistungen/reinigung.html">Zum Bereich
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
       </div>
     </div>
   </section>
+
 
   <section class="cta">
     <div class="wrap cta__inner">
@@ -414,9 +358,9 @@
          einmal auf und ist gleichzeitig der letzte Weg zur Anfrage — wer bis
          hierher gelesen hat, soll nicht erst wieder nach oben scrollen. -->
     <a class="foot__claim" href="kontakt.html">
-      <span class="foot__claim-zeile"><span>Personal, das</span></span>
-      <span class="foot__claim-zeile"><span>Ihr Event trägt.</span></span>
-      <span class="foot__claim-go">Anfrage starten
+      <span class="foot__claim-zeile"><span>Jetzt</span></span>
+      <span class="foot__claim-zeile"><span>anfragen.</span></span>
+      <span class="foot__claim-go">Zum Anfrageformular
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </span>
     </a>
@@ -507,5 +451,8 @@
 <script src="assets/js/main.js"></script>
 <script src="assets/js/lenis.min.js"></script>
 <script src="assets/js/motion.js"></script>
+<!-- Nachtrag: die reservierte Kopfzeilenhoehe und die zaehlenden
+     Zahlen. Aendert kein Aussehen, holt nur Funktion nach. -->
+<script src="assets/js/nachtrag.js"></script>
 </body>
 </html>

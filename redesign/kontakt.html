@@ -13,14 +13,9 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin
       href="assets/fonts/instrument-sans-var-latin.woff2" />
 <link rel="stylesheet" href="assets/css/fonts.css">
-<!-- ============================================================
-     TESTBETRIEB — VOR DEM LIVE-GANG ENTFERNEN
-     Diese Zeile haelt Suchmaschinen von der internen Vorschau fern.
-     Solange sie hier steht, wird die Seite nicht indexiert.
-     Zusaetzlich sperrt robots.txt und der Header X-Robots-Tag.
-     Umschalten: python3 tools/live-schalten.py --live
-     ============================================================ -->
-<meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
+<!-- Freigegeben. Zurueck in den Testbetrieb:
+     python3 tools/live-schalten.py --test -->
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
 <link rel="canonical" href="https://hermserviceteam.com/kontakt.html" />
 <meta name="theme-color" content="#000000" />
 <!-- Vorschau beim Teilen in Messengern und sozialen Netzwerken -->
@@ -640,9 +635,9 @@
     <div class="wrap">
       <div class="ansprech">
         <div class="ansprech__leute" aria-hidden="true">
-          <span class="ansprech__kopf"><picture><source type="image/webp" srcset="assets/img/team/shayan-wahedi.webp" /><img src="assets/img/team/shayan-wahedi.jpg" alt="" loading="lazy" width="1000" height="1250" /></picture></span>
-          <span class="ansprech__kopf"><picture><source type="image/webp" srcset="assets/img/team/mohamad-hamade.webp" /><img src="assets/img/team/mohamad-hamade.jpg" alt="" loading="lazy" width="1000" height="1250" /></picture></span>
-          <span class="ansprech__kopf"><picture><source type="image/webp" srcset="assets/img/team/noah-benkhofer.webp" /><img src="assets/img/team/noah-benkhofer.jpg" alt="" loading="lazy" width="1000" height="1250" /></picture></span>
+          <span class="ansprech__kopf ansprech__kopf--leer">SW</span>
+          <span class="ansprech__kopf ansprech__kopf--leer">MH</span>
+          <span class="ansprech__kopf ansprech__kopf--leer">NB</span>
           <span class="ansprech__kopf ansprech__kopf--leer">VO</span>
         </div>
         <!-- Ohne Telefonnummer und E-Mail: beide stehen auf dieser Seite schon
@@ -682,9 +677,9 @@
          einmal auf und ist gleichzeitig der letzte Weg zur Anfrage — wer bis
          hierher gelesen hat, soll nicht erst wieder nach oben scrollen. -->
     <a class="foot__claim" href="kontakt.html">
-      <span class="foot__claim-zeile"><span>Personal, das</span></span>
-      <span class="foot__claim-zeile"><span>Ihr Event trägt.</span></span>
-      <span class="foot__claim-go">Anfrage starten
+      <span class="foot__claim-zeile"><span>Jetzt</span></span>
+      <span class="foot__claim-zeile"><span>anfragen.</span></span>
+      <span class="foot__claim-go">Zum Anfrageformular
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </span>
     </a>
@@ -775,5 +770,8 @@
 <script src="assets/js/main.js"></script>
 <script src="assets/js/lenis.min.js"></script>
 <script src="assets/js/motion.js"></script>
+<!-- Nachtrag: die reservierte Kopfzeilenhoehe und die zaehlenden
+     Zahlen. Aendert kein Aussehen, holt nur Funktion nach. -->
+<script src="assets/js/nachtrag.js"></script>
 </body>
 </html>

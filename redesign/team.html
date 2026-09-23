@@ -16,14 +16,9 @@
       href="assets/fonts/instrument-sans-var-latin.woff2" />
 <link rel="stylesheet" href="assets/css/fonts.css">
 
-<!-- ============================================================
-     TESTBETRIEB — VOR DEM LIVE-GANG ENTFERNEN
-     Diese Zeile haelt Suchmaschinen von der internen Vorschau fern.
-     Solange sie hier steht, wird die Seite nicht indexiert.
-     Zusaetzlich sperrt robots.txt und der Header X-Robots-Tag.
-     Umschalten: python3 tools/live-schalten.py --live
-     ============================================================ -->
-<meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
+<!-- Freigegeben. Zurueck in den Testbetrieb:
+     python3 tools/live-schalten.py --test -->
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
 <link rel="canonical" href="https://hermserviceteam.com/team.html" />
 <meta name="theme-color" content="#000000" />
 <!-- Vorschau beim Teilen in Messengern und sozialen Netzwerken -->
@@ -55,6 +50,8 @@
 <link rel="icon" href="assets/logo/favicon.ico" sizes="any" />
 <link rel="stylesheet" href="assets/css/styles.css">
 <link rel="stylesheet" href="assets/css/redesign.css">
+<!-- Nur diese Seite: das Kopfband passt sich dem Zuschnitt an. -->
+<link rel="stylesheet" href="assets/css/team.css">
 <!-- Inhalte werden beim Scrollen eingeblendet. Ohne JavaScript bliebe die
      Seite sonst leer — diese Zeile nimmt die Sperre sofort zurück. -->
 <script>document.documentElement.classList.remove("kein-js")</script>
@@ -142,10 +139,16 @@
 </nav>
 
 <main id="inhalt" tabindex="-1">
-  <section class="subhero subhero--band">
-    <!-- Teamfoto als Kopf — es zeigt genau das, worum es auf dieser Seite geht -->
+  <section class="subhero subhero--band subhero--flach">
+    <!-- Das Teamfoto als Kopfband, auf Wunsch ohne Gesichter: derselbe
+         Zuschnitt, unterhalb der Kinnlinie geschnitten. Uebrig bleibt das
+         Schild, das die drei halten — und damit der Satz, den das Bild
+         ohnehin sagt. Der Schnitt liegt in der DATEI und nicht in
+         `object-position`: ein Ausschnitt, der von der Kastenhoehe
+         abhaengt, holte die Gesichter bei irgendeiner Fensterbreite
+         zurueck. -->
     <div class="subhero__photo" aria-hidden="true" data-lauf>
-      <picture><source type="image/avif" srcset="assets/img/team-herm.avif 1600w, assets/img/team-herm-gross.avif 2560w" sizes="(max-width:980px) 200vw, 125vw" /><source type="image/webp" srcset="assets/img/team-herm.webp 1600w" sizes="(max-width:980px) 200vw, 125vw" /><img src="assets/img/team-herm.jpg" alt="" fetchpriority="high" width="1600" height="880" /></picture>
+      <picture><source type="image/avif" srcset="assets/img/team-band.avif" /><source type="image/webp" srcset="assets/img/team-band.webp" /><img src="assets/img/team-band.jpg" alt="" fetchpriority="high" width="1600" height="528" /></picture>
     </div>
     <div class="wrap">
       <nav class="breadcrumb" aria-label="Brotkrumenpfad"><a href="index.html">Home</a> / <span>Team</span></nav>
@@ -178,16 +181,18 @@
         </article>
 
         <article class="member reveal-up" data-d="1">
-          <div class="member__img">
-            <picture><source type="image/webp" srcset="assets/img/team/alexander-krapp.webp" /><img src="assets/img/team/alexander-krapp.jpg" alt="Alexander Krapp" loading="lazy" width="1000" height="1250" /></picture>
+          <div class="member__img member__img--leer">
+            <span class="member__initialen" aria-hidden="true">AK</span>
+            <span class="member__wartet">Foto folgt</span>
           </div>
           <h3 class="member__name">Alexander Krapp</h3>
           <span class="member__role">Standortleitung / Unit Manager</span>
         </article>
 
         <article class="member reveal-up" data-d="2">
-          <div class="member__img">
-            <picture><source type="image/webp" srcset="assets/img/team/shayan-wahedi.webp" /><img src="assets/img/team/shayan-wahedi.jpg" alt="Shayan Wahedi" loading="lazy" width="1000" height="1250" /></picture>
+          <div class="member__img member__img--leer">
+            <span class="member__initialen" aria-hidden="true">SW</span>
+            <span class="member__wartet">Foto folgt</span>
           </div>
           <h3 class="member__name">Shayan Wahedi</h3>
           <span class="member__role">Recruiting &amp; Disposition</span>
@@ -196,8 +201,9 @@
         </article>
 
         <article class="member reveal-up" data-d="3">
-          <div class="member__img">
-            <picture><source type="image/webp" srcset="assets/img/team/mohamad-hamade.webp" /><img src="assets/img/team/mohamad-hamade.jpg" alt="Mohamad Hamade" loading="lazy" width="1000" height="1250" /></picture>
+          <div class="member__img member__img--leer">
+            <span class="member__initialen" aria-hidden="true">MH</span>
+            <span class="member__wartet">Foto folgt</span>
           </div>
           <h3 class="member__name">Mohamad Hamade</h3>
           <span class="member__role">Disposition Service</span>
@@ -208,8 +214,9 @@
         </article>
 
         <article class="member reveal-up" data-d="4">
-          <div class="member__img">
-            <picture><source type="image/webp" srcset="assets/img/team/noah-benkhofer.webp" /><img src="assets/img/team/noah-benkhofer.jpg" alt="Noah Benkhofer" loading="lazy" width="1000" height="1250" /></picture>
+          <div class="member__img member__img--leer">
+            <span class="member__initialen" aria-hidden="true">NB</span>
+            <span class="member__wartet">Foto folgt</span>
           </div>
           <h3 class="member__name">Noah Benkhofer</h3>
           <span class="member__role">Disposition Sicherheit &amp; Ordnungsdienst</span>
@@ -256,9 +263,9 @@
          einmal auf und ist gleichzeitig der letzte Weg zur Anfrage — wer bis
          hierher gelesen hat, soll nicht erst wieder nach oben scrollen. -->
     <a class="foot__claim" href="kontakt.html">
-      <span class="foot__claim-zeile"><span>Personal, das</span></span>
-      <span class="foot__claim-zeile"><span>Ihr Event trägt.</span></span>
-      <span class="foot__claim-go">Anfrage starten
+      <span class="foot__claim-zeile"><span>Jetzt</span></span>
+      <span class="foot__claim-zeile"><span>anfragen.</span></span>
+      <span class="foot__claim-go">Zum Anfrageformular
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </span>
     </a>
@@ -349,5 +356,8 @@
 <script src="assets/js/main.js"></script>
 <script src="assets/js/lenis.min.js"></script>
 <script src="assets/js/motion.js"></script>
+<!-- Nachtrag: die reservierte Kopfzeilenhoehe und die zaehlenden
+     Zahlen. Aendert kein Aussehen, holt nur Funktion nach. -->
+<script src="assets/js/nachtrag.js"></script>
 </body>
 </html>

@@ -23,6 +23,14 @@ import re
 import sys
 
 WURZEL = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# `--wurzel` schaltet einen anderen Ordner frei als das Repository —
+# gebraucht fuer `redesign/`, die gelieferte Fassung. Die Sperre steht dort
+# an denselben Stellen, und die Freischaltung ist derselbe Handgriff.
+for _i, _a in enumerate(sys.argv):
+    if _a == "--wurzel" and _i + 1 < len(sys.argv):
+        WURZEL = os.path.abspath(os.path.join(os.getcwd(), sys.argv[_i + 1]))
+        del sys.argv[_i:_i + 2]
+        break
 SPERRE = "noindex, nofollow, noarchive, nosnippet"
 FREI = "index, follow, max-image-preview:large, max-snippet:-1"
 
@@ -83,6 +91,12 @@ def stand():
     # Massgeblich ist nur eine Zeile, die NICHT mit einem Kommentarzeichen
     # beginnt.
     for name in ("vercel.json", "netlify.toml", ".htaccess"):
+        # Eine gelieferte Fassung bringt nicht jede Hostdatei mit: das
+        # Redesign-Paket hat nur netlify.toml. Was nicht da ist, kann auch
+        # nicht sperren — melden statt abbrechen.
+        if not os.path.exists(os.path.join(WURZEL, name)):
+            zeilen.append((name, "nicht vorhanden"))
+            continue
         s = open(os.path.join(WURZEL, name), encoding="utf-8").read()
         aktiv = any("X-Robots-Tag" in z and not z.lstrip().startswith(("#", "//"))
                     for z in s.splitlines())
@@ -147,8 +161,15 @@ def umschalten(live, trocken):
     json_block = ('        {\n          "key": "X-Robots-Tag",\n'
                   f'          "value": "{SPERRE}"\n        }},\n')
     p = os.path.join(WURZEL, "vercel.json")
-    s = open(p, encoding="utf-8").read()
-    if live:
+    # Eine gelieferte Fassung bringt nicht jede Hostdatei mit (siehe
+    # `stand()`). Was nicht da ist, wird uebersprungen statt abgebrochen —
+    # sonst bleibt die Umschaltung auf halbem Weg stehen, und das ist der
+    # gefaehrlichste aller Zustaende: die Seitenkoepfe stuenden auf frei
+    # und der Kopfzeilen-Header noch auf noindex.
+    s = open(p, encoding="utf-8").read() if os.path.exists(p) else None
+    if s is None:
+        neu = None
+    elif live:
         neu = re.sub(r'\s*\{\s*"key":\s*"X-Robots-Tag",\s*"value":\s*"[^"]*"\s*\},', "", s, count=1)
     else:
         # Angehaengt wird vor X-Content-Type-Options — dem ersten Eintrag der
@@ -157,7 +178,7 @@ def umschalten(live, trocken):
         neu = s if '"X-Robots-Tag"' in s else re.sub(
             r'( *)(\{\s*"key": "X-Content-Type-Options")',
             lambda m: json_block + m.group(1) + m.group(2), s, count=1)
-    if schreiben(p, neu, trocken):
+    if neu is not None and schreiben(p, neu, trocken):
         n += 1
         print("  vercel.json")
 
@@ -170,6 +191,8 @@ def umschalten(live, trocken):
          f'  # Header set X-Robots-Tag "{SPERRE}"   # Live: aus'),
     ):
         p = os.path.join(WURZEL, name)
+        if not os.path.exists(p):
+            continue
         s = open(p, encoding="utf-8").read()
         neu = s.replace(test, frei) if live else s.replace(frei, test)
         if schreiben(p, neu, trocken):

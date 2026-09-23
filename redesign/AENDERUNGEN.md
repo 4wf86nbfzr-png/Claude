@@ -155,3 +155,210 @@ Gemessen wird der Kontrast über bewegtem Bild **im Bild**, nicht im DOM:
 davon nichts. Abgetastet wird im Lauf — der Testserver beantwortet keine
 Range-Anfragen, jede Zuweisung an `currentTime` fiele still auf 0 zurück
 und man fotografierte zwölfmal dasselbe Bild.
+
+
+---
+
+# Zweiter Durchgang, 23. September 2026
+
+Zehn Punkte auf einmal. Was gemacht wurde und warum:
+
+## 1. Der Satz stand dreimal auf der Startseite
+
+„Personal, das Ihr Event trägt" stand im Titel, im Schlussblock
+(„Lassen Sie uns Ihr Event tragen.") und in der Fußzeile noch einmal
+wörtlich. Er steht jetzt **einmal**, oben im Titel.
+
+| wo | vorher | jetzt |
+|---|---|---|
+| Hero | Personal, das Ihr Event trägt. | unverändert |
+| Schlussblock | Lassen Sie uns Ihr Event tragen. | Reden wir über Ihre Veranstaltung. |
+| Fußzeile (alle 16 Seiten) | Personal, das / Ihr Event trägt. | Jetzt / anfragen. |
+
+Die Fußzeile trägt damit die Aktion statt einer Wiederholung; die kleine
+Zeile darunter heißt „Zum Anfrageformular" und nicht mehr „Anfrage
+starten", weil das schon in der Kopfzeile steht.
+
+## 2. Der Film ist heller
+
+Von 88 % auf **84 %** Schwarz. Der hellste Bildpunkt des Films kommt
+damit bei 41 von 255 an statt bei 31 — ein Drittel mehr Licht. Volle
+Schrift trägt darauf 13,6:1, die gedämpfte Stufe 5,6:1.
+
+Nach unten ist bei rund 80 % Schluss: dort fällt die gedämpfte Stufe auf
+4,7:1, also auf einen Wert, der gerade eben besteht. Ein Wert, der gerade
+eben besteht, besteht beim nächsten Eingriff nicht mehr.
+
+## 3. Keine Gesichter mehr beim Team
+
+- **Die vier Studioporträts sind raus**, alle sechs Kacheln stehen auf
+  dem vorhandenen Platzhalter (Initialen plus „Foto folgt").
+- **Das Kopfband der Teamseite** ist derselbe Zuschnitt, **unterhalb der
+  Kinnlinie geschnitten** (1600 × 528 statt 1600 × 880). Übrig bleibt das
+  Schild, das die drei halten. Der Schnitt liegt in der **Datei**, nicht
+  in `object-position`: ein Ausschnitt, der von der Kastenhöhe abhängt,
+  holte die Gesichter bei irgendeiner Fensterbreite zurück.
+- **Die drei runden Köpfe** im Ansprechpartner-Block von Startseite und
+  `kontakt.html` sind Initialen geworden.
+- **Die Galeriekachel mit dem Teamfoto** ist raus — dieselben drei
+  Gesichter.
+- Die Dateien unter `assets/img/team/` und `team-herm.*` sind gelöscht,
+  nicht nur ausgehängt: sonst wären die Porträts unter ihrer Adresse
+  weiter abrufbar.
+
+**Was NICHT angefasst ist:** die Einsatzfotos der Galerie und der
+Bereichsseiten zeigen weiter Menschen bei der Arbeit (Barkeeper,
+Ordnungsdienst, Messestand). Sagen Sie Bescheid, wenn auch die weg
+sollen — das wäre ein anderer Auftrag.
+
+### Die Falle dabei
+
+`aspect-ratio: 1600 / 880` stand fest in `redesign.css` und war das Maß
+des alten Fotos. Mit dem flachen Zuschnitt musste `object-fit:cover` das
+Bild auf einen fast doppelt so hohen Kasten ziehen — das Schild stand
+dann bildschirmfüllend da, aus dem Kopfband wurde eine Logowand. Der
+Rahmen passt sich jetzt dem Zuschnitt an (`team.css`), und zwar über eine
+**eigene Klasse**: dieselbe Bandform trägt auch die Galerie.
+
+## 4. Halle 45 stand zweimal in der Galerie
+
+`logistik.jpg` („Tor auf, Saal fertig, Halle 45") und
+`logistik-detail.jpg` („Nach dem Aufbau") sind dieselbe Halle, dieselbe
+Beleuchtung, dieselben Bäume, dasselbe Schild — zwei Aufnahmen, die man
+für eine hält. Die zweite ist raus. Dieselbe Doppelung stand auf
+`dienstleistungen.html`: das Kopfband zeigt `halle45`, der Logistikblock
+zeigte `logistik` — derselbe Blick durch dasselbe Tor. Der Block zeigt
+jetzt das geschlossene Tor.
+
+Die Galerie hat damit **11 Kacheln** statt 13.
+
+## 5. Der Bereich Dienstleistungen läuft smoother
+
+Vorher: sechs Bühnen mit Kamerafahrt, je zwei bildschirmfüllende Fotos
+übereinander, deren Maßstab und Deckkraft der Browser in **jedem
+Scrollbild** neu rechnet — sechsmal hintereinander über rund fünfzehn
+Bildschirmhöhen. Das ist der Posten, der das Scrollen zäh macht: nicht
+die Bewegung kostet, sondern das, was in jedem Bild neu gezeichnet
+werden muss.
+
+Es war außerdem nicht übersichtlich: wer wissen wollte, **was** es gibt,
+musste vier Bildschirme je Bereich scrollen, um sechs Namen zu lesen.
+
+Jetzt:
+
+- **Eine Übersicht aus sechs Zeilen** ganz oben — alle sechs auf einen
+  Blick, jede Zeile springt zu ihrem Block.
+- **Sechs ruhige Blöcke**, bei denen das Bild die Seite wechselt.
+  Nummer, Name, Merksatz, Beschreibung, die Stichworte und der Weg auf
+  die Bereichsseite — Wort für Wort derselbe Inhalt wie vorher, nichts
+  ist dazugekommen und nichts weggefallen.
+- Bewegt wird nur noch, was ohnehin bewegt wird: die Aufblenden beim
+  Hereinscrollen, dieselben wie auf jeder anderen Seite.
+
+Die Seite ist dadurch **8 110 px** hoch statt rund 13 500. Die Anker
+(`#gastro-personal`, `#sicherheit` …) sind unverändert, Verweise von
+außen laufen weiter.
+
+## 6. Zwei Funktionen aus der vorigen Fassung nachgeholt
+
+`assets/js/nachtrag.js`, additiv — `main.js`, `lenis.min.js` und
+`motion.js` sind unverändert, und **kein Pixel der Gestaltung ändert
+sich**.
+
+### `--nav-h` wackelte mit
+
+An dieser Zahl hängen dreizehn Stellen, und jede reserviert Platz unter
+der festen Kopfzeile. Geschrieben wurde sie im selben Bild, in dem die
+Klasse `.scrolled` fällt — also mitten in der Überblendung:
+
+| Scrollstand | Leiste wirklich | `--nav-h` vorher | jetzt |
+|---|---|---|---|
+| oben | 105 px | 105 | 105 |
+| gescrollt | 73 px | 105 | 105 |
+| wieder oben | 105 px | **73** | 105 |
+
+Sichtbar war das am Hero: er wuchs beim Zurückscrollen von 900 auf
+914 px. Jetzt steht er konstant.
+
+**Der erste Versuch hat Unsinn gemessen:** Klasse kurz abnehmen, messen,
+wieder setzen — `getBoundingClientRect()` liefert in dem Augenblick den
+laufenden Zwischenwert der Überblendung, nicht das Ziel. Gemessen wird
+deshalb nur im Ruhezustand, und der wird abgewartet statt hergestellt.
+
+### Die Zahlen zählen hoch
+
+„Über **20** Jahre" und „**6** Bereiche" zählen beim Sichtbarwerden hoch.
+Der fertige Wert steht im Markup — ohne Skript und bei reduzierter
+Bewegung steht die Zahl einfach da. Die Breite wird vorher auf die
+breiteste **Zwischen**stellung reserviert (zwischen 0 und 20 steht auch
+die 18, und die ist breiter als die 20), gezählt wird einmal, und kein
+`aria-live` — sonst liest ein Vorlesewerkzeug sechzig Ansagen für eine
+Zahl.
+
+## 7. Der Mailversand läuft
+
+Nachgeprüft, nicht behauptet: die gebündelte Funktion wurde mit einer
+echten Anfrage gegen einen echten SMTP-Server (TLS, Anmeldung) laufen
+gelassen.
+
+```
+Status 200
+{"ok":true,"referenz":"AN-260923-1400-SGQ","angebot":"A-260923-1400-SGQ",
+ "status":"DRAFT","bestaetigt":true}
+
+MAIL FROM: <noreply@hermserviceteam.com>
+RCPT TO:   <info@hermserviceteam.com>     (Disposition, mit PDF-Beleg)
+RCPT TO:   <erika@example.org>            (Bestätigung an den Kunden)
+Subject:   Neue Personalanfrage – Musterfirma GmbH – 10.10.2026
+```
+
+Der Beleg wird gebaut, der Angebotsentwurf auch, beide gehen als Anhang
+mit. Die Pflichtfeldprüfung greift (ohne Pflichtangaben kommt 400
+zurück), und ohne eingerichteten Versand kommt 503 statt einer
+vorgetäuschten Erfolgsmeldung.
+
+**Was dafür noch fehlt, und das kann nur der Betrieb setzen:** die
+Umgebungsvariablen bei Netlify —
+
+```
+SMTP_HOST   SMTP_PORT   SMTP_USER   SMTP_PASS
+MAIL_AN     MAIL_VON    (optional MAIL_BEWERBUNG, MAIL_BESTAETIGUNG)
+```
+
+Ohne sie antwortet `/api/formular` mit 503 und die Anfrage landet im
+Formularspeicher von Netlify, den niemand ansieht. **Das ist der eine
+Punkt, an dem die Seite am Tag des Live-Gangs stillschweigend nicht
+tut, was sie soll.**
+
+## 8. Suchmaschinen freigeschaltet
+
+`noindex` ist raus — aus allen fünfzehn Seitenköpfen, aus `robots.txt`
+und aus dem Header in `netlify.toml`. **`404.html` bleibt auf `noindex`:**
+eine Fehlerseite gehört in keinen Index, auch im Live-Betrieb nicht.
+
+Zurück geht es mit `python3 tools/live-schalten.py --wurzel redesign --test`.
+
+Noch von Hand: die Sitemap in der Google Search Console einreichen.
+
+## 9. Was weggefallen ist, weil es niemand mehr anfordert
+
+`imagefilm.webm` (4,9 MB), seine Untertitelspur und das Poster in vier
+Fassungen. Der Abspieler ist in der Neugestaltung nicht mehr da; die
+Vorlage, aus der die vier Hintergrundschnitte kommen, liegt im
+Repository.
+
+## 10. Abnahme
+
+| | |
+|---|---|
+| tote Verweise / 404 | **0** |
+| doppelte IDs | **0** |
+| doppelte Titel / Descriptions | **0** |
+| Seiten ohne genau eine `<h1>` | **0** |
+| waagerechter Überlauf | **0** bei 320, 390, 768, 1024, 1440, 1920 px × 16 Seiten |
+| Konsolen- und Netzfehler | **0** (bis auf `POST /api/konto` → 501 vom Testserver) |
+| ohne JavaScript / reduzierte Bewegung | nichts verdeckt, nichts unsichtbar |
+| wiederholte Sätze innerhalb einer Seite | **0** |
+| dasselbe Motiv zweimal auf einer Seite | **0** |
+| Kontrast über dem Film, Schreibtisch | **0** von 120 Textflächen unter der Grenze |
+| Kontrast über dem Film, Telefon | dieselben 5 Meldungen wie in der **unveränderten** gelieferten Fassung, Wert für Wert — Messartefakte, keine Folge der Änderungen |

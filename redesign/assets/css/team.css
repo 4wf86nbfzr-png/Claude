@@ -1,0 +1,26 @@
+/* ============================================================
+   Nur team.html
+   ------------------------------------------------------------
+   Das Kopfband haelt sein Seitenverhaeltnis fest, und das muss zum
+   Zuschnitt der DATEI passen.
+
+   `redesign.css` setzt `aspect-ratio: 1600 / 880` — das war das Mass des
+   alten Teamfotos. Der neue Zuschnitt ist 1600 / 528: er faengt
+   unterhalb der Kinnlinie an, damit keine Gesichter zu sehen sind.
+   Bleibt die alte Angabe stehen, muss `object-fit:cover` das flache Bild
+   auf einen fast doppelt so hohen Kasten ziehen — nachgemessen wurde das
+   Schild dadurch bildschirmfuellend, und aus dem Kopfband wurde eine
+   Logowand.
+
+   Ein Zuschnitt, der zum Rahmen passt, ist jeder `object-position`
+   ueberlegen; hier passt umgekehrt der Rahmen zum Zuschnitt.
+
+   Die Regel haengt an einer EIGENEN Klasse und nicht an
+   `.subhero--band`: dieselbe Bandform traegt auch die Galerie, und
+   deren Kopfbild ist nicht flach zugeschnitten. Ein Selektor, der nur
+   einen Ort meint, muss auch nur diesen Ort treffen — sonst faellt es
+   erst in der Testdatei auf, wo alle Seiten dasselbe Stylesheet teilen.
+   ============================================================ */
+.subhero--flach .subhero__photo {
+  aspect-ratio: 1600 / 528;
+}

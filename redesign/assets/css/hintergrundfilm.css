@@ -65,12 +65,16 @@
 /* ------------------------------------------------------------
    Ab hier steht der Film dahinter
 
-   88 % Schwarz, gerechnet und dann im Bild nachgemessen: der hellste
-   Bildpunkt des Films kommt damit bei 31 von 255 an. Volle weisse
-   Schrift traegt darauf 15,7:1, die gedaempfte Stufe (`--muted`, 52 %)
-   noch 6,0:1 — also mit Abstand ueber den noetigen 4,5. Weniger Deckung
-   waere ein schoenerer Film und eine knappere Typografie; mehr waere ein
-   Film, den niemand sieht.
+   84 % Schwarz, gerechnet und dann im Bild nachgemessen: der hellste
+   Bildpunkt des Films kommt damit bei 41 von 255 an — ein Drittel mehr
+   Licht als die 88 %, mit denen der Film zuerst dastand. Volle weisse
+   Schrift traegt darauf 13,6:1, die gedaempfte Stufe (`--muted`, 52 %)
+   noch 5,6:1 — also weiter deutlich ueber den noetigen 4,5.
+
+   Nach unten ist bei rund 80 % Schluss: dort faellt die gedaempfte
+   Stufe auf 4,7:1 und damit auf einen Wert, der gerade eben besteht.
+   Ein Wert, der gerade eben besteht, besteht beim naechsten Eingriff
+   nicht mehr.
 
    `background-color` und NICHT die Kurzschreibweise `background`: die
    Blende am oberen Rand des Intros steht als `background-image`, und die
@@ -82,7 +86,7 @@
 .expect,
 .cta,
 body > footer {
-  background-color: rgba(0, 0, 0, 0.88);
+  background-color: rgba(0, 0, 0, 0.84);
 }
 
 /* Der Uebergang ist ein Hintergrund, kein Element.
@@ -122,7 +126,7 @@ body > footer {
 
    `hintergrundfilm.js` baut die Lage dann ganz aus. Die Abschnitte
    bekommen ihren deckenden Grund zurueck, sonst stuenden sie als
-   88-prozentiges Schwarz auf schwarzem Papier — unsichtbar zwar, aber
+   nicht ganz deckendes Schwarz auf schwarzem Papier — unsichtbar zwar, aber
    eine Ebene, die der Browser trotzdem zusammenrechnet.
    ------------------------------------------------------------ */
 @media (prefers-reduced-motion: reduce) {

@@ -1,9 +1,9 @@
 # ============================================================
-# TESTBETRIEB — VOR DEM LIVE-GANG ERSETZEN
-# Solange diese Datei so aussieht, darf keine Suchmaschine
-# irgendetwas von dieser Seite aufnehmen.
-#
-# Umschalten mit: python3 tools/live-schalten.py --live
+# LIVE-BETRIEB
+# Zurueck in den Testbetrieb: python3 tools/live-schalten.py --test
 # ============================================================
 User-agent: *
-Disallow: /
+Allow: /
+Disallow: /404.html
+
+Sitemap: https://hermserviceteam.com/sitemap.xml
