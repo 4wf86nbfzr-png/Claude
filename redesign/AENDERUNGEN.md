@@ -559,3 +559,117 @@ Anbieters. Dieselbe Bauform und dieselbe Begründung wie bei
 Abnahme danach: 0 waagerechter Überlauf bei sechs Breiten über 16
 Seiten, 0 tote Verweise, 0 doppelte IDs, 0 Konsolen- und Netzfehler
 (bis auf `POST /api/konto` → 501 vom Testserver).
+
+
+---
+
+# Das Impressum, und wer die Erlaubnis wirklich hat
+
+Die Pflichtangaben liegen vor, der Kasten „Vor dem Live-Gang zu
+vervollständigen" ist damit weg. Eingetragen sind:
+
+| | HERM Service Team e.K. |
+|---|---|
+| Inhaber | Maik Herm |
+| Registergericht | Amtsgericht Hamburg |
+| Registernummer | HRA 122237 |
+| USt-IdNr. | DE314900117 |
+| Steuernummer | 41/093/1642 |
+
+Dazu ein neuer Abschnitt **Verbundene Unternehmen** mit der
+HST Überlassung GmbH (Alexander Krapp, HRB 191317, DE455147576,
+43/732/02369) und der HST Hospitality UG (haftungsbeschränkt)
+(Maik Herm und Alexander Krapp, HRB 194432, DE457080753, 43/732/02393).
+
+## Der Fehler, der auf sechzehn Seiten stand
+
+**Die Erlaubnis zur Arbeitnehmerüberlassung läuft über die HST Überlassung
+GmbH, nicht über die HERM Service Team e.K.** Die Website hat bis jetzt das
+Gegenteil behauptet, und zwar an vier verschiedenen Stellen:
+
+| Wo | stand da | steht da |
+|---|---|---|
+| Fußzeile, **alle 16 Seiten** | „HERM Service Team e.K., Erlaubnis zur Arbeitnehmerüberlassung (AÜG)" | „…, Arbeitnehmerüberlassung über die HST Überlassung GmbH (Erlaubnis nach AÜG)" |
+| Startseite, Vertrauensband | „Arbeitnehmerüberlassung mit gültiger Erlaubnis" | „Arbeitnehmerüberlassung über die HST Überlassung GmbH" |
+| Jobseite, FAQ | „wir haben die Erlaubnis zur Arbeitnehmerüberlassung" | „Die Arbeitnehmerüberlassung läuft über die HST Überlassung GmbH, die die Erlaubnis dafür besitzt" |
+| Jobseite, strukturierte Daten | dieselbe Antwort ein zweites Mal | mitgezogen |
+
+**Die vierte Zeile ist die, die man vergisst.** Die FAQ-Antwort steht zweimal
+in der Datei: sichtbar im `<details>` und noch einmal als `FAQPage` im
+JSON-LD-Block für Google. Wer nur die sichtbare ändert, hat eine Website, die
+etwas anderes sagt als ihre eigenen strukturierten Daten, und das sieht kein
+Auge. Beide Fassungen sind nachgezogen.
+
+Stehen geblieben ist die Auszeichnung „Arbeitnehmerüberlassung (AÜG)" in der
+Merkmalsreihe des Intros. Sie sagt, **was** das Haus anbietet, nicht **wer**
+die Erlaubnis hält, und das stimmt weiterhin.
+
+## Die Urkunde liegt als Bild bei
+
+`assets/img/erlaubnis-aug.{avif,webp,jpg}`, aus dem gelieferten PDF gerechnet:
+die eingebettete Aufnahme hat 2473 × 3497 px, im Paket stehen 990 × 1400.
+**Hier wird nach dem Verkleinern geschärft**, nicht davor — die Regel „erst
+schärfen, dann rechnen" aus dem Jobsbild gilt für das Hoch­rechnen, wo die
+Hochrechnung eine nachträgliche Schärfung wegmittelt. Beim Herunterrechnen ist
+es umgekehrt.
+
+| | |
+|---|---|
+| AVIF | 52 KB (wird geholt) |
+| WebP | 84 KB |
+| JPEG | 132 KB (Rückfallebene und Ziel des Verweises) |
+
+Im Satzspiegel steht das Blatt 520 px breit, am Telefon 350. Der Verweis
+öffnet die volle Auflösung in einem neuen Tab: lesbar ist es im Text, prüfbar
+erst dort.
+
+**Warum es einen Kasten bekommt**, obwohl die Website keine Karten kennt: das
+hier **ist** ein Blatt Papier. Eine amtliche Urkunde auf Schwarz ohne Kante
+sähe aus wie ein Leuchtfeld, nicht wie ein Dokument. Die Haarlinie ist die
+Kante des Gegenstands, nicht Zierrat um einen Inhalt — und deshalb ist sie in
+`ohne-striche.css` auch nicht mitgemeint: dort fällt weg, was zwischen zwei
+Texten steht.
+
+Die Daten der Urkunde stehen zusätzlich als Text darüber, damit sie auch ohne
+Bild lesbar sind: erteilt durch die Agentur für Arbeit Kiel am 22. Juli 2026,
+gültig vom 13. August 2026 bis zum 12. August 2027, bestehend seit dem
+13. August 2025. Der `alt`-Text gibt den ganzen Satz der Urkunde wieder.
+
+**Die Erlaubnis ist befristet.** Am 12. August 2027 läuft sie aus; die
+Nachfolgeurkunde gehört dann an dieselbe Stelle.
+
+## Abnahme
+
+Funktionen, Verweise und Scroll-Effekte über alle 16 Seiten, einmal ganz
+durchgescrollt (200 px je 45 ms, Seitenhöhe bei jedem Schritt neu gemessen):
+
+| | |
+|---|---|
+| Aufblenden, die offen bleiben | **0** |
+| `--weg` / `--lauf` nicht geschrieben | 0 / 0 |
+| Bilder, deren `aspect-ratio` nicht zur Darstellung passt | 0 |
+| Bilder, die nicht geladen haben | 0 |
+| `.wrap` mit falschem Seitenrand | 0 |
+| Textelemente unter 5 % Deckkraft | 0 |
+| Skriptfehler | 0 |
+| tote Verweise · doppelte IDs · doppelte Titel | 0 · 0 · 0 |
+| waagerechter Überlauf, 6 Breiten × 16 Seiten | 0 |
+
+Bedienteile einzeln nachgefasst:
+
+| | |
+|---|---|
+| Lightbox der Galerie | öffnet, blättert weiter, Escape schließt |
+| Anfrageformular | leer ungültig, Honigtopf da, bedingtes Feld schaltet von `none` auf `block` |
+| Sprungziel `#bewerbung` | landet bei 93 px, nicht hinter der Kopfzeile |
+| Nach-oben-Knopf | sichtbar ab Scrollstand, springt auf 3 px |
+| Tonschalter | `aria-pressed` false → true |
+| Externe Links | 10 gefunden, alle mit `_blank` und `noopener` |
+| Hintergrundfilm | `hintergrund.webm` läuft, **0 Byte Tonspur** |
+| Zähler im Vertrauensband | 20/20 und 6/6 |
+| Vollbildmenü am Telefon | öffnet, Escape schließt |
+| App-Leiste am Telefon | 63 px, Start · Leistungen · Jobs · Anfrage, aktiver Reiter markiert |
+
+Einziger verbliebener Konsoleneintrag ist `POST /api/konto` → 501: das ist der
+lokale Testserver, der keine POST-Anfragen kennt. Auf Netlify beantwortet die
+Funktion sie.

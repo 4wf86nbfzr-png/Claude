@@ -1,0 +1,65 @@
+/* ============================================================
+   Die Erlaubnisurkunde im Impressum
+   ------------------------------------------------------------
+   Gilt nur auf impressum.html und bringt genau ein Bauteil mit:
+   das abgebildete Blatt. Farben, Abstaende und Schriften kommen
+   restlos aus den Tokens der Neugestaltung, hier steht kein
+   eigener Farbwert.
+
+   WARUM ES EINEN KASTEN BEKOMMT, obwohl die Website keine Karten
+   kennt: das hier IST ein Blatt Papier. Eine amtliche Urkunde auf
+   Schwarz ohne Kante saehe aus wie ein Leuchtfeld, nicht wie ein
+   Dokument. Die Haarlinie sagt „hier hoert das Blatt auf" und ist
+   damit die Kante des Gegenstands, nicht Zierrat um einen Inhalt.
+
+   SIE IST DESHALB AUCH IN `ohne-striche.css` NICHT MITGEMEINT:
+   dort faellt weg, was zwischen zwei Texten steht. Hier steht sie
+   um ein Bild.
+   ============================================================ */
+
+.urkunde {
+  margin: clamp(20px, 3vw, 32px) 0 0;
+  /* Ein amtliches Blatt ist hochkant und wird nicht breiter als
+     eine Textspalte gelesen. Groesser waere es eine Abbildung, die
+     den Abschnitt traegt, und das soll sie nicht. */
+  max-width: min(100%, 520px);
+}
+
+.urkunde a {
+  display: block;
+  border: 1px solid var(--line-stark);
+  /* Kein Innenabstand: die Urkunde hat selbst einen weissen Rand,
+     ein zweiter davor lieest als schlecht beschnittenes Bild. */
+  transition: border-color 0.35s var(--ease-out);
+}
+.urkunde a:hover,
+.urkunde a:focus-visible {
+  border-color: var(--paper);
+}
+
+.urkunde picture {
+  display: block;
+}
+
+/* `height:auto` gehoert zwingend dazu: das <img> traegt width und
+   height im Markup (richtig so, das verhindert Springen beim Laden),
+   und ein gesetzter Wert schlaegt jede Vorgabe aus dem Stylesheet. */
+.urkunde img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.urkunde figcaption {
+  margin-top: clamp(8px, 1.2vw, 14px);
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
+/* Bei reduzierter Bewegung steht auch der Rahmen still. */
+@media (prefers-reduced-motion: reduce) {
+  .urkunde a {
+    transition: none;
+  }
+}

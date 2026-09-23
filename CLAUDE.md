@@ -4086,6 +4086,47 @@ Beim Aufräumen der Wiederholungen ist der Unterschied wichtig:
   seitdem nur noch, **wer** die Anfrage bekommt; **wie** man ihn erreicht,
   steht darunter.
 
+## Die Erlaubnis nach AÜG gehört nicht dem Seitenbetreiber
+
+**Die Erlaubnis zur Arbeitnehmerüberlassung läuft über die HST Überlassung
+GmbH, nicht über die HERM Service Team e.K.** Das ist keine Feinheit,
+sondern die Angabe, an der ein Kunde ablesen kann, mit wem er einen
+Überlassungsvertrag schließt — und die Website hat bis September 2026 das
+Gegenteil behauptet, an vier Stellen gleichzeitig:
+
+| Wo | stand da |
+|---|---|
+| Fußzeile, **alle 16 Seiten** | „HERM Service Team e.K., Erlaubnis zur Arbeitnehmerüberlassung (AÜG)" |
+| Startseite, Vertrauensband | „Arbeitnehmerüberlassung mit gültiger Erlaubnis" |
+| Jobseite, FAQ | „wir haben die Erlaubnis zur Arbeitnehmerüberlassung" |
+| Jobseite, **strukturierte Daten** | dieselbe Antwort ein zweites Mal |
+
+**Die vierte Zeile ist die, die man vergisst**, und sie ist der
+allgemeine Teil daran: jede FAQ-Antwort steht zweimal in der Datei,
+sichtbar im `<details>` und noch einmal als `FAQPage` im JSON-LD. Wer nur
+die sichtbare ändert, hat eine Seite, die etwas anderes sagt als ihre
+eigenen strukturierten Daten — und das sieht kein Auge, kein Browser und
+keine Kontrastprüfung. Im Repository zieht `tools/strukturdaten.py` die
+zweite Fassung aus der ersten; in einer gelieferten, gebauten Fassung
+muss man beide von Hand anfassen. **Eine Aussage über den Betrieb ändert
+man mit `grep`, nicht mit dem Auge.**
+
+Stehen bleibt die Auszeichnung „Arbeitnehmerüberlassung (AÜG)" in der
+Merkmalsreihe: sie sagt, **was** das Haus anbietet, nicht **wer** die
+Erlaubnis hält.
+
+**Die Urkunde liegt als Bild im Impressum** und trägt ihre Daten zusätzlich
+als Text darüber — erteilt von der Agentur für Arbeit Kiel, gültig
+13.08.2026 bis 12.08.2027, bestehend seit 13.08.2025. Sie ist **befristet**:
+am 12. August 2027 gehört die Nachfolgeurkunde an dieselbe Stelle, sonst
+steht dort ein abgelaufener Nachweis.
+
+**Und sie bekommt als einziges Bild der Website einen Rahmen.** Das ist
+keine Ausnahme von „Keine Karten": das hier *ist* ein Blatt Papier, und die
+Haarlinie ist die Kante des Gegenstands, nicht Zierrat um einen Inhalt.
+Eine amtliche Urkunde auf dunklem Grund ohne Kante sieht aus wie ein
+Leuchtfeld.
+
 ## Öffnungszeiten stehen an vier Stellen — und das ist richtig
 
 Mo–Fr 10–17 Uhr steht auf `kontakt.html`, in den Kontaktkarten der Startseite,
