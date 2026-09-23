@@ -3856,6 +3856,70 @@ keine tote Bildadresse im Markup.
 
 ---
 
+## Musik am Tonschalter
+
+Der Schalter oben rechts trug bisher nur die synthetischen Bedienklänge.
+Er trägt jetzt zusätzlich eine gelieferte Musikspur; beides bleibt, Ton
+an heißt Musik **und** Klänge.
+
+**Die Lautstärke ist gerechnet, nicht gedreht.** Die Vorlage war eine
+gemasterte Produktionsspur: −9,1 LUFS bei +0,1 dBTP, also bis an die
+Klippe. Als Bett unter einer Website ist das unbrauchbar laut.
+
+| | |
+|---|---|
+| Datei | −18,0 LUFS bei −8,9 dBFS, per **reiner Verstärkung** (−8,9 dB) |
+| gespielt | `volume` 0,45, also −6,9 dB |
+| am Ohr | rund **−25 LUFS** |
+
+`loudnorm` wäre der naheliegende Griff und der falsche: es hätte die
+Dynamik zusätzlich auf LRA 3,0 gedrückt. Eine Verstärkung fasst sie nicht
+an, und der Spitzenwert hat nach der Rechnung acht Dezibel Luft.
+
+**Eine Schleife braucht einen Schnitt, keinen Regler.** Die Vorlage
+blendet aus und endet in Stille — als Schleife ein Loch von sieben
+Sekunden und danach ein harter Wiedereinstieg. Geschnitten wird deshalb
+vor der Ausblende, und die letzten zwei Sekunden werden über die
+**ersten** zwei geblendet. Gemessen springt der Pegel an der Naht um
+1,8 dB, während die Musik von sich aus um bis zu 7,7 dB schwankt: die
+Naht liegt unter dem, was das Stück ohnehin tut.
+
+**Es lädt nichts, bevor jemand den Schalter drückt.** Die beiden Dateien
+wiegen zusammen 2,4 MB, mehr als die ganze Startseite an Bildern. Das
+`<audio>` entsteht deshalb im Skript und nicht im Markup — ein Element
+mit `src` im Markup holt auf manchen Browsern trotz `preload="none"` die
+ersten Blöcke. Nachgemessen: Seite geladen, gescrollt, **null Anfragen**.
+
+**Hier steht Opus zuerst, beim Hintergrundfilm steht H.264 zuerst.** Das
+ist kein Widerspruch, sondern dieselbe Frage mit einer anderen Antwort:
+beim Film zählt die Hardware-Dekodierung, weil er dauernd läuft und auf
+dem Akku sonst heiß wird. Eine Tonspur kostet davon nichts, also zählt
+nur die Dateigröße. Die AAC-Fassung steht daneben, weil Safari Opus in
+WebM nicht zuverlässig abspielt — ein iPhone, auf dem der Schalter nichts
+tut, wäre ein Knopf ohne Funktion.
+
+### Die Messung, die nichts gemessen hat
+
+Die Bitrate sollte gemessen gewählt werden: jede Fassung
+zurückdecodiert, frameweise gegen die Vorlage gehalten. Die log-spektrale
+Distanz **stieg** dabei mit der Bitrate (13,19 dB bei 48k, 13,94 bei 64k).
+Das ist kein Codec-Verhalten — Opus verschiebt die Phase, und ein
+frameweiser Vergleich misst dann die Ausrichtung.
+
+Mit dem **Langzeitspektrum**, das über die ganze Datei mittelt und
+deshalb ausrichtungsfrei ist, liegen 48k bis 80k alle zwischen 2,7 und
+3,8 dB: innerhalb des Rauschens des Verfahrens. **Die Messung kann die
+Stufen nicht auseinanderhalten, und das ist selbst das Ergebnis.**
+Gewählt ist 64k, der anerkannte Transparenzpunkt für Stereomusik — und
+nicht eine Zahl, die eine Messreihe angeblich ausgesucht hat.
+
+Zum vierten Mal dieselbe Lehre: **wer eine Auffälligkeit gleichmäßig über
+die ganze Messreihe vorfindet, hat seinen Test gemessen und nicht die
+Sache.** Und die neue Hälfte davon: **eine Messreihe, deren Zahl in die
+falsche Richtung läuft, ist kein Befund, sondern ein kaputtes Verfahren.**
+
+---
+
 ## Der Live-Gang, September 2026
 
 Letzter Durchgang vor der Freischaltung: kein Konzept mehr, sondern ein

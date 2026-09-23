@@ -109,7 +109,7 @@
     <a class="btn" href="kontakt.html">Anfrage starten
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </a>
-    <button class="ton" type="button" aria-pressed="false" aria-label="Ton einschalten"><span class="ton__balken" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="ton__wort">Ton</span></button>
+    <button class="ton" type="button" aria-pressed="false" aria-label="Ton einschalten" data-musik-webm="assets/audio/hintergrundmusik.webm" data-musik-m4a="assets/audio/hintergrundmusik.m4a"><span class="ton__balken" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="ton__wort">Ton</span></button>
     <button class="burger" id="burger" aria-label="Men&uuml; &ouml;ffnen" aria-expanded="false"><i></i><i></i><i></i></button>
   </div>
 </header>
@@ -380,6 +380,8 @@
 <script src="assets/js/main.js"></script>
 <script src="assets/js/lenis.min.js"></script>
 <script src="assets/js/motion.js"></script>
+<!-- Die Musik am Tonschalter. Laedt erst, wenn jemand ihn anschaltet. -->
+<script src="assets/js/musik.js"></script>
 <!-- Nachtrag: die reservierte Kopfzeilenhoehe und die zaehlenden
      Zahlen. Aendert kein Aussehen, holt nur Funktion nach. -->
 <script src="assets/js/nachtrag.js"></script>

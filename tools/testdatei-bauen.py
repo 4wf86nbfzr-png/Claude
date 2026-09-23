@@ -118,6 +118,14 @@ def film_aus():
             'assets/video/hintergrund-hoch.%s' % weg)
 
 
+#  Die Hintergrundmusik liegt zweifach vor: Opus in WebM und AAC in MP4.
+#  In der Auslieferung ist das richtig, denn Safari spielt Opus in WebM
+#  nicht zuverlaessig. In EINER Datei zum Durchklicken ist es 1,4 MB fuer
+#  eine Fassung, die kein Browser holt, sobald er die erste versteht —
+#  dieselbe Rechnung wie beim Film.
+MUSIK_AUS = ('assets/audio/hintergrundmusik.m4a',)
+
+
 # ---------------------------------------------------------------------------
 #  Dateien einsammeln
 # ---------------------------------------------------------------------------
@@ -142,7 +150,11 @@ def datauri(pfad):
     if pfad.endswith('.avif'):
         typ = 'image/avif'
     elif pfad.endswith('.webm'):
-        typ = 'video/webm'
+        # Eine data:-URI wird nach dem MIME entschluesselt, nicht nach dem
+        # Inhalt. Die Musik ist ein WebM ohne Bildspur: als `video/webm`
+        # angemeldet, laedt sie ein <audio> zwar auch, aber angemeldet wird
+        # etwas anderes, als drin ist.
+        typ = 'audio/webm' if '/audio/' in pfad.replace(os.sep, '/') else 'video/webm'
     elif pfad.endswith('.vtt'):
         typ = 'text/vtt'
     elif pfad.endswith('.woff2'):
@@ -302,6 +314,7 @@ def seite_umbauen(quelle, vorhanden):
     # Pruefung ins Leere gelaufen.
     weg = 'webm' if FILM_FORMAT == 'mp4' else 'mp4'
     h = re.sub(r'\s*data-(?:quer|hoch)-%s="[^"]*"' % weg, '', h)
+    h = re.sub(r'\s*data-musik-m4a="[^"]*"', '', h)
     h = picture_eindampfen(h, vorhanden)
     h = leichter(h, vorhanden)
     for muster in WEG:
@@ -745,7 +758,7 @@ def main():
     for p in sorted(gebraucht):
         if p.startswith('assets/css/') or p.startswith('assets/js/') or p.startswith('assets/fonts/'):
             continue
-        if p in film_aus():
+        if p in film_aus() or p in MUSIK_AUS:
             continue
         if ohne_film and p.startswith('assets/video/'):
             continue

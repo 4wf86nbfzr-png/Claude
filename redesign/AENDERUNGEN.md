@@ -673,3 +673,111 @@ Bedienteile einzeln nachgefasst:
 Einziger verbliebener Konsoleneintrag ist `POST /api/konto` → 501: das ist der
 lokale Testserver, der keine POST-Anfragen kennt. Auf Netlify beantwortet die
 Funktion sie.
+
+
+---
+
+# Musik am Tonschalter
+
+Der Schalter oben rechts gab es schon: `motion.js` baut ihn und hängt
+daran die synthetischen Bedienklänge (ein Tick auf Links, ein weicher
+Schlag auf Knöpfen). Er trägt jetzt zusätzlich die gelieferte Musik.
+**Beides bleibt** — Ton an heißt Musik und Klänge, Ton aus heißt Stille.
+
+## Die Datei
+
+| | |
+|---|---|
+| Vorlage | MP3, 256 kbit/s, 126,7 s, **−9,1 LUFS** bei +0,1 dBTP |
+| geliefert | Opus/WebM 64 kbit/s (**999 KB**) und AAC/MP4 96 kbit/s (1379 KB) |
+| Länge | 115,5 s als nahtlose Schleife |
+| Pegel | −18,0 LUFS bei −8,9 dBFS Spitze, gespielt bei 0,45 |
+
+**Die Vorlage ist eine gemasterte Produktionsspur und läuft bis an die
+Klippe** (+0,1 dBTP, −9,1 LUFS). Als Bett unter einer Website ist das
+unbrauchbar laut. Heruntergesetzt wird mit einer **reinen Verstärkung**
+von −8,9 dB, nicht mit `loudnorm`: das hätte die Dynamik zusätzlich auf
+LRA 3,0 gedrückt. Gespielt wird bei 0,45, also −6,9 dB, macht rund
+**−25 LUFS am Ohr**: hörbar, aber unter jeder Stimme und jedem Systemton.
+Wer sie lauter will, dreht an `PEGEL` in `assets/js/musik.js` und an
+nichts sonst.
+
+## Die Schleife hat keine Naht
+
+Die Vorlage blendet ab Sekunde 119,7 aus und endet in Stille. Als
+Schleife hieße das: ein Loch von sieben Sekunden, dann ein harter
+Wiedereinstieg. Geschnitten ist deshalb
+
+- die Ausblende weg (Schnitt bei 119,5 s),
+- die letzten zwei Sekunden über die **ersten** zwei geblendet,
+- Ergebnis 115,5 s, deren Ende in ihren eigenen Anfang läuft.
+
+Nachgemessen am Pegel in 100-ms-Fenstern über die Naht hinweg: **1,8 dB
+Sprung an der Naht selbst**, während die Musik von sich aus um bis zu
+7,7 dB schwankt. Die Naht liegt also unter dem, was das Stück ohnehin tut.
+
+## Es lädt nichts, bevor jemand den Schalter drückt
+
+Das ist der Punkt, an dem 2,4 MB sonst auf dem kritischen Pfad stünden —
+mehr, als die ganze Startseite an Bildern lädt. Das `<audio>` entsteht
+deshalb **im Skript**, nicht im Markup: ein Element mit `src` im Markup
+holt auf manchen Browsern trotz `preload="none"` die ersten Blöcke.
+
+Nachgemessen: Seite geladen, 3,5 s gewartet, 2000 px gescrollt →
+**null Anfragen** an die Musikdateien. Erst der Klick holt sie.
+
+| | |
+|---|---|
+| ohne Klick | nichts geladen |
+| Klick | `200 hintergrundmusik.webm`, `volume` 0,2 nach 0,4 s → 0,45 nach 3 s |
+| zweiter Klick | blendet auf 0, dann `pause` |
+| zweiter Besuch (Schalter gespeichert auf an) | nichts, bis zur ersten Geste; danach läuft sie |
+| Bereichsseite | `/assets/audio/…` löst korrekt auf |
+| reduzierte Bewegung | keine Musik, Schalter bleibt für die Klänge |
+
+## Drei Entscheidungen, die nicht beliebig sind
+
+- **Ein eigenes Skript statt einer Änderung an `motion.js`.** Die Datei
+  liegt minifiziert in der gelieferten Fassung. `musik.js` daneben ist
+  nachlesbar und fällt sauber aus: lässt man sie weg, ist der Schalter
+  wieder genau der, der er vorher war.
+- **Die beiden Adressen hängen als `data-`Attribute am Schalter**, nicht
+  als Zeichenkette im Skript. Auf den sechs Bereichsseiten steht
+  `../assets/…`; eine Adresse im Skript wäre dort falsch. Dasselbe
+  Verfahren wie beim Hintergrundfilm.
+- **Hier steht Opus zuerst, beim Film steht H.264 zuerst.** Das ist kein
+  Widerspruch: beim Film war die Hardware-Dekodierung das Argument, weil
+  er dauernd läuft und auf dem Akku sonst heiß wird. Eine Tonspur kostet
+  davon nichts, also zählt nur die Dateigröße. Die AAC-Fassung steht
+  daneben für Safari, das Opus in WebM nicht zuverlässig abspielt — ein
+  iPhone, auf dem der Schalter nichts tut, wäre ein Knopf ohne Funktion.
+
+## Die Messung, die nichts gemessen hat
+
+Um die Bitrate zu wählen, wurde jede Fassung zurückdecodiert und
+frameweise gegen die Vorlage gehalten (log-spektrale Distanz). Ergebnis:
+13,19 dB bei 48k, 13,42 bei 56k, **13,94 bei 64k** — die Zahl stieg mit
+der Bitrate. Das ist kein Codec-Verhalten, sondern ein Messfehler: Opus
+verschiebt die Phase, und ein frameweiser Vergleich misst dann die
+Ausrichtung.
+
+Mit dem **Langzeitspektrum** (über die ganze Datei gemittelt, damit die
+Ausrichtung keine Rolle spielt) liegen 48k bis 80k alle zwischen 2,7 und
+3,8 dB — also innerhalb des Rauschens des Verfahrens. **Die Messung kann
+die Stufen nicht auseinanderhalten, und das ist selbst das Ergebnis.**
+Gewählt ist deshalb 64k, der anerkannte Transparenzpunkt für Stereomusik,
+und nicht eine Zahl, die eine Messreihe angeblich ausgesucht hat.
+
+Zum vierten Mal in dieser Datei dieselbe Lehre: **wer eine Auffälligkeit
+gleichmäßig über die ganze Messreihe vorfindet, hat seinen Test gemessen
+und nicht die Sache.**
+
+## Im Paket und in der Testdatei
+
+Das Paket trägt beide Fassungen (25,1 → **27,6 MB**). Die Testdatei trägt
+nur die Opus-Fassung, und `data-musik-m4a` fällt dort aus dem Markup —
+dieselbe Rechnung und derselbe Handgriff wie beim nicht eingebetteten
+Filmformat. `tools/testdatei-bauen.py` meldet ein WebM unter
+`assets/audio/` außerdem als `audio/webm` an und nicht als `video/webm`:
+eine `data:`-URI wird nach ihrem MIME entschlüsselt, nicht nach ihrem
+Inhalt.
