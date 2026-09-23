@@ -3327,6 +3327,41 @@ nie hier angekommen. Liegt es vor: dieselbe Datei nach
 `assets/quellen/bar-gruen.jpg`, einmal `python3 tools/motive-bauen.py`, und
 `LOHNT_GROSS` zieht die zweite Stufe von selbst.
 
+#### Wie man einer Datei ansieht, wieviel Bild in ihr steckt
+
+Dieselbe Bestellung kam ein zweites Mal, für das Kopfbild der Jobseite
+(„auf 4k schärfen"). Die Datei ist 1600 × 1600 — das sagt aber nur, wieviel
+**Pixel** darin stehen, nicht wieviel **Bild**. Nachgemessen wird es, indem
+man sie verkleinert, wieder hochrechnet und mit dem Original vergleicht:
+
+| verkleinert auf | PSNR gegen das Original |
+|---|---|
+| 1200 px | 44,0 dB |
+| 800 px | 42,3 dB |
+| **500 px** | **41,3 dB** |
+
+Ab etwa 40 dB sieht man keinen Unterschied mehr. **Bleibt die Zahl beim
+Verkleinern oben, war das Detail vorher schon nicht da** — diese Vorlage
+trägt rund 500 bis 600 px, der Rest ist bereits hochgerechnet. Das ist eine
+Messung von zwei Zeilen, und sie beantwortet jede künftige 4K-Bestellung,
+bevor irgendetwas gebaut wird.
+
+**Erst schärfen, dann hochrechnen.** Gemessen an der Darstellung (1440er
+Schirm, doppelte Dichte, Kasten 1690 × 742, mittlerer Gradientenbetrag):
+
+| | Kantenschärfe |
+|---|---|
+| wie vorher, 1600 px | 0,80 |
+| erst auf 2560 gerechnet, dann geschärft | 0,96 |
+| 140 % bei 1600 px | 1,05 |
+| **140 % bei 1600, danach auf 2560 gerechnet** | **1,14** |
+| 200 % | 1,17, aber mit sichtbaren Halos |
+
+Der Grund ist derselbe wie in der Tabelle oben, nur andersherum gelesen:
+eine Hochrechnung **mittelt** eine nachträgliche Schärfung weg und
+**vergrössert** eine vorher eingebaute mit. Wer die Reihenfolge tauscht,
+verliert ein Fünftel des Ertrags, ohne dass die Dateigrösse sich ändert.
+
 ### Drei Gründe übereinander: Foto, Film, Foto
 
 Nach dem Film kam die dritte Anweisung, und sie ist die genaueste:
@@ -4314,10 +4349,33 @@ steht deshalb **abgesetzt unter** dem Bewerbungsknopf, nicht daneben: wer sich
 gerade bewirbt, soll ihn nicht für den nächsten Schritt halten. Getrennt wird
 wie überall, durch eine Haarlinie und Abstand.
 
-Es ist der einzige Link auf einen fremden Dienst außerhalb der Fußzeile.
-Deshalb `target="_blank" rel="noopener"`, ein Hinweis darauf im
+Es war lange der einzige Link auf einen fremden Dienst außerhalb der
+Fußzeile. Deshalb `target="_blank" rel="noopener"`, ein Hinweis darauf im
 `aria-label` — und ein Satz in der Datenschutzerklärung, dass es ein
 einfacher Link ist und dort die Erklärung des anderen Anbieters gilt.
+
+### Der zweite ist der Menüpunkt Catering
+
+Seit September steht in der Hauptnavigation ein Reiter, der die Website
+verlässt: **Catering** führt auf `stullenwerk.com`, den Schwesterbetrieb.
+Er bekommt **dieselbe Bauform** wie der Mitarbeiter-Login — `target="_blank"`
+samt `rel="noopener noreferrer"`, ein `aria-label`, das den neuen Tab
+ansagt, und einen Satz in der Datenschutzerklärung. Das ist der Punkt, um
+den es hier geht: **ein Link nach draußen ist kein Menüpunkt mit einer
+anderen Adresse, sondern eine eigene Bauform**, und die steht seitdem
+zweimal gleich da statt zweimal verschieden.
+
+Er steht **nur** in der Kopfnavigation und im Vollbildmenü — nicht in der
+Sitemap im Fuß, nicht in der App-Leiste, nicht im Balken unter der
+Kopfzeile. Das Vollbildmenü ist dabei kein Widerspruch zu „nur oben in der
+Menüleiste": es *ist* die Menüleiste am Telefon, nur aufgeklappt. Ohne ihn
+dort wäre der Punkt auf dem Telefon überhaupt nicht erreichbar.
+
+**Eine eigene Klasse hat er nicht.** `.nav__extern` stand zuerst am Link
+und hatte keine Regel — und eine Klasse ohne Regel ist eine Behauptung über
+das Layout, die niemand einlöst (dieselbe Begründung wie bei
+`schaubild--schluss`). Was ihn unterscheidet, sagt das `aria-label`, nicht
+das Stylesheet.
 
 ---
 

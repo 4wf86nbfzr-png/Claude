@@ -455,3 +455,107 @@ Abnahme danach unverändert: 0 waagerechter Überlauf bei sechs Breiten
 über 16 Seiten, 0 Konsolen- und Netzfehler (bis auf `POST /api/konto`
 → 501 vom Testserver), ohne JavaScript und bei reduzierter Bewegung
 nichts verdeckt.
+
+
+---
+
+# Das Kopfbild der Jobseite ist nachgeschärft
+
+Bestellt war „auf 4K schärfen". Was möglich war, ist gemacht; was nicht
+möglich war, steht hier, denn es ist die wichtigere Hälfte der Antwort.
+
+## Was die Vorlage trägt
+
+`assets/img/gastro-detail.jpg` ist 1600 × 1600 groß. Das sagt aber nur,
+wie viele Pixel in der Datei stehen, nicht wie viel Bild darin steckt.
+Nachgemessen, indem dieselbe Datei verkleinert und wieder hochgerechnet
+und dann mit dem Original verglichen wird (PSNR):
+
+| verkleinert auf | PSNR gegen das Original |
+|---|---|
+| 1200 px | 44,0 dB |
+| 800 px | 42,3 dB |
+| **500 px** | **41,3 dB** |
+
+Ab etwa 40 dB sieht man keinen Unterschied mehr. **Die Datei trägt also
+rund 500 bis 600 px echtes Detail** — der Rest ist bereits hochgerechnet.
+Eine 3840er Datei daraus zu bauen erzeugt keine Bilddetails, sie erzeugt
+nur Gewicht. Genau dieselbe Rechnung steht in CLAUDE.md unter „Das Bild
+mit den Pflanzen in 4K".
+
+## Was trotzdem hilft: schärfen, und zwar in der richtigen Reihenfolge
+
+Gemessen wurde nicht die Datei, sondern die **Darstellung**: 1440er
+Schirm, doppelte Pixeldichte, der Kasten des Kopfbilds (1690 × 742),
+Kantenschärfe als mittlerer Gradientenbetrag.
+
+| Fassung | Kantenschärfe |
+|---|---|
+| vorher, 1600 px | 0,80 |
+| vorher, zweite Stufe 2560 px | 0,84 |
+| 140 % Nachschärfung bei 1600 px | 1,05 |
+| **140 % bei 1600, danach auf 2560 hochgerechnet** | **1,14** |
+| 200 % | 1,17, aber mit sichtbaren Halos |
+
+**Erst schärfen, dann hochrechnen** — nicht umgekehrt. Dieselbe Datei in
+der anderen Reihenfolge misst 0,96: die Hochrechnung mittelt eine
+nachträgliche Schärfung weg, eine vorher eingebaute wächst mit. Das ist
+die Begründung, die in CLAUDE.md unter „Wie viele Stufen eine Vorlage
+trägt" schon für die Motive steht.
+
+Geliefert ist `UnsharpMask(1.6, 140 %, 2)` auf der 1600er Datei und die
+zweite Stufe daraus hochgerechnet. Im Markup steht die 2560er Stufe jetzt
+auch als WebP, nicht nur als AVIF. Nachgeprüft im Browser: geholt wird
+`gastro-detail-gross.avif`, die gerenderte Kantenschärfe liegt bei
+**1,14 statt 0,80**, also **+43 %**.
+
+## Was der Betrieb liefern müsste
+
+Echte Schärfe kann nur eine echte Aufnahme liefern. Gebraucht wird die
+Originaldatei mit mindestens 2400 px an der langen Kante, für wirkliches
+4K über die volle Breite 3840 px (`docs/foto-briefing.md`). **In ein
+Gespräch eingefügte Bilder werden auf dem Weg verkleinert** — als Datei
+angehängt kommen sie in voller Größe an.
+
+
+---
+
+# Der Menüpunkt Catering
+
+Der Schwesterbetrieb bekommt einen eigenen Reiter in der Hauptnavigation:
+
+```html
+<a href="https://stullenwerk.com" target="_blank" rel="noopener noreferrer"
+   aria-label="Catering, Stullenwerk, oeffnet in einem neuen Tab">Catering</a>
+```
+
+Er steht auf allen sechzehn Seiten an derselben Stelle, hinter „Kontakt".
+
+**Nur oben in der Menüleiste**, wie bestellt: nicht in der Sitemap im
+Fuß, nicht in der App-Leiste am unteren Bildrand, nicht im Balken unter
+der Kopfzeile. Im Vollbildmenü steht er dagegen — das *ist* die
+Menüleiste am Telefon, dort wird sie über den Menüknopf aufgeklappt.
+Ohne ihn wäre der Punkt auf dem Telefon überhaupt nicht erreichbar.
+
+Drei Dinge daran sind nicht beliebig:
+
+- **`target="_blank"` samt `rel="noopener noreferrer"`.** Es ist der
+  einzige Punkt der Hauptnavigation, der die Website verlässt. `noopener`
+  nimmt der geöffneten Seite den Zugriff auf `window.opener`.
+- **Ein `aria-label`, das den neuen Tab ansagt.** Ein Vorlesewerkzeug
+  meldet sonst nur „Catering, Link" und der Wechsel kommt unangekündigt.
+- **Keine eigene Klasse.** `.nav__extern` stand zuerst am Link und hatte
+  keine Regel — eine Klasse ohne Regel ist eine Behauptung über das
+  Layout, die niemand einlöst. Der Eintrag sieht aus wie die anderen
+  sechs; was ihn unterscheidet, sagt das `aria-label`.
+
+**Die Datenschutzerklärung ist nachgezogen.** Abschnitt 2 („Was diese
+Website nicht tut") nennt ihn jetzt neben dem Mitarbeiter-Login: ein
+einfacher Link, keine Einbettung, keine Verbindung dorthin, solange
+niemand darauf klickt, und danach gilt die Erklärung des dortigen
+Anbieters. Dieselbe Bauform und dieselbe Begründung wie bei
+`hst.secplan.net`.
+
+Abnahme danach: 0 waagerechter Überlauf bei sechs Breiten über 16
+Seiten, 0 tote Verweise, 0 doppelte IDs, 0 Konsolen- und Netzfehler
+(bis auf `POST /api/konto` → 501 vom Testserver).
