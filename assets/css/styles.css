@@ -4073,17 +4073,40 @@ header.nav{ view-transition-name:kopfzeile; }
    **Dieser eine Wert darf dem Farbschema nicht folgen.** Wer ihn auf
    `--grund` setzt, bekommt vier graue Rechtecke mit sichtbarem Rand auf
    blauem Papier zurueck. Er folgt der Aufnahme, und er aendert sich erst
-   mit ihr. */
+   mit ihr.
+
+   SEIT SEPTEMBER 2026 IST ER AUSGESETZT, und zwar nach genau dieser
+   Regel: die Portraets sind auf Wunsch ausgebaut, alle sechs Kacheln
+   stehen auf „Foto folgt". Ein Grund, der auf einen Studiohintergrund
+   gemessen ist, den es auf der Seite nicht mehr gibt, ist kein Grund,
+   sondern ein grauer Fleck zwischen zwei Petrolbahnen. Der Abschnitt
+   steht deshalb auf `--grund` wie jeder andere.
+
+   ZURUECK ist es eine Zeile: `background-color:#2B3336`, sobald wieder
+   Portraets in den Kacheln stehen. Der gemessene Wert bleibt hier
+   stehen, damit ihn niemand neu ermitteln muss — und `.member__img`
+   traegt ihn unveraendert, denn das ist der Kasten HINTER dem Foto. */
 /* `background-color` und nicht die Kurzschreibweise `background`: sonst
    loescht dieser eine Wert die beiden Blenden darunter wieder — dieselbe
    Falle wie `padding` gegen `.wrap`. Die Blende ist hier knapper (14 %):
    der Block ist hoch, und die Portraets sollen nicht im Nebel stehen. */
 .team-buero.auf-dunkel{
-  background-color:#2B3336;
+  background-color:var(--grund);
   --blende-zone: min(var(--blende), 14%);
   background-image:var(--blende-oben), var(--blende-unten);
 }
-.team-buero .member__img{ background:#2B3336; }
+/* `:not(.member__img--leer)` und nicht `.member__img` allein.
+   ------------------------------------------------------------
+   Gemeint ist der Kasten hinter dem FOTO — der Ton, an dem der
+   Studiohintergrund kantenlos anschliesst. Ohne das `:not()` gewinnt die
+   Regel mit ihren zwei Klassen (0,2,0) gegen `.member__img--leer` (0,1,0)
+   und loescht dem Platzhalter seinen Verlauf: die Kachel stand dann in
+   derselben Farbe wie der Abschnitt, und „Foto folgt" schwebte im
+   Nichts statt in einem reservierten Feld. Mit zwei Platzhaltern unter
+   vier Portraets fiel das nicht auf, mit sechs ist es der ganze Block.
+   Dieselbe Lehre wie bei `.schaubild img` und `body > footer`: **ein
+   Selektor, der nur einen Ort meint, muss auch nur diesen Ort treffen.** */
+.team-buero .member__img:not(.member__img--leer){ background:#2B3336; }
 /* Versucht und wieder verworfen: wechselnde Kachelformate (hochkant,
    quadratisch, hochkant), damit die vier nicht wie Kopien desselben Bildes
    wirken. Im Bild sah das nicht abwechslungsreich aus, sondern unsortiert —

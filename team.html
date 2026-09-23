@@ -165,8 +165,22 @@
         im B&uuml;ro am Telefon und nach Terminvereinbarung persönlich für Sie da. Anfragen zu
         Personal schreiben Sie am besten an <a href="mailto:info@hermserviceteam.com" class="u-tinte">info@hermserviceteam.com</a>, dort liest die ganze Disposition mit.</p>
 
-      <!-- Weitere Mitarbeiter: einfach diesen <article>-Block kopieren, Foto nach
-           assets/img/team/ legen und die vier Angaben austauschen. -->
+      <!-- Weitere Mitarbeiter: einfach diesen <article>-Block kopieren und die
+           vier Angaben austauschen.
+
+           ALLE sechs Kacheln stehen zurzeit auf dem Platzhalter: die
+           Studioportraets sind auf Wunsch ausgebaut, bis neue Aufnahmen
+           vorliegen. Sobald eine da ist, ersetzt sie bei DIESER einen Person
+           den Block
+
+             <div class="member__img member__img--leer"> … </div>
+
+           durch
+
+             <div class="member__img"><picture>…</picture></div>
+
+           und die Datei liegt unter assets/img/team/. Die Regeln dafuer
+           stehen unveraendert im Stylesheet; es faellt nichts nach. -->
       <div class="team-grid">
         <article class="member reveal-up">
           <div class="member__img member__img--leer">
@@ -178,16 +192,18 @@
         </article>
 
         <article class="member reveal-up" data-d="1">
-          <div class="member__img">
-            <picture><source type="image/webp" srcset="assets/img/team/alexander-krapp.webp" /><img src="assets/img/team/alexander-krapp.jpg" alt="Alexander Krapp" loading="lazy" width="1000" height="1250" /></picture>
+          <div class="member__img member__img--leer">
+            <span class="member__initialen" aria-hidden="true">AK</span>
+            <span class="member__wartet">Foto folgt</span>
           </div>
           <h3 class="member__name">Alexander Krapp</h3>
           <span class="member__role">Standortleitung / Unit Manager</span>
         </article>
 
         <article class="member reveal-up" data-d="2">
-          <div class="member__img">
-            <picture><source type="image/webp" srcset="assets/img/team/shayan-wahedi.webp" /><img src="assets/img/team/shayan-wahedi.jpg" alt="Shayan Wahedi" loading="lazy" width="1000" height="1250" /></picture>
+          <div class="member__img member__img--leer">
+            <span class="member__initialen" aria-hidden="true">SW</span>
+            <span class="member__wartet">Foto folgt</span>
           </div>
           <h3 class="member__name">Shayan Wahedi</h3>
           <span class="member__role">Recruiting &amp; Disposition</span>
@@ -196,8 +212,11 @@
         </article>
 
         <article class="member reveal-up" data-d="3">
-          <div class="member__img">
-            <picture><source type="image/webp" srcset="assets/img/team/mohamad-hamade.webp" /><img src="assets/img/team/mohamad-hamade.jpg" alt="Mohamad Hamade" loading="lazy" width="1000" height="1250" /></picture>
+          <!-- MH steht auch bei Maik Herm: die beiden haben wirklich dieselben
+               Initialen. Der Name darunter unterscheidet sie. -->
+          <div class="member__img member__img--leer">
+            <span class="member__initialen" aria-hidden="true">MH</span>
+            <span class="member__wartet">Foto folgt</span>
           </div>
           <h3 class="member__name">Mohamad Hamade</h3>
           <span class="member__role">Disposition Service</span>
@@ -208,8 +227,9 @@
         </article>
 
         <article class="member reveal-up" data-d="4">
-          <div class="member__img">
-            <picture><source type="image/webp" srcset="assets/img/team/noah-benkhofer.webp" /><img src="assets/img/team/noah-benkhofer.jpg" alt="Noah Benkhofer" loading="lazy" width="1000" height="1250" /></picture>
+          <div class="member__img member__img--leer">
+            <span class="member__initialen" aria-hidden="true">NB</span>
+            <span class="member__wartet">Foto folgt</span>
           </div>
           <h3 class="member__name">Noah Benkhofer</h3>
           <span class="member__role">Disposition Sicherheit &amp; Ordnungsdienst</span>
@@ -219,8 +239,6 @@
         </article>
 
         <article class="member reveal-up" data-d="4">
-          <!-- Sobald das Foto vorliegt: diesen Block durch die übliche
-               .member__img mit <img> ersetzen, Datei nach assets/img/team/ -->
           <div class="member__img member__img--leer">
             <span class="member__initialen" aria-hidden="true">VO</span>
             <span class="member__wartet">Foto folgt</span>

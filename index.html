@@ -555,10 +555,16 @@ document.documentElement.classList.remove("kein-js");
         <!-- Gesichter statt anonymer Sammeladresse — aber die ganze Disposition,
              nicht eine einzelne Person. -->
         <div class="ansprech reveal-up" data-d="4">
+      <!-- Die vier Koepfe standen als Portraets hier. Sie sind mit den
+           Kacheln der Teamseite ausgebaut, bis neue Aufnahmen vorliegen —
+           es sind dieselben vier Personen, und ein Bueroteam, das an einer
+           Stelle als Foto und an der anderen als Initiale steht, liest als
+           Fehler. Zurueck geht es wie auf der Teamseite: der `--leer`-Span
+           wird wieder ein `<picture>`. -->
       <div class="ansprech__leute" aria-hidden="true">
-        <span class="ansprech__kopf"><picture><source type="image/webp" srcset="assets/img/team/shayan-wahedi.webp" /><img src="assets/img/team/shayan-wahedi.jpg" alt="" loading="lazy" width="1000" height="1250" /></picture></span>
-        <span class="ansprech__kopf"><picture><source type="image/webp" srcset="assets/img/team/mohamad-hamade.webp" /><img src="assets/img/team/mohamad-hamade.jpg" alt="" loading="lazy" width="1000" height="1250" /></picture></span>
-        <span class="ansprech__kopf"><picture><source type="image/webp" srcset="assets/img/team/noah-benkhofer.webp" /><img src="assets/img/team/noah-benkhofer.jpg" alt="" loading="lazy" width="1000" height="1250" /></picture></span>
+        <span class="ansprech__kopf ansprech__kopf--leer">SW</span>
+        <span class="ansprech__kopf ansprech__kopf--leer">MH</span>
+        <span class="ansprech__kopf ansprech__kopf--leer">NB</span>
         <span class="ansprech__kopf ansprech__kopf--leer">VO</span>
       </div>
       <!-- Hier standen Telefonnummer und E-Mail ein zweites Mal — zwischen dem

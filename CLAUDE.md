@@ -617,6 +617,11 @@ aus; der Grund muss aus demselben Token kommen.
 
 ### Das Büroteam steht auf dem Hintergrund seiner eigenen Aufnahme
 
+**Stand September 2026: es steht dort gar keine Aufnahme mehr** — die
+Porträts sind auf Wunsch entfernt, alle sechs Kacheln zeigen „Foto folgt"
+(siehe „Sechsmal Foto folgt"). Der Abschnitt hier bleibt stehen, weil er
+die Messung enthält, die beim nächsten Fototermin wieder gilt.
+
 Bestellt war: jede Person vor einer anderen Büroszene. Die vorhandenen
 Porträts sind Studioaufnahmen vor anthrazitfarbenem Hintergrund (gemessen
 #2C2B30 oben links, #171719 unten rechts — ein Vignettenverlauf).
@@ -1319,6 +1324,15 @@ selbst überstreicht neunundzwanzig, eine Kante entsteht dadurch nicht.
 Wer ihn dagegen auf `--grund` setzt, bekommt vier graue Rechtecke mit
 sichtbarem Rand auf blauem Papier zurück. **Er folgt der Aufnahme, nicht
 der Seite, und er ändert sich erst mit ihr.**
+
+**Und genau deshalb ist er seit September 2026 ausgesetzt.** Die
+Porträts sind entfernt; ein Grund, der auf einen Studiohintergrund
+gemessen ist, den es auf der Seite nicht mehr gibt, ist kein Grund,
+sondern ein grauer Fleck zwischen zwei Petrolbahnen. Der Abschnitt steht
+auf `--grund`, der gemessene Wert bleibt im Kommentar stehen, und er geht
+mit dem ersten neuen Porträt in einer Zeile zurück. Die Regel ist nicht
+gebrochen, sie ist angewandt: er folgt der Aufnahme — auch dorthin, wo
+keine ist.
 
 ---
 
@@ -3738,6 +3752,72 @@ der Seitengrund als Kante neben dem Foto.
 Kontrast über Film und Foto, neu gemessen (`scratchpad/filmtext.js` plus
 `heroKontrast.py`, sechs Scrollstände am Schreibtisch, zehn am Telefon):
 **0 Textflächen unter der Grenze.**
+
+### Sechsmal „Foto folgt"
+
+> „bitte alle bilder entfernen vom team aus dem büro und auf foto folgt
+> setzen"
+
+Vier Studioporträts sind raus, und der vorhandene Platzhalter steht jetzt
+an allen sechs Stellen. Es war kein neues Bauteil nötig:
+`.member__img--leer` mit Initialen und der Zeile „Foto folgt" gab es
+schon, für Maik Herm und Valeria Occhipinto. **Ein Platzhalter, den es
+für zwei Fälle gibt, ist auch der für sechs.**
+
+**Entfernt heißt entfernt, nicht ausgeblendet.** Die acht Dateien unter
+`assets/img/team/` sind aus dem Repository genommen. Wären sie
+liegengeblieben, hätte `paket-bauen.sh` sie weiter ausgeliefert — jede
+Datei aus `assets/` kommt ins ZIP —, und die Porträts namentlich
+genannter Mitarbeiter wären unter ihrer Adresse weiter abrufbar gewesen.
+Bei Bildern von echten Menschen ist das der Unterschied zwischen „von der
+Seite genommen" und „gelöscht". Zurück holt sie
+`git checkout 24fbcd0 -- assets/img/team/`.
+
+**Dieselben vier Gesichter standen an drei Stellen.** Neben den Kacheln
+der Teamseite auch als runde Köpfe im Ansprechpartner-Block der
+Startseite und von `kontakt.html` (`.ansprech__kopf`). Ein Büroteam, das
+auf einer Seite als Foto und auf der nächsten als Initiale steht, liest
+als Fehler — also alle drei Stellen, und auch dort gab es den
+Platzhalter bereits (`.ansprech__kopf--leer`, bis dahin einmal benutzt).
+
+#### Die Falle, zum vierten Mal: ein Selektor, der zu viel trifft
+
+`.team-buero .member__img{ background:#2B3336 }` meint den Kasten
+**hinter dem Foto** — den Ton, an dem der Studiohintergrund kantenlos
+anschließt. Mit zwei Klassen (0,2,0) gewinnt die Regel aber auch gegen
+`.member__img--leer` (0,1,0) und löscht dem Platzhalter seinen Verlauf.
+Die Kachel stand dadurch in exakt der Farbe des Abschnitts: „Foto folgt"
+schwebte im Nichts statt in einem reservierten Feld.
+
+Mit zwei Platzhaltern unter vier Porträts sah das niemand. Mit sechs ist
+es der ganze Block — 1 760 px Seitenhöhe, auf denen nichts zu sehen ist
+als vier Buchstabenpaare. Richtig ist
+`.team-buero .member__img:not(.member__img--leer)`.
+
+Das ist in diesem Projekt jetzt der vierte Fall derselben Sorte, nach
+`body > footer`, `.schaubild img` und `.trust__item span`. Und er zeigt
+die zweite Hälfte der Lehre: **so ein Selektor fällt nicht auf, solange
+der Sonderfall selten ist.** Er wartet darauf, dass der Ausnahmefall zum
+Regelfall wird.
+
+#### Zwei Leute, dieselben Initialen
+
+Maik Herm und Mohamad Hamade sind beide **MH**, und die beiden Kacheln
+stehen im vierspaltigen Raster in derselben Zeile. Das ist keine
+Doppelung, sondern eine Tatsache, und der Name steht direkt darunter.
+Erfunden wird hier nichts — eine dritte Initiale wäre eine Angabe über
+eine Person, die es nicht gibt.
+
+#### Was dabei NICHT angefasst wurde
+
+Das Kopfbild der Teamseite (`team-schild`, das Team mit dem Schild vor
+dem Einlass) ist keine Büroaufnahme und bleibt. Dasselbe gilt für
+`crew-weiss` und `zapfen` auf der Startseite: das sind Aufnahmen aus dem
+Einsatz, keine Porträts.
+
+Stand nach dem Ausbau: 0 Kontrastfehler über alle sechzehn Seiten,
+Schreibtisch und Telefon; 0 waagerechter Überlauf in sieben Breiten;
+keine tote Bildadresse im Markup.
 
 ---
 

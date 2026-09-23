@@ -188,13 +188,32 @@ auseinanderzufallen.
 
 ### Ablage
 
-`assets/img/team/<vorname>-<nachname>.jpg`, Dateinamen wie bisher. Danach
-einmal `python3 tools/bilder-menue.py` für die WebP-Fassungen. Im Markup
-ändert sich nichts.
+`assets/img/team/<vorname>-<nachname>.jpg` (Ordner neu anlegen), Dateinamen
+wie bisher. Danach einmal `python3 tools/bilder-menue.py` für die
+WebP-Fassungen. Im Markup wird bei der betreffenden Person der Block
 
-Solange keine neuen Aufnahmen vorliegen, steht der Bürobereich auf dunklem
-Grund, der dem Studiohintergrund entspricht: die Aufnahme läuft dann in die
-Seite hinein, statt als graues Rechteck darauf zu liegen.
+```html
+<div class="member__img member__img--leer"> … </div>
+```
+
+wieder ein `<div class="member__img"><picture>…</picture></div>` — so, wie
+er bis September 2026 dastand.
+
+**Stand September 2026: es liegt keine einzige Aufnahme vor.** Die
+bisherigen Studioporträts sind auf Wunsch entfernt, alle sechs Kacheln
+stehen auf „Foto folgt", ebenso die vier Köpfe im Ansprechpartner-Block auf
+Startseite und `kontakt.html`. Die Dateien sind aus dem Repository
+genommen; die Website liefert also keine Porträts mehr aus. Wer die alten
+Aufnahmen braucht, holt sie aus der Geschichte:
+
+```bash
+git checkout 24fbcd0 -- assets/img/team/
+```
+
+Solange die Kacheln leer sind, steht der Bürobereich auf dem Seitengrund
+(`--grund`). Sobald wieder Porträts darin stehen, gehört er zurück auf den
+gemessenen Studioton `#2B3336` — eine Zeile in `styles.css`, die
+Begründung steht dort im Kommentar.
 
 ## Rechtliches
 
