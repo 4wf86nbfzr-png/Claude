@@ -30,7 +30,7 @@ export async function benutzerAnlegenAktion(_zustand: Ergebnis, formData: FormDa
     const passwort = String(formData.get('passwort') ?? '');
     const rolle = String(formData.get('rolle') ?? 'MITARBEITER') as $Enums.Role;
 
-    if (!email.includes('@')) throw new ValidationError('Bitte geben Sie eine gueltige E-Mail-Adresse an.');
+    if (!email.includes('@')) throw new ValidationError('Bitte geben Sie eine gültige E-Mail-Adresse an.');
     if (name.length < 2) throw new ValidationError('Bitte geben Sie einen Namen an.');
     const staerke = checkPasswordStrength(passwort);
     if (!staerke.ok) throw new ValidationError(staerke.message!);
@@ -48,7 +48,7 @@ export async function benutzerAnlegenAktion(_zustand: Ergebnis, formData: FormDa
     });
     await audit(user, { action: 'user.create', entity: 'User', entityId: neu.id, summary: `Benutzer ${email} (${rolle}) angelegt` });
     revalidatePath('/admin');
-    return { erfolg: true, hinweis: `Benutzer ${email} angelegt. Das Passwort muss bei der ersten Anmeldung geaendert werden.` };
+    return { erfolg: true, hinweis: `Benutzer ${email} angelegt. Das Passwort muss bei der ersten Anmeldung geändert werden.` };
   });
 }
 
@@ -63,7 +63,7 @@ export async function benutzerAendernAktion(_zustand: Ergebnis, formData: FormDa
     const aktiv = formData.get('aktiv') === 'on';
 
     if (konto.id === user.id && (!aktiv || rolle !== 'ADMIN') && konto.role === 'ADMIN') {
-      throw new ValidationError('Sie koennen sich nicht selbst die Administrationsrechte entziehen.');
+      throw new ValidationError('Sie können sich nicht selbst die Administrationsrechte entziehen.');
     }
     if (!aktiv) {
       const verbleibendeAdmins = await db.user.count({ where: { role: 'ADMIN', active: true, deletedAt: null, id: { not: id } } });
@@ -92,16 +92,16 @@ export async function passwortZuruecksetzenAktion(_zustand: Ergebnis, formData: 
     const konto = await db.user.findUnique({ where: { id } });
     if (!konto) throw new ValidationError('Der Benutzer wurde nicht gefunden.');
 
-    // Startpasswort wird erzeugt, nicht vom Administrator gewaehlt.
+    // Startpasswort wird erzeugt, nicht vom Administrator gewählt.
     const neu = `${randomBytes(9).toString('base64url')}-HST`;
     await db.user.update({
       where: { id },
       data: { passwordHash: await hashPassword(neu), mustChangePassword: true, failedLogins: 0, lockedUntil: null },
     });
     await db.session.updateMany({ where: { userId: id, revokedAt: null }, data: { revokedAt: new Date() } });
-    await audit(user, { action: 'user.reset_password', entity: 'User', entityId: id, summary: `Passwort fuer ${konto.email} zurueckgesetzt` });
+    await audit(user, { action: 'user.reset_password', entity: 'User', entityId: id, summary: `Passwort für ${konto.email} zurückgesetzt` });
     revalidatePath('/admin');
-    return { erfolg: true, geheimnis: neu, hinweis: `Neues Startpasswort fuer ${konto.email}: ${neu} — bitte persoenlich uebergeben. Es wird nicht erneut angezeigt.` };
+    return { erfolg: true, geheimnis: neu, hinweis: `Neues Startpasswort für ${konto.email}: ${neu} — bitte persönlich übergeben. Es wird nicht erneut angezeigt.` };
   });
 }
 
@@ -109,16 +109,16 @@ export async function apiSchluesselAktion(_zustand: Ergebnis, formData: FormData
   return fuehreAus(async () => {
     const user = await seite('admin.api');
     const name = String(formData.get('name') ?? '').trim();
-    if (name.length < 3) throw new ValidationError('Bitte geben Sie dem Schluessel einen Namen.');
+    if (name.length < 3) throw new ValidationError('Bitte geben Sie dem Schlüssel einen Namen.');
 
     const scopes = formData.getAll('scopes').map(String).filter(Boolean);
     const erzeugt = generateApiKey();
     await db.apiKey.create({
       data: { name, prefix: erzeugt.prefix, keyHash: erzeugt.keyHash, scopes, createdById: user.id },
     });
-    await audit(user, { action: 'apikey.create', entity: 'ApiKey', summary: `API-Schluessel "${name}" erzeugt (${scopes.join(', ') || 'alle Bereiche'})` });
+    await audit(user, { action: 'apikey.create', entity: 'ApiKey', summary: `API-Schlüssel "${name}" erzeugt (${scopes.join(', ') || 'alle Bereiche'})` });
     revalidatePath('/admin');
-    return { erfolg: true, geheimnis: erzeugt.plain, hinweis: `Schluessel: ${erzeugt.plain} — bitte jetzt kopieren, er wird nicht erneut angezeigt.` };
+    return { erfolg: true, geheimnis: erzeugt.plain, hinweis: `Schlüssel: ${erzeugt.plain} — bitte jetzt kopieren, er wird nicht erneut angezeigt.` };
   });
 }
 
@@ -127,11 +127,11 @@ export async function apiSchluesselSperrenAktion(_zustand: Ergebnis, formData: F
     const user = await seite('admin.api');
     const id = String(formData.get('id'));
     const schluessel = await db.apiKey.findUnique({ where: { id } });
-    if (!schluessel) throw new ValidationError('Der Schluessel wurde nicht gefunden.');
+    if (!schluessel) throw new ValidationError('Der Schlüssel wurde nicht gefunden.');
     await db.apiKey.update({ where: { id }, data: { active: false } });
-    await audit(user, { action: 'apikey.revoke', entity: 'ApiKey', entityId: id, summary: `API-Schluessel "${schluessel.name}" gesperrt` });
+    await audit(user, { action: 'apikey.revoke', entity: 'ApiKey', entityId: id, summary: `API-Schlüssel "${schluessel.name}" gesperrt` });
     revalidatePath('/admin');
-    return { erfolg: true, hinweis: 'Schluessel gesperrt.' };
+    return { erfolg: true, hinweis: 'Schlüssel gesperrt.' };
   });
 }
 
@@ -144,13 +144,13 @@ export async function webhookAktion(_zustand: Ergebnis, formData: FormData): Pro
     if (!/^https:\/\//.test(url)) throw new ValidationError('Die Zieladresse muss mit https:// beginnen.');
 
     const events = formData.getAll('events').map(String).filter((e) => (WEBHOOK_EVENTS as readonly string[]).includes(e));
-    if (events.length === 0) throw new ValidationError('Bitte waehlen Sie mindestens ein Ereignis.');
+    if (events.length === 0) throw new ValidationError('Bitte wählen Sie mindestens ein Ereignis.');
 
     const geheimnis = randomBytes(24).toString('base64url');
     await db.webhook.create({ data: { name, url, events, secret: geheimnis } });
     await audit(user, { action: 'webhook.create', entity: 'Webhook', summary: `Webhook "${name}" auf ${url} angelegt` });
     revalidatePath('/admin');
-    return { erfolg: true, geheimnis, hinweis: `Signaturgeheimnis: ${geheimnis} — bitte beim Empfaenger hinterlegen.` };
+    return { erfolg: true, geheimnis, hinweis: `Signaturgeheimnis: ${geheimnis} — bitte beim Empfänger hinterlegen.` };
   });
 }
 

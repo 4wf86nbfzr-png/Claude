@@ -1,15 +1,15 @@
 /**
- * Regelbasierter Parser fuer Personalanfragen (Spec 18).
+ * Regelbasierter Parser für Personalanfragen (Spec 18).
  *
  * Der Parser liest deutschsprachige Freitext-E-Mails und erzeugt daraus
  * strukturierte Felder. Er arbeitet bewusst konservativ:
  *   * Wird ein Wert nicht sicher erkannt, bleibt das Feld leer.
- *   * Jedes Feld traegt eine Konfidenz, damit die Disposition sieht,
+ *   * Jedes Feld trägt eine Konfidenz, damit die Disposition sieht,
  *     worauf sie schauen muss.
- *   * Es entsteht niemals eine Buchung, immer nur eine Anfrage zur Pruefung.
+ *   * Es entsteht niemals eine Buchung, immer nur eine Anfrage zur Prüfung.
  *
  * Eine optionale KI-Anreicherung (src/lib/email/ai.ts) darf nur Felder
- * ergaenzen, die hier leer geblieben sind – nie vorhandene ueberschreiben.
+ * ergänzen, die hier leer geblieben sind – nie vorhandene überschreiben.
  */
 
 import { formatMinutes, isoDate, parseGermanDate, parseTimeToMinutes } from '../time';
@@ -37,7 +37,7 @@ export interface ParsedRequest {
   message: string;
   missingFields: string[];
   confidence: number;
-  /** true, wenn der Text ueberhaupt nach einer Personalanfrage aussieht. */
+  /** true, wenn der Text überhaupt nach einer Personalanfrage aussieht. */
   isRequest: boolean;
 }
 
@@ -50,18 +50,18 @@ export interface ParseInput {
 }
 
 const SERVICE_KEYWORDS: Array<{ code: string; words: string[] }> = [
-  { code: 'SICHERHEIT', words: ['sicherheit', 'security', 'sicherheitskraft', 'sicherheitskraefte', 'sicherheitsdienst', 'ordnungsdienst', 'ordner', 'doorman', 'einlass', 'objektschutz', 'werkschutz', 'revier'] },
-  { code: 'GASTRO', words: ['gastro', 'service', 'servicekraft', 'servicekraefte', 'kellner', 'barkeeper', 'tresen', 'thekenkraft', 'spuelkraft', 'buffet', 'catering'] },
+  { code: 'SICHERHEIT', words: ['sicherheit', 'security', 'sicherheitskraft', 'sicherheitskräfte', 'sicherheitsdienst', 'ordnungsdienst', 'ordner', 'doorman', 'einlass', 'objektschutz', 'werkschutz', 'revier'] },
+  { code: 'GASTRO', words: ['gastro', 'service', 'servicekraft', 'servicekräfte', 'kellner', 'barkeeper', 'tresen', 'thekenkraft', 'spülkraft', 'buffet', 'catering'] },
   { code: 'PROMOTION', words: ['promotion', 'hostess', 'hostessen', 'promoter', 'messehostess', 'garderobe', 'empfang'] },
   { code: 'LOGISTIK', words: ['logistik', 'lager', 'kommissionier', 'stapler', 'auf- und abbau', 'aufbau', 'abbau', 'helfer', 'umzug'] },
   { code: 'FAHRSERVICE', words: ['fahrservice', 'fahrer', 'chauffeur', 'shuttle', 'transfer'] },
-  { code: 'REINIGUNG', words: ['reinigung', 'reinigungskraft', 'reinigungskraefte', 'unterhaltsreinigung', 'grundreinigung', 'eventreinigung', 'putz'] },
+  { code: 'REINIGUNG', words: ['reinigung', 'reinigungskraft', 'reinigungskräfte', 'unterhaltsreinigung', 'grundreinigung', 'eventreinigung', 'putz'] },
 ];
 
 const REQUEST_SIGNALS = [
-  'anfrage', 'benoetigen', 'benoetige', 'brauchen', 'brauche', 'personal', 'mitarbeiter',
-  'unterstuetzung', 'angebot', 'veranstaltung', 'event', 'einsatz', 'buchen', 'kraefte',
-  'sicherheitskraefte', 'servicekraefte', 'hostessen', 'bewachung',
+  'anfrage', 'benötigen', 'benötige', 'brauchen', 'brauche', 'personal', 'mitarbeiter',
+  'unterstützung', 'angebot', 'veranstaltung', 'event', 'einsatz', 'buchen', 'kräfte',
+  'sicherheitskräfte', 'servicekräfte', 'hostessen', 'bewachung',
 ];
 
 const NUMBER_WORDS: Record<string, number> = {
@@ -87,7 +87,7 @@ export function stripSignature(body: string): string {
   return body.slice(0, cut);
 }
 
-/** Zitierte Vorgaenger-Mails ("> ...", "Am ... schrieb ...") entfernen. */
+/** Zitierte Vorgänger-Mails ("> ...", "Am ... schrieb ...") entfernen. */
 export function stripQuotes(body: string): string {
   const lines = body.split(/\r?\n/);
   const out: string[] = [];
@@ -201,7 +201,7 @@ export function parseRequestEmail(input: ParseInput): ParsedRequest {
     }
   }
 
-  // --- Vollstaendigkeit ---------------------------------------------------
+  // --- Vollständigkeit ---------------------------------------------------
   const required: Array<[keyof ParsedRequest, string]> = [
     ['eventDate', 'Datum'],
     ['startTime', 'Startzeit'],
@@ -248,7 +248,7 @@ function findDate(text: string, reference: Date): ParsedField<string> | null {
     const parsed = parseGermanDate(m[1].replace(/\s+/g, ' ').trim(), reference);
     if (parsed) return { value: isoDate(parsed), confidence, evidence: m[0] };
   }
-  // "morgen" / "uebermorgen"
+  // "morgen" / "übermorgen"
   const lower = normalize(text);
   if (/\bmorgen\b/.test(lower) && !/\buebermorgen\b/.test(lower)) {
     return { value: isoDate(new Date(reference.getTime() + 86400000)), confidence: 0.5, evidence: 'morgen' };
@@ -307,11 +307,13 @@ function findEmployeeCount(text: string): ParsedField<number> | null {
 
 function findLocation(text: string): ParsedField<string> | null {
   const labelled = text.match(/(?:veranstaltungsort|einsatzort|ort|location|adresse)\s*[:\-]\s*([^\n]{3,80})/i);
-  if (labelled?.[1]) return { value: labelled[1].trim().replace(/[.;,]$/, ''), confidence: 0.9, evidence: labelled[0].trim() };
+  if (labelled?.[1]) return { value: ortGrenze(labelled[1]), confidence: 0.9, evidence: labelled[0].trim() };
 
   const inPlace = text.match(/\bin\s+((?:der\s+|dem\s+)?[A-ZÄÖÜ][\wäöüß.-]+(?:[\s-][A-ZÄÖÜ][\wäöüß.-]+){0,3})/);
   if (inPlace?.[1]) {
-    const value = inPlace[1].trim();
+    // Ein Satzende beendet den Ort: aus "in Hamburg. Treffpunkt ist 16:30"
+    // wird "Hamburg" und nicht "Hamburg. Treffpunkt".
+    const value = ortGrenze(inPlace[1]);
     // Wochentage und Monatsnamen sind keine Orte.
     if (!/^(Montag|Dienstag|Mittwoch|Donnerstag|Freitag|Samstag|Sonntag|Januar|Februar|M[aä]rz|April|Mai|Juni|Juli|August|September|Oktober|November|Dezember)$/i.test(value)) {
       return { value, confidence: 0.6, evidence: inPlace[0].trim() };
@@ -320,4 +322,13 @@ function findLocation(text: string): ParsedField<string> | null {
   const zip = text.match(/\b(\d{5})\s+([A-ZÄÖÜ][\wäöüß-]+)/);
   if (zip) return { value: `${zip[1]} ${zip[2]}`, confidence: 0.7, evidence: zip[0] };
   return null;
+}
+
+/** Schneidet einen Ortsnamen am Satzende ab und entfernt Satzzeichen am Rand. */
+function ortGrenze(text: string): string {
+  return text
+    .split(/\.\s/)[0]!
+    .trim()
+    .replace(/[.,;:]+$/, '')
+    .trim();
 }

@@ -35,8 +35,8 @@ export interface SessionUser {
 }
 
 /**
- * Legt eine Sitzung an. Das Cookie traegt ein signiertes JWT, die Sitzung
- * selbst steht zusaetzlich in der Datenbank – nur so lassen sich einzelne
+ * Legt eine Sitzung an. Das Cookie trägt ein signiertes JWT, die Sitzung
+ * selbst steht zusätzlich in der Datenbank – nur so lassen sich einzelne
  * Sitzungen gezielt beenden (Spec 48).
  */
 export async function createSession(userId: string, meta: { ip?: string; userAgent?: string } = {}): Promise<void> {
@@ -78,7 +78,7 @@ export async function destroySession(): Promise<void> {
       const sid = payload.sid as string | undefined;
       if (sid) await db.session.updateMany({ where: { id: sid, revokedAt: null }, data: { revokedAt: new Date() } });
     } catch {
-      // abgelaufenes oder manipuliertes Cookie – einfach loeschen
+      // abgelaufenes oder manipuliertes Cookie – einfach löschen
     }
   }
   store.delete(SESSION_COOKIE);
@@ -125,7 +125,7 @@ export async function getSessionUser(): Promise<SessionUser | null> {
   };
 }
 
-/** Erzwingt eine Anmeldung. Fuer Seiten und API-Routen gleichermassen. */
+/** Erzwingt eine Anmeldung. Für Seiten und API-Routen gleichermassen. */
 export async function requireUser(): Promise<SessionUser> {
   const user = await getSessionUser();
   if (!user) throw new AuthError();
@@ -148,7 +148,7 @@ export async function userAgent(): Promise<string | undefined> {
   return (await headers()).get('user-agent') ?? undefined;
 }
 
-/** Abgelaufene Sitzungen aufraeumen (taeglicher Job). */
+/** Abgelaufene Sitzungen aufräumen (taeglicher Job). */
 export async function pruneSessions(): Promise<number> {
   const result = await db.session.deleteMany({
     where: { OR: [{ expiresAt: { lt: new Date() } }, { revokedAt: { lt: new Date(Date.now() - 30 * 86400000) } }] },

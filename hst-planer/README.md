@@ -671,3 +671,36 @@ auch nicht: im Browser liegt nur die Wahl zwischen heller und dunkler Ansicht.
   Docker-Daemon zur Verfügung. Geprüft ist stattdessen der Teil, der im Container läuft:
   die Standalone-Ausgabe startet, beantwortet Anfragen und spricht mit der Datenbank.
   Der erste `docker compose up --build` gehört trotzdem einmal bewusst beobachtet.
+
+---
+
+## Demo-Datei zum Ansehen
+
+Im Ordner `demo/` liegt eine eigenständige HTML-Datei, die sich per Doppelklick öffnen lässt —
+ohne Server, ohne Datenbank, ohne Internet:
+
+```
+demo/index.html        im Browser öffnen
+demo/bilder/           31 Bildschirmfotos aus der laufenden Anwendung
+demo/hst-logik.js      gebündelte Fachlogik aus src/lib
+```
+
+Sie zeigt die Anwendung in Bildern und lässt vier Rechenkerne im Browser mitlaufen:
+Zeitberechnung, Namensabgleich, E-Mail-Parser und den vollständigen Abgleich mit
+bearbeitbarem Stundenzettel. Das ist **kein Nachbau**: `demo/hst-logik.js` wird aus
+denselben Modulen gebaut, die auch der Server benutzt.
+
+Neu erzeugen, nachdem sich Oberfläche oder Fachlogik geändert haben:
+
+```bash
+npm run build
+bash scripts/server-start.sh 3100
+npm run seed                                  # gleiche Daten wie auf den Bildern
+npx tsx --tsconfig scripts/tsconfig.json scripts/demo-bilder.ts
+npx tsx scripts/demo-bilder-verkleinern.ts    # spart rund zwei Drittel Speicher
+npx tsx scripts/demo-bauen.ts                 # bündelt die Fachlogik neu
+```
+
+Anmeldung, Datenbank, Uploads, E-Mail-Versand und die Rollentrennung lassen sich in einer
+einzelnen Datei nicht ehrlich zeigen — dafür braucht es den Server. Die Demo sagt das an
+der entsprechenden Stelle auch selbst.

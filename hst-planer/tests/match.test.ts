@@ -10,7 +10,7 @@ const employees = [
 const nameOf = (e: (typeof employees)[number]) => [`${e.firstName} ${e.lastName}`, `${e.lastName} ${e.firstName}`, e.personnelNo];
 
 describe('Normalisierung', () => {
-  it('loest Umlaute und Sonderzeichen auf', () => {
+  it('löst Umlaute und Sonderzeichen auf', () => {
     expect(normalizeName('Jan Möller')).toBe('jan moeller');
     expect(normalizeName('  MUSTERMANN,  Max ')).toBe('mustermann max');
     expect(nameTokens('Mustermann, Max')).toEqual(['max', 'mustermann']);
@@ -18,7 +18,7 @@ describe('Normalisierung', () => {
 });
 
 describe('editDistance', () => {
-  it('zaehlt Vertauschungen als einen Fehler', () => {
+  it('zählt Vertauschungen als einen Fehler', () => {
     expect(editDistance('mustermann', 'mustremann')).toBe(1);
     expect(editDistance('abc', 'abc')).toBe(0);
     expect(editDistance('', 'abc')).toBe(3);
@@ -51,12 +51,12 @@ describe('matchName (Spec 22)', () => {
     expect(matchName('Max Mustremann', employees, nameOf).match?.id).toBe('e1');
   });
 
-  it('findet ueber die Personalnummer', () => {
+  it('findet über die Personalnummer', () => {
     expect(matchName('HST-003', employees, nameOf).match?.id).toBe('e3');
   });
 
   it('findet Umlaut-Schreibweisen', () => {
-    expect(matchName('Jan Moeller', employees, nameOf).match?.id).toBe('e4');
+    expect(matchName('Jan Möller', employees, nameOf).match?.id).toBe('e4');
   });
 
   it('ordnet Unbekannte nicht zu', () => {
@@ -65,7 +65,7 @@ describe('matchName (Spec 22)', () => {
     expect(result.candidates).toHaveLength(0);
   });
 
-  it('ordnet bei aehnlichen Namen nicht automatisch zu, sondern schlaegt vor', () => {
+  it('ordnet bei ähnlichen Namen nicht automatisch zu, sondern schlaegt vor', () => {
     const aehnliche = [
       { id: 'a', firstName: 'Jan', lastName: 'Meier', personnelNo: 'P1' },
       { id: 'b', firstName: 'Jan', lastName: 'Maier', personnelNo: 'P2' },

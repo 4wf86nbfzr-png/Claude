@@ -17,9 +17,9 @@ export const dynamic = 'force-dynamic';
 /**
  * Die Disposition ist die Arbeitsflaeche des Disponenten (Spec 8/45/59).
  *
- * Aufbau: links der Zeitraum mit allen Einsaetzen, je Event die Positionen
+ * Aufbau: links der Zeitraum mit allen Einsätzen, je Event die Positionen
  * mit Besetzungsgrad und den bereits eingeteilten Kraeften; rechts die
- * Punkte, die heute Aufmerksamkeit brauchen. Von jeder Luecke fuehrt genau
+ * Punkte, die heute Aufmerksamkeit brauchen. Von jeder Lücke führt genau
  * ein Klick zur Personalsuche.
  */
 export default async function Disposition({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
@@ -38,7 +38,7 @@ export default async function Disposition({ searchParams }: { searchParams: Prom
       status: { notIn: ['ABGERECHNET'] },
       ...(params.event ? { id: params.event } : {}),
       ...(params.kunde ? { customerId: params.kunde } : {}),
-      ...(params.nur === 'luecken' ? {} : {}),
+      ...(params.nur === 'lücken' ? {} : {}),
     },
     include: {
       customer: { select: { id: true, name: true } },
@@ -59,7 +59,7 @@ export default async function Disposition({ searchParams }: { searchParams: Prom
     orderBy: [{ date: 'asc' }, { startTime: 'asc' }],
   });
 
-  const gefiltert = params.nur === 'luecken'
+  const gefiltert = params.nur === 'lücken'
     ? events.filter((event) => besetzungAus(event.positions).offen > 0)
     : events;
 
@@ -91,7 +91,7 @@ export default async function Disposition({ searchParams }: { searchParams: Prom
     <>
       <Seitenkopf
         titel="Disposition"
-        unter={`${formatDateDE(von)} bis ${formatDateDE(bis)} · ${gefiltert.length} Einsaetze`}
+        unter={`${formatDateDE(von)} bis ${formatDateDE(bis)} · ${gefiltert.length} Einsätze`}
         aktionen={darfPlanen && (
           <>
             <Link href={`/events/neu?datum=${isoDate(von)}`} className="knopf knopf-primaer"><Icon name="plus" /> Neues Event</Link>
@@ -100,11 +100,11 @@ export default async function Disposition({ searchParams }: { searchParams: Prom
         )}
       />
 
-      <Zeitraumwahl von={isoDate(von)} tage={tage} nurLuecken={params.nur === 'luecken'} />
+      <Zeitraumwahl von={isoDate(von)} tage={tage} nurLuecken={params.nur === 'lücken'} />
 
       <div style={{ marginTop: 14 }}>
         <Raster min={150}>
-          <Kennzahl wert={gesamt.soll} label="Benoetigte Kraefte" />
+          <Kennzahl wert={gesamt.soll} label="Benötigte Kräfte" />
           <Kennzahl wert={gesamt.ist} label="Eingeplant" farbe={gesamt.offen === 0 ? 'gruen' : 'grau'} />
           <Kennzahl wert={gesamt.bestaetigt} label="Zugesagt" farbe={gesamt.bestaetigt < gesamt.ist ? 'gelb' : 'gruen'} />
           <Kennzahl wert={gesamt.offen} label="Offen" farbe={gesamt.offen > 0 ? 'rot' : 'gruen'} />
@@ -131,7 +131,7 @@ export default async function Disposition({ searchParams }: { searchParams: Prom
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 18, marginTop: 16 }}>
         {gefiltert.length === 0 && (
-          <Karte><Leer>In diesem Zeitraum gibt es keine Einsaetze{params.nur === 'luecken' ? ' mit offenen Positionen' : ''}.</Leer></Karte>
+          <Karte><Leer>In diesem Zeitraum gibt es keine Einsaetze{params.nur === 'lücken' ? ' mit offenen Positionen' : ''}.</Leer></Karte>
         )}
 
         {[...nachTag.entries()].map(([tag, tagesEvents]) => (
@@ -159,7 +159,7 @@ export default async function Disposition({ searchParams }: { searchParams: Prom
                          }
                          aktion={darfPlanen && (
                            <Link href={`/events/${event.id}/mitarbeiter`} className="knopf knopf-klein knopf-primaer">
-                             {b.offen > 0 ? `${b.offen} Luecken schliessen` : 'Team bearbeiten'}
+                             {b.offen > 0 ? `${b.offen} Lücken schließen` : 'Team bearbeiten'}
                            </Link>
                          )}>
                     {event.positions.length === 0 ? (

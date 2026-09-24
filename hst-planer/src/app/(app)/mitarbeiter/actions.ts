@@ -54,22 +54,22 @@ export async function zugangAnlegenAktion(_zustand: Ergebnis, formData: FormData
     const id = String(formData.get('id'));
     await zugangAnlegen(user, id, String(formData.get('email')), String(formData.get('passwort')));
     revalidatePath(`/mitarbeiter/${id}`);
-    return { erfolg: true, hinweis: 'Zugang angelegt. Der Mitarbeiter muss das Passwort bei der ersten Anmeldung aendern.' };
+    return { erfolg: true, hinweis: 'Zugang angelegt. Der Mitarbeiter muss das Passwort bei der ersten Anmeldung ändern.' };
   });
 }
 
-/** Verfuegbarkeit erfassen – von der Disposition oder vom Mitarbeiter selbst (Spec 35). */
+/** Verfügbarkeit erfassen – von der Disposition oder vom Mitarbeiter selbst (Spec 35). */
 export async function verfuegbarkeitAktion(_zustand: Ergebnis, formData: FormData): Promise<Ergebnis> {
   return fuehreAus(async () => {
     const user = await seite('self.availability');
     const employeeId = String(formData.get('employeeId'));
     if (user.role === 'MITARBEITER' && user.employeeId !== employeeId) {
-      throw new ValidationError('Sie koennen nur Ihre eigene Verfuegbarkeit pflegen.');
+      throw new ValidationError('Sie können nur Ihre eigene Verfügbarkeit pflegen.');
     }
     const von = String(formData.get('von'));
     const bis = String(formData.get('bis') || von);
     if (!/^\d{4}-\d{2}-\d{2}$/.test(von) || !/^\d{4}-\d{2}-\d{2}$/.test(bis)) {
-      throw new ValidationError('Bitte geben Sie einen gueltigen Zeitraum an.');
+      throw new ValidationError('Bitte geben Sie einen gültigen Zeitraum an.');
     }
     if (bis < von) throw new ValidationError('Das Ende darf nicht vor dem Beginn liegen.');
 
@@ -84,7 +84,7 @@ export async function verfuegbarkeitAktion(_zustand: Ergebnis, formData: FormDat
     });
     await audit(user, {
       action: 'availability.create', entity: 'Availability', entityId: eintrag.id,
-      summary: `Verfuegbarkeit ${eintrag.kind} vom ${von} bis ${bis} erfasst`,
+      summary: `Verfügbarkeit ${eintrag.kind} vom ${von} bis ${bis} erfasst`,
     });
     revalidatePath(`/mitarbeiter/${employeeId}`);
     revalidatePath('/meine-verfuegbarkeit');
@@ -99,10 +99,10 @@ export async function verfuegbarkeitLoeschenAktion(_zustand: Ergebnis, formData:
     const eintrag = await db.availability.findUnique({ where: { id } });
     if (!eintrag) return { fehler: 'Der Eintrag wurde nicht gefunden.' };
     if (user.role === 'MITARBEITER' && user.employeeId !== eintrag.employeeId) {
-      throw new ValidationError('Sie koennen nur eigene Eintraege entfernen.');
+      throw new ValidationError('Sie können nur eigene Einträge entfernen.');
     }
     await db.availability.delete({ where: { id } });
-    await audit(user, { action: 'availability.delete', entity: 'Availability', entityId: id, summary: 'Verfuegbarkeitseintrag entfernt' });
+    await audit(user, { action: 'availability.delete', entity: 'Availability', entityId: id, summary: 'Verfügbarkeitseintrag entfernt' });
     revalidatePath(`/mitarbeiter/${eintrag.employeeId}`);
     revalidatePath('/meine-verfuegbarkeit');
     return { erfolg: true, hinweis: 'Eintrag entfernt.' };

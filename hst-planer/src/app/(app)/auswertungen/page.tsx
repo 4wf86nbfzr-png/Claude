@@ -41,7 +41,7 @@ export default async function Auswertungen({ searchParams }: { searchParams: Pro
           <Kennzahl wert={daten.ausfaelle.nichtErschienen} label="Nicht erschienen"
                     farbe={daten.ausfaelle.nichtErschienen > 0 ? 'rot' : 'gruen'} />
           <Kennzahl wert={`${Math.round(daten.ausfaelle.reaktionsMinuten / 60)} h`} label="Ø Reaktionszeit auf Anfragen" />
-          <Kennzahl wert={daten.partnerEinsaetze} label="Einsaetze ueber Partner" />
+          <Kennzahl wert={daten.partnerEinsaetze} label="Einsätze über Partner" />
         </Raster>
       </div>
 
@@ -93,7 +93,7 @@ export default async function Auswertungen({ searchParams }: { searchParams: Pro
           )}
         </Karte>
 
-        <Karte titel="Kunden nach Einsaetzen">
+        <Karte titel="Kunden nach Einsätzen">
           {daten.nachKunde.length === 0 ? <Leer>Keine Daten im Zeitraum.</Leer> : (
             <table className="tabelle">
               <thead><tr><th>Kunde</th><th>Events</th></tr></thead>
@@ -106,8 +106,8 @@ export default async function Auswertungen({ searchParams }: { searchParams: Pro
           )}
         </Karte>
 
-        <Karte titel="Vorfaelle">
-          {daten.vorfaelle.length === 0 ? <Leer>Keine Vorfaelle im Zeitraum.</Leer> : (
+        <Karte titel="Vorfälle">
+          {daten.vorfaelle.length === 0 ? <Leer>Keine Vorfälle im Zeitraum.</Leer> : (
             <table className="tabelle">
               <thead><tr><th>Art</th><th>Anzahl</th></tr></thead>
               <tbody>

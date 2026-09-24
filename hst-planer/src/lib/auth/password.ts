@@ -5,8 +5,8 @@ const scrypt = promisify(scryptCb) as (password: string, salt: Buffer, keylen: n
 
 /**
  * Passwort-Hashing mit scrypt aus der Node-Standardbibliothek.
- * Kein natives Zusatzpaket noetig, und die Parameter stehen im Hash,
- * sodass sie spaeter erhoeht werden koennen, ohne Altbestand zu brechen.
+ * Kein natives Zusatzpaket nötig, und die Parameter stehen im Hash,
+ * sodass sie später erhöht werden können, ohne Altbestand zu brechen.
  */
 const PARAMS = { N: 2 ** 15, r: 8, p: 1, maxmem: 64 * 1024 * 1024 };
 const KEYLEN = 64;
@@ -42,7 +42,7 @@ export function checkPasswordStrength(password: string): PasswordCheck {
   const weak = ['passwort', 'password', '123456', 'qwertz', 'hstplaner', 'hermservice'];
   const lower = password.toLowerCase();
   if (weak.some((w) => lower.includes(w))) {
-    return { ok: false, message: 'Das Passwort enthaelt einen zu einfachen Bestandteil.' };
+    return { ok: false, message: 'Das Passwort enthält einen zu einfachen Bestandteil.' };
   }
   if (new Set(password).size < 5) return { ok: false, message: 'Bitte verwenden Sie mehr unterschiedliche Zeichen.' };
   return { ok: true };

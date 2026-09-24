@@ -3,7 +3,7 @@ import { db } from './db';
 
 /**
  * Fortlaufende, menschenlesbare Nummern: EV-2026-0042, AN-2026-0007, AB-2026-0003.
- * Der Zaehler laeuft in einer eigenen Tabelle und wird atomar hochgezaehlt,
+ * Der Zähler läuft in einer eigenen Tabelle und wird atomar hochgezählt,
  * damit zwei gleichzeitige Anlagen nicht dieselbe Nummer bekommen.
  */
 export type RefKind = 'EV' | 'AN' | 'AB' | 'MA';

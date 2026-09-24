@@ -1,8 +1,8 @@
 /**
  * Einfache Begrenzung der Aufrufe pro Zeitfenster (Spec 71).
  *
- * Bewusst im Prozessspeicher: Der HST Planer laeuft als eine Instanz hinter
- * einem Reverse Proxy. Bei mehreren Instanzen gehoert hier ein gemeinsamer
+ * Bewusst im Prozessspeicher: Der HST Planer läuft als eine Instanz hinter
+ * einem Reverse Proxy. Bei mehreren Instanzen gehört hier ein gemeinsamer
  * Speicher (Redis) hin – die Schnittstelle bleibt dieselbe.
  */
 
@@ -28,7 +28,7 @@ export function rateLimit(key: string, limit: number, windowSeconds: number): Li
   return { ok: true, remaining: limit - bucket.count, retryAfterSeconds: 0 };
 }
 
-/** Aufraeumen, damit die Map nicht unbegrenzt waechst. */
+/** Aufräumen, damit die Map nicht unbegrenzt waechst. */
 setInterval(() => {
   const now = Date.now();
   for (const [key, bucket] of buckets) if (bucket.resetAt <= now) buckets.delete(key);

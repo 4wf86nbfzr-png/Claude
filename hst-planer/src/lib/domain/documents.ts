@@ -26,7 +26,7 @@ export async function dokumentAnlegen(user: SessionUser, eingabe: DokumentEingab
     throw new ValidationError('Bitte ordnen Sie das Dokument einem Mitarbeiter, Kunden, Event oder Partner zu.');
   }
   if (zuordnungen.length > 1) {
-    throw new ValidationError('Bitte waehlen Sie genau eine Zuordnung.');
+    throw new ValidationError('Bitte wählen Sie genau eine Zuordnung.');
   }
 
   const ordner = eingabe.employeeId ? `mitarbeiter/${eingabe.employeeId}`
@@ -68,15 +68,15 @@ export async function dokumentEntfernen(user: SessionUser, id: string) {
   if (!dokument) throw new NotFoundError('Das Dokument wurde nicht gefunden.');
 
   await db.document.update({ where: { id }, data: { deletedAt: new Date() } });
-  // Die Datei selbst wird erst beim Aufraeumjob entfernt – so bleibt ein
-  // versehentliches Loeschen eine Weile reparierbar.
+  // Die Datei selbst wird erst beim Aufräumjob entfernt – so bleibt ein
+  // versehentliches Löschen eine Weile reparierbar.
   await audit(user, {
     action: 'document.delete', entity: 'Document', entityId: id,
     summary: `Dokument "${dokument.title}" entfernt`,
   });
 }
 
-/** Endgueltiges Loeschen geloeschter Dateien (taeglicher Job, 30 Tage Frist). */
+/** Endgueltiges Löschen geloeschter Dateien (taeglicher Job, 30 Tage Frist). */
 export async function papierkorbLeeren(tage = 30): Promise<number> {
   const grenze = new Date(Date.now() - tage * 86400000);
   const alte = await db.document.findMany({ where: { deletedAt: { lt: grenze } } });

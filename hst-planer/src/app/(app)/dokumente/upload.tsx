@@ -43,7 +43,7 @@ export function UploadFormular({
           <input name="titel" className="feld" placeholder="leer lassen = Dateiname" />
         </label>
         <label className="feld-gruppe">
-          <span className="feld-label">Gueltig bis</span>
+          <span className="feld-label">Gültig bis</span>
           <input name="gueltigBis" type="date" className="feld" />
         </label>
         <label className="feld-gruppe">
@@ -57,7 +57,7 @@ export function UploadFormular({
         <label className="feld-gruppe">
           <span className="feld-label">{bezeichnung[ziel]}</span>
           <select name={ziel} className="feld" required defaultValue={vorauswahl?.[ziel] ?? ''}>
-            <option value="">– waehlen –</option>
+            <option value="">– wählen –</option>
             {listen[ziel].map((eintrag) => <option key={eintrag.id} value={eintrag.id}>{eintrag.name}</option>)}
           </select>
         </label>
@@ -71,7 +71,7 @@ export function UploadFormular({
       </label>
 
       <label style={{ display: 'flex', gap: 7, alignItems: 'center', fontSize: 13 }}>
-        <input type="checkbox" name="sichtbar" /> fuer den Mitarbeiter in der App sichtbar
+        <input type="checkbox" name="sichtbar" /> für den Mitarbeiter in der App sichtbar
       </label>
 
       <div><AktionsKnopf klasse="knopf knopf-primaer" laufend="Wird hochgeladen …">Hochladen</AktionsKnopf></div>

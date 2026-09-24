@@ -1,6 +1,6 @@
 'use client';
 
-/** Auffangnetz fuer unerwartete Fehler – ohne technische Details (Spec 53). */
+/** Auffangnetz für unerwartete Fehler – ohne technische Details (Spec 53). */
 export default function Fehler({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
   return (
     <html lang="de">

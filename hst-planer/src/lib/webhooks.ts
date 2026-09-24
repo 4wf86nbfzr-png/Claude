@@ -4,8 +4,8 @@ import { db } from './db';
 
 /**
  * Ausgehende Webhooks (Spec 42).
- * Jede Auslieferung wird signiert (HMAC-SHA256 ueber Zeitstempel + Rumpf)
- * und protokolliert, damit ein Empfaenger Wiederholungen erkennen kann.
+ * Jede Auslieferung wird signiert (HMAC-SHA256 über Zeitstempel + Rumpf)
+ * und protokolliert, damit ein Empfänger Wiederholungen erkennen kann.
  */
 export const WEBHOOK_EVENTS = [
   'request.created',
@@ -30,7 +30,7 @@ export function verifySignature(secret: string, timestamp: number, body: string,
 }
 
 /**
- * Stellt ein Ereignis an alle passenden Empfaenger zu.
+ * Stellt ein Ereignis an alle passenden Empfänger zu.
  * Fehler werden protokolliert, aber nie an den Aufrufer durchgereicht:
  * ein nicht erreichbarer Fremddienst darf keine Disposition blockieren.
  */

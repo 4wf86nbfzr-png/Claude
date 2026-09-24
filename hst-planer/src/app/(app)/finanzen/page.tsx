@@ -74,17 +74,17 @@ export default async function Finanzen({ searchParams }: { searchParams: Promise
 
       <div style={{ marginTop: 14 }}>
         <Hinweis art="info">
-          Diese Seite ist eine Vorbereitung fuer die Abrechnung, keine Buchhaltung. Gerechnet wird
-          mit den hinterlegten Stundensaetzen: Position &gt; Kunde fuer den Erloes, Partner &gt; Mitarbeiter
-          fuer die Kosten. Ohne hinterlegte Saetze bleibt die Zeile bei null.
+          Diese Seite ist eine Vorbereitung für die Abrechnung, keine Buchhaltung. Gerechnet wird
+          mit den hinterlegten Stundensätzen: Position &gt; Kunde für den Erlös, Partner &gt; Mitarbeiter
+          für die Kosten. Ohne hinterlegte Sätze bleibt die Zeile bei null.
         </Hinweis>
       </div>
 
       <div style={{ marginTop: 14 }}>
         <Raster min={170}>
           <Kennzahl wert={formatHours(gesamtMinuten)} label="Abrechenbare Stunden" hinweis={`${minutesToHours(gesamtMinuten).toLocaleString('de-DE')} dezimal`} />
-          <Kennzahl wert={`${gesamtErloes.toLocaleString('de-DE', { maximumFractionDigits: 0 })} €`} label="Erloes (geschaetzt)" />
-          <Kennzahl wert={`${gesamtKosten.toLocaleString('de-DE', { maximumFractionDigits: 0 })} €`} label="Personalkosten (geschaetzt)" />
+          <Kennzahl wert={`${gesamtErloes.toLocaleString('de-DE', { maximumFractionDigits: 0 })} €`} label="Erlös (geschätzt)" />
+          <Kennzahl wert={`${gesamtKosten.toLocaleString('de-DE', { maximumFractionDigits: 0 })} €`} label="Personalkosten (geschätzt)" />
           <Kennzahl wert={`${marge.toLocaleString('de-DE', { maximumFractionDigits: 0 })} €`} label="Marge"
                     farbe={marge > 0 ? 'gruen' : marge < 0 ? 'rot' : 'grau'} hinweis={`${margeProzent} %`} />
           <Kennzahl wert={ohneSatz} label="Zeiten ohne Stundensatz" farbe={ohneSatz > 0 ? 'gelb' : 'gruen'} />
@@ -96,7 +96,7 @@ export default async function Finanzen({ searchParams }: { searchParams: Promise
           {jeEvent.size === 0 ? <Leer>Im Zeitraum wurden keine Zeiten erfasst.</Leer> : (
             <div className="tabelle-scroll">
               <table className="tabelle">
-                <thead><tr><th>Event</th><th>Stunden</th><th>Erloes</th><th>Kosten</th><th>Marge</th><th>Quote</th></tr></thead>
+                <thead><tr><th>Event</th><th>Stunden</th><th>Erlös</th><th>Kosten</th><th>Marge</th><th>Quote</th></tr></thead>
                 <tbody>
                   {[...jeEvent.values()].sort((a, b) => b.erloes - a.erloes).map((zeile) => {
                     const zeilenMarge = zeile.erloes - zeile.kosten;

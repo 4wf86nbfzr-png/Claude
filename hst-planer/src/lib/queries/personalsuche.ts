@@ -4,9 +4,9 @@ import { NotFoundError } from '../errors';
 import type { Prisma } from '@prisma/client';
 
 /**
- * Personal-Suche fuer eine offene Position (Spec 36).
+ * Personal-Suche für eine offene Position (Spec 36).
  *
- * Die Reihenfolge der Vorschlaege bildet ab, wie ein Disponent entscheidet:
+ * Die Reihenfolge der Vorschläge bildet ab, wie ein Disponent entscheidet:
  * passende Qualifikation zuerst, dann Erfahrung im selben Objekt, dann
  * Erfahrung im Leistungsbereich – wer abwesend oder schon eingeteilt ist,
  * rutscht ans Ende, verschwindet aber nicht (manchmal fragt man trotzdem).

@@ -12,7 +12,7 @@ function Starten({ bereit }: { bereit: boolean }) {
   const { pending } = useFormStatus();
   return (
     <button type="submit" className="knopf knopf-primaer knopf-gross" disabled={pending || !bereit}>
-      {pending ? 'Abgleich laeuft …' : 'Abgleich starten'}
+      {pending ? 'Abgleich läuft …' : 'Abgleich starten'}
     </button>
   );
 }
@@ -37,7 +37,7 @@ export function ZuordnungsFormular({
   function vorlageAnwenden(vorlageId: string) {
     const vorlage = vorlagen.find((v) => v.id === vorlageId);
     if (!vorlage) return;
-    // Nur Spalten uebernehmen, die es in dieser Datei auch gibt.
+    // Nur Spalten übernehmen, die es in dieser Datei auch gibt.
     const gefiltert: ColumnMapping = {};
     for (const [feld, spalte] of Object.entries(vorlage.mapping)) {
       if (spalte && headers.includes(spalte)) gefiltert[feld as TimesheetField] = spalte;
@@ -89,7 +89,7 @@ export function ZuordnungsFormular({
         </div>
       </Karte>
 
-      <Karte titel="Regeln fuer diesen Abgleich">
+      <Karte titel="Regeln für diesen Abgleich">
         <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 14 }}>
           <Raster min={200}>
             <label className="feld-gruppe">
@@ -109,7 +109,7 @@ export function ZuordnungsFormular({
           </Raster>
 
           <label style={{ display: 'flex', gap: 7, alignItems: 'center', fontSize: 13 }}>
-            <input type="checkbox" name="fehlendeMelden" defaultChecked /> Geplante Kraefte ohne Ist-Zeit melden
+            <input type="checkbox" name="fehlendeMelden" defaultChecked /> Geplante Kräfte ohne Ist-Zeit melden
           </label>
         </div>
       </Karte>

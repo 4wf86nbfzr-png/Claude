@@ -7,7 +7,7 @@ import type { SessionUser } from '../auth/session';
 
 /** Kunden und Partner teilen sich Aufbau und Pruefungen (Spec 14/15). */
 const optional = (max: number) => z.string().trim().max(max).optional().transform((v) => (v ? v : null));
-const email = z.union([z.string().trim().toLowerCase().email('Bitte eine gueltige E-Mail-Adresse angeben.'), z.literal('')])
+const email = z.union([z.string().trim().toLowerCase().email('Bitte eine gültige E-Mail-Adresse angeben.'), z.literal('')])
   .optional().transform((v) => (v ? v : null));
 const betrag = z.union([z.string().trim(), z.literal('')]).optional().transform((v) => (v ? v.replace(',', '.') : null));
 
@@ -38,7 +38,7 @@ function lies<S extends z.ZodTypeAny>(schema: S, formData: FormData): z.infer<S>
   const roh = Object.fromEntries(formData.entries()) as Record<string, unknown>;
   roh.active = formData.get('active') === 'on';
   const ergebnis = schema.safeParse(roh);
-  if (!ergebnis.success) throw new ValidationError(ergebnis.error.issues[0]?.message ?? 'Bitte pruefen Sie Ihre Eingaben.');
+  if (!ergebnis.success) throw new ValidationError(ergebnis.error.issues[0]?.message ?? 'Bitte prüfen Sie Ihre Eingaben.');
   return ergebnis.data;
 }
 
@@ -51,7 +51,7 @@ export async function kundeSpeichern(user: SessionUser, id: string | null, formD
     const unterschied = diff(vorher as unknown as Record<string, unknown>, daten as Record<string, unknown>);
     await audit(user, {
       action: 'customer.update', entity: 'Customer', entityId: id,
-      summary: `Kunde ${kunde.name} geaendert (${unterschied.changed.join(', ')})`,
+      summary: `Kunde ${kunde.name} geändert (${unterschied.changed.join(', ')})`,
       before: unterschied.before, after: unterschied.after,
     });
     return kunde;
@@ -70,7 +70,7 @@ export async function partnerSpeichern(user: SessionUser, id: string | null, for
     const unterschied = diff(vorher as unknown as Record<string, unknown>, daten as Record<string, unknown>);
     await audit(user, {
       action: 'partner.update', entity: 'Partner', entityId: id,
-      summary: `Partner ${partner.name} geaendert (${unterschied.changed.join(', ')})`,
+      summary: `Partner ${partner.name} geändert (${unterschied.changed.join(', ')})`,
       before: unterschied.before, after: unterschied.after,
     });
     return partner;
@@ -86,7 +86,7 @@ export async function ansprechpartnerSpeichern(user: SessionUser, customerId: st
     role: optional(80), email, phone: optional(60),
   });
   const ergebnis = schema.safeParse(Object.fromEntries(formData.entries()));
-  if (!ergebnis.success) throw new ValidationError(ergebnis.error.issues[0]?.message ?? 'Bitte pruefen Sie Ihre Eingaben.');
+  if (!ergebnis.success) throw new ValidationError(ergebnis.error.issues[0]?.message ?? 'Bitte prüfen Sie Ihre Eingaben.');
 
   const kontakt = await db.customerContact.create({
     data: { ...ergebnis.data, customerId, primary: formData.get('primary') === 'on' },
@@ -96,11 +96,11 @@ export async function ansprechpartnerSpeichern(user: SessionUser, customerId: st
   }
   await audit(user, {
     action: 'customer.contact.create', entity: 'CustomerContact', entityId: kontakt.id,
-    summary: `Ansprechpartner ${kontakt.name} hinzugefuegt`,
+    summary: `Ansprechpartner ${kontakt.name} hinzugefügt`,
   });
 }
 
-/** Kunden werden nur deaktiviert, solange noch Events daran haengen. */
+/** Kunden werden nur deaktiviert, solange noch Events daran hängen. */
 export async function kundeDeaktivieren(user: SessionUser, id: string) {
   const kunde = await db.customer.findFirst({
     where: { id, deletedAt: null },

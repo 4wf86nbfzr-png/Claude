@@ -1,5 +1,5 @@
 /**
- * Taegliche Aufgaben (Spec 28/49).
+ * Tägliche Aufgaben (Spec 28/49).
  *
  *   npm run jobs:daily
  *
@@ -40,15 +40,15 @@ async function main() {
     const tage = Math.ceil((nachweis.expiresAt!.getTime() - heute.getTime()) / 86400000);
     await notifyRoles(DISPO_ROLES, {
       kind: 'DOKUMENT_LAEUFT_AB',
-      title: `${nachweis.qualification.name} laeuft ab: ${nachweis.employee.firstName} ${nachweis.employee.lastName}`,
-      body: tage < 0 ? `seit ${Math.abs(tage)} Tagen abgelaufen` : `noch ${tage} Tage gueltig (bis ${formatDateDE(nachweis.expiresAt!)})`,
+      title: `${nachweis.qualification.name} läuft ab: ${nachweis.employee.firstName} ${nachweis.employee.lastName}`,
+      body: tage < 0 ? `seit ${Math.abs(tage)} Tagen abgelaufen` : `noch ${tage} Tage gültig (bis ${formatDateDE(nachweis.expiresAt!)})`,
       link: `/mitarbeiter/${nachweis.employee.id}`,
       dedupeKey: `nachweis:${nachweis.id}:${Math.floor(tage / 7)}`,
     });
   }
-  bericht.push(`${ablaufend.length} ablaufende Nachweise geprueft`);
+  bericht.push(`${ablaufend.length} ablaufende Nachweise geprüft`);
 
-  // 2. Events morgen: Erinnerung an die eingeteilten Kraefte ----------------
+  // 2. Events morgen: Erinnerung an die eingeteilten Kräfte ----------------
   const morgen = new Date(heute.getTime() + 86400000);
   const morgenEvents = await db.event.findMany({
     where: { deletedAt: null, date: { gte: morgen, lt: new Date(morgen.getTime() + 86400000) }, status: { notIn: ['STORNIERT'] } },
@@ -70,9 +70,9 @@ async function main() {
       dedupeKey: `event-morgen:${event.id}`,
     });
   }
-  bericht.push(`${erinnerungen} Einsatzerinnerungen fuer morgen verschickt`);
+  bericht.push(`${erinnerungen} Einsatzerinnerungen für morgen verschickt`);
 
-  // 3. Unterbesetzte Events in den naechsten Tagen --------------------------
+  // 3. Unterbesetzte Events in den nächsten Tagen --------------------------
   const vorlaufUnterbesetzung = werte.unterbesetzungAbTagen ?? 3;
   const bald = await db.event.findMany({
     where: {
@@ -97,7 +97,7 @@ async function main() {
   }
   bericht.push(`${unterbesetzt} unterbesetzte Events gemeldet`);
 
-  // 4. Laufende Events auf "LAUFEND" setzen, vergangene abschliessen --------
+  // 4. Laufende Events auf "LAUFEND" setzen, vergangene abschließen --------
   const gestartet = await db.event.updateMany({
     where: { deletedAt: null, date: { gte: heute, lt: morgen }, status: { in: ['BESETZT', 'BESTAETIGT'] } },
     data: { status: 'LAUFEND' },
@@ -108,12 +108,12 @@ async function main() {
   });
   bericht.push(`${gestartet.count} Events auf "laufend", ${beendet.count} auf "abgeschlossen" gesetzt`);
 
-  // 5. Aufraeumen -----------------------------------------------------------
+  // 5. Aufräumen -----------------------------------------------------------
   const sitzungen = await pruneSessions();
   const dateien = await papierkorbLeeren(30);
   bericht.push(`${sitzungen} abgelaufene Sitzungen und ${dateien} Dateien im Papierkorb entfernt`);
 
-  console.log(`[${new Date().toISOString()}] Taegliche Aufgaben:`);
+  console.log(`[${new Date().toISOString()}] Tägliche Aufgaben:`);
   for (const zeile of bericht) console.log(`  · ${zeile}`);
   await db.$disconnect();
 }

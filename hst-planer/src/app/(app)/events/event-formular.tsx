@@ -26,7 +26,7 @@ function Speichern({ neu }: { neu: boolean }) {
   const { pending } = useFormStatus();
   return (
     <button type="submit" className="knopf knopf-primaer" disabled={pending}>
-      {pending ? 'Wird gespeichert …' : neu ? 'Event anlegen' : 'Aenderungen speichern'}
+      {pending ? 'Wird gespeichert …' : neu ? 'Event anlegen' : 'Änderungen speichern'}
     </button>
   );
 }
@@ -64,7 +64,7 @@ export function EventFormular({
             </Feld>
             <Feld label="Leistungsbereich" name="serviceTypeId">
               <select id="serviceTypeId" name="serviceTypeId" className="feld" defaultValue={werte.serviceTypeId ?? ''}>
-                <option value="">– bitte waehlen –</option>
+                <option value="">– bitte wählen –</option>
                 {bereiche.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
               </select>
             </Feld>
@@ -80,7 +80,7 @@ export function EventFormular({
             <Feld label="Startzeit" name="startTime">
               <input id="startTime" name="startTime" type="time" className="feld" defaultValue={werte.startTime ?? ''} />
             </Feld>
-            <Feld label="Endzeit" name="endTime" hinweis="Darf ueber Mitternacht gehen.">
+            <Feld label="Endzeit" name="endTime" hinweis="Darf über Mitternacht gehen.">
               <input id="endTime" name="endTime" type="time" className="feld" defaultValue={werte.endTime ?? ''} />
             </Feld>
             <Feld label="Aufbau ab" name="buildUpTime">
@@ -97,7 +97,7 @@ export function EventFormular({
                 {Object.entries(EVENT_STATUS).map(([wert, s]) => <option key={wert} value={wert}>{s.label}</option>)}
               </select>
             </Feld>
-            <Feld label="Prioritaet" name="priority">
+            <Feld label="Priorität" name="priority">
               <select id="priority" name="priority" className="feld" defaultValue={werte.priority ?? 'NORMAL'}>
                 {Object.entries(PRIORITY).map(([wert, s]) => <option key={wert} value={wert}>{s.label}</option>)}
               </select>
@@ -123,7 +123,7 @@ export function EventFormular({
             <Feld label="Veranstaltungsort" name="venue">
               <input id="venue" name="venue" className="feld" defaultValue={werte.venue ?? ''} placeholder="z. B. Fischauktionshalle" />
             </Feld>
-            <Feld label="Strasse und Hausnummer" name="street">
+            <Feld label="Straße und Hausnummer" name="street">
               <input id="street" name="street" className="feld" defaultValue={werte.street ?? ''} />
             </Feld>
             <Feld label="PLZ" name="zip">
@@ -135,7 +135,7 @@ export function EventFormular({
           </Raster>
           <Raster min={200}>
             <Feld label="Treffpunkt" name="meetingPoint" hinweis="Steht so in der Mitarbeiter-App.">
-              <input id="meetingPoint" name="meetingPoint" className="feld" defaultValue={werte.meetingPoint ?? ''} placeholder="z. B. Eingang Sued, Container 3" />
+              <input id="meetingPoint" name="meetingPoint" className="feld" defaultValue={werte.meetingPoint ?? ''} placeholder="z. B. Eingang Süd, Container 3" />
             </Feld>
             <Feld label="Treffzeit" name="meetingTime">
               <input id="meetingTime" name="meetingTime" type="time" className="feld" defaultValue={werte.meetingTime ?? ''} />
@@ -153,10 +153,10 @@ export function EventFormular({
           <Feld label="Aufgaben" name="tasks">
             <textarea id="tasks" name="tasks" className="feld" rows={3} defaultValue={werte.tasks ?? ''} />
           </Feld>
-          <Feld label="Hinweise fuer Mitarbeiter" name="hints" hinweis="Diese Angaben sind in der Mitarbeiter-App sichtbar.">
+          <Feld label="Hinweise für Mitarbeiter" name="hints" hinweis="Diese Angaben sind in der Mitarbeiter-App sichtbar.">
             <textarea id="hints" name="hints" className="feld" rows={3} defaultValue={werte.hints ?? ''} />
           </Feld>
-          <Feld label="Interne Notizen" name="notesInternal" hinweis="Nur fuer Disposition und Leitung sichtbar – nie fuer Mitarbeiter, Partner oder Kunden.">
+          <Feld label="Interne Notizen" name="notesInternal" hinweis="Nur für Disposition und Leitung sichtbar – nie für Mitarbeiter, Partner oder Kunden.">
             <textarea id="notesInternal" name="notesInternal" className="feld" rows={3} defaultValue={werte.notesInternal ?? ''} />
           </Feld>
         </div>

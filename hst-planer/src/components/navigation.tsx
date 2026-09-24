@@ -7,13 +7,13 @@ import { Icon } from './icons';
 import { Logo } from './logo';
 import type { NavItem } from '@/lib/auth/rbac';
 
-/** Platzhalter, der in der Liste eine Zwischenueberschrift markiert. */
+/** Platzhalter, der in der Liste eine Zwischenüberschrift markiert. */
 const TRENNER: NavItem = { href: '__trenner__', label: '', permission: 'dashboard.view', icon: 'grid' };
 
 /**
  * Seitennavigation (Spec 6/45).
  * Auf dem Desktop dauerhaft sichtbar, auf dem Smartphone als Schublade.
- * Die Tastenkuerzel aus Spec 46 haengen hier, weil die Navigation auf
+ * Die Tastenkuerzel aus Spec 46 hängen hier, weil die Navigation auf
  * jeder Seite eingebunden ist.
  */
 export function Navigation({ items, eigene, name, rolle }: { items: NavItem[]; eigene: NavItem[]; name: string; rolle: string }) {
@@ -31,7 +31,7 @@ export function Navigation({ items, eigene, name, rolle }: { items: NavItem[]; e
 
     function onKey(event: KeyboardEvent) {
       if (event.key === 'Escape') { setOffen(false); return; }
-      // Kuerzel duerfen nie waehrend einer Eingabe ausloesen.
+      // Kürzel dürfen nie während einer Eingabe auslösen.
       const aktiv = document.activeElement;
       if (aktiv instanceof HTMLElement && (aktiv.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(aktiv.tagName))) return;
       if (event.metaKey || event.ctrlKey || event.altKey) return;
@@ -50,7 +50,7 @@ export function Navigation({ items, eigene, name, rolle }: { items: NavItem[]; e
 
   return (
     <>
-      <button type="button" className="knopf nicht-drucken" aria-label="Menue oeffnen" aria-expanded={offen}
+      <button type="button" className="knopf nicht-drucken" aria-label="Menü öffnen" aria-expanded={offen}
               onClick={() => setOffen((v) => !v)}
               style={{ position: 'fixed', top: 10, left: 10, zIndex: 60, width: 36, padding: 0, justifyContent: 'center' }}
               data-nur-mobil>

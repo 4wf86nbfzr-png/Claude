@@ -37,7 +37,7 @@ export default async function Positionen({ params }: { params: Promise<{ id: str
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       {event.positions.length === 0 && (
-        <Karte><Leer>Noch keine Positionen. Legen Sie unten die erste Position an – zum Beispiel „Ordnungsdienst Suedtribuene, 8 Kraefte, 17:00–23:00“.</Leer></Karte>
+        <Karte><Leer>Noch keine Positionen. Legen Sie unten die erste Position an – zum Beispiel „Ordnungsdienst Südtribüne, 8 Kräfte, 17:00–23:00“.</Leer></Karte>
       )}
 
       {event.positions.map((position) => {

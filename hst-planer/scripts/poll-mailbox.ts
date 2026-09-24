@@ -3,7 +3,7 @@
  *
  *   npm run mail:poll
  *
- * Fuer den Dauerbetrieb in einen Cron eintragen, z. B. alle fuenf Minuten:
+ * Für den Dauerbetrieb in einen Cron eintragen, z. B. alle fünf Minuten:
  *   *\/5 * * * * cd /srv/hst-planer && npm run mail:poll >> /var/log/hst-mail.log 2>&1
  */
 import { config } from 'dotenv';
@@ -17,8 +17,8 @@ async function main() {
   }
   const ergebnis = await postfachAbrufen();
   console.log(
-    `${ergebnis.geprueft} Nachrichten geprueft, ${ergebnis.neu} neu gespeichert, ` +
-    `${ergebnis.anfragen} Personalanfragen angelegt, ${ergebnis.uebersprungen} uebersprungen.`,
+    `${ergebnis.geprueft} Nachrichten geprüft, ${ergebnis.neu} neu gespeichert, ` +
+    `${ergebnis.anfragen} Personalanfragen angelegt, ${ergebnis.uebersprungen} übersprungen.`,
   );
   for (const fehler of ergebnis.fehler) console.error('  Fehler:', fehler);
   process.exit(ergebnis.fehler.length ? 1 : 0);

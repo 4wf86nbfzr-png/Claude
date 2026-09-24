@@ -6,14 +6,14 @@ import { clientIp } from '@/lib/auth/session';
 import { anfrageAusFormular, OEFFENTLICHE_ANFRAGE } from '@/lib/domain/requests';
 
 /**
- * Oeffentliche Schnittstelle fuer das Anfrageformular auf hermserviceteam.com
+ * Öffentliche Schnittstelle für das Anfrageformular auf hermserviceteam.com
  * (Spec 16/43).
  *
  * Schutzmassnahmen, weil diese Route ohne Anmeldung erreichbar ist:
  *   * Begrenzung auf 5 Anfragen je IP und Stunde
- *   * Herkunftspruefung ueber PUBLIC_API_ORIGINS
+ *   * Herkunftspruefung über PUBLIC_API_ORIGINS
  *   * unsichtbares Honigtopf-Feld (`website`) wie auf der Website selbst
- *   * optionaler API-Schluessel ueber den Header `x-api-key`
+ *   * optionaler API-Schlüssel über den Header `x-api-key`
  */
 
 function erlaubteHerkunft(origin: string | null): boolean {
@@ -55,15 +55,15 @@ export const POST = route(async (request: Request) => {
   }
 
   const rohdaten = await request.clone().json().catch(() => ({})) as Record<string, unknown>;
-  // Honigtopf: echte Besucher fuellen dieses Feld nie aus.
+  // Honigtopf: echte Besucher füllen dieses Feld nie aus.
   if (typeof rohdaten.website === 'string' && rohdaten.website.trim() !== '') {
-    // Freundlich bestaetigen, aber nichts speichern – so lernt der Absender nichts dazu.
+    // Freundlich bestätigen, aber nichts speichern – so lernt der Absender nichts dazu.
     return NextResponse.json({ status: 'ok', hinweis: 'Ihre Anfrage wurde entgegengenommen.' }, { headers: kopf });
   }
 
   const eingabe = await parseBody(request, OEFFENTLICHE_ANFRAGE);
   if (!eingabe.message && !eingabe.eventDate && !eingabe.employeesNeeded) {
-    throw new ValidationError('Bitte beschreiben Sie kurz, wofuer Sie Personal benoetigen.');
+    throw new ValidationError('Bitte beschreiben Sie kurz, wofür Sie Personal benötigen.');
   }
 
   const anfrage = await anfrageAusFormular(eingabe, { kanal: 'API', ip });
@@ -72,7 +72,7 @@ export const POST = route(async (request: Request) => {
     {
       status: 'ok',
       anfrageNummer: anfrage.reference,
-      hinweis: 'Ihre Anfrage ist eingegangen und wird von unserer Disposition geprueft. Sie erhalten zeitnah eine Rueckmeldung.',
+      hinweis: 'Ihre Anfrage ist eingegangen und wird von unserer Disposition geprüft. Sie erhalten zeitnah eine Rückmeldung.',
       fehlendeAngaben: anfrage.missingFields,
     },
     { status: 201, headers: kopf },

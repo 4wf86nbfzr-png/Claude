@@ -29,7 +29,7 @@ export function PartnerFormular({ werte = {}, darfFinanzen }: { werte?: PartnerW
             <Feld label="Telefon" name="phone"><input id="phone" name="phone" type="tel" className="feld" defaultValue={werte.phone ?? ''} /></Feld>
           </Raster>
           <Raster min={180}>
-            <Feld label="Strasse" name="street"><input id="street" name="street" className="feld" defaultValue={werte.street ?? ''} /></Feld>
+            <Feld label="Straße" name="street"><input id="street" name="street" className="feld" defaultValue={werte.street ?? ''} /></Feld>
             <Feld label="PLZ" name="zip"><input id="zip" name="zip" className="feld" maxLength={10} defaultValue={werte.zip ?? ''} /></Feld>
             <Feld label="Ort" name="city"><input id="city" name="city" className="feld" defaultValue={werte.city ?? ''} /></Feld>
             {darfFinanzen && (

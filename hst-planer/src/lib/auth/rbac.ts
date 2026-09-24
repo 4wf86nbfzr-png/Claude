@@ -2,9 +2,9 @@
  * Rollen- und Rechtekonzept (Spec 31).
  *
  * Rechte sind Zeichenketten der Form "<bereich>.<aktion>".
- * Zusaetzlich gibt es Sichtbarkeits-Bereiche (scope), die in den Abfragen
- * ausgewertet werden: ALLE, EIGENE (nur eigene Einsaetze), PARTNER
- * (nur freigegebene Events des eigenen Partners), KUNDE (nur eigene Auftraege).
+ * Zusätzlich gibt es Sichtbarkeits-Bereiche (scope), die in den Abfragen
+ * ausgewertet werden: ALLE, EIGENE (nur eigene Einsätze), PARTNER
+ * (nur freigegebene Events des eigenen Partners), KUNDE (nur eigene Aufträge).
  */
 
 export type Role =
@@ -78,7 +78,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
 
 export const ROLE_LABEL: Record<Role, string> = {
   ADMIN: 'Administration',
-  GESCHAEFTSFUEHRUNG: 'Geschaeftsfuehrung',
+  GESCHAEFTSFUEHRUNG: 'Geschäftsführung',
   DISPOSITION: 'Disposition',
   EINSATZLEITUNG: 'Einsatzleitung',
   TEAMLEITUNG: 'Teamleitung',
@@ -146,12 +146,12 @@ export const NAV_ITEMS: NavItem[] = [
 ];
 
 /**
- * Eigener Bereich – erscheint zusaetzlich zur Hauptnavigation fuer alle, die
+ * Eigener Bereich – erscheint zusätzlich zur Hauptnavigation für alle, die
  * ein Mitarbeiterprofil haben. Mitarbeiter sehen praktisch nur diesen Teil.
  */
 export const EIGENE_NAV: NavItem[] = [
-  { href: '/meine-einsaetze', label: 'Meine Einsaetze', permission: 'self.shifts', icon: 'calendar' },
-  { href: '/meine-verfuegbarkeit', label: 'Meine Verfuegbarkeit', permission: 'self.availability', icon: 'clock' },
+  { href: '/meine-einsaetze', label: 'Meine Einsätze', permission: 'self.shifts', icon: 'calendar' },
+  { href: '/meine-verfuegbarkeit', label: 'Meine Verfügbarkeit', permission: 'self.availability', icon: 'clock' },
   { href: '/meine-dokumente', label: 'Meine Dokumente', permission: 'self.documents', icon: 'file' },
 ];
 

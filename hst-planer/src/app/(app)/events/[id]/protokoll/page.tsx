@@ -14,7 +14,7 @@ export default async function EventProtokoll({ params }: { params: Promise<{ id:
   const event = await db.event.findFirst({ where: { id, ...eventFilter(user) }, select: { id: true } });
   if (!event) notFound();
 
-  // Alles, was zu diesem Event gehoert: Positionen, Zuweisungen, Vorfaelle, Dokumente.
+  // Alles, was zu diesem Event gehört: Positionen, Zuweisungen, Vorfälle, Dokumente.
   const [positionen, zuweisungen, vorfaelle, dokumente] = await Promise.all([
     db.position.findMany({ where: { eventId: id }, select: { id: true } }),
     db.assignment.findMany({ where: { eventId: id }, select: { id: true } }),
@@ -32,7 +32,7 @@ export default async function EventProtokoll({ params }: { params: Promise<{ id:
 
   return (
     <Karte titel="Aenderungsprotokoll">
-      {eintraege.length === 0 ? <Leer>Keine Eintraege.</Leer> : (
+      {eintraege.length === 0 ? <Leer>Keine Einträge.</Leer> : (
         <table className="tabelle">
           <thead><tr><th>Zeitpunkt</th><th>Benutzer</th><th>Vorgang</th></tr></thead>
           <tbody>

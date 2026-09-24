@@ -10,7 +10,7 @@ export interface SheetData {
   headers: string[];
   rows: Array<Record<string, unknown>>;
   sheetName?: string;
-  /** Anzahl Zeilen, die vollstaendig leer waren und uebersprungen wurden. */
+  /** Anzahl Zeilen, die vollständig leer waren und übersprungen wurden. */
   skippedEmpty: number;
 }
 
@@ -67,7 +67,7 @@ export function parseCsv(content: string, delimiter?: string): SheetData {
   const lines = text.split(/\r?\n/);
 
   const headerIndex = lines.findIndex((l) => l.trim().length > 0);
-  if (headerIndex < 0) throw new ImportError('Die Datei enthaelt keine Daten.');
+  if (headerIndex < 0) throw new ImportError('Die Datei enthält keine Daten.');
 
   const headers = dedupeHeaders(splitCsvLine(lines[headerIndex]!, sep));
   const rows: Array<Record<string, unknown>> = [];
@@ -115,7 +115,7 @@ export async function parseXlsx(buffer: Buffer, sheetName?: string): Promise<She
   }
 
   const sheet = sheetName ? workbook.getWorksheet(sheetName) : workbook.worksheets[0];
-  if (!sheet) throw new ImportError('Die Datei enthaelt kein lesbares Tabellenblatt.');
+  if (!sheet) throw new ImportError('Die Datei enthält kein lesbares Tabellenblatt.');
 
   // Kopfzeile ist die erste Zeile mit mindestens zwei befuellten Zellen.
   let headerRowNumber = 0;
@@ -128,7 +128,7 @@ export async function parseXlsx(buffer: Buffer, sheetName?: string): Promise<She
       headers = dedupeHeaders(values.map((v, i) => String(v ?? '').trim() || `Spalte ${i + 1}`));
     }
   });
-  if (!headerRowNumber) throw new ImportError('Die Datei enthaelt keine Kopfzeile mit Spaltennamen.');
+  if (!headerRowNumber) throw new ImportError('Die Datei enthält keine Kopfzeile mit Spaltennamen.');
 
   const rows: Array<Record<string, unknown>> = [];
   let skippedEmpty = 0;
@@ -155,7 +155,7 @@ function rowValues(row: { values: unknown }): unknown[] {
   return Array.isArray(raw) ? raw.slice(1) : [];
 }
 
-/** ExcelJS gibt Formeln, Hyperlinks und Rich-Text als Objekte zurueck. */
+/** ExcelJS gibt Formeln, Hyperlinks und Rich-Text als Objekte zurück. */
 function normalizeCell(value: unknown): unknown {
   if (value == null) return null;
   if (value instanceof Date) return value;
@@ -172,7 +172,7 @@ function normalizeCell(value: unknown): unknown {
   return value;
 }
 
-/** Waehlt anhand des Dateinamens den passenden Leser. */
+/** Wählt anhand des Dateinamens den passenden Leser. */
 export async function parseSpreadsheet(fileName: string, buffer: Buffer): Promise<SheetData> {
   const lower = fileName.toLowerCase();
   if (lower.endsWith('.csv') || lower.endsWith('.txt') || lower.endsWith('.tsv')) {
@@ -183,8 +183,8 @@ export async function parseSpreadsheet(fileName: string, buffer: Buffer): Promis
   }
   if (lower.endsWith('.xls')) {
     throw new ImportError(
-      'Das alte Excel-Format (.xls) wird nicht unterstuetzt. Bitte in Excel ueber "Speichern unter" als .xlsx oder .csv sichern.',
+      'Das alte Excel-Format (.xls) wird nicht unterstützt. Bitte in Excel über "Speichern unter" als .xlsx oder .csv sichern.',
     );
   }
-  throw new ImportError('Nicht unterstuetztes Dateiformat. Erlaubt sind .xlsx, .xlsm und .csv.');
+  throw new ImportError('Nicht unterstütztes Dateiformat. Erlaubt sind .xlsx, .xlsm und .csv.');
 }

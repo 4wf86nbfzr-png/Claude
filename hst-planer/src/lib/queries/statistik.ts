@@ -109,7 +109,7 @@ export async function statistik(zeitraum: Zeitraum) {
   };
 }
 
-/** Monatsvergleich der letzten zwoelf Monate. */
+/** Monatsvergleich der letzten zwölf Monate. */
 export async function monatsverlauf(monate = 12) {
   const heute = toDateOnly(new Date());
   const ergebnis: Array<{ monat: string; events: number; stunden: number; offen: number }> = [];

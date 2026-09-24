@@ -65,7 +65,7 @@ export default async function Kalender({ searchParams }: { searchParams: Promise
     <>
       <Seitenkopf
         titel="Kalender"
-        unter={`${formatDateDE(von)} – ${formatDateDE(bis)} · ${events.length} Einsaetze`}
+        unter={`${formatDateDE(von)} – ${formatDateDE(bis)} · ${events.length} Einsätze`}
         aktionen={can(user.role, 'events.edit') && (
           <Link href={`/events/neu?datum=${isoDate(anker)}`} className="knopf knopf-primaer"><Icon name="plus" /> Neues Event</Link>
         )}
@@ -95,7 +95,7 @@ export default async function Kalender({ searchParams }: { searchParams: Promise
                            <span>{weekdayDE(tag)}, {formatDateDE(tag)}</span>
                            {istHeute && <span className="marke marke-blau">heute</span>}
                            <span style={{ fontWeight: 400, color: 'var(--text-gedaempft)', fontSize: 12 }}>
-                             {tagesEvents.length === 0 ? 'keine Einsaetze' : `${tagesEvents.length} Einsaetze`}
+                             {tagesEvents.length === 0 ? 'keine Einsätze' : `${tagesEvents.length} Einsätze`}
                            </span>
                          </span>
                        }>

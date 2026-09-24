@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="de" data-thema="hell">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>HST Planer – zum Ansehen und Ausprobieren</title>
+<style>
+/*
+  Diese Datei ist bewusst eigenständig: Doppelklick genügt, kein Server,
+  keine Datenbank, kein Internet. Sie zeigt die Anwendung in Bildern und
+  lässt die echte Fachlogik im Browser mitrechnen (demo/hst-logik.js).
+  Das Aussehen übernimmt dieselben Gestaltungsregeln wie der Planer selbst.
+*/
+:root{
+  color-scheme:light;
+  --flaeche:#F4F4F6; --karte:#FFFFFF; --tief:#EBEBEF; --hover:#F0F0F4;
+  --text:#14141A; --text2:#55555F; --text3:#7A7A86;
+  --linie:#DCDCE3; --linie2:#C4C4CE;
+  --akzent:#7C3AED; --akzent-kontrast:#fff; --akzent-schwach:#F1EBFE;
+  --gruen:#15803D; --gruen-f:#E8F6ED;
+  --gelb:#B45309;  --gelb-f:#FDF2E3;
+  --rot:#B91C1C;   --rot-f:#FDECEC;
+  --blau:#1D4ED8;  --blau-f:#EAF0FE;
+  --schatten:0 1px 2px rgba(20,20,26,.06),0 1px 3px rgba(20,20,26,.04);
+  --r:10px;
+}
+html[data-thema="dunkel"]{
+  color-scheme:dark;
+  --flaeche:#0D0D11; --karte:#16161C; --tief:#1D1D24; --hover:#22222A;
+  --text:#F2F2F5; --text2:#A8A8B4; --text3:#7C7C88;
+  --linie:#2A2A33; --linie2:#3A3A46;
+  --akzent:#9B7BFF; --akzent-kontrast:#12121A; --akzent-schwach:#241C3D;
+  --gruen:#4ADE80; --gruen-f:#12261A;
+  --gelb:#FBBF24;  --gelb-f:#2A1F09;
+  --rot:#F87171;   --rot-f:#2C1414;
+  --blau:#7EA6FF;  --blau-f:#111C33;
+  --schatten:0 1px 2px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--flaeche);color:var(--text);
+  font:15px/1.6 "Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+:focus-visible{outline:2px solid var(--akzent);outline-offset:2px;border-radius:4px}
+a{color:var(--akzent)}
+code,kbd,pre{font-family:ui-monospace,"SF Mono","Cascadia Mono",monospace}
+
+/* --- Kopf ------------------------------------------------------------- */
+header.kopf{
+  position:sticky;top:0;z-index:20;
+  background:color-mix(in srgb,var(--flaeche) 90%,transparent);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--linie);
+}
+.kopf-inhalt{max-width:1180px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.logo{width:34px;height:34px;border-radius:8px;background:var(--akzent);color:var(--akzent-kontrast);
+  display:grid;place-items:center;font-weight:700;font-size:13px;flex:none}
+.kopf h1{font-size:17px;margin:0;font-weight:650;letter-spacing:-.01em}
+.kopf p{margin:0;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3)}
+nav.reiter{max-width:1180px;margin:0 auto;padding:0 20px;display:flex;gap:2px;overflow-x:auto}
+nav.reiter button{
+  background:none;border:0;border-bottom:2px solid transparent;
+  padding:9px 13px;font:inherit;font-size:14px;color:var(--text2);cursor:pointer;white-space:nowrap
+}
+nav.reiter button[aria-selected="true"]{color:var(--text);font-weight:600;border-bottom-color:var(--akzent)}
+
+main{max-width:1180px;margin:0 auto;padding:24px 20px 80px}
+section[hidden]{display:none}
+h2{font-size:20px;font-weight:650;letter-spacing:-.01em;margin:0 0 6px}
+h3{font-size:15px;font-weight:650;margin:26px 0 8px}
+.vorspann{color:var(--text2);max-width:72ch;margin:0 0 20px}
+
+.karte{background:var(--karte);border:1px solid var(--linie);border-radius:var(--r);box-shadow:var(--schatten);margin-bottom:16px}
+.karte > h4{margin:0;padding:12px 16px;border-bottom:1px solid var(--linie);font-size:13px;font-weight:650}
+.karte-inhalt{padding:16px}
+
+.knopf{
+  display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;
+  border:1px solid var(--linie2);border-radius:7px;background:var(--karte);color:var(--text);
+  font:inherit;font-size:14px;font-weight:500;cursor:pointer
+}
+.knopf:hover{background:var(--hover)}
+.knopf-primaer{background:var(--akzent);border-color:var(--akzent);color:var(--akzent-kontrast)}
+.knopf-primaer:hover{filter:brightness(1.08);background:var(--akzent)}
+.knopf-klein{height:30px;padding:0 10px;font-size:13px}
+
+label.feld{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;
+  letter-spacing:.04em;text-transform:uppercase;color:var(--text2)}
+input,select,textarea{
+  font:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--linie2);border-radius:7px;
+  background:var(--karte);color:var(--text);font-weight:400;letter-spacing:normal;text-transform:none
+}
+textarea{line-height:1.5;resize:vertical;font-size:13px}
+.reihe{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.raster{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--text2);
+  padding:8px 10px;background:var(--tief);border-bottom:1px solid var(--linie);white-space:nowrap}
+td{padding:8px 10px;border-bottom:1px solid var(--linie);vertical-align:top}
+tr:last-child td{border-bottom:0}
+.zahl{font-variant-numeric:tabular-nums}
+.streifen{overflow-x:auto}
+
+.marke{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 8px;border-radius:999px;
+  font-size:11px;font-weight:600;white-space:nowrap}
+.marke-gruen{background:var(--gruen-f);color:var(--gruen)}
+.marke-gelb{background:var(--gelb-f);color:var(--gelb)}
+.marke-rot{background:var(--rot-f);color:var(--rot)}
+.marke-blau{background:var(--blau-f);color:var(--blau)}
+.marke-grau{background:var(--tief);color:var(--text2)}
+.punkt{width:7px;height:7px;border-radius:999px;background:currentColor;flex:none}
+
+.zeile-gruen{box-shadow:inset 3px 0 0 var(--gruen)}
+.zeile-gelb{box-shadow:inset 3px 0 0 var(--gelb)}
+.zeile-rot{box-shadow:inset 3px 0 0 var(--rot)}
+.zeile-blau{box-shadow:inset 3px 0 0 var(--blau)}
+
+.hinweis{border-radius:8px;padding:10px 13px;font-size:14px;margin:0 0 14px;border:1px solid transparent}
+.hinweis-info{background:var(--blau-f);color:var(--blau);border-color:color-mix(in srgb,var(--blau) 25%,transparent)}
+.hinweis-warn{background:var(--gelb-f);color:var(--gelb);border-color:color-mix(in srgb,var(--gelb) 25%,transparent)}
+.hinweis-gut{background:var(--gruen-f);color:var(--gruen);border-color:color-mix(in srgb,var(--gruen) 25%,transparent)}
+
+.ergebnis{background:var(--tief);border-radius:8px;padding:12px 14px;font-size:14px;margin-top:12px}
+.ergebnis dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 14px}
+.ergebnis dt{color:var(--text2);font-size:12px}
+.ergebnis dd{margin:0;font-weight:500}
+.gross{font-size:30px;font-weight:650;line-height:1.1;font-variant-numeric:tabular-nums}
+
+/* --- Galerie ---------------------------------------------------------- */
+.galerie{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(330px,1fr))}
+figure{margin:0;background:var(--karte);border:1px solid var(--linie);border-radius:var(--r);
+  overflow:hidden;box-shadow:var(--schatten)}
+figure img{display:block;width:100%;height:auto;border-bottom:1px solid var(--linie);cursor:zoom-in;background:var(--tief)}
+figure.handy img{max-height:none}
+figcaption{padding:10px 13px;font-size:13px}
+figcaption b{display:block;font-weight:600;margin-bottom:2px}
+figcaption span{color:var(--text2);font-size:12px}
+
+dialog.lupe{border:0;padding:0;background:transparent;max-width:96vw;max-height:96vh}
+dialog.lupe::backdrop{background:rgba(0,0,0,.82)}
+dialog.lupe img{max-width:96vw;max-height:88vh;display:block;border-radius:8px;background:#fff}
+dialog.lupe p{color:#fff;text-align:center;margin:10px 0 0;font-size:13px}
+
+.liste{margin:0;padding-left:20px}
+.liste li{margin-bottom:6px}
+.schritt{counter-increment:schritt;display:flex;gap:12px;margin-bottom:14px}
+.schritt::before{content:counter(schritt);flex:none;width:24px;height:24px;border-radius:999px;
+  background:var(--akzent);color:var(--akzent-kontrast);display:grid;place-items:center;
+  font-size:12px;font-weight:700}
+.schritte{counter-reset:schritt}
+pre.block{background:var(--tief);padding:12px 14px;border-radius:8px;overflow-x:auto;font-size:12.5px;margin:0 0 14px}
+
+footer{border-top:1px solid var(--linie);margin-top:40px;padding:20px 0;color:var(--text3);font-size:12.5px}
+@media (max-width:640px){
+  main{padding:18px 14px 60px}
+  .kopf-inhalt{padding:10px 14px}
+  nav.reiter{padding:0 14px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>

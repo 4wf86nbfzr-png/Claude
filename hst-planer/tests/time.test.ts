@@ -5,7 +5,7 @@ import {
 } from '@/lib/time';
 
 describe('parseTimeToMinutes', () => {
-  it('liest uebliche Schreibweisen', () => {
+  it('liest übliche Schreibweisen', () => {
     expect(parseTimeToMinutes('17:00')).toBe(1020);
     expect(parseTimeToMinutes('17.00')).toBe(1020);
     expect(parseTimeToMinutes('17')).toBe(1020);
@@ -44,14 +44,14 @@ describe('Nachtschichten (Spec 69)', () => {
     expect(shiftDuration('09:00', '17:00')?.overnight).toBe(false);
   });
 
-  it('zaehlt gleiche Zeiten nur auf Wunsch als ganzen Tag', () => {
+  it('zählt gleiche Zeiten nur auf Wunsch als ganzen Tag', () => {
     expect(shiftDuration('06:00', '06:00')?.netMinutes).toBe(0);
     expect(shiftDuration('06:00', '06:00', 0, { treatEqualAsFullDay: true })?.netMinutes).toBe(1440);
   });
 });
 
 describe('timeDiffMinutes', () => {
-  it('bleibt im Fenster von zwoelf Stunden', () => {
+  it('bleibt im Fenster von zwölf Stunden', () => {
     expect(timeDiffMinutes('17:00', '17:05')).toBe(5);
     expect(timeDiffMinutes('17:00', '16:55')).toBe(-5);
     // Planung 23:55, Ist 00:10 -> +15 Minuten, nicht -1425
@@ -90,7 +90,7 @@ describe('parseGermanDate', () => {
     expect(isoDate(parseGermanDate('01.02.26')!)).toBe('2026-02-01');
   });
 
-  it('ergaenzt ein fehlendes Jahr mit dem naechsten Vorkommen', () => {
+  it('ergänzt ein fehlendes Jahr mit dem nächsten Vorkommen', () => {
     expect(isoDate(parseGermanDate('15.10.', reference)!)).toBe('2026-10-15');
     // Ein Datum deutlich in der Vergangenheit meint das Folgejahr.
     expect(isoDate(parseGermanDate('15.01.', reference)!)).toBe('2027-01-15');
@@ -100,7 +100,7 @@ describe('parseGermanDate', () => {
     expect(isoDate(parseGermanDate(46310)!)).toBe('2026-10-15');
   });
 
-  it('weist unmoegliche Datumsangaben zurueck', () => {
+  it('weist unmoegliche Datumsangaben zurück', () => {
     expect(parseGermanDate('32.13.2026')).toBeNull();
     expect(parseGermanDate('')).toBeNull();
   });

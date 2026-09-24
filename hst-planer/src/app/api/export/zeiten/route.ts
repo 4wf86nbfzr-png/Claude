@@ -7,7 +7,7 @@ import { alsCsv, alsExcel, dateiname, EXCEL_TYP, type Spalte } from '@/lib/expor
 import { TIME_ENTRY_STATUS } from '@/lib/status';
 import type { Prisma } from '@prisma/client';
 
-/** Stundennachweis fuer die Abrechnung (Spec 25/62). */
+/** Stundennachweis für die Abrechnung (Spec 25/62). */
 export const GET = route(async (request: Request) => {
   const user = await requirePermission('timesheets.view');
   const params = new URL(request.url).searchParams;
@@ -59,7 +59,7 @@ export const GET = route(async (request: Request) => {
   const summe = zeiten.reduce((s, z) => s + z.minutes, 0);
   const puffer = await alsExcel('Stunden', spalten, zeiten, [
     'HST Planer – Stundennachweis',
-    `Stand: ${new Date().toLocaleString('de-DE')} · ${zeiten.length} Eintraege · ${minutesToHours(summe).toLocaleString('de-DE')} Stunden`,
+    `Stand: ${new Date().toLocaleString('de-DE')} · ${zeiten.length} Einträge · ${minutesToHours(summe).toLocaleString('de-DE')} Stunden`,
   ]);
   return new NextResponse(new Uint8Array(puffer), {
     headers: { 'content-type': EXCEL_TYP, 'content-disposition': `attachment; filename="${dateiname('hst-stunden')}"` },

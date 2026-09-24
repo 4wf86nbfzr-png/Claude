@@ -2,7 +2,7 @@
  * Schnittstellen gegen den laufenden Server (Spec 16/41/67).
  *
  * Voraussetzung: `npm run build && npm start` bzw. `bash scripts/server-start.sh`.
- * Ohne erreichbaren Server werden die Tests uebersprungen statt fehlzuschlagen,
+ * Ohne erreichbaren Server werden die Tests übersprungen statt fehlzuschlagen,
  * damit `npm test` auch ohne laufende Anwendung durchlaeuft.
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -34,7 +34,7 @@ beforeAll(async () => {
     erreichbar = false;
   }
   if (!erreichbar) {
-    console.warn(`\n  Hinweis: ${BASIS} ist nicht erreichbar – API-Tests werden uebersprungen.\n`);
+    console.warn(`\n  Hinweis: ${BASIS} ist nicht erreichbar – API-Tests werden übersprungen.\n`);
     return;
   }
   cookieDispo = await anmelden('dispo@hermserviceteam.com');
@@ -49,7 +49,7 @@ afterAll(async () => {
 });
 
 describe.runIf(process.env.VITEST_SKIP_API !== '1')('Anmeldung', () => {
-  it('weist falsche Passwoerter ab, ohne zu verraten ob das Konto existiert', async () => {
+  it('weist falsche Passwörter ab, ohne zu verraten ob das Konto existiert', async () => {
     if (!erreichbar) return;
     const antwort = await fetch(`${BASIS}/api/auth/login`, {
       method: 'POST', headers: { 'content-type': 'application/json' },
@@ -93,7 +93,7 @@ describe.runIf(process.env.VITEST_SKIP_API !== '1')('Rechte in der API', () => {
   it('Mitarbeiter sieht nur eigene Schichten', async () => {
     if (!erreichbar) return;
     const antwort = await fetch(`${BASIS}/api/shifts`, { headers: { cookie: cookieMitarbeiter } });
-    expect(antwort.status).toBe(403); // Schichten haengen an events.view
+    expect(antwort.status).toBe(403); // Schichten hängen an events.view
   });
 
   it('Disposition sieht Events mit Besetzungsgrad', async () => {
@@ -106,8 +106,8 @@ describe.runIf(process.env.VITEST_SKIP_API !== '1')('Rechte in der API', () => {
   });
 });
 
-describe.runIf(process.env.VITEST_SKIP_API !== '1')('Oeffentliche Anfrage-Schnittstelle (Spec 16)', () => {
-  it('nimmt eine vollstaendige Anfrage an und vergibt eine Nummer', async () => {
+describe.runIf(process.env.VITEST_SKIP_API !== '1')('Öffentliche Anfrage-Schnittstelle (Spec 16)', () => {
+  it('nimmt eine vollständige Anfrage an und vergibt eine Nummer', async () => {
     if (!erreichbar) return;
     const antwort = await fetch(`${BASIS}/api/public/request`, {
       method: 'POST',
@@ -131,7 +131,7 @@ describe.runIf(process.env.VITEST_SKIP_API !== '1')('Oeffentliche Anfrage-Schnit
     if (anfrage) angelegteAnfragen.push(anfrage.id);
   });
 
-  it('meldet fehlende Angaben zurueck', async () => {
+  it('meldet fehlende Angaben zurück', async () => {
     if (!erreichbar) return;
     const antwort = await fetch(`${BASIS}/api/public/request`, {
       method: 'POST',
@@ -155,7 +155,7 @@ describe.runIf(process.env.VITEST_SKIP_API !== '1')('Oeffentliche Anfrage-Schnit
     expect(antwort.status).toBe(400);
   });
 
-  it('verschluckt Eintraege im Honigtopf-Feld', async () => {
+  it('verschluckt Einträge im Honigtopf-Feld', async () => {
     if (!erreichbar) return;
     const vorher = await db.request.count();
     const antwort = await fetch(`${BASIS}/api/public/request`, {

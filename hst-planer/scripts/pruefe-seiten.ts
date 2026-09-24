@@ -1,11 +1,11 @@
 /**
- * Rauchtest mit echter Anmeldung ueber die REST-API.
+ * Rauchtest mit echter Anmeldung über die REST-API.
  *
  *   npx tsx scripts/pruefe-seiten.ts [basis-url] [email] [passwort]
  *
- * Meldet sich ueber /api/auth/login an, uebernimmt das Sitzungs-Cookie und
- * ruft anschliessend die wichtigsten Seiten je Rolle ab. Gedacht fuer die
- * schnelle Kontrolle nach einem Deployment – nicht als Ersatz fuer die Tests.
+ * Meldet sich über /api/auth/login an, übernimmt das Sitzungs-Cookie und
+ * ruft anschliessend die wichtigsten Seiten je Rolle ab. Gedacht für die
+ * schnelle Kontrolle nach einem Deployment – nicht als Ersatz für die Tests.
  */
 const basis = process.argv[2] ?? 'http://localhost:3100';
 const email = process.argv[3] ?? 'dispo@hermserviceteam.com';
@@ -44,7 +44,7 @@ async function main() {
     const ziel = antwort.headers.get('location') ?? '';
 
     // Eine Umleitung auf /kein-zugriff ist kein Fehler, sondern die Rollengrenze
-    // bei der Arbeit – genau das soll fuer Mitarbeiter, Partner und Kunden passieren.
+    // bei der Arbeit – genau das soll für Mitarbeiter, Partner und Kunden passieren.
     const rollengrenze =
       (antwort.status === 307 && (ziel.includes('/kein-zugriff') || ziel.includes('/anmelden'))) ||
       // Die API leitet nicht um, sondern antwortet mit 403.

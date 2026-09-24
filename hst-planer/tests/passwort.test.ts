@@ -6,7 +6,7 @@ import { checkPasswordStrength, hashPassword, verifyPassword } from '@/lib/auth/
 import { generateApiKey } from '@/lib/auth/apikey';
 import { signPayload, verifySignature } from '@/lib/webhooks';
 
-describe('Passwoerter', () => {
+describe('Passwörter', () => {
   it('erzeugt bei gleichem Passwort unterschiedliche Hashes', async () => {
     const a = await hashPassword('Hafencity!2026');
     const b = await hashPassword('Hafencity!2026');
@@ -14,14 +14,14 @@ describe('Passwoerter', () => {
     expect(a.startsWith('scrypt$')).toBe(true);
   });
 
-  it('prueft Passwoerter korrekt', async () => {
+  it('prüft Passwörter korrekt', async () => {
     const hash = await hashPassword('Hafencity!2026');
     expect(await verifyPassword('Hafencity!2026', hash)).toBe(true);
     expect(await verifyPassword('hafencity!2026', hash)).toBe(false);
     expect(await verifyPassword('', hash)).toBe(false);
   });
 
-  it('faellt bei beschaedigten Hashes nicht um', async () => {
+  it('fällt bei beschaedigten Hashes nicht um', async () => {
     expect(await verifyPassword('irgendwas', 'kaputt')).toBe(false);
     expect(await verifyPassword('irgendwas', 'scrypt$x$y$z$AAAA$AAAA')).toBe(false);
   });
@@ -34,7 +34,7 @@ describe('Passwoerter', () => {
   });
 });
 
-describe('API-Schluessel', () => {
+describe('API-Schlüssel', () => {
   it('haben ein erkennbares Format und werden nur als Hash gespeichert', () => {
     const schluessel = generateApiKey();
     expect(schluessel.plain.startsWith('hst_')).toBe(true);
@@ -43,13 +43,13 @@ describe('API-Schluessel', () => {
     expect(schluessel.keyHash).not.toContain(schluessel.plain);
   });
 
-  it('erzeugt bei jedem Aufruf einen anderen Schluessel', () => {
+  it('erzeugt bei jedem Aufruf einen anderen Schlüssel', () => {
     expect(generateApiKey().plain).not.toBe(generateApiKey().plain);
   });
 });
 
 describe('Webhook-Signatur', () => {
-  it('signiert und prueft einen Rumpf', () => {
+  it('signiert und prüft einen Rumpf', () => {
     const geheimnis = 'testgeheimnis';
     const zeit = 1_700_000_000;
     const rumpf = JSON.stringify({ event: 'request.created' });

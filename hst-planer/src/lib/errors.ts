@@ -20,7 +20,7 @@ export class AppError extends Error {
 }
 
 export class ValidationError extends AppError {
-  constructor(userMessage = 'Bitte pruefen Sie Ihre Eingaben.', details?: unknown) {
+  constructor(userMessage = 'Bitte prüfen Sie Ihre Eingaben.', details?: unknown) {
     super(userMessage, { status: 400, code: 'UNGUELTIGE_EINGABE', details });
   }
 }
@@ -32,7 +32,7 @@ export class AuthError extends AppError {
 }
 
 export class ForbiddenError extends AppError {
-  constructor(userMessage = 'Fuer diesen Bereich fehlt Ihnen die Berechtigung.') {
+  constructor(userMessage = 'Für diesen Bereich fehlt Ihnen die Berechtigung.') {
     super(userMessage, { status: 403, code: 'KEINE_BERECHTIGUNG' });
   }
 }

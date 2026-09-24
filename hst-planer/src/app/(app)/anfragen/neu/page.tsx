@@ -9,7 +9,7 @@ export default async function AnfrageErfassen() {
   return (
     <>
       <Seitenkopf titel="Anfrage erfassen" brotkrumen={[{ href: '/anfragen', label: 'Anfragen' }]}
-                  unter="Fuer telefonische Anfragen – die Angaben landen im selben Eingang wie Website- und E-Mail-Anfragen." />
+                  unter="Für telefonische Anfragen – die Angaben landen im selben Eingang wie Website- und E-Mail-Anfragen." />
       <Karte>
         <div style={{ padding: 16, maxWidth: 720 }}>
           <AnfrageFormular />

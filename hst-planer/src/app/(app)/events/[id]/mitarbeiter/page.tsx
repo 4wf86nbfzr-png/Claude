@@ -39,7 +39,7 @@ export default async function EventMitarbeiter({
   });
   if (!event) notFound();
 
-  // Personal-Suche nur fuer die aktuell geoeffnete Position laden – so bleibt
+  // Personal-Suche nur für die aktuell geoeffnete Position laden – so bleibt
   // die Seite auch bei vielen Positionen schnell.
   const offenePosition = such.position ?? null;
   const vorschlaege = darfPlanen && offenePosition
@@ -77,7 +77,7 @@ export default async function EventMitarbeiter({
                    <Link className="knopf knopf-klein knopf-primaer"
                          href={geoeffnet ? `/events/${id}/mitarbeiter` : `/events/${id}/mitarbeiter?position=${position.id}`}
                          scroll={false}>
-                     {geoeffnet ? 'Suche schliessen' : `Personal suchen${offen > 0 ? ` (${offen} offen)` : ''}`}
+                     {geoeffnet ? 'Suche schließen' : `Personal suchen${offen > 0 ? ` (${offen} offen)` : ''}`}
                    </Link>
                  )}>
             {position.assignments.length === 0 ? (
@@ -118,7 +118,7 @@ export default async function EventMitarbeiter({
                               <AktionsFormular aktion={zuweisungStatusAktion} stil={{ display: 'flex', gap: 4 }} meldungOben={false}>
                                 <input type="hidden" name="eventId" value={id} />
                                 <input type="hidden" name="assignmentId" value={assignment.id} />
-                                <select name="status" className="feld" defaultValue={assignment.status} style={{ width: 'auto', height: 28, fontSize: 12 }} aria-label="Status aendern">
+                                <select name="status" className="feld" defaultValue={assignment.status} style={{ width: 'auto', height: 28, fontSize: 12 }} aria-label="Status ändern">
                                   {Object.entries(ASSIGNMENT_STATUS).map(([wert, s]) => <option key={wert} value={wert}>{s.label}</option>)}
                                 </select>
                                 <AktionsKnopf klasse="knopf knopf-klein" laufend="…">Setzen</AktionsKnopf>
@@ -163,10 +163,10 @@ function Personalsuche({
         <input type="hidden" name="position" value={positionId} />
         <input name="q" className="feld" defaultValue={such.q ?? ''} placeholder="Name oder Personalnummer" style={{ width: 'auto', flex: '1 1 180px' }} aria-label="Mitarbeiter suchen" />
         <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
-          <input type="checkbox" name="verfuegbar" value="ja" defaultChecked={such.verfuegbar === 'ja'} /> nur verfuegbare
+          <input type="checkbox" name="verfügbar" value="ja" defaultChecked={such.verfuegbar === 'ja'} /> nur verfügbare
         </label>
-        <select name="beschaeftigung" className="feld" defaultValue={such.beschaeftigung ?? ''} style={{ width: 'auto' }} aria-label="Beschaeftigungsart">
-          <option value="">Beschaeftigung: alle</option>
+        <select name="beschäftigung" className="feld" defaultValue={such.beschaeftigung ?? ''} style={{ width: 'auto' }} aria-label="Beschäftigungsart">
+          <option value="">Beschäftigung: alle</option>
           {Object.entries(EMPLOYMENT_TYPE).map(([wert, text]) => <option key={wert} value={wert}>{text}</option>)}
         </select>
         <button type="submit" className="knopf knopf-klein">Suchen</button>
@@ -178,7 +178,7 @@ function Personalsuche({
         <div className="tabelle-scroll">
           <table className="tabelle">
             <thead>
-              <tr><th>Mitarbeiter</th><th>Beschaeftigung</th><th>Eignung</th><th>Erfahrung</th><th style={{ width: 1 }}>Zuweisen</th></tr>
+              <tr><th>Mitarbeiter</th><th>Beschäftigung</th><th>Eignung</th><th>Erfahrung</th><th style={{ width: 1 }}>Zuweisen</th></tr>
             </thead>
             <tbody>
               {vorschlaege.map((v) => (
@@ -219,13 +219,13 @@ function Personalsuche({
                         <label style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 12 }}>
                           <input type="checkbox" name="ersatz" /> als Ersatz hinterlegen
                         </label>
-                        <input name="hinweis" className="feld" placeholder="Hinweis fuer den Mitarbeiter" />
+                        <input name="hinweis" className="feld" placeholder="Hinweis für den Mitarbeiter" />
                         {(v.abwesend || !v.qualifiziert) && (
                           <label style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 12, color: 'var(--gelb)' }}>
-                            <input type="checkbox" name="trotzdem" /> Hinweise bewusst uebergehen
+                            <input type="checkbox" name="trotzdem" /> Hinweise bewusst übergehen
                           </label>
                         )}
-                        <AktionsKnopf klasse="knopf knopf-primaer knopf-klein">Uebernehmen</AktionsKnopf>
+                        <AktionsKnopf klasse="knopf knopf-primaer knopf-klein">Übernehmen</AktionsKnopf>
                       </AktionsFormular>
                     </Ausklapp>
                   </td>

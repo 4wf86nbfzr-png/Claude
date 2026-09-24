@@ -41,7 +41,7 @@ export async function zeitenFreigebenAktion(_zustand: Ergebnis, formData: FormDa
     const ids = formData.getAll('auswahl').map(String).filter(Boolean);
     const anzahl = await zeitenFreigeben(user, ids);
     revalidatePath('/zeiterfassung');
-    return { erfolg: true, hinweis: anzahl === 0 ? 'Es war nichts ausgewaehlt.' : `${anzahl} Eintraege freigegeben.` };
+    return { erfolg: true, hinweis: anzahl === 0 ? 'Es war nichts ausgewählt.' : `${anzahl} Einträge freigegeben.` };
   });
 }
 

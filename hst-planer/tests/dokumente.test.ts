@@ -1,5 +1,5 @@
 /**
- * Dateiablage (Spec 30/71/72): Pruefung, Ablage ausserhalb des Web-Roots,
+ * Dateiablage (Spec 30/71/72): Prüfung, Ablage ausserhalb des Web-Roots,
  * Rechte beim Abruf und Papierkorb.
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -13,7 +13,7 @@ const MARKE = `DOK-${Date.now()}`;
 let employeeId = '';
 const dokumentIds: string[] = [];
 
-/** Kleinste gueltige PDF-Datei – beginnt mit der Kennung %PDF. */
+/** Kleinste gültige PDF-Datei – beginnt mit der Kennung %PDF. */
 function pdf(inhalt = 'Testinhalt'): File {
   const bytes = Buffer.concat([Buffer.from('%PDF-1.4\n'), Buffer.from(inhalt), Buffer.from('\n%%EOF\n')]);
   return new File([bytes], 'nachweis.pdf', { type: 'application/pdf' });
@@ -33,9 +33,9 @@ afterAll(async () => {
 });
 
 describe('Hochladen', () => {
-  it('legt die Datei unter einer zufaelligen ID ab und protokolliert', async () => {
+  it('legt die Datei unter einer zufälligen ID ab und protokolliert', async () => {
     const dokument = await dokumentAnlegen(TEST_USER, {
-      datei: pdf(), typ: 'FUEHRUNGSZEUGNIS', titel: 'Fuehrungszeugnis',
+      datei: pdf(), typ: 'FUEHRUNGSZEUGNIS', titel: 'Führungszeugnis',
       gueltigBis: '2031-12-31', employeeId,
     });
     dokumentIds.push(dokument.id);
@@ -50,7 +50,7 @@ describe('Hochladen', () => {
     expect(inhalt.subarray(0, 4).toString()).toBe('%PDF');
 
     const protokoll = await db.auditLog.findFirst({ where: { entityId: dokument.id, action: 'document.create' } });
-    expect(protokoll?.summary).toContain('Fuehrungszeugnis');
+    expect(protokoll?.summary).toContain('Führungszeugnis');
   });
 
   it('weist eine Datei ab, deren Inhalt nicht zum Typ passt', async () => {
@@ -101,7 +101,7 @@ describe('Sichtbarkeit', () => {
 });
 
 describe('Papierkorb', () => {
-  it('entfernt erst nach Ablauf der Frist endgueltig', async () => {
+  it('entfernt erst nach Ablauf der Frist endgültig', async () => {
     const dokument = await dokumentAnlegen(TEST_USER, { datei: pdf('wegwerf'), typ: 'SONSTIGES', employeeId });
     await dokumentEntfernen(TEST_USER, dokument.id);
 
@@ -112,7 +112,7 @@ describe('Papierkorb', () => {
     await papierkorbLeeren(30);
     expect(await db.document.findUnique({ where: { id: dokument.id } })).not.toBeNull();
 
-    // … mit Frist 0 wird endgueltig aufgeraeumt.
+    // … mit Frist 0 wird endgültig aufgeräumt.
     await papierkorbLeeren(0);
     expect(await db.document.findUnique({ where: { id: dokument.id } })).toBeNull();
     await expect(readFile(resolveStored(dokument.filePath))).rejects.toThrow();

@@ -79,14 +79,14 @@ export default async function Dokumente({ searchParams }: { searchParams: Promis
           platzhalter="Titel suchen …"
           felder={[
             { name: 'typ', label: 'Typ', optionen: Object.entries(DOCUMENT_TYPE).map(([wert, label]) => ({ wert, label })) },
-            { name: 'ablauf', label: 'Gueltigkeit', optionen: [{ wert: 'bald', label: 'laeuft bald ab' }, { wert: 'abgelaufen', label: 'abgelaufen' }] },
+            { name: 'ablauf', label: 'Gültigkeit', optionen: [{ wert: 'bald', label: 'läuft bald ab' }, { wert: 'abgelaufen', label: 'abgelaufen' }] },
           ]}
         />
         {dokumente.length === 0 ? <Leer>Keine Dokumente gefunden.</Leer> : (
           <div className="tabelle-scroll">
             <table className="tabelle">
               <thead>
-                <tr><th>Titel</th><th>Typ</th><th>Zuordnung</th><th>Gueltig bis</th><th>Groesse</th><th>Hochgeladen</th><th style={{ width: 1 }} /></tr>
+                <tr><th>Titel</th><th>Typ</th><th>Zuordnung</th><th>Gültig bis</th><th>Größe</th><th>Hochgeladen</th><th style={{ width: 1 }} /></tr>
               </thead>
               <tbody>
                 {dokumente.map((dokument) => {

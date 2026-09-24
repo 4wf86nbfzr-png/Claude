@@ -18,9 +18,9 @@ import { readFile } from 'node:fs/promises';
  *   1. Datei hochladen  -> `dateiHochladen`  (speichert Datei, erkennt Spalten, zeigt Vorschau)
  *   2. Abgleich starten -> `abgleichStarten` (rechnet, schreibt Zeilen)
  *   3. Korrigieren      -> `zeileKorrigieren`, `zeilenBestaetigen`
- *   4. Abschliessen     -> `abgleichAbschliessen` (schreibt Zeiten fest)
+ *   4. Abschließen     -> `abgleichAbschliessen` (schreibt Zeiten fest)
  *
- * Nach Schritt 4 sind Aenderungen weiterhin moeglich, werden aber
+ * Nach Schritt 4 sind Änderungen weiterhin möglich, werden aber
  * ausnahmslos protokolliert (Spec 70).
  */
 
@@ -41,7 +41,7 @@ export async function dateiHochladen(user: SessionUser, datei: File, name?: stri
   const gespeichert = await storeUpload(datei, 'abgleiche');
   const inhalt = await readFile(resolveStored(gespeichert.filePath));
   const blatt = await parseSpreadsheet(gespeichert.fileName, inhalt);
-  if (blatt.rows.length === 0) throw new ValidationError('Die Datei enthaelt keine Datenzeilen.');
+  if (blatt.rows.length === 0) throw new ValidationError('Die Datei enthält keine Datenzeilen.');
 
   const vorschlag = suggestMapping(blatt.headers);
   const reference = await nextReference('AB');
@@ -61,7 +61,7 @@ export async function dateiHochladen(user: SessionUser, datei: File, name?: stri
 
   await audit(user, {
     action: 'reconciliation.upload', entity: 'Reconciliation', entityId: abgleich.id,
-    summary: `Datei "${gespeichert.fileName}" fuer Abgleich ${reference} hochgeladen (${blatt.rows.length} Zeilen)`,
+    summary: `Datei "${gespeichert.fileName}" für Abgleich ${reference} hochgeladen (${blatt.rows.length} Zeilen)`,
   });
 
   return {
@@ -198,7 +198,7 @@ export async function abgleichStarten(user: SessionUser, reconciliationId: strin
 
   await audit(user, {
     action: 'reconciliation.run', entity: 'Reconciliation', entityId: reconciliationId,
-    summary: `Abgleich ${abgleich.reference} berechnet: ${ergebnis.summary.totalRows} Datensaetze, ${ergebnis.summary.matchedRows} zugeordnet, ${ergebnis.summary.deviationRows} Abweichungen, ${ergebnis.summary.unknownRows} unbekannt, ${ergebnis.summary.duplicateRows} doppelt`,
+    summary: `Abgleich ${abgleich.reference} berechnet: ${ergebnis.summary.totalRows} Datensätze, ${ergebnis.summary.matchedRows} zugeordnet, ${ergebnis.summary.deviationRows} Abweichungen, ${ergebnis.summary.unknownRows} unbekannt, ${ergebnis.summary.duplicateRows} doppelt`,
     after: ergebnis.summary,
   });
 
@@ -230,10 +230,10 @@ function zuZeile(reconciliationId: string, row: ResultRow) {
  * Zeitraum der Datei bestimmen, um nur die passende Planung zu laden.
  *
  * Wichtig: Hier muss derselbe Datumsleser wie im Abgleich selbst laufen.
- * `new Date("17.05.2031")` liefert ein ungueltiges Datum – mit dieser Faelle
- * wuerde der Zeitraum auf "heute" zusammenfallen und die gesamte Planung
- * uebersehen. Nur wenn sich kein einziges Datum lesen laesst, nehmen wir
- * ersatzweise ein grosszuegiges Fenster um heute.
+ * `new Date("17.05.2031")` liefert ein ungueltiges Datum – mit dieser Fälle
+ * würde der Zeitraum auf "heute" zusammenfallen und die gesamte Planung
+ * übersehen. Nur wenn sich kein einziges Datum lesen lässt, nehmen wir
+ * ersatzweise ein großzügiges Fenster um heute.
  */
 function zeitraum(daten: unknown[]): { von: Date; bis: Date } {
   const zeiten = daten
@@ -274,7 +274,7 @@ export async function zeileKorrigieren(user: SessionUser, rowId: string, korrekt
   if (korrektur.actualEnd !== undefined) daten.actualEnd = korrektur.actualEnd;
   if (korrektur.actualBreak !== undefined) daten.actualBreak = korrektur.actualBreak;
 
-  // Wird eine Zuweisung gewaehlt, uebernehmen wir Event, Position und Sollzeiten.
+  // Wird eine Zuweisung gewählt, übernehmen wir Event, Position und Sollzeiten.
   if (korrektur.assignmentId) {
     const assignment = await db.assignment.findUnique({
       where: { id: korrektur.assignmentId },
@@ -283,7 +283,7 @@ export async function zeileKorrigieren(user: SessionUser, rowId: string, korrekt
         position: { select: { id: true, startTime: true, endTime: true, breakMinutes: true } },
       },
     });
-    if (!assignment) throw new ValidationError('Die gewaehlte Einteilung wurde nicht gefunden.');
+    if (!assignment) throw new ValidationError('Die gewählte Einteilung wurde nicht gefunden.');
     const start = assignment.plannedStart ?? assignment.position.startTime ?? assignment.event.startTime;
     const ende = assignment.plannedEnd ?? assignment.position.endTime ?? assignment.event.endTime;
     const pause = assignment.plannedBreakMinutes || assignment.position.breakMinutes || 0;
@@ -321,7 +321,7 @@ export async function zeileKorrigieren(user: SessionUser, rowId: string, korrekt
   });
 }
 
-/** Alle unkritischen Abweichungen in einem Zug bestaetigen (Spec 70). */
+/** Alle unkritischen Abweichungen in einem Zug bestätigen (Spec 70). */
 export async function unkritischeBestaetigen(user: SessionUser, reconciliationId: string, grenzeMinuten = 30): Promise<number> {
   const zeilen = await db.reconciliationRow.findMany({
     where: { reconciliationId, status: 'ABWEICHUNG' },
@@ -340,7 +340,7 @@ export async function unkritischeBestaetigen(user: SessionUser, reconciliationId
   await zaehlerAktualisieren(reconciliationId);
   await audit(user, {
     action: 'reconciliation.bulk_confirm', entity: 'Reconciliation', entityId: reconciliationId,
-    summary: `${passend.length} unkritische Abweichungen (bis ${grenzeMinuten} Min) bestaetigt`,
+    summary: `${passend.length} unkritische Abweichungen (bis ${grenzeMinuten} Min) bestätigt`,
   });
   return passend.length;
 }
@@ -392,7 +392,7 @@ export async function abgleichAbschliessen(user: SessionUser, reconciliationId: 
   const offen = abgleich.rows.filter((z) => ['UNBEKANNT', 'MEHRDEUTIG', 'DUPLIKAT', 'ZUSAETZLICH'].includes(z.status));
   if (offen.length > 0) {
     throw new ConflictError(
-      `Es sind noch ${offen.length} Zeilen ungeklaert (unbekannt, doppelt oder nicht geplant). Bitte ordnen Sie diese zu oder setzen Sie sie auf "ignorieren".`,
+      `Es sind noch ${offen.length} Zeilen ungeklärt (unbekannt, doppelt oder nicht geplant). Bitte ordnen Sie diese zu oder setzen Sie sie auf "ignorieren".`,
     );
   }
 
@@ -433,13 +433,13 @@ export async function abgleichAbschliessen(user: SessionUser, reconciliationId: 
 
   await audit(user, {
     action: 'reconciliation.close', entity: 'Reconciliation', entityId: reconciliationId,
-    summary: `Abgleich ${abgleich.reference} abgeschlossen: ${geschrieben} Zeiten geschrieben, ${uebersprungen} uebersprungen`,
+    summary: `Abgleich ${abgleich.reference} abgeschlossen: ${geschrieben} Zeiten geschrieben, ${uebersprungen} übersprungen`,
     after: { geschrieben, uebersprungen },
   });
   await notifyDispo({
     kind: 'ABGLEICH_ABGESCHLOSSEN',
     title: `Abgleich ${abgleich.reference} abgeschlossen`,
-    body: `${geschrieben} Zeiten uebernommen.`,
+    body: `${geschrieben} Zeiten übernommen.`,
     link: `/abgleiche/${reconciliationId}`,
     webhookEvent: 'reconciliation.closed',
     webhookPayload: { id: reconciliationId, reference: abgleich.reference, geschrieben },

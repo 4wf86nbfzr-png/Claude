@@ -20,12 +20,12 @@ export const EVENT_SCHEMA = z.object({
   serviceTypeId: z.string().trim().optional().transform((v) => (v ? v : null)),
   contactName: optionalerText(120),
   contactPhone: optionalerText(60),
-  contactEmail: z.union([z.string().trim().email('Bitte eine gueltige E-Mail-Adresse angeben.'), z.literal('')]).optional().transform((v) => (v ? v : null)),
+  contactEmail: z.union([z.string().trim().email('Bitte eine gültige E-Mail-Adresse angeben.'), z.literal('')]).optional().transform((v) => (v ? v : null)),
   venue: optionalerText(160),
   street: optionalerText(160),
   zip: optionalerText(10),
   city: optionalerText(100),
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Bitte ein Datum waehlen.'),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Bitte ein Datum wählen.'),
   startTime: optionaleZeit,
   endTime: optionaleZeit,
   buildUpTime: optionaleZeit,
@@ -76,12 +76,12 @@ export async function eventAendern(user: SessionUser, id: string, eingabe: Event
 
   await audit(user, {
     action: 'event.update', entity: 'Event', entityId: id,
-    summary: `Event ${event.reference} geaendert (${unterschied.changed.join(', ')})`,
+    summary: `Event ${event.reference} geändert (${unterschied.changed.join(', ')})`,
     before: unterschied.before, after: unterschied.after, ip: options.ip,
   });
   await dispatchWebhook('event.updated', { id: event.id, reference: event.reference, geaendert: unterschied.changed });
 
-  // Mitarbeiter muessen wissen, wenn sich Zeit oder Ort ihres Einsatzes aendert.
+  // Mitarbeiter müssen wissen, wenn sich Zeit oder Ort ihres Einsatzes ändert.
   const relevant = ['date', 'startTime', 'endTime', 'venue', 'meetingPoint', 'meetingTime', 'dressCode'];
   if (unterschied.changed.some((feld) => relevant.includes(feld))) {
     const betroffene = await db.assignment.findMany({
@@ -91,8 +91,8 @@ export async function eventAendern(user: SessionUser, id: string, eingabe: Event
     const userIds = betroffene.map((a) => a.employee.user?.id).filter((v): v is string => Boolean(v));
     await notifyUsers(userIds, {
       kind: 'SYSTEM',
-      title: `Aenderung bei "${event.name}"`,
-      body: 'Die Einsatzdaten haben sich geaendert. Bitte pruefen Sie die Einzelheiten.',
+      title: `Änderung bei "${event.name}"`,
+      body: 'Die Einsatzdaten haben sich geändert. Bitte prüfen Sie die Einzelheiten.',
       link: `/meine-einsaetze`,
     });
   }
@@ -131,7 +131,7 @@ function zuDaten(eingabe: EventEingabe) {
 }
 
 /**
- * Event duplizieren (Spec 33). Positionen werden immer uebernommen,
+ * Event duplizieren (Spec 33). Positionen werden immer übernommen,
  * Mitarbeiter-Zuweisungen nur auf Wunsch – und dann als Vorschlag, nicht
  * als feste Einteilung, damit niemand versehentlich verplant wird.
  */
@@ -211,7 +211,7 @@ export async function eventDuplizieren(
 
 /**
  * Wiederkehrende Events (Spec 34). Erzeugt bis zu `anzahl` Folgetermine
- * und verbindet sie ueber `seriesId`, damit sie spaeter als Serie erkennbar sind.
+ * und verbindet sie über `seriesId`, damit sie später als Serie erkennbar sind.
  */
 export async function serieAnlegen(
   user: SessionUser,
@@ -249,7 +249,7 @@ export async function serieAnlegen(
   return erzeugt;
 }
 
-/** Events werden archiviert, nicht geloescht (Spec 73). */
+/** Events werden archiviert, nicht gelöscht (Spec 73). */
 export async function eventArchivieren(user: SessionUser, id: string) {
   const event = await db.event.findFirst({ where: { id, deletedAt: null } });
   if (!event) throw new NotFoundError('Das Event wurde nicht gefunden.');
@@ -289,7 +289,7 @@ export async function eventStornieren(user: SessionUser, id: string, grund: stri
   await audit(user, { action: 'event.cancel', entity: 'Event', entityId: id, summary: `Event ${event.reference} storniert: ${grund}` });
 }
 
-/** Geplante Minuten einer Zuweisung – faellt auf Position und Event zurueck. */
+/** Geplante Minuten einer Zuweisung – fällt auf Position und Event zurück. */
 export function geplanteZeiten(
   assignment: { plannedStart: string | null; plannedEnd: string | null; plannedBreakMinutes: number },
   position: { startTime: string | null; endTime: string | null; breakMinutes: number },
@@ -306,7 +306,7 @@ export function pruefeEingabe(formData: FormData): EventEingabe {
   const ergebnis = EVENT_SCHEMA.safeParse(roh);
   if (!ergebnis.success) {
     const erstes = ergebnis.error.issues[0];
-    throw new ValidationError(erstes?.message ?? 'Bitte pruefen Sie Ihre Eingaben.');
+    throw new ValidationError(erstes?.message ?? 'Bitte prüfen Sie Ihre Eingaben.');
   }
   return ergebnis.data;
 }

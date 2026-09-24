@@ -61,7 +61,7 @@ export default async function MitarbeiterListe({ searchParams }: { searchParams:
     <>
       <Seitenkopf
         titel="Mitarbeiter"
-        unter={`${gesamt.toLocaleString('de-DE')} Eintraege`}
+        unter={`${gesamt.toLocaleString('de-DE')} Einträge`}
         aktionen={
           <>
             <Link href="/api/export/mitarbeiter" className="knopf"><Icon name="download" /> Excel-Export</Link>
@@ -74,7 +74,7 @@ export default async function MitarbeiterListe({ searchParams }: { searchParams:
         <Filterleiste
           platzhalter="Name, Personalnummer, Telefon oder Ort …"
           felder={[
-            { name: 'beschaeftigung', label: 'Beschaeftigung', optionen: Object.entries(EMPLOYMENT_TYPE).map(([wert, label]) => ({ wert, label })) },
+            { name: 'beschäftigung', label: 'Beschäftigung', optionen: Object.entries(EMPLOYMENT_TYPE).map(([wert, label]) => ({ wert, label })) },
             { name: 'qualifikation', label: 'Qualifikation', optionen: qualifikationen.map((q) => ({ wert: q.id, label: q.name })) },
             { name: 'status', label: 'Status', optionen: [{ wert: 'alle', label: 'alle' }, { wert: 'inaktiv', label: 'inaktiv' }, { wert: 'gesperrt', label: 'gesperrt' }] },
           ]}
@@ -86,7 +86,7 @@ export default async function MitarbeiterListe({ searchParams }: { searchParams:
           <div className="tabelle-scroll">
             <table className="tabelle">
               <thead>
-                <tr><th>Name</th><th>Personalnr.</th><th>Beschaeftigung</th><th>Ort</th><th>Kontakt</th><th>Qualifikationen</th><th>Einsaetze</th></tr>
+                <tr><th>Name</th><th>Personalnr.</th><th>Beschäftigung</th><th>Ort</th><th>Kontakt</th><th>Qualifikationen</th><th>Einsätze</th></tr>
               </thead>
               <tbody>
                 {mitarbeiter.map((person) => {

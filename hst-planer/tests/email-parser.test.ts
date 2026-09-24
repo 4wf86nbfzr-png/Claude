@@ -57,7 +57,7 @@ describe('Unvollstaendige Anfrage', () => {
     referenceDate: reference,
   });
 
-  it('laesst unsichere Felder leer statt zu raten', () => {
+  it('lässt unsichere Felder leer statt zu raten', () => {
     expect(parsed.eventDate.value).toBeNull();
     expect(parsed.employeesNeeded.value).toBeNull();
     expect(parsed.startTime.value).toBeNull();
@@ -109,20 +109,37 @@ describe('Weitere Schreibweisen', () => {
     expect(parsed.serviceType.value).toBe('PROMOTION');
   });
 
-  it('ergaenzt ein fehlendes Jahr sinnvoll', () => {
+  it('beendet den Ort am Satzende', () => {
+    const parsed = parseRequestEmail({
+      body: 'Wir brauchen am 15.10.2031 vier Ordner in Hamburg. Treffpunkt ist 16:30 Uhr.',
+      referenceDate: reference,
+    });
+    expect(parsed.location.value).toBe('Hamburg');
+    expect(parsed.meetingTime.value).toBe('16:30');
+  });
+
+  it('schneidet auch bei beschriftetem Ort das Satzende ab', () => {
+    const parsed = parseRequestEmail({
+      body: 'Veranstaltungsort: Fischauktionshalle, Hamburg. Bitte um Rückmeldung.',
+      referenceDate: reference,
+    });
+    expect(parsed.location.value).toBe('Fischauktionshalle, Hamburg');
+  });
+
+  it('ergänzt ein fehlendes Jahr sinnvoll', () => {
     const parsed = parseRequestEmail({ body: 'Am 02.01. brauchen wir 4 Ordner.', referenceDate: reference });
     expect(parsed.eventDate.value).toBe('2027-01-02');
   });
 });
 
 describe('Textaufbereitung', () => {
-  it('schneidet Grussformel und Signatur ab', () => {
+  it('schneidet Grußformel und Signatur ab', () => {
     const cut = stripSignature('Text mit Inhalt.\n\nViele Grüße\nMax Mustermann\nTel. 040 1234');
     expect(cut).toContain('Text mit Inhalt.');
     expect(cut).not.toContain('Max Mustermann');
   });
 
-  it('entfernt zitierte Vorgaengermails', () => {
+  it('entfernt zitierte Vorgängermails', () => {
     const cut = stripQuotes('Neue Frage.\n> alte Mail\nAm 01.01.2026 schrieb Max:\n alter Text');
     expect(cut).toContain('Neue Frage.');
     expect(cut).not.toContain('alter Text');

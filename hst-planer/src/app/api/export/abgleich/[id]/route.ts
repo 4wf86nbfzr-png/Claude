@@ -46,7 +46,7 @@ export const GET = route(async (_request: Request, context: { params: Promise<{ 
   const puffer = await alsExcel('Abgleich', spalten, abgleich.rows, [
     `HST Planer – Abgleich ${abgleich.reference}`,
     `${abgleich.name} · Stand: ${new Date().toLocaleString('de-DE')}`,
-    `${abgleich.totalRows} Datensaetze · ${abgleich.matchedRows} zugeordnet · ${abgleich.deviationRows} Abweichungen · ${abgleich.unknownRows} unbekannt · ${abgleich.duplicateRows} doppelt`,
+    `${abgleich.totalRows} Datensätze · ${abgleich.matchedRows} zugeordnet · ${abgleich.deviationRows} Abweichungen · ${abgleich.unknownRows} unbekannt · ${abgleich.duplicateRows} doppelt`,
   ]);
   return new NextResponse(new Uint8Array(puffer), {
     headers: { 'content-type': EXCEL_TYP, 'content-disposition': `attachment; filename="${dateiname(`hst-abgleich-${abgleich.reference}`)}"` },

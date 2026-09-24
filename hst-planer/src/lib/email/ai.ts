@@ -5,12 +5,12 @@ import type { ParsedRequest } from './parser';
  * Optionale KI-Anreicherung (Spec 58).
  *
  * Feste Regeln, damit die KI niemals Schaden anrichten kann:
- *   1. Sie darf ausschliesslich Felder fuellen, die der regelbasierte Parser
+ *   1. Sie darf ausschließlich Felder füllen, die der regelbasierte Parser
  *      leer gelassen hat – vorhandene Werte bleiben unangetastet.
  *   2. Jedes so gefuellte Feld bekommt eine gedeckelte Konfidenz und wird
- *      als KI-Ergaenzung markiert, damit es in der Oberflaeche erkennbar ist.
+ *      als KI-Ergänzung markiert, damit es in der Oberflaeche erkennbar ist.
  *   3. Ohne ANTHROPIC_API_KEY passiert schlicht nichts – der Parser allein
- *      traegt den Betrieb.
+ *      trägt den Betrieb.
  */
 
 const MAX_KI_KONFIDENZ = 0.75;
@@ -37,16 +37,16 @@ export async function anreichern(geparst: ParsedRequest, kontext: AiKontext): Pr
         model: process.env.AI_MODEL || 'claude-sonnet-5',
         max_tokens: 800,
         system:
-          'Du liest deutschsprachige Personalanfragen eines Personaldienstleisters und gibst die Angaben strukturiert zurueck. ' +
-          'Antworte ausschliesslich mit JSON. Felder, die im Text nicht eindeutig stehen, setzt du auf null. ' +
+          'Du liest deutschsprachige Personalanfragen eines Personaldienstleisters und gibst die Angaben strukturiert zurück. ' +
+          'Antworte ausschließlich mit JSON. Felder, die im Text nicht eindeutig stehen, setzt du auf null. ' +
           'Rate niemals. Datum als YYYY-MM-DD, Uhrzeiten als HH:MM (24 Stunden). ' +
           'serviceType ist einer von: SICHERHEIT, GASTRO, PROMOTION, LOGISTIK, FAHRSERVICE, REINIGUNG oder null.',
         messages: [{
           role: 'user',
           content:
             `Betreff: ${kontext.subject ?? '(kein Betreff)'}\nAbsender: ${kontext.fromEmail ?? '(unbekannt)'}\n\n${kontext.body}\n\n` +
-            'Gib JSON mit den Schluesseln company, contactPerson, phone, eventName, eventDate, startTime, endTime, ' +
-            'meetingTime, location, employeesNeeded, serviceType zurueck.',
+            'Gib JSON mit den Schlüsseln company, contactPerson, phone, eventName, eventDate, startTime, endTime, ' +
+            'meetingTime, location, employeesNeeded, serviceType zurück.',
         }],
       }),
       signal: AbortSignal.timeout(20_000),
@@ -79,7 +79,7 @@ export async function anreichern(geparst: ParsedRequest, kontext: AiKontext): Pr
     if (ergaenzt.employeesNeeded.value == null) {
       const anzahl = Number(vorschlag.employeesNeeded);
       if (Number.isFinite(anzahl) && anzahl > 0 && anzahl < 1000) {
-        ergaenzt.employeesNeeded = { value: Math.round(anzahl), confidence: MAX_KI_KONFIDENZ, evidence: 'KI-Ergaenzung' };
+        ergaenzt.employeesNeeded = { value: Math.round(anzahl), confidence: MAX_KI_KONFIDENZ, evidence: 'KI-Ergänzung' };
       }
     }
 
@@ -100,8 +100,8 @@ export async function anreichern(geparst: ParsedRequest, kontext: AiKontext): Pr
 
     return ergaenzt;
   } catch (fehler) {
-    // Die KI ist eine Zugabe – faellt sie aus, laeuft der Parser weiter.
-    console.error('[HST Planer] KI-Auswertung uebersprungen:', fehler);
+    // Die KI ist eine Zugabe – fällt sie aus, läuft der Parser weiter.
+    console.error('[HST Planer] KI-Auswertung übersprungen:', fehler);
     return geparst;
   }
 }
@@ -112,5 +112,5 @@ function setzeWennLeer(ziel: ParsedRequest, feld: keyof ParsedRequest, wert: unk
   if (typeof wert !== 'string' || !wert.trim()) return;
   const bereinigt = wert.trim();
   if (muster && !muster.test(bereinigt)) return;
-  (ziel[feld] as unknown) = { value: bereinigt, confidence: MAX_KI_KONFIDENZ, evidence: 'KI-Ergaenzung' };
+  (ziel[feld] as unknown) = { value: bereinigt, confidence: MAX_KI_KONFIDENZ, evidence: 'KI-Ergänzung' };
 }

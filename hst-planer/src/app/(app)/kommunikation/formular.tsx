@@ -24,10 +24,10 @@ export function NachrichtFormular({
         <label className="feld-gruppe">
           <span className="feld-label">Event</span>
           <select name="eventId" className="feld" required>
-            <option value="">– waehlen –</option>
+            <option value="">– wählen –</option>
             {events.map((e) => <option key={e.id} value={e.id}>{e.name}</option>)}
           </select>
-          <span className="feld-hinweis">Die Nachricht geht an alle eingeteilten Kraefte, die nicht abgesagt haben.</span>
+          <span className="feld-hinweis">Die Nachricht geht an alle eingeteilten Kräfte, die nicht abgesagt haben.</span>
         </label>
       ) : (
         <label className="feld-gruppe">
@@ -40,7 +40,7 @@ export function NachrichtFormular({
 
       <label className="feld-gruppe">
         <span className="feld-label">Betreff</span>
-        <input name="betreff" className="feld" required maxLength={150} placeholder="z. B. Treffpunkt geaendert" />
+        <input name="betreff" className="feld" required maxLength={150} placeholder="z. B. Treffpunkt geändert" />
       </label>
 
       <label className="feld-gruppe">

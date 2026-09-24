@@ -4,7 +4,7 @@ import ExcelJS from 'exceljs';
 /**
  * Excel-Export (Spec 25).
  *
- * Eine Hilfsfunktion fuer alle Listen: Kopfzeile fett, Spaltenbreite nach
+ * Eine Hilfsfunktion für alle Listen: Kopfzeile fett, Spaltenbreite nach
  * Inhalt, Zahlen als Zahlen (damit Excel damit rechnen kann) und ein
  * Autofilter, weil die Dateien in der Praxis weiterverarbeitet werden.
  */
@@ -73,7 +73,7 @@ export function dateiname(basis: string): string {
 
 export const EXCEL_TYP = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 
-/** CSV-Fassung derselben Spalten – fuer Systeme, die kein XLSX lesen. */
+/** CSV-Fassung derselben Spalten – für Systeme, die kein XLSX lesen. */
 export function alsCsv<T>(spalten: Array<Spalte<T>>, zeilen: readonly T[]): string {
   const feld = (wert: string | number | Date | null): string => {
     if (wert == null) return '';

@@ -49,7 +49,7 @@ export default async function Anfragen({ searchParams }: { searchParams: Promise
     <>
       <Seitenkopf
         titel="Anfragen"
-        unter="Jede neue Anfrage ist zunaechst ein Vorgang zur Pruefung – niemals eine Buchung."
+        unter="Jede neue Anfrage ist zunächst ein Vorgang zur Prüfung – niemals eine Buchung."
         aktionen={can(user.role, 'requests.edit') && (
           <Link href="/anfragen/neu" className="knopf knopf-primaer"><Icon name="plus" /> Anfrage erfassen</Link>
         )}
@@ -92,7 +92,7 @@ export default async function Anfragen({ searchParams }: { searchParams: Promise
                       <StatusMarke status={label(REQUEST_STATUS, anfrage.status)} />
                       {anfrage.missingFields.length > 0 && anfrage.status === 'NEU' && (
                         <span style={{ display: 'block', fontSize: 11, color: 'var(--gelb)', marginTop: 3 }}>
-                          Angaben unvollstaendig
+                          Angaben unvollständig
                         </span>
                       )}
                       {anfrage.event && (

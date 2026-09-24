@@ -5,8 +5,8 @@ import { pruneSessions } from '@/lib/auth/session';
 import { papierkorbLeeren } from '@/lib/domain/documents';
 
 /**
- * Minimalvariante der taeglichen Aufgaben fuer externe Scheduler.
- * Der vollstaendige Lauf steckt in `scripts/daily-jobs.ts` (npm run jobs:daily).
+ * Minimalvariante der täglichen Aufgaben für externe Scheduler.
+ * Der vollständige Lauf steckt in `scripts/daily-jobs.ts` (npm run jobs:daily).
  */
 export const POST = route(async (request: Request) => {
   await requireApiKey(request, 'jobs');

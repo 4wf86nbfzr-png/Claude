@@ -7,11 +7,11 @@ import { anfrageAusEmail } from '../domain/requests';
 /**
  * Postfach abrufen (Spec 17).
  *
- * Laeuft nicht dauerhaft im Webprozess, sondern wird angestossen:
+ * Läuft nicht dauerhaft im Webprozess, sondern wird angestossen:
  *   * `npm run mail:poll` (z. B. aus einem Cron alle 5 Minuten)
- *   * POST /api/jobs/postfach  (mit API-Schluessel, fuer externe Scheduler)
+ *   * POST /api/jobs/postfach  (mit API-Schlüssel, für externe Scheduler)
  *
- * Jede Mail wird zuerst roh gespeichert und erst danach ausgewertet. Faellt
+ * Jede Mail wird zuerst roh gespeichert und erst danach ausgewertet. Fällt
  * der Parser aus, ist die Nachricht trotzdem im System und kann von Hand
  * bearbeitet werden.
  */
@@ -85,7 +85,7 @@ export async function postfachAbrufen(limit = 50): Promise<AbrufErgebnis> {
         });
         ergebnis.neu++;
 
-        // Auswerten – zuerst regelbasiert, danach optional mit KI ergaenzen.
+        // Auswerten – zuerst regelbasiert, danach optional mit KI ergänzen.
         let geparst = parseRequestEmail({
           subject: gespeichert.subject,
           body: gespeichert.textBody ?? '',

@@ -11,7 +11,7 @@ import { audit } from '@/lib/audit';
 
 /**
  * Dokumente werden nie direkt aus dem Dateisystem ausgeliefert, sondern
- * ausschliesslich ueber diese Route – nach Rechtepruefung und mit Protokoll
+ * ausschließlich über diese Route – nach Rechtepruefung und mit Protokoll
  * (Spec 30/48).
  */
 export const GET = route(async (_request: Request, context: { params: Promise<{ id: string }> }) => {
@@ -20,7 +20,7 @@ export const GET = route(async (_request: Request, context: { params: Promise<{ 
 
   const dokument = await db.document.findFirst({ where: { id, deletedAt: null } });
   if (!dokument) throw new NotFoundError('Das Dokument wurde nicht gefunden.');
-  if (!(await darfSehen(user, id))) throw new ForbiddenError('Sie duerfen dieses Dokument nicht ansehen.');
+  if (!(await darfSehen(user, id))) throw new ForbiddenError('Sie dürfen dieses Dokument nicht ansehen.');
 
   await audit(user, {
     action: 'document.download', entity: 'Document', entityId: id,
@@ -32,7 +32,7 @@ export const GET = route(async (_request: Request, context: { params: Promise<{ 
     headers: {
       'content-type': dokument.mimeType,
       'content-length': String(dokument.sizeBytes),
-      // inline waere bequemer, ist aber bei fremden Dateien riskanter.
+      // inline wäre bequemer, ist aber bei fremden Dateien riskanter.
       'content-disposition': `attachment; filename="${encodeURIComponent(dokument.fileName)}"`,
       'cache-control': 'private, no-store',
     },

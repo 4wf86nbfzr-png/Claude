@@ -15,7 +15,7 @@ const SCHEMA = z.object({
 });
 
 /**
- * Anmeldung fuer Skripte und die spaetere native App.
+ * Anmeldung für Skripte und die spätere native App.
  * Setzt dasselbe Sitzungs-Cookie wie das Anmeldeformular.
  */
 export const POST = route(async (request: Request) => {
@@ -34,7 +34,7 @@ export const POST = route(async (request: Request) => {
     throw abgelehnt;
   }
   if (user.lockedUntil && user.lockedUntil > new Date()) {
-    throw new AuthError('Das Konto ist voruebergehend gesperrt.');
+    throw new AuthError('Das Konto ist vorübergehend gesperrt.');
   }
   if (!(await verifyPassword(eingabe.password, user.passwordHash))) {
     const fehlversuche = user.failedLogins + 1;
@@ -42,14 +42,14 @@ export const POST = route(async (request: Request) => {
       where: { id: user.id },
       data: { failedLogins: fehlversuche, lockedUntil: fehlversuche >= 8 ? new Date(Date.now() + 15 * 60000) : null },
     });
-    await audit(null, { action: 'auth.login.failed', entity: 'User', entityId: user.id, summary: `Fehlgeschlagene Anmeldung (API) fuer ${user.email}`, ip });
+    await audit(null, { action: 'auth.login.failed', entity: 'User', entityId: user.id, summary: `Fehlgeschlagene Anmeldung (API) für ${user.email}`, ip });
     throw abgelehnt;
   }
 
   await db.user.update({ where: { id: user.id }, data: { failedLogins: 0, lockedUntil: null, lastLoginAt: new Date() } });
   await createSession(user.id, { ip, userAgent: await userAgent() });
   await audit({ id: user.id, name: user.name, email: user.email }, {
-    action: 'auth.login', entity: 'User', entityId: user.id, summary: `${user.name} hat sich ueber die API angemeldet`, ip,
+    action: 'auth.login', entity: 'User', entityId: user.id, summary: `${user.name} hat sich über die API angemeldet`, ip,
   });
 
   return ok({

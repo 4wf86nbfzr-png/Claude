@@ -12,7 +12,7 @@ const ZEIT = z.union([z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Bitte im Fo
 const SCHEMA = z.object({
   title: z.string().trim().min(2, 'Bitte geben Sie der Position einen Namen.').max(150),
   serviceTypeId: z.string().trim().optional().transform((v) => (v ? v : null)),
-  requiredCount: z.coerce.number().int().min(1, 'Mindestens eine Kraft.').max(999, 'Hoechstens 999 Kraefte je Position.'),
+  requiredCount: z.coerce.number().int().min(1, 'Mindestens eine Kraft.').max(999, 'Höchstens 999 Kräfte je Position.'),
   startTime: ZEIT,
   endTime: ZEIT,
   breakMinutes: z.coerce.number().int().min(0).max(600).default(0),
@@ -23,7 +23,7 @@ const SCHEMA = z.object({
 
 function lies(formData: FormData) {
   const ergebnis = SCHEMA.safeParse(Object.fromEntries(formData.entries()));
-  if (!ergebnis.success) throw new ValidationError(ergebnis.error.issues[0]?.message ?? 'Bitte pruefen Sie Ihre Eingaben.');
+  if (!ergebnis.success) throw new ValidationError(ergebnis.error.issues[0]?.message ?? 'Bitte prüfen Sie Ihre Eingaben.');
   return ergebnis.data;
 }
 
@@ -48,7 +48,7 @@ export async function positionAnlegen(user: SessionUser, eventId: string, formDa
   await statusNachziehen(eventId);
   await audit(user, {
     action: 'position.create', entity: 'Position', entityId: position.id,
-    summary: `Position "${position.title}" (${position.requiredCount} Kraefte) zu ${event.reference} angelegt`,
+    summary: `Position "${position.title}" (${position.requiredCount} Kräfte) zu ${event.reference} angelegt`,
     after: daten,
   });
   return position;
@@ -61,7 +61,7 @@ export async function positionAendern(user: SessionUser, id: string, formData: F
 
   const besetzt = await db.assignment.count({ where: { positionId: id, deletedAt: null, isReserve: false, status: { notIn: ['ABGESAGT', 'STORNIERT'] } } });
   if (daten.requiredCount < besetzt) {
-    throw new ConflictError(`Es sind bereits ${besetzt} Kraefte eingeteilt. Entfernen Sie zuerst ueberzaehlige Zuweisungen.`);
+    throw new ConflictError(`Es sind bereits ${besetzt} Kräfte eingeteilt. Entfernen Sie zuerst überzählige Zuweisungen.`);
   }
 
   const gewuenscht = anforderungen(formData);
@@ -81,7 +81,7 @@ export async function positionAendern(user: SessionUser, id: string, formData: F
   const unterschied = diff(vorher as unknown as Record<string, unknown>, daten as Record<string, unknown>);
   await audit(user, {
     action: 'position.update', entity: 'Position', entityId: id,
-    summary: `Position "${vorher.title}" geaendert (${unterschied.changed.join(', ') || 'Anforderungen'})`,
+    summary: `Position "${vorher.title}" geändert (${unterschied.changed.join(', ') || 'Anforderungen'})`,
     before: unterschied.before, after: unterschied.after,
   });
 }

@@ -30,7 +30,7 @@ export function AnfrageFormular() {
         </Feld>
         <Feld label="Leistungsart" name="serviceType">
           <select id="serviceType" name="serviceType" className="feld" defaultValue="">
-            <option value="">– bitte waehlen –</option>
+            <option value="">– bitte wählen –</option>
             <option value="SICHERHEIT">Sicherheit &amp; Ordnungsdienst</option>
             <option value="GASTRO">Gastro- &amp; Servicepersonal</option>
             <option value="PROMOTION">Promotion &amp; Hostessen</option>

@@ -9,7 +9,7 @@ import { ValidationError } from './errors';
  * Dateiablage ausserhalb des Web-Roots (Spec 48/71/72).
  * Dateien werden NIE unter ihrem Originalnamen gespeichert – der Name landet
  * in der Datenbank, auf der Platte steht eine zufaellige ID. So kann ein
- * praeparierter Dateiname weder Pfade verlassen noch Code ausfuehren.
+ * praeparierter Dateiname weder Pfade verlassen noch Code ausführen.
  */
 const ROOT = path.resolve(process.env.STORAGE_PATH ?? './storage');
 
@@ -37,7 +37,7 @@ export interface StoredFile {
   checksum: string;
 }
 
-/** Prueft Groesse, MIME-Typ und Endung und legt die Datei ab. */
+/** Prüft Größe, MIME-Typ und Endung und legt die Datei ab. */
 export async function storeUpload(file: File, folder: string): Promise<StoredFile> {
   const limit = maxUploadBytes();
   if (file.size === 0) throw new ValidationError('Die Datei ist leer.');
@@ -63,7 +63,7 @@ export async function storeUpload(file: File, folder: string): Promise<StoredFil
   const safeFolder = folder.replace(/[^a-z0-9/_-]/gi, '');
   const relative = path.join(safeFolder, `${randomUUID()}${extension || ''}`);
   const absolute = path.join(ROOT, relative);
-  if (!absolute.startsWith(ROOT + path.sep)) throw new ValidationError('Ungueltiger Ablagepfad.');
+  if (!absolute.startsWith(ROOT + path.sep)) throw new ValidationError('Ungültiger Ablagepfad.');
 
   await mkdir(path.dirname(absolute), { recursive: true });
   await writeFile(absolute, buffer, { mode: 0o640 });
@@ -77,11 +77,11 @@ export async function storeUpload(file: File, folder: string): Promise<StoredFil
   };
 }
 
-/** Gibt den absoluten Pfad zurueck – mit Schutz gegen Pfadausbrueche. */
+/** Gibt den absoluten Pfad zurück – mit Schutz gegen Pfadausbrueche. */
 export function resolveStored(relative: string): string {
   const absolute = path.resolve(ROOT, relative);
   if (absolute !== ROOT && !absolute.startsWith(ROOT + path.sep)) {
-    throw new ValidationError('Ungueltiger Ablagepfad.');
+    throw new ValidationError('Ungültiger Ablagepfad.');
   }
   return absolute;
 }
@@ -98,7 +98,7 @@ export async function removeStored(relative: string): Promise<void> {
   }
 }
 
-/** Grobpruefung des tatsaechlichen Dateiinhalts (Spec 71). */
+/** Grobpruefung des tatsächlichen Dateiinhalts (Spec 71). */
 async function matchesMagicBytes(buffer: Buffer, mime: string): Promise<boolean> {
   const head = buffer.subarray(0, 8);
   const startsWith = (...bytes: number[]) => bytes.every((b, i) => head[i] === b);

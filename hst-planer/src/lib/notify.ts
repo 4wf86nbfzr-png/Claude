@@ -6,7 +6,7 @@ import type { NotificationKind, Role } from '@prisma/client';
 /**
  * Benachrichtigungen (Spec 28).
  * `dedupeKey` verhindert, dass derselbe Hinweis bei jedem Job-Durchlauf
- * erneut erscheint ("Dokument laeuft ab" soll einmal auftauchen, nicht taeglich).
+ * erneut erscheint ("Dokument läuft ab" soll einmal auftauchen, nicht täglich).
  */
 export interface NotifyInput {
   kind: NotificationKind;

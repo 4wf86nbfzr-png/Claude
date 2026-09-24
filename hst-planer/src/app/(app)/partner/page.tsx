@@ -39,7 +39,7 @@ export default async function Partner({ searchParams }: { searchParams: Promise<
 
   return (
     <>
-      <Seitenkopf titel="Partner & Nachunternehmer" unter={`${gesamt} Eintraege`}
+      <Seitenkopf titel="Partner & Nachunternehmer" unter={`${gesamt} Einträge`}
                   aktionen={can(user.role, 'partners.edit') && (
                     <Link href="/partner/neu" className="knopf knopf-primaer"><Icon name="plus" /> Neuer Partner</Link>
                   )} />
@@ -47,7 +47,7 @@ export default async function Partner({ searchParams }: { searchParams: Promise<
         <Filterleiste platzhalter="Firma, Ansprechpartner, Ort …" />
         {partner.length === 0 ? <Leer>Keine Partner hinterlegt.</Leer> : (
           <table className="tabelle">
-            <thead><tr><th>Firma</th><th>Ansprechpartner</th><th>Ort</th><th>Kontakt</th><th>Kraefte</th><th>Einsaetze</th></tr></thead>
+            <thead><tr><th>Firma</th><th>Ansprechpartner</th><th>Ort</th><th>Kontakt</th><th>Kräfte</th><th>Einsätze</th></tr></thead>
             <tbody>
               {partner.map((p) => (
                 <tr key={p.id} className={p.active ? undefined : 'zeile-grau'}>

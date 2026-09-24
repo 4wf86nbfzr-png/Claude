@@ -9,7 +9,7 @@ export interface Ergebnis {
   hinweis?: string;
   erfolg?: boolean;
   details?: unknown;
-  /** Einmalig anzuzeigender Wert (neues Passwort, API-Schluessel, Webhook-Geheimnis). */
+  /** Einmalig anzuzeigender Wert (neues Passwort, API-Schlüssel, Webhook-Geheimnis). */
   geheimnis?: string;
 }
 export type Aktion = (zustand: Ergebnis, formData: FormData) => Promise<Ergebnis>;
@@ -24,8 +24,8 @@ export function AktionsKnopf({ children, klasse = 'knopf', laufend, ...rest }: {
 }
 
 /**
- * Formular fuer eine Server-Aktion. Zeigt Fehler und Bestaetigungen direkt
- * an Ort und Stelle – ohne Umweg ueber eine Fehlerseite (Spec 53).
+ * Formular für eine Server-Aktion. Zeigt Fehler und Bestaetigungen direkt
+ * an Ort und Stelle – ohne Umweg über eine Fehlerseite (Spec 53).
  */
 export function AktionsFormular({
   aktion, children, stil, meldungOben = true, klasse, geheimnisLabel,
@@ -36,7 +36,7 @@ export function AktionsFormular({
   meldungOben?: boolean;
   klasse?: string;
   /**
-   * Beschriftung fuer einen einmalig anzuzeigenden Wert (Passwort, Schluessel).
+   * Beschriftung für einen einmalig anzuzeigenden Wert (Passwort, Schlüssel).
    * Ist sie gesetzt, wird `zustand.geheimnis` gut lesbar und kopierbar ausgegeben.
    */
   geheimnisLabel?: string;
@@ -68,7 +68,7 @@ export function AktionsFormular({
 }
 
 /**
- * Ausklappbarer Bereich fuer selten gebrauchte Aktionen.
+ * Ausklappbarer Bereich für selten gebrauchte Aktionen.
  * Bewusst auf <details> gebaut: funktioniert ohne JavaScript, ist per
  * Tastatur bedienbar und braucht keine Fokusfalle wie ein Dialog.
  */

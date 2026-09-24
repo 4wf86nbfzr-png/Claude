@@ -7,7 +7,7 @@ import { AppError } from '../errors';
  *
  * Jede ausgehende Nachricht wird in `Message` protokolliert – auch wenn der
  * Versand scheitert. So bleibt nachvollziehbar, was ein Mitarbeiter
- * tatsaechlich bekommen hat.
+ * tatsächlich bekommen hat.
  *
  * WhatsApp, SMS und Push sind in `MessageChannel` bereits vorgesehen; sie
  * brauchen nur einen weiteren Zweig in `nachrichtSenden`.

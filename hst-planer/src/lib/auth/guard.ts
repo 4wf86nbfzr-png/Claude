@@ -4,11 +4,11 @@ import { getSessionUser, type SessionUser } from './session';
 import { can, type Permission } from './rbac';
 
 /**
- * Zugriffspruefung fuer Seiten.
+ * Zugriffspruefung für Seiten.
  *
- * Anders als `requirePermission` (fuer API-Routen) wird hier nicht geworfen,
+ * Anders als `requirePermission` (für API-Routen) wird hier nicht geworfen,
  * sondern weitergeleitet: Wer nicht angemeldet ist, landet auf der
- * Anmeldeseite, wer kein Recht hat, auf einer verstaendlichen Hinweisseite.
+ * Anmeldeseite, wer kein Recht hat, auf einer verständlichen Hinweisseite.
  */
 export async function seite(permission?: Permission): Promise<SessionUser> {
   const user = await getSessionUser();

@@ -1,5 +1,5 @@
 /**
- * Namensabgleich fuer den Stundenzettel-Import (Spec 22 / 68).
+ * Namensabgleich für den Stundenzettel-Import (Spec 22 / 68).
  *
  * Anforderungen aus der Praxis: In Partner-Stundenzetteln steht mal
  * "Max Mustermann", mal "Mustermann, Max", mal "MUSTERMANN  Max" und
@@ -7,7 +7,7 @@
  *
  * Deshalb: Reihenfolge ignorieren, Gross-/Kleinschreibung ignorieren,
  * Umlaute normalisieren, Mehrfach-Leerzeichen zusammenfassen und
- * Tippfehler ueber die Damerau-Levenshtein-Distanz tolerieren.
+ * Tippfehler über die Damerau-Levenshtein-Distanz tolerieren.
  *
  * Wichtig: Bei geringer Sicherheit wird NICHT automatisch zugeordnet,
  * sondern der Disponent bekommt die Kandidaten zur Auswahl.
@@ -78,7 +78,7 @@ export function similarity(a: string, b: string): number {
 }
 
 /**
- * Aehnlichkeit zweier Personennamen, unabhaengig von der Reihenfolge.
+ * Ähnlichkeit zweier Personennamen, unabhängig von der Reihenfolge.
  * Jeder Token der einen Seite bekommt seinen besten Partner auf der anderen.
  */
 export function nameSimilarity(a: string, b: string): number {
@@ -102,7 +102,7 @@ export function nameSimilarity(a: string, b: string): number {
     return sum / from.length;
   };
 
-  // Symmetrisch bewerten, damit ein zusaetzlicher Zweitname nicht voll durchschlaegt.
+  // Symmetrisch bewerten, damit ein zusätzlicher Zweitname nicht voll durchschlaegt.
   const forward = score(ta, tb);
   const backward = score(tb, ta);
   let result = (forward + backward) / 2;
@@ -121,7 +121,7 @@ export interface MatchResult<T> {
   /** Eindeutiger Treffer – nur gesetzt, wenn sicher genug und ohne ernsthaften Konkurrenten. */
   match: T | null;
   score: number;
-  /** Vorschlaege fuer den Disponenten, absteigend sortiert. */
+  /** Vorschläge für den Disponenten, absteigend sortiert. */
   candidates: Array<MatchCandidate<T>>;
   /** true, wenn mehrere Kandidaten fast gleich gut sind. */
   ambiguous: boolean;
@@ -131,7 +131,7 @@ export interface MatchOptions {
   autoThreshold?: number;
   suggestThreshold?: number;
   maxCandidates?: number;
-  /** Mindestabstand zum zweitbesten Treffer fuer eine automatische Zuordnung. */
+  /** Mindestabstand zum zweitbesten Treffer für eine automatische Zuordnung. */
   minLead?: number;
 }
 

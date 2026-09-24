@@ -1,5 +1,5 @@
 /**
- * Einheitliche Uebersetzung und Einfaerbung aller Status (Spec 5).
+ * Einheitliche Übersetzung und Einfaerbung aller Status (Spec 5).
  * Gruen = erledigt/besetzt, Gelb = Aufmerksamkeit, Rot = Problem, Blau = Information.
  */
 export type Farbe = 'gruen' | 'gelb' | 'rot' | 'blau' | 'grau';
@@ -9,7 +9,7 @@ export const EVENT_STATUS: Record<string, { label: string; farbe: Farbe }> = {
   PLANUNG:       { label: 'Planung',       farbe: 'blau' },
   TEILBESETZT:   { label: 'Teilbesetzt',   farbe: 'gelb' },
   BESETZT:       { label: 'Besetzt',       farbe: 'gruen' },
-  BESTAETIGT:    { label: 'Bestaetigt',    farbe: 'gruen' },
+  BESTAETIGT:    { label: 'Bestätigt',    farbe: 'gruen' },
   LAUFEND:       { label: 'Laufend',       farbe: 'blau' },
   ABGESCHLOSSEN: { label: 'Abgeschlossen', farbe: 'grau' },
   ABGERECHNET:   { label: 'Abgerechnet',   farbe: 'grau' },
@@ -28,10 +28,10 @@ export const ASSIGNMENT_STATUS: Record<string, { label: string; farbe: Farbe }> 
 };
 
 export const REQUEST_STATUS: Record<string, { label: string; farbe: Farbe }> = {
-  NEU:          { label: 'Neu – Pruefung erforderlich', farbe: 'gelb' },
-  IN_PRUEFUNG:  { label: 'In Pruefung',   farbe: 'blau' },
+  NEU:          { label: 'Neu – Prüfung erforderlich', farbe: 'gelb' },
+  IN_PRUEFUNG:  { label: 'In Prüfung',   farbe: 'blau' },
   ANGEBOT:      { label: 'Angebot raus',  farbe: 'blau' },
-  UEBERNOMMEN:  { label: 'Uebernommen',   farbe: 'gruen' },
+  UEBERNOMMEN:  { label: 'Übernommen',   farbe: 'gruen' },
   ABGELEHNT:    { label: 'Abgelehnt',     farbe: 'rot' },
   ARCHIVIERT:   { label: 'Archiviert',    farbe: 'grau' },
 };
@@ -44,7 +44,7 @@ export const ROW_STATUS: Record<string, { label: string; farbe: Farbe }> = {
   ZUSAETZLICH: { label: 'Nicht geplant',farbe: 'rot' },
   DUPLIKAT:    { label: 'Doppelt',      farbe: 'rot' },
   MEHRDEUTIG:  { label: 'Mehrdeutig',   farbe: 'rot' },
-  GEPRUEFT:    { label: 'Geprueft',     farbe: 'blau' },
+  GEPRUEFT:    { label: 'Geprüft',     farbe: 'blau' },
   IGNORIERT:   { label: 'Ignoriert',    farbe: 'grau' },
 };
 
@@ -56,7 +56,7 @@ export const RECONCILIATION_STATUS: Record<string, { label: string; farbe: Farbe
 
 export const TIME_ENTRY_STATUS: Record<string, { label: string; farbe: Farbe }> = {
   OFFEN:       { label: 'Offen',       farbe: 'gelb' },
-  GEPRUEFT:    { label: 'Geprueft',    farbe: 'blau' },
+  GEPRUEFT:    { label: 'Geprüft',    farbe: 'blau' },
   FREIGEGEBEN: { label: 'Freigegeben', farbe: 'gruen' },
   ABGERECHNET: { label: 'Abgerechnet', farbe: 'grau' },
 };
@@ -64,13 +64,13 @@ export const TIME_ENTRY_STATUS: Record<string, { label: string; farbe: Farbe }> 
 export const INCIDENT_STATUS: Record<string, { label: string; farbe: Farbe }> = {
   OFFEN:          { label: 'Offen',          farbe: 'rot' },
   IN_BEARBEITUNG: { label: 'In Bearbeitung', farbe: 'gelb' },
-  GELOEST:        { label: 'Geloest',        farbe: 'gruen' },
+  GELOEST:        { label: 'Gelöst',        farbe: 'gruen' },
   VERWORFEN:      { label: 'Verworfen',      farbe: 'grau' },
 };
 
 export const INCIDENT_KIND: Record<string, string> = {
   NICHT_ERSCHIENEN: 'Nicht erschienen',
-  VERSPAETET: 'Verspaetet',
+  VERSPAETET: 'Verspätet',
   FALSCHE_KLEIDUNG: 'Falsche Kleidung',
   ERSATZ_ERFORDERLICH: 'Ersatz erforderlich',
   KUNDENBESCHWERDE: 'Kundenbeschwerde',
@@ -95,15 +95,15 @@ export const EMPLOYMENT_TYPE: Record<string, string> = {
 };
 
 export const AVAILABILITY_KIND: Record<string, { label: string; farbe: Farbe }> = {
-  VERFUEGBAR:      { label: 'Verfuegbar',      farbe: 'gruen' },
-  NICHT_VERFUEGBAR:{ label: 'Nicht verfuegbar',farbe: 'rot' },
+  VERFUEGBAR:      { label: 'Verfügbar',      farbe: 'gruen' },
+  NICHT_VERFUEGBAR:{ label: 'Nicht verfügbar',farbe: 'rot' },
   BEVORZUGT:       { label: 'Bevorzugt',       farbe: 'blau' },
   URLAUB:          { label: 'Urlaub',          farbe: 'gelb' },
   KRANK:           { label: 'Krank',           farbe: 'rot' },
 };
 
 export const DOCUMENT_TYPE: Record<string, string> = {
-  FUEHRUNGSZEUGNIS: 'Fuehrungszeugnis',
+  FUEHRUNGSZEUGNIS: 'Führungszeugnis',
   AUSWEIS: 'Ausweis',
   SCHULUNGSNACHWEIS: 'Schulungsnachweis',
   VERTRAG: 'Vertrag',

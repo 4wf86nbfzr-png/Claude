@@ -10,7 +10,7 @@ import { Blaettern } from '@/components/blaettern';
 export const metadata: Metadata = { title: 'Protokoll' };
 export const dynamic = 'force-dynamic';
 
-/** Audit Log (Spec 32). Nur lesbar – Eintraege werden nie geaendert oder geloescht. */
+/** Audit Log (Spec 32). Nur lesbar – Einträge werden nie geändert oder gelöscht. */
 export default async function Protokoll({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   await seite('admin.audit');
   const params = await searchParams;
@@ -36,17 +36,17 @@ export default async function Protokoll({ searchParams }: { searchParams: Promis
   return (
     <>
       <Seitenkopf titel="Protokoll" brotkrumen={[{ href: '/admin', label: 'Admin' }]}
-                  unter={`${gesamt.toLocaleString('de-DE')} Eintraege · revisionssicher, nicht aenderbar`} />
+                  unter={`${gesamt.toLocaleString('de-DE')} Einträge · revisionssicher, nicht änderbar`} />
 
       <Karte>
         <Filterleiste
           platzhalter="Benutzer, Aktion oder Beschreibung …"
           felder={[{ name: 'bereich', label: 'Objekt', optionen: bereiche.map((b) => ({ wert: b.entity, label: `${b.entity} (${b._count})` })) }]}
         />
-        {eintraege.length === 0 ? <Leer>Keine Eintraege in dieser Auswahl.</Leer> : (
+        {eintraege.length === 0 ? <Leer>Keine Einträge in dieser Auswahl.</Leer> : (
           <div className="tabelle-scroll">
             <table className="tabelle">
-              <thead><tr><th>Zeitpunkt</th><th>Benutzer</th><th>Aktion</th><th>Objekt</th><th>Beschreibung</th><th>Aenderung</th></tr></thead>
+              <thead><tr><th>Zeitpunkt</th><th>Benutzer</th><th>Aktion</th><th>Objekt</th><th>Beschreibung</th><th>Änderung</th></tr></thead>
               <tbody>
                 {eintraege.map((eintrag) => (
                   <tr key={eintrag.id}>

@@ -45,7 +45,7 @@ export function Kalendersteuerung({
         ))}
       </div>
 
-      <button type="button" className="knopf knopf-klein" onClick={() => springen(-1)} aria-label="Zurueck">←</button>
+      <button type="button" className="knopf knopf-klein" onClick={() => springen(-1)} aria-label="Zurück">←</button>
       <input type="date" className="feld" value={datum} onChange={(e) => setzen({ datum: e.target.value })} style={{ width: 'auto' }} aria-label="Datum" />
       <button type="button" className="knopf knopf-klein" onClick={() => springen(1)} aria-label="Weiter">→</button>
       <button type="button" className="knopf knopf-klein" onClick={() => setzen({ datum: new Date().toISOString().slice(0, 10) })}>Heute</button>

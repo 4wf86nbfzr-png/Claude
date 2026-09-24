@@ -11,9 +11,9 @@ export interface FilterFeld {
 }
 
 /**
- * Such- und Filterleiste fuer Tabellen (Spec 78).
+ * Such- und Filterleiste für Tabellen (Spec 78).
  * Die Auswahl steht in der URL – dadurch ist jede Ansicht teilbar,
- * als Lesezeichen speicherbar und der Zurueck-Knopf funktioniert.
+ * als Lesezeichen speicherbar und der Zurück-Knopf funktioniert.
  */
 export function Filterleiste({
   felder = [],
@@ -36,7 +36,7 @@ export function Filterleiste({
     router.replace(`${pfad}?${neu.toString()}`, { scroll: false });
   }
 
-  // Die Suche laeuft entprellt, damit nicht jeder Tastendruck eine Abfrage ausloest.
+  // Die Suche läuft entprellt, damit nicht jeder Tastendruck eine Abfrage ausloest.
   useEffect(() => {
     if (ersterLauf.current) { ersterLauf.current = false; return; }
     const timer = setTimeout(() => setzen({ q: begriff.trim() || null }), 280);
@@ -68,7 +68,7 @@ export function Filterleiste({
 
       {aktiv && (
         <button type="button" className="knopf knopf-klein" onClick={() => { setBegriff(''); router.replace(pfad, { scroll: false }); }}>
-          Filter zuruecksetzen
+          Filter zurücksetzen
         </button>
       )}
     </div>

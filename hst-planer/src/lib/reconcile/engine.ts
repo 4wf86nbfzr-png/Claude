@@ -3,8 +3,8 @@
  *
  * Die Funktion ist bewusst frei von Datenbank- und Framework-Code:
  * Sie bekommt die Planung und die eingelesenen Zeilen und liefert das
- * vollstaendige Ergebnis zurueck. Dadurch ist sie testbar und laesst sich
- * spaeter auch fuer Vorschau ("Was waere, wenn") ohne Schreibzugriff nutzen.
+ * vollständige Ergebnis zurück. Dadurch ist sie testbar und lässt sich
+ * später auch für Vorschau ("Was wäre, wenn") ohne Schreibzugriff nutzen.
  */
 
 import { matchName, nameSimilarity, normalizeName, type MatchCandidate } from '../match';
@@ -47,7 +47,7 @@ export type Issue =
 
 export const ISSUE_LABEL: Record<Issue, string> = {
   MITARBEITER_UNBEKANNT: 'Mitarbeiter unbekannt',
-  MITARBEITER_MEHRDEUTIG: 'Mehrere aehnliche Treffer',
+  MITARBEITER_MEHRDEUTIG: 'Mehrere ähnliche Treffer',
   NICHT_GEPLANT: 'Nicht geplant',
   KEINE_IST_ZEIT: 'Keine Ist-Zeit',
   STARTZEIT_FEHLT: 'Startzeit fehlt',
@@ -441,9 +441,9 @@ function parseBreak(value: unknown): number | null {
 }
 
 /**
- * Waehlt aus der Planung eines Mitarbeiters an einem Tag die passendste Schicht:
+ * Wählt aus der Planung eines Mitarbeiters an einem Tag die passendste Schicht:
  * 1. gleiches Event (Name oder Referenz), 2. naechstliegende Startzeit.
- * Bereits belegte Zuweisungen werden uebersprungen, damit zwei Ist-Zeilen
+ * Bereits belegte Zuweisungen werden übersprungen, damit zwei Ist-Zeilen
  * nicht auf dieselbe Planung laufen.
  */
 function pickPlannedShift(

@@ -83,7 +83,7 @@ describe('CSV', () => {
     expect(sheet.headers).toEqual(['Zeit', 'Zeit (2)']);
   });
 
-  it('meldet eine leere Datei verstaendlich', () => {
+  it('meldet eine leere Datei verständlich', () => {
     expect(() => parseCsv('   ')).toThrow(ImportError);
   });
 });
@@ -106,7 +106,7 @@ describe('XLSX', () => {
     expect(sheet.sheetName).toBe('Stunden');
   });
 
-  it('weist .xls mit einer verstaendlichen Meldung ab (Spec 53)', async () => {
+  it('weist .xls mit einer verständlichen Meldung ab (Spec 53)', async () => {
     await expect(parseSpreadsheet('stunden.xls', Buffer.from(''))).rejects.toMatchObject({
       userMessage: expect.stringContaining('.xlsx'),
     });

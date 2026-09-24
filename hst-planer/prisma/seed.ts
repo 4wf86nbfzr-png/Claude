@@ -1,14 +1,14 @@
 /**
- * Testumgebung fuer den HST Planer (Spec 54/55).
+ * Testumgebung für den HST Planer (Spec 54/55).
  *
  *   npm run seed
  *
  * Erzeugt Benutzer je Rolle, Stammdaten, Events mit Positionen und
  * Zuweisungen sowie eine Beispiel-Stundenzettel-Datei, mit der sich der
- * Abgleich sofort ausprobieren laesst.
+ * Abgleich sofort ausprobieren lässt.
  *
  * Die Startpasswoerter stehen in der Konsolenausgabe und sind mit
- * `mustChangePassword` markiert. Fuer den Produktivbetrieb setzt man
+ * `mustChangePassword` markiert. Für den Produktivbetrieb setzt man
  * SEED_PASSWORD in der Umgebung.
  */
 import { mkdir, writeFile } from 'node:fs/promises';
@@ -39,12 +39,12 @@ const SERVICE_TYPES = [
 const QUALIFICATIONS = [
   { code: '34A', name: 'Sachkunde §34a GewO', expires: false },
   { code: 'UNTERRICHTUNG', name: 'Unterrichtung §34a GewO', expires: false },
-  { code: 'FUEHRUNGSZEUGNIS', name: 'Erweitertes Fuehrungszeugnis', expires: true },
+  { code: 'FUEHRUNGSZEUGNIS', name: 'Erweitertes Führungszeugnis', expires: true },
   { code: 'ERSTHELFER', name: 'Ersthelfer', expires: true },
   { code: 'BRANDSCHUTZ', name: 'Brandschutzhelfer', expires: true },
   { code: 'GASTRO_HYGIENE', name: 'Hygieneschulung §43 IfSG', expires: true },
   { code: 'STAPLER', name: 'Staplerschein', expires: true },
-  { code: 'PKW', name: 'Fuehrerschein Klasse B', expires: false },
+  { code: 'PKW', name: 'Führerschein Klasse B', expires: false },
 ];
 
 const EMPLOYEES = [
@@ -105,9 +105,9 @@ async function main() {
     db.customer.create({
       data: {
         name: 'Hafenlicht Event GmbH', shortName: 'Hafenlicht', email: 'buchung@hafenlicht-demo.de', phone: '040 123 4560',
-        street: 'Grosse Elbstrasse 12', zip: '22767', city: 'Hamburg', hourlyRate: '32.00',
+        street: 'Große Elbstraße 12', zip: '22767', city: 'Hamburg', hourlyRate: '32.00',
         contacts: { create: [{ name: 'Marie Ahrens', role: 'Projektleitung', email: 'm.ahrens@hafenlicht-demo.de', phone: '040 123 4561', primary: true }] },
-        locations: { create: [{ name: 'Fischauktionshalle', street: 'Grosse Elbstrasse 9', zip: '22767', city: 'Hamburg' }] },
+        locations: { create: [{ name: 'Fischauktionshalle', street: 'Große Elbstraße 9', zip: '22767', city: 'Hamburg' }] },
       },
     }),
     db.customer.create({
@@ -148,7 +148,7 @@ async function main() {
           create: person.quals.map((code) => ({
             qualificationId: quals[code]!.id,
             acquiredAt: day(-400 - index * 10),
-            // Ein Fuehrungszeugnis laeuft demnaechst ab – dafuer gibt es die Warnung im Dashboard.
+            // Ein Führungszeugnis läuft demnaechst ab – dafuer gibt es die Warnung im Dashboard.
             expiresAt: quals[code]!.expires ? day(code === 'FUEHRUNGSZEUGNIS' && index === 0 ? 18 : 300 + index * 7) : null,
           })),
         },
@@ -158,12 +158,12 @@ async function main() {
   }
   await db.counter.create({ data: { key: 'PERSONALNUMMER', value: EMPLOYEES.length } });
 
-  // Verfuegbarkeiten: zwei Mitarbeiter sind im Urlaub bzw. krank.
+  // Verfügbarkeiten: zwei Mitarbeiter sind im Urlaub bzw. krank.
   await db.availability.createMany({
     data: [
       { employeeId: employees[7]!.id, kind: 'URLAUB', from: day(-1), to: day(9), note: 'Jahresurlaub' },
-      { employeeId: employees[3]!.id, kind: 'NICHT_VERFUEGBAR', from: day(2), to: day(2), note: 'Pruefung' },
-      { employeeId: employees[1]!.id, kind: 'BEVORZUGT', from: day(0), to: day(60), note: 'Abendeinsaetze bevorzugt' },
+      { employeeId: employees[3]!.id, kind: 'NICHT_VERFUEGBAR', from: day(2), to: day(2), note: 'Prüfung' },
+      { employeeId: employees[1]!.id, kind: 'BEVORZUGT', from: day(0), to: day(60), note: 'Abendeinsätze bevorzugt' },
     ],
   });
 
@@ -204,23 +204,23 @@ async function main() {
     {
       name: 'Nordstadion – Heimspiel 12. Spieltag', customer: 1, service: 'SICHERHEIT', offset: 0,
       start: '17:00', end: '01:00', venue: 'Nordstadion', city: 'Hamburg', zip: '22525',
-      meetingPoint: 'Eingang Sued, Container 3', meetingTime: '16:15', status: 'LAUFEND', priority: 'HOCH',
+      meetingPoint: 'Eingang Süd, Container 3', meetingTime: '16:15', status: 'LAUFEND', priority: 'HOCH',
       dressCode: 'Schwarze Hose, HST-Softshelljacke, feste Schuhe',
-      hints: 'Akkreditierung am Eingang Sued abholen. Funkgeraete werden gestellt.',
-      notes: 'Kunde wuenscht ausdruecklich Dennis Rohde als Einsatzleitung.',
+      hints: 'Akkreditierung am Eingang Süd abholen. Funkgeräte werden gestellt.',
+      notes: 'Kunde wünscht ausdrücklich Dennis Rohde als Einsatzleitung.',
       positions: [
-        { title: 'Ordnungsdienst Suedtribuene', service: 'SICHERHEIT', count: 4, start: '17:00', end: '01:00', pause: 30, quals: ['34A'], staff: [0, 1, 3] },
+        { title: 'Ordnungsdienst Südtribüne', service: 'SICHERHEIT', count: 4, start: '17:00', end: '01:00', pause: 30, quals: ['34A'], staff: [0, 1, 3] },
         { title: 'Einlasskontrolle Nord', service: 'SICHERHEIT', count: 2, start: '16:30', end: '23:00', pause: 30, quals: ['UNTERRICHTUNG'], staff: [5] },
       ],
     },
     {
-      name: 'Hafenlicht – Firmenjubilaeum Fischauktionshalle', customer: 0, service: 'GASTRO', offset: 1,
+      name: 'Hafenlicht – Firmenjubiläum Fischauktionshalle', customer: 0, service: 'GASTRO', offset: 1,
       start: '18:00', end: '02:00', venue: 'Fischauktionshalle', city: 'Hamburg', zip: '22767',
       meetingPoint: 'Personaleingang Ost', meetingTime: '17:15', status: 'BESTAETIGT',
-      dressCode: 'Weisses Hemd, schwarze Hose, schwarze Schuerze (wird gestellt)',
-      hints: 'Bitte kein Parfuem – der Kunde serviert ein Menue mit Weinbegleitung.',
+      dressCode: 'Weißes Hemd, schwarze Hose, schwarze Schürze (wird gestellt)',
+      hints: 'Bitte kein Parfüm – der Kunde serviert ein Menü mit Weinbegleitung.',
       positions: [
-        { title: 'Servicekraefte Saal', service: 'GASTRO', count: 4, start: '18:00', end: '02:00', pause: 45, quals: ['GASTRO_HYGIENE'], staff: [2, 4, 9] },
+        { title: 'Servicekräfte Saal', service: 'GASTRO', count: 4, start: '18:00', end: '02:00', pause: 45, quals: ['GASTRO_HYGIENE'], staff: [2, 4, 9] },
         { title: 'Garderobe & Empfang', service: 'PROMOTION', count: 2, start: '17:30', end: '23:30', pause: 30, staff: [7] },
       ],
     },
@@ -229,14 +229,14 @@ async function main() {
       start: '06:00', end: '14:00', venue: 'Messe Hamburg, Halle B', city: 'Hamburg', zip: '20357',
       meetingPoint: 'Tor 4, Anmeldung Logistik', meetingTime: '05:45', status: 'TEILBESETZT', priority: 'NORMAL',
       dressCode: 'Arbeitskleidung, Sicherheitsschuhe S3 (Pflicht)',
-      hints: 'Ohne Sicherheitsschuhe ist kein Zutritt moeglich.',
+      hints: 'Ohne Sicherheitsschuhe ist kein Zutritt möglich.',
       positions: [
         { title: 'Auf- und Abbauhelfer', service: 'LOGISTIK', count: 6, start: '06:00', end: '14:00', pause: 45, staff: [6, 8] },
         { title: 'Staplerfahrer', service: 'LOGISTIK', count: 1, start: '06:00', end: '14:00', pause: 45, quals: ['STAPLER'], staff: [6] },
       ],
     },
     {
-      name: 'Hafenlicht – Shuttle Gaeste Kongress', customer: 0, service: 'FAHRSERVICE', offset: 5,
+      name: 'Hafenlicht – Shuttle Gäste Kongress', customer: 0, service: 'FAHRSERVICE', offset: 5,
       start: '07:30', end: '19:00', venue: 'Hotel Atlantik / Messe', city: 'Hamburg', zip: '20095',
       meetingPoint: 'Hotelvorfahrt', meetingTime: '07:15', status: 'PLANUNG',
       dressCode: 'Dunkler Anzug, Krawatte',
@@ -250,7 +250,7 @@ async function main() {
       meetingPoint: 'Wirtschaftshof', meetingTime: '06:50', status: 'ABGESCHLOSSEN',
       dressCode: 'Arbeitsjacke mit Logo',
       positions: [
-        { title: 'Reinigungskraefte Tribuenen', service: 'REINIGUNG', count: 3, start: '07:00', end: '13:00', pause: 30, staff: [9, 2, 4] },
+        { title: 'Reinigungskräfte Tribünen', service: 'REINIGUNG', count: 3, start: '07:00', end: '13:00', pause: 30, staff: [9, 2, 4] },
       ],
     },
   ];
@@ -314,7 +314,7 @@ async function main() {
   }
   await db.counter.create({ data: { key: `EV-${year}`, value: eventCounter } });
 
-  // --- Ist-Zeiten fuer den abgeschlossenen Einsatz ------------------------
+  // --- Ist-Zeiten für den abgeschlossenen Einsatz ------------------------
   const pastEvent = createdEvents[4]!;
   const pastAssignments = await db.assignment.findMany({ where: { eventId: pastEvent.id } });
   for (const [index, assignment] of pastAssignments.entries()) {
@@ -344,7 +344,7 @@ async function main() {
         email: 'j.reimer@elbpanorama-demo.de', phone: '040 667 8800',
         eventName: 'Weihnachtsfeier Reederei', eventDate: day(35), startTime: '18:00', endTime: '01:00',
         location: 'Hamburg, Speicherstadt', employeesNeeded: 6, serviceType: 'GASTRO',
-        message: 'Wir brauchen sechs Servicekraefte fuer eine Weihnachtsfeier mit 120 Gaesten.',
+        message: 'Wir brauchen sechs Servicekräfte für eine Weihnachtsfeier mit 120 Gästen.',
         confidence: 0.86, needsReview: true, customerId: null,
       },
       {
@@ -352,7 +352,7 @@ async function main() {
         company: null, contactPerson: 'Frau Petersen', email: 'petersen@gmx.de',
         eventName: 'Personalanfrage', eventDate: null, startTime: null, endTime: null,
         location: 'Hamburg', employeesNeeded: null, serviceType: 'SICHERHEIT',
-        message: 'Guten Tag, wir benoetigen Sicherheitspersonal fuer eine Veranstaltung. Bitte um Rueckruf.',
+        message: 'Guten Tag, wir benötigen Sicherheitspersonal für eine Veranstaltung. Bitte um Rückruf.',
         missingFields: ['Datum', 'Startzeit', 'Endzeit', 'Anzahl Mitarbeiter'],
         confidence: 0.29, needsReview: true,
       },
@@ -365,7 +365,7 @@ async function main() {
     data: {
       eventId: createdEvents[0]!.id, employeeId: employees[3]!.id,
       kind: 'VERSPAETET', status: 'OFFEN', priority: 'HOCH',
-      description: 'Mitarbeiter meldet 20 Minuten Verspaetung wegen Sperrung der S-Bahn.',
+      description: 'Mitarbeiter meldet 20 Minuten Verspätung wegen Sperrung der S-Bahn.',
     },
   });
 
@@ -385,7 +385,7 @@ async function main() {
     ],
   });
 
-  // --- Beispieldatei fuer den Abgleich ------------------------------------
+  // --- Beispieldatei für den Abgleich ------------------------------------
   await writeSampleTimesheet(createdEvents[0]!, employees);
 
   const counts = {
@@ -398,11 +398,11 @@ async function main() {
   console.log(`\nAnmeldung mit dem Passwort: ${PASSWORD}`);
   for (const user of users) console.log(`  ${user.role.padEnd(20)} ${user.email}`);
   console.log('\nBeispiel-Stundenzettel: beispiele/stundenzettel-beispiel.xlsx');
-  console.log('Damit laesst sich unter "Abgleiche" sofort ein Abgleich starten.\n');
+  console.log('Damit lässt sich unter "Abgleiche" sofort ein Abgleich starten.\n');
 }
 
 /**
- * Erzeugt einen realistischen Stundenzettel mit genau den Faellen, die der
+ * Erzeugt einen realistischen Stundenzettel mit genau den Fällen, die der
  * Abgleich erkennen soll: gedrehter Name, Tippfehler, Zeitabweichung,
  * unbekannte Person, doppelte Zeile und eine fehlende Ist-Zeit.
  */
@@ -437,7 +437,7 @@ async function writeSampleTimesheet(event: { id: string; name: string; date: Dat
     rows.push([name, date, start, end, assignment.plannedBreakMinutes, event.name, 'Ordnungsdienst']);
   });
 
-  // Unbekannte Person und eine doppelte Zeile ergaenzen.
+  // Unbekannte Person und eine doppelte Zeile ergänzen.
   rows.push(['Petra Schneider', date, '17:00', '01:00', 30, event.name, 'Ordnungsdienst']);
   if (rows[0]) rows.push([...rows[0]]);
 
@@ -448,7 +448,7 @@ async function writeSampleTimesheet(event: { id: string; name: string; date: Dat
   await mkdir(dir, { recursive: true });
   await wb.xlsx.writeFile(path.join(dir, 'stundenzettel-beispiel.xlsx'));
 
-  // Dieselben Daten zusaetzlich als CSV, damit auch der CSV-Weg testbar ist.
+  // Dieselben Daten zusätzlich als CSV, damit auch der CSV-Weg testbar ist.
   const csv = ['Mitarbeiter;Datum;Beginn;Ende;Pause;Event;Position', ...rows.map((r) => r.join(';'))].join('\n');
   await writeFile(path.join(dir, 'stundenzettel-beispiel.csv'), `﻿${csv}\n`, 'utf8');
   void employees;

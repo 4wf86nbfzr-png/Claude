@@ -21,7 +21,7 @@ export default async function NeuesEvent({ searchParams }: { searchParams: Promi
   return (
     <>
       <Seitenkopf titel="Neues Event" brotkrumen={[{ href: '/events', label: 'Events' }]}
-                  unter="Positionen und Mitarbeiter werden im naechsten Schritt ergaenzt." />
+                  unter="Positionen und Mitarbeiter werden im nächsten Schritt ergänzt." />
       <EventFormular
         werte={{ date: params.datum ?? isoDate(new Date()), customerId: params.kunde ?? null, name: params.name ?? '' }}
         kunden={kunden}

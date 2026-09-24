@@ -27,10 +27,10 @@ export function Zeitraumwahl({ von, tage, nurLuecken }: { von: string; tage: num
 
   return (
     <div className="karte nicht-drucken" style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center', padding: '10px 14px' }}>
-      <button type="button" className="knopf knopf-klein" onClick={() => verschieben(-tage)}>← Frueher</button>
+      <button type="button" className="knopf knopf-klein" onClick={() => verschieben(-tage)}>← Früher</button>
       <input type="date" className="feld" value={von} onChange={(e) => setzen({ von: e.target.value })}
              style={{ width: 'auto' }} aria-label="Zeitraum ab" />
-      <button type="button" className="knopf knopf-klein" onClick={() => verschieben(tage)}>Spaeter →</button>
+      <button type="button" className="knopf knopf-klein" onClick={() => verschieben(tage)}>Später →</button>
       <button type="button" className="knopf knopf-klein" onClick={() => setzen({ von: heute })}>Heute</button>
 
       <span style={{ width: 1, height: 22, background: 'var(--linie)' }} aria-hidden />
@@ -46,7 +46,7 @@ export function Zeitraumwahl({ von, tage, nurLuecken }: { von: string; tage: num
       <span style={{ width: 1, height: 22, background: 'var(--linie)' }} aria-hidden />
 
       <label style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 13 }}>
-        <input type="checkbox" checked={nurLuecken} onChange={(e) => setzen({ nur: e.target.checked ? 'luecken' : null })} />
+        <input type="checkbox" checked={nurLuecken} onChange={(e) => setzen({ nur: e.target.checked ? 'lücken' : null })} />
         nur Events mit offenen Positionen
       </label>
     </div>

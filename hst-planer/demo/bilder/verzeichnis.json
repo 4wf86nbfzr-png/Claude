@@ -1,0 +1,219 @@
+[
+  {
+    "datei": "anmelden.png",
+    "titel": "Anmeldung",
+    "geraet": "desktop",
+    "thema": "hell",
+    "pfad": "/anmelden"
+  },
+  {
+    "datei": "dashboard.png",
+    "titel": "Dashboard",
+    "geraet": "desktop",
+    "thema": "hell",
+    "pfad": "/dashboard"
+  },
+  {
+    "datei": "dashboard-dunkel.png",
+    "titel": "Dashboard im Dunkelmodus",
+    "geraet": "desktop",
+    "thema": "dunkel",
+    "pfad": "/dashboard"
+  },
+  {
+    "datei": "disposition.png",
+    "titel": "Disposition",
+    "geraet": "desktop",
+    "thema": "hell",
+    "pfad": "/disposition?tage=7"
+  },
+  {
+    "datei": "kalender-monat.png",
+    "titel": "Kalender – Monatsansicht",
+    "geraet": "desktop",
+    "thema": "hell",
+    "pfad": "/kalender?ansicht=monat"
+  },
+  {
+    "datei": "kalender-woche.png",
+    "titel": "Kalender – Woche",
+    "geraet": "desktop",
+    "thema": "hell",
+    "pfad": "/kalender?ansicht=woche"
+  },
+  {
+    "datei": "events.png",
+    "titel": "Eventliste",
+    "geraet": "desktop",
+    "thema": "hell",
+    "pfad": "/events"
+  },
+  {
+    "datei": "event-uebersicht.png",
+    "titel": "Event – Übersicht",
+    "geraet": "desktop",
+    "thema": "hell",
+    "pfad": "/events/cmufnt69o003y7dbm3oigs6gk"
+  },
+  {
+    "datei": "event-mitarbeiter.png",
+    "titel": "Event – Team und Personalsuche",
+    "geraet": "desktop",
+    "thema": "hell",
+    "pfad": "/events/cmufnt69o003y7dbm3oigs6gk/mitarbeiter"
+  },
+  {
+    "datei": "event-positionen.png",
+    "titel": "Event – Positionen",
+    "geraet": "desktop",
+    "thema": "hell",
+    "pfad": "/events/cmufnt69o003y7dbm3oigs6gk/positionen"
+  },
+  {
+    "datei": "einsatzplan.png",
+    "titel": "Druckbarer Einsatzplan",
+    "geraet": "desktop",
+    "thema": "hell",
+    "pfad": "/events/cmufnt69o003y7dbm3oigs6gk/einsatzplan"
+  },
+  {
+    "datei": "mitarbeiter.png",
+    "titel": "Mitarbeiterliste",
+    "geraet": "desktop",
+    "thema": "hell",
+    "pfad": "/mitarbeiter"
+  },
+  {
+    "datei": "mitarbeiter-detail.png",
+    "titel": "Mitarbeiterprofil",
+    "geraet": "desktop",
+    "thema": "hell",
+    "pfad": "/mitarbeiter/cmufnt63c000o7dbmw2a4dxgr"
+  },
+  {
+    "datei": "kunden.png",
+    "titel": "Kunden",
+    "geraet": "desktop",
+    "thema": "hell",
+    "pfad": "/kunden"
+  },
+  {
+    "datei": "anfragen.png",
+    "titel": "Anfragen",
+    "geraet": "desktop",
+    "thema": "hell",
+    "pfad": "/anfragen"
+  },
+  {
+    "datei": "anfrage-detail.png",
+    "titel": "Anfrage prüfen und übernehmen",
+    "geraet": "desktop",
+    "thema": "hell",
+    "pfad": "/anfragen/cmufnt6a9004d7dbm93ah5vto"
+  },
+  {
+    "datei": "abgleiche.png",
+    "titel": "Abgleiche",
+    "geraet": "desktop",
+    "thema": "hell",
+    "pfad": "/abgleiche"
+  },
+  {
+    "datei": "abgleich-hochladen.png",
+    "titel": "Stundenzettel hochladen",
+    "geraet": "desktop",
+    "thema": "hell",
+    "pfad": "/abgleiche/neu"
+  },
+  {
+    "datei": "zeiterfassung.png",
+    "titel": "Zeiterfassung",
+    "geraet": "desktop",
+    "thema": "hell",
+    "pfad": "/zeiterfassung"
+  },
+  {
+    "datei": "auswertungen.png",
+    "titel": "Auswertungen",
+    "geraet": "desktop",
+    "thema": "hell",
+    "pfad": "/auswertungen"
+  },
+  {
+    "datei": "dokumente.png",
+    "titel": "Dokumente",
+    "geraet": "desktop",
+    "thema": "hell",
+    "pfad": "/dokumente"
+  },
+  {
+    "datei": "kommunikation.png",
+    "titel": "Kommunikation",
+    "geraet": "desktop",
+    "thema": "hell",
+    "pfad": "/kommunikation"
+  },
+  {
+    "datei": "einstellungen.png",
+    "titel": "Einstellungen",
+    "geraet": "desktop",
+    "thema": "hell",
+    "pfad": "/einstellungen"
+  },
+  {
+    "datei": "admin.png",
+    "titel": "Administration",
+    "geraet": "desktop",
+    "thema": "hell",
+    "pfad": "/admin"
+  },
+  {
+    "datei": "protokoll.png",
+    "titel": "Revisionssicheres Protokoll",
+    "geraet": "desktop",
+    "thema": "hell",
+    "pfad": "/admin/protokoll"
+  },
+  {
+    "datei": "finanzen.png",
+    "titel": "Finanzen",
+    "geraet": "desktop",
+    "thema": "hell",
+    "pfad": "/finanzen"
+  },
+  {
+    "datei": "suche.png",
+    "titel": "Globale Suche",
+    "geraet": "desktop",
+    "thema": "hell",
+    "pfad": "/suche?q=mustermann"
+  },
+  {
+    "datei": "kein-zugriff.png",
+    "titel": "Rollengrenze: Mitarbeiter sieht keine Events",
+    "geraet": "desktop",
+    "thema": "hell",
+    "pfad": "/events"
+  },
+  {
+    "datei": "app-einsaetze.png",
+    "titel": "Mitarbeiter-App – Meine Einsätze",
+    "geraet": "handy",
+    "thema": "hell",
+    "pfad": "/meine-einsaetze"
+  },
+  {
+    "datei": "app-dokumente.png",
+    "titel": "Mitarbeiter-App – Meine Dokumente",
+    "geraet": "handy",
+    "thema": "hell",
+    "pfad": "/meine-dokumente"
+  },
+  {
+    "datei": "app-verfuegbarkeit.png",
+    "titel": "Mitarbeiter-App – Verfügbarkeit",
+    "geraet": "handy",
+    "thema": "hell",
+    "pfad": "/meine-verfuegbarkeit"
+  }
+]

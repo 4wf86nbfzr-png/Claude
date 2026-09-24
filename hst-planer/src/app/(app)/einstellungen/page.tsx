@@ -67,7 +67,7 @@ export default async function Einstellungen() {
                   <input name="pausenToleranz" type="number" min={0} max={240} className="feld zahl" defaultValue={abgleich.pausenToleranzMinuten ?? 15} disabled={!darfAendern} /></label>
                 <label className="feld-gruppe"><span className="feld-label">Automatische Zuordnung ab</span>
                   <input name="autoZuordnung" type="number" step="0.01" min={0.5} max={1} className="feld zahl" defaultValue={abgleich.autoZuordnungAb ?? 0.92} disabled={!darfAendern} />
-                  <span className="feld-hinweis">Trefferguete von 0 bis 1.</span></label>
+                  <span className="feld-hinweis">Treffergüte von 0 bis 1.</span></label>
                 <label className="feld-gruppe"><span className="feld-label">Warnung Nachweise (Tage)</span>
                   <input name="dokumentVorlauf" type="number" min={1} max={180} className="feld zahl" defaultValue={meldungen.dokumentVorlaufTage ?? 30} disabled={!darfAendern} /></label>
                 <label className="feld-gruppe"><span className="feld-label">Erinnerung vor Event (Std)</span>
@@ -82,7 +82,7 @@ export default async function Einstellungen() {
 
         <Karte titel="Leistungsarten">
           <table className="tabelle">
-            <thead><tr><th>Kuerzel</th><th>Bezeichnung</th><th>Farbe</th></tr></thead>
+            <thead><tr><th>Kürzel</th><th>Bezeichnung</th><th>Farbe</th></tr></thead>
             <tbody>
               {bereiche.map((bereich) => (
                 <tr key={bereich.id}>
@@ -97,7 +97,7 @@ export default async function Einstellungen() {
             <div style={{ padding: 14, borderTop: '1px solid var(--linie)' }}>
               <Ausklapp titel="+ Leistungsart" knopfKlasse="knopf knopf-klein">
                 <AktionsFormular aktion={leistungsartAktion} stil={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'flex-end' }}>
-                  <input name="code" className="feld" placeholder="KUERZEL" required style={{ width: 'auto' }} aria-label="Kuerzel" />
+                  <input name="code" className="feld" placeholder="KUERZEL" required style={{ width: 'auto' }} aria-label="Kürzel" />
                   <input name="name" className="feld" placeholder="Bezeichnung" required style={{ width: 'auto', flex: '1 1 160px' }} aria-label="Bezeichnung" />
                   <input name="color" type="color" className="feld" defaultValue="#3B82F6" style={{ width: 52, padding: 3 }} aria-label="Farbe" />
                   <AktionsKnopf klasse="knopf knopf-klein knopf-primaer">Speichern</AktionsKnopf>
@@ -109,7 +109,7 @@ export default async function Einstellungen() {
 
         <Karte titel="Qualifikationen">
           <table className="tabelle">
-            <thead><tr><th>Kuerzel</th><th>Bezeichnung</th><th>Ablaufend</th></tr></thead>
+            <thead><tr><th>Kürzel</th><th>Bezeichnung</th><th>Ablaufend</th></tr></thead>
             <tbody>
               {qualifikationen.map((q) => (
                 <tr key={q.id}>
@@ -124,10 +124,10 @@ export default async function Einstellungen() {
             <div style={{ padding: 14, borderTop: '1px solid var(--linie)' }}>
               <Ausklapp titel="+ Qualifikation" knopfKlasse="knopf knopf-klein">
                 <AktionsFormular aktion={qualifikationAktion} stil={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'flex-end' }}>
-                  <input name="code" className="feld" placeholder="KUERZEL" required style={{ width: 'auto' }} aria-label="Kuerzel" />
+                  <input name="code" className="feld" placeholder="KUERZEL" required style={{ width: 'auto' }} aria-label="Kürzel" />
                   <input name="name" className="feld" placeholder="Bezeichnung" required style={{ width: 'auto', flex: '1 1 160px' }} aria-label="Bezeichnung" />
                   <label style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 12 }}>
-                    <input type="checkbox" name="expires" /> laeuft ab
+                    <input type="checkbox" name="expires" /> läuft ab
                   </label>
                   <AktionsKnopf klasse="knopf knopf-klein knopf-primaer">Speichern</AktionsKnopf>
                 </AktionsFormular>
@@ -172,12 +172,12 @@ export default async function Einstellungen() {
             <Paar label="Versand (SMTP)">
               {versandKonfiguriert() ? <span className="marke marke-gruen">eingerichtet</span> : <span className="marke marke-gelb">nicht eingerichtet</span>}
             </Paar>
-            <Paar label="KI-Unterstuetzung">
+            <Paar label="KI-Unterstützung">
               {kiVerfuegbar() ? <span className="marke marke-gruen">aktiv</span> : <span className="marke marke-grau">nicht aktiv – Parser arbeitet regelbasiert</span>}
             </Paar>
             <Hinweis art="info">
-              Zugangsdaten werden ausschliesslich ueber die Datei <code>.env</code> gesetzt und sind
-              bewusst nicht ueber die Oberflaeche aenderbar. Die Vorlage steht in <code>.env.example</code>.
+              Zugangsdaten werden ausschließlich über die Datei <code>.env</code> gesetzt und sind
+              bewusst nicht über die Oberfläche änderbar. Die Vorlage steht in <code>.env.example</code>.
             </Hinweis>
           </div>
         </Karte>

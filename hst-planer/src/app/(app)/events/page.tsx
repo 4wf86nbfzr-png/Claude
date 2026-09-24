@@ -61,7 +61,7 @@ export default async function EventListe({ searchParams }: { searchParams: Promi
     <>
       <Seitenkopf
         titel="Events"
-        unter={`${gesamt.toLocaleString('de-DE')} Eintraege`}
+        unter={`${gesamt.toLocaleString('de-DE')} Einträge`}
         aktionen={
           <>
             <Link href="/api/export/events" className="knopf"><Icon name="download" /> Excel-Export</Link>

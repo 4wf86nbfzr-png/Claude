@@ -16,13 +16,13 @@ import type { $Enums } from '@prisma/client';
  * Personalanfragen (Spec 16–18).
  *
  * Grundregel: Eine eingehende Anfrage ist NIE eine Buchung. Sie wird immer
- * mit `needsReview` angelegt und muss von der Disposition geprueft werden.
+ * mit `needsReview` angelegt und muss von der Disposition geprüft werden.
  */
 
 export const OEFFENTLICHE_ANFRAGE = z.object({
   company: z.string().trim().max(160).optional(),
   contactPerson: z.string().trim().max(120).optional(),
-  email: z.string().trim().toLowerCase().email('Bitte geben Sie eine gueltige E-Mail-Adresse an.'),
+  email: z.string().trim().toLowerCase().email('Bitte geben Sie eine gültige E-Mail-Adresse an.'),
   phone: z.string().trim().max(60).optional(),
   eventName: z.string().trim().max(200).optional(),
   eventDate: z.string().trim().max(40).optional(),
@@ -52,7 +52,7 @@ function zeit(wert: unknown): string | null {
   return `${String(stunde).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
 }
 
-/** Anfrage aus dem Website-Formular oder ueber die API (Spec 16). */
+/** Anfrage aus dem Website-Formular oder über die API (Spec 16). */
 export async function anfrageAusFormular(eingabe: OeffentlicheAnfrage, meta: { kanal?: $Enums.RequestChannel; ip?: string } = {}) {
   const reference = await nextReference('AN');
   const datum = eingabe.eventDate ? toDateOnly(`${eingabe.eventDate}T00:00:00Z`) : null;
@@ -91,12 +91,12 @@ export async function anfrageAusFormular(eingabe: OeffentlicheAnfrage, meta: { k
 
   await audit(null, {
     action: 'request.create', entity: 'Request', entityId: anfrage.id,
-    summary: `Neue Personalanfrage ${reference} ueber ${anfrage.channel.toLowerCase()} von ${eingabe.email}`,
+    summary: `Neue Personalanfrage ${reference} über ${anfrage.channel.toLowerCase()} von ${eingabe.email}`,
     ip: meta.ip,
   });
   await notifyDispo({
     kind: 'NEUE_ANFRAGE',
-    title: `Neue Personalanfrage – Pruefung erforderlich (${reference})`,
+    title: `Neue Personalanfrage – Prüfung erforderlich (${reference})`,
     body: [eingabe.company, eingabe.eventName, eingabe.eventDate].filter(Boolean).join(' · ') || eingabe.email,
     link: `/anfragen/${anfrage.id}`,
     dedupeKey: `anfrage:${anfrage.id}`,
@@ -153,9 +153,9 @@ export async function anfrageAusEmail(emailMessageId: string, geparst?: ParsedRe
   });
   await notifyDispo({
     kind: 'NEUE_ANFRAGE',
-    title: `Neue Personalanfrage per E-Mail – Pruefung erforderlich (${reference})`,
+    title: `Neue Personalanfrage per E-Mail – Prüfung erforderlich (${reference})`,
     body: ergebnis.missingFields.length
-      ? `Angaben unvollstaendig: ${ergebnis.missingFields.join(', ')}`
+      ? `Angaben unvollständig: ${ergebnis.missingFields.join(', ')}`
       : (mail.subject ?? mail.fromEmail),
     link: `/anfragen/${anfrage.id}`,
     dedupeKey: `anfrage:${anfrage.id}`,
@@ -167,7 +167,7 @@ export async function anfrageAusEmail(emailMessageId: string, geparst?: ParsedRe
 }
 
 /**
- * Sucht einen passenden Bestandskunden – ueber die E-Mail-Domain oder den
+ * Sucht einen passenden Bestandskunden – über die E-Mail-Domain oder den
  * Firmennamen. Bei Unsicherheit bleibt das Feld leer; der Disponent
  * entscheidet dann selbst.
  */
@@ -192,7 +192,7 @@ async function kundeErraten(firma: string | null | undefined, email: string | nu
 
 const UEBERNAHME = z.object({
   eventName: z.string().trim().min(3, 'Bitte geben Sie dem Event einen Namen.').max(200),
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Bitte ein Datum waehlen.'),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Bitte ein Datum wählen.'),
   startTime: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/).optional().or(z.literal('')),
   endTime: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/).optional().or(z.literal('')),
   customerId: z.string().trim().optional(),
@@ -202,9 +202,9 @@ const UEBERNAHME = z.object({
 });
 
 /**
- * Anfrage in ein Event ueberfuehren (Spec 3).
+ * Anfrage in ein Event überführen (Spec 3).
  * Die Position wird gleich mit angelegt, damit der Disponent direkt
- * Personal suchen kann – das spart den haeufigsten Zwischenschritt.
+ * Personal suchen kann – das spart den häufigsten Zwischenschritt.
  */
 export async function anfrageUebernehmen(user: SessionUser, id: string, formData: FormData) {
   const anfrage = await db.request.findFirst({ where: { id, deletedAt: null } });
@@ -212,7 +212,7 @@ export async function anfrageUebernehmen(user: SessionUser, id: string, formData
   if (anfrage.eventId) throw new ValidationError('Aus dieser Anfrage wurde bereits ein Event erzeugt.');
 
   const ergebnis = UEBERNAHME.safeParse(Object.fromEntries(formData.entries()));
-  if (!ergebnis.success) throw new ValidationError(ergebnis.error.issues[0]?.message ?? 'Bitte pruefen Sie Ihre Eingaben.');
+  if (!ergebnis.success) throw new ValidationError(ergebnis.error.issues[0]?.message ?? 'Bitte prüfen Sie Ihre Eingaben.');
   const daten = ergebnis.data;
 
   const event = await eventAnlegen(user, {
@@ -235,7 +235,7 @@ export async function anfrageUebernehmen(user: SessionUser, id: string, formData
     status: 'PLANUNG',
     dressCode: null, tasks: null,
     hints: null,
-    notesInternal: `Aus Anfrage ${anfrage.reference} uebernommen.\n\n${anfrage.message ?? ''}`.trim(),
+    notesInternal: `Aus Anfrage ${anfrage.reference} übernommen.\n\n${anfrage.message ?? ''}`.trim(),
     operationLeadId: null,
     revenue: null,
   });
@@ -259,7 +259,7 @@ export async function anfrageUebernehmen(user: SessionUser, id: string, formData
   });
   await audit(user, {
     action: 'request.convert', entity: 'Request', entityId: id,
-    summary: `Anfrage ${anfrage.reference} in Event ${event.reference} ueberfuehrt`,
+    summary: `Anfrage ${anfrage.reference} in Event ${event.reference} überführt`,
   });
 
   return event;

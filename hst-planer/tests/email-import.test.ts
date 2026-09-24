@@ -1,6 +1,6 @@
 /**
  * E-Mail-Import (Spec 17): aus einer eingegangenen Nachricht wird eine
- * Anfrage zur Pruefung – niemals eine Buchung.
+ * Anfrage zur Prüfung – niemals eine Buchung.
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { db, testBenutzer, TEST_USER } from './hilfen/db';
@@ -36,7 +36,7 @@ async function mailAnlegen(betreff: string, text: string, von = 'brand@nordlicht
 
 describe('Freitext-Mail wird zur Anfrage', () => {
   it('legt eine Anfrage mit gelesenen Feldern an', async () => {
-    const mail = await mailAnlegen('Anfrage Firmenjubilaeum', [
+    const mail = await mailAnlegen('Anfrage Firmenjubiläum', [
       'Hallo,', '',
       'für den 15.10.2031 benötigen wir für eine Veranstaltung in Hamburg',
       '12 Sicherheitskräfte von 17 bis 01 Uhr.',
@@ -74,7 +74,7 @@ describe('Freitext-Mail wird zur Anfrage', () => {
     const meldung = await db.notification.findFirst({
       where: { kind: 'NEUE_ANFRAGE', dedupeKey: `anfrage:${anfrageIds[0]}` },
     });
-    expect(meldung?.title).toContain('Pruefung erforderlich');
+    expect(meldung?.title).toContain('Prüfung erforderlich');
   });
 
   it('erzeugt keine zweite Anfrage aus derselben Mail', async () => {
@@ -99,7 +99,7 @@ describe('Unvollstaendige Mail', () => {
 });
 
 describe('Bekannter Kunde', () => {
-  it('wird ueber die E-Mail-Domain erkannt', async () => {
+  it('wird über die E-Mail-Domain erkannt', async () => {
     const kunde = await db.customer.create({
       data: { name: `Testkunde ${MARKE}`, email: `buchung@${MARKE.toLowerCase()}.de` },
     });
@@ -113,7 +113,7 @@ describe('Bekannter Kunde', () => {
 });
 
 describe('Erkennung einer Personalanfrage', () => {
-  it('haelt Werbung und Rechnungen fuer keine Anfrage', () => {
+  it('hält Werbung und Rechnungen für keine Anfrage', () => {
     const werbung = parseRequestEmail({ subject: 'Newsletter Oktober', body: 'Jetzt 20 % Rabatt auf unsere Buerostuehle sichern!' });
     expect(werbung.isRequest).toBe(false);
 

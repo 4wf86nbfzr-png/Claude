@@ -18,7 +18,7 @@ export async function passwortAendern(_zustand: Ergebnis, formData: FormData): P
     const neu = String(formData.get('neu') ?? '');
     const wiederholung = String(formData.get('wiederholung') ?? '');
 
-    if (neu !== wiederholung) throw new ValidationError('Die beiden neuen Passwoerter stimmen nicht ueberein.');
+    if (neu !== wiederholung) throw new ValidationError('Die beiden neuen Passwörter stimmen nicht überein.');
     const staerke = checkPasswordStrength(neu);
     if (!staerke.ok) throw new ValidationError(staerke.message!);
 
@@ -27,7 +27,7 @@ export async function passwortAendern(_zustand: Ergebnis, formData: FormData): P
       throw new ValidationError('Das bisherige Passwort ist nicht korrekt.');
     }
     if (await verifyPassword(neu, konto.passwordHash)) {
-      throw new ValidationError('Bitte waehlen Sie ein anderes als Ihr bisheriges Passwort.');
+      throw new ValidationError('Bitte wählen Sie ein anderes als Ihr bisheriges Passwort.');
     }
 
     await db.user.update({
@@ -39,7 +39,7 @@ export async function passwortAendern(_zustand: Ergebnis, formData: FormData): P
       where: { userId: user.id, id: { not: user.sessionId }, revokedAt: null },
       data: { revokedAt: new Date() },
     });
-    await audit(user, { action: 'user.password', entity: 'User', entityId: user.id, summary: `${user.name} hat das Passwort geaendert` });
+    await audit(user, { action: 'user.password', entity: 'User', entityId: user.id, summary: `${user.name} hat das Passwort geändert` });
     ziel = homeFor(user.role);
   } catch (error) {
     if (error instanceof Error && error.message === 'NEXT_REDIRECT') throw error;

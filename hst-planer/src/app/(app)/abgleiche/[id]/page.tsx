@@ -34,7 +34,7 @@ export default async function AbgleichDetail({
     take: 500,
   });
 
-  // Fuer die Korrektur brauchen wir Auswahllisten – aber nur, wenn wirklich
+  // Für die Korrektur brauchen wir Auswahllisten – aber nur, wenn wirklich
   // etwas zu korrigieren ist.
   const korrekturNoetig = zeilen.some((z) => ['UNBEKANNT', 'MEHRDEUTIG', 'ZUSAETZLICH', 'ABWEICHUNG', 'FEHLEND'].includes(z.status));
   const mitarbeiter = darfBearbeiten && korrekturNoetig
@@ -70,11 +70,11 @@ export default async function AbgleichDetail({
       />
 
       <Raster min={150}>
-        <Kennzahl wert={abgleich.totalRows} label="Datensaetze verarbeitet" />
+        <Kennzahl wert={abgleich.totalRows} label="Datensätze verarbeitet" />
         <Kennzahl wert={abgleich.matchedRows} label="Automatisch zugeordnet" farbe="gruen" href={`/abgleiche/${id}?status=OK`} />
         <Kennzahl wert={abgleich.deviationRows} label="Abweichungen" farbe={abgleich.deviationRows > 0 ? 'gelb' : 'grau'} href={`/abgleiche/${id}?status=ABWEICHUNG`} />
         <Kennzahl wert={abgleich.unknownRows} label="Unbekannte Mitarbeiter" farbe={abgleich.unknownRows > 0 ? 'rot' : 'grau'} href={`/abgleiche/${id}?status=UNBEKANNT`} />
-        <Kennzahl wert={abgleich.duplicateRows} label="Doppelte Eintraege" farbe={abgleich.duplicateRows > 0 ? 'rot' : 'grau'} href={`/abgleiche/${id}?status=DUPLIKAT`} />
+        <Kennzahl wert={abgleich.duplicateRows} label="Doppelte Einträge" farbe={abgleich.duplicateRows > 0 ? 'rot' : 'grau'} href={`/abgleiche/${id}?status=DUPLIKAT`} />
         <Kennzahl wert={abgleich.missingRows} label="Ohne Ist-Zeit" farbe={abgleich.missingRows > 0 ? 'gelb' : 'grau'} href={`/abgleiche/${id}?status=FEHLEND`} />
         <Kennzahl wert={formatHours(gesamtIst)} label="Erfasste Stunden" />
       </Raster>
@@ -82,8 +82,8 @@ export default async function AbgleichDetail({
       {abgeschlossen && (
         <div style={{ marginTop: 14 }}>
           <Hinweis art="info">
-            Dieser Abgleich ist abgeschlossen und die Zeiten sind in die Zeiterfassung uebernommen.
-            Spaetere Aenderungen sind weiterhin moeglich, werden aber im Protokoll als nachtraegliche
+            Dieser Abgleich ist abgeschlossen und die Zeiten sind in die Zeiterfassung übernommen.
+            Spätere Änderungen sind weiterhin möglich, werden aber im Protokoll als nachträgliche
             Korrektur festgehalten.
           </Hinweis>
         </div>
@@ -99,14 +99,14 @@ export default async function AbgleichDetail({
                 <input name="grenze" type="number" min={1} max={240} defaultValue={30} className="feld zahl" style={{ width: 72 }} />
                 Minuten
               </label>
-              <AktionsKnopf klasse="knopf">Alle unkritischen Abweichungen bestaetigen</AktionsKnopf>
+              <AktionsKnopf klasse="knopf">Alle unkritischen Abweichungen bestätigen</AktionsKnopf>
             </AktionsFormular>
 
             {can(user.role, 'reconciliation.close') && (
               <AktionsFormular aktion={abgleichAbschliessenAktion}>
                 <input type="hidden" name="id" value={id} />
                 <AktionsKnopf klasse="knopf knopf-primaer" laufend="Wird abgeschlossen …" disabled={ungeklaert > 0}>
-                  Abgleich abschliessen &amp; Zeiten uebernehmen
+                  Abgleich abschließen &amp; Zeiten übernehmen
                 </AktionsKnopf>
               </AktionsFormular>
             )}
@@ -229,7 +229,7 @@ export default async function AbgleichDetail({
                                   </label>
 
                                   <input type="hidden" name="status" value="GEPRUEFT" />
-                                  <AktionsKnopf klasse="knopf knopf-primaer knopf-klein">Speichern &amp; als geprueft markieren</AktionsKnopf>
+                                  <AktionsKnopf klasse="knopf knopf-primaer knopf-klein">Speichern &amp; als geprüft markieren</AktionsKnopf>
                                 </AktionsFormular>
 
                                 {zeile.status !== 'IGNORIERT' && (
@@ -237,7 +237,7 @@ export default async function AbgleichDetail({
                                     <input type="hidden" name="reconciliationId" value={id} />
                                     <input type="hidden" name="rowId" value={zeile.id} />
                                     <input name="grund" className="feld" placeholder="Grund" style={{ flex: 1 }} />
-                                    <AktionsKnopf klasse="knopf knopf-klein knopf-gefahr">Nicht uebernehmen</AktionsKnopf>
+                                    <AktionsKnopf klasse="knopf knopf-klein knopf-gefahr">Nicht übernehmen</AktionsKnopf>
                                   </AktionsFormular>
                                 )}
                               </div>

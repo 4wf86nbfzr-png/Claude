@@ -1,0 +1,476 @@
+<script>
+/* --------------------------------------------------------------------------
+   Steuerung der Demo. Die Fachlogik kommt aus window.HST (hst-logik.js) und
+   stammt unveraendert aus src/lib – hier wird nur angezeigt und eingesammelt.
+   -------------------------------------------------------------------------- */
+(function () {
+  'use strict';
+  const H = window.HST;
+  const $ = (wahl) => document.querySelector(wahl);
+  const $$ = (wahl) => Array.from(document.querySelectorAll(wahl));
+  const text = (wert) => String(wert == null ? '' : wert)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+  /* ---------------------------------------------------------- Reiter */
+  function zeige(ziel) {
+    $$('main > section').forEach((abschnitt) => { abschnitt.hidden = abschnitt.id !== ziel; });
+    $$('nav.reiter button').forEach((knopf) => {
+      knopf.setAttribute('aria-selected', String(knopf.dataset.ziel === ziel));
+    });
+    if (location.hash.slice(1) !== ziel) history.replaceState(null, '', '#' + ziel);
+    window.scrollTo({ top: 0 });
+  }
+  $$('nav.reiter button').forEach((knopf) => knopf.addEventListener('click', () => zeige(knopf.dataset.ziel)));
+  $$('[data-sprung]').forEach((verweis) => verweis.addEventListener('click', (e) => { e.preventDefault(); zeige(verweis.dataset.sprung); }));
+  if (location.hash.length > 1) zeige(location.hash.slice(1));
+
+  /* ---------------------------------------------------------- Hell/Dunkel */
+  const themaKnopf = $('#themaKnopf');
+  function setzeThema(wert) {
+    document.documentElement.dataset.thema = wert;
+    themaKnopf.textContent = wert === 'dunkel' ? 'Helle Ansicht' : 'Dunkle Ansicht';
+    try { localStorage.setItem('hst-demo-thema', wert); } catch (e) { /* privates Fenster */ }
+  }
+  let start = 'hell';
+  try { start = localStorage.getItem('hst-demo-thema') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dunkel' : 'hell'); } catch (e) {}
+  setzeThema(start);
+  themaKnopf.addEventListener('click', () => setzeThema(document.documentElement.dataset.thema === 'dunkel' ? 'hell' : 'dunkel'));
+
+  /* ---------------------------------------------------------- Kennzahlen */
+  const KENNZAHLEN = [
+    ['31', 'Bildschirmfotos aus der laufenden Anwendung'],
+    ['148', 'automatische Tests, alle grün'],
+    ['51', 'Seiten in der Anwendung'],
+    ['21', 'Schnittstellen (REST, Export, Jobs)'],
+    ['30', 'Tabellen im Datenmodell'],
+    ['8', 'Rollen mit eigenen Rechten'],
+  ];
+  $('#kennzahlen').innerHTML = KENNZAHLEN.map(([wert, beschriftung]) => `
+    <div class="karte"><div class="karte-inhalt">
+      <div class="gross">${text(wert)}</div>
+      <div style="color:var(--text2);font-size:13px">${text(beschriftung)}</div>
+    </div></div>`).join('');
+
+  /* ---------------------------------------------------------- Galerie */
+  const BILDER = window.HST_BILDER || [];
+  const galerie = $('#galerie');
+  function zeichneGalerie(gruppe) {
+    const auswahl = BILDER.filter((bild) => {
+      if (gruppe === 'alle') return true;
+      if (gruppe === 'handy') return bild.geraet === 'handy';
+      if (gruppe === 'dunkel') return bild.thema === 'dunkel';
+      return bild.geraet === 'desktop' && bild.thema !== 'dunkel';
+    });
+    galerie.innerHTML = auswahl.map((bild) => `
+      <figure class="${bild.geraet === 'handy' ? 'handy' : ''}">
+        <img src="bilder/${text(bild.datei)}" alt="${text(bild.titel)}" loading="lazy"
+             data-titel="${text(bild.titel)}">
+        <figcaption>
+          <b>${text(bild.titel)}</b>
+          <span>${bild.geraet === 'handy' ? 'Smartphone' : 'Arbeitsplatz'}${bild.thema === 'dunkel' ? ' · Dunkelmodus' : ''} · <code>${text(bild.pfad)}</code></span>
+        </figcaption>
+      </figure>`).join('');
+  }
+  zeichneGalerie('alle');
+  $$('[data-gruppe]').forEach((knopf) => knopf.addEventListener('click', () => {
+    $$('[data-gruppe]').forEach((k) => k.setAttribute('aria-pressed', String(k === knopf)));
+    zeichneGalerie(knopf.dataset.gruppe);
+  }));
+
+  const lupe = $('#lupe');
+  galerie.addEventListener('click', (ereignis) => {
+    const bild = ereignis.target.closest('img');
+    if (!bild) return;
+    $('#lupeBild').src = bild.src;
+    $('#lupeBild').alt = bild.alt;
+    $('#lupeText').textContent = bild.dataset.titel + ' — klicken zum Schließen';
+    lupe.showModal();
+  });
+
+  /* ---------------------------------------------------------- Zeitrechner */
+  function zeitRechnen() {
+    const beginn = $('#zBeginn').value;
+    const ende = $('#zEnde').value;
+    const pause = Number($('#zPause').value || 0);
+    const dauer = H.shiftDuration(beginn, ende, pause);
+    const ziel = $('#zErgebnis');
+
+    if (!dauer) {
+      ziel.innerHTML = '<div class="hinweis hinweis-warn" style="margin:0">Die Zeiten konnten nicht gelesen werden. Erlaubt sind z. B. 17:00, 17.00, 1700 oder 17.</div>';
+      return;
+    }
+    ziel.innerHTML = `
+      <div class="gross" style="color:var(--gruen)">${text(H.formatHours(dauer.netMinutes))}</div>
+      <dl style="margin-top:10px">
+        <dt>Gelesen als</dt><dd class="zahl">${text(H.normalizeTime(beginn))} bis ${text(H.normalizeTime(ende))}</dd>
+        <dt>Brutto</dt><dd class="zahl">${text(H.formatHours(dauer.grossMinutes))} (${dauer.grossMinutes} Minuten)</dd>
+        <dt>Pause</dt><dd class="zahl">${pause} Minuten</dd>
+        <dt>Netto</dt><dd class="zahl">${dauer.netMinutes} Minuten = ${text(H.minutesToHours(dauer.netMinutes).toLocaleString('de-DE'))} Dezimalstunden</dd>
+        <dt>Über Mitternacht</dt><dd>${dauer.overnight ? '<span class="marke marke-blau">ja</span>' : '<span class="marke marke-grau">nein</span>'}</dd>
+      </dl>`;
+  }
+  $('#zRechnen').addEventListener('click', zeitRechnen);
+  ['zBeginn','zEnde','zPause'].forEach((id) => $('#' + id).addEventListener('input', zeitRechnen));
+  zeitRechnen();
+
+  function diffRechnen() {
+    const diff = H.timeDiffMinutes($('#dSoll').value, $('#dIst').value);
+    $('#dErgebnis').innerHTML = diff == null
+      ? '<div class="hinweis hinweis-warn" style="margin:0">Eine der Zeiten war nicht lesbar.</div>'
+      : `<div class="gross" style="color:${diff === 0 ? 'var(--gruen)' : Math.abs(diff) > 15 ? 'var(--gelb)' : 'var(--text)'}">${text(H.formatDiff(diff))}</div>
+         <div style="color:var(--text2);font-size:13px;margin-top:4px">
+           ${diff === 0 ? 'punktgenau' : diff > 0 ? 'später als geplant' : 'früher als geplant'}
+           — bei einer Toleranz von 15 Minuten gilt das als
+           ${Math.abs(diff) > 15 ? '<b>Abweichung</b>' : '<b>identisch</b>'}.
+         </div>`;
+  }
+  $('#dRechnen').addEventListener('click', diffRechnen);
+  ['dSoll','dIst'].forEach((id) => $('#' + id).addEventListener('input', diffRechnen));
+  diffRechnen();
+
+  function datumLesen() {
+    const eingabe = $('#datEin').value.trim();
+    const zahl = Number(eingabe);
+    const geparst = H.parseGermanDate(Number.isFinite(zahl) && eingabe !== '' ? zahl : eingabe);
+    $('#datErgebnis').innerHTML = !geparst
+      ? '<div class="hinweis hinweis-warn" style="margin:0">Nicht lesbar — das Feld bliebe in der Anfrage leer und würde als fehlende Angabe gemeldet.</div>'
+      : `<dl>
+          <dt>Erkanntes Datum</dt><dd class="zahl">${text(H.formatDateDE(geparst))}</dd>
+          <dt>Wochentag</dt><dd>${text(H.weekdayDE(geparst))}</dd>
+          <dt>Technisch</dt><dd class="zahl">${text(H.isoDate(geparst))}</dd>
+         </dl>`;
+  }
+  $('#datRechnen').addEventListener('click', datumLesen);
+  $('#datEin').addEventListener('input', datumLesen);
+  datumLesen();
+
+  /* ---------------------------------------------------------- Namen */
+  const MITARBEITER = [
+    { id: 'e1', firstName: 'Max',    lastName: 'Mustermann', personnelNo: 'HST-0001' },
+    { id: 'e2', firstName: 'Lena',   lastName: 'Bergmann',   personnelNo: 'HST-0002' },
+    { id: 'e3', firstName: 'Ayse',   lastName: 'Yilmaz',     personnelNo: 'HST-0003' },
+    { id: 'e4', firstName: 'Jan',    lastName: 'Möller',     personnelNo: 'HST-0004' },
+    { id: 'e5', firstName: 'Sophie', lastName: 'Kranz',      personnelNo: 'HST-0005' },
+    { id: 'e6', firstName: 'Dennis', lastName: 'Rohde',      personnelNo: 'HST-0006' },
+    { id: 'e7', firstName: 'Marek',  lastName: 'Kowalski',   personnelNo: 'HST-0007' },
+    { id: 'e8', firstName: 'Nina',   lastName: 'Abel',       personnelNo: 'HST-0008' },
+    { id: 'e9', firstName: 'Tobias', lastName: 'Steenbock',  personnelNo: 'HST-0009' },
+    { id: 'e10',firstName: 'Katja',  lastName: 'Brinkmann',  personnelNo: 'HST-0010' },
+  ];
+  const namenVon = (m) => [m.firstName + ' ' + m.lastName, m.lastName + ' ' + m.firstName, m.personnelNo];
+
+  function namenVergleich() {
+    const a = $('#nA').value, b = $('#nB').value;
+    const quote = H.nameSimilarity(a, b);
+    const prozent = Math.round(quote * 100);
+    const farbe = quote >= 0.92 ? 'var(--gruen)' : quote >= 0.62 ? 'var(--gelb)' : 'var(--rot)';
+    $('#nErgebnis').innerHTML = `
+      <div class="gross" style="color:${farbe}">${prozent} %</div>
+      <dl style="margin-top:10px">
+        <dt>Zerlegt</dt><dd class="zahl">[${text(H.nameTokens(a).join(', '))}] gegen [${text(H.nameTokens(b).join(', '))}]</dd>
+        <dt>Normalisiert</dt><dd class="zahl">„${text(H.normalizeName(a))}“ / „${text(H.normalizeName(b))}“</dd>
+        <dt>Bewertung</dt><dd>${quote >= 0.92
+          ? '<span class="marke marke-gruen">sicher genug für eine automatische Zuordnung</span>'
+          : quote >= 0.62
+            ? '<span class="marke marke-gelb">wird als Vorschlag angeboten</span>'
+            : '<span class="marke marke-rot">kein Treffer</span>'}</dd>
+      </dl>`;
+  }
+  $('#nRechnen').addEventListener('click', namenVergleich);
+  ['nA','nB'].forEach((id) => $('#' + id).addEventListener('input', namenVergleich));
+  namenVergleich();
+
+  function namenSuche() {
+    const eingabe = $('#sName').value;
+    const ergebnis = H.matchName(eingabe, MITARBEITER, namenVon);
+    const ziel = $('#sErgebnis');
+
+    if (ergebnis.match) {
+      ziel.innerHTML = `
+        <div class="hinweis hinweis-gut" style="margin-top:14px">
+          <b>Automatisch zugeordnet:</b> ${text(ergebnis.match.firstName + ' ' + ergebnis.match.lastName)}
+          (${text(ergebnis.match.personnelNo)}) — Trefferquote ${Math.round(ergebnis.score * 100)} %
+        </div>`;
+      return;
+    }
+    if (ergebnis.candidates.length) {
+      ziel.innerHTML = `
+        <div class="hinweis hinweis-warn" style="margin-top:14px">
+          <b>${ergebnis.ambiguous ? 'Mehrere gleich gute Treffer' : 'Nicht sicher genug'}</b> — die Disposition wählt aus:
+        </div>
+        <table><thead><tr><th>Vorschlag</th><th>Personalnummer</th><th>Trefferquote</th></tr></thead><tbody>
+        ${ergebnis.candidates.map((kandidat) => `
+          <tr><td>${text(kandidat.item.firstName + ' ' + kandidat.item.lastName)}</td>
+              <td class="zahl">${text(kandidat.item.personnelNo)}</td>
+              <td class="zahl">${Math.round(kandidat.score * 100)} %</td></tr>`).join('')}
+        </tbody></table>`;
+      return;
+    }
+    ziel.innerHTML = `
+      <div class="hinweis hinweis-warn" style="margin-top:14px">
+        <b>Kein Treffer.</b> Die Zeile erscheint im Abgleich als „unbekannter Mitarbeiter“ und muss
+        von Hand zugeordnet werden — oder sie wird bewusst nicht übernommen.
+      </div>`;
+  }
+  $('#sSuchen').addEventListener('click', namenSuche);
+  $('#sName').addEventListener('input', namenSuche);
+  namenSuche();
+
+  /* ---------------------------------------------------------- E-Mail */
+  const BEISPIELE = {
+    freitext: {
+      betreff: 'Anfrage: Firmenjubiläum',
+      text: 'Hallo,\n\nfür den 15.10.2031 benötigen wir für eine Veranstaltung in Hamburg 12 Sicherheitskräfte von 17 bis 01 Uhr.\nTreffpunkt ist 16:30 Uhr.\n\nViele Grüße\nThomas Brand',
+    },
+    formular: {
+      betreff: 'Kontaktformular hermserviceteam.com',
+      text: 'Firma: Hafenlicht GmbH\nAnsprechpartner: Marie Ahrens\nTelefon: 040 123456\nVeranstaltungsort: Elbphilharmonie, 20457 Hamburg\nDatum: 05.12.2031\nZeit: von 18:00 bis 23:30\nBenötigte Mitarbeiter: 8 Servicekräfte',
+    },
+    knapp: {
+      betreff: 'Personal gesucht',
+      text: 'Moin, wir brauchen Personal für unser Event. Melden Sie sich bitte kurzfristig.\n\nViele Grüße',
+    },
+    werbung: {
+      betreff: 'Newsletter Oktober',
+      text: 'Jetzt 20 % Rabatt auf unsere Bürostühle sichern! Nur bis Monatsende.',
+    },
+  };
+
+  function mailLesen() {
+    const ergebnis = H.parseRequestEmail({
+      subject: $('#mBetreff').value,
+      body: $('#mText').value,
+      fromName: 'Thomas Brand',
+      fromEmail: 'brand@nordlicht-events.de',
+    });
+
+    const felder = [
+      ['Firma', ergebnis.company], ['Ansprechpartner', ergebnis.contactPerson],
+      ['E-Mail', ergebnis.email], ['Telefon', ergebnis.phone],
+      ['Anlass', ergebnis.eventName], ['Datum', ergebnis.eventDate],
+      ['Beginn', ergebnis.startTime], ['Ende', ergebnis.endTime],
+      ['Treffzeit', ergebnis.meetingTime], ['Ort', ergebnis.location],
+      ['Anzahl Mitarbeiter', ergebnis.employeesNeeded], ['Leistungsart', ergebnis.serviceType],
+    ];
+
+    const konfidenzFarbe = ergebnis.confidence >= 0.7 ? 'gruen' : ergebnis.confidence >= 0.4 ? 'gelb' : 'rot';
+
+    $('#mErgebnis').innerHTML = `
+      <div class="karte">
+        <h4>Erkannt</h4>
+        <div class="karte-inhalt">
+          <div class="reihe" style="margin-bottom:14px">
+            <span class="marke marke-${ergebnis.isRequest ? 'gruen' : 'grau'}">
+              ${ergebnis.isRequest ? 'sieht nach einer Personalanfrage aus' : 'keine Personalanfrage'}
+            </span>
+            <span class="marke marke-${konfidenzFarbe}">Auswertung ${Math.round(ergebnis.confidence * 100)} %</span>
+          </div>
+          <div class="streifen"><table>
+            <thead><tr><th>Feld</th><th>Wert</th><th>Sicherheit</th><th>Woher</th></tr></thead>
+            <tbody>${felder.map(([beschriftung, feld]) => `
+              <tr class="${feld.value == null ? 'zeile-gelb' : 'zeile-gruen'}">
+                <td>${text(beschriftung)}</td>
+                <td>${feld.value == null
+                      ? '<span class="marke marke-gelb">bleibt leer</span>'
+                      : '<b>' + text(feld.value) + '</b>'}</td>
+                <td class="zahl">${feld.value == null ? '–' : Math.round(feld.confidence * 100) + ' %'}</td>
+                <td style="color:var(--text2);font-size:12px">${text(feld.evidence || '')}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table></div>
+          ${ergebnis.missingFields.length ? `
+            <div class="hinweis hinweis-warn" style="margin:14px 0 0">
+              <b>Angaben unvollständig.</b> Die Disposition sieht: ${text(ergebnis.missingFields.join(', '))}.
+              Die Anfrage wird trotzdem angelegt — als Vorgang zur Prüfung, nie als Buchung.
+            </div>` : `
+            <div class="hinweis hinweis-gut" style="margin:14px 0 0">
+              Alle Pflichtangaben erkannt. Die Anfrage kann mit einem Klick in ein Event überführt werden —
+              geprüft wird sie trotzdem von Hand.
+            </div>`}
+        </div>
+      </div>`;
+  }
+  $('#mLesen').addEventListener('click', mailLesen);
+  $('#mText').addEventListener('input', mailLesen);
+  $('#mBetreff').addEventListener('input', mailLesen);
+  $$('[data-beispiel]').forEach((knopf) => knopf.addEventListener('click', () => {
+    const beispiel = BEISPIELE[knopf.dataset.beispiel];
+    $('#mBetreff').value = beispiel.betreff;
+    $('#mText').value = beispiel.text;
+    mailLesen();
+  }));
+  $('#mText').value = BEISPIELE.freitext.text;
+  mailLesen();
+
+  /* ---------------------------------------------------------- Abgleich */
+  const PLANUNG = [
+    { assignmentId: 'a1', employeeId: 'e1', eventId: 'ev1', eventReference: 'EV-2031-0001',
+      eventName: 'Nordstadion – Heimspiel', positionId: 'p1', positionTitle: 'Ordnungsdienst Südtribüne',
+      date: '2031-10-15', start: '17:00', end: '01:00', breakMinutes: 30 },
+    { assignmentId: 'a2', employeeId: 'e2', eventId: 'ev1', eventReference: 'EV-2031-0001',
+      eventName: 'Nordstadion – Heimspiel', positionId: 'p1', positionTitle: 'Ordnungsdienst Südtribüne',
+      date: '2031-10-15', start: '17:00', end: '01:00', breakMinutes: 30 },
+    { assignmentId: 'a3', employeeId: 'e4', eventId: 'ev1', eventReference: 'EV-2031-0001',
+      eventName: 'Nordstadion – Heimspiel', positionId: 'p1', positionTitle: 'Ordnungsdienst Südtribüne',
+      date: '2031-10-15', start: '17:00', end: '01:00', breakMinutes: 30 },
+    { assignmentId: 'a4', employeeId: 'e6', eventId: 'ev1', eventReference: 'EV-2031-0001',
+      eventName: 'Nordstadion – Heimspiel', positionId: 'p2', positionTitle: 'Einlasskontrolle Nord',
+      date: '2031-10-15', start: '16:30', end: '23:00', breakMinutes: 30 },
+  ];
+
+  const CSV_BEISPIEL = [
+    'Mitarbeiter;Datum;Beginn;Ende;Pause;Event',
+    'Mustermann Max;15.10.2031;17:00;01:00;30;Nordstadion – Heimspiel',
+    'Lena Bergman;15.10.2031;17:05;01:30;30;Nordstadion – Heimspiel',
+    'Jan Moeller;15.10.2031;17:00;01:00;30;Nordstadion – Heimspiel',
+    'Petra Schneider;15.10.2031;17:00;01:00;30;Nordstadion – Heimspiel',
+    'Mustermann Max;15.10.2031;17:00;01:00;30;Nordstadion – Heimspiel',
+  ].join('\n');
+
+  $('#planTabelle').innerHTML = `
+    <thead><tr><th>Mitarbeiter</th><th>Position</th><th>Datum</th><th>Soll</th><th>Pause</th><th>Stunden</th></tr></thead>
+    <tbody>${PLANUNG.map((schicht) => {
+      const person = MITARBEITER.find((m) => m.id === schicht.employeeId);
+      return `<tr>
+        <td>${text(person.firstName + ' ' + person.lastName)}<br>
+            <span style="color:var(--text3);font-size:11px">${text(person.personnelNo)}</span></td>
+        <td>${text(schicht.positionTitle)}</td>
+        <td class="zahl">${text(H.formatDateDE(new Date(schicht.date + 'T00:00:00Z')))}</td>
+        <td class="zahl">${text(schicht.start)}–${text(schicht.end)}</td>
+        <td class="zahl">${schicht.breakMinutes} Min</td>
+        <td class="zahl">${text(H.formatHours(H.shiftMinutes(schicht.start, schicht.end, schicht.breakMinutes)))}</td>
+      </tr>`;
+    }).join('')}</tbody>`;
+
+  $('#csvText').value = CSV_BEISPIEL;
+
+  function abgleichRechnen() {
+    let blatt;
+    try {
+      blatt = H.parseCsv($('#csvText').value);
+    } catch (fehler) {
+      $('#abErgebnis').innerHTML = '<div class="hinweis hinweis-warn">' + text(fehler.userMessage || fehler.message) + '</div>';
+      return;
+    }
+
+    const vorschlag = H.suggestMapping(blatt.headers);
+    const zuordnung = vorschlag.mapping;
+
+    if (vorschlag.missingRequired.length) {
+      $('#abErgebnis').innerHTML = `
+        <div class="hinweis hinweis-warn">
+          Diese Pflichtspalten fehlen: <b>${text(vorschlag.missingRequired.join(', '))}</b>.
+          In der Anwendung ordnen Sie sie vor dem Import von Hand zu.
+        </div>`;
+      return;
+    }
+
+    const istZeilen = blatt.rows.map((zeile, index) => ({
+      rowNumber: index + 2,
+      name: H.readName(zeile, zuordnung),
+      date: H.readCell(zeile, zuordnung, 'date'),
+      start: H.readCell(zeile, zuordnung, 'start'),
+      end: H.readCell(zeile, zuordnung, 'end'),
+      break: H.readCell(zeile, zuordnung, 'break'),
+      event: zuordnung.event ? String(zeile[zuordnung.event] || '') : null,
+    }));
+
+    const ergebnis = H.reconcile(istZeilen, PLANUNG, MITARBEITER, {
+      toleranceMinutes: Number($('#abToleranz').value || 15),
+      referenceDate: new Date('2031-10-15T00:00:00Z'),
+    });
+    const z = ergebnis.summary;
+
+    const kennzahl = (wert, beschriftung, farbe) => `
+      <div class="karte"><div class="karte-inhalt">
+        <div class="gross" ${farbe ? 'style="color:var(--' + farbe + ')"' : ''}>${wert}</div>
+        <div style="color:var(--text2);font-size:13px">${text(beschriftung)}</div>
+      </div></div>`;
+
+    $('#abErgebnis').innerHTML = `
+      <div class="hinweis hinweis-info">
+        <b>${z.totalRows} Datensätze verarbeitet</b> · ${z.matchedRows} automatisch zugeordnet ·
+        ${z.deviationRows} Abweichungen · ${z.unknownRows} unbekannte Mitarbeiter ·
+        ${z.duplicateRows} doppelte Einträge · ${z.missingRows} ohne Ist-Zeit
+      </div>
+      <div class="raster" style="margin-bottom:16px">
+        ${kennzahl(z.totalRows, 'Datensätze')}
+        ${kennzahl(z.matchedRows, 'Zugeordnet', 'gruen')}
+        ${kennzahl(z.deviationRows, 'Abweichungen', z.deviationRows ? 'gelb' : null)}
+        ${kennzahl(z.unknownRows, 'Unbekannt', z.unknownRows ? 'rot' : null)}
+        ${kennzahl(z.duplicateRows, 'Doppelt', z.duplicateRows ? 'rot' : null)}
+        ${kennzahl(z.missingRows, 'Ohne Ist-Zeit', z.missingRows ? 'gelb' : null)}
+      </div>
+      <div class="karte">
+        <h4>Ergebnis je Zeile</h4>
+        <div class="streifen"><table>
+          <thead><tr>
+            <th>#</th><th>Mitarbeiter</th><th>Zuordnung</th><th>Soll</th><th>Ist</th>
+            <th>Differenz</th><th>Befund</th><th>Status</th>
+          </tr></thead>
+          <tbody>${ergebnis.rows.map((zeile) => {
+            const status = H.ROW_STATUS[zeile.status] || { label: zeile.status, farbe: 'grau' };
+            const balken = status.farbe === 'grau' ? 'blau' : status.farbe;
+            return `<tr class="zeile-${balken}">
+              <td class="zahl" style="color:var(--text3)">${zeile.rowNumber}</td>
+              <td>${text(zeile.rawName || '–')}</td>
+              <td>${zeile.employeeName
+                    ? text(zeile.employeeName) + (zeile.matchScore < 1
+                        ? ' <span style="color:var(--text3);font-size:11px">(' + Math.round(zeile.matchScore * 100) + ' %)</span>'
+                        : '')
+                    : (zeile.candidates.length
+                        ? '<span class="marke marke-gelb">' + text(zeile.candidates.map((k) => k.name).join(', ')) + '?</span>'
+                        : '<span class="marke marke-rot">nicht gefunden</span>')}</td>
+              <td class="zahl">${zeile.plannedStart ? text(zeile.plannedStart + '–' + (zeile.plannedEnd || '?')) : '–'}</td>
+              <td class="zahl">${zeile.actualStart ? text(zeile.actualStart + '–' + (zeile.actualEnd || '?')) : '–'}</td>
+              <td class="zahl" style="${zeile.diffMinutes ? 'font-weight:600;color:var(--gelb)' : ''}">${text(H.formatDiff(zeile.diffMinutes))}</td>
+              <td style="font-size:11px">${zeile.issues.map((befund) =>
+                    '<span class="marke marke-grau" style="margin:1px">' + text(H.ISSUE_LABEL[befund] || befund) + '</span>').join(' ')}</td>
+              <td><span class="marke marke-${status.farbe}"><span class="punkt"></span>${text(status.label)}</span></td>
+            </tr>`;
+          }).join('')}</tbody>
+        </table></div>
+      </div>
+      <div class="hinweis hinweis-warn">
+        In der Anwendung wäre jetzt Handarbeit gefragt: die unbekannte Person zuordnen oder
+        bewusst nicht übernehmen, die Dublette verwerfen. Erst wenn keine Zeile mehr ungeklärt
+        ist, lässt sich der Abgleich abschließen — dann entstehen daraus Zeiteinträge.
+      </div>`;
+  }
+  $('#abRechnen').addEventListener('click', abgleichRechnen);
+  $('#abToleranz').addEventListener('input', abgleichRechnen);
+  $('#abZuruecksetzen').addEventListener('click', () => { $('#csvText').value = CSV_BEISPIEL; abgleichRechnen(); });
+  abgleichRechnen();
+
+  /* ---------------------------------------------------------- Gestaltung */
+  $('#statusSchau').innerHTML = Object.entries(H.EVENT_STATUS)
+    .map(([, s]) => `<span class="marke marke-${s.farbe}"><span class="punkt"></span>${text(s.label)}</span>`)
+    .join('') +
+    Object.entries(H.ASSIGNMENT_STATUS)
+    .map(([, s]) => `<span class="marke marke-${s.farbe}"><span class="punkt"></span>${text(s.label)}</span>`)
+    .join('');
+
+  const FARBEN = [
+    ['Akzent', '--akzent', 'Aktive Navigation, primäre Schaltfläche, Fokus'],
+    ['Grün', '--gruen', 'bestätigt, besetzt, erledigt'],
+    ['Gelb', '--gelb', 'offen, braucht Aufmerksamkeit'],
+    ['Rot', '--rot', 'Problem, unbesetzt, Fehler'],
+    ['Blau', '--blau', 'Information, Planung'],
+    ['Fläche', '--flaeche', 'Seitenhintergrund'],
+    ['Karte', '--karte', 'Karten und Tabellen'],
+    ['Linie', '--linie', 'Trennung ohne weiteren Kasten'],
+  ];
+  $('#farbSchau').innerHTML = FARBEN.map(([name, variable, zweck]) => `
+    <div style="display:flex;gap:10px;align-items:flex-start">
+      <span style="width:34px;height:34px;border-radius:7px;flex:none;border:1px solid var(--linie);
+                   background:var(${variable})"></span>
+      <span>
+        <b style="font-size:13px">${text(name)}</b>
+        <span style="display:block;color:var(--text2);font-size:12px">${text(zweck)}</span>
+        <code style="font-size:11px;color:var(--text3)">var(${text(variable)})</code>
+      </span>
+    </div>`).join('');
+})();
+</script>
+</body>
+</html>

@@ -1,9 +1,9 @@
 /**
- * Zeitberechnung fuer Einsaetze.
+ * Zeitberechnung für Einsätze.
  *
- * Grundregel (Spec 69): Einsaetze laufen regelmaessig ueber Mitternacht.
+ * Grundregel (Spec 69): Einsätze laufen regelmäßig über Mitternacht.
  * 18:00 -> 02:00 sind 8 Stunden, niemals -16 Stunden. Deshalb rechnen wir
- * ausschliesslich in Minuten ab Schichtbeginn und addieren 24 h, sobald das
+ * ausschließlich in Minuten ab Schichtbeginn und addieren 24 h, sobald das
  * Ende vor dem Beginn liegt.
  */
 
@@ -13,7 +13,7 @@ export const MINUTES_PER_DAY = 24 * 60;
 export function parseTimeToMinutes(input: unknown): number | null {
   if (input == null) return null;
 
-  // Excel liefert Uhrzeiten haeufig als Bruchteil eines Tages (0.75 = 18:00).
+  // Excel liefert Uhrzeiten häufig als Bruchteil eines Tages (0.75 = 18:00).
   if (typeof input === 'number' && Number.isFinite(input)) {
     if (input >= 0 && input < 1) return Math.round(input * MINUTES_PER_DAY);
     if (Number.isInteger(input) && input >= 0 && input <= 2359) {
@@ -71,7 +71,7 @@ export interface ShiftDuration {
   grossMinutes: number;
   /** Netto-Minuten nach Abzug der Pause – nie negativ. */
   netMinutes: number;
-  /** true, wenn die Schicht ueber Mitternacht laeuft. */
+  /** true, wenn die Schicht über Mitternacht läuft. */
   overnight: boolean;
 }
 
@@ -102,14 +102,14 @@ export function shiftDuration(
   };
 }
 
-/** Netto-Minuten oder null. Kurzform fuer den haeufigsten Fall. */
+/** Netto-Minuten oder null. Kurzform für den häufigsten Fall. */
 export function shiftMinutes(start: unknown, end: unknown, breakMinutes = 0): number | null {
   return shiftDuration(start, end, breakMinutes)?.netMinutes ?? null;
 }
 
 /**
  * Differenz zweier Uhrzeiten in Minuten, im Fenster [-12h, +12h].
- * So wird "geplant 17:00, tatsaechlich 16:55" als -5 erkannt und nicht als +1435.
+ * So wird "geplant 17:00, tatsächlich 16:55" als -5 erkannt und nicht als +1435.
  */
 export function timeDiffMinutes(planned: unknown, actual: unknown): number | null {
   const p = parseTimeToMinutes(planned);
@@ -121,7 +121,7 @@ export function timeDiffMinutes(planned: unknown, actual: unknown): number | nul
   return diff;
 }
 
-/** "+30 Min", "-1:05 h", "0 Min" – fuer die Abgleich-Tabelle. */
+/** "+30 Min", "-1:05 h", "0 Min" – für die Abgleich-Tabelle. */
 export function formatDiff(minutes: number | null | undefined): string {
   if (minutes == null) return '–';
   if (minutes === 0) return '0 Min';
@@ -131,7 +131,7 @@ export function formatDiff(minutes: number | null | undefined): string {
   return `${sign}${Math.floor(abs / 60)}:${String(abs % 60).padStart(2, '0')} h`;
 }
 
-/** Minuten als Dezimalstunden mit zwei Nachkommastellen (fuer Excel-Export). */
+/** Minuten als Dezimalstunden mit zwei Nachkommastellen (für Excel-Export). */
 export function minutesToHours(minutes: number): number {
   return Math.round((minutes / 60) * 100) / 100;
 }
@@ -168,8 +168,8 @@ const MONTHS: Record<string, number> = {
 };
 
 /**
- * Deutsches Datum robust lesen. `referenceYear` ergaenzt fehlende Jahresangaben
- * ("15.10." in einer E-Mail meint das naechste Vorkommen dieses Tages).
+ * Deutsches Datum robust lesen. `referenceYear` ergänzt fehlende Jahresangaben
+ * ("15.10." in einer E-Mail meint das nächste Vorkommen dieses Tages).
  */
 export function parseGermanDate(input: unknown, reference = new Date()): Date | null {
   if (input == null) return null;

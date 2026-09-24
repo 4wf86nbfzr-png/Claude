@@ -26,7 +26,7 @@ export default async function Abgleiche({ searchParams }: { searchParams: Promis
     <>
       <Seitenkopf
         titel="Abgleiche"
-        unter="Planung gegen tatsaechlich geleistete Zeiten"
+        unter="Planung gegen tatsächlich geleistete Zeiten"
         aktionen={can(user.role, 'reconciliation.edit') && (
           <Link href="/abgleiche/neu" className="knopf knopf-primaer"><Icon name="upload" /> Datei hochladen</Link>
         )}
@@ -43,8 +43,8 @@ export default async function Abgleiche({ searchParams }: { searchParams: Promis
             <table className="tabelle">
               <thead>
                 <tr>
-                  <th>Nummer</th><th>Bezeichnung</th><th>Zeitraum</th><th>Datensaetze</th>
-                  <th>Zugeordnet</th><th>Abweichungen</th><th>Ungeklaert</th><th>Status</th><th>Erstellt</th>
+                  <th>Nummer</th><th>Bezeichnung</th><th>Zeitraum</th><th>Datensätze</th>
+                  <th>Zugeordnet</th><th>Abweichungen</th><th>Ungeklärt</th><th>Status</th><th>Erstellt</th>
                 </tr>
               </thead>
               <tbody>

@@ -177,11 +177,11 @@ export async function einsatzAntwortAktion(_zustand: Ergebnis, formData: FormDat
       String(formData.get('grund') ?? '').trim() || undefined,
     );
     revalidatePath('/meine-einsaetze');
-    return { erfolg: true, hinweis: formData.get('antwort') === 'annehmen' ? 'Einsatz angenommen.' : 'Absage uebermittelt.' };
+    return { erfolg: true, hinweis: formData.get('antwort') === 'annehmen' ? 'Einsatz angenommen.' : 'Absage übermittelt.' };
   });
 }
 
-// ----------------------------------------------------------------- Vorfaelle
+// ----------------------------------------------------------------- Vorfälle
 
 export async function vorfallAnlegenAktion(_zustand: Ergebnis, formData: FormData): Promise<Ergebnis> {
   return fuehreAus(async () => {
@@ -198,7 +198,7 @@ export async function vorfallStatusAktion(_zustand: Ergebnis, formData: FormData
   return fuehreAus(async () => {
     const user = await seite('events.view');
     const eventId = String(formData.get('eventId'));
-    await vorfallStatus(user, String(formData.get('incidentId')), String(formData.get('status')) as $Enums.IncidentStatus, String(formData.get('loesung') ?? '').trim() || undefined);
+    await vorfallStatus(user, String(formData.get('incidentId')), String(formData.get('status')) as $Enums.IncidentStatus, String(formData.get('lösung') ?? '').trim() || undefined);
     revalidatePath(`/events/${eventId}`);
     revalidatePath('/dashboard');
     return { erfolg: true, hinweis: 'Vorfall aktualisiert.' };

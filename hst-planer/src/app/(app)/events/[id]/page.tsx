@@ -82,7 +82,7 @@ export default async function EventUebersicht({ params }: { params: Promise<{ id
           )}
         </Karte>
 
-        <Karte titel="Vorgaben fuer den Einsatz">
+        <Karte titel="Vorgaben für den Einsatz">
           <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 14 }}>
             <Raster min={190}>
               <Paar label="Treffpunkt">{event.meetingPoint ?? '–'}</Paar>
@@ -94,17 +94,17 @@ export default async function EventUebersicht({ params }: { params: Promise<{ id
             </Raster>
             <Paar label="Dresscode">{event.dressCode ?? '–'}</Paar>
             {event.tasks && <Paar label="Aufgaben"><span style={{ whiteSpace: 'pre-wrap' }}>{event.tasks}</span></Paar>}
-            {event.hints && <Paar label="Hinweise fuer Mitarbeiter"><span style={{ whiteSpace: 'pre-wrap' }}>{event.hints}</span></Paar>}
+            {event.hints && <Paar label="Hinweise für Mitarbeiter"><span style={{ whiteSpace: 'pre-wrap' }}>{event.hints}</span></Paar>}
             {intern && event.notesInternal && (
               <div style={{ background: 'var(--gelb-flaeche)', border: '1px solid var(--gelb)33', borderRadius: 'var(--radius-s)', padding: '10px 12px' }}>
-                <Paar label="Interne Notiz – nicht fuer Mitarbeiter"><span style={{ whiteSpace: 'pre-wrap' }}>{event.notesInternal}</span></Paar>
+                <Paar label="Interne Notiz – nicht für Mitarbeiter"><span style={{ whiteSpace: 'pre-wrap' }}>{event.notesInternal}</span></Paar>
               </div>
             )}
           </div>
         </Karte>
 
-        <Karte titel="Probleme & Vorfaelle">
-          {event.incidents.length === 0 ? <Leer>Keine Vorfaelle erfasst.</Leer> : (
+        <Karte titel="Probleme & Vorfälle">
+          {event.incidents.length === 0 ? <Leer>Keine Vorfälle erfasst.</Leer> : (
             <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
               {event.incidents.map((vorfall) => (
                 <li key={vorfall.id} style={{ padding: '11px 14px', borderBottom: '1px solid var(--linie)' }}>
@@ -121,10 +121,10 @@ export default async function EventUebersicht({ params }: { params: Promise<{ id
                     <AktionsFormular aktion={vorfallStatusAktion} stil={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap', alignItems: 'center' }}>
                       <input type="hidden" name="eventId" value={id} />
                       <input type="hidden" name="incidentId" value={vorfall.id} />
-                      <input name="loesung" className="feld" placeholder="Loesung / Kommentar" style={{ width: 'auto', flex: '1 1 200px' }} />
+                      <input name="lösung" className="feld" placeholder="Lösung / Kommentar" style={{ width: 'auto', flex: '1 1 200px' }} />
                       <select name="status" className="feld" defaultValue="GELOEST" style={{ width: 'auto' }}>
                         <option value="IN_BEARBEITUNG">In Bearbeitung</option>
-                        <option value="GELOEST">Geloest</option>
+                        <option value="GELOEST">Gelöst</option>
                         <option value="VERWORFEN">Verworfen</option>
                       </select>
                       <AktionsKnopf klasse="knopf knopf-klein">Speichern</AktionsKnopf>
@@ -142,7 +142,7 @@ export default async function EventUebersicht({ params }: { params: Promise<{ id
                   <select name="kind" className="feld" aria-label="Art des Vorfalls">
                     {Object.entries(INCIDENT_KIND).map(([wert, text]) => <option key={wert} value={wert}>{text}</option>)}
                   </select>
-                  <select name="priority" className="feld" aria-label="Prioritaet" defaultValue="NORMAL">
+                  <select name="priority" className="feld" aria-label="Priorität" defaultValue="NORMAL">
                     {Object.entries(PRIORITY).map(([wert, s]) => <option key={wert} value={wert}>{s.label}</option>)}
                   </select>
                   <select name="employeeId" className="feld" aria-label="Betroffener Mitarbeiter" defaultValue="">
@@ -194,7 +194,7 @@ export default async function EventUebersicht({ params }: { params: Promise<{ id
                   <label className="feld-label" htmlFor="dup-datum">Neues Datum</label>
                   <input id="dup-datum" name="datum" type="date" className="feld" required defaultValue={event.date.toISOString().slice(0, 10)} />
                   <label style={{ display: 'flex', gap: 7, alignItems: 'center', fontSize: 13 }}>
-                    <input type="checkbox" name="mitZuweisungen" /> Zuweisungen als Vorschlag uebernehmen
+                    <input type="checkbox" name="mitZuweisungen" /> Zuweisungen als Vorschlag übernehmen
                   </label>
                   <AktionsKnopf klasse="knopf knopf-primaer knopf-klein">Duplizieren</AktionsKnopf>
                 </AktionsFormular>
@@ -204,14 +204,14 @@ export default async function EventUebersicht({ params }: { params: Promise<{ id
                 <AktionsFormular aktion={serieAnlegenAktion} stil={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   <input type="hidden" name="id" value={id} />
                   <select name="rhythmus" className="feld" aria-label="Rhythmus" defaultValue="WOECHENTLICH">
-                    <option value="TAEGLICH">taeglich</option>
-                    <option value="WOECHENTLICH">woechentlich</option>
+                    <option value="TAEGLICH">täglich</option>
+                    <option value="WOECHENTLICH">wöchentlich</option>
                     <option value="ZWEIWOECHENTLICH">alle zwei Wochen</option>
                     <option value="MONATLICH">monatlich</option>
                   </select>
                   <input name="anzahl" type="number" min={1} max={52} defaultValue={4} className="feld zahl" aria-label="Anzahl Folgetermine" />
                   <label style={{ display: 'flex', gap: 7, alignItems: 'center', fontSize: 13 }}>
-                    <input type="checkbox" name="mitZuweisungen" /> Zuweisungen uebernehmen
+                    <input type="checkbox" name="mitZuweisungen" /> Zuweisungen übernehmen
                   </label>
                   <AktionsKnopf klasse="knopf knopf-primaer knopf-klein">Folgetermine erzeugen</AktionsKnopf>
                 </AktionsFormular>
@@ -221,8 +221,8 @@ export default async function EventUebersicht({ params }: { params: Promise<{ id
                 <Ausklapp titel="Event stornieren" knopfKlasse="knopf knopf-klein knopf-gefahr">
                   <AktionsFormular aktion={eventStornierenAktion} stil={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                     <input type="hidden" name="id" value={id} />
-                    <textarea name="grund" className="feld" rows={2} required placeholder="Grund der Stornierung (geht an alle eingeteilten Kraefte)" />
-                    <AktionsKnopf klasse="knopf knopf-gefahr knopf-klein" laufend="Wird storniert …">Endgueltig stornieren</AktionsKnopf>
+                    <textarea name="grund" className="feld" rows={2} required placeholder="Grund der Stornierung (geht an alle eingeteilten Kräfte)" />
+                    <AktionsKnopf klasse="knopf knopf-gefahr knopf-klein" laufend="Wird storniert …">Endgültig stornieren</AktionsKnopf>
                   </AktionsFormular>
                 </Ausklapp>
               )}

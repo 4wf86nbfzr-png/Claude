@@ -4,12 +4,12 @@ import { db } from '../db';
 import { AuthError, ForbiddenError } from '../errors';
 
 /**
- * API-Schluessel fuer Fremdsysteme (Spec 41).
+ * API-Schlüssel für Fremdsysteme (Spec 41).
  * Format: hst_<prefix>_<geheimnis>. In der Datenbank liegt nur der Hash;
  * der Klartext wird genau einmal beim Anlegen angezeigt.
  *
- * Praefix und Geheimnis stehen bewusst in Hexadezimal: base64url enthaelt
- * Unterstriche, und die wuerden den Schluessel beim Zerlegen zerreissen.
+ * Präfix und Geheimnis stehen bewusst in Hexadezimal: base64url enthält
+ * Unterstriche, und die würden den Schlüssel beim Zerlegen zerreissen.
  */
 const PREFIX_LENGTH = 8;
 
@@ -24,33 +24,33 @@ export function generateApiKey(): GeneratedKey {
 
 export interface ApiCaller { id: string; name: string; scopes: string[] }
 
-/** Prueft den Header `Authorization: Bearer hst_...` oder `X-API-Key`. */
+/** Prüft den Header `Authorization: Bearer hst_...` oder `X-API-Key`. */
 export async function requireApiKey(request: Request, scope?: string): Promise<ApiCaller> {
   const header = request.headers.get('authorization');
   const bearer = header?.toLowerCase().startsWith('bearer ') ? header.slice(7).trim() : null;
   const plain = bearer ?? request.headers.get('x-api-key');
-  if (!plain) throw new AuthError('Es wurde kein API-Schluessel uebermittelt.');
+  if (!plain) throw new AuthError('Es wurde kein API-Schlüssel übermittelt.');
 
   const parts = plain.trim().split('_');
   if (parts.length !== 3 || parts[0] !== 'hst' || !/^[0-9a-f]+$/.test(parts[1] ?? '')) {
-    throw new AuthError('Der API-Schluessel ist ungueltig.');
+    throw new AuthError('Der API-Schlüssel ist ungültig.');
   }
 
   const key = await db.apiKey.findUnique({ where: { prefix: parts[1]! } });
-  if (!key || !key.active) throw new AuthError('Der API-Schluessel ist ungueltig.');
-  if (key.expiresAt && key.expiresAt < new Date()) throw new AuthError('Der API-Schluessel ist abgelaufen.');
+  if (!key || !key.active) throw new AuthError('Der API-Schlüssel ist ungültig.');
+  if (key.expiresAt && key.expiresAt < new Date()) throw new AuthError('Der API-Schlüssel ist abgelaufen.');
 
   const given = Buffer.from(createHash('sha256').update(plain).digest('hex'), 'utf8');
   const stored = Buffer.from(key.keyHash, 'utf8');
   if (given.length !== stored.length || !timingSafeEqual(given, stored)) {
-    throw new AuthError('Der API-Schluessel ist ungueltig.');
+    throw new AuthError('Der API-Schlüssel ist ungültig.');
   }
 
   if (scope && key.scopes.length && !key.scopes.includes(scope) && !key.scopes.includes('*')) {
-    throw new ForbiddenError('Dieser API-Schluessel darf diese Funktion nicht nutzen.');
+    throw new ForbiddenError('Dieser API-Schlüssel darf diese Funktion nicht nutzen.');
   }
 
-  // Letzte Nutzung nachtragen, ohne die Antwort zu verzoegern.
+  // Letzte Nutzung nachtragen, ohne die Antwort zu verzögern.
   void db.apiKey.update({ where: { id: key.id }, data: { lastUsedAt: new Date() } }).catch(() => {});
 
   return { id: key.id, name: key.name, scopes: key.scopes };

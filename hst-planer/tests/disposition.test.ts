@@ -61,7 +61,7 @@ describe('Eventanlage', () => {
     expect(protokoll?.summary).toContain(event.reference);
   });
 
-  it('legt Positionen an und fuehrt den Eventstatus nach', async () => {
+  it('legt Positionen an und führt den Eventstatus nach', async () => {
     const event = await eventAnlegen(TEST_USER, { ...EVENT_VORLAGE, name: `Positionstest ${MARKE}` });
     aufraeumen.events.push(event.id);
 
@@ -90,7 +90,7 @@ describe('Mitarbeiteranlage', () => {
     expect(employee.personnelNo).toMatch(/^HST-\d{4}$/);
   });
 
-  it('weist doppelte Personalnummern zurueck', async () => {
+  it('weist doppelte Personalnummern zurück', async () => {
     const erste = await mitarbeiterAnlegen(TEST_USER, formular({
       firstName: 'Erste', lastName: MARKE, personnelNo: `${MARKE}-X`, active: 'on',
     }));
@@ -101,7 +101,7 @@ describe('Mitarbeiteranlage', () => {
     }))).rejects.toMatchObject({ userMessage: expect.stringContaining('bereits vergeben') });
   });
 
-  it('verlangt einen Grund fuer den Sperrvermerk', async () => {
+  it('verlangt einen Grund für den Sperrvermerk', async () => {
     await expect(mitarbeiterAnlegen(TEST_USER, formular({
       firstName: 'Gesperrt', lastName: MARKE, blocked: 'on', active: 'on',
     }))).rejects.toMatchObject({ userMessage: expect.stringContaining('Grund') });
@@ -140,26 +140,26 @@ describe('Zuweisung', () => {
       .rejects.toMatchObject({ userMessage: expect.stringContaining('bereits zugewiesen') });
   });
 
-  it('erkennt eine Ueberschneidung am selben Tag', async () => {
+  it('erkennt eine Überschneidung am selben Tag', async () => {
     const employee = await mitarbeiterAnlegen(TEST_USER, formular({ firstName: 'Carla', lastName: MARKE, active: 'on' }));
     aufraeumen.mitarbeiter.push(employee.id);
 
     const ersterEinsatz = await eventAnlegen(TEST_USER, { ...EVENT_VORLAGE, name: `Frueh ${MARKE}`, startTime: '18:00', endTime: '23:00' });
-    const zweiterEinsatz = await eventAnlegen(TEST_USER, { ...EVENT_VORLAGE, name: `Spaet ${MARKE}`, startTime: '20:00', endTime: '02:00' });
+    const zweiterEinsatz = await eventAnlegen(TEST_USER, { ...EVENT_VORLAGE, name: `Spät ${MARKE}`, startTime: '20:00', endTime: '02:00' });
     aufraeumen.events.push(ersterEinsatz.id, zweiterEinsatz.id);
 
     const p1 = await positionAnlegen(TEST_USER, ersterEinsatz.id, formular({ title: 'Einlass Nord', requiredCount: '1', startTime: '18:00', endTime: '23:00' }));
-    const p2 = await positionAnlegen(TEST_USER, zweiterEinsatz.id, formular({ title: 'Einlass Sued', requiredCount: '1', startTime: '20:00', endTime: '02:00' }));
+    const p2 = await positionAnlegen(TEST_USER, zweiterEinsatz.id, formular({ title: 'Einlass Süd', requiredCount: '1', startTime: '20:00', endTime: '02:00' }));
 
     await zuweisen(TEST_USER, { positionId: p1.id, employeeId: employee.id });
     const konflikte = await pruefeZuweisung(p2.id, employee.id);
     expect(konflikte.some((k) => k.art === 'UEBERSCHNEIDUNG' && k.blockierend)).toBe(true);
 
     await expect(zuweisen(TEST_USER, { positionId: p2.id, employeeId: employee.id }))
-      .rejects.toMatchObject({ userMessage: expect.stringContaining('nicht moeglich') });
+      .rejects.toMatchObject({ userMessage: expect.stringContaining('nicht möglich') });
   });
 
-  it('warnt bei Abwesenheit, laesst die Zuweisung aber bewusst zu', async () => {
+  it('warnt bei Abwesenheit, lässt die Zuweisung aber bewusst zu', async () => {
     const employee = await mitarbeiterAnlegen(TEST_USER, formular({ firstName: 'Dora', lastName: MARKE, active: 'on' }));
     aufraeumen.mitarbeiter.push(employee.id);
     await db.availability.create({
@@ -171,7 +171,7 @@ describe('Zuweisung', () => {
     const position = await positionAnlegen(TEST_USER, event.id, formular({ title: 'Posten', requiredCount: '1' }));
 
     await expect(zuweisen(TEST_USER, { positionId: position.id, employeeId: employee.id }))
-      .rejects.toMatchObject({ userMessage: expect.stringContaining('bestaetigen') });
+      .rejects.toMatchObject({ userMessage: expect.stringContaining('bestätigen') });
 
     const assignment = await zuweisen(TEST_USER, { positionId: position.id, employeeId: employee.id, trotzdem: true });
     expect(assignment.id).toBeTruthy();
@@ -212,7 +212,7 @@ describe('Zuweisung', () => {
 });
 
 describe('Duplizieren und Serien (Spec 33/34)', () => {
-  it('uebernimmt Positionen und macht Zuweisungen zu Vorschlaegen', async () => {
+  it('übernimmt Positionen und macht Zuweisungen zu Vorschlägen', async () => {
     const event = await eventAnlegen(TEST_USER, { ...EVENT_VORLAGE, name: `Vorlage ${MARKE}` });
     aufraeumen.events.push(event.id);
     const position = await positionAnlegen(TEST_USER, event.id, formular({ title: 'Ordner', requiredCount: '2', startTime: '18:00', endTime: '02:00' }));
@@ -230,7 +230,7 @@ describe('Duplizieren und Serien (Spec 33/34)', () => {
     expect(geladen.date.toISOString().slice(0, 10)).toBe('2031-08-19');
     expect(geladen.positions).toHaveLength(1);
     expect(geladen.positions[0]!.requiredCount).toBe(2);
-    // Uebernommene Kraefte stehen als Vorschlag, nicht als feste Einteilung.
+    // Uebernommene Kräfte stehen als Vorschlag, nicht als feste Einteilung.
     expect(geladen.positions[0]!.assignments[0]!.status).toBe('VORGESCHLAGEN');
   });
 
@@ -251,7 +251,7 @@ describe('Duplizieren und Serien (Spec 33/34)', () => {
 });
 
 describe('Stornieren und Deaktivieren (Spec 73)', () => {
-  it('storniert ein Event und benachrichtigt die Kraefte', async () => {
+  it('storniert ein Event und benachrichtigt die Kräfte', async () => {
     const event = await eventAnlegen(TEST_USER, { ...EVENT_VORLAGE, name: `Storno ${MARKE}` });
     aufraeumen.events.push(event.id);
     const position = await positionAnlegen(TEST_USER, event.id, formular({ title: 'Posten', requiredCount: '1' }));
@@ -266,7 +266,7 @@ describe('Stornieren und Deaktivieren (Spec 73)', () => {
     expect(nachher.assignments.every((a) => a.status === 'STORNIERT')).toBe(true);
   });
 
-  it('deaktiviert einen Mitarbeiter nur ohne kommende Einsaetze', async () => {
+  it('deaktiviert einen Mitarbeiter nur ohne kommende Einsätze', async () => {
     const employee = await mitarbeiterAnlegen(TEST_USER, formular({ firstName: 'Ida', lastName: MARKE, active: 'on' }));
     aufraeumen.mitarbeiter.push(employee.id);
 
@@ -276,13 +276,13 @@ describe('Stornieren und Deaktivieren (Spec 73)', () => {
     const assignment = await zuweisen(TEST_USER, { positionId: position.id, employeeId: employee.id });
 
     await expect(mitarbeiterDeaktivieren(TEST_USER, employee.id, 'Vertragsende'))
-      .rejects.toMatchObject({ userMessage: expect.stringContaining('kommende Einsaetze') });
+      .rejects.toMatchObject({ userMessage: expect.stringContaining('kommende Einsätze') });
 
     await zuweisungEntfernen(TEST_USER, assignment.id);
     await mitarbeiterDeaktivieren(TEST_USER, employee.id, 'Vertragsende');
 
     const nachher = await db.employee.findUniqueOrThrow({ where: { id: employee.id } });
     expect(nachher.active).toBe(false);
-    expect(nachher.deletedAt).toBeNull(); // wird nicht geloescht, nur deaktiviert
+    expect(nachher.deletedAt).toBeNull(); // wird nicht gelöscht, nur deaktiviert
   });
 });

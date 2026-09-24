@@ -16,7 +16,7 @@ export const MITARBEITER_SCHEMA = z.object({
   personnelNo: optional(30),
   phone: optional(40),
   mobile: optional(40),
-  email: z.union([z.string().trim().toLowerCase().email('Bitte eine gueltige E-Mail-Adresse angeben.'), z.literal('')]).optional().transform((v) => (v ? v : null)),
+  email: z.union([z.string().trim().toLowerCase().email('Bitte eine gültige E-Mail-Adresse angeben.'), z.literal('')]).optional().transform((v) => (v ? v : null)),
   street: optional(160),
   zip: optional(10),
   city: optional(100),
@@ -39,9 +39,9 @@ export function lies(formData: FormData): MitarbeiterEingabe {
   roh.active = formData.get('active') === 'on';
   roh.blocked = formData.get('blocked') === 'on';
   const ergebnis = MITARBEITER_SCHEMA.safeParse(roh);
-  if (!ergebnis.success) throw new ValidationError(ergebnis.error.issues[0]?.message ?? 'Bitte pruefen Sie Ihre Eingaben.');
+  if (!ergebnis.success) throw new ValidationError(ergebnis.error.issues[0]?.message ?? 'Bitte prüfen Sie Ihre Eingaben.');
   if (ergebnis.data.blocked && !ergebnis.data.blockReason) {
-    throw new ValidationError('Bitte hinterlegen Sie einen Grund fuer den Sperrvermerk.');
+    throw new ValidationError('Bitte hinterlegen Sie einen Grund für den Sperrvermerk.');
   }
   return ergebnis.data;
 }
@@ -110,13 +110,13 @@ export async function mitarbeiterAendern(user: SessionUser, id: string, formData
   const unterschied = diff(vorher as unknown as Record<string, unknown>, zuDaten(eingabe) as Record<string, unknown>);
   await audit(user, {
     action: 'employee.update', entity: 'Employee', entityId: id,
-    summary: `Mitarbeiter ${vorher.firstName} ${vorher.lastName} geaendert (${unterschied.changed.join(', ') || 'Qualifikationen'})`,
+    summary: `Mitarbeiter ${vorher.firstName} ${vorher.lastName} geändert (${unterschied.changed.join(', ') || 'Qualifikationen'})`,
     before: unterschied.before, after: unterschied.after,
   });
 }
 
 /**
- * Qualifikationen aus dem Formular: je Haken eine Zeile, das zugehoerige
+ * Qualifikationen aus dem Formular: je Haken eine Zeile, das zugehörige
  * Ablaufdatum steht im Feld `ablauf_<id>`.
  */
 function qualifikationenAus(formData: FormData): Array<{ qualificationId: string; acquiredAt: Date | null; expiresAt: Date | null }> {
@@ -131,7 +131,7 @@ function qualifikationenAus(formData: FormData): Array<{ qualificationId: string
   });
 }
 
-/** Mitarbeiter werden deaktiviert, nicht geloescht (Spec 73). */
+/** Mitarbeiter werden deaktiviert, nicht gelöscht (Spec 73). */
 export async function mitarbeiterDeaktivieren(user: SessionUser, id: string, grund: string) {
   const employee = await db.employee.findFirst({ where: { id, deletedAt: null } });
   if (!employee) throw new NotFoundError('Der Mitarbeiter wurde nicht gefunden.');
@@ -140,7 +140,7 @@ export async function mitarbeiterDeaktivieren(user: SessionUser, id: string, gru
     where: { employeeId: id, deletedAt: null, status: { notIn: ['ABGESAGT', 'STORNIERT'] }, event: { date: { gte: new Date() } } },
   });
   if (kommende > 0) {
-    throw new ConflictError(`Der Mitarbeiter ist noch fuer ${kommende} kommende Einsaetze eingeteilt. Bitte klaeren Sie diese zuerst.`);
+    throw new ConflictError(`Der Mitarbeiter ist noch für ${kommende} kommende Einsätze eingeteilt. Bitte klaeren Sie diese zuerst.`);
   }
 
   await db.$transaction([
@@ -160,7 +160,7 @@ export async function zugangAnlegen(user: SessionUser, employeeId: string, email
 
   const employee = await db.employee.findFirst({ where: { id: employeeId, deletedAt: null }, include: { user: true } });
   if (!employee) throw new NotFoundError('Der Mitarbeiter wurde nicht gefunden.');
-  if (employee.user) throw new ConflictError('Fuer diesen Mitarbeiter besteht bereits ein Zugang.');
+  if (employee.user) throw new ConflictError('Für diesen Mitarbeiter besteht bereits ein Zugang.');
 
   const adresse = email.trim().toLowerCase();
   if (await db.user.findUnique({ where: { email: adresse } })) {
@@ -179,7 +179,7 @@ export async function zugangAnlegen(user: SessionUser, employeeId: string, email
   });
   await audit(user, {
     action: 'user.create', entity: 'User', entityId: neu.id,
-    summary: `Zugang fuer ${employee.firstName} ${employee.lastName} angelegt (${adresse})`,
+    summary: `Zugang für ${employee.firstName} ${employee.lastName} angelegt (${adresse})`,
   });
   return neu;
 }

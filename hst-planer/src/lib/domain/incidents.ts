@@ -21,7 +21,7 @@ export async function vorfallAnlegen(user: SessionUser, eventId: string, formDat
   if (!event) throw new NotFoundError('Das Event wurde nicht gefunden.');
 
   const ergebnis = SCHEMA.safeParse(Object.fromEntries(formData.entries()));
-  if (!ergebnis.success) throw new ValidationError(ergebnis.error.issues[0]?.message ?? 'Bitte pruefen Sie Ihre Eingaben.');
+  if (!ergebnis.success) throw new ValidationError(ergebnis.error.issues[0]?.message ?? 'Bitte prüfen Sie Ihre Eingaben.');
 
   const vorfall = await db.incident.create({
     data: { ...ergebnis.data, eventId, createdById: user.id, assigneeId: null },

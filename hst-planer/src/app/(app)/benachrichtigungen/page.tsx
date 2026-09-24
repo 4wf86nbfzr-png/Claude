@@ -55,7 +55,7 @@ export default async function Benachrichtigungen() {
                     <span className="zahl" style={{ fontSize: 11, color: 'var(--text-gedaempft)' }}>{formatDateDE(eintrag.createdAt)}</span>
                   </div>
                   {eintrag.body && <p style={{ fontSize: 12, color: 'var(--text-sekundaer)', margin: '4px 0 0' }}>{eintrag.body}</p>}
-                  {eintrag.link && <Link href={eintrag.link} style={{ fontSize: 12 }}>Oeffnen</Link>}
+                  {eintrag.link && <Link href={eintrag.link} style={{ fontSize: 12 }}>Öffnen</Link>}
                 </div>
                 {!eintrag.readAt && (
                   <AktionsFormular aktion={gelesenAktion} meldungOben={false}>

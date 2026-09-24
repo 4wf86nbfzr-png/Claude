@@ -50,13 +50,13 @@ export default async function Admin() {
                   aktionen={can(user.role, 'admin.audit') && <Link href="/admin/protokoll" className="knopf">Protokoll ansehen</Link>} />
 
       <Raster min={150}>
-        <Kennzahl wert={benutzer.filter((b) => b.active).length} label="Aktive Zugaenge" />
+        <Kennzahl wert={benutzer.filter((b) => b.active).length} label="Aktive Zugänge" />
         <Kennzahl wert={anzSitzungen} label="Offene Sitzungen" />
         <Kennzahl wert={anzMitarbeiter} label="Mitarbeiter" />
         <Kennzahl wert={anzEvents} label="Events" />
         <Kennzahl wert={anzZuweisungen} label="Zuweisungen" />
-        <Kennzahl wert={anzZeiten} label="Zeiteintraege" />
-        <Kennzahl wert={anzProtokoll} label="Protokolleintraege" href="/admin/protokoll" />
+        <Kennzahl wert={anzZeiten} label="Zeiteinträge" />
+        <Kennzahl wert={anzProtokoll} label="Protokolleinträge" href="/admin/protokoll" />
       </Raster>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 16 }}>
@@ -69,7 +69,7 @@ export default async function Admin() {
                   <tr key={konto.id} className={konto.active ? undefined : 'zeile-grau'}>
                     <td>
                       {konto.name}
-                      {konto.employee && <span style={{ display: 'block', fontSize: 11, color: 'var(--text-gedaempft)' }}>Mitarbeiterprofil verknuepft</span>}
+                      {konto.employee && <span style={{ display: 'block', fontSize: 11, color: 'var(--text-gedaempft)' }}>Mitarbeiterprofil verknüpft</span>}
                     </td>
                     <td style={{ fontSize: 12 }}>{konto.email}</td>
                     <td>{ROLE_LABEL[konto.role as Role]}</td>
@@ -95,7 +95,7 @@ export default async function Admin() {
                             </AktionsFormular>
                             <AktionsFormular aktion={passwortZuruecksetzenAktion} meldungOben={false} geheimnisLabel="Neues Startpasswort">
                               <input type="hidden" name="id" value={konto.id} />
-                              <AktionsKnopf klasse="knopf knopf-klein knopf-gefahr">Passwort zuruecksetzen</AktionsKnopf>
+                              <AktionsKnopf klasse="knopf knopf-klein knopf-gefahr">Passwort zurücksetzen</AktionsKnopf>
                             </AktionsFormular>
                           </div>
                         </Ausklapp>
@@ -138,10 +138,10 @@ export default async function Admin() {
 
         {darfApi && (
           <>
-            <Karte titel="API-Schluessel">
-              {schluessel.length === 0 ? <Leer>Noch keine Schluessel vergeben.</Leer> : (
+            <Karte titel="API-Schlüssel">
+              {schluessel.length === 0 ? <Leer>Noch keine Schlüssel vergeben.</Leer> : (
                 <table className="tabelle">
-                  <thead><tr><th>Name</th><th>Praefix</th><th>Bereiche</th><th>Zuletzt genutzt</th><th>Status</th><th style={{ width: 1 }} /></tr></thead>
+                  <thead><tr><th>Name</th><th>Präfix</th><th>Bereiche</th><th>Zuletzt genutzt</th><th>Status</th><th style={{ width: 1 }} /></tr></thead>
                   <tbody>
                     {schluessel.map((key) => (
                       <tr key={key.id} className={key.active ? undefined : 'zeile-grau'}>
@@ -164,7 +164,7 @@ export default async function Admin() {
                 </table>
               )}
               <div style={{ padding: 14, borderTop: '1px solid var(--linie)' }}>
-                <AktionsFormular aktion={apiSchluesselAktion} meldungOben={false} geheimnisLabel="API-Schluessel"
+                <AktionsFormular aktion={apiSchluesselAktion} meldungOben={false} geheimnisLabel="API-Schlüssel"
                                  stil={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'flex-end' }}>
                   <input name="name" className="feld" placeholder="Bezeichnung, z. B. Website-Formular" required style={{ width: 'auto', flex: '1 1 220px' }} aria-label="Bezeichnung" />
                   {['requests', 'events', 'employees', 'jobs'].map((bereich) => (
@@ -172,7 +172,7 @@ export default async function Admin() {
                       <input type="checkbox" name="scopes" value={bereich} /> {bereich}
                     </label>
                   ))}
-                  <AktionsKnopf klasse="knopf knopf-primaer knopf-klein">Schluessel erzeugen</AktionsKnopf>
+                  <AktionsKnopf klasse="knopf knopf-primaer knopf-klein">Schlüssel erzeugen</AktionsKnopf>
                 </AktionsFormular>
               </div>
             </Karte>

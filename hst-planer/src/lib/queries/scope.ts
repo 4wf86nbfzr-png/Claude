@@ -7,7 +7,7 @@ import type { SessionUser } from '../auth/session';
  *
  * Die Filter werden in JEDE Abfrage gemischt – ein Mitarbeiter darf nur
  * Events sehen, in denen er eingeteilt ist, ein Partner nur Events mit
- * eigenen Kraeften, ein Kunde nur eigene Auftraege.
+ * eigenen Kraeften, ein Kunde nur eigene Aufträge.
  */
 export function eventFilter(user: SessionUser): Prisma.EventWhereInput {
   const basis: Prisma.EventWhereInput = { deletedAt: null };
@@ -48,7 +48,7 @@ export function employeeFilter(user: SessionUser): Prisma.EmployeeWhereInput {
   }
 }
 
-/** Interne Notizen sind nie fuer Mitarbeiter, Partner oder Kunden bestimmt. */
+/** Interne Notizen sind nie für Mitarbeiter, Partner oder Kunden bestimmt. */
 export function darfInterneNotizenSehen(user: SessionUser): boolean {
   return ['ADMIN', 'GESCHAEFTSFUEHRUNG', 'DISPOSITION', 'EINSATZLEITUNG'].includes(user.role);
 }

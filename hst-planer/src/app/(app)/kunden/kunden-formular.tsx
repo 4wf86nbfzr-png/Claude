@@ -30,7 +30,7 @@ export function KundenFormular({ werte = {}, darfFinanzen }: { werte?: KundeWert
             <Feld label="Telefon" name="phone"><input id="phone" name="phone" type="tel" className="feld" defaultValue={werte.phone ?? ''} /></Feld>
           </Raster>
           <Raster min={180}>
-            <Feld label="Strasse" name="street"><input id="street" name="street" className="feld" defaultValue={werte.street ?? ''} /></Feld>
+            <Feld label="Straße" name="street"><input id="street" name="street" className="feld" defaultValue={werte.street ?? ''} /></Feld>
             <Feld label="PLZ" name="zip"><input id="zip" name="zip" className="feld" maxLength={10} defaultValue={werte.zip ?? ''} /></Feld>
             <Feld label="Ort" name="city"><input id="city" name="city" className="feld" defaultValue={werte.city ?? ''} /></Feld>
             <Feld label="USt-IdNr." name="vatId"><input id="vatId" name="vatId" className="feld" defaultValue={werte.vatId ?? ''} /></Feld>
@@ -54,7 +54,7 @@ export function KundenFormular({ werte = {}, darfFinanzen }: { werte?: KundeWert
           <Feld label="Vertragsdaten / Konditionen" name="contractNote">
             <textarea id="contractNote" name="contractNote" className="feld" rows={3} defaultValue={werte.contractNote ?? ''} />
           </Feld>
-          <Feld label="Interne Notizen" name="notesInternal" hinweis="Nicht fuer Mitarbeiter und nicht fuer den Kunden sichtbar.">
+          <Feld label="Interne Notizen" name="notesInternal" hinweis="Nicht für Mitarbeiter und nicht für den Kunden sichtbar.">
             <textarea id="notesInternal" name="notesInternal" className="feld" rows={3} defaultValue={werte.notesInternal ?? ''} />
           </Feld>
         </div>

@@ -10,13 +10,13 @@ import { AktionsFormular, AktionsKnopf, Ausklapp } from '@/components/aktion';
 import { einsatzAntwortAktion } from '../events/actions';
 import { nachrichtAnDispoAktion } from '../meine-dokumente/actions';
 
-export const metadata: Metadata = { title: 'Meine Einsaetze' };
+export const metadata: Metadata = { title: 'Meine Einsätze' };
 export const dynamic = 'force-dynamic';
 
 /**
  * Mitarbeiteransicht (Spec 12/13/44).
  *
- * Bewusst ohne Tabellen: grosse Flaechen, wenig Text, die wichtigste
+ * Bewusst ohne Tabellen: große Flaechen, wenig Text, die wichtigste
  * Information (heute, wann, wo, Treffpunkt) zuerst. Interne Notizen
  * erscheinen hier nie – nur `hints` und `noteForEmployee`.
  */
@@ -25,7 +25,7 @@ export default async function MeineEinsaetze() {
   if (!user.employeeId) {
     return (
       <>
-        <Seitenkopf titel="Meine Einsaetze" />
+        <Seitenkopf titel="Meine Einsätze" />
         <Hinweis art="info">
           Ihr Zugang ist keinem Mitarbeiterprofil zugeordnet. Bitte wenden Sie sich an die Disposition.
         </Hinweis>
@@ -42,10 +42,10 @@ export default async function MeineEinsaetze() {
 
   return (
     <>
-      <Seitenkopf titel="Meine Einsaetze" unter={`${weekdayDE(new Date())}, ${formatDateDE(new Date())}`}
+      <Seitenkopf titel="Meine Einsätze" unter={`${weekdayDE(new Date())}, ${formatDateDE(new Date())}`}
                   aktionen={
                     <>
-                      <Link href="/meine-verfuegbarkeit" className="knopf"><Icon name="calendar" /> Verfuegbarkeit melden</Link>
+                      <Link href="/meine-verfuegbarkeit" className="knopf"><Icon name="calendar" /> Verfügbarkeit melden</Link>
                       <Link href="/meine-dokumente" className="knopf"><Icon name="file" /> Meine Dokumente</Link>
                     </>
                   } />
@@ -72,10 +72,10 @@ export default async function MeineEinsaetze() {
 
       <section>
         <h2 style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--text-gedaempft)', margin: '0 0 8px' }}>
-          Kommende Einsaetze
+          Kommende Einsätze
         </h2>
         {kommende.length === 0
-          ? <Karte><Leer>Zurzeit sind keine weiteren Einsaetze eingeplant.</Leer></Karte>
+          ? <Karte><Leer>Zurzeit sind keine weiteren Einsätze eingeplant.</Leer></Karte>
           : <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {kommende.map((einsatz) => <EinsatzKarte key={einsatz.id} einsatz={einsatz} antwortNoetig={einsatz.status === 'ANGEFRAGT'} />)}
             </div>}
@@ -118,7 +118,7 @@ export default async function MeineEinsaetze() {
 
 /**
  * Der Typ eines Einsatzes leitet sich direkt aus der Abfrage oben ab –
- * so bleibt die Karte automatisch passend, wenn sich die Auswahl aendert.
+ * so bleibt die Karte automatisch passend, wenn sich die Auswahl ändert.
  */
 type Einsatz = Awaited<ReturnType<typeof einsaetzeLaden>>[number];
 

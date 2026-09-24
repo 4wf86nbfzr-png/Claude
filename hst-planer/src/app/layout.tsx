@@ -5,7 +5,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: { default: 'HST Planer', template: '%s · HST Planer' },
-  description: 'Disposition & Einsatzsteuerung fuer das HERM Service Team',
+  description: 'Disposition & Einsatzsteuerung für das HERM Service Team',
   robots: { index: false, follow: false },
   icons: { icon: '/logo-platzhalter.svg' },
 };

@@ -50,7 +50,7 @@ export default async function EventZeiten({ params }: { params: Promise<{ id: st
         <Kennzahl wert={ohneZeit.length} label="Noch ohne Ist-Zeit" farbe={ohneZeit.length > 0 ? 'gelb' : 'gruen'} />
       </Raster>
 
-      <Karte titel="Erfasste Zeiten" aktion={<Link href={`/zeiterfassung?q=${encodeURIComponent(event.name)}`} style={{ fontSize: 12, color: 'var(--text-sekundaer)' }}>In der Zeiterfassung oeffnen</Link>}>
+      <Karte titel="Erfasste Zeiten" aktion={<Link href={`/zeiterfassung?q=${encodeURIComponent(event.name)}`} style={{ fontSize: 12, color: 'var(--text-sekundaer)' }}>In der Zeiterfassung öffnen</Link>}>
         {event.timeEntries.length === 0 ? (
           <Leer>Noch keine Zeiten erfasst. Sie entstehen beim Abgleich eines Stundenzettels oder von Hand in der Zeiterfassung.</Leer>
         ) : (

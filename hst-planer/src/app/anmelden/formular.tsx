@@ -10,7 +10,7 @@ function Knopf() {
   const { pending } = useFormStatus();
   return (
     <button type="submit" className="knopf knopf-primaer knopf-gross" style={{ width: '100%', justifyContent: 'center' }} disabled={pending}>
-      {pending ? 'Wird geprueft …' : 'Anmelden'}
+      {pending ? 'Wird geprüft …' : 'Anmelden'}
     </button>
   );
 }

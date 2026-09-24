@@ -57,10 +57,10 @@ export default async function AnfrageDetail({ params }: { params: Promise<{ id: 
       {anfrage.status === 'NEU' && (
         <div style={{ marginBottom: 16 }}>
           <Hinweis art="warnung">
-            <strong>Neue Anfrage – Pruefung erforderlich.</strong>{' '}
+            <strong>Neue Anfrage – Prüfung erforderlich.</strong>{' '}
             {anfrage.missingFields.length > 0
-              ? `Folgende Angaben fehlen und muessen beim Kunden erfragt werden: ${anfrage.missingFields.join(', ')}.`
-              : 'Bitte pruefen Sie die Angaben, bevor Sie ein Event daraus erzeugen.'}
+              ? `Folgende Angaben fehlen und müssen beim Kunden erfragt werden: ${anfrage.missingFields.join(', ')}.`
+              : 'Bitte prüfen Sie die Angaben, bevor Sie ein Event daraus erzeugen.'}
           </Hinweis>
         </div>
       )}
@@ -81,7 +81,7 @@ export default async function AnfrageDetail({ params }: { params: Promise<{ id: 
                 <Paar label="Zeit">{anfrage.startTime || anfrage.endTime ? `${anfrage.startTime ?? '?'}–${anfrage.endTime ?? '?'}` : fehlt(anfrage.missingFields, 'Startzeit')}</Paar>
                 <Paar label="Treffzeit">{anfrage.meetingTime ?? '–'}</Paar>
                 <Paar label="Ort">{anfrage.location ?? fehlt(anfrage.missingFields, 'Ort')}</Paar>
-                <Paar label="Benoetigtes Personal">{anfrage.employeesNeeded ?? fehlt(anfrage.missingFields, 'Anzahl Mitarbeiter')}</Paar>
+                <Paar label="Benötigtes Personal">{anfrage.employeesNeeded ?? fehlt(anfrage.missingFields, 'Anzahl Mitarbeiter')}</Paar>
                 <Paar label="Leistungsart">{anfrage.serviceType ?? fehlt(anfrage.missingFields, 'Leistungsart')}</Paar>
                 <Paar label="Zugeordneter Kunde">
                   {anfrage.customer ? <Link href={`/kunden/${anfrage.customer.id}`}>{anfrage.customer.name}</Link> : 'noch keiner'}
@@ -94,7 +94,7 @@ export default async function AnfrageDetail({ params }: { params: Promise<{ id: 
           </Karte>
 
           {anfrage.emailMessage && (
-            <Karte titel="Urspruengliche E-Mail">
+            <Karte titel="Ursprüngliche E-Mail">
               <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
                 <Raster min={180}>
                   <Paar label="Von">{anfrage.emailMessage.fromName ? `${anfrage.emailMessage.fromName} <${anfrage.emailMessage.fromEmail}>` : anfrage.emailMessage.fromEmail}</Paar>
@@ -111,14 +111,14 @@ export default async function AnfrageDetail({ params }: { params: Promise<{ id: 
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, minWidth: 0 }}>
           {anfrage.event ? (
-            <Karte titel="Bereits uebernommen">
+            <Karte titel="Bereits übernommen">
               <div style={{ padding: 14 }}>
                 <p style={{ margin: '0 0 10px', fontSize: 13 }}>Aus dieser Anfrage wurde ein Event erzeugt.</p>
                 <Link href={`/events/${anfrage.event.id}`} className="knopf knopf-primaer knopf-klein">{anfrage.event.reference} oeffnen</Link>
               </div>
             </Karte>
           ) : darfBearbeiten && (
-            <Karte titel="In ein Event ueberfuehren">
+            <Karte titel="In ein Event überführen">
               <div style={{ padding: 14 }}>
                 <AktionsFormular aktion={anfrageUebernehmenAktion} stil={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                   <input type="hidden" name="id" value={id} />
@@ -150,7 +150,7 @@ export default async function AnfrageDetail({ params }: { params: Promise<{ id: 
                   <label className="feld-gruppe">
                     <span className="feld-label">Leistungsbereich</span>
                     <select name="serviceTypeId" className="feld" defaultValue={vorgeschlagenerBereich}>
-                      <option value="">– bitte waehlen –</option>
+                      <option value="">– bitte wählen –</option>
                       {bereiche.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
                     </select>
                   </label>
@@ -171,14 +171,14 @@ export default async function AnfrageDetail({ params }: { params: Promise<{ id: 
           )}
 
           {darfBearbeiten && (
-            <Karte titel="Status aendern">
+            <Karte titel="Status ändern">
               <div style={{ padding: 14 }}>
                 <AktionsFormular aktion={anfrageStatusAktion} stil={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   <input type="hidden" name="id" value={id} />
                   <select name="status" className="feld" defaultValue={anfrage.status}>
                     {Object.entries(REQUEST_STATUS).map(([wert, s]) => <option key={wert} value={wert}>{s.label}</option>)}
                   </select>
-                  <textarea name="notiz" className="feld" rows={2} placeholder="Notiz (wird an die Anfrage angehaengt)" />
+                  <textarea name="notiz" className="feld" rows={2} placeholder="Notiz (wird an die Anfrage angehängt)" />
                   <AktionsKnopf klasse="knopf knopf-klein">Speichern</AktionsKnopf>
                 </AktionsFormular>
               </div>

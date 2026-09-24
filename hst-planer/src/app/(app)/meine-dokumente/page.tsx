@@ -66,7 +66,7 @@ export default async function MeineDokumente() {
                 <input name="titel" className="feld" placeholder="leer lassen = Dateiname" />
               </label>
               <label className="feld-gruppe">
-                <span className="feld-label">Gueltig bis (falls angegeben)</span>
+                <span className="feld-label">Gültig bis (falls angegeben)</span>
                 <input name="gueltigBis" type="date" className="feld" />
               </label>
               <label className="feld-gruppe">
@@ -83,7 +83,7 @@ export default async function MeineDokumente() {
         <Karte titel="Bereits hinterlegt">
           {dokumente.length === 0 ? <Leer>Sie haben noch keine Dokumente hochgeladen.</Leer> : (
             <table className="tabelle">
-              <thead><tr><th>Dokument</th><th>Art</th><th>Gueltig bis</th><th>Hochgeladen</th></tr></thead>
+              <thead><tr><th>Dokument</th><th>Art</th><th>Gültig bis</th><th>Hochgeladen</th></tr></thead>
               <tbody>
                 {dokumente.map((dokument) => (
                   <tr key={dokument.id} className={dokument.expiresAt && dokument.expiresAt < heute ? 'zeile-rot' : undefined}>
@@ -101,7 +101,7 @@ export default async function MeineDokumente() {
         <Karte titel="Meine Qualifikationen">
           {qualifikationen.length === 0 ? <Leer>Es sind keine Qualifikationen hinterlegt.</Leer> : (
             <table className="tabelle">
-              <thead><tr><th>Qualifikation</th><th>Gueltig bis</th></tr></thead>
+              <thead><tr><th>Qualifikation</th><th>Gültig bis</th></tr></thead>
               <tbody>
                 {qualifikationen.map((q) => {
                   const abgelaufen = q.expiresAt && q.expiresAt < heute;

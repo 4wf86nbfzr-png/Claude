@@ -12,13 +12,13 @@ import type { $Enums } from '@prisma/client';
 /**
  * Mitarbeiter einer Position zuweisen (Spec 8).
  *
- * Geprueft wird vor dem Speichern:
+ * Geprüft wird vor dem Speichern:
  *  * Ist der Mitarbeiter gesperrt oder inaktiv?
- *  * Ist er an diesem Tag bereits anderweitig eingeteilt (Ueberschneidung)?
- *  * Hat er sich fuer den Zeitraum abgemeldet (Urlaub/krank)?
+ *  * Ist er an diesem Tag bereits anderweitig eingeteilt (Überschneidung)?
+ *  * Hat er sich für den Zeitraum abgemeldet (Urlaub/krank)?
  *
  * Die ersten beiden Punkte blockieren, der dritte ist eine Warnung, die der
- * Disponent bewusst uebergehen kann (`trotzdem`).
+ * Disponent bewusst übergehen kann (`trotzdem`).
  */
 export interface ZuweisungEingabe {
   positionId: string;
@@ -62,7 +62,7 @@ export async function pruefeZuweisung(positionId: string, employeeId: string): P
     konflikte.push({ art: 'GESPERRT', text: `Sperrvermerk: ${employee.blockReason ?? 'ohne Angabe'}`, blockierend: true });
   }
 
-  // Ueberschneidung am selben Tag
+  // Überschneidung am selben Tag
   const start = position.startTime ?? position.event.startTime;
   const ende = position.endTime ?? position.event.endTime;
   for (const vorhanden of employee.assignments) {
@@ -117,11 +117,11 @@ export async function zuweisen(user: SessionUser, eingabe: ZuweisungEingabe) {
   const konflikte = await pruefeZuweisung(eingabe.positionId, eingabe.employeeId);
   const blockierend = konflikte.filter((k) => k.blockierend);
   if (blockierend.length) {
-    throw new ConflictError(`Zuweisung nicht moeglich: ${blockierend.map((k) => k.text).join(' ')}`, konflikte);
+    throw new ConflictError(`Zuweisung nicht möglich: ${blockierend.map((k) => k.text).join(' ')}`, konflikte);
   }
   if (!eingabe.trotzdem && konflikte.length) {
     throw new ConflictError(
-      `Bitte bestaetigen Sie: ${konflikte.map((k) => k.text).join(' ')}`,
+      `Bitte bestätigen Sie: ${konflikte.map((k) => k.text).join(' ')}`,
       { konflikte, bestaetigungNoetig: true },
     );
   }
@@ -188,7 +188,7 @@ export async function zuweisungEntfernen(user: SessionUser, id: string, grund?: 
     await notifyUsers([assignment.employee.user.id], {
       kind: 'EINSATZ_ABGESAGT',
       title: `Einteilung aufgehoben: ${assignment.event.name}`,
-      body: grund ?? 'Die Disposition hat die Einteilung zurueckgenommen.',
+      body: grund ?? 'Die Disposition hat die Einteilung zurückgenommen.',
       link: '/meine-einsaetze',
     });
   }
@@ -247,12 +247,12 @@ export async function mitarbeiterAntwort(user: SessionUser, id: string, annehmen
     where: { id, deletedAt: null, employeeId: user.employeeId },
     include: { event: true, employee: true, position: true },
   });
-  if (!assignment) throw new NotFoundError('Dieser Einsatz gehoert nicht zu Ihrem Profil.');
+  if (!assignment) throw new NotFoundError('Dieser Einsatz gehört nicht zu Ihrem Profil.');
   if (assignment.event.date < new Date(Date.now() - 86400000)) {
     throw new ValidationError('Dieser Einsatz liegt in der Vergangenheit.');
   }
   if (!annehmen && !grund?.trim() && assignment.status === 'ZUGESAGT') {
-    throw new ValidationError('Bitte geben Sie kurz an, warum Sie den bereits zugesagten Einsatz nicht wahrnehmen koennen.');
+    throw new ValidationError('Bitte geben Sie kurz an, warum Sie den bereits zugesagten Einsatz nicht wahrnehmen können.');
   }
   await statusSetzen(user, id, annehmen ? 'ZUGESAGT' : 'ABGESAGT', grund);
 }

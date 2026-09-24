@@ -5,7 +5,7 @@ import type { SessionUser } from './auth/session';
 /**
  * Revisionssichere Protokollierung (Spec 32).
  * Der Name des Handelnden wird mitgeschrieben, damit der Eintrag auch
- * lesbar bleibt, wenn der Benutzer spaeter deaktiviert wurde.
+ * lesbar bleibt, wenn der Benutzer später deaktiviert wurde.
  */
 export interface AuditInput {
   action: string;
@@ -39,7 +39,7 @@ export async function audit(user: Pick<SessionUser, 'id' | 'name' | 'email'> | n
   }
 }
 
-/** Entfernt Felder, die nicht ins Protokoll gehoeren, und macht Daten JSON-faehig. */
+/** Entfernt Felder, die nicht ins Protokoll gehören, und macht Daten JSON-faehig. */
 function sanitize(value: unknown): object | undefined {
   if (value == null) return undefined;
   const secret = /pass|secret|token|hash|totp/i;
@@ -49,7 +49,7 @@ function sanitize(value: unknown): object | undefined {
     if (input instanceof Date) return input.toISOString();
     if (typeof input === 'bigint') return input.toString();
     if (typeof input === 'object') {
-      if (seen.has(input as object)) return '[zirkulaer]';
+      if (seen.has(input as object)) return '[zirkulär]';
       seen.add(input as object);
       if (Array.isArray(input)) return input.map(walk);
       // Prisma Decimal & Co. besitzen toString()
@@ -67,7 +67,7 @@ function sanitize(value: unknown): object | undefined {
   return typeof result === 'object' && result !== null ? (result as object) : { wert: result };
 }
 
-/** Nur die Felder protokollieren, die sich wirklich geaendert haben. */
+/** Nur die Felder protokollieren, die sich wirklich geändert haben. */
 export function diff<T extends Record<string, unknown>>(before: T, after: Partial<T>): { before: Partial<T>; after: Partial<T>; changed: string[] } {
   const b: Partial<T> = {};
   const a: Partial<T> = {};

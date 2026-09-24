@@ -1,9 +1,9 @@
 /**
- * Spaltenerkennung fuer Excel-/CSV-Importe (Spec 24).
+ * Spaltenerkennung für Excel-/CSV-Importe (Spec 24).
  *
  * Der Benutzer bekommt immer einen Vorschlag, kann ihn aber vor dem Import
- * ueberschreiben. Erkannte Zuordnungen lassen sich als Vorlage speichern
- * (Spec 51), damit derselbe Partner-Stundenzettel beim naechsten Mal
+ * überschreiben. Erkannte Zuordnungen lassen sich als Vorlage speichern
+ * (Spec 51), damit derselbe Partner-Stundenzettel beim nächsten Mal
  * ohne Nacharbeit durchlaeuft.
  */
 
@@ -29,7 +29,7 @@ export interface FieldDefinition {
 }
 
 export const TIMESHEET_FIELDS: FieldDefinition[] = [
-  { field: 'name', label: 'Mitarbeiter (kompletter Name)', aliases: ['mitarbeiter', 'name', 'personal', 'mitarbeitername', 'beschaeftigter', 'kraft', 'person', 'employee'], required: true },
+  { field: 'name', label: 'Mitarbeiter (kompletter Name)', aliases: ['mitarbeiter', 'name', 'personal', 'mitarbeitername', 'beschäftigter', 'kraft', 'person', 'employee'], required: true },
   { field: 'lastName', label: 'Nachname', aliases: ['nachname', 'familienname', 'lastname', 'surname', 'zuname'] },
   { field: 'firstName', label: 'Vorname', aliases: ['vorname', 'firstname', 'rufname'] },
   { field: 'personnelNo', label: 'Personalnummer', aliases: ['personalnummer', 'persnr', 'persno', 'pnr', 'mitarbeiternummer', 'personalnr', 'ausweisnummer'] },
@@ -38,7 +38,7 @@ export const TIMESHEET_FIELDS: FieldDefinition[] = [
   { field: 'end', label: 'Endzeit', aliases: ['ende', 'bis', 'endzeit', 'schluss', 'dienstende', 'geht', 'checkout', 'arbeitsende'], required: true },
   { field: 'break', label: 'Pause (Minuten)', aliases: ['pause', 'pausen', 'pausenzeit', 'break', 'unterbrechung'] },
   { field: 'event', label: 'Event / Einsatz', aliases: ['event', 'veranstaltung', 'einsatz', 'objekt', 'auftrag', 'projekt', 'eventid', 'einsatzort', 'baustelle'] },
-  { field: 'position', label: 'Position / Funktion', aliases: ['position', 'funktion', 'taetigkeit', 'bereich', 'aufgabe', 'posten'] },
+  { field: 'position', label: 'Position / Funktion', aliases: ['position', 'funktion', 'tätigkeit', 'bereich', 'aufgabe', 'posten'] },
   { field: 'note', label: 'Bemerkung', aliases: ['bemerkung', 'notiz', 'hinweis', 'kommentar', 'anmerkung', 'info'] },
 ];
 
@@ -61,7 +61,7 @@ export interface MappingSuggestion {
 
 /**
  * Schlaegt eine Spaltenzuordnung vor. Exakte Treffer gewinnen vor
- * Teiltreffern; jede Spalte wird hoechstens einmal vergeben.
+ * Teiltreffern; jede Spalte wird höchstens einmal vergeben.
  */
 export function suggestMapping(
   headers: readonly string[],
@@ -94,7 +94,7 @@ export function suggestMapping(
 
   // Getrennte Vor-/Nachname-Spalten ersetzen die Sammelspalte.
   if (!mapping.name && mapping.lastName) {
-    // kein kombiniertes Feld noetig – der Leser setzt den Namen zusammen
+    // kein kombiniertes Feld nötig – der Leser setzt den Namen zusammen
   }
 
   const unmapped = headers.filter((h) => !usedColumns.has(h));

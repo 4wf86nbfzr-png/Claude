@@ -1,5 +1,5 @@
 /**
- * Logo-Platzhalter (Spec 75). Das echte HST-Logo wird spaeter unter
+ * Logo-Platzhalter (Spec 75). Das echte HST-Logo wird später unter
  * public/logo.svg abgelegt; diese Komponente greift dann darauf zu.
  */
 export function Logo({ groesse = 28 }: { groesse?: number }) {

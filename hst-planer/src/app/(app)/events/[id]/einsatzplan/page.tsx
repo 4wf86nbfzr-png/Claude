@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic';
 /**
  * Druckbarer Einsatzplan (Spec 62/63).
  * Bewusst schlicht und ohne Navigation – das Blatt geht an die Einsatzleitung
- * und haengt haeufig ausgedruckt im Container.
+ * und hängt häufig ausgedruckt im Container.
  */
 export default async function Einsatzplan({ params }: { params: Promise<{ id: string }> }) {
   const user = await seite('events.view');

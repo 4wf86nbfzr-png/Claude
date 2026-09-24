@@ -29,7 +29,7 @@ export async function firmaSpeichernAktion(_zustand: Ergebnis, formData: FormDat
     };
     if (!wert.name) throw new ValidationError('Bitte geben Sie den Firmennamen an.');
     await db.setting.upsert({ where: { key: 'firma' }, create: { key: 'firma', value: wert, updatedById: user.id }, update: { value: wert, updatedById: user.id } });
-    await audit(user, { action: 'setting.update', entity: 'Setting', entityId: 'firma', summary: 'Firmendaten geaendert', after: wert });
+    await audit(user, { action: 'setting.update', entity: 'Setting', entityId: 'firma', summary: 'Firmendaten geändert', after: wert });
     revalidatePath('/einstellungen');
     return { erfolg: true, hinweis: 'Firmendaten gespeichert.' };
   });
@@ -52,7 +52,7 @@ export async function regelnSpeichernAktion(_zustand: Ergebnis, formData: FormDa
       db.setting.upsert({ where: { key: 'abgleich' }, create: { key: 'abgleich', value: abgleich, updatedById: user.id }, update: { value: abgleich, updatedById: user.id } }),
       db.setting.upsert({ where: { key: 'benachrichtigungen' }, create: { key: 'benachrichtigungen', value: benachrichtigungen, updatedById: user.id }, update: { value: benachrichtigungen, updatedById: user.id } }),
     ]);
-    await audit(user, { action: 'setting.update', entity: 'Setting', summary: 'Regeln fuer Abgleich und Benachrichtigungen geaendert', after: { abgleich, benachrichtigungen } });
+    await audit(user, { action: 'setting.update', entity: 'Setting', summary: 'Regeln für Abgleich und Benachrichtigungen geändert', after: { abgleich, benachrichtigungen } });
     revalidatePath('/einstellungen');
     return { erfolg: true, hinweis: 'Regeln gespeichert.' };
   });
@@ -63,7 +63,7 @@ export async function leistungsartAktion(_zustand: Ergebnis, formData: FormData)
     const user = await seite('settings.edit');
     const code = String(formData.get('code') ?? '').trim().toUpperCase().replace(/[^A-Z0-9_]/g, '');
     const name = String(formData.get('name') ?? '').trim();
-    if (!code || !name) throw new ValidationError('Bitte geben Sie Kuerzel und Bezeichnung an.');
+    if (!code || !name) throw new ValidationError('Bitte geben Sie Kürzel und Bezeichnung an.');
     await db.serviceType.upsert({
       where: { code },
       create: { code, name, color: String(formData.get('color') ?? '#3B82F6') },
@@ -80,7 +80,7 @@ export async function qualifikationAktion(_zustand: Ergebnis, formData: FormData
     const user = await seite('settings.edit');
     const code = String(formData.get('code') ?? '').trim().toUpperCase().replace(/[^A-Z0-9_]/g, '');
     const name = String(formData.get('name') ?? '').trim();
-    if (!code || !name) throw new ValidationError('Bitte geben Sie Kuerzel und Bezeichnung an.');
+    if (!code || !name) throw new ValidationError('Bitte geben Sie Kürzel und Bezeichnung an.');
     await db.qualification.upsert({
       where: { code },
       create: { code, name, expires: formData.get('expires') === 'on' },

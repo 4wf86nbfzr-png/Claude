@@ -4,7 +4,7 @@ import { db } from '@/lib/db';
 import { Hinweis, Karte, Seitenkopf } from '@/components/ui';
 import { PasswortFormular } from './formular';
 
-export const metadata: Metadata = { title: 'Passwort aendern' };
+export const metadata: Metadata = { title: 'Passwort ändern' };
 export const dynamic = 'force-dynamic';
 
 export default async function PasswortAendern() {
@@ -13,7 +13,7 @@ export default async function PasswortAendern() {
 
   return (
     <>
-      <Seitenkopf titel="Passwort aendern" unter={user.email} />
+      <Seitenkopf titel="Passwort ändern" unter={user.email} />
       <div style={{ maxWidth: 440, display: 'flex', flexDirection: 'column', gap: 14 }}>
         {konto?.mustChangePassword && (
           <Hinweis art="warnung">

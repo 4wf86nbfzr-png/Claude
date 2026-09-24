@@ -1,5 +1,5 @@
 /**
- * HST Planer – Anfrage-Widget fuer hermserviceteam.com (Spec 43)
+ * HST Planer – Anfrage-Widget für hermserviceteam.com (Spec 43)
  *
  * Einbindung auf der Website:
  *
@@ -8,11 +8,11 @@
  *
  * Das Widget bringt bewusst KEIN eigenes Design mit: Es erzeugt schlichtes,
  * semantisches HTML mit den Klassen der Zielseite (Vorgabe: die Klassen der
- * HST-Website – `feld`, `knopf`). So fuegt es sich ein, statt sich
- * durchzusetzen. Mit `data-hst-klassen` laesst sich das anpassen.
+ * HST-Website – `feld`, `knopf`). So fügt es sich ein, statt sich
+ * durchzusetzen. Mit `data-hst-klassen` lässt sich das anpassen.
  *
  * Datenschutz: Es werden keine Cookies gesetzt, nichts nachgeladen und nichts
- * protokolliert. Abgeschickt wird ausschliesslich das, was im Formular steht.
+ * protokolliert. Abgeschickt wird ausschließlich das, was im Formular steht.
  */
 (function () {
   'use strict';
@@ -36,7 +36,7 @@
     { name: 'startTime', label: 'Beginn', typ: 'time' },
     { name: 'endTime', label: 'Ende', typ: 'time' },
     { name: 'location', label: 'Veranstaltungsort', typ: 'text' },
-    { name: 'employeesNeeded', label: 'Benoetigte Mitarbeiter', typ: 'number' },
+    { name: 'employeesNeeded', label: 'Benötigte Mitarbeiter', typ: 'number' },
   ];
 
   function element(tag, attribute, text) {
@@ -75,7 +75,7 @@
     var bereichGruppe = element('p');
     bereichGruppe.appendChild(element('label', { for: 'hst-serviceType' }, 'Leistungsbereich'));
     var auswahl = element('select', { id: 'hst-serviceType', name: 'serviceType', class: feldKlasse });
-    auswahl.appendChild(element('option', { value: '' }, 'bitte waehlen'));
+    auswahl.appendChild(element('option', { value: '' }, 'bitte wählen'));
     BEREICHE.forEach(function (bereich) {
       auswahl.appendChild(element('option', { value: bereich[0] }, bereich[1]));
     });
@@ -88,7 +88,7 @@
     textGruppe.appendChild(textfeld);
     formular.appendChild(textGruppe);
 
-    // Honigtopf: fuer Menschen unsichtbar, fuer Maschinen verlockend.
+    // Honigtopf: für Menschen unsichtbar, für Maschinen verlockend.
     var falle = element('div', { 'aria-hidden': 'true' });
     falle.style.cssText = 'position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden';
     var fallenFeld = element('input', { type: 'text', name: 'website', tabindex: '-1', autocomplete: 'off' });
@@ -109,7 +109,7 @@
         if (typeof wert === 'string' && wert.trim() !== '') daten[schluessel] = wert.trim();
       });
       if (!daten.email) {
-        zeigen(meldung, 'Bitte geben Sie eine E-Mail-Adresse an, damit wir antworten koennen.', true);
+        zeigen(meldung, 'Bitte geben Sie eine E-Mail-Adresse an, damit wir antworten können.', true);
         return;
       }
 
@@ -126,7 +126,7 @@
         })
         .then(function (ergebnis) {
           if (!ergebnis.ok) {
-            zeigen(meldung, ergebnis.rumpf.error || 'Die Anfrage konnte nicht uebermittelt werden.', true);
+            zeigen(meldung, ergebnis.rumpf.error || 'Die Anfrage konnte nicht übermittelt werden.', true);
             return;
           }
           formular.reset();
@@ -136,7 +136,7 @@
           zeigen(meldung, text, false);
         })
         .catch(function () {
-          zeigen(meldung, 'Die Verbindung ist fehlgeschlagen. Bitte rufen Sie uns an oder versuchen Sie es spaeter erneut.', true);
+          zeigen(meldung, 'Die Verbindung ist fehlgeschlagen. Bitte rufen Sie uns an oder versuchen Sie es später erneut.', true);
         })
         .finally(function () {
           knopf.disabled = false;

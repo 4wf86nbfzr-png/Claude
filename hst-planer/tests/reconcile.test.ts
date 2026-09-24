@@ -10,7 +10,7 @@ const employees: EmployeeRef[] = [
 function shift(partial: Partial<PlannedShift> & { assignmentId: string; employeeId: string }): PlannedShift {
   return {
     eventId: 'ev1', eventReference: 'EV-2026-0001', eventName: 'HSV Spieltag',
-    positionId: 'p1', positionTitle: 'Ordnungsdienst Sued',
+    positionId: 'p1', positionTitle: 'Ordnungsdienst Süd',
     date: '2026-10-15', start: '17:00', end: '01:00', breakMinutes: 30,
     ...partial,
   };
@@ -26,7 +26,7 @@ function row(rowNumber: number, partial: Partial<ActualRow>): ActualRow {
   return { rowNumber, name: '', date: '15.10.2026', start: '17:00', end: '01:00', break: 30, ...partial };
 }
 
-describe('Abgleich – Grundfaelle', () => {
+describe('Abgleich – Grundfälle', () => {
   it('erkennt identische Zeiten als OK', () => {
     const result = reconcile([row(2, { name: 'Max Mustermann' })], planned.slice(0, 1), employees, { reportMissing: false });
     expect(result.rows[0]!.status).toBe('OK');
@@ -51,7 +51,7 @@ describe('Abgleich – Grundfaelle', () => {
     expect(r.status).toBe('ABWEICHUNG');
     expect(r.issues).toContain('ENDZEIT_ABWEICHEND');
     expect(r.issues).not.toContain('STARTZEIT_ABWEICHEND'); // 5 Minuten liegen in der Toleranz
-    expect(r.diffMinutes).toBe(25); // 5 Minuten spaeter begonnen, 30 Minuten laenger geblieben
+    expect(r.diffMinutes).toBe(25); // 5 Minuten später begonnen, 30 Minuten laenger geblieben
     expect(result.summary.deviationRows).toBe(1);
   });
 
@@ -66,7 +66,7 @@ describe('Abgleich – Grundfaelle', () => {
   });
 });
 
-describe('Abgleich – Sonderfaelle (Spec 68)', () => {
+describe('Abgleich – Sonderfälle (Spec 68)', () => {
   it('meldet unbekannte Mitarbeiter', () => {
     const result = reconcile([row(2, { name: 'Petra Schneider' })], planned, employees, { reportMissing: false });
     expect(result.rows[0]!.status).toBe('UNBEKANNT');
@@ -74,7 +74,7 @@ describe('Abgleich – Sonderfaelle (Spec 68)', () => {
     expect(result.summary.unknownRows).toBe(1);
   });
 
-  it('meldet doppelte Datensaetze', () => {
+  it('meldet doppelte Datensätze', () => {
     const result = reconcile(
       [row(2, { name: 'Max Mustermann' }), row(3, { name: 'Max Mustermann' })],
       planned.slice(0, 1), employees, { reportMissing: false },
@@ -113,7 +113,7 @@ describe('Abgleich – Sonderfaelle (Spec 68)', () => {
 
   it('meldet unlesbare Datumsangaben', () => {
     const result = reconcile(
-      [row(2, { name: 'Max Mustermann', date: 'naechste Woche' })],
+      [row(2, { name: 'Max Mustermann', date: 'nächste Woche' })],
       planned.slice(0, 1), employees, { reportMissing: false },
     );
     expect(result.rows[0]!.issues).toContain('DATUM_UNGUELTIG');
@@ -127,7 +127,7 @@ describe('Abgleich – Sonderfaelle (Spec 68)', () => {
     expect(result.rows[0]!.issues).toContain('EVENT_ABWEICHEND');
   });
 
-  it('nutzt das Event zur Auswahl bei zwei Einsaetzen am selben Tag', () => {
+  it('nutzt das Event zur Auswahl bei zwei Einsätzen am selben Tag', () => {
     const zweiEinsaetze = [
       shift({ assignmentId: 'a1', employeeId: 'e1', start: '08:00', end: '12:00', breakMinutes: 0 }),
       shift({ assignmentId: 'a2', employeeId: 'e1', eventId: 'ev2', eventReference: 'EV-2026-0002', eventName: 'Messe Hamburg', start: '17:00', end: '23:00', breakMinutes: 0 }),
@@ -140,7 +140,7 @@ describe('Abgleich – Sonderfaelle (Spec 68)', () => {
     expect(result.rows[0]!.status).toBe('OK');
   });
 
-  it('ordnet ueber die Personalnummer auch bei abweichendem Namen zu', () => {
+  it('ordnet über die Personalnummer auch bei abweichendem Namen zu', () => {
     const result = reconcile(
       [row(2, { name: 'M. Mustermann jun.', personnelNo: 'HST-001' })],
       planned.slice(0, 1), employees, { reportMissing: false },
@@ -149,7 +149,7 @@ describe('Abgleich – Sonderfaelle (Spec 68)', () => {
     expect(result.rows[0]!.matchScore).toBe(1);
   });
 
-  it('liefert eine vollstaendige Zusammenfassung (Spec 21)', () => {
+  it('liefert eine vollständige Zusammenfassung (Spec 21)', () => {
     const rows: ActualRow[] = [
       row(2, { name: 'Max Mustermann' }),
       row(3, { name: 'Lena Bergmann', end: '02:00' }),

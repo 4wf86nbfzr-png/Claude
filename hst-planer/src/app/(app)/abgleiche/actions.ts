@@ -26,7 +26,7 @@ export async function dateiHochladenAktion(_zustand: Ergebnis, formData: FormDat
   const ergebnis = await fuehreAus(async () => {
     const user = await seite('reconciliation.edit');
     const datei = formData.get('datei');
-    if (!(datei instanceof File) || datei.size === 0) throw new ValidationError('Bitte waehlen Sie eine Datei aus.');
+    if (!(datei instanceof File) || datei.size === 0) throw new ValidationError('Bitte wählen Sie eine Datei aus.');
     const vorschau = await dateiHochladen(user, datei, String(formData.get('name') ?? ''));
     revalidatePath('/abgleiche');
     return { erfolg: true, hinweis: vorschau.reconciliationId };
@@ -35,7 +35,7 @@ export async function dateiHochladenAktion(_zustand: Ergebnis, formData: FormDat
   redirect(`/abgleiche/${ergebnis.hinweis}/zuordnen`);
 }
 
-/** Spaltenzuordnung aus dem Formular lesen: Feld -> gewaehlte Spalte. */
+/** Spaltenzuordnung aus dem Formular lesen: Feld -> gewählte Spalte. */
 function mappingAus(formData: FormData): ColumnMapping {
   const mapping: ColumnMapping = {};
   for (const definition of TIMESHEET_FIELDS) {
@@ -59,7 +59,7 @@ export async function abgleichStartenAktion(_zustand: Ergebnis, formData: FormDa
     revalidatePath(`/abgleiche/${id}`);
     return {
       erfolg: true,
-      hinweis: `${zusammenfassung.totalRows} Datensaetze verarbeitet · ${zusammenfassung.matchedRows} automatisch zugeordnet · ${zusammenfassung.deviationRows} Abweichungen · ${zusammenfassung.unknownRows} unbekannte Mitarbeiter · ${zusammenfassung.duplicateRows} doppelte Eintraege`,
+      hinweis: `${zusammenfassung.totalRows} Datensätze verarbeitet · ${zusammenfassung.matchedRows} automatisch zugeordnet · ${zusammenfassung.deviationRows} Abweichungen · ${zusammenfassung.unknownRows} unbekannte Mitarbeiter · ${zusammenfassung.duplicateRows} doppelte Einträge`,
     };
   });
   if (ergebnis.fehler) return ergebnis;
@@ -91,7 +91,7 @@ export async function zeileIgnorierenAktion(_zustand: Ergebnis, formData: FormDa
     const id = String(formData.get('reconciliationId'));
     await zeileIgnorieren(user, String(formData.get('rowId')), String(formData.get('grund') ?? '').trim() || 'ohne Angabe');
     revalidatePath(`/abgleiche/${id}`);
-    return { erfolg: true, hinweis: 'Zeile wird nicht uebernommen.' };
+    return { erfolg: true, hinweis: 'Zeile wird nicht übernommen.' };
   });
 }
 
@@ -101,7 +101,7 @@ export async function unkritischeBestaetigenAktion(_zustand: Ergebnis, formData:
     const id = String(formData.get('id'));
     const anzahl = await unkritischeBestaetigen(user, id, Number(formData.get('grenze') ?? 30));
     revalidatePath(`/abgleiche/${id}`);
-    return { erfolg: true, hinweis: anzahl === 0 ? 'Es gab keine unkritischen Abweichungen.' : `${anzahl} Abweichungen bestaetigt.` };
+    return { erfolg: true, hinweis: anzahl === 0 ? 'Es gab keine unkritischen Abweichungen.' : `${anzahl} Abweichungen bestätigt.` };
   });
 }
 
@@ -112,6 +112,6 @@ export async function abgleichAbschliessenAktion(_zustand: Ergebnis, formData: F
     const ergebnis = await abgleichAbschliessen(user, id);
     revalidatePath(`/abgleiche/${id}`);
     revalidatePath('/zeiterfassung');
-    return { erfolg: true, hinweis: `Abgleich abgeschlossen. ${ergebnis.geschrieben} Zeiten wurden in die Zeiterfassung uebernommen.` };
+    return { erfolg: true, hinweis: `Abgleich abgeschlossen. ${ergebnis.geschrieben} Zeiten wurden in die Zeiterfassung übernommen.` };
   });
 }

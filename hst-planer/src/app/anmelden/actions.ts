@@ -10,7 +10,7 @@ import { clientIp, createSession, destroySession, userAgent } from '@/lib/auth/s
 import { homeFor, type Role } from '@/lib/auth/rbac';
 
 const SCHEMA = z.object({
-  email: z.string().trim().toLowerCase().email('Bitte geben Sie eine gueltige E-Mail-Adresse an.'),
+  email: z.string().trim().toLowerCase().email('Bitte geben Sie eine gültige E-Mail-Adresse an.'),
   passwort: z.string().min(1, 'Bitte geben Sie Ihr Passwort ein.'),
 });
 
@@ -25,7 +25,7 @@ export async function anmelden(_zustand: AnmeldeZustand, formData: FormData): Pr
     passwort: formData.get('passwort'),
   });
   if (!eingabe.success) {
-    return { fehler: eingabe.error.issues[0]?.message ?? 'Bitte pruefen Sie Ihre Eingaben.' };
+    return { fehler: eingabe.error.issues[0]?.message ?? 'Bitte prüfen Sie Ihre Eingaben.' };
   }
 
   const ip = (await clientIp()) ?? 'unbekannt';
@@ -41,13 +41,13 @@ export async function anmelden(_zustand: AnmeldeZustand, formData: FormData): Pr
   const abgelehnt = { fehler: 'E-Mail-Adresse oder Passwort ist nicht korrekt.' };
 
   if (!user || !user.active || user.deletedAt) {
-    // Gleich lange Laufzeit, damit sich kein Konto am Antwortverhalten erkennen laesst.
+    // Gleich lange Laufzeit, damit sich kein Konto am Antwortverhalten erkennen lässt.
     await verifyPassword(eingabe.data.passwort, 'scrypt$32768$8$1$AAAA$AAAA');
     return abgelehnt;
   }
 
   if (user.lockedUntil && user.lockedUntil > new Date()) {
-    return { fehler: `Das Konto ist voruebergehend gesperrt. Bitte versuchen Sie es in ${Math.ceil((user.lockedUntil.getTime() - Date.now()) / 60000)} Minuten erneut.` };
+    return { fehler: `Das Konto ist vorübergehend gesperrt. Bitte versuchen Sie es in ${Math.ceil((user.lockedUntil.getTime() - Date.now()) / 60000)} Minuten erneut.` };
   }
 
   if (!(await verifyPassword(eingabe.data.passwort, user.passwordHash))) {
@@ -59,7 +59,7 @@ export async function anmelden(_zustand: AnmeldeZustand, formData: FormData): Pr
         lockedUntil: fehlversuche >= MAX_FEHLVERSUCHE ? new Date(Date.now() + SPERRE_MINUTEN * 60000) : null,
       },
     });
-    await audit(null, { action: 'auth.login.failed', entity: 'User', entityId: user.id, summary: `Fehlgeschlagene Anmeldung fuer ${user.email}`, ip });
+    await audit(null, { action: 'auth.login.failed', entity: 'User', entityId: user.id, summary: `Fehlgeschlagene Anmeldung für ${user.email}`, ip });
     return abgelehnt;
   }
 

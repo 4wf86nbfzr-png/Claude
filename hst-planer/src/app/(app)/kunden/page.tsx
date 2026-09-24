@@ -46,7 +46,7 @@ export default async function Kunden({ searchParams }: { searchParams: Promise<R
 
   return (
     <>
-      <Seitenkopf titel="Kunden" unter={`${gesamt} Eintraege`}
+      <Seitenkopf titel="Kunden" unter={`${gesamt} Einträge`}
                   aktionen={can(user.role, 'customers.edit') && (
                     <Link href="/kunden/neu" className="knopf knopf-primaer"><Icon name="plus" /> Neuer Kunde</Link>
                   )} />

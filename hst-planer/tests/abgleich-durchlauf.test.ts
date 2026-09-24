@@ -1,7 +1,7 @@
 /**
  * Durchlauf durch den kompletten Abgleich gegen die echte Datenbank:
  * Event und Zuweisungen anlegen, Stundenzettel erzeugen, hochladen,
- * abgleichen, korrigieren und abschliessen.
+ * abgleichen, korrigieren und abschließen.
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import ExcelJS from 'exceljs';
@@ -88,7 +88,7 @@ describe('Abgleich von Anfang bis Ende', () => {
     expect(vorschau.gesamtZeilen).toBe(4);
   });
 
-  it('erkennt beim Abgleich alle Faelle', async () => {
+  it('erkennt beim Abgleich alle Fälle', async () => {
     const zusammenfassung = await abgleichStarten(TEST_USER, reconciliationId, {
       mapping: { name: 'Mitarbeiter', date: 'Datum', start: 'Beginn', end: 'Ende', break: 'Pause', event: 'Event' },
       toleranzMinuten: 15,
@@ -108,20 +108,20 @@ describe('Abgleich von Anfang bis Ende', () => {
     expect(zeilen.find((z) => z.rowNumber === 5)?.status).toBe('DUPLIKAT');
   });
 
-  it('verhindert den Abschluss, solange Zeilen ungeklaert sind', async () => {
+  it('verhindert den Abschluss, solange Zeilen ungeklärt sind', async () => {
     await expect(abgleichAbschliessen(TEST_USER, reconciliationId)).rejects.toMatchObject({
-      userMessage: expect.stringContaining('ungeklaert'),
+      userMessage: expect.stringContaining('ungeklärt'),
     });
   });
 
-  it('bestaetigt unkritische Abweichungen in einem Zug', async () => {
+  it('bestätigt unkritische Abweichungen in einem Zug', async () => {
     const anzahl = await unkritischeBestaetigen(TEST_USER, reconciliationId, 60);
     expect(anzahl).toBe(1);
     const geprueft = await db.reconciliationRow.count({ where: { reconciliationId, status: 'GEPRUEFT' } });
     expect(geprueft).toBe(1);
   });
 
-  it('laesst die ungeklaerten Zeilen manuell aufloesen', async () => {
+  it('lässt die ungeklärten Zeilen manuell auflösen', async () => {
     const zeilen = await db.reconciliationRow.findMany({ where: { reconciliationId } });
     const unbekannt = zeilen.find((z) => z.status === 'UNBEKANNT')!;
     const duplikat = zeilen.find((z) => z.status === 'DUPLIKAT')!;
@@ -157,7 +157,7 @@ describe('Abgleich von Anfang bis Ende', () => {
     expect(abgleich?.closedAt).toBeInstanceOf(Date);
   });
 
-  it('protokolliert eine Aenderung nach dem Abschluss gesondert', async () => {
+  it('protokolliert eine Änderung nach dem Abschluss gesondert', async () => {
     const zeile = await db.reconciliationRow.findFirst({ where: { reconciliationId, status: 'OK' } });
     if (zeile) {
       await zeileKorrigieren(TEST_USER, zeile.id, { comment: 'Nachtraegliche Korrektur' });

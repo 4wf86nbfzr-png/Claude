@@ -13,9 +13,9 @@ export default async function NeuerAbgleich() {
   return (
     <>
       <Seitenkopf titel="Stundenzettel hochladen" brotkrumen={[{ href: '/abgleiche', label: 'Abgleiche' }]}
-                  unter="Excel (.xlsx) oder CSV. Die Spalten werden im naechsten Schritt zugeordnet." />
+                  unter="Excel (.xlsx) oder CSV. Die Spalten werden im nächsten Schritt zugeordnet." />
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(240px, 1fr)', gap: 16, alignItems: 'start' }} className="dashboard-raster">
-        <Karte titel="Datei auswaehlen">
+        <Karte titel="Datei auswählen">
           <div style={{ padding: 16 }}>
             <HochladeFormular />
           </div>
@@ -24,7 +24,7 @@ export default async function NeuerAbgleich() {
         <Karte titel="Gespeicherte Vorlagen">
           <div style={{ padding: 14, display: 'flex', flexDirection: 'column', gap: 10 }}>
             <p style={{ fontSize: 13, color: 'var(--text-sekundaer)', margin: 0 }}>
-              Im naechsten Schritt koennen Sie eine dieser Vorlagen anwenden – dann stimmt die
+              Im nächsten Schritt können Sie eine dieser Vorlagen anwenden – dann stimmt die
               Spaltenzuordnung sofort.
             </p>
             <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13 }}>

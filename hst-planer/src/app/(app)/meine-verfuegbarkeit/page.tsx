@@ -7,7 +7,7 @@ import { Hinweis, Karte, Leer, Seitenkopf, StatusMarke } from '@/components/ui';
 import { AktionsFormular, AktionsKnopf } from '@/components/aktion';
 import { verfuegbarkeitAktion, verfuegbarkeitLoeschenAktion } from '../mitarbeiter/actions';
 
-export const metadata: Metadata = { title: 'Meine Verfuegbarkeit' };
+export const metadata: Metadata = { title: 'Meine Verfügbarkeit' };
 export const dynamic = 'force-dynamic';
 
 export default async function MeineVerfuegbarkeit() {
@@ -15,7 +15,7 @@ export default async function MeineVerfuegbarkeit() {
   if (!user.employeeId) {
     return (
       <>
-        <Seitenkopf titel="Meine Verfuegbarkeit" />
+        <Seitenkopf titel="Meine Verfügbarkeit" />
         <Hinweis art="info">Ihr Zugang ist keinem Mitarbeiterprofil zugeordnet.</Hinweis>
       </>
     );
@@ -28,8 +28,8 @@ export default async function MeineVerfuegbarkeit() {
 
   return (
     <>
-      <Seitenkopf titel="Meine Verfuegbarkeit"
-                  unter="Tragen Sie hier ein, wann Sie nicht koennen – oder wann Sie besonders gern eingeplant werden moechten." />
+      <Seitenkopf titel="Meine Verfügbarkeit"
+                  unter="Tragen Sie hier ein, wann Sie nicht können – oder wann Sie besonders gern eingeplant werden möchten." />
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 680 }}>
         <Karte titel="Neuer Eintrag">
@@ -58,15 +58,15 @@ export default async function MeineVerfuegbarkeit() {
               </div>
               <label className="feld-gruppe">
                 <span className="feld-label">Notiz (freiwillig)</span>
-                <input name="notiz" className="feld" placeholder="z. B. Pruefung, Familienfeier" />
+                <input name="notiz" className="feld" placeholder="z. B. Prüfung, Familienfeier" />
               </label>
               <div><AktionsKnopf klasse="knopf knopf-primaer">Eintragen</AktionsKnopf></div>
             </AktionsFormular>
           </div>
         </Karte>
 
-        <Karte titel="Meine Eintraege">
-          {eintraege.length === 0 ? <Leer>Noch keine Eintraege.</Leer> : (
+        <Karte titel="Meine Einträge">
+          {eintraege.length === 0 ? <Leer>Noch keine Einträge.</Leer> : (
             <table className="tabelle">
               <thead><tr><th>Art</th><th>Von</th><th>Bis</th><th>Notiz</th><th style={{ width: 1 }} /></tr></thead>
               <tbody>

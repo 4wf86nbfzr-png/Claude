@@ -21,7 +21,7 @@ export async function dokumentHochladenAktion(_zustand: Ergebnis, formData: Form
   return fuehreAus(async () => {
     const user = await seite('documents.edit');
     const datei = formData.get('datei');
-    if (!(datei instanceof File) || datei.size === 0) throw new ValidationError('Bitte waehlen Sie eine Datei aus.');
+    if (!(datei instanceof File) || datei.size === 0) throw new ValidationError('Bitte wählen Sie eine Datei aus.');
 
     const dokument = await dokumentAnlegen(user, {
       datei,

@@ -30,7 +30,7 @@ export async function parseBody<T>(request: Request, schema: ZodType<T>): Promis
   try {
     json = await request.json();
   } catch {
-    throw new ValidationError('Die Anfrage enthielt keine gueltigen Daten.');
+    throw new ValidationError('Die Anfrage enthielt keine gültigen Daten.');
   }
   return parseWith(schema, json);
 }
@@ -38,7 +38,7 @@ export async function parseBody<T>(request: Request, schema: ZodType<T>): Promis
 export function parseWith<T>(schema: ZodType<T>, value: unknown): T {
   const result = schema.safeParse(value);
   if (result.success) return result.data;
-  throw new ValidationError('Bitte pruefen Sie Ihre Eingaben.', fieldErrors(result.error));
+  throw new ValidationError('Bitte prüfen Sie Ihre Eingaben.', fieldErrors(result.error));
 }
 
 export function fieldErrors(error: ZodError): Record<string, string> {
@@ -52,7 +52,7 @@ export function fieldErrors(error: ZodError): Record<string, string> {
 
 export interface PageParams { page: number; perPage: number; skip: number }
 
-/** Einheitliche Pagination fuer alle Listen (Spec 47/78). */
+/** Einheitliche Pagination für alle Listen (Spec 47/78). */
 export function pagination(searchParams: URLSearchParams | Record<string, string | undefined>, defaultPerPage = 25): PageParams {
   const get = (key: string) =>
     searchParams instanceof URLSearchParams ? searchParams.get(key) : searchParams[key];

@@ -73,7 +73,7 @@ export default async function Zeiterfassung({ searchParams }: { searchParams: Pr
     <>
       <Seitenkopf
         titel="Zeiterfassung"
-        unter={`${gesamt.toLocaleString('de-DE')} Eintraege in der Auswahl`}
+        unter={`${gesamt.toLocaleString('de-DE')} Einträge in der Auswahl`}
         aktionen={
           <>
             <Link href="/api/export/zeiten" className="knopf"><Icon name="download" /> Excel-Export</Link>
@@ -85,8 +85,8 @@ export default async function Zeiterfassung({ searchParams }: { searchParams: Pr
       <Raster min={160}>
         <Kennzahl wert={formatHours(summe._sum.minutes ?? 0)} label="Stunden in der Auswahl" />
         <Kennzahl wert={formatHours(monat._sum.minutes ?? 0)} label="Stunden im laufenden Monat" />
-        <Kennzahl wert={offene} label="Noch zu pruefen" farbe={offene > 0 ? 'gelb' : 'gruen'} href="/zeiterfassung?status=OFFEN" />
-        <Kennzahl wert={minutesToHours(summe._sum.minutes ?? 0).toLocaleString('de-DE')} label="Dezimalstunden" hinweis="fuer die Abrechnung" />
+        <Kennzahl wert={offene} label="Noch zu prüfen" farbe={offene > 0 ? 'gelb' : 'gruen'} href="/zeiterfassung?status=OFFEN" />
+        <Kennzahl wert={minutesToHours(summe._sum.minutes ?? 0).toLocaleString('de-DE')} label="Dezimalstunden" hinweis="für die Abrechnung" />
       </Raster>
 
       <div style={{ marginTop: 16 }}>
@@ -99,7 +99,7 @@ export default async function Zeiterfassung({ searchParams }: { searchParams: Pr
             ]}
           />
 
-          {zeiten.length === 0 ? <Leer>Keine Zeiteintraege in dieser Auswahl.</Leer> : (
+          {zeiten.length === 0 ? <Leer>Keine Zeiteinträge in dieser Auswahl.</Leer> : (
             <AktionsFormular aktion={zeitenFreigebenAktion}>
               <div className="tabelle-scroll">
                 <table className="tabelle">
@@ -117,7 +117,7 @@ export default async function Zeiterfassung({ searchParams }: { searchParams: Pr
                         {darfFreigeben && (
                           <td>
                             <input type="checkbox" name="auswahl" value={eintrag.id}
-                                   disabled={eintrag.status === 'ABGERECHNET'} aria-label="Zur Freigabe auswaehlen" />
+                                   disabled={eintrag.status === 'ABGERECHNET'} aria-label="Zur Freigabe auswählen" />
                           </td>
                         )}
                         <td className="zahl" style={{ whiteSpace: 'nowrap' }}>{formatDateDE(eintrag.date)}</td>
@@ -148,7 +148,7 @@ export default async function Zeiterfassung({ searchParams }: { searchParams: Pr
               </div>
               {darfFreigeben && (
                 <div style={{ padding: 12, borderTop: '1px solid var(--linie)' }}>
-                  <AktionsKnopf klasse="knopf knopf-primaer">Ausgewaehlte Zeiten freigeben</AktionsKnopf>
+                  <AktionsKnopf klasse="knopf knopf-primaer">Ausgewählte Zeiten freigeben</AktionsKnopf>
                 </div>
               )}
             </AktionsFormular>
@@ -191,7 +191,7 @@ function ZeitFormular({
         <label className="feld-gruppe" style={{ flex: '1 1 180px' }}>
           <span className="feld-label">Mitarbeiter</span>
           <select name="employeeId" className="feld" required defaultValue={eintrag?.employeeId ?? ''}>
-            <option value="">– waehlen –</option>
+            <option value="">– wählen –</option>
             {mitarbeiter.map((m) => <option key={m.id} value={m.id}>{m.lastName}, {m.firstName}</option>)}
           </select>
         </label>

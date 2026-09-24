@@ -29,7 +29,7 @@ export default async function AnmeldenSeite() {
         </div>
 
         <p style={{ fontSize: 12, color: 'var(--text-gedaempft)', textAlign: 'center', marginTop: 16 }}>
-          HERM Service Team e.K. · Zugang nur fuer berechtigte Personen
+          HERM Service Team e.K. · Zugang nur für berechtigte Personen
         </p>
       </div>
     </main>

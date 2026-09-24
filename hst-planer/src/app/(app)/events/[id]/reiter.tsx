@@ -6,7 +6,7 @@ import { can, type Role } from '@/lib/auth/rbac';
 
 /** Reiter der Event-Detailseite (Spec 61). */
 const REITER = [
-  { pfad: '', label: 'Uebersicht', recht: 'events.view' },
+  { pfad: '', label: 'Übersicht', recht: 'events.view' },
   { pfad: '/positionen', label: 'Positionen', recht: 'events.view' },
   { pfad: '/mitarbeiter', label: 'Mitarbeiter', recht: 'events.view' },
   { pfad: '/zeiten', label: 'Zeiten', recht: 'timesheets.view' },

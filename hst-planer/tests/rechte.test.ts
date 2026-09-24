@@ -30,20 +30,20 @@ describe('Rechte je Rolle', () => {
     expect(can('DISPOSITION', 'finance.view')).toBe(false);
   });
 
-  it('Mitarbeiter sieht nur die eigenen Einsaetze', () => {
+  it('Mitarbeiter sieht nur die eigenen Einsätze', () => {
     expect(can('MITARBEITER', 'self.shifts')).toBe(true);
     expect(can('MITARBEITER', 'employees.view')).toBe(false);
     expect(can('MITARBEITER', 'events.view')).toBe(false);
     expect(can('MITARBEITER', 'timesheets.view')).toBe(false);
   });
 
-  it('Geschaeftsfuehrung sieht Finanzen und Protokoll', () => {
+  it('Geschäftsführung sieht Finanzen und Protokoll', () => {
     expect(can('GESCHAEFTSFUEHRUNG', 'finance.view')).toBe(true);
     expect(can('GESCHAEFTSFUEHRUNG', 'admin.audit')).toBe(true);
     expect(can('GESCHAEFTSFUEHRUNG', 'admin.users')).toBe(false);
   });
 
-  it('Kunde und Partner duerfen nichts bearbeiten', () => {
+  it('Kunde und Partner dürfen nichts bearbeiten', () => {
     for (const rolle of ['KUNDE', 'PARTNER'] as const) {
       expect(can(rolle, 'events.edit')).toBe(false);
       expect(can(rolle, 'employees.edit')).toBe(false);
@@ -52,7 +52,7 @@ describe('Rechte je Rolle', () => {
     }
   });
 
-  it('canAny prueft mehrere Rechte', () => {
+  it('canAny prüft mehrere Rechte', () => {
     expect(canAny('TEAMLEITUNG', ['events.edit', 'events.view'])).toBe(true);
     expect(canAny('MITARBEITER', ['events.edit', 'employees.edit'])).toBe(false);
   });
@@ -70,7 +70,7 @@ describe('Navigation', () => {
     expect(navFor('ADMIN').length).toBeGreaterThan(10);
   });
 
-  it('fuehrt Mitarbeiter direkt in die Einsatzliste', () => {
+  it('führt Mitarbeiter direkt in die Einsatzliste', () => {
     expect(homeFor('MITARBEITER')).toBe('/meine-einsaetze');
     expect(homeFor('DISPOSITION')).toBe('/dashboard');
   });
@@ -103,7 +103,7 @@ describe('Sichtbarkeit in Abfragen', () => {
     expect(employeeFilter(benutzer('MITARBEITER')).id).toBe('m1');
   });
 
-  it('Partner sieht nur eigene Kraefte', () => {
+  it('Partner sieht nur eigene Kräfte', () => {
     expect(employeeFilter(benutzer('PARTNER')).partnerId).toBe('p1');
   });
 
@@ -115,8 +115,8 @@ describe('Sichtbarkeit in Abfragen', () => {
     expect(darfInterneNotizenSehen(benutzer('KUNDE'))).toBe(false);
   });
 
-  it('faellt ohne Profilzuordnung auf einen unmoeglichen Wert zurueck', () => {
-    // Ohne diese Absicherung wuerde ein Benutzer ohne Mitarbeiterprofil alles sehen.
+  it('fällt ohne Profilzuordnung auf einen unmöglichen Wert zurück', () => {
+    // Ohne diese Absicherung würde ein Benutzer ohne Mitarbeiterprofil alles sehen.
     const ohneProfil = benutzer('MITARBEITER', { employeeId: null });
     expect(eventFilter(ohneProfil).assignments).toEqual({ some: { employeeId: '__keiner__', deletedAt: null } });
   });

@@ -5,7 +5,7 @@ import { eventFilter } from '@/lib/queries/scope';
 import { isoDate } from '@/lib/time';
 import type { Prisma } from '@prisma/client';
 
-/** Einteilungen (Schichten) – Grundlage fuer Fremdsysteme und die spaetere App. */
+/** Einteilungen (Schichten) – Grundlage für Fremdsysteme und die spätere App. */
 export const GET = route(async (request: Request) => {
   const zugang = await apiZugang(request, 'events.view', 'events');
   const params = new URL(request.url).searchParams;

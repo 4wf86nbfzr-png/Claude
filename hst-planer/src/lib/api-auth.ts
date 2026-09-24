@@ -9,10 +9,10 @@ import { can, type Permission } from './auth/rbac';
  *
  * Zwei Wege sind erlaubt:
  *   * angemeldete Sitzung (die Oberflaeche selbst, aber auch Skripte nach Login)
- *   * API-Schluessel im Header `Authorization: Bearer hst_…` bzw. `x-api-key`
+ *   * API-Schlüssel im Header `Authorization: Bearer hst_…` bzw. `x-api-key`
  *
- * Ein Schluessel hat immer den vollen Lesezugriff seines Bereichs; Rollen
- * und Sichtbarkeitsgrenzen gelten nur fuer angemeldete Benutzer.
+ * Ein Schlüssel hat immer den vollen Lesezugriff seines Bereichs; Rollen
+ * und Sichtbarkeitsgrenzen gelten nur für angemeldete Benutzer.
  */
 export interface ApiZugang {
   art: 'SITZUNG' | 'SCHLUESSEL';
@@ -28,7 +28,7 @@ export async function apiZugang(request: Request, permission: Permission, scope?
   }
 
   const hatSchluessel = request.headers.get('authorization') || request.headers.get('x-api-key');
-  if (!hatSchluessel) throw new AuthError('Bitte melden Sie sich an oder senden Sie einen API-Schluessel.');
+  if (!hatSchluessel) throw new AuthError('Bitte melden Sie sich an oder senden Sie einen API-Schlüssel.');
 
   const schluessel = await requireApiKey(request, scope);
   return { art: 'SCHLUESSEL', benutzer: null, schluessel };

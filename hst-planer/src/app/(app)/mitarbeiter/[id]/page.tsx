@@ -66,16 +66,16 @@ export default async function MitarbeiterDetail({ params }: { params: Promise<{ 
       />
 
       <Raster min={160}>
-        <Kennzahl wert={kommende} label="Kommende Einsaetze" />
-        <Kennzahl wert={employee.assignments.length} label="Einsaetze (zuletzt)" />
+        <Kennzahl wert={kommende} label="Kommende Einsätze" />
+        <Kennzahl wert={employee.assignments.length} label="Einsätze (zuletzt)" />
         <Kennzahl wert={formatHours(stunden._sum.minutes ?? 0)} label={`Stunden ${heute.getFullYear()}`} />
         <Kennzahl wert={abgesagt} label="Absagen" farbe={abgesagt > 2 ? 'gelb' : 'grau'} />
       </Raster>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(260px, 1fr)', gap: 16, marginTop: 16, alignItems: 'start' }} className="dashboard-raster">
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, minWidth: 0 }}>
-          <Karte titel="Einsaetze">
-            {employee.assignments.length === 0 ? <Leer>Noch keine Einsaetze.</Leer> : (
+          <Karte titel="Einsätze">
+            {employee.assignments.length === 0 ? <Leer>Noch keine Einsätze.</Leer> : (
               <div className="tabelle-scroll">
                 <table className="tabelle">
                   <thead><tr><th>Datum</th><th>Event</th><th>Position</th><th>Zeit</th><th>Status</th></tr></thead>
@@ -95,8 +95,8 @@ export default async function MitarbeiterDetail({ params }: { params: Promise<{ 
             )}
           </Karte>
 
-          <Karte titel="Verfuegbarkeiten & Abwesenheiten">
-            {employee.availabilities.length === 0 ? <Leer>Keine Eintraege.</Leer> : (
+          <Karte titel="Verfügbarkeiten & Abwesenheiten">
+            {employee.availabilities.length === 0 ? <Leer>Keine Einträge.</Leer> : (
               <div className="tabelle-scroll">
                 <table className="tabelle">
                   <thead><tr><th>Art</th><th>Von</th><th>Bis</th><th>Notiz</th>{darfBearbeiten && <th style={{ width: 1 }} />}</tr></thead>
@@ -140,7 +140,7 @@ export default async function MitarbeiterDetail({ params }: { params: Promise<{ 
                     <input name="bis" type="date" className="feld" style={{ width: 'auto' }} />
                   </label>
                   <input name="notiz" className="feld" placeholder="Notiz" style={{ width: 'auto', flex: '1 1 140px' }} aria-label="Notiz" />
-                  <AktionsKnopf klasse="knopf knopf-klein">Hinzufuegen</AktionsKnopf>
+                  <AktionsKnopf klasse="knopf knopf-klein">Hinzufügen</AktionsKnopf>
                 </AktionsFormular>
               </div>
             )}
@@ -149,7 +149,7 @@ export default async function MitarbeiterDetail({ params }: { params: Promise<{ 
           <Karte titel="Dokumente" aktion={<Link href={`/dokumente?mitarbeiter=${id}`} className="knopf knopf-klein"><Icon name="upload" /> Hochladen</Link>}>
             {employee.documents.length === 0 ? <Leer>Keine Dokumente hinterlegt.</Leer> : (
               <table className="tabelle">
-                <thead><tr><th>Typ</th><th>Titel</th><th>Gueltig bis</th><th>Datei</th></tr></thead>
+                <thead><tr><th>Typ</th><th>Titel</th><th>Gültig bis</th><th>Datei</th></tr></thead>
                 <tbody>
                   {employee.documents.map((dokument) => {
                     const abgelaufen = dokument.expiresAt && dokument.expiresAt < heute;
@@ -176,7 +176,7 @@ export default async function MitarbeiterDetail({ params }: { params: Promise<{ 
               <Paar label="E-Mail">{employee.email ? <a href={`mailto:${employee.email}`}>{employee.email}</a> : '–'}</Paar>
               <Paar label="Adresse">{[employee.street, [employee.zip, employee.city].filter(Boolean).join(' ')].filter(Boolean).join(', ') || '–'}</Paar>
               <Paar label="Geburtsdatum">{employee.birthDate ? formatDateDE(employee.birthDate) : '–'}</Paar>
-              <Paar label="Fuehrerschein">{employee.drivingLicence ?? '–'}</Paar>
+              <Paar label="Führerschein">{employee.drivingLicence ?? '–'}</Paar>
             </div>
           </Karte>
 
@@ -202,10 +202,10 @@ export default async function MitarbeiterDetail({ params }: { params: Promise<{ 
           {intern && (employee.notesInternal || employee.infoForEmployee) && (
             <Karte titel="Notizen">
               <div style={{ padding: 14, display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {employee.infoForEmployee && <Paar label="Info fuer den Mitarbeiter"><span style={{ whiteSpace: 'pre-wrap' }}>{employee.infoForEmployee}</span></Paar>}
+                {employee.infoForEmployee && <Paar label="Info für den Mitarbeiter"><span style={{ whiteSpace: 'pre-wrap' }}>{employee.infoForEmployee}</span></Paar>}
                 {employee.notesInternal && (
                   <div style={{ background: 'var(--gelb-flaeche)', border: '1px solid var(--gelb)33', borderRadius: 'var(--radius-s)', padding: '10px 12px' }}>
-                    <Paar label="Intern – nicht fuer den Mitarbeiter"><span style={{ whiteSpace: 'pre-wrap' }}>{employee.notesInternal}</span></Paar>
+                    <Paar label="Intern – nicht für den Mitarbeiter"><span style={{ whiteSpace: 'pre-wrap' }}>{employee.notesInternal}</span></Paar>
                   </div>
                 )}
               </div>
@@ -224,7 +224,7 @@ export default async function MitarbeiterDetail({ params }: { params: Promise<{ 
                 <Ausklapp titel="Zugang anlegen" knopfKlasse="knopf knopf-klein">
                   <AktionsFormular aktion={zugangAnlegenAktion} stil={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                     <input type="hidden" name="id" value={id} />
-                    <input name="email" type="email" className="feld" required defaultValue={employee.email ?? ''} placeholder="E-Mail fuer die Anmeldung" />
+                    <input name="email" type="email" className="feld" required defaultValue={employee.email ?? ''} placeholder="E-Mail für die Anmeldung" />
                     <input name="passwort" type="text" className="feld" required minLength={12} placeholder="Startpasswort (mind. 12 Zeichen)" />
                     <AktionsKnopf klasse="knopf knopf-primaer knopf-klein">Zugang anlegen</AktionsKnopf>
                   </AktionsFormular>
@@ -242,7 +242,7 @@ export default async function MitarbeiterDetail({ params }: { params: Promise<{ 
                   <AktionsFormular aktion={mitarbeiterDeaktivierenAktion} stil={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                     <input type="hidden" name="id" value={id} />
                     <p className="feld-hinweis" style={{ margin: 0 }}>
-                      Der Datensatz bleibt fuer Auswertungen und Nachweise erhalten, der Mitarbeiter
+                      Der Datensatz bleibt für Auswertungen und Nachweise erhalten, der Mitarbeiter
                       erscheint aber nicht mehr in der Personalsuche.
                     </p>
                     <textarea name="grund" className="feld" rows={2} required placeholder="Grund" />

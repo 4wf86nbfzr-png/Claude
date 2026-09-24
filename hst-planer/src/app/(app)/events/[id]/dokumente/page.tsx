@@ -29,7 +29,7 @@ export default async function EventDokumente({ params }: { params: Promise<{ id:
       <Karte titel="Dokumente zu diesem Event">
         {event.documents.length === 0 ? <Leer>Noch keine Dokumente hinterlegt.</Leer> : (
           <table className="tabelle">
-            <thead><tr><th>Titel</th><th>Typ</th><th>Groesse</th><th>Hochgeladen</th>{darfBearbeiten && <th style={{ width: 1 }} />}</tr></thead>
+            <thead><tr><th>Titel</th><th>Typ</th><th>Größe</th><th>Hochgeladen</th>{darfBearbeiten && <th style={{ width: 1 }} />}</tr></thead>
             <tbody>
               {event.documents.map((dokument) => (
                 <tr key={dokument.id}>
@@ -53,7 +53,7 @@ export default async function EventDokumente({ params }: { params: Promise<{ id:
       </Karte>
 
       {darfBearbeiten && (
-        <Karte titel="Dokument hinzufuegen">
+        <Karte titel="Dokument hinzufügen">
           <div style={{ padding: 16 }}>
             <UploadFormular
               mitarbeiter={[]} kunden={[]} partner={[]}

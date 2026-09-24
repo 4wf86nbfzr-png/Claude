@@ -12,7 +12,7 @@ export interface Ergebnis { fehler?: string; hinweis?: string; erfolg?: boolean 
 
 /**
  * Nachricht an das Team eines Events oder an einzelne Mitarbeiter (Spec 29).
- * Mitarbeiter mit Zugang bekommen zusaetzlich eine Benachrichtigung im Planer.
+ * Mitarbeiter mit Zugang bekommen zusätzlich eine Benachrichtigung im Planer.
  */
 export async function nachrichtSendenAktion(_zustand: Ergebnis, formData: FormData): Promise<Ergebnis> {
   try {
@@ -32,7 +32,7 @@ export async function nachrichtSendenAktion(_zustand: Ergebnis, formData: FormDa
       select: { id: true, firstName: true, lastName: true, email: true, user: { select: { id: true } } },
     });
 
-    if (empfaenger.length === 0) throw new ValidationError('Es wurden keine Empfaenger gefunden.');
+    if (empfaenger.length === 0) throw new ValidationError('Es wurden keine Empfänger gefunden.');
 
     let gesendet = 0;
     const fehler: string[] = [];
@@ -54,13 +54,13 @@ export async function nachrichtSendenAktion(_zustand: Ergebnis, formData: FormDa
 
     await audit(user, {
       action: 'message.send', entity: 'Message',
-      summary: `Nachricht "${betreff}" an ${empfaenger.length} Empfaenger gesendet`,
+      summary: `Nachricht "${betreff}" an ${empfaenger.length} Empfänger gesendet`,
     });
     revalidatePath('/kommunikation');
 
     return fehler.length
       ? { erfolg: true, hinweis: `${gesendet} von ${empfaenger.length} E-Mails versendet. Hinweis: ${fehler.join(' ')}` }
-      : { erfolg: true, hinweis: `Nachricht an ${empfaenger.length} Empfaenger uebermittelt.` };
+      : { erfolg: true, hinweis: `Nachricht an ${empfaenger.length} Empfänger übermittelt.` };
   } catch (error) {
     if (error instanceof Error && error.message === 'NEXT_REDIRECT') throw error;
     return { fehler: toPublicError(error).body.error };

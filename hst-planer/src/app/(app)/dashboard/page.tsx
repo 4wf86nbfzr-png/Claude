@@ -36,14 +36,14 @@ export default async function Dashboard() {
       <h2 style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--text-gedaempft)', margin: '0 0 10px' }}>Heute</h2>
       <Raster min={150}>
         <Kennzahl wert={daten.heute.events.length} label="Events heute" href="/kalender" />
-        <Kennzahl wert={daten.heute.aktiveEinsaetze} label="Eingeteilte Kraefte" />
+        <Kennzahl wert={daten.heute.aktiveEinsaetze} label="Eingeteilte Kräfte" />
         <Kennzahl wert={daten.heute.besetzung.offen} label="Offene Positionen"
                   farbe={daten.heute.besetzung.offen > 0 ? 'gelb' : 'gruen'} href="/disposition" />
-        <Kennzahl wert={daten.dispo.unbesetzteEvents} label="Events mit Luecken"
+        <Kennzahl wert={daten.dispo.unbesetzteEvents} label="Events mit Lücken"
                   farbe={daten.dispo.unbesetzteEvents > 0 ? 'gelb' : 'gruen'} href="/disposition" />
         <Kennzahl wert={daten.heute.nichtErschienen} label="Nicht erschienen"
                   farbe={daten.heute.nichtErschienen > 0 ? 'rot' : 'grau'} />
-        <Kennzahl wert={daten.heute.verspaetet} label="Verspaetet"
+        <Kennzahl wert={daten.heute.verspaetet} label="Verspätet"
                   farbe={daten.heute.verspaetet > 0 ? 'gelb' : 'grau'} />
         <Kennzahl wert={daten.heute.kritisch} label="Kritische Probleme"
                   farbe={daten.heute.kritisch > 0 ? 'rot' : 'gruen'} />
@@ -53,9 +53,9 @@ export default async function Dashboard() {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(280px, 1fr)', gap: 16, marginTop: 20, alignItems: 'start' }} className="dashboard-raster">
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, minWidth: 0 }}>
-          <Karte titel="Heutige Einsaetze" aktion={<Link href="/disposition" style={{ fontSize: 12, color: 'var(--text-sekundaer)' }}>Zur Disposition</Link>}>
+          <Karte titel="Heutige Einsätze" aktion={<Link href="/disposition" style={{ fontSize: 12, color: 'var(--text-sekundaer)' }}>Zur Disposition</Link>}>
             {daten.heute.events.length === 0 ? (
-              <Leer>Heute stehen keine Einsaetze an.</Leer>
+              <Leer>Heute stehen keine Einsätze an.</Leer>
             ) : (
               <div className="tabelle-scroll">
                 <table className="tabelle">
@@ -88,9 +88,9 @@ export default async function Dashboard() {
             )}
           </Karte>
 
-          <Karte titel="Naechste Einsaetze" aktion={<Link href="/events" style={{ fontSize: 12, color: 'var(--text-sekundaer)' }}>Alle Events</Link>}>
+          <Karte titel="Nächste Einsätze" aktion={<Link href="/events" style={{ fontSize: 12, color: 'var(--text-sekundaer)' }}>Alle Events</Link>}>
             {daten.kommendeEvents.length === 0 ? (
-              <Leer>Keine geplanten Einsaetze.</Leer>
+              <Leer>Keine geplanten Einsätze.</Leer>
             ) : (
               <div className="tabelle-scroll">
                 <table className="tabelle">
@@ -129,14 +129,14 @@ export default async function Dashboard() {
               <StatusZeile label="Neue E-Mails" wert={daten.dispo.neueMails} href="/anfragen?quelle=email" warnAb={1} />
               <StatusZeile label="Neue Mitarbeiter (7 Tage)" wert={daten.dispo.neueMitarbeiter} href="/mitarbeiter" />
               <StatusZeile label="Offene Abgleiche" wert={daten.dispo.offeneAbgleiche} href="/abgleiche" warnAb={1} />
-              <StatusZeile label="Zeiten in Pruefung" wert={daten.dispo.problemZeiten} href="/zeiterfassung?status=OFFEN" warnAb={1} />
-              <StatusZeile label="Absagen fuer kommende Events" wert={daten.dispo.abgesagt} href="/disposition" warnAb={1} kritisch />
+              <StatusZeile label="Zeiten in Prüfung" wert={daten.dispo.problemZeiten} href="/zeiterfassung?status=OFFEN" warnAb={1} />
+              <StatusZeile label="Absagen für kommende Events" wert={daten.dispo.abgesagt} href="/disposition" warnAb={1} kritisch />
             </ul>
           </Karte>
 
-          <Karte titel="Probleme &amp; Vorfaelle" aktion={<Link href="/events" style={{ fontSize: 12, color: 'var(--text-sekundaer)' }}>Alle</Link>}>
+          <Karte titel="Probleme &amp; Vorfälle" aktion={<Link href="/events" style={{ fontSize: 12, color: 'var(--text-sekundaer)' }}>Alle</Link>}>
             {daten.vorfaelle.length === 0 ? (
-              <Leer>Keine offenen Vorfaelle.</Leer>
+              <Leer>Keine offenen Vorfälle.</Leer>
             ) : (
               <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
                 {daten.vorfaelle.map((vorfall) => (
@@ -158,7 +158,7 @@ export default async function Dashboard() {
 
           <Karte titel="Nachweise laufen ab">
             {daten.ablaufendeNachweise.length === 0 ? (
-              <Leer>Alle Nachweise sind gueltig.</Leer>
+              <Leer>Alle Nachweise sind gültig.</Leer>
             ) : (
               <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
                 {daten.ablaufendeNachweise.map((nachweis) => {

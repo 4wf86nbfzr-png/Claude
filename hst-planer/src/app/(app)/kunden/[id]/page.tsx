@@ -42,7 +42,7 @@ export default async function KundeDetail({ params }: { params: Promise<{ id: st
         unter={[kunde.city, kunde.email].filter(Boolean).join(' · ') || undefined}
         aktionen={
           <>
-            <Link href={`/events/neu?kunde=${id}`} className="knopf">Event fuer diesen Kunden</Link>
+            <Link href={`/events/neu?kunde=${id}`} className="knopf">Event für diesen Kunden</Link>
             {darfBearbeiten && <Link href={`/kunden/${id}/bearbeiten`} className="knopf knopf-primaer">Bearbeiten</Link>}
           </>
         }
@@ -96,7 +96,7 @@ export default async function KundeDetail({ params }: { params: Promise<{ id: st
                     <label style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 12 }}>
                       <input type="checkbox" name="primary" /> Hauptkontakt
                     </label>
-                    <AktionsKnopf klasse="knopf knopf-klein knopf-primaer">Hinzufuegen</AktionsKnopf>
+                    <AktionsKnopf klasse="knopf knopf-klein knopf-primaer">Hinzufügen</AktionsKnopf>
                   </AktionsFormular>
                 </Ausklapp>
               </div>

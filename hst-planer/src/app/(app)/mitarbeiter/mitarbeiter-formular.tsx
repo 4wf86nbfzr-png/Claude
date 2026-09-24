@@ -74,7 +74,7 @@ export function MitarbeiterFormular({
           </Raster>
 
           <Raster min={180}>
-            <Feld label="Strasse und Hausnummer" name="street">
+            <Feld label="Straße und Hausnummer" name="street">
               <input id="street" name="street" className="feld" defaultValue={werte.street ?? ''} />
             </Feld>
             <Feld label="PLZ" name="zip">
@@ -87,10 +87,10 @@ export function MitarbeiterFormular({
         </div>
       </Karte>
 
-      <Karte titel="Beschaeftigung">
+      <Karte titel="Beschäftigung">
         <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 14 }}>
           <Raster min={180}>
-            <Feld label="Beschaeftigungsart" name="employmentType">
+            <Feld label="Beschäftigungsart" name="employmentType">
               <select id="employmentType" name="employmentType" className="feld" defaultValue={werte.employmentType ?? 'AUSHILFE'}>
                 {Object.entries(EMPLOYMENT_TYPE).map(([wert, text]) => <option key={wert} value={wert}>{text}</option>)}
               </select>
@@ -100,7 +100,7 @@ export function MitarbeiterFormular({
                 <input id="hourlyRate" name="hourlyRate" className="feld zahl" inputMode="decimal" defaultValue={werte.hourlyRate ?? ''} placeholder="0,00" />
               </Feld>
             )}
-            <Feld label="Fuehrerschein" name="drivingLicence">
+            <Feld label="Führerschein" name="drivingLicence">
               <input id="drivingLicence" name="drivingLicence" className="feld" defaultValue={werte.drivingLicence ?? ''} placeholder="z. B. B, BE" />
             </Feld>
             <Feld label="Partner / Nachunternehmer" name="partnerId">
@@ -139,7 +139,7 @@ export function MitarbeiterFormular({
       <Karte titel="Qualifikationen & Nachweise">
         <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
           <p className="feld-hinweis" style={{ margin: 0 }}>
-            Nachweise mit Ablaufdatum werden automatisch ueberwacht und 30 Tage vorher im Dashboard gemeldet.
+            Nachweise mit Ablaufdatum werden automatisch überwacht und 30 Tage vorher im Dashboard gemeldet.
           </p>
           {qualifikationen.map((q) => {
             const vorhanden = vorhandene.get(q.id);
@@ -155,7 +155,7 @@ export function MitarbeiterFormular({
                 </label>
                 {q.expires && (
                   <label style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 12, color: 'var(--text-sekundaer)' }}>
-                    gueltig bis
+                    gültig bis
                     <input type="date" name={`ablauf_${q.id}`} className="feld" style={{ width: 'auto' }} defaultValue={vorhanden?.expiresAt ?? ''} />
                   </label>
                 )}
@@ -167,10 +167,10 @@ export function MitarbeiterFormular({
 
       <Karte titel="Notizen">
         <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <Feld label="Information fuer den Mitarbeiter" name="infoForEmployee" hinweis="In der Mitarbeiter-App sichtbar.">
+          <Feld label="Information für den Mitarbeiter" name="infoForEmployee" hinweis="In der Mitarbeiter-App sichtbar.">
             <textarea id="infoForEmployee" name="infoForEmployee" className="feld" rows={2} defaultValue={werte.infoForEmployee ?? ''} />
           </Feld>
-          <Feld label="Interne Notizen" name="notesInternal" hinweis="Nur fuer Disposition und Leitung – nie fuer den Mitarbeiter sichtbar.">
+          <Feld label="Interne Notizen" name="notesInternal" hinweis="Nur für Disposition und Leitung – nie für den Mitarbeiter sichtbar.">
             <textarea id="notesInternal" name="notesInternal" className="feld" rows={3} defaultValue={werte.notesInternal ?? ''} />
           </Feld>
         </div>

@@ -5,8 +5,8 @@ import { db } from '../db';
  * Besetzungsgrad eines Events.
  *
  * Gezaehlt werden nur Zuweisungen, die wirklich tragen: Ersatzkraefte und
- * abgesagte Zuweisungen fuellen keine Position. Das ist die Zahl, auf die
- * ein Disponent seine Entscheidung stuetzt – deshalb steht sie an genau
+ * abgesagte Zuweisungen füllen keine Position. Das ist die Zahl, auf die
+ * ein Disponent seine Entscheidung stützt – deshalb steht sie an genau
  * einer Stelle im Code.
  */
 export const BESETZENDE_STATUS = ['EINGETEILT', 'ZUGESAGT', 'ANGEFRAGT', 'ERSCHIENEN'] as const;
@@ -21,7 +21,7 @@ export function besetzungAus(
   for (const position of positions) {
     soll += position.requiredCount;
     const aktiv = position.assignments.filter((a) => !a.isReserve && (BESETZENDE_STATUS as readonly string[]).includes(a.status));
-    // Ueberbuchungen zaehlen nicht als zusaetzliche Besetzung.
+    // Ueberbuchungen zählen nicht als zusätzliche Besetzung.
     ist += Math.min(position.requiredCount, aktiv.length);
     bestaetigt += Math.min(
       position.requiredCount,

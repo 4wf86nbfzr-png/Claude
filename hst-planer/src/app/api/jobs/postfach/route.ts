@@ -3,7 +3,7 @@ import { requireApiKey } from '@/lib/auth/apikey';
 import { postfachAbrufen, postfachKonfiguriert } from '@/lib/email/mailbox';
 
 /**
- * Postfachabruf fuer externe Scheduler.
+ * Postfachabruf für externe Scheduler.
  *   curl -X POST -H "x-api-key: hst_..." https://planer.example/api/jobs/postfach
  */
 export const POST = route(async (request: Request) => {

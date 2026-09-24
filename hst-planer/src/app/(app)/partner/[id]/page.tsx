@@ -39,10 +39,10 @@ export default async function PartnerDetail({ params }: { params: Promise<{ id: 
 
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(260px, 1fr)', gap: 16, alignItems: 'start' }} className="dashboard-raster">
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, minWidth: 0 }}>
-          <Karte titel="Kraefte des Partners">
+          <Karte titel="Kräfte des Partners">
             {partner.employees.length === 0 ? <Leer>Keine Mitarbeiter hinterlegt.</Leer> : (
               <table className="tabelle">
-                <thead><tr><th>Name</th><th>Personalnr.</th><th>Beschaeftigung</th><th>Kontakt</th></tr></thead>
+                <thead><tr><th>Name</th><th>Personalnr.</th><th>Beschäftigung</th><th>Kontakt</th></tr></thead>
                 <tbody>
                   {partner.employees.map((person) => (
                     <tr key={person.id}>
@@ -57,8 +57,8 @@ export default async function PartnerDetail({ params }: { params: Promise<{ id: 
             )}
           </Karte>
 
-          <Karte titel="Einsaetze">
-            {partner.assignments.length === 0 ? <Leer>Noch keine Einsaetze.</Leer> : (
+          <Karte titel="Einsätze">
+            {partner.assignments.length === 0 ? <Leer>Noch keine Einsätze.</Leer> : (
               <table className="tabelle">
                 <thead><tr><th>Datum</th><th>Event</th><th>Kraft</th></tr></thead>
                 <tbody>

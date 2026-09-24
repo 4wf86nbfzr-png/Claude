@@ -13,7 +13,7 @@ export const dynamic = 'force-dynamic';
 
 /**
  * Globale Suche (Spec 27).
- * Gesucht wird ueber Mitarbeiter, Events, Kunden, Partner und Anfragen –
+ * Gesucht wird über Mitarbeiter, Events, Kunden, Partner und Anfragen –
  * jeweils nur in dem, was die Rolle sehen darf.
  */
 export default async function Suche({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
