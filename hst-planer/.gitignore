@@ -1,0 +1,14 @@
+node_modules/
+.next/
+out/
+build/
+.env
+.env.local
+.env.*.local
+storage/
+!storage/.gitkeep
+# Beispieldateien entstehen beim Seed (npm run seed)
+beispiele/
+*.tsbuildinfo
+next-env.d.ts
+coverage/

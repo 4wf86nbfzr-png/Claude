@@ -1,0 +1,58 @@
+{
+  "name": "hst-planer",
+  "version": "1.0.0",
+  "private": true,
+  "description": "HST PLANER – Disposition & Einsatzsteuerung fuer das HERM Service Team",
+  "scripts": {
+    "dev": "next dev",
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:deploy": "prisma migrate deploy",
+    "prisma:studio": "prisma studio",
+    "seed": "tsx prisma/seed.ts",
+    "mail:poll": "tsx --tsconfig scripts/tsconfig.json scripts/poll-mailbox.ts",
+    "jobs:daily": "tsx --tsconfig scripts/tsconfig.json scripts/daily-jobs.ts",
+    "pruefe:seiten": "tsx scripts/pruefe-seiten.ts"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.16.2",
+    "clsx": "^2.1.1",
+    "dotenv": "^18.0.3",
+    "exceljs": "^4.4.0",
+    "imapflow": "^1.0.191",
+    "jose": "^6.1.0",
+    "mailparser": "^3.7.2",
+    "next": "^15.5.4",
+    "nodemailer": "^6.10.1",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "server-only": "^0.0.1",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.7",
+    "@tailwindcss/postcss": "^4.1.13",
+    "@types/mailparser": "^3.4.6",
+    "@types/node": "^22.18.1",
+    "@types/nodemailer": "^6.4.17",
+    "@types/react": "^19.1.13",
+    "@types/react-dom": "^19.1.9",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^15.5.26",
+    "postcss": "^8.5.6",
+    "prisma": "^6.16.2",
+    "tailwindcss": "^4.1.13",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
+}

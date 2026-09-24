@@ -1,0 +1,284 @@
+@import "tailwindcss";
+
+/*
+  HST PLANER – Designsystem
+  --------------------------------------------------------------------------
+  Grundsatz: eine Dispositionsoberflaeche lebt von Dichte und Ruhe, nicht von
+  Farbe. Flaeche und Schrift sind neutral, Farbe traegt ausschliesslich
+  Bedeutung (Status). Der Akzent ist das Violett aus dem HST-Logo und
+  erscheint sparsam: aktive Navigation, primaere Schaltflaeche, Fokusring.
+*/
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", "Roboto Mono", monospace;
+
+  --color-akzent: #7C3AED;
+  --color-akzent-hell: #A78BFA;
+
+  --color-status-gruen: #15803D;
+  --color-status-gelb: #B45309;
+  --color-status-rot: #B91C1C;
+  --color-status-blau: #1D4ED8;
+}
+
+:root {
+  color-scheme: light;
+
+  --flaeche:        #F4F4F6;  /* Seitenhintergrund */
+  --flaeche-karte:  #FFFFFF;  /* Karten, Tabellen */
+  --flaeche-tief:   #EBEBEF;  /* abgesetzte Bereiche, Tabellenkopf */
+  --flaeche-hover:  #F0F0F4;
+  --flaeche-nav:    #17171C;  /* Seitennavigation bleibt in beiden Modi dunkel */
+
+  --text:           #14141A;
+  --text-sekundaer: #55555F;
+  --text-gedaempft: #7A7A86;
+  --text-nav:       #C9C9D2;
+
+  --linie:          #DCDCE3;
+  --linie-stark:    #C4C4CE;
+
+  --akzent:         #7C3AED;
+  --akzent-kontrast:#FFFFFF;
+  --akzent-schwach: #F1EBFE;
+
+  --gruen:          #15803D;  --gruen-flaeche:  #E8F6ED;
+  --gelb:           #B45309;  --gelb-flaeche:   #FDF2E3;
+  --rot:            #B91C1C;  --rot-flaeche:    #FDECEC;
+  --blau:           #1D4ED8;  --blau-flaeche:   #EAF0FE;
+
+  --schatten:       0 1px 2px rgba(20, 20, 26, .06), 0 1px 3px rgba(20, 20, 26, .04);
+  --radius:         8px;
+  --radius-s:       6px;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --flaeche:        #0D0D11;
+  --flaeche-karte:  #16161C;
+  --flaeche-tief:   #1D1D24;
+  --flaeche-hover:  #22222A;
+  --flaeche-nav:    #101014;
+
+  --text:           #F2F2F5;
+  --text-sekundaer: #A8A8B4;
+  --text-gedaempft: #7C7C88;
+  --text-nav:       #C9C9D2;
+
+  --linie:          #2A2A33;
+  --linie-stark:    #3A3A46;
+
+  --akzent:         #9B7BFF;
+  --akzent-kontrast:#12121A;
+  --akzent-schwach: #241C3D;
+
+  --gruen:          #4ADE80;  --gruen-flaeche:  #12261A;
+  --gelb:           #FBBF24;  --gelb-flaeche:   #2A1F09;
+  --rot:            #F87171;  --rot-flaeche:    #2C1414;
+  --blau:           #7EA6FF;  --blau-flaeche:   #111C33;
+
+  --schatten:       0 1px 2px rgba(0, 0, 0, .5);
+}
+
+* { border-color: var(--linie); }
+
+html, body { height: 100%; }
+
+body {
+  background: var(--flaeche);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Sichtbarer Fokus ist Pflicht – Tastaturbedienung muss nachvollziehbar sein. */
+:focus-visible {
+  outline: 2px solid var(--akzent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+::selection { background: var(--akzent); color: var(--akzent-kontrast); }
+
+/* ------------------------------------------------------------------ Bausteine */
+
+.karte {
+  background: var(--flaeche-karte);
+  border: 1px solid var(--linie);
+  border-radius: var(--radius);
+  box-shadow: var(--schatten);
+}
+
+.karte-titel {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--linie);
+  font-weight: 600; font-size: 13px;
+  letter-spacing: .01em;
+}
+
+.knopf {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 34px; padding: 0 14px;
+  border: 1px solid var(--linie-stark);
+  border-radius: var(--radius-s);
+  background: var(--flaeche-karte);
+  color: var(--text);
+  font-size: 13px; font-weight: 500;
+  cursor: pointer;
+  transition: background .12s ease, border-color .12s ease;
+  white-space: nowrap;
+}
+.knopf:hover:not(:disabled) { background: var(--flaeche-hover); border-color: var(--text-gedaempft); }
+.knopf:disabled { opacity: .5; cursor: not-allowed; }
+
+.knopf-primaer {
+  background: var(--akzent); border-color: var(--akzent); color: var(--akzent-kontrast);
+}
+.knopf-primaer:hover:not(:disabled) { filter: brightness(1.08); background: var(--akzent); border-color: var(--akzent); }
+
+.knopf-gefahr { color: var(--rot); border-color: var(--rot); background: transparent; }
+.knopf-gefahr:hover:not(:disabled) { background: var(--rot-flaeche); border-color: var(--rot); }
+
+.knopf-klein { height: 28px; padding: 0 10px; font-size: 12px; }
+.knopf-gross { height: 44px; padding: 0 20px; font-size: 15px; }
+
+.feld {
+  width: 100%; height: 34px; padding: 0 10px;
+  background: var(--flaeche-karte);
+  border: 1px solid var(--linie-stark);
+  border-radius: var(--radius-s);
+  color: var(--text); font-size: 13px; font-family: inherit;
+}
+.feld:hover { border-color: var(--text-gedaempft); }
+textarea.feld { height: auto; min-height: 76px; padding: 8px 10px; line-height: 1.5; resize: vertical; }
+select.feld { padding-right: 28px; }
+.feld::placeholder { color: var(--text-gedaempft); }
+
+.feld-gruppe { display: flex; flex-direction: column; gap: 5px; }
+.feld-label { font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--text-sekundaer); }
+.feld-hinweis { font-size: 12px; color: var(--text-gedaempft); }
+.feld-fehler { font-size: 12px; color: var(--rot); }
+
+/* Statusfarben tragen Bedeutung – nie dekorativ einsetzen (Spec 5). */
+.marke {
+  display: inline-flex; align-items: center; gap: 5px;
+  height: 20px; padding: 0 8px;
+  border-radius: 999px;
+  font-size: 11px; font-weight: 600; letter-spacing: .02em;
+  white-space: nowrap;
+}
+.marke-gruen { background: var(--gruen-flaeche); color: var(--gruen); }
+.marke-gelb  { background: var(--gelb-flaeche);  color: var(--gelb); }
+.marke-rot   { background: var(--rot-flaeche);   color: var(--rot); }
+.marke-blau  { background: var(--blau-flaeche);  color: var(--blau); }
+.marke-grau  { background: var(--flaeche-tief);  color: var(--text-sekundaer); }
+
+.punkt { width: 7px; height: 7px; border-radius: 999px; background: currentColor; flex: none; }
+
+table.tabelle { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.tabelle thead th {
+  position: sticky; top: 0; z-index: 1;
+  background: var(--flaeche-tief);
+  text-align: left; font-size: 11px; font-weight: 600;
+  letter-spacing: .05em; text-transform: uppercase; color: var(--text-sekundaer);
+  padding: 8px 12px; border-bottom: 1px solid var(--linie);
+  white-space: nowrap;
+}
+table.tabelle tbody td { padding: 9px 12px; border-bottom: 1px solid var(--linie); vertical-align: middle; }
+table.tabelle tbody tr:hover { background: var(--flaeche-hover); }
+table.tabelle tbody tr:last-child td { border-bottom: none; }
+.zahl { font-variant-numeric: tabular-nums; }
+
+.leerhinweis { padding: 40px 20px; text-align: center; color: var(--text-gedaempft); font-size: 13px; }
+
+.trennlinie { height: 1px; background: var(--linie); border: 0; }
+
+/* Zeile im Abgleich – der farbige Balken links ersetzt einen weiteren Kasten. */
+.zeile-gruen { box-shadow: inset 3px 0 0 var(--gruen); }
+.zeile-gelb  { box-shadow: inset 3px 0 0 var(--gelb); }
+.zeile-rot   { box-shadow: inset 3px 0 0 var(--rot); }
+.zeile-blau  { box-shadow: inset 3px 0 0 var(--blau); }
+
+/* ------------------------------------------------------------------ Druck (Spec 63) */
+@media print {
+  :root { color-scheme: light; }
+  body { background: #fff; color: #000; font-size: 11pt; }
+  .nicht-drucken, nav, aside, header.app-kopf { display: none !important; }
+  .karte { border: 1px solid #999; box-shadow: none; break-inside: avoid; }
+  table.tabelle thead th { background: #eee; color: #000; }
+  a[href]::after { content: ""; }
+  .druck-block { break-inside: avoid; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+
+/* ------------------------------------------------------------------ App-Gerüst */
+
+.app {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  min-height: 100dvh;
+}
+
+.app-nav {
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+}
+
+.app-inhalt { min-width: 0; display: flex; flex-direction: column; }
+
+.app-kopf {
+  position: sticky; top: 0; z-index: 30;
+  display: flex; align-items: center; gap: 10;
+  padding: 9px 20px;
+  background: color-mix(in srgb, var(--flaeche) 88%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--linie);
+}
+
+.app-haupt { padding: 20px; flex: 1; min-width: 0; }
+
+[data-nur-mobil] { display: none; }
+
+@media (max-width: 900px) {
+  .app { grid-template-columns: 1fr; }
+  .app-nav {
+    position: fixed; inset: 0 auto 0 0; z-index: 56; width: 250px;
+    transform: translateX(-100%); transition: transform .18s ease;
+  }
+  .app-nav[data-offen] { transform: none; }
+  [data-nur-mobil] { display: inline-flex; }
+  .app-kopf { padding-left: 56px; }
+  .app-haupt { padding: 14px; }
+}
+
+/* Auf dem Smartphone bekommen Bedienelemente mehr Flaeche (Spec 44). */
+@media (max-width: 640px) {
+  body { font-size: 15px; }
+  .knopf { height: 40px; padding: 0 16px; font-size: 14px; }
+  .knopf-klein { height: 32px; font-size: 13px; }
+  .feld { height: 40px; font-size: 16px; } /* 16px verhindert das Zoomen in iOS */
+  .tabelle-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+}
+
+.tabelle-scroll { overflow-x: auto; }
+
+@media (max-width: 1100px) {
+  .dashboard-raster { grid-template-columns: 1fr !important; }
+}
+
+details > summary::-webkit-details-marker { display: none; }
+details > summary { list-style: none; }
+
+.zeile-grau { opacity: .6; }

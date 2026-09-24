@@ -1,0 +1,12 @@
+node_modules
+.next
+.git
+.env
+.env.local
+storage
+beispiele
+tests
+coverage
+*.log
+*.tsbuildinfo
+README.md
