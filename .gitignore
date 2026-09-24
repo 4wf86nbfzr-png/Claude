@@ -1,8 +1,14 @@
 # Abhängigkeiten der Formularfunktion — Vercel installiert sie aus package.json
 node_modules/
 
-# Das fertige Paket zum Hochladen — wird mit tools/paket-bauen.sh erzeugt
+# Die fertigen Pakete zum Hochladen — jedes ist das Ergebnis eines
+# Skripts und jederzeit neu zu bauen, keins ist eine Quelle:
+#   herm-website-netlify.zip        tools/paket-bauen.sh
+#   herm-website-redesign-neu.zip   zip -qr über redesign/
+#   herm-website-onecom.zip         tools/onecom-bauen.py
 herm-website-netlify.zip
+herm-website-redesign-neu.zip
+herm-website-onecom.zip
 
 # Die gebündelte Funktion — Ergebnis von tools/paket-bauen.sh, keine Quelle.
 # Die Quelle steht in api/_netlify.js.
