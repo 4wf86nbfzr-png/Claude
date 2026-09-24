@@ -53,7 +53,7 @@ Seite ohne Build-Schritt, der Planer bringt Datenbank, Anmeldung und API mit.
 | **Zeiterfassung** | Soll/Ist, Freigabe, Excel-Export als Stundennachweis |
 | **Auswertungen** | Besetzungsquote, Ausfälle, Monatsvergleich, Bereiche, Kunden |
 | **Finanzen** | Erlös-, Kosten- und Margenschätzung aus hinterlegten Stundensätzen |
-| **Mitarbeiter-App** | Mobile Ansicht: heutige Einsätze, annehmen/ablehnen, Verfügbarkeit melden |
+| **Mitarbeiter-App** | Mobile Ansicht: heutige Einsätze, annehmen/ablehnen, Verfügbarkeit melden, eigene Nachweise hochladen, Nachricht an die Disposition |
 | **Admin** | Benutzer, Rollen, API-Schlüssel, Webhooks, revisionssicheres Protokoll |
 
 ---
@@ -654,6 +654,9 @@ auch nicht: im Browser liegt nur die Wahl zwischen heller und dunkler Ansicht.
 * **Drag & Drop in der Disposition** ist vorbereitet (Positionen und Zuweisungen sind
   saubere Datensätze mit eigener ID), aber noch nicht umgesetzt. Bis dahin läuft die
   Einteilung über „Personal suchen“ – das ist mit zwei Klicks vergleichbar schnell.
+* **Spaltenauswahl und Sortierung per Klick** fehlen in den Tabellen. Suche, Filter,
+  Pagination und Export sind vorhanden; die Sortierung folgt einer festen, fachlich
+  sinnvollen Reihenfolge (Events nach Datum, Mitarbeiter nach Nachname).
 * **PDF-Ausgabe** erfolgt über die Druckansicht des Browsers (`Einsatzplan`, `Auswertungen`).
   Eine serverseitige PDF-Erzeugung ist bewusst nicht eingebaut, solange die Druckansicht
   reicht.
@@ -664,3 +667,7 @@ auch nicht: im Browser liegt nur die Wahl zwischen heller und dunkler Ansicht.
   (`src/lib/rate-limit.ts`, die Schnittstelle bleibt gleich).
 * **Rechtstexte und Datenschutzerklärung** für den Planer selbst sind noch zu
   erstellen; die der Website gelten dafür nicht.
+* **Das Docker-Abbild wurde in der Entwicklungsumgebung nicht gebaut** – dort stand kein
+  Docker-Daemon zur Verfügung. Geprüft ist stattdessen der Teil, der im Container läuft:
+  die Standalone-Ausgabe startet, beantwortet Anfragen und spricht mit der Datenbank.
+  Der erste `docker compose up --build` gehört trotzdem einmal bewusst beobachtet.

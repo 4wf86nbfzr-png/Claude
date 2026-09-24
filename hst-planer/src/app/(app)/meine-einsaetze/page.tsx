@@ -6,8 +6,9 @@ import { formatDateDE, toDateOnly, weekdayDE } from '@/lib/time';
 import { ASSIGNMENT_STATUS, label } from '@/lib/status';
 import { Hinweis, Karte, Leer, Seitenkopf, StatusMarke } from '@/components/ui';
 import { Icon } from '@/components/icons';
-import { AktionsFormular, Ausklapp } from '@/components/aktion';
+import { AktionsFormular, AktionsKnopf, Ausklapp } from '@/components/aktion';
 import { einsatzAntwortAktion } from '../events/actions';
+import { nachrichtAnDispoAktion } from '../meine-dokumente/actions';
 
 export const metadata: Metadata = { title: 'Meine Einsaetze' };
 export const dynamic = 'force-dynamic';
@@ -42,7 +43,12 @@ export default async function MeineEinsaetze() {
   return (
     <>
       <Seitenkopf titel="Meine Einsaetze" unter={`${weekdayDE(new Date())}, ${formatDateDE(new Date())}`}
-                  aktionen={<Link href="/meine-verfuegbarkeit" className="knopf"><Icon name="calendar" /> Verfuegbarkeit melden</Link>} />
+                  aktionen={
+                    <>
+                      <Link href="/meine-verfuegbarkeit" className="knopf"><Icon name="calendar" /> Verfuegbarkeit melden</Link>
+                      <Link href="/meine-dokumente" className="knopf"><Icon name="file" /> Meine Dokumente</Link>
+                    </>
+                  } />
 
       {offen.length > 0 && (
         <section style={{ marginBottom: 22 }}>
@@ -73,6 +79,38 @@ export default async function MeineEinsaetze() {
           : <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {kommende.map((einsatz) => <EinsatzKarte key={einsatz.id} einsatz={einsatz} antwortNoetig={einsatz.status === 'ANGEFRAGT'} />)}
             </div>}
+      </section>
+
+      <section style={{ marginTop: 22 }}>
+        <h2 style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--text-gedaempft)', margin: '0 0 8px' }}>
+          Nachricht an die Disposition
+        </h2>
+        <Karte>
+          <div style={{ padding: 16 }}>
+            <AktionsFormular aktion={nachrichtAnDispoAktion} stil={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <label className="feld-gruppe">
+                <span className="feld-label">Worum geht es?</span>
+                <input name="betreff" className="feld" required maxLength={120} placeholder="z. B. Frage zum Treffpunkt" />
+              </label>
+              <label className="feld-gruppe">
+                <span className="feld-label">Betrifft einen Einsatz?</span>
+                <select name="eventId" className="feld" defaultValue="">
+                  <option value="">– allgemein –</option>
+                  {einsaetze.map((einsatz) => (
+                    <option key={einsatz.id} value={einsatz.event.id}>
+                      {formatDateDE(einsatz.event.date)} · {einsatz.event.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="feld-gruppe">
+                <span className="feld-label">Ihre Nachricht</span>
+                <textarea name="text" className="feld" rows={4} required placeholder="Moin, …" />
+              </label>
+              <div><AktionsKnopf klasse="knopf knopf-primaer knopf-gross">Absenden</AktionsKnopf></div>
+            </AktionsFormular>
+          </div>
+        </Karte>
       </section>
     </>
   );

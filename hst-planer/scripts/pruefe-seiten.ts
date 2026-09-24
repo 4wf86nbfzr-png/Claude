@@ -16,7 +16,7 @@ const SEITEN = [
   '/mitarbeiter', '/mitarbeiter/neu', '/kunden', '/kunden/neu', '/partner', '/partner/neu',
   '/anfragen', '/anfragen/neu', '/abgleiche', '/abgleiche/neu', '/zeiterfassung',
   '/dokumente', '/kommunikation', '/auswertungen', '/einstellungen', '/admin',
-  '/admin/protokoll', '/meine-einsaetze', '/meine-verfuegbarkeit', '/konto/passwort',
+  '/admin/protokoll', '/meine-einsaetze', '/meine-verfuegbarkeit', '/meine-dokumente', '/konto/passwort',
   '/benachrichtigungen', '/suche?q=mustermann',
   '/api/auth/session', '/api/events', '/api/employees', '/api/shifts',
   '/api/requests', '/api/timesheets', '/api/reconciliation', '/api/customers',

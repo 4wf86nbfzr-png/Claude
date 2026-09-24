@@ -145,8 +145,23 @@ export const NAV_ITEMS: NavItem[] = [
   { href: '/admin', label: 'Admin', permission: 'admin.view', icon: 'shield' },
 ];
 
+/**
+ * Eigener Bereich – erscheint zusaetzlich zur Hauptnavigation fuer alle, die
+ * ein Mitarbeiterprofil haben. Mitarbeiter sehen praktisch nur diesen Teil.
+ */
+export const EIGENE_NAV: NavItem[] = [
+  { href: '/meine-einsaetze', label: 'Meine Einsaetze', permission: 'self.shifts', icon: 'calendar' },
+  { href: '/meine-verfuegbarkeit', label: 'Meine Verfuegbarkeit', permission: 'self.availability', icon: 'clock' },
+  { href: '/meine-dokumente', label: 'Meine Dokumente', permission: 'self.documents', icon: 'file' },
+];
+
 export function navFor(role: Role): NavItem[] {
   return NAV_ITEMS.filter((item) => can(role, item.permission));
+}
+
+export function eigeneNavFor(role: Role, hatMitarbeiterprofil: boolean): NavItem[] {
+  if (!hatMitarbeiterprofil) return [];
+  return EIGENE_NAV.filter((item) => can(role, item.permission));
 }
 
 /** Startseite je Rolle – Mitarbeiter landen direkt in ihrer Einsatzliste. */

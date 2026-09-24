@@ -7,13 +7,16 @@ import { Icon } from './icons';
 import { Logo } from './logo';
 import type { NavItem } from '@/lib/auth/rbac';
 
+/** Platzhalter, der in der Liste eine Zwischenueberschrift markiert. */
+const TRENNER: NavItem = { href: '__trenner__', label: '', permission: 'dashboard.view', icon: 'grid' };
+
 /**
  * Seitennavigation (Spec 6/45).
  * Auf dem Desktop dauerhaft sichtbar, auf dem Smartphone als Schublade.
  * Die Tastenkuerzel aus Spec 46 haengen hier, weil die Navigation auf
  * jeder Seite eingebunden ist.
  */
-export function Navigation({ items, name, rolle }: { items: NavItem[]; name: string; rolle: string }) {
+export function Navigation({ items, eigene, name, rolle }: { items: NavItem[]; eigene: NavItem[]; name: string; rolle: string }) {
   const pfad = usePathname();
   const router = useRouter();
   const [offen, setOffen] = useState(false);
@@ -68,7 +71,19 @@ export function Navigation({ items, name, rolle }: { items: NavItem[]; name: str
         </div>
 
         <ul style={{ listStyle: 'none', margin: 0, padding: '4px 8px', display: 'flex', flexDirection: 'column', gap: 1, flex: 1, overflowY: 'auto' }}>
-          {items.map((item) => {
+          {eigene.length > 0 && items.length > 0 && (
+            <li style={{ padding: '8px 9px 3px', fontSize: 10, letterSpacing: '.08em', textTransform: 'uppercase', color: '#6E6E7C' }}>
+              Mein Bereich
+            </li>
+          )}
+          {[...eigene, ...(eigene.length > 0 && items.length > 0 ? [TRENNER] : []), ...items].map((item) => {
+            if (item === TRENNER) {
+              return (
+                <li key="trenner" style={{ padding: '10px 9px 3px', fontSize: 10, letterSpacing: '.08em', textTransform: 'uppercase', color: '#6E6E7C' }}>
+                  Disposition
+                </li>
+              );
+            }
             const aktiv = pfad === item.href || pfad.startsWith(`${item.href}/`);
             return (
               <li key={item.href}>
