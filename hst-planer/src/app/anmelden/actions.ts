@@ -9,6 +9,7 @@ import { verifyPassword } from '@/lib/auth/password';
 import { pruefeKennwort } from '@/lib/auth/totp';
 import { clientIp, createSession, destroySession, userAgent } from '@/lib/auth/session';
 import { homeFor, type Role } from '@/lib/auth/rbac';
+import { feld, pflichtfeld } from '@/lib/formular';
 
 const SCHEMA = z.object({
   email: z.string().trim().toLowerCase().email('Bitte geben Sie eine gültige E-Mail-Adresse an.'),
@@ -30,9 +31,10 @@ export interface AnmeldeZustand {
 
 export async function anmelden(_zustand: AnmeldeZustand, formData: FormData): Promise<AnmeldeZustand> {
   const eingabe = SCHEMA.safeParse({
-    email: formData.get('email'),
-    passwort: formData.get('passwort'),
-    code: formData.get('code'),
+    email: pflichtfeld(formData, 'email'),
+    passwort: pflichtfeld(formData, 'passwort'),
+    // Das Feld steht erst im zweiten Schritt im Formular (siehe lib/formular.ts).
+    code: feld(formData, 'code'),
   });
   if (!eingabe.success) {
     return { fehler: eingabe.error.issues[0]?.message ?? 'Bitte prüfen Sie Ihre Eingaben.' };

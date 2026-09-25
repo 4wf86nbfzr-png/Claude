@@ -270,11 +270,54 @@ npx tsx scripts/pruefe-seiten.ts http://localhost:3100 dispo@hermserviceteam.com
 ## Produktivbetrieb
 
 ```bash
-npm ci --omit=dev
-npx prisma migrate deploy
-npm run build
-npm start                 # oder: node .next/standalone/server.js
+npm ci
+npm start
 ```
+
+Mehr ist es nicht. `npm start` ruft `scripts/server.mjs` auf, und das nimmt der
+Reihe nach ab, woran ein erster Start sonst scheitert:
+
+1. `.env` einlesen und prüfen, ob `DATABASE_URL` und `AUTH_SECRET` da sind —
+   ein zu kurzes `AUTH_SECRET` fällt hier auf und nicht erst beim ersten
+   Anmeldeversuch.
+2. Auf die Datenbank warten (bis zu 30 Sekunden). Beim gemeinsamen Hochfahren
+   mit PostgreSQL ist sie in der ersten Sekunde noch nicht da.
+3. Ausstehende Migrationen einspielen (`prisma migrate deploy`).
+4. Bauen, wenn kein Build vorliegt oder der Quellcode neuer ist als der letzte.
+5. Die statischen Dateien und `public/` neben den Standalone-Server legen —
+   ohne diesen Schritt lädt die Anwendung ohne Stile und ohne Logo.
+6. Starten, und `SIGTERM` an den Server durchreichen, damit ein Neustart nicht
+   mit einem belegten Port endet.
+
+Schalter, wenn nicht alles davon erwünscht ist:
+
+```bash
+node scripts/server.mjs --nur-start        # nichts bauen, nicht migrieren
+node scripts/server.mjs --ohne-migration   # bauen ja, migrieren nein
+npm run start:roh                          # der nackte Standalone-Server
+```
+
+### Als Dienst auf einem eigenen Server
+
+Zwei fertige Dateien liegen unter `betrieb/`:
+
+```bash
+sudo cp betrieb/hst-planer.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now hst-planer
+journalctl -u hst-planer -f        # Protokoll mitlesen
+
+sudo cp betrieb/nginx-hst-planer.conf /etc/nginx/sites-available/hst-planer
+sudo ln -s /etc/nginx/sites-available/hst-planer /etc/nginx/sites-enabled/
+sudo certbot --nginx -d planer.hermserviceteam.com
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+Die Unit läuft unter einem eigenen Benutzer, darf keine neuen Rechte erwerben
+und schreiben nur in Dateiablage, `.next` und `node_modules`. Die nginx-Datei
+setzt `X-Forwarded-For` — ohne diesen Kopf sieht die Anwendung nur die Adresse
+des Proxys, die Anmeldebremse greift dann für alle Besucher gemeinsam und im
+Protokollbuch steht bei jedem Eintrag dieselbe IP.
 
 Checkliste vor dem ersten Start:
 

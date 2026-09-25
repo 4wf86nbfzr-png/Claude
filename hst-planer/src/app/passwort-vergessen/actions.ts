@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { rateLimit } from '@/lib/rate-limit';
 import { clientIp } from '@/lib/auth/session';
 import { zuruecksetzenAnfordern } from '@/lib/auth/zuruecksetzen';
+import { pflichtfeld } from '@/lib/formular';
 
 export interface Zustand { fehler?: string; erledigt?: boolean }
 
@@ -19,7 +20,7 @@ const SCHEMA = z.object({
  * Sonst wäre dieses Formular eine Auskunft darüber, wer hier ein Konto hat.
  */
 export async function zuruecksetzenAktion(_zustand: Zustand, formData: FormData): Promise<Zustand> {
-  const eingabe = SCHEMA.safeParse({ email: formData.get('email') });
+  const eingabe = SCHEMA.safeParse({ email: pflichtfeld(formData, 'email') });
   if (!eingabe.success) {
     return { fehler: eingabe.error.issues[0]?.message ?? 'Bitte prüfen Sie Ihre Eingabe.' };
   }
