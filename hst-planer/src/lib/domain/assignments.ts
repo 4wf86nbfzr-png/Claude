@@ -8,6 +8,7 @@ import { statusNachziehen } from '../queries/coverage';
 import { formatDateDE, shiftDuration } from '../time';
 import type { SessionUser } from '../auth/session';
 import type { $Enums } from '@prisma/client';
+import { pruefe, type Konflikt, type NachweisStand } from '../dispo/pruefung';
 
 /**
  * Mitarbeiter einer Position zuweisen (Spec 8).
@@ -33,8 +34,13 @@ export interface ZuweisungEingabe {
   trotzdem?: boolean;
 }
 
-export interface Konflikt { art: 'UEBERSCHNEIDUNG' | 'ABWESEND' | 'GESPERRT' | 'QUALIFIKATION'; text: string; blockierend: boolean }
+export type { Konflikt } from '../dispo/pruefung';
 
+/**
+ * Daten fuer die Pruefung zusammentragen und an die reinen Regeln in
+ * `lib/dispo/pruefung` uebergeben. Die Regeln selbst stehen bewusst
+ * dort – so pruefen Oberflaeche und Server nach derselben Vorschrift.
+ */
 export async function pruefeZuweisung(positionId: string, employeeId: string): Promise<Konflikt[]> {
   const position = await db.position.findUnique({
     where: { id: positionId },
@@ -42,75 +48,121 @@ export async function pruefeZuweisung(positionId: string, employeeId: string): P
   });
   if (!position) throw new NotFoundError('Die Position wurde nicht gefunden.');
 
+  const tag = position.event.date;
+  const vortag = new Date(tag);
+  vortag.setDate(vortag.getDate() - 1);
+
   const employee = await db.employee.findFirst({
     where: { id: employeeId, deletedAt: null },
     include: {
       qualifications: { include: { qualification: true } },
       availabilities: true,
+      documents: { where: { deletedAt: null }, select: { type: true, title: true, expiresAt: true } },
       assignments: {
-        where: { deletedAt: null, status: { notIn: ['ABGESAGT', 'STORNIERT'] }, event: { date: position.event.date } },
+        where: {
+          deletedAt: null,
+          status: { notIn: ['ABGESAGT', 'STORNIERT'] },
+          event: { date: { in: [tag, vortag] } },
+        },
         include: { event: true, position: true },
       },
     },
   });
   if (!employee) throw new NotFoundError('Der Mitarbeiter wurde nicht gefunden.');
 
-  const konflikte: Konflikt[] = [];
+  const name = `${employee.firstName} ${employee.lastName}`;
+  const amTag = employee.assignments.filter((a) => a.event.date.getTime() === tag.getTime());
+  const amVortag = employee.assignments.filter((a) => a.event.date.getTime() === vortag.getTime());
 
-  if (!employee.active) konflikte.push({ art: 'GESPERRT', text: 'Der Mitarbeiter ist deaktiviert.', blockierend: true });
-  if (employee.blocked) {
-    konflikte.push({ art: 'GESPERRT', text: `Sperrvermerk: ${employee.blockReason ?? 'ohne Angabe'}`, blockierend: true });
+  // Bereits genau diese Position? Das ist kein Regelfall, sondern ein Versehen.
+  if (amTag.some((a) => a.positionId === positionId)) {
+    return [{
+      art: 'UEBERSCHNEIDUNG',
+      text: `${name} steht bereits auf dieser Position.`,
+      blockierend: true,
+    }];
   }
 
-  // Überschneidung am selben Tag
-  const start = position.startTime ?? position.event.startTime;
-  const ende = position.endTime ?? position.event.endTime;
-  for (const vorhanden of employee.assignments) {
-    if (vorhanden.positionId === positionId) {
-      konflikte.push({ art: 'UEBERSCHNEIDUNG', text: 'Der Mitarbeiter ist dieser Position bereits zugewiesen.', blockierend: true });
-      continue;
-    }
-    const vStart = vorhanden.plannedStart ?? vorhanden.position.startTime ?? vorhanden.event.startTime;
-    const vEnde = vorhanden.plannedEnd ?? vorhanden.position.endTime ?? vorhanden.event.endTime;
-    if (ueberschneidet(start, ende, vStart, vEnde)) {
-      konflikte.push({
-        art: 'UEBERSCHNEIDUNG',
-        text: `Bereits eingeteilt: ${vorhanden.event.name} (${vStart ?? '?'}–${vEnde ?? '?'})`,
-        blockierend: true,
-      });
-    }
-  }
-
-  // Abwesenheit
-  const tag = position.event.date;
-  for (const zeitraum of employee.availabilities) {
-    if (['NICHT_VERFUEGBAR', 'URLAUB', 'KRANK'].includes(zeitraum.kind) && zeitraum.from <= tag && zeitraum.to >= tag) {
-      konflikte.push({ art: 'ABWESEND', text: `Abwesend (${zeitraum.kind.toLowerCase()}${zeitraum.note ? `: ${zeitraum.note}` : ''})`, blockierend: false });
-    }
-  }
-
-  // Qualifikationen
   const vorhandene = new Map(employee.qualifications.map((q) => [q.qualificationId, q]));
-  for (const anforderung of position.requirements) {
+  const qualifikationen: NachweisStand[] = position.requirements.map((anforderung) => {
     const treffer = vorhandene.get(anforderung.qualificationId);
-    if (!treffer) {
-      konflikte.push({ art: 'QUALIFIKATION', text: `Nachweis fehlt: ${anforderung.qualification.name}`, blockierend: false });
-    } else if (treffer.expiresAt && treffer.expiresAt < tag) {
-      konflikte.push({ art: 'QUALIFIKATION', text: `Nachweis abgelaufen: ${anforderung.qualification.name}`, blockierend: false });
+    return {
+      name: anforderung.qualification.name,
+      vorhanden: Boolean(treffer),
+      laeuftAb: treffer?.expiresAt ?? null,
+    };
+  });
+
+  // Pflichtschulungen: alles, was als wiederkehrend hinterlegt ist.
+  const pflichtschulungen = await db.training.findMany({
+    where: { deletedAt: null, mandatory: true },
+    select: { id: true, title: true, repeatMonths: true, participants: { where: { employeeId }, select: { result: true, training: { select: { endsAt: true } } } } },
+  });
+  const schulungen: NachweisStand[] = pflichtschulungen.map((schulung) => {
+    const bestanden = schulung.participants.find((t) => t.result === 'BESTANDEN' || t.result === 'TEILGENOMMEN');
+    let laeuftAb: Date | null = null;
+    if (bestanden && schulung.repeatMonths) {
+      laeuftAb = new Date(bestanden.training.endsAt);
+      laeuftAb.setMonth(laeuftAb.getMonth() + schulung.repeatMonths);
     }
-  }
+    return { name: schulung.title, vorhanden: Boolean(bestanden), laeuftAb };
+  });
 
-  return konflikte;
-}
+  // Pflichtunterlagen: Fuehrungszeugnis und Dienstausweis.
+  //
+  // Das Fehlen wird nur auf Positionen gemeldet, die ueberhaupt eine
+  // Qualifikation verlangen – also auf den bewachungsrechtlich geregelten
+  // Posten. Sonst stuende auf jeder Garderobenschicht eine Warnung, und
+  // Warnungen, die immer da sind, liest nach einer Woche niemand mehr.
+  // Ein abgelaufenes Dokument wird dagegen immer gemeldet.
+  const geregelt = position.requirements.length > 0;
+  const dokumente: NachweisStand[] = (['FUEHRUNGSZEUGNIS', 'AUSWEIS'] as const).flatMap((typ) => {
+    const treffer = employee.documents
+      .filter((d) => d.type === typ)
+      .sort((a, b) => (b.expiresAt?.getTime() ?? 0) - (a.expiresAt?.getTime() ?? 0))[0];
+    if (!treffer && !geregelt) return [];
+    return [{
+      name: typ === 'FUEHRUNGSZEUGNIS' ? 'Führungszeugnis' : 'Dienstausweis',
+      vorhanden: Boolean(treffer),
+      laeuftAb: treffer?.expiresAt ?? null,
+    }];
+  });
 
-function ueberschneidet(aStart: string | null, aEnde: string | null, bStart: string | null, bEnde: string | null): boolean {
-  if (!aStart || !aEnde || !bStart || !bEnde) return false;
-  const min = (zeit: string) => Number(zeit.slice(0, 2)) * 60 + Number(zeit.slice(3, 5));
-  const a1 = min(aStart);
-  const a2 = a1 + (shiftDuration(aStart, aEnde)?.grossMinutes ?? 0);
-  const b1 = min(bStart);
-  const b2 = b1 + (shiftDuration(bStart, bEnde)?.grossMinutes ?? 0);
-  return a1 < b2 && b1 < a2;
+  return pruefe({
+    tag,
+    ziel: {
+      start: position.startTime ?? position.event.startTime,
+      ende: position.endTime ?? position.event.endTime,
+      bezeichnung: position.title,
+    },
+    person: {
+      name,
+      aktiv: employee.active,
+      gesperrt: employee.blocked,
+      sperrgrund: employee.blockReason,
+    },
+    belegt: amTag.map((a) => ({
+      start: a.plannedStart ?? a.position.startTime ?? a.event.startTime,
+      ende: a.plannedEnd ?? a.position.endTime ?? a.event.endTime,
+      bezeichnung: a.event.name,
+    })),
+    belegtVortag: amVortag.map((a) => ({
+      start: a.plannedStart ?? a.position.startTime ?? a.event.startTime,
+      ende: a.plannedEnd ?? a.position.endTime ?? a.event.endTime,
+      bezeichnung: a.event.name,
+    })),
+    abwesend: employee.availabilities
+      .filter((z) => ['NICHT_VERFUEGBAR', 'URLAUB', 'KRANK'].includes(z.kind) && z.from <= tag && z.to >= tag)
+      .map((z) => ({ art: z.kind, hinweis: z.note })),
+    qualifikationen,
+    schulungen,
+    dokumente,
+    vortagEnde: amVortag
+      .map((a) => a.plannedEnd ?? a.position.endTime ?? a.event.endTime)
+      .filter((x): x is string => Boolean(x))
+      .sort()
+      .at(-1) ?? null,
+  });
 }
 
 export async function zuweisen(user: SessionUser, eingabe: ZuweisungEingabe) {

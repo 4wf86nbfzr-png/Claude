@@ -137,7 +137,7 @@ describe('Zuweisung', () => {
 
     await zuweisen(TEST_USER, { positionId: position.id, employeeId: employee.id });
     await expect(zuweisen(TEST_USER, { positionId: position.id, employeeId: employee.id }))
-      .rejects.toMatchObject({ userMessage: expect.stringContaining('bereits zugewiesen') });
+      .rejects.toMatchObject({ userMessage: expect.stringContaining('steht bereits auf dieser Position') });
   });
 
   it('erkennt eine Überschneidung am selben Tag', async () => {
