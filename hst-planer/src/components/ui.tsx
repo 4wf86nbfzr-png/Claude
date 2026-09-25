@@ -97,6 +97,17 @@ export function Raster({ min = 160, gap = 10, children }: { min?: number; gap?: 
   return <div style={{ display: 'grid', gridTemplateColumns: `repeat(auto-fit, minmax(${min}px, 1fr))`, gap }}>{children}</div>;
 }
 
+/**
+ * Ein Feld, das diese Rolle nicht sehen darf (SecPlan 8).
+ *
+ * Bewusst sichtbar und benannt: ein leeres Feld sieht aus wie ein
+ * fehlender Eintrag, und dann ruft jemand in der Personalabteilung an.
+ * Ein benanntes Schloss sagt, dass es die Angabe gibt und wer sie führt.
+ */
+export function Gesperrt({ grund = 'Für Ihre Rolle nicht freigegeben' }: { grund?: string }) {
+  return <span className="gesperrt" title={grund}>gesperrt</span>;
+}
+
 export function Paar({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 1, minWidth: 0 }}>

@@ -1,224 +1,135 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { seite } from '@/lib/auth/guard';
-import { can } from '@/lib/auth/rbac';
+import { can, personenfelder } from '@/lib/auth/rbac';
 import { db } from '@/lib/db';
-import { employeeFilter, darfInterneNotizenSehen } from '@/lib/queries/scope';
+import { employeeFilter } from '@/lib/queries/scope';
 import { formatDateDE, formatHours, toDateOnly } from '@/lib/time';
-import { ASSIGNMENT_STATUS, AVAILABILITY_KIND, DOCUMENT_TYPE, EMPLOYMENT_TYPE, label } from '@/lib/status';
-import { Karte, Kennzahl, Leer, Paar, Raster, Seitenkopf, StatusMarke } from '@/components/ui';
+import { Gesperrt, Karte, Kennzahl, Paar, Raster } from '@/components/ui';
 import { AktionsFormular, AktionsKnopf, Ausklapp } from '@/components/aktion';
-import { Icon } from '@/components/icons';
-import { mitarbeiterDeaktivierenAktion, verfuegbarkeitAktion, verfuegbarkeitLoeschenAktion, zugangAnlegenAktion } from '../actions';
+import { mitarbeiterDeaktivierenAktion, zugangAnlegenAktion } from '../actions';
 
 export const dynamic = 'force-dynamic';
+export const metadata = { title: 'Mitarbeiterakte' };
 
-export default async function MitarbeiterDetail({ params }: { params: Promise<{ id: string }> }) {
+/**
+ * Reiter „Übersicht" der Mitarbeiterakte (SecPlan 5).
+ *
+ * Welche Felder überhaupt geladen werden, entscheidet `personenfelder`.
+ * Was nicht freigegeben ist, kommt nicht aus der Datenbank und steht
+ * hier als benanntes Schloss – nicht als leeres Feld.
+ */
+export default async function MitarbeiterUebersicht({ params }: { params: Promise<{ id: string }> }) {
   const user = await seite('employees.view');
   const { id } = await params;
+  const felder = personenfelder(user.role);
   const heute = toDateOnly(new Date());
 
   const employee = await db.employee.findFirst({
     where: { id, ...employeeFilter(user) },
-    include: {
-      partner: { select: { id: true, name: true } },
-      user: { select: { id: true, email: true, active: true, lastLoginAt: true } },
-      qualifications: { include: { qualification: true }, orderBy: { qualification: { name: 'asc' } } },
-      availabilities: { orderBy: { from: 'desc' }, take: 20 },
-      documents: { where: { deletedAt: null }, orderBy: { createdAt: 'desc' } },
-      assignments: {
-        where: { deletedAt: null },
-        include: { event: { select: { id: true, name: true, date: true, reference: true } }, position: { select: { title: true } } },
-        orderBy: { event: { date: 'desc' } },
-        take: 30,
-      },
+    select: {
+      id: true, firstName: true, lastName: true, active: true,
+      phone: felder.kontakt, mobile: felder.kontakt, email: felder.kontakt,
+      street: felder.anschrift, zip: felder.anschrift, city: felder.anschrift,
+      birthDate: felder.anschrift, drivingLicence: felder.anschrift,
+      hourlyRate: felder.vertrag, employmentType: true,
+      notesInternal: felder.notizen, infoForEmployee: true,
+      preferredAreas: true,
+      user: { select: { email: true, active: true, lastLoginAt: true, totpEnabled: true } },
     },
   });
   if (!employee) notFound();
 
-  const [stunden, kommende] = await Promise.all([
-    db.timeEntry.aggregate({
-      where: { employeeId: id, deletedAt: null, date: { gte: new Date(heute.getFullYear(), 0, 1) } },
-      _sum: { minutes: true }, _count: true,
-    }),
+  const [stunden, kommende, abgesagt, gesamtEinsaetze] = await Promise.all([
+    can(user.role, 'timesheets.view')
+      ? db.timeEntry.aggregate({
+          where: { employeeId: id, deletedAt: null, date: { gte: new Date(heute.getFullYear(), 0, 1) } },
+          _sum: { minutes: true },
+        })
+      : Promise.resolve(null),
     db.assignment.count({ where: { employeeId: id, deletedAt: null, status: { notIn: ['ABGESAGT', 'STORNIERT'] }, event: { date: { gte: heute } } } }),
+    db.assignment.count({ where: { employeeId: id, deletedAt: null, status: 'ABGESAGT' } }),
+    db.assignment.count({ where: { employeeId: id, deletedAt: null } }),
   ]);
 
-  const intern = darfInterneNotizenSehen(user);
   const darfBearbeiten = can(user.role, 'employees.edit');
-  const abgesagt = employee.assignments.filter((a) => a.status === 'ABGESAGT').length;
 
   return (
     <>
-      <Seitenkopf
-        titel={`${employee.firstName} ${employee.lastName}`}
-        brotkrumen={[{ href: '/mitarbeiter', label: 'Mitarbeiter' }]}
-        unter={
-          <span style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-            <span className="zahl">{employee.personnelNo}</span>
-            <span>{EMPLOYMENT_TYPE[employee.employmentType] ?? employee.employmentType}</span>
-            {employee.partner && <Link href={`/partner/${employee.partner.id}`} className="marke marke-blau">{employee.partner.name}</Link>}
-            {!employee.active && <span className="marke marke-grau">inaktiv</span>}
-            {employee.blocked && <span className="marke marke-rot">Sperrvermerk: {employee.blockReason}</span>}
-          </span>
-        }
-        aktionen={darfBearbeiten && <Link href={`/mitarbeiter/${id}/bearbeiten`} className="knopf knopf-primaer">Bearbeiten</Link>}
-      />
-
       <Raster min={160}>
-        <Kennzahl wert={kommende} label="Kommende Einsätze" />
-        <Kennzahl wert={employee.assignments.length} label="Einsätze (zuletzt)" />
-        <Kennzahl wert={formatHours(stunden._sum.minutes ?? 0)} label={`Stunden ${heute.getFullYear()}`} />
+        <Kennzahl wert={kommende} label="Kommende Einsätze" href={`/mitarbeiter/${id}/einsaetze`} />
+        <Kennzahl wert={gesamtEinsaetze} label="Einsätze insgesamt" />
+        {stunden && <Kennzahl wert={formatHours(stunden._sum.minutes ?? 0)} label={`Stunden ${heute.getFullYear()}`} href={`/mitarbeiter/${id}/arbeitszeiten`} />}
         <Kennzahl wert={abgesagt} label="Absagen" farbe={abgesagt > 2 ? 'gelb' : 'grau'} />
       </Raster>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(260px, 1fr)', gap: 16, marginTop: 16, alignItems: 'start' }} className="dashboard-raster">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, minWidth: 0 }}>
-          <Karte titel="Einsätze">
-            {employee.assignments.length === 0 ? <Leer>Noch keine Einsätze.</Leer> : (
-              <div className="tabelle-scroll">
-                <table className="tabelle">
-                  <thead><tr><th>Datum</th><th>Event</th><th>Position</th><th>Zeit</th><th>Status</th></tr></thead>
-                  <tbody>
-                    {employee.assignments.map((a) => (
-                      <tr key={a.id}>
-                        <td className="zahl" style={{ whiteSpace: 'nowrap' }}>{formatDateDE(a.event.date)}</td>
-                        <td><Link href={`/events/${a.event.id}`}>{a.event.name}</Link></td>
-                        <td style={{ color: 'var(--text-2)' }}>{a.position.title}</td>
-                        <td className="zahl" style={{ whiteSpace: 'nowrap' }}>{a.plannedStart ?? '–'}–{a.plannedEnd ?? '–'}</td>
-                        <td><StatusMarke status={label(ASSIGNMENT_STATUS, a.status)} /></td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </Karte>
+      <div className="dashboard-raster"
+           style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(260px, 1fr)', gap: 14, marginTop: 14, alignItems: 'start' }}>
+        <Karte titel="Kontakt und Person">
+          <div style={{ padding: 12, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12 }}>
+            <Paar label="Mobil">
+              {!felder.kontakt ? <Gesperrt />
+                : employee.mobile ? <a href={`tel:${employee.mobile.replace(/\s/g, '')}`}>{employee.mobile}</a> : '–'}
+            </Paar>
+            <Paar label="Telefon">{!felder.kontakt ? <Gesperrt /> : employee.phone ?? '–'}</Paar>
+            <Paar label="E-Mail">
+              {!felder.kontakt ? <Gesperrt />
+                : employee.email ? <a href={`mailto:${employee.email}`}>{employee.email}</a> : '–'}
+            </Paar>
+            <Paar label="Private Anschrift">
+              {!felder.anschrift ? <Gesperrt grund="Private Anschrift – nur Personal und Geschäftsführung" />
+                : [employee.street, [employee.zip, employee.city].filter(Boolean).join(' ')].filter(Boolean).join(', ') || '–'}
+            </Paar>
+            <Paar label="Geburtsdatum">
+              {!felder.anschrift ? <Gesperrt /> : employee.birthDate ? formatDateDE(employee.birthDate) : '–'}
+            </Paar>
+            <Paar label="Führerschein">{!felder.anschrift ? <Gesperrt /> : employee.drivingLicence ?? '–'}</Paar>
+            <Paar label="Stundensatz">
+              {!felder.vertrag
+                ? <Gesperrt grund="Vergütung – nur Personal und Geschäftsführung" />
+                : employee.hourlyRate ? `${Number(employee.hourlyRate).toFixed(2).replace('.', ',')} €` : '–'}
+            </Paar>
+            <Paar label="Bevorzugte Bereiche">
+              {employee.preferredAreas.length > 0 ? employee.preferredAreas.join(', ') : '–'}
+            </Paar>
+          </div>
+        </Karte>
 
-          <Karte titel="Verfügbarkeiten & Abwesenheiten">
-            {employee.availabilities.length === 0 ? <Leer>Keine Einträge.</Leer> : (
-              <div className="tabelle-scroll">
-                <table className="tabelle">
-                  <thead><tr><th>Art</th><th>Von</th><th>Bis</th><th>Notiz</th>{darfBearbeiten && <th style={{ width: 1 }} />}</tr></thead>
-                  <tbody>
-                    {employee.availabilities.map((eintrag) => (
-                      <tr key={eintrag.id}>
-                        <td><StatusMarke status={label(AVAILABILITY_KIND, eintrag.kind)} /></td>
-                        <td className="zahl">{formatDateDE(eintrag.from)}</td>
-                        <td className="zahl">{formatDateDE(eintrag.to)}</td>
-                        <td style={{ color: 'var(--text-2)' }}>{eintrag.note ?? '–'}</td>
-                        {darfBearbeiten && (
-                          <td>
-                            <AktionsFormular aktion={verfuegbarkeitLoeschenAktion} meldungOben={false}>
-                              <input type="hidden" name="id" value={eintrag.id} />
-                              <AktionsKnopf klasse="knopf knopf-klein knopf-gefahr" laufend="…">Entfernen</AktionsKnopf>
-                            </AktionsFormular>
-                          </td>
-                        )}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-            {darfBearbeiten && (
-              <div style={{ padding: 14, borderTop: '1px solid var(--linie)' }}>
-                <AktionsFormular aktion={verfuegbarkeitAktion} stil={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'flex-end' }}>
-                  <input type="hidden" name="employeeId" value={id} />
-                  <label className="feld-gruppe" style={{ width: 'auto' }}>
-                    <span className="feld-label">Art</span>
-                    <select name="art" className="feld" style={{ width: 'auto' }}>
-                      {Object.entries(AVAILABILITY_KIND).map(([wert, s]) => <option key={wert} value={wert}>{s.label}</option>)}
-                    </select>
-                  </label>
-                  <label className="feld-gruppe" style={{ width: 'auto' }}>
-                    <span className="feld-label">Von</span>
-                    <input name="von" type="date" className="feld" required style={{ width: 'auto' }} />
-                  </label>
-                  <label className="feld-gruppe" style={{ width: 'auto' }}>
-                    <span className="feld-label">Bis</span>
-                    <input name="bis" type="date" className="feld" style={{ width: 'auto' }} />
-                  </label>
-                  <input name="notiz" className="feld" placeholder="Notiz" style={{ width: 'auto', flex: '1 1 140px' }} aria-label="Notiz" />
-                  <AktionsKnopf klasse="knopf knopf-klein">Hinzufügen</AktionsKnopf>
-                </AktionsFormular>
-              </div>
-            )}
-          </Karte>
-
-          <Karte titel="Dokumente" aktion={<Link href={`/dokumente?mitarbeiter=${id}`} className="knopf knopf-klein"><Icon name="upload" /> Hochladen</Link>}>
-            {employee.documents.length === 0 ? <Leer>Keine Dokumente hinterlegt.</Leer> : (
-              <table className="tabelle">
-                <thead><tr><th>Typ</th><th>Titel</th><th>Gültig bis</th><th>Datei</th></tr></thead>
-                <tbody>
-                  {employee.documents.map((dokument) => {
-                    const abgelaufen = dokument.expiresAt && dokument.expiresAt < heute;
-                    return (
-                      <tr key={dokument.id} className={abgelaufen ? 'zeile-rot' : undefined}>
-                        <td>{DOCUMENT_TYPE[dokument.type] ?? dokument.type}</td>
-                        <td>{dokument.title}</td>
-                        <td className="zahl">{dokument.expiresAt ? formatDateDE(dokument.expiresAt) : '–'}</td>
-                        <td><a href={`/api/dokumente/${dokument.id}`}>{dokument.fileName}</a></td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            )}
-          </Karte>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, minWidth: 0 }}>
-          <Karte titel="Kontakt">
-            <div style={{ padding: 14, display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <Paar label="Mobil">{employee.mobile ? <a href={`tel:${employee.mobile.replace(/\s/g, '')}`}>{employee.mobile}</a> : '–'}</Paar>
-              <Paar label="Telefon">{employee.phone ?? '–'}</Paar>
-              <Paar label="E-Mail">{employee.email ? <a href={`mailto:${employee.email}`}>{employee.email}</a> : '–'}</Paar>
-              <Paar label="Adresse">{[employee.street, [employee.zip, employee.city].filter(Boolean).join(' ')].filter(Boolean).join(', ') || '–'}</Paar>
-              <Paar label="Geburtsdatum">{employee.birthDate ? formatDateDE(employee.birthDate) : '–'}</Paar>
-              <Paar label="Führerschein">{employee.drivingLicence ?? '–'}</Paar>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14, minWidth: 0 }}>
+          <Karte titel="Notizen">
+            <div style={{ padding: 12, display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <Paar label="Info für den Mitarbeiter">
+                <span style={{ whiteSpace: 'pre-wrap' }}>{employee.infoForEmployee || '–'}</span>
+              </Paar>
+              {felder.notizen ? (
+                <div className="hinweis-warnung">
+                  <strong style={{ display: 'block', fontSize: 10, letterSpacing: '.05em', textTransform: 'uppercase' }}>
+                    Intern – nicht für den Mitarbeiter
+                  </strong>
+                  <span style={{ whiteSpace: 'pre-wrap' }}>{employee.notesInternal || '–'}</span>
+                </div>
+              ) : (
+                <Paar label="Interne Personalnotizen">
+                  <Gesperrt grund="Interne Personalnotizen – nur Personal und Geschäftsführung" />
+                </Paar>
+              )}
             </div>
           </Karte>
 
-          <Karte titel="Qualifikationen">
-            {employee.qualifications.length === 0 ? <Leer>Keine hinterlegt.</Leer> : (
-              <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-                {employee.qualifications.map((q) => {
-                  const tage = q.expiresAt ? Math.ceil((q.expiresAt.getTime() - Date.now()) / 86400000) : null;
-                  return (
-                    <li key={q.id} style={{ display: 'flex', justifyContent: 'space-between', gap: 10, padding: '9px 14px', borderBottom: '1px solid var(--linie)' }}>
-                      <span style={{ fontSize: 13 }}>{q.qualification.name}</span>
-                      {tage == null ? <span className="marke marke-gruen">unbefristet</span>
-                        : <span className={`marke marke-${tage < 0 ? 'rot' : tage <= 30 ? 'gelb' : 'gruen'}`}>
-                            {tage < 0 ? 'abgelaufen' : `bis ${formatDateDE(q.expiresAt!)}`}
-                          </span>}
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </Karte>
-
-          {intern && (employee.notesInternal || employee.infoForEmployee) && (
-            <Karte titel="Notizen">
-              <div style={{ padding: 14, display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {employee.infoForEmployee && <Paar label="Info für den Mitarbeiter"><span style={{ whiteSpace: 'pre-wrap' }}>{employee.infoForEmployee}</span></Paar>}
-                {employee.notesInternal && (
-                  <div style={{ background: 'var(--gelb-flaeche)', border: '1px solid var(--gelb)33', borderRadius: 'var(--r)', padding: '10px 12px' }}>
-                    <Paar label="Intern – nicht für den Mitarbeiter"><span style={{ whiteSpace: 'pre-wrap' }}>{employee.notesInternal}</span></Paar>
-                  </div>
-                )}
-              </div>
-            </Karte>
-          )}
-
           <Karte titel="Zugang zur Mitarbeiter-App">
-            <div style={{ padding: 14, display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ padding: 12, display: 'flex', flexDirection: 'column', gap: 10 }}>
               {employee.user ? (
                 <>
                   <Paar label="Anmeldung">{employee.user.email}</Paar>
-                  <Paar label="Zuletzt angemeldet">{employee.user.lastLoginAt ? formatDateDE(employee.user.lastLoginAt) : 'noch nie'}</Paar>
+                  <Paar label="Zuletzt angemeldet">
+                    {employee.user.lastLoginAt ? formatDateDE(employee.user.lastLoginAt) : 'noch nie'}
+                  </Paar>
                   <Paar label="Status">{employee.user.active ? 'aktiv' : 'gesperrt'}</Paar>
+                  <Paar label="Zweiter Faktor">
+                    {employee.user.totpEnabled
+                      ? <span className="marke marke-gruen">eingerichtet</span>
+                      : <span className="marke marke-grau">nicht eingerichtet</span>}
+                  </Paar>
                 </>
               ) : can(user.role, 'admin.users') ? (
                 <Ausklapp titel="Zugang anlegen" knopfKlasse="knopf knopf-klein">
@@ -230,20 +141,21 @@ export default async function MitarbeiterDetail({ params }: { params: Promise<{ 
                   </AktionsFormular>
                 </Ausklapp>
               ) : (
-                <p style={{ fontSize: 13, color: 'var(--text-2)', margin: 0 }}>Kein Zugang eingerichtet.</p>
+                <p style={{ fontSize: 12.5, color: 'var(--text-2)', margin: 0 }}>Kein Zugang eingerichtet.</p>
               )}
             </div>
           </Karte>
 
           {darfBearbeiten && employee.active && (
             <Karte titel="Aktionen">
-              <div style={{ padding: 14 }}>
+              <div style={{ padding: 12 }}>
                 <Ausklapp titel="Mitarbeiter deaktivieren" knopfKlasse="knopf knopf-klein knopf-gefahr">
                   <AktionsFormular aktion={mitarbeiterDeaktivierenAktion} stil={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                     <input type="hidden" name="id" value={id} />
                     <p className="feld-hinweis" style={{ margin: 0 }}>
                       Der Datensatz bleibt für Auswertungen und Nachweise erhalten, der Mitarbeiter
-                      erscheint aber nicht mehr in der Personalsuche.
+                      erscheint aber nicht mehr in der Personalsuche. Gelöscht wird nichts – wann
+                      gelöscht wird, steht im Löschkonzept.
                     </p>
                     <textarea name="grund" className="feld" rows={2} required placeholder="Grund" />
                     <AktionsKnopf klasse="knopf knopf-gefahr knopf-klein">Deaktivieren</AktionsKnopf>
@@ -254,6 +166,12 @@ export default async function MitarbeiterDetail({ params }: { params: Promise<{ 
           )}
         </div>
       </div>
+
+      <p style={{ marginTop: 12, fontSize: 11, color: 'var(--text-3)' }}>
+        <Link href="/compliance/datenschutz">Was hier wer sehen darf</Link>, steht im Rollen- und
+        Rechtekonzept. Felder, die für Ihre Rolle gesperrt sind, werden nicht aus der Datenbank
+        geladen.
+      </p>
     </>
   );
 }

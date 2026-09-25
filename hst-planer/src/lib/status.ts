@@ -2,7 +2,7 @@
  * Einheitliche Übersetzung und Einfaerbung aller Status (Spec 5).
  * Gruen = erledigt/besetzt, Gelb = Aufmerksamkeit, Rot = Problem, Blau = Information.
  */
-export type Farbe = 'gruen' | 'gelb' | 'rot' | 'blau' | 'grau';
+export type Farbe = 'gruen' | 'gelb' | 'rot' | 'blau' | 'grau' | 'beige';
 
 export const EVENT_STATUS: Record<string, { label: string; farbe: Farbe }> = {
   ANFRAGE:       { label: 'Anfrage',       farbe: 'blau' },
@@ -110,6 +110,136 @@ export const DOCUMENT_TYPE: Record<string, string> = {
   ANGEBOT: 'Angebot',
   EINSATZPLAN: 'Einsatzplan',
   STUNDENZETTEL: 'Stundenzettel',
+  ARBEITSVERTRAG: 'Arbeitsvertrag',
+  BEWERBUNG: 'Bewerbung',
+  COMPLIANCE: 'Compliance-Unterlage',
+  SONSTIGES: 'Sonstiges',
+};
+
+// ---------------------------------------------------------------- SecPlan
+
+export const DOCUMENT_ACCESS: Record<string, string> = {
+  PERSONAL_INTERN: 'Personal (intern)',
+  DISPOSITION: 'Disposition',
+  EINSATZBEZOGEN: 'Einsatzbezogen',
+  MITARBEITER: 'Betroffene Person',
+  KUNDE: 'Kunde',
+  PARTNER: 'Partnerunternehmen',
+};
+
+export const APPLICANT_STATUS: Record<string, { label: string; farbe: Farbe }> = {
+  EINGEGANGEN: { label: 'Eingegangen', farbe: 'blau' },
+  IN_PRUEFUNG: { label: 'In Prüfung', farbe: 'gelb' },
+  GESPRAECH: { label: 'Gespräch', farbe: 'beige' },
+  ZUSAGE: { label: 'Zusage', farbe: 'gruen' },
+  ABSAGE: { label: 'Absage', farbe: 'grau' },
+  UEBERNOMMEN: { label: 'Übernommen', farbe: 'gruen' },
+};
+
+export const TRAINING_RESULT: Record<string, { label: string; farbe: Farbe }> = {
+  ANGEMELDET: { label: 'Angemeldet', farbe: 'blau' },
+  TEILGENOMMEN: { label: 'Teilgenommen', farbe: 'gruen' },
+  BESTANDEN: { label: 'Bestanden', farbe: 'gruen' },
+  NICHT_BESTANDEN: { label: 'Nicht bestanden', farbe: 'rot' },
+  ABGEMELDET: { label: 'Abgemeldet', farbe: 'grau' },
+};
+
+/**
+ * Prüfstand einer Compliance-Unterlage.
+ *
+ * Wichtig: TECHNISCH_UMGESETZT und RECHTLICH_GEPRUEFT sind zwei Dinge.
+ * Das System kann das erste feststellen, das zweite nie (SecPlan 30).
+ */
+export const PRUEF_STATUS: Record<string, { label: string; farbe: Farbe }> = {
+  ENTWURF: { label: 'Entwurf', farbe: 'grau' },
+  IN_PRUEFUNG: { label: 'In Prüfung', farbe: 'gelb' },
+  TECHNISCH_UMGESETZT: { label: 'Technisch umgesetzt', farbe: 'blau' },
+  RECHTLICH_GEPRUEFT: { label: 'Rechtlich geprüft', farbe: 'gruen' },
+  UEBERHOLT: { label: 'Überholt', farbe: 'rot' },
+};
+
+export const RECHTSGRUNDLAGE: Record<string, string> = {
+  ART6_1A_EINWILLIGUNG: 'Art. 6 Abs. 1 lit. a – Einwilligung',
+  ART6_1B_VERTRAG: 'Art. 6 Abs. 1 lit. b – Vertrag',
+  ART6_1C_RECHTLICHE_PFLICHT: 'Art. 6 Abs. 1 lit. c – rechtliche Pflicht',
+  ART6_1D_LEBENSWICHTIG: 'Art. 6 Abs. 1 lit. d – lebenswichtige Interessen',
+  ART6_1E_OEFFENTLICHES_INTERESSE: 'Art. 6 Abs. 1 lit. e – öffentliches Interesse',
+  ART6_1F_BERECHTIGTES_INTERESSE: 'Art. 6 Abs. 1 lit. f – berechtigtes Interesse',
+  PARA26_BDSG_BESCHAEFTIGUNG: '§ 26 BDSG – Beschäftigungsverhältnis',
+  OFFEN: 'noch nicht geprüft',
+};
+
+export const AVV_STATUS: Record<string, { label: string; farbe: Farbe }> = {
+  NICHT_VORHANDEN: { label: 'Nicht vorhanden', farbe: 'rot' },
+  ENTWURF: { label: 'Entwurf', farbe: 'gelb' },
+  UNTERZEICHNET: { label: 'Unterzeichnet', farbe: 'gruen' },
+  GEKUENDIGT: { label: 'Gekündigt', farbe: 'grau' },
+};
+
+export const BETROFFENEN_RECHT: Record<string, string> = {
+  AUSKUNFT: 'Auskunft (Art. 15)',
+  BERICHTIGUNG: 'Berichtigung (Art. 16)',
+  LOESCHUNG: 'Löschung (Art. 17)',
+  EINSCHRAENKUNG: 'Einschränkung (Art. 18)',
+  DATENUEBERTRAGBARKEIT: 'Datenübertragbarkeit (Art. 20)',
+  WIDERSPRUCH: 'Widerspruch (Art. 21)',
+  WIDERRUF_EINWILLIGUNG: 'Widerruf der Einwilligung (Art. 7 Abs. 3)',
+};
+
+export const ANFRAGE_STATUS: Record<string, { label: string; farbe: Farbe }> = {
+  EINGEGANGEN: { label: 'Eingegangen', farbe: 'blau' },
+  IDENTITAET_PRUEFEN: { label: 'Identität prüfen', farbe: 'gelb' },
+  IN_BEARBEITUNG: { label: 'In Bearbeitung', farbe: 'gelb' },
+  BEANTWORTET: { label: 'Beantwortet', farbe: 'gruen' },
+  ABGELEHNT: { label: 'Abgelehnt', farbe: 'grau' },
+  FRIST_UEBERSCHRITTEN: { label: 'Frist überschritten', farbe: 'rot' },
+};
+
+export const VORFALL_STATUS: Record<string, { label: string; farbe: Farbe }> = {
+  ENTDECKT: { label: 'Entdeckt', farbe: 'rot' },
+  IN_BEWERTUNG: { label: 'In Bewertung', farbe: 'gelb' },
+  GEMELDET: { label: 'Gemeldet', farbe: 'blau' },
+  ABGESCHLOSSEN: { label: 'Abgeschlossen', farbe: 'gruen' },
+  KEINE_MELDUNG: { label: 'Ohne Meldung abgeschlossen', farbe: 'grau' },
+};
+
+export const TOM_BEREICH: Record<string, string> = {
+  ZUTRITT: 'Zutrittskontrolle',
+  ZUGANG: 'Zugangskontrolle',
+  ZUGRIFF: 'Zugriffskontrolle',
+  WEITERGABE: 'Weitergabekontrolle',
+  EINGABE: 'Eingabekontrolle',
+  AUFTRAG: 'Auftragskontrolle',
+  VERFUEGBARKEIT: 'Verfügbarkeitskontrolle',
+  TRENNUNG: 'Trennungsgebot',
+  VERSCHLUESSELUNG: 'Verschlüsselung',
+  BELASTBARKEIT: 'Belastbarkeit',
+  WIEDERHERSTELLUNG: 'Wiederherstellbarkeit',
+  UEBERPRUEFUNG: 'Regelmäßige Überprüfung',
+};
+
+export const TOM_STATUS: Record<string, { label: string; farbe: Farbe }> = {
+  GEPLANT: { label: 'Geplant', farbe: 'gelb' },
+  TECHNISCH_UMGESETZT: { label: 'Technisch umgesetzt', farbe: 'gruen' },
+  ORGANISATORISCH_GEREGELT: { label: 'Organisatorisch geregelt', farbe: 'blau' },
+  NICHT_UMGESETZT: { label: 'Nicht umgesetzt', farbe: 'rot' },
+};
+
+export const DSFA_ERGEBNIS: Record<string, { label: string; farbe: Farbe }> = {
+  NICHT_ERFORDERLICH: { label: 'Nicht erforderlich', farbe: 'grau' },
+  ERFORDERLICH: { label: 'Erforderlich', farbe: 'rot' },
+  DURCHGEFUEHRT: { label: 'Durchgeführt', farbe: 'gruen' },
+  OFFEN: { label: 'Noch nicht bewertet', farbe: 'gelb' },
+};
+
+export const COMPLIANCE_DOC_KIND: Record<string, string> = {
+  RICHTLINIE: 'Richtlinie',
+  VERFAHRENSANWEISUNG: 'Verfahrensanweisung',
+  EINWILLIGUNG: 'Einwilligung',
+  INFORMATIONSPFLICHT: 'Informationspflicht',
+  VERPFLICHTUNG: 'Verpflichtungserklärung',
+  SCHULUNGSUNTERLAGE: 'Schulungsunterlage',
+  NACHWEIS: 'Nachweis',
   SONSTIGES: 'Sonstiges',
 };
 

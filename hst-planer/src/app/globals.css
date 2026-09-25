@@ -504,6 +504,11 @@ hr.trenner { height: 1px; background: var(--linie); border: 0; margin: 0; }
 .reiter a:hover { color: var(--text); text-decoration: none; background: var(--hover); }
 .reiter a[aria-current="page"] { color: var(--blau); font-weight: 600; border-bottom-color: var(--blau); }
 [data-theme="dark"] .reiter a[aria-current="page"] { color: var(--beige); border-bottom-color: var(--beige); }
+.reiter-zahl {
+  margin-left: 5px; font-family: var(--font-mono); font-size: 10px;
+  background: var(--tief); color: var(--text-2);
+  border-radius: 2px; padding: 0 4px;
+}
 
 /* --- Werkzeugleiste über Tabellen ------------------------------------ */
 .werkzeuge {
@@ -675,6 +680,12 @@ hr.trenner { height: 1px; background: var(--linie); border: 0; margin: 0; }
 .blatt-liste li .marke { flex: none; }
 .blatt-fuss { display: flex; gap: 8px; justify-content: flex-end; }
 .blatt-fussnote { margin: 10px 0 0; font-size: 11.5px; color: var(--text-2); }
+
+/* Nur für Screenreader – trägt die Bedeutung einer rein farbigen Zelle. */
+.nur-lesen {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap;
+}
 
 /* ====================================================== Sonstiges */
 
