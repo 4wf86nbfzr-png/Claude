@@ -450,8 +450,185 @@
     .map(([, s]) => `<span class="marke marke-${s.farbe}"><span class="punkt"></span>${text(s.label)}</span>`)
     .join('');
 
+  /* ------------------------------------------- Zuordnungspruefung (SecPlan 4) */
+  /*
+     Dieselbe Funktion, die der Server beim Ablegen eines Namens aufruft.
+     Hier wird nur die Lage zusammengebaut, die dort aus der Datenbank kommt.
+  */
+  const ZP_TAG = new Date('2026-05-16T00:00:00Z');
+
+  function zpLage() {
+    const an = (id) => $('#' + id).checked;
+    const wert = (id) => $('#' + id).value.trim();
+    const abgelaufen = new Date('2026-01-31T00:00:00Z');
+
+    return {
+      tag: ZP_TAG,
+      ziel: { start: wert('zpVon') || null, ende: wert('zpBis') || null, bezeichnung: wert('zpRolle') },
+      person: {
+        name: wert('zpName') || 'Die Kraft',
+        aktiv: !an('zpInaktiv'),
+        gesperrt: an('zpGesperrt'),
+        sperrgrund: an('zpGesperrt') ? 'Ausweis eingezogen' : null,
+      },
+      belegt: an('zpBelegt')
+        ? [{ start: '18:00', ende: '23:00', bezeichnung: 'Hafenlicht Open Air' }]
+        : [],
+      belegtVortag: an('zpNacht')
+        ? [{ start: '22:00', ende: '06:00', bezeichnung: 'Werkschutz Nacht' }]
+        : [],
+      abwesend: an('zpUrlaub') ? [{ art: 'URLAUB', hinweis: 'bis 20.05.' }] : [],
+      qualifikationen: [
+        { name: 'Sachkunde § 34a', vorhanden: !an('zpQualFehlt'), laeuftAb: null },
+        { name: 'Erste Hilfe', vorhanden: true, laeuftAb: an('zpQualAlt') ? abgelaufen : null },
+      ],
+      schulungen: an('zpSchulung')
+        ? [{ name: 'Jährliche Unterweisung', vorhanden: false, laeuftAb: null }]
+        : [],
+      dokumente: an('zpDokument')
+        ? [{ name: 'Führungszeugnis', vorhanden: true, laeuftAb: abgelaufen }]
+        : [],
+      rolle: an('zpFunktion')
+        ? { name: $('#zpRolle').value || 'Funktion', erlaubt: false, grund: 'keine Unterweisung' }
+        : undefined,
+      vortagEnde: wert('zpVortag') || (an('zpNacht') ? '06:00' : null),
+    };
+  }
+
+  function zpZeichnen() {
+    if (!H || !H.pruefe) return;
+    const konflikte = H.pruefe(zpLage());
+    const hart = H.blockiert(konflikte);
+    const kopf = H.ueberschrift(konflikte);
+
+    const liste = konflikte.length === 0
+      ? '<p style="margin:0;color:var(--text2)">Keine Einwände – die Zuordnung ließe sich ohne Rückfrage speichern.</p>'
+      : '<ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px">'
+        + konflikte.map((k) => `
+            <li style="display:flex;gap:10px;align-items:flex-start;padding:9px 11px;border-radius:var(--r);
+                       background:var(${k.blockierend ? '--rot-f' : '--gelb-f'});
+                       border-left:2px solid var(${k.blockierend ? '--rot' : '--gelb'})">
+              <span class="merker merker-${k.blockierend ? 'hart' : 'weich'}">${k.blockierend ? 'Verbot' : 'Hinweis'}</span>
+              <span style="font-size:13.5px;line-height:1.45">${text(k.text)}</span>
+            </li>`).join('')
+        + '</ul>';
+
+    $('#zpErgebnis').innerHTML = `
+      <div class="karte">
+        <h4>${text(kopf)}</h4>
+        <div class="karte-inhalt">
+          ${liste}
+          <p style="margin:14px 0 0;font-size:13px;color:var(--text2)">
+            ${hart
+              ? 'Mindestens ein Grund blockiert. Die Zuordnung lässt sich nicht speichern – auch nicht mit „trotzdem".'
+              : konflikte.length === 0
+                ? 'Der Server würde ohne Rückfrage speichern.'
+                : 'Alles davon lässt sich ausdrücklich übergehen. Die Zuordnung steht danach im Protokoll.'}
+          </p>
+        </div>
+      </div>`;
+  }
+
+  if ($('#zpErgebnis')) {
+    ['zpName','zpVon','zpBis','zpRolle','zpVortag','zpGesperrt','zpInaktiv','zpBelegt','zpNacht',
+     'zpUrlaub','zpQualFehlt','zpQualAlt','zpSchulung','zpDokument','zpFunktion']
+      .forEach((id) => {
+        const feld = $('#' + id);
+        if (feld) feld.addEventListener('input', zpZeichnen);
+        if (feld) feld.addEventListener('change', zpZeichnen);
+      });
+    zpZeichnen();
+  }
+
+  /* --------------------------------------------- Rollen und Rechte (SecPlan 7/8) */
+  const FELD_NAMEN = {
+    stammdaten: 'Name, Personalnummer, Beschäftigung',
+    einsatzdaten: 'Einsatzzeit, Einsatzort, Qualifikation',
+    kontakt: 'Telefon, dienstliche E-Mail',
+    anschrift: 'Private Anschrift, Geburtsdatum',
+    vertrag: 'Arbeitsvertrag, Stundensatz, Bankdaten',
+    notizen: 'Interne Personalnotizen',
+    gesundheit: 'Gesundheitsdaten (Art. 9 DSGVO)',
+  };
+
+  function rolleZeichnen() {
+    if (!H || !H.ROLES) return;
+    const rolle = $('#rolleWahl').value;
+    const rechte = rolle === 'SUPERADMIN' ? H.ALLE_RECHTE : H.ROLE_PERMISSIONS[rolle];
+    const bereiche = H.navFor(rolle);
+    const bereich = H.scopeOf(rolle);
+    const bereichText = {
+      ALLE: 'alles', EVENT: 'nur eigene Einsätze', PARTNER: 'nur das eigene Unternehmen',
+      KUNDE: 'nur eigene Aufträge', EIGENE: 'nur der eigene Datensatz',
+    }[bereich] || bereich;
+
+    $('#rolleErgebnis').innerHTML = `
+      <p style="margin:0 0 10px;color:var(--text2);font-size:13.5px;max-width:70ch">
+        ${text(H.ROLE_BESCHREIBUNG[rolle])}
+      </p>
+      <p style="margin:0 0 10px;font-size:13px">
+        Sieht: <span class="merker merker-${bereich === 'ALLE' ? 'weich' : 'nein'}">${text(bereichText)}</span>
+        &nbsp;·&nbsp; Rechte: <b>${rolle === 'SUPERADMIN' ? 'alle' : rechte.length}</b> von ${H.ALLE_RECHTE.length}
+      </p>
+      <div class="reihe" style="gap:5px">
+        ${bereiche.map((g) => `<span class="merker merker-nein">${text(g.label)}</span>`).join('')}
+      </div>`;
+  }
+
+  if ($('#rolleWahl')) {
+    $('#rolleWahl').innerHTML = H.ROLES
+      .map((r) => `<option value="${r}">${text(H.ROLE_LABEL[r])}</option>`).join('');
+    $('#rolleWahl').value = 'TEAMLEITUNG';
+    $('#rolleWahl').addEventListener('change', rolleZeichnen);
+    rolleZeichnen();
+
+    // Feldsichtbarkeit je Rolle
+    const felder = Object.keys(FELD_NAMEN);
+    $('#felderTabelle').innerHTML =
+      '<thead><tr><th>Feld einer Person</th>'
+      + H.ROLES.map((r) => `<th style="text-align:center">${text(H.ROLE_LABEL[r])}</th>`).join('')
+      + '</tr></thead><tbody>'
+      + felder.map((feld) => {
+          const zellen = H.ROLES.map((r) => {
+            const sichtbar = H.personenfelder(r)[feld];
+            return `<td style="text-align:center">${sichtbar
+              ? '<span class="merker merker-ja">ja</span>'
+              : '<span style="color:var(--text3)">–</span>'}</td>`;
+          }).join('');
+          return `<tr><td>${text(FELD_NAMEN[feld])}</td>${zellen}</tr>`;
+        }).join('')
+      + '</tbody>';
+
+    // Vollstaendige Rechtematrix
+    const nachBereich = new Map();
+    H.ALLE_RECHTE.forEach((recht) => {
+      const kopf = recht.split('.')[0];
+      if (!nachBereich.has(kopf)) nachBereich.set(kopf, []);
+      nachBereich.get(kopf).push(recht);
+    });
+
+    let zeilen = '';
+    nachBereich.forEach((rechte, bereich) => {
+      zeilen += `<tr><td colspan="${H.ROLES.length + 1}"
+        style="background:var(--tief);font-weight:700;font-size:11px;letter-spacing:.08em;
+               text-transform:uppercase;color:var(--text2)">${text(bereich)}</td></tr>`;
+      rechte.forEach((recht) => {
+        const zellen = H.ROLES.map((r) => `<td style="text-align:center">${H.can(r, recht)
+          ? '<span class="merker merker-ja">ja</span>'
+          : '<span style="color:var(--text3)">–</span>'}</td>`).join('');
+        zeilen += `<tr><td><code style="font-size:12px">${text(recht)}</code></td>${zellen}</tr>`;
+      });
+    });
+
+    $('#rechteTabelle').innerHTML =
+      '<thead><tr><th>Recht</th>'
+      + H.ROLES.map((r) => `<th style="text-align:center;font-size:11px">${text(H.ROLE_LABEL[r])}</th>`).join('')
+      + '</tr></thead><tbody>' + zeilen + '</tbody>';
+  }
+
   const FARBEN = [
-    ['Akzent', '--akzent', 'Aktive Navigation, primäre Schaltfläche, Fokus'],
+    ['Dunkelblau', '--akzent', 'Navigation, primäre Schaltfläche, aktiver Zustand'],
+    ['Beige', '--beige', 'Hervorhebung, ausgewählte Zeile, Markierung'],
     ['Grün', '--gruen', 'bestätigt, besetzt, erledigt'],
     ['Gelb', '--gelb', 'offen, braucht Aufmerksamkeit'],
     ['Rot', '--rot', 'Problem, unbesetzt, Fehler'],

@@ -14,6 +14,8 @@
     <button role="tab" aria-selected="false" data-ziel="namen">Namensabgleich</button>
     <button role="tab" aria-selected="false" data-ziel="mail">E-Mail-Parser</button>
     <button role="tab" aria-selected="false" data-ziel="abgleich">Abgleich</button>
+    <button role="tab" aria-selected="false" data-ziel="zuordnung">Zuordnungsprüfung</button>
+    <button role="tab" aria-selected="false" data-ziel="rechte">Rollen &amp; Rechte</button>
     <button role="tab" aria-selected="false" data-ziel="design">Gestaltung</button>
     <button role="tab" aria-selected="false" data-ziel="starten">Selbst starten</button>
   </nav>
@@ -32,18 +34,34 @@
   </p>
 
   <div class="hinweis hinweis-info">
-    <strong>Wichtig:</strong> Die Rechenwerkzeuge auf den Reitern „Zeitrechner“, „Namensabgleich“,
-    „E-Mail-Parser“ und „Abgleich“ sind keine Nachbauten. Sie führen denselben Code aus, den auch
-    der Server benutzt — gebündelt aus <code>src/lib/</code>. Was hier herauskommt, kommt dort
-    genauso heraus.
+    <strong>Wichtig:</strong> Die Werkzeuge auf den Reitern „Zeitrechner“, „Namensabgleich“,
+    „E-Mail-Parser“, „Abgleich“, „Zuordnungsprüfung“ und „Rollen &amp; Rechte“ sind keine
+    Nachbauten. Sie führen denselben Code aus, den auch der Server benutzt — gebündelt aus
+    <code>src/lib/</code>. Was hier herauskommt, kommt dort genauso heraus.
   </div>
 
   <div class="raster">
     <div class="karte"><div class="karte-inhalt">
-      <b>Disposition</b>
+      <b>Leitstelle</b>
       <p style="margin:6px 0 0;color:var(--text2);font-size:14px">
-        Zeitraumansicht über alle Einsätze, Lücken je Position, Personalsuche, die auf
-        Überschneidung, Abwesenheit, Sperrvermerk und fehlende Nachweise prüft.
+        Der Tag als Zeitachse: links die Kräfte mit Zustand und Qualifikation, rechts der
+        Einsatzplan. Ein Name wird auf eine Schicht gezogen, geprüft wird beim Ablegen.
+      </p>
+    </div></div>
+    <div class="karte"><div class="karte-inhalt">
+      <b>Rollen &amp; Rechte</b>
+      <p style="margin:6px 0 0;color:var(--text2);font-size:14px">
+        Neun Rollen, Standard DENY ALL. Eine Teamleitung sieht zum eigenen Einsatz Name,
+        Funktion, Zeit, Ort und Qualifikation — Vertrag und Anschrift werden für sie gar
+        nicht erst geladen.
+      </p>
+    </div></div>
+    <div class="karte"><div class="karte-inhalt">
+      <b>HST Compliance</b>
+      <p style="margin:6px 0 0;color:var(--text2);font-size:14px">
+        Verarbeitungsverzeichnis, TOM, Auftragsverarbeiter, Löschkonzept, Betroffenenanfragen,
+        Vorfälle, DSFA und ein Sicherheitscheck — ohne Erfüllungsquote und ohne die Behauptung,
+        DSGVO-konform zu sein.
       </p>
     </div></div>
     <div class="karte"><div class="karte-inhalt">
@@ -71,9 +89,20 @@
 
   <h3>Was hier nicht geht</h3>
   <p style="color:var(--text2);max-width:72ch">
-    Anmeldung, Datenbank, Datei-Uploads, E-Mail-Versand und die Rollentrennung lassen sich in
-    einer einzelnen HTML-Datei nicht ehrlich zeigen — sie brauchen den Server. Wie Sie den in
-    wenigen Minuten starten, steht unter <a href="#" data-sprung="starten">Selbst starten</a>.
+    Anmeldung, Datenbank, Datei-Uploads, E-Mail-Versand und der zweite Faktor lassen sich in
+    einer einzelnen HTML-Datei nicht ehrlich zeigen — sie brauchen den Server. Der zweite
+    Faktor rechnet zudem mit Funktionen, die es im Browser nicht gibt; er ist gegen die
+    Prüfwerte aus Anhang B des RFC 6238 getestet. Wie Sie den Server in wenigen Minuten
+    starten, steht unter <a href="#" data-sprung="starten">Selbst starten</a>.
+  </p>
+
+  <h3>Was dieses System nicht behauptet</h3>
+  <p style="color:var(--text2);max-width:72ch">
+    Es behauptet nicht, DSGVO-konform zu sein. Es unterscheidet zwischen
+    <em>technisch umgesetzt</em> — das lässt sich feststellen — und <em>rechtlich geprüft</em> —
+    das kann nur ein Mensch. Es trägt keine Rechtsgrundlage von sich aus ein, und es bewertet
+    nicht, ob ein Datenschutzvorfall meldepflichtig ist. Eine Erfüllungsquote gibt es nicht:
+    „98 % DSGVO-konform“ wäre eine Zahl ohne Gegenstand.
   </p>
 
   <h3>Zahlen zum Stand</h3>
@@ -256,6 +285,83 @@
   </div>
 
   <div id="abErgebnis"></div>
+</section>
+
+<!-- ================================================== Zuordnungspruefung -->
+<section id="zuordnung" hidden>
+  <h2>Zuordnungsprüfung</h2>
+  <p class="vorspann">
+    Wenn in der Leitstelle ein Name auf eine Schicht gezogen wird, läuft genau dieser Code.
+    Er prüft Qualifikation, Verfügbarkeit, Überschneidung, Schulung, Unterlagen, Ablaufdaten,
+    die Funktion und die Ruhezeit nach § 5 ArbZG. Stellen Sie die Lage ein und sehen Sie,
+    was herauskommt.
+  </p>
+
+  <div class="hinweis hinweis-info">
+    Blockierende Gründe lassen sich nicht übergehen. Hinweise schon — aber nur ausdrücklich,
+    und die Zuordnung steht danach im Protokoll.
+  </div>
+
+  <div class="karte">
+    <div class="karte-inhalt">
+      <div class="raster">
+        <label class="feld">Name<input id="zpName" value="Lena Bergmann"></label>
+        <label class="feld">Neue Schicht von<input id="zpVon" value="20:00"></label>
+        <label class="feld">bis<input id="zpBis" value="02:00"></label>
+        <label class="feld">Funktion<input id="zpRolle" value="Ordnungsdienst"></label>
+      </div>
+
+      <h4 style="margin-top:18px">Lage</h4>
+      <div class="raster">
+        <label class="feld feld-schalter"><input type="checkbox" id="zpGesperrt"> Sperrvermerk</label>
+        <label class="feld feld-schalter"><input type="checkbox" id="zpInaktiv"> nicht mehr aktiv</label>
+        <label class="feld feld-schalter"><input type="checkbox" id="zpBelegt" checked> bereits eingeplant 18:00–23:00</label>
+        <label class="feld feld-schalter"><input type="checkbox" id="zpNacht"> Nachtschicht Vortag bis 06:00</label>
+        <label class="feld feld-schalter"><input type="checkbox" id="zpUrlaub"> im Urlaub</label>
+        <label class="feld feld-schalter"><input type="checkbox" id="zpQualFehlt" checked> Sachkunde § 34a fehlt</label>
+        <label class="feld feld-schalter"><input type="checkbox" id="zpQualAlt"> Erste Hilfe abgelaufen</label>
+        <label class="feld feld-schalter"><input type="checkbox" id="zpSchulung"> Pflichtunterweisung fehlt</label>
+        <label class="feld feld-schalter"><input type="checkbox" id="zpDokument"> Führungszeugnis abgelaufen</label>
+        <label class="feld feld-schalter"><input type="checkbox" id="zpFunktion"> für die Funktion nicht freigegeben</label>
+        <label class="feld">Vortag endete um<input id="zpVortag" value="" placeholder="z. B. 23:00" style="width:120px"></label>
+      </div>
+    </div>
+  </div>
+
+  <div id="zpErgebnis"></div>
+</section>
+
+<!-- ================================================== Rollen und Rechte -->
+<section id="rechte" hidden>
+  <h2>Rollen &amp; Rechte</h2>
+  <p class="vorspann">
+    Neun Rollen, Standard DENY ALL. Diese Tabelle wird aus derselben Quelle erzeugt, die im
+    laufenden System die Prüfung macht — sie kann deshalb nicht davon abweichen.
+  </p>
+
+  <div class="hinweis hinweis-warn">
+    <strong>Was eine Teamleitung nicht sieht:</strong> Bankdaten, vollständige Personalakte,
+    private Anschrift, Arbeitsvertrag, Gesundheitsdaten, interne Personalnotizen. Diese Felder
+    werden für die Rolle gar nicht erst aus der Datenbank geladen.
+  </div>
+
+  <div class="karte">
+    <h4>Eine Rolle ansehen</h4>
+    <div class="karte-inhalt">
+      <label class="feld">Rolle<select id="rolleWahl"></select></label>
+      <div id="rolleErgebnis" style="margin-top:14px"></div>
+    </div>
+  </div>
+
+  <div class="karte">
+    <h4>Welche Felder einer Person sieht diese Rolle?</h4>
+    <div class="streifen"><table id="felderTabelle"></table></div>
+  </div>
+
+  <div class="karte">
+    <h4>Vollständige Rechtematrix</h4>
+    <div class="streifen"><table id="rechteTabelle"></table></div>
+  </div>
 </section>
 
 <!-- ================================================== Gestaltung -->

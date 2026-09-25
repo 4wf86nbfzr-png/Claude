@@ -27,17 +27,17 @@
     const m = raw.match(/^(\d{1,2})\s*(?:[:.,]\s*(\d{1,2}))?(?:\s*[:.]\s*\d{1,2})?$/);
     if (m) {
       const h = Number(m[1]);
-      const min = m[2] === void 0 ? 0 : Number(m[2]);
-      if (h > 24 || min > 59) return null;
-      if (h === 24 && min > 0) return null;
-      return h * 60 + min;
+      const min2 = m[2] === void 0 ? 0 : Number(m[2]);
+      if (h > 24 || min2 > 59) return null;
+      if (h === 24 && min2 > 0) return null;
+      return h * 60 + min2;
     }
     const compact = raw.match(/^(\d{2})(\d{2})$/);
     if (compact) {
       const h = Number(compact[1]);
-      const min = Number(compact[2]);
-      if (h > 24 || min > 59) return null;
-      return h * 60 + min;
+      const min2 = Number(compact[2]);
+      if (h > 24 || min2 > 59) return null;
+      return h * 60 + min2;
     }
     return null;
   }
@@ -1092,6 +1092,563 @@ ${cleanBody}`;
     return { prozent, farbe, text: `${ist}/${soll}` };
   }
 
+  // src/lib/dispo/pruefung.ts
+  function min(zeit) {
+    return Number(zeit.slice(0, 2)) * 60 + Number(zeit.slice(3, 5));
+  }
+  function fenster(schicht) {
+    if (!schicht.start || !schicht.ende) return null;
+    const a = min(schicht.start);
+    const dauer = shiftDuration(schicht.start, schicht.ende)?.grossMinutes ?? 0;
+    return [a, a + dauer];
+  }
+  function ueberschneidet(a, b) {
+    const fa = fenster(a);
+    const fb = fenster(b);
+    if (!fa || !fb) return false;
+    return fa[0] < fb[1] && fb[0] < fa[1];
+  }
+  function zeitraum(schicht) {
+    if (!schicht.start || !schicht.ende) return "ohne feste Zeit";
+    return `${schicht.start}\u2013${schicht.ende} Uhr`;
+  }
+  function abgelaufen(stand, tag) {
+    return stand.vorhanden && stand.laeuftAb !== null && stand.laeuftAb < tag;
+  }
+  var ABWESENHEIT = {
+    URLAUB: "im Urlaub",
+    KRANK: "krankgemeldet",
+    NICHT_VERFUEGBAR: "als nicht verf\xFCgbar eingetragen"
+  };
+  function pruefe(eingabe) {
+    const k = [];
+    const { person, ziel, tag } = eingabe;
+    if (person.gesperrt) {
+      k.push({
+        art: "GESPERRT",
+        text: `${person.name} hat einen Sperrvermerk: ${person.sperrgrund?.trim() || "ohne Angabe"}.`,
+        blockierend: true
+      });
+    }
+    if (!person.aktiv) {
+      k.push({ art: "GESPERRT", text: `${person.name} ist nicht mehr aktiv.`, blockierend: true });
+    }
+    for (const vorhanden of eingabe.belegt) {
+      if (!ueberschneidet(ziel, vorhanden)) continue;
+      const wo = vorhanden.bezeichnung ? `: ${vorhanden.bezeichnung}` : "";
+      k.push({
+        art: "UEBERSCHNEIDUNG",
+        text: `${person.name} ist bereits von ${zeitraum(vorhanden)} eingeplant${wo}.`,
+        blockierend: true
+      });
+    }
+    for (const vorhanden of eingabe.belegtVortag ?? []) {
+      const f = fenster(vorhanden);
+      if (!f || f[1] <= 24 * 60) continue;
+      const heute = [0, f[1] - 24 * 60];
+      const fz = fenster(ziel);
+      if (!fz || !(fz[0] < heute[1] && heute[0] < fz[1])) continue;
+      const wo = vorhanden.bezeichnung ? `: ${vorhanden.bezeichnung}` : "";
+      k.push({
+        art: "UEBERSCHNEIDUNG",
+        text: `${person.name} ist noch aus der Nachtschicht des Vortages bis ${vorhanden.ende} Uhr eingeplant${wo}.`,
+        blockierend: true
+      });
+    }
+    if (eingabe.rolle && !eingabe.rolle.erlaubt) {
+      k.push({
+        art: "ROLLE",
+        text: `${person.name} ist f\xFCr die Funktion \u201E${eingabe.rolle.name}" nicht freigegeben${eingabe.rolle.grund ? ` (${eingabe.rolle.grund})` : ""}.`,
+        blockierend: true
+      });
+    }
+    for (const a of eingabe.abwesend) {
+      const wort = ABWESENHEIT[a.art] ?? `abwesend (${a.art.toLowerCase()})`;
+      k.push({
+        art: "ABWESEND",
+        text: `${person.name} ist an diesem Tag ${wort}${a.hinweis ? `: ${a.hinweis}` : ""}.`,
+        blockierend: false
+      });
+    }
+    const gruppen = [
+      [eingabe.qualifikationen, "QUALIFIKATION", "Qualifikation"],
+      [eingabe.schulungen, "SCHULUNG", "Pflichtschulung"],
+      [eingabe.dokumente, "DOKUMENT", "Unterlage"]
+    ];
+    for (const [liste, art, wort] of gruppen) {
+      for (const stand of liste) {
+        if (!stand.vorhanden) {
+          k.push({ art, text: `${wort} fehlt: ${stand.name}.`, blockierend: false });
+        } else if (abgelaufen(stand, tag)) {
+          const datum = stand.laeuftAb.toLocaleDateString("de-DE");
+          k.push({ art: "ABLAUF", text: `${wort} abgelaufen am ${datum}: ${stand.name}.`, blockierend: false });
+        }
+      }
+    }
+    const stunden = eingabe.ruhezeitStunden ?? 11;
+    if (eingabe.vortagEnde && ziel.start) {
+      const endeVortag = min(eingabe.vortagEnde);
+      const pause = endeVortag > 12 * 60 ? 24 * 60 - endeVortag + min(ziel.start) : min(ziel.start) - endeVortag;
+      if (pause < stunden * 60) {
+        const h = Math.floor(pause / 60);
+        const m = pause % 60;
+        k.push({
+          art: "RUHEZEIT",
+          text: `Zwischen der letzten Schicht und diesem Einsatz liegen nur ${h} Std. ${m} Min. \u2013 \xA7 5 ArbZG verlangt ${stunden} Stunden.`,
+          blockierend: false
+        });
+      }
+    }
+    return k;
+  }
+  function blockiert(konflikte) {
+    return konflikte.some((k) => k.blockierend);
+  }
+  function ueberschrift(konflikte) {
+    if (konflikte.length === 0) return "Keine Einw\xE4nde.";
+    const harte = konflikte.filter((x) => x.blockierend).length;
+    if (harte > 0) return harte === 1 ? "Diese Zuordnung ist nicht m\xF6glich" : `${harte} Gr\xFCnde sprechen gegen diese Zuordnung`;
+    return konflikte.length === 1 ? "Ein Hinweis zu dieser Zuordnung" : `${konflikte.length} Hinweise zu dieser Zuordnung`;
+  }
+
+  // src/lib/auth/rbac.ts
+  var ROLES = [
+    "SUPERADMIN",
+    "GESCHAEFTSFUEHRUNG",
+    "PERSONAL",
+    "DISPOSITION",
+    "EINSATZLEITUNG",
+    "TEAMLEITUNG",
+    "MITARBEITER",
+    "KUNDE",
+    "SUBUNTERNEHMER"
+  ];
+  var ALLE_RECHTE = [
+    // Dashboard
+    "dashboard.view",
+    // Disposition
+    "dispo.view",
+    "dispo.edit",
+    "dispo.assign",
+    "calendar.view",
+    // Personal
+    "employees.view",
+    "employees.edit",
+    "employees.delete",
+    "employees.file",
+    // vollstaendige Personalakte
+    "employees.finance",
+    // Stundensatz, Bankdaten, Vertrag
+    "employees.notes",
+    // interne Personalnotizen
+    "employees.sensitive",
+    // besondere Kategorien, Art. 9 DSGVO
+    "applicants.view",
+    "applicants.edit",
+    "qualifications.view",
+    "qualifications.edit",
+    "availability.view",
+    "availability.edit",
+    "trainings.view",
+    "trainings.edit",
+    // Einsaetze
+    "events.view",
+    "events.edit",
+    "events.delete",
+    "objects.view",
+    "objects.edit",
+    "customers.view",
+    "customers.edit",
+    "requests.view",
+    "requests.edit",
+    "reconciliation.view",
+    "reconciliation.edit",
+    "reconciliation.close",
+    // Zeiterfassung
+    "timesheets.view",
+    "timesheets.edit",
+    "timesheets.approve",
+    // Partner
+    "partners.view",
+    "partners.edit",
+    // Dokumente
+    "documents.view",
+    "documents.edit",
+    "documents.download",
+    // Kommunikation
+    "communication.view",
+    "communication.send",
+    // Auswertung und Finanzen
+    "reports.view",
+    "finance.view",
+    "finance.edit",
+    "export.run",
+    // Compliance
+    "compliance.view",
+    "compliance.edit",
+    "compliance.approve",
+    "compliance.requests",
+    "compliance.breaches",
+    "audit.view",
+    "security.check",
+    // Administration
+    "settings.view",
+    "settings.edit",
+    "admin.view",
+    "admin.users",
+    "admin.roles",
+    "admin.api",
+    "admin.logs",
+    // Eigener Bereich
+    "self.shifts",
+    "self.availability",
+    "self.documents",
+    "self.timesheets"
+  ];
+  var SELBST = [
+    "self.shifts",
+    "self.availability",
+    "self.documents",
+    "self.timesheets"
+  ];
+  var PERSONAL = [
+    "dashboard.view",
+    "calendar.view",
+    "employees.view",
+    "employees.edit",
+    "employees.file",
+    "employees.finance",
+    "employees.notes",
+    "applicants.view",
+    "applicants.edit",
+    "qualifications.view",
+    "qualifications.edit",
+    "availability.view",
+    "availability.edit",
+    "trainings.view",
+    "trainings.edit",
+    "documents.view",
+    "documents.edit",
+    "documents.download",
+    "events.view",
+    "timesheets.view",
+    "communication.view",
+    "communication.send",
+    "reports.view",
+    "export.run",
+    ...SELBST
+  ];
+  var DISPOSITION = [
+    "dashboard.view",
+    "dispo.view",
+    "dispo.edit",
+    "dispo.assign",
+    "calendar.view",
+    "events.view",
+    "events.edit",
+    "events.delete",
+    "objects.view",
+    "objects.edit",
+    "employees.view",
+    "qualifications.view",
+    "availability.view",
+    "availability.edit",
+    "trainings.view",
+    "customers.view",
+    "customers.edit",
+    "partners.view",
+    "partners.edit",
+    "requests.view",
+    "requests.edit",
+    "reconciliation.view",
+    "reconciliation.edit",
+    "reconciliation.close",
+    "timesheets.view",
+    "timesheets.edit",
+    "timesheets.approve",
+    "documents.view",
+    "documents.edit",
+    "documents.download",
+    "communication.view",
+    "communication.send",
+    "reports.view",
+    "export.run",
+    "settings.view",
+    ...SELBST
+  ];
+  var EINSATZLEITUNG = [
+    "dashboard.view",
+    "dispo.view",
+    "dispo.assign",
+    "calendar.view",
+    "events.view",
+    "events.edit",
+    "objects.view",
+    "employees.view",
+    "qualifications.view",
+    "availability.view",
+    "timesheets.view",
+    "timesheets.edit",
+    "documents.view",
+    "documents.download",
+    "requests.view",
+    "communication.view",
+    "communication.send",
+    ...SELBST
+  ];
+  var TEAMLEITUNG = [
+    "dashboard.view",
+    "calendar.view",
+    "events.view",
+    "employees.view",
+    "qualifications.view",
+    "timesheets.view",
+    "timesheets.edit",
+    "communication.view",
+    "communication.send",
+    ...SELBST
+  ];
+  var MITARBEITER = ["communication.view", ...SELBST];
+  var KUNDE = [
+    "dashboard.view",
+    "events.view",
+    "requests.view",
+    "requests.edit",
+    "documents.view",
+    "communication.view",
+    "communication.send"
+  ];
+  var SUBUNTERNEHMER = [
+    "dashboard.view",
+    "calendar.view",
+    "events.view",
+    "employees.view",
+    "timesheets.view",
+    "timesheets.edit",
+    "documents.view",
+    "communication.view",
+    "communication.send"
+  ];
+  var GESCHAEFTSFUEHRUNG = [
+    .../* @__PURE__ */ new Set([
+      ...DISPOSITION,
+      ...PERSONAL,
+      "employees.delete",
+      "finance.view",
+      "finance.edit",
+      "compliance.view",
+      "compliance.edit",
+      "compliance.approve",
+      "compliance.requests",
+      "compliance.breaches",
+      "audit.view",
+      "security.check",
+      "admin.view",
+      "admin.logs"
+    ])
+  ];
+  var ROLE_PERMISSIONS = {
+    // SUPERADMIN wird in can() gesondert behandelt; die Liste bleibt leer,
+    // damit niemand sie versehentlich als Vorlage kopiert.
+    SUPERADMIN: [],
+    GESCHAEFTSFUEHRUNG,
+    PERSONAL,
+    DISPOSITION,
+    EINSATZLEITUNG,
+    TEAMLEITUNG,
+    MITARBEITER,
+    KUNDE,
+    SUBUNTERNEHMER
+  };
+  var ROLE_LABEL = {
+    SUPERADMIN: "Superadmin",
+    GESCHAEFTSFUEHRUNG: "Gesch\xE4ftsf\xFChrung",
+    PERSONAL: "Personal",
+    DISPOSITION: "Disposition",
+    EINSATZLEITUNG: "Einsatzleitung",
+    TEAMLEITUNG: "Teamleitung",
+    MITARBEITER: "Mitarbeiter",
+    KUNDE: "Kunde",
+    SUBUNTERNEHMER: "Subunternehmer"
+  };
+  var ROLE_BESCHREIBUNG = {
+    SUPERADMIN: "Technischer Vollzugriff einschlie\xDFlich Benutzerverwaltung und Protokollen. Nur f\xFCr wenige benannte Personen.",
+    GESCHAEFTSFUEHRUNG: "Gesamtsicht auf Betrieb, Auswertungen, Finanzen und die Compliance-Zentrale.",
+    PERSONAL: "Personalakten, Bewerber, Qualifikationen, Schulungen und Dokumente. Kein Zugriff auf die Disposition.",
+    DISPOSITION: "Planung: Eins\xE4tze, Objekte, Zuordnung, Zeiterfassung, Kunden und Partner. Sieht keine Personalakten.",
+    EINSATZLEITUNG: "F\xFChrt Eins\xE4tze vor Ort. Sieht die eigenen Eins\xE4tze samt Besetzung und pflegt Zeiten nach.",
+    TEAMLEITUNG: "Sieht zum eigenen Einsatz Name, Funktion, Zeit, Ort und die n\xF6tige Qualifikation. Sonst nichts.",
+    MITARBEITER: "Eigene Eins\xE4tze, eigene Verf\xFCgbarkeit, eigene Dokumente und Stunden.",
+    KUNDE: "Eigene Auftr\xE4ge, eigene Anfragen und die dazu freigegebenen Unterlagen.",
+    SUBUNTERNEHMER: "Nur die freigegebenen Eins\xE4tze des eigenen Unternehmens und die daf\xFCr gemeldeten Kr\xE4fte."
+  };
+  function scopeOf(role) {
+    switch (role) {
+      case "SUPERADMIN":
+      case "GESCHAEFTSFUEHRUNG":
+      case "PERSONAL":
+      case "DISPOSITION":
+        return "ALLE";
+      case "EINSATZLEITUNG":
+      case "TEAMLEITUNG":
+        return "EVENT";
+      case "SUBUNTERNEHMER":
+        return "PARTNER";
+      case "KUNDE":
+        return "KUNDE";
+      default:
+        return "EIGENE";
+    }
+  }
+  function can(role, permission) {
+    if (role === "SUPERADMIN") return true;
+    return ROLE_PERMISSIONS[role]?.includes(permission) ?? false;
+  }
+  var NAV_GRUPPEN = [
+    {
+      id: "dashboard",
+      label: "Dashboard",
+      icon: "grid",
+      href: "/dashboard",
+      permission: "dashboard.view",
+      items: []
+    },
+    {
+      id: "disposition",
+      label: "Disposition",
+      icon: "board",
+      href: "/disposition",
+      permission: "dispo.view",
+      items: [
+        { href: "/kalender", label: "Kalender", permission: "calendar.view", shortcut: "K" },
+        { href: "/disposition", label: "Tagesplanung", permission: "dispo.view", shortcut: "T" },
+        { href: "/disposition/woche", label: "Wochenplanung", permission: "dispo.view" },
+        { href: "/disposition/offene-positionen", label: "Offene Positionen", permission: "dispo.view" },
+        { href: "/disposition/unbesetzt", label: "Unbesetzte Schichten", permission: "dispo.view" },
+        { href: "/disposition/zuordnung", label: "Mitarbeiterzuordnung", permission: "dispo.assign" }
+      ]
+    },
+    {
+      id: "personal",
+      label: "Personal",
+      icon: "users",
+      href: "/mitarbeiter",
+      permission: "employees.view",
+      items: [
+        { href: "/mitarbeiter", label: "Mitarbeiter", permission: "employees.view", shortcut: "E" },
+        { href: "/bewerber", label: "Bewerber", permission: "applicants.view" },
+        { href: "/mitarbeiterakten", label: "Mitarbeiterakten", permission: "employees.file" },
+        { href: "/qualifikationen", label: "Qualifikationen", permission: "qualifications.view" },
+        { href: "/dokumente", label: "Dokumente", permission: "documents.view" },
+        { href: "/verfuegbarkeiten", label: "Verf\xFCgbarkeiten", permission: "availability.view" },
+        { href: "/schulungen", label: "Schulungen", permission: "trainings.view" }
+      ]
+    },
+    {
+      id: "einsaetze",
+      label: "Eins\xE4tze",
+      icon: "flag",
+      href: "/events",
+      permission: "events.view",
+      items: [
+        { href: "/events", label: "Veranstaltungen", permission: "events.view" },
+        { href: "/objekte", label: "Objekte", permission: "objects.view" },
+        { href: "/kunden", label: "Kunden", permission: "customers.view" },
+        { href: "/einsatzorte", label: "Einsatzorte", permission: "events.view" },
+        { href: "/teamleiter", label: "Teamleiter", permission: "events.view" },
+        { href: "/einsatzhistorie", label: "Einsatzhistorie", permission: "events.view" }
+      ]
+    },
+    {
+      id: "zeiterfassung",
+      label: "Zeiterfassung",
+      icon: "clock",
+      href: "/zeiterfassung",
+      permission: "timesheets.view",
+      items: [
+        { href: "/zeiterfassung", label: "Stundenzettel", permission: "timesheets.view" },
+        { href: "/zeiterfassung/arbeitszeiten", label: "Arbeitszeiten", permission: "timesheets.view" },
+        { href: "/zeiterfassung/korrekturen", label: "Korrekturen", permission: "timesheets.edit" },
+        { href: "/zeiterfassung/freigaben", label: "Freigaben", permission: "timesheets.approve" }
+      ]
+    },
+    {
+      id: "partner",
+      label: "Partner",
+      icon: "handshake",
+      href: "/partner",
+      permission: "partners.view",
+      items: [
+        { href: "/partner", label: "Subunternehmer", permission: "partners.view" },
+        { href: "/partner/unternehmen", label: "Partnerunternehmen", permission: "partners.view" },
+        { href: "/partner/mitarbeiter", label: "Partner-Mitarbeiter", permission: "partners.view" },
+        { href: "/partner/einsaetze", label: "Partner-Eins\xE4tze", permission: "partners.view" }
+      ]
+    },
+    {
+      id: "kommunikation",
+      label: "Kommunikation",
+      icon: "chat",
+      href: "/kommunikation",
+      permission: "communication.view",
+      items: [
+        { href: "/kommunikation", label: "Nachrichten", permission: "communication.view" },
+        { href: "/kommunikation/email", label: "E-Mail", permission: "communication.view" },
+        { href: "/kommunikation/whatsapp", label: "WhatsApp-Eing\xE4nge", permission: "communication.view" },
+        { href: "/kommunikation/intern", label: "Interne Kommunikation", permission: "communication.view" }
+      ]
+    },
+    {
+      id: "compliance",
+      label: "Compliance",
+      icon: "shield",
+      href: "/compliance",
+      permission: "compliance.view",
+      items: [
+        { href: "/compliance/datenschutz", label: "Datenschutz", permission: "compliance.view" },
+        { href: "/compliance/tom", label: "TOM", permission: "compliance.view" },
+        { href: "/compliance/avv", label: "AVV", permission: "compliance.view" },
+        { href: "/compliance/loeschfristen", label: "L\xF6schfristen", permission: "compliance.view" },
+        { href: "/compliance/audit-log", label: "Audit-Log", permission: "audit.view" },
+        { href: "/compliance/vorfaelle", label: "Datenschutzvorf\xE4lle", permission: "compliance.breaches" },
+        { href: "/compliance/dsfa", label: "DSFA", permission: "compliance.view" },
+        { href: "/compliance/dokumentation", label: "Dokumentation", permission: "compliance.view" }
+      ]
+    },
+    {
+      id: "administration",
+      label: "Administration",
+      icon: "settings",
+      href: "/admin",
+      permission: "admin.view",
+      items: [
+        { href: "/admin/benutzer", label: "Benutzer", permission: "admin.users" },
+        { href: "/admin/rollen", label: "Rollen", permission: "admin.roles" },
+        { href: "/admin/berechtigungen", label: "Berechtigungen", permission: "admin.roles" },
+        { href: "/einstellungen", label: "Systemeinstellungen", permission: "settings.view" },
+        { href: "/admin/schnittstellen", label: "Schnittstellen", permission: "admin.api" },
+        { href: "/admin/protokoll", label: "Protokolle", permission: "admin.logs" }
+      ]
+    }
+  ];
+  function navFor(role) {
+    return NAV_GRUPPEN.map((gruppe) => ({
+      ...gruppe,
+      items: gruppe.items.filter((item) => can(role, item.permission))
+    })).filter((gruppe) => can(role, gruppe.permission) || gruppe.items.length > 0);
+  }
+  function personenfelder(role) {
+    return {
+      stammdaten: can(role, "employees.view"),
+      einsatzdaten: can(role, "employees.view"),
+      kontakt: can(role, "employees.edit") || can(role, "dispo.view"),
+      anschrift: can(role, "employees.file"),
+      vertrag: can(role, "employees.finance"),
+      notizen: can(role, "employees.notes"),
+      gesundheit: can(role, "employees.sensitive")
+    };
+  }
+
   // demo/quelle.ts
   window.HST = {
     // Zeitberechnung
@@ -1126,6 +1683,21 @@ ${cleanBody}`;
     TIMESHEET_FIELDS,
     reconcile,
     ISSUE_LABEL,
+    // Zuordnungspruefung (SecPlan 4)
+    pruefe,
+    ueberschneidet,
+    blockiert,
+    ueberschrift,
+    // Rollen und Rechte (SecPlan 7/8)
+    ALLE_RECHTE,
+    can,
+    navFor,
+    personenfelder,
+    ROLE_LABEL,
+    ROLE_BESCHREIBUNG,
+    ROLE_PERMISSIONS,
+    ROLES,
+    scopeOf,
     // Anzeige
     ROW_STATUS,
     EVENT_STATUS,

@@ -12,30 +12,37 @@
   lässt die echte Fachlogik im Browser mitrechnen (demo/hst-logik.js).
   Das Aussehen übernimmt dieselben Gestaltungsregeln wie der Planer selbst.
 */
+/*
+  Dieselbe Palette wie der Planer: dunkelblau, beige, Off-White,
+  anthrazit. Kein Violett, keine Verläufe – Farbe trägt Bedeutung,
+  nicht Dekoration.
+*/
 :root{
   color-scheme:light;
-  --flaeche:#F4F4F6; --karte:#FFFFFF; --tief:#EBEBEF; --hover:#F0F0F4;
-  --text:#14141A; --text2:#55555F; --text3:#7A7A86;
-  --linie:#DCDCE3; --linie2:#C4C4CE;
-  --akzent:#7C3AED; --akzent-kontrast:#fff; --akzent-schwach:#F1EBFE;
-  --gruen:#15803D; --gruen-f:#E8F6ED;
-  --gelb:#B45309;  --gelb-f:#FDF2E3;
-  --rot:#B91C1C;   --rot-f:#FDECEC;
-  --blau:#1D4ED8;  --blau-f:#EAF0FE;
-  --schatten:0 1px 2px rgba(20,20,26,.06),0 1px 3px rgba(20,20,26,.04);
-  --r:10px;
+  --flaeche:#F2F0EA; --karte:#FCFBF8; --flaeche2:#EDEAE2; --tief:#E8E4DA; --hover:#EDEAE2;
+  --text:#23272E; --text2:#565C65; --text3:#878D96;
+  --linie:#DCD7CB; --linie2:#C6BFAF;
+  --akzent:#1B2A4A; --akzent-kontrast:#fff; --akzent-schwach:#E6EAF1;
+  --beige:#B79A63; --beige-f:#F2E9D8;
+  --gruen:#2E6A4E; --gruen-f:#E3EDE7;
+  --gelb:#96681C;  --gelb-f:#F6EDDA;
+  --rot:#A23A31;   --rot-f:#F7E7E4;
+  --blau:#2B4C7E;  --blau-f:#E5EAF2;
+  --schatten:0 1px 2px rgba(35,39,46,.05);
+  --r:6px;
 }
 html[data-thema="dunkel"]{
   color-scheme:dark;
-  --flaeche:#0D0D11; --karte:#16161C; --tief:#1D1D24; --hover:#22222A;
-  --text:#F2F2F5; --text2:#A8A8B4; --text3:#7C7C88;
-  --linie:#2A2A33; --linie2:#3A3A46;
-  --akzent:#9B7BFF; --akzent-kontrast:#12121A; --akzent-schwach:#241C3D;
-  --gruen:#4ADE80; --gruen-f:#12261A;
-  --gelb:#FBBF24;  --gelb-f:#2A1F09;
-  --rot:#F87171;   --rot-f:#2C1414;
-  --blau:#7EA6FF;  --blau-f:#111C33;
-  --schatten:0 1px 2px rgba(0,0,0,.5);
+  --flaeche:#14181F; --karte:#1B202A; --flaeche2:#252C38; --tief:#252C38; --hover:#2A313E;
+  --text:#E7E4DD; --text2:#A3A9B3; --text3:#767D88;
+  --linie:#2B323F; --linie2:#3A4250;
+  --akzent:#4F74B3; --akzent-kontrast:#101720; --akzent-schwach:#1B2740;
+  --beige:#C7AC79; --beige-f:#2E2A20;
+  --gruen:#5FA67F; --gruen-f:#1A2822;
+  --gelb:#C99B45;  --gelb-f:#2C2415;
+  --rot:#CC6A5F;   --rot-f:#2C1B18;
+  --blau:#6D93CC;  --blau-f:#18222F;
+  --schatten:0 1px 2px rgba(0,0,0,.4);
 }
 *{box-sizing:border-box}
 body{
@@ -92,6 +99,15 @@ input,select,textarea{
   background:var(--karte);color:var(--text);font-weight:400;letter-spacing:normal;text-transform:none
 }
 textarea{line-height:1.5;resize:vertical;font-size:13px}
+/* Schalterzeile: Kästchen und Text nebeneinander, nicht übereinander. */
+label.feld-schalter{flex-direction:row;align-items:center;gap:8px;text-transform:none;
+  letter-spacing:normal;font-weight:400;font-size:13px;color:var(--text)}
+label.feld-schalter input{width:auto;padding:0;accent-color:var(--akzent)}
+.merker{display:inline-block;padding:1px 7px;border-radius:4px;font-size:11px;font-weight:600}
+.merker-ja{background:var(--gruen-f);color:var(--gruen)}
+.merker-nein{background:var(--flaeche2);color:var(--text3)}
+.merker-hart{background:var(--rot-f);color:var(--rot)}
+.merker-weich{background:var(--gelb-f);color:var(--gelb)}
 .reihe{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
 .raster{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
 
@@ -178,6 +194,8 @@ footer{border-top:1px solid var(--linie);margin-top:40px;padding:20px 0;color:va
     <button role="tab" aria-selected="false" data-ziel="namen">Namensabgleich</button>
     <button role="tab" aria-selected="false" data-ziel="mail">E-Mail-Parser</button>
     <button role="tab" aria-selected="false" data-ziel="abgleich">Abgleich</button>
+    <button role="tab" aria-selected="false" data-ziel="zuordnung">Zuordnungsprüfung</button>
+    <button role="tab" aria-selected="false" data-ziel="rechte">Rollen &amp; Rechte</button>
     <button role="tab" aria-selected="false" data-ziel="design">Gestaltung</button>
     <button role="tab" aria-selected="false" data-ziel="starten">Selbst starten</button>
   </nav>
@@ -196,18 +214,34 @@ footer{border-top:1px solid var(--linie);margin-top:40px;padding:20px 0;color:va
   </p>
 
   <div class="hinweis hinweis-info">
-    <strong>Wichtig:</strong> Die Rechenwerkzeuge auf den Reitern „Zeitrechner“, „Namensabgleich“,
-    „E-Mail-Parser“ und „Abgleich“ sind keine Nachbauten. Sie führen denselben Code aus, den auch
-    der Server benutzt — gebündelt aus <code>src/lib/</code>. Was hier herauskommt, kommt dort
-    genauso heraus.
+    <strong>Wichtig:</strong> Die Werkzeuge auf den Reitern „Zeitrechner“, „Namensabgleich“,
+    „E-Mail-Parser“, „Abgleich“, „Zuordnungsprüfung“ und „Rollen &amp; Rechte“ sind keine
+    Nachbauten. Sie führen denselben Code aus, den auch der Server benutzt — gebündelt aus
+    <code>src/lib/</code>. Was hier herauskommt, kommt dort genauso heraus.
   </div>
 
   <div class="raster">
     <div class="karte"><div class="karte-inhalt">
-      <b>Disposition</b>
+      <b>Leitstelle</b>
       <p style="margin:6px 0 0;color:var(--text2);font-size:14px">
-        Zeitraumansicht über alle Einsätze, Lücken je Position, Personalsuche, die auf
-        Überschneidung, Abwesenheit, Sperrvermerk und fehlende Nachweise prüft.
+        Der Tag als Zeitachse: links die Kräfte mit Zustand und Qualifikation, rechts der
+        Einsatzplan. Ein Name wird auf eine Schicht gezogen, geprüft wird beim Ablegen.
+      </p>
+    </div></div>
+    <div class="karte"><div class="karte-inhalt">
+      <b>Rollen &amp; Rechte</b>
+      <p style="margin:6px 0 0;color:var(--text2);font-size:14px">
+        Neun Rollen, Standard DENY ALL. Eine Teamleitung sieht zum eigenen Einsatz Name,
+        Funktion, Zeit, Ort und Qualifikation — Vertrag und Anschrift werden für sie gar
+        nicht erst geladen.
+      </p>
+    </div></div>
+    <div class="karte"><div class="karte-inhalt">
+      <b>HST Compliance</b>
+      <p style="margin:6px 0 0;color:var(--text2);font-size:14px">
+        Verarbeitungsverzeichnis, TOM, Auftragsverarbeiter, Löschkonzept, Betroffenenanfragen,
+        Vorfälle, DSFA und ein Sicherheitscheck — ohne Erfüllungsquote und ohne die Behauptung,
+        DSGVO-konform zu sein.
       </p>
     </div></div>
     <div class="karte"><div class="karte-inhalt">
@@ -235,9 +269,20 @@ footer{border-top:1px solid var(--linie);margin-top:40px;padding:20px 0;color:va
 
   <h3>Was hier nicht geht</h3>
   <p style="color:var(--text2);max-width:72ch">
-    Anmeldung, Datenbank, Datei-Uploads, E-Mail-Versand und die Rollentrennung lassen sich in
-    einer einzelnen HTML-Datei nicht ehrlich zeigen — sie brauchen den Server. Wie Sie den in
-    wenigen Minuten starten, steht unter <a href="#" data-sprung="starten">Selbst starten</a>.
+    Anmeldung, Datenbank, Datei-Uploads, E-Mail-Versand und der zweite Faktor lassen sich in
+    einer einzelnen HTML-Datei nicht ehrlich zeigen — sie brauchen den Server. Der zweite
+    Faktor rechnet zudem mit Funktionen, die es im Browser nicht gibt; er ist gegen die
+    Prüfwerte aus Anhang B des RFC 6238 getestet. Wie Sie den Server in wenigen Minuten
+    starten, steht unter <a href="#" data-sprung="starten">Selbst starten</a>.
+  </p>
+
+  <h3>Was dieses System nicht behauptet</h3>
+  <p style="color:var(--text2);max-width:72ch">
+    Es behauptet nicht, DSGVO-konform zu sein. Es unterscheidet zwischen
+    <em>technisch umgesetzt</em> — das lässt sich feststellen — und <em>rechtlich geprüft</em> —
+    das kann nur ein Mensch. Es trägt keine Rechtsgrundlage von sich aus ein, und es bewertet
+    nicht, ob ein Datenschutzvorfall meldepflichtig ist. Eine Erfüllungsquote gibt es nicht:
+    „98 % DSGVO-konform“ wäre eine Zahl ohne Gegenstand.
   </p>
 
   <h3>Zahlen zum Stand</h3>
@@ -422,6 +467,83 @@ footer{border-top:1px solid var(--linie);margin-top:40px;padding:20px 0;color:va
   <div id="abErgebnis"></div>
 </section>
 
+<!-- ================================================== Zuordnungspruefung -->
+<section id="zuordnung" hidden>
+  <h2>Zuordnungsprüfung</h2>
+  <p class="vorspann">
+    Wenn in der Leitstelle ein Name auf eine Schicht gezogen wird, läuft genau dieser Code.
+    Er prüft Qualifikation, Verfügbarkeit, Überschneidung, Schulung, Unterlagen, Ablaufdaten,
+    die Funktion und die Ruhezeit nach § 5 ArbZG. Stellen Sie die Lage ein und sehen Sie,
+    was herauskommt.
+  </p>
+
+  <div class="hinweis hinweis-info">
+    Blockierende Gründe lassen sich nicht übergehen. Hinweise schon — aber nur ausdrücklich,
+    und die Zuordnung steht danach im Protokoll.
+  </div>
+
+  <div class="karte">
+    <div class="karte-inhalt">
+      <div class="raster">
+        <label class="feld">Name<input id="zpName" value="Lena Bergmann"></label>
+        <label class="feld">Neue Schicht von<input id="zpVon" value="20:00"></label>
+        <label class="feld">bis<input id="zpBis" value="02:00"></label>
+        <label class="feld">Funktion<input id="zpRolle" value="Ordnungsdienst"></label>
+      </div>
+
+      <h4 style="margin-top:18px">Lage</h4>
+      <div class="raster">
+        <label class="feld feld-schalter"><input type="checkbox" id="zpGesperrt"> Sperrvermerk</label>
+        <label class="feld feld-schalter"><input type="checkbox" id="zpInaktiv"> nicht mehr aktiv</label>
+        <label class="feld feld-schalter"><input type="checkbox" id="zpBelegt" checked> bereits eingeplant 18:00–23:00</label>
+        <label class="feld feld-schalter"><input type="checkbox" id="zpNacht"> Nachtschicht Vortag bis 06:00</label>
+        <label class="feld feld-schalter"><input type="checkbox" id="zpUrlaub"> im Urlaub</label>
+        <label class="feld feld-schalter"><input type="checkbox" id="zpQualFehlt" checked> Sachkunde § 34a fehlt</label>
+        <label class="feld feld-schalter"><input type="checkbox" id="zpQualAlt"> Erste Hilfe abgelaufen</label>
+        <label class="feld feld-schalter"><input type="checkbox" id="zpSchulung"> Pflichtunterweisung fehlt</label>
+        <label class="feld feld-schalter"><input type="checkbox" id="zpDokument"> Führungszeugnis abgelaufen</label>
+        <label class="feld feld-schalter"><input type="checkbox" id="zpFunktion"> für die Funktion nicht freigegeben</label>
+        <label class="feld">Vortag endete um<input id="zpVortag" value="" placeholder="z. B. 23:00" style="width:120px"></label>
+      </div>
+    </div>
+  </div>
+
+  <div id="zpErgebnis"></div>
+</section>
+
+<!-- ================================================== Rollen und Rechte -->
+<section id="rechte" hidden>
+  <h2>Rollen &amp; Rechte</h2>
+  <p class="vorspann">
+    Neun Rollen, Standard DENY ALL. Diese Tabelle wird aus derselben Quelle erzeugt, die im
+    laufenden System die Prüfung macht — sie kann deshalb nicht davon abweichen.
+  </p>
+
+  <div class="hinweis hinweis-warn">
+    <strong>Was eine Teamleitung nicht sieht:</strong> Bankdaten, vollständige Personalakte,
+    private Anschrift, Arbeitsvertrag, Gesundheitsdaten, interne Personalnotizen. Diese Felder
+    werden für die Rolle gar nicht erst aus der Datenbank geladen.
+  </div>
+
+  <div class="karte">
+    <h4>Eine Rolle ansehen</h4>
+    <div class="karte-inhalt">
+      <label class="feld">Rolle<select id="rolleWahl"></select></label>
+      <div id="rolleErgebnis" style="margin-top:14px"></div>
+    </div>
+  </div>
+
+  <div class="karte">
+    <h4>Welche Felder einer Person sieht diese Rolle?</h4>
+    <div class="streifen"><table id="felderTabelle"></table></div>
+  </div>
+
+  <div class="karte">
+    <h4>Vollständige Rechtematrix</h4>
+    <div class="streifen"><table id="rechteTabelle"></table></div>
+  </div>
+</section>
+
 <!-- ================================================== Gestaltung -->
 <section id="design" hidden>
   <h2>Gestaltung</h2>
@@ -596,7 +718,7 @@ npx tsx scripts/pruefe-seiten.ts http://localhost:3100 dispo@hermserviceteam.com
 </footer>
 
 <script src="hst-logik.js"></script>
-<script>window.HST_BILDER = [{"datei":"anmelden.png","titel":"Anmeldung","geraet":"desktop","thema":"hell","pfad":"/anmelden"},{"datei":"dashboard.png","titel":"Dashboard","geraet":"desktop","thema":"hell","pfad":"/dashboard"},{"datei":"dashboard-dunkel.png","titel":"Dashboard im Dunkelmodus","geraet":"desktop","thema":"dunkel","pfad":"/dashboard"},{"datei":"disposition.png","titel":"Disposition","geraet":"desktop","thema":"hell","pfad":"/disposition?tage=7"},{"datei":"kalender-monat.png","titel":"Kalender – Monatsansicht","geraet":"desktop","thema":"hell","pfad":"/kalender?ansicht=monat"},{"datei":"kalender-woche.png","titel":"Kalender – Woche","geraet":"desktop","thema":"hell","pfad":"/kalender?ansicht=woche"},{"datei":"events.png","titel":"Eventliste","geraet":"desktop","thema":"hell","pfad":"/events"},{"datei":"event-uebersicht.png","titel":"Event – Übersicht","geraet":"desktop","thema":"hell","pfad":"/events/cmufnt69o003y7dbm3oigs6gk"},{"datei":"event-mitarbeiter.png","titel":"Event – Team und Personalsuche","geraet":"desktop","thema":"hell","pfad":"/events/cmufnt69o003y7dbm3oigs6gk/mitarbeiter"},{"datei":"event-positionen.png","titel":"Event – Positionen","geraet":"desktop","thema":"hell","pfad":"/events/cmufnt69o003y7dbm3oigs6gk/positionen"},{"datei":"einsatzplan.png","titel":"Druckbarer Einsatzplan","geraet":"desktop","thema":"hell","pfad":"/events/cmufnt69o003y7dbm3oigs6gk/einsatzplan"},{"datei":"mitarbeiter.png","titel":"Mitarbeiterliste","geraet":"desktop","thema":"hell","pfad":"/mitarbeiter"},{"datei":"mitarbeiter-detail.png","titel":"Mitarbeiterprofil","geraet":"desktop","thema":"hell","pfad":"/mitarbeiter/cmufnt63c000o7dbmw2a4dxgr"},{"datei":"kunden.png","titel":"Kunden","geraet":"desktop","thema":"hell","pfad":"/kunden"},{"datei":"anfragen.png","titel":"Anfragen","geraet":"desktop","thema":"hell","pfad":"/anfragen"},{"datei":"anfrage-detail.png","titel":"Anfrage prüfen und übernehmen","geraet":"desktop","thema":"hell","pfad":"/anfragen/cmufnt6a9004d7dbm93ah5vto"},{"datei":"abgleiche.png","titel":"Abgleiche","geraet":"desktop","thema":"hell","pfad":"/abgleiche"},{"datei":"abgleich-hochladen.png","titel":"Stundenzettel hochladen","geraet":"desktop","thema":"hell","pfad":"/abgleiche/neu"},{"datei":"zeiterfassung.png","titel":"Zeiterfassung","geraet":"desktop","thema":"hell","pfad":"/zeiterfassung"},{"datei":"auswertungen.png","titel":"Auswertungen","geraet":"desktop","thema":"hell","pfad":"/auswertungen"},{"datei":"dokumente.png","titel":"Dokumente","geraet":"desktop","thema":"hell","pfad":"/dokumente"},{"datei":"kommunikation.png","titel":"Kommunikation","geraet":"desktop","thema":"hell","pfad":"/kommunikation"},{"datei":"einstellungen.png","titel":"Einstellungen","geraet":"desktop","thema":"hell","pfad":"/einstellungen"},{"datei":"admin.png","titel":"Administration","geraet":"desktop","thema":"hell","pfad":"/admin"},{"datei":"protokoll.png","titel":"Revisionssicheres Protokoll","geraet":"desktop","thema":"hell","pfad":"/admin/protokoll"},{"datei":"finanzen.png","titel":"Finanzen","geraet":"desktop","thema":"hell","pfad":"/finanzen"},{"datei":"suche.png","titel":"Globale Suche","geraet":"desktop","thema":"hell","pfad":"/suche?q=mustermann"},{"datei":"kein-zugriff.png","titel":"Rollengrenze: Mitarbeiter sieht keine Events","geraet":"desktop","thema":"hell","pfad":"/events"},{"datei":"app-einsaetze.png","titel":"Mitarbeiter-App – Meine Einsätze","geraet":"handy","thema":"hell","pfad":"/meine-einsaetze"},{"datei":"app-dokumente.png","titel":"Mitarbeiter-App – Meine Dokumente","geraet":"handy","thema":"hell","pfad":"/meine-dokumente"},{"datei":"app-verfuegbarkeit.png","titel":"Mitarbeiter-App – Verfügbarkeit","geraet":"handy","thema":"hell","pfad":"/meine-verfuegbarkeit"}];</script>
+<script>window.HST_BILDER = [{"datei":"anmelden.png","titel":"Anmeldung","geraet":"desktop","thema":"hell","pfad":"/anmelden"},{"datei":"dashboard.png","titel":"Dashboard – die Lage des Tages","geraet":"desktop","thema":"hell","pfad":"/dashboard"},{"datei":"dashboard-dunkel.png","titel":"Dashboard im Dunkelmodus","geraet":"desktop","thema":"dunkel","pfad":"/dashboard"},{"datei":"leitstelle.png","titel":"Tagesplanung als Leitstelle","geraet":"desktop","thema":"hell","pfad":"/disposition"},{"datei":"leitstelle-dunkel.png","titel":"Leitstelle im Dunkelmodus","geraet":"desktop","thema":"dunkel","pfad":"/disposition"},{"datei":"disposition-woche.png","titel":"Wochenplanung","geraet":"desktop","thema":"hell","pfad":"/disposition/woche"},{"datei":"offene-positionen.png","titel":"Offene Positionen","geraet":"desktop","thema":"hell","pfad":"/disposition/offene-positionen"},{"datei":"unbesetzte-schichten.png","titel":"Unbesetzte Schichten","geraet":"desktop","thema":"hell","pfad":"/disposition/unbesetzt"},{"datei":"mitarbeiterzuordnung.png","titel":"Mitarbeiterzuordnung über die Woche","geraet":"desktop","thema":"hell","pfad":"/disposition/zuordnung"},{"datei":"kalender-monat.png","titel":"Kalender – Monatsansicht","geraet":"desktop","thema":"hell","pfad":"/kalender?ansicht=monat"},{"datei":"events.png","titel":"Einsätze","geraet":"desktop","thema":"hell","pfad":"/events"},{"datei":"event-uebersicht.png","titel":"Einsatz – Übersicht","geraet":"desktop","thema":"hell","pfad":"/events/cmugortq0003z7d494v1lcvne"},{"datei":"event-mitarbeiter.png","titel":"Einsatz – Team und Personalsuche","geraet":"desktop","thema":"hell","pfad":"/events/cmugortq0003z7d494v1lcvne/mitarbeiter"},{"datei":"einsatzplan.png","titel":"Druckbarer Einsatzplan","geraet":"desktop","thema":"hell","pfad":"/events/cmugortq0003z7d494v1lcvne/einsatzplan"},{"datei":"einsatzhistorie.png","titel":"Einsatzhistorie","geraet":"desktop","thema":"hell","pfad":"/einsatzhistorie"},{"datei":"teamleiter.png","titel":"Teamleiter und was sie sehen dürfen","geraet":"desktop","thema":"hell","pfad":"/teamleiter"},{"datei":"mitarbeiter.png","titel":"Mitarbeiterliste","geraet":"desktop","thema":"hell","pfad":"/mitarbeiter"},{"datei":"akte-uebersicht.png","titel":"Mitarbeiterakte – Übersicht (Personal)","geraet":"desktop","thema":"hell","pfad":"/mitarbeiter/cmugortkr000o7d49bvsxkyqo"},{"datei":"akte-gesperrt.png","titel":"Dieselbe Akte als Teamleitung: gesperrte Felder","geraet":"desktop","thema":"hell","pfad":"/mitarbeiter/cmugortkr000o7d49bvsxkyqo"},{"datei":"akte-qualifikationen.png","titel":"Mitarbeiterakte – Qualifikationen","geraet":"desktop","thema":"hell","pfad":"/mitarbeiter/cmugortkr000o7d49bvsxkyqo/qualifikationen"},{"datei":"akte-dokumente.png","titel":"Mitarbeiterakte – Dokumente mit Zugriffsebene","geraet":"desktop","thema":"hell","pfad":"/mitarbeiter/cmugortkr000o7d49bvsxkyqo/dokumente"},{"datei":"akte-datenschutz.png","titel":"Mitarbeiterakte – Datenschutz","geraet":"desktop","thema":"hell","pfad":"/mitarbeiter/cmugortkr000o7d49bvsxkyqo/datenschutz"},{"datei":"mitarbeiterakten.png","titel":"Vollständigkeit der Personalakten","geraet":"desktop","thema":"hell","pfad":"/mitarbeiterakten"},{"datei":"bewerber.png","titel":"Bewerber mit Löschdatum","geraet":"desktop","thema":"hell","pfad":"/bewerber"},{"datei":"qualifikationen.png","titel":"Qualifikationen und Fristen","geraet":"desktop","thema":"hell","pfad":"/qualifikationen"},{"datei":"schulungen.png","titel":"Schulungen und offene Pflichtunterweisungen","geraet":"desktop","thema":"hell","pfad":"/schulungen"},{"datei":"verfuegbarkeiten.png","titel":"Verfügbarkeiten über vier Wochen","geraet":"desktop","thema":"hell","pfad":"/verfuegbarkeiten"},{"datei":"zeiterfassung.png","titel":"Stundenzettel","geraet":"desktop","thema":"hell","pfad":"/zeiterfassung"},{"datei":"arbeitszeiten.png","titel":"Arbeitszeiten je Monat","geraet":"desktop","thema":"hell","pfad":"/zeiterfassung/arbeitszeiten"},{"datei":"freigaben.png","titel":"Freigaben","geraet":"desktop","thema":"hell","pfad":"/zeiterfassung/freigaben"},{"datei":"abgleiche.png","titel":"Abgleiche","geraet":"desktop","thema":"hell","pfad":"/abgleiche"},{"datei":"abgleich-hochladen.png","titel":"Stundenzettel hochladen","geraet":"desktop","thema":"hell","pfad":"/abgleiche/neu"},{"datei":"anfragen.png","titel":"Anfragen","geraet":"desktop","thema":"hell","pfad":"/anfragen"},{"datei":"anfrage-detail.png","titel":"Anfrage prüfen und übernehmen","geraet":"desktop","thema":"hell","pfad":"/anfragen/cmugortqg004e7d491egzlbeo"},{"datei":"kunden.png","titel":"Kunden","geraet":"desktop","thema":"hell","pfad":"/kunden"},{"datei":"partner-unternehmen.png","titel":"Partnerunternehmen","geraet":"desktop","thema":"hell","pfad":"/partner/unternehmen"},{"datei":"partner-einsaetze.png","titel":"Partner-Einsätze","geraet":"desktop","thema":"hell","pfad":"/partner/einsaetze"},{"datei":"kommunikation.png","titel":"Kommunikation","geraet":"desktop","thema":"hell","pfad":"/kommunikation"},{"datei":"email-eingang.png","titel":"E-Mail-Eingänge","geraet":"desktop","thema":"hell","pfad":"/kommunikation/email"},{"datei":"compliance.png","titel":"HST Compliance – Stand je Bereich","geraet":"desktop","thema":"hell","pfad":"/compliance"},{"datei":"compliance-datenschutz.png","titel":"Verzeichnis der Verarbeitungstätigkeiten","geraet":"desktop","thema":"hell","pfad":"/compliance/datenschutz"},{"datei":"compliance-tom.png","titel":"Technische und organisatorische Maßnahmen","geraet":"desktop","thema":"hell","pfad":"/compliance/tom"},{"datei":"compliance-avv.png","titel":"Auftragsverarbeiter und Drittlandtransfers","geraet":"desktop","thema":"hell","pfad":"/compliance/avv"},{"datei":"compliance-loeschfristen.png","titel":"Löschkonzept","geraet":"desktop","thema":"hell","pfad":"/compliance/loeschfristen"},{"datei":"compliance-vorfaelle.png","titel":"Datenschutzvorfälle","geraet":"desktop","thema":"hell","pfad":"/compliance/vorfaelle"},{"datei":"compliance-dokumentation.png","titel":"Dokumentation und Nachweise","geraet":"desktop","thema":"hell","pfad":"/compliance/dokumentation"},{"datei":"audit-log.png","titel":"Audit-Log, Dokumentzugriffe, Exporte","geraet":"desktop","thema":"hell","pfad":"/compliance/audit-log"},{"datei":"sicherheitscheck.png","titel":"Sicherheitscheck","geraet":"desktop","thema":"hell","pfad":"/compliance/sicherheitscheck"},{"datei":"admin.png","titel":"Administration","geraet":"desktop","thema":"hell","pfad":"/admin"},{"datei":"admin-benutzer.png","titel":"Benutzer und zweiter Faktor","geraet":"desktop","thema":"hell","pfad":"/admin/benutzer"},{"datei":"admin-rollen.png","titel":"Die neun Rollen","geraet":"desktop","thema":"hell","pfad":"/admin/rollen"},{"datei":"admin-berechtigungen.png","titel":"Vollständige Rechtematrix","geraet":"desktop","thema":"hell","pfad":"/admin/berechtigungen"},{"datei":"admin-schnittstellen.png","titel":"Schnittstellen","geraet":"desktop","thema":"hell","pfad":"/admin/schnittstellen"},{"datei":"konto-sicherheit.png","titel":"Eigene Sicherheit: zweiter Faktor und Sitzungen","geraet":"desktop","thema":"hell","pfad":"/konto/sicherheit"},{"datei":"einstellungen.png","titel":"Systemeinstellungen","geraet":"desktop","thema":"hell","pfad":"/einstellungen"},{"datei":"finanzen.png","titel":"Finanzen","geraet":"desktop","thema":"hell","pfad":"/finanzen"},{"datei":"suche.png","titel":"Globale Suche","geraet":"desktop","thema":"hell","pfad":"/suche?q=mustermann"},{"datei":"kein-zugriff.png","titel":"Rollengrenze: ein Mitarbeiter sieht keine Einsätze","geraet":"desktop","thema":"hell","pfad":"/events"},{"datei":"app-einsaetze.png","titel":"Mitarbeiter-App – Meine Einsätze","geraet":"handy","thema":"hell","pfad":"/meine-einsaetze"},{"datei":"app-zeiten.png","titel":"Mitarbeiter-App – Meine Stunden","geraet":"handy","thema":"hell","pfad":"/meine-zeiten"},{"datei":"app-verfuegbarkeit.png","titel":"Mitarbeiter-App – Verfügbarkeit","geraet":"handy","thema":"hell","pfad":"/meine-verfuegbarkeit"},{"datei":"app-dokumente.png","titel":"Mitarbeiter-App – Meine Dokumente","geraet":"handy","thema":"hell","pfad":"/meine-dokumente"}];</script>
 <script>
 /* --------------------------------------------------------------------------
    Steuerung der Demo. Die Fachlogik kommt aus window.HST (hst-logik.js) und
@@ -1049,8 +1171,185 @@ npx tsx scripts/pruefe-seiten.ts http://localhost:3100 dispo@hermserviceteam.com
     .map(([, s]) => `<span class="marke marke-${s.farbe}"><span class="punkt"></span>${text(s.label)}</span>`)
     .join('');
 
+  /* ------------------------------------------- Zuordnungspruefung (SecPlan 4) */
+  /*
+     Dieselbe Funktion, die der Server beim Ablegen eines Namens aufruft.
+     Hier wird nur die Lage zusammengebaut, die dort aus der Datenbank kommt.
+  */
+  const ZP_TAG = new Date('2026-05-16T00:00:00Z');
+
+  function zpLage() {
+    const an = (id) => $('#' + id).checked;
+    const wert = (id) => $('#' + id).value.trim();
+    const abgelaufen = new Date('2026-01-31T00:00:00Z');
+
+    return {
+      tag: ZP_TAG,
+      ziel: { start: wert('zpVon') || null, ende: wert('zpBis') || null, bezeichnung: wert('zpRolle') },
+      person: {
+        name: wert('zpName') || 'Die Kraft',
+        aktiv: !an('zpInaktiv'),
+        gesperrt: an('zpGesperrt'),
+        sperrgrund: an('zpGesperrt') ? 'Ausweis eingezogen' : null,
+      },
+      belegt: an('zpBelegt')
+        ? [{ start: '18:00', ende: '23:00', bezeichnung: 'Hafenlicht Open Air' }]
+        : [],
+      belegtVortag: an('zpNacht')
+        ? [{ start: '22:00', ende: '06:00', bezeichnung: 'Werkschutz Nacht' }]
+        : [],
+      abwesend: an('zpUrlaub') ? [{ art: 'URLAUB', hinweis: 'bis 20.05.' }] : [],
+      qualifikationen: [
+        { name: 'Sachkunde § 34a', vorhanden: !an('zpQualFehlt'), laeuftAb: null },
+        { name: 'Erste Hilfe', vorhanden: true, laeuftAb: an('zpQualAlt') ? abgelaufen : null },
+      ],
+      schulungen: an('zpSchulung')
+        ? [{ name: 'Jährliche Unterweisung', vorhanden: false, laeuftAb: null }]
+        : [],
+      dokumente: an('zpDokument')
+        ? [{ name: 'Führungszeugnis', vorhanden: true, laeuftAb: abgelaufen }]
+        : [],
+      rolle: an('zpFunktion')
+        ? { name: $('#zpRolle').value || 'Funktion', erlaubt: false, grund: 'keine Unterweisung' }
+        : undefined,
+      vortagEnde: wert('zpVortag') || (an('zpNacht') ? '06:00' : null),
+    };
+  }
+
+  function zpZeichnen() {
+    if (!H || !H.pruefe) return;
+    const konflikte = H.pruefe(zpLage());
+    const hart = H.blockiert(konflikte);
+    const kopf = H.ueberschrift(konflikte);
+
+    const liste = konflikte.length === 0
+      ? '<p style="margin:0;color:var(--text2)">Keine Einwände – die Zuordnung ließe sich ohne Rückfrage speichern.</p>'
+      : '<ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px">'
+        + konflikte.map((k) => `
+            <li style="display:flex;gap:10px;align-items:flex-start;padding:9px 11px;border-radius:var(--r);
+                       background:var(${k.blockierend ? '--rot-f' : '--gelb-f'});
+                       border-left:2px solid var(${k.blockierend ? '--rot' : '--gelb'})">
+              <span class="merker merker-${k.blockierend ? 'hart' : 'weich'}">${k.blockierend ? 'Verbot' : 'Hinweis'}</span>
+              <span style="font-size:13.5px;line-height:1.45">${text(k.text)}</span>
+            </li>`).join('')
+        + '</ul>';
+
+    $('#zpErgebnis').innerHTML = `
+      <div class="karte">
+        <h4>${text(kopf)}</h4>
+        <div class="karte-inhalt">
+          ${liste}
+          <p style="margin:14px 0 0;font-size:13px;color:var(--text2)">
+            ${hart
+              ? 'Mindestens ein Grund blockiert. Die Zuordnung lässt sich nicht speichern – auch nicht mit „trotzdem".'
+              : konflikte.length === 0
+                ? 'Der Server würde ohne Rückfrage speichern.'
+                : 'Alles davon lässt sich ausdrücklich übergehen. Die Zuordnung steht danach im Protokoll.'}
+          </p>
+        </div>
+      </div>`;
+  }
+
+  if ($('#zpErgebnis')) {
+    ['zpName','zpVon','zpBis','zpRolle','zpVortag','zpGesperrt','zpInaktiv','zpBelegt','zpNacht',
+     'zpUrlaub','zpQualFehlt','zpQualAlt','zpSchulung','zpDokument','zpFunktion']
+      .forEach((id) => {
+        const feld = $('#' + id);
+        if (feld) feld.addEventListener('input', zpZeichnen);
+        if (feld) feld.addEventListener('change', zpZeichnen);
+      });
+    zpZeichnen();
+  }
+
+  /* --------------------------------------------- Rollen und Rechte (SecPlan 7/8) */
+  const FELD_NAMEN = {
+    stammdaten: 'Name, Personalnummer, Beschäftigung',
+    einsatzdaten: 'Einsatzzeit, Einsatzort, Qualifikation',
+    kontakt: 'Telefon, dienstliche E-Mail',
+    anschrift: 'Private Anschrift, Geburtsdatum',
+    vertrag: 'Arbeitsvertrag, Stundensatz, Bankdaten',
+    notizen: 'Interne Personalnotizen',
+    gesundheit: 'Gesundheitsdaten (Art. 9 DSGVO)',
+  };
+
+  function rolleZeichnen() {
+    if (!H || !H.ROLES) return;
+    const rolle = $('#rolleWahl').value;
+    const rechte = rolle === 'SUPERADMIN' ? H.ALLE_RECHTE : H.ROLE_PERMISSIONS[rolle];
+    const bereiche = H.navFor(rolle);
+    const bereich = H.scopeOf(rolle);
+    const bereichText = {
+      ALLE: 'alles', EVENT: 'nur eigene Einsätze', PARTNER: 'nur das eigene Unternehmen',
+      KUNDE: 'nur eigene Aufträge', EIGENE: 'nur der eigene Datensatz',
+    }[bereich] || bereich;
+
+    $('#rolleErgebnis').innerHTML = `
+      <p style="margin:0 0 10px;color:var(--text2);font-size:13.5px;max-width:70ch">
+        ${text(H.ROLE_BESCHREIBUNG[rolle])}
+      </p>
+      <p style="margin:0 0 10px;font-size:13px">
+        Sieht: <span class="merker merker-${bereich === 'ALLE' ? 'weich' : 'nein'}">${text(bereichText)}</span>
+        &nbsp;·&nbsp; Rechte: <b>${rolle === 'SUPERADMIN' ? 'alle' : rechte.length}</b> von ${H.ALLE_RECHTE.length}
+      </p>
+      <div class="reihe" style="gap:5px">
+        ${bereiche.map((g) => `<span class="merker merker-nein">${text(g.label)}</span>`).join('')}
+      </div>`;
+  }
+
+  if ($('#rolleWahl')) {
+    $('#rolleWahl').innerHTML = H.ROLES
+      .map((r) => `<option value="${r}">${text(H.ROLE_LABEL[r])}</option>`).join('');
+    $('#rolleWahl').value = 'TEAMLEITUNG';
+    $('#rolleWahl').addEventListener('change', rolleZeichnen);
+    rolleZeichnen();
+
+    // Feldsichtbarkeit je Rolle
+    const felder = Object.keys(FELD_NAMEN);
+    $('#felderTabelle').innerHTML =
+      '<thead><tr><th>Feld einer Person</th>'
+      + H.ROLES.map((r) => `<th style="text-align:center">${text(H.ROLE_LABEL[r])}</th>`).join('')
+      + '</tr></thead><tbody>'
+      + felder.map((feld) => {
+          const zellen = H.ROLES.map((r) => {
+            const sichtbar = H.personenfelder(r)[feld];
+            return `<td style="text-align:center">${sichtbar
+              ? '<span class="merker merker-ja">ja</span>'
+              : '<span style="color:var(--text3)">–</span>'}</td>`;
+          }).join('');
+          return `<tr><td>${text(FELD_NAMEN[feld])}</td>${zellen}</tr>`;
+        }).join('')
+      + '</tbody>';
+
+    // Vollstaendige Rechtematrix
+    const nachBereich = new Map();
+    H.ALLE_RECHTE.forEach((recht) => {
+      const kopf = recht.split('.')[0];
+      if (!nachBereich.has(kopf)) nachBereich.set(kopf, []);
+      nachBereich.get(kopf).push(recht);
+    });
+
+    let zeilen = '';
+    nachBereich.forEach((rechte, bereich) => {
+      zeilen += `<tr><td colspan="${H.ROLES.length + 1}"
+        style="background:var(--tief);font-weight:700;font-size:11px;letter-spacing:.08em;
+               text-transform:uppercase;color:var(--text2)">${text(bereich)}</td></tr>`;
+      rechte.forEach((recht) => {
+        const zellen = H.ROLES.map((r) => `<td style="text-align:center">${H.can(r, recht)
+          ? '<span class="merker merker-ja">ja</span>'
+          : '<span style="color:var(--text3)">–</span>'}</td>`).join('');
+        zeilen += `<tr><td><code style="font-size:12px">${text(recht)}</code></td>${zellen}</tr>`;
+      });
+    });
+
+    $('#rechteTabelle').innerHTML =
+      '<thead><tr><th>Recht</th>'
+      + H.ROLES.map((r) => `<th style="text-align:center;font-size:11px">${text(H.ROLE_LABEL[r])}</th>`).join('')
+      + '</tr></thead><tbody>' + zeilen + '</tbody>';
+  }
+
   const FARBEN = [
-    ['Akzent', '--akzent', 'Aktive Navigation, primäre Schaltfläche, Fokus'],
+    ['Dunkelblau', '--akzent', 'Navigation, primäre Schaltfläche, aktiver Zustand'],
+    ['Beige', '--beige', 'Hervorhebung, ausgewählte Zeile, Markierung'],
     ['Grün', '--gruen', 'bestätigt, besetzt, erledigt'],
     ['Gelb', '--gelb', 'offen, braucht Aufmerksamkeit'],
     ['Rot', '--rot', 'Problem, unbesetzt, Fehler'],

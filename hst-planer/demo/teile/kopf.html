@@ -12,30 +12,37 @@
   lässt die echte Fachlogik im Browser mitrechnen (demo/hst-logik.js).
   Das Aussehen übernimmt dieselben Gestaltungsregeln wie der Planer selbst.
 */
+/*
+  Dieselbe Palette wie der Planer: dunkelblau, beige, Off-White,
+  anthrazit. Kein Violett, keine Verläufe – Farbe trägt Bedeutung,
+  nicht Dekoration.
+*/
 :root{
   color-scheme:light;
-  --flaeche:#F4F4F6; --karte:#FFFFFF; --tief:#EBEBEF; --hover:#F0F0F4;
-  --text:#14141A; --text2:#55555F; --text3:#7A7A86;
-  --linie:#DCDCE3; --linie2:#C4C4CE;
-  --akzent:#7C3AED; --akzent-kontrast:#fff; --akzent-schwach:#F1EBFE;
-  --gruen:#15803D; --gruen-f:#E8F6ED;
-  --gelb:#B45309;  --gelb-f:#FDF2E3;
-  --rot:#B91C1C;   --rot-f:#FDECEC;
-  --blau:#1D4ED8;  --blau-f:#EAF0FE;
-  --schatten:0 1px 2px rgba(20,20,26,.06),0 1px 3px rgba(20,20,26,.04);
-  --r:10px;
+  --flaeche:#F2F0EA; --karte:#FCFBF8; --flaeche2:#EDEAE2; --tief:#E8E4DA; --hover:#EDEAE2;
+  --text:#23272E; --text2:#565C65; --text3:#878D96;
+  --linie:#DCD7CB; --linie2:#C6BFAF;
+  --akzent:#1B2A4A; --akzent-kontrast:#fff; --akzent-schwach:#E6EAF1;
+  --beige:#B79A63; --beige-f:#F2E9D8;
+  --gruen:#2E6A4E; --gruen-f:#E3EDE7;
+  --gelb:#96681C;  --gelb-f:#F6EDDA;
+  --rot:#A23A31;   --rot-f:#F7E7E4;
+  --blau:#2B4C7E;  --blau-f:#E5EAF2;
+  --schatten:0 1px 2px rgba(35,39,46,.05);
+  --r:6px;
 }
 html[data-thema="dunkel"]{
   color-scheme:dark;
-  --flaeche:#0D0D11; --karte:#16161C; --tief:#1D1D24; --hover:#22222A;
-  --text:#F2F2F5; --text2:#A8A8B4; --text3:#7C7C88;
-  --linie:#2A2A33; --linie2:#3A3A46;
-  --akzent:#9B7BFF; --akzent-kontrast:#12121A; --akzent-schwach:#241C3D;
-  --gruen:#4ADE80; --gruen-f:#12261A;
-  --gelb:#FBBF24;  --gelb-f:#2A1F09;
-  --rot:#F87171;   --rot-f:#2C1414;
-  --blau:#7EA6FF;  --blau-f:#111C33;
-  --schatten:0 1px 2px rgba(0,0,0,.5);
+  --flaeche:#14181F; --karte:#1B202A; --flaeche2:#252C38; --tief:#252C38; --hover:#2A313E;
+  --text:#E7E4DD; --text2:#A3A9B3; --text3:#767D88;
+  --linie:#2B323F; --linie2:#3A4250;
+  --akzent:#4F74B3; --akzent-kontrast:#101720; --akzent-schwach:#1B2740;
+  --beige:#C7AC79; --beige-f:#2E2A20;
+  --gruen:#5FA67F; --gruen-f:#1A2822;
+  --gelb:#C99B45;  --gelb-f:#2C2415;
+  --rot:#CC6A5F;   --rot-f:#2C1B18;
+  --blau:#6D93CC;  --blau-f:#18222F;
+  --schatten:0 1px 2px rgba(0,0,0,.4);
 }
 *{box-sizing:border-box}
 body{
@@ -92,6 +99,15 @@ input,select,textarea{
   background:var(--karte);color:var(--text);font-weight:400;letter-spacing:normal;text-transform:none
 }
 textarea{line-height:1.5;resize:vertical;font-size:13px}
+/* Schalterzeile: Kästchen und Text nebeneinander, nicht übereinander. */
+label.feld-schalter{flex-direction:row;align-items:center;gap:8px;text-transform:none;
+  letter-spacing:normal;font-weight:400;font-size:13px;color:var(--text)}
+label.feld-schalter input{width:auto;padding:0;accent-color:var(--akzent)}
+.merker{display:inline-block;padding:1px 7px;border-radius:4px;font-size:11px;font-weight:600}
+.merker-ja{background:var(--gruen-f);color:var(--gruen)}
+.merker-nein{background:var(--flaeche2);color:var(--text3)}
+.merker-hart{background:var(--rot-f);color:var(--rot)}
+.merker-weich{background:var(--gelb-f);color:var(--gelb)}
 .reihe{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
 .raster{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
 
