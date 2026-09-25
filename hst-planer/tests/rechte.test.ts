@@ -6,7 +6,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import {
-  alleZiele, can, canAny, homeFor, navFor, personenfelder,
+  ALLE_RECHTE, alleZiele, can, canAny, homeFor, navFor, personenfelder,
   ROLE_PERMISSIONS, ROLES, scopeOf, type Permission, type Role,
 } from '@/lib/auth/rbac';
 import { darfInterneNotizenSehen, employeeFilter, eventFilter, personenAuswahl } from '@/lib/queries/scope';
@@ -22,7 +22,7 @@ function benutzer(rolle: Role, extra: Partial<SessionUser> = {}): SessionUser {
 
 describe('Grundsatz DENY ALL', () => {
   it('jede Rolle ausser Superadmin hat nur ausdrücklich vergebene Rechte', () => {
-    const alle = new Set<Permission>(Object.values(ROLE_PERMISSIONS).flat());
+    const alle = new Set<Permission>(ALLE_RECHTE);
     for (const rolle of ROLES) {
       if (rolle === 'SUPERADMIN') continue;
       const eigene = new Set(ROLE_PERMISSIONS[rolle]);
@@ -33,7 +33,7 @@ describe('Grundsatz DENY ALL', () => {
   });
 
   it('Superadmin ist die einzige Rolle mit Vollzugriff', () => {
-    const alle = new Set<Permission>(Object.values(ROLE_PERMISSIONS).flat());
+    const alle = new Set<Permission>(ALLE_RECHTE);
     for (const recht of alle) expect(can('SUPERADMIN', recht)).toBe(true);
     expect(can('SUPERADMIN', 'admin.users')).toBe(true);
     // Und niemand sonst verwaltet Benutzer.
@@ -45,6 +45,28 @@ describe('Grundsatz DENY ALL', () => {
 
   it('die Rechteliste des Superadmins bleibt leer, damit sie niemand kopiert', () => {
     expect(ROLE_PERMISSIONS.SUPERADMIN).toHaveLength(0);
+  });
+
+  it('ALLE_RECHTE ist vollständig – keine Rolle hat ein Recht, das nicht gelistet ist', () => {
+    // Die Rechtematrix in der Oberfläche liest ALLE_RECHTE. Fehlt dort ein
+    // Eintrag, verschwindet er aus der Übersicht, ohne dass es auffällt.
+    const gelistet = new Set<string>(ALLE_RECHTE);
+    for (const rolle of ROLES) {
+      for (const recht of ROLE_PERMISSIONS[rolle]) {
+        expect(gelistet.has(recht), `${rolle}: ${recht}`).toBe(true);
+      }
+    }
+  });
+
+  it('enthält auch Rechte, die absichtlich niemand hat', () => {
+    // employees.sensitive ist der Grund für die Liste: es steht keiner
+    // Betriebsrolle zu und wäre über die Rollen allein nicht sichtbar.
+    expect(ALLE_RECHTE).toContain('employees.sensitive');
+    expect(ROLES.filter((r) => r !== 'SUPERADMIN').some((r) => can(r, 'employees.sensitive'))).toBe(false);
+  });
+
+  it('listet jedes Recht nur einmal', () => {
+    expect(new Set(ALLE_RECHTE).size).toBe(ALLE_RECHTE.length);
   });
 });
 

@@ -2,7 +2,7 @@ import { Fragment } from 'react';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { seite } from '@/lib/auth/guard';
-import { can, ROLE_LABEL, ROLE_PERMISSIONS, ROLES, type Permission } from '@/lib/auth/rbac';
+import { ALLE_RECHTE, can, ROLE_LABEL, ROLES, type Permission } from '@/lib/auth/rbac';
 import { Hinweis, Karte, Seitenkopf } from '@/components/ui';
 
 export const metadata: Metadata = { title: 'Berechtigungen' };
@@ -50,11 +50,16 @@ const BEREICH_NAME: Record<string, string> = {
 export default async function Berechtigungen() {
   await seite('admin.roles');
 
-  const alle = [...new Set(Object.values(ROLE_PERMISSIONS).flat())].sort() as Permission[];
+  /*
+    Bewusst ALLE_RECHTE und nicht die Vereinigung der Rollen: sonst
+    fehlte `employees.sensitive` in der Tabelle, weil es absichtlich
+    keine Rolle hat – und gerade das gehört sichtbar.
+  */
+  const alle: readonly Permission[] = ALLE_RECHTE;
 
   const nachBereich = new Map<string, Permission[]>();
   for (const recht of alle) {
-    const bereich = recht.split('.')[0]!;
+    const bereich = recht.split('.')[0] ?? recht;
     const liste = nachBereich.get(bereich);
     if (liste) liste.push(recht);
     else nachBereich.set(bereich, [recht]);

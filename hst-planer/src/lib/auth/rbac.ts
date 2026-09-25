@@ -29,50 +29,62 @@ export const ROLES: readonly Role[] = [
   'EINSATZLEITUNG', 'TEAMLEITUNG', 'MITARBEITER', 'KUNDE', 'SUBUNTERNEHMER',
 ] as const;
 
-export type Permission =
+/**
+ * Alle Rechte, die es gibt – als Liste, nicht als Typ-Union.
+ *
+ * Der Typ `Permission` wird daraus abgeleitet. Das ist herum, weil die
+ * Liste zur Laufzeit gebraucht wird: die Rechtematrix unter
+ * /admin/berechtigungen zeigt sonst nur Rechte, die irgendeine Rolle
+ * hat – und gerade `employees.sensitive`, das absichtlich niemand hat,
+ * wäre damit unsichtbar. Genau das gehört aber angezeigt.
+ */
+export const ALLE_RECHTE = [
   // Dashboard
-  | 'dashboard.view'
+  'dashboard.view',
   // Disposition
-  | 'dispo.view' | 'dispo.edit' | 'dispo.assign'
-  | 'calendar.view'
+  'dispo.view', 'dispo.edit', 'dispo.assign',
+  'calendar.view',
   // Personal
-  | 'employees.view' | 'employees.edit' | 'employees.delete'
-  | 'employees.file'            // vollstaendige Personalakte
-  | 'employees.finance'         // Stundensatz, Bankdaten, Vertrag
-  | 'employees.notes'           // interne Personalnotizen
-  | 'employees.sensitive'       // besondere Kategorien, Art. 9 DSGVO
-  | 'applicants.view' | 'applicants.edit'
-  | 'qualifications.view' | 'qualifications.edit'
-  | 'availability.view' | 'availability.edit'
-  | 'trainings.view' | 'trainings.edit'
+  'employees.view', 'employees.edit', 'employees.delete',
+  'employees.file',  // vollstaendige Personalakte
+  'employees.finance',  // Stundensatz, Bankdaten, Vertrag
+  'employees.notes',  // interne Personalnotizen
+  'employees.sensitive',  // besondere Kategorien, Art. 9 DSGVO
+  'applicants.view', 'applicants.edit',
+  'qualifications.view', 'qualifications.edit',
+  'availability.view', 'availability.edit',
+  'trainings.view', 'trainings.edit',
   // Einsaetze
-  | 'events.view' | 'events.edit' | 'events.delete'
-  | 'objects.view' | 'objects.edit'
-  | 'customers.view' | 'customers.edit'
-  | 'requests.view' | 'requests.edit'
-  | 'reconciliation.view' | 'reconciliation.edit' | 'reconciliation.close'
+  'events.view', 'events.edit', 'events.delete',
+  'objects.view', 'objects.edit',
+  'customers.view', 'customers.edit',
+  'requests.view', 'requests.edit',
+  'reconciliation.view', 'reconciliation.edit', 'reconciliation.close',
   // Zeiterfassung
-  | 'timesheets.view' | 'timesheets.edit' | 'timesheets.approve'
+  'timesheets.view', 'timesheets.edit', 'timesheets.approve',
   // Partner
-  | 'partners.view' | 'partners.edit'
+  'partners.view', 'partners.edit',
   // Dokumente
-  | 'documents.view' | 'documents.edit' | 'documents.download'
+  'documents.view', 'documents.edit', 'documents.download',
   // Kommunikation
-  | 'communication.view' | 'communication.send'
+  'communication.view', 'communication.send',
   // Auswertung und Finanzen
-  | 'reports.view'
-  | 'finance.view' | 'finance.edit'
-  | 'export.run'
+  'reports.view',
+  'finance.view', 'finance.edit',
+  'export.run',
   // Compliance
-  | 'compliance.view' | 'compliance.edit' | 'compliance.approve'
-  | 'compliance.requests' | 'compliance.breaches'
-  | 'audit.view'
-  | 'security.check'
+  'compliance.view', 'compliance.edit', 'compliance.approve',
+  'compliance.requests', 'compliance.breaches',
+  'audit.view',
+  'security.check',
   // Administration
-  | 'settings.view' | 'settings.edit'
-  | 'admin.view' | 'admin.users' | 'admin.roles' | 'admin.api' | 'admin.logs'
+  'settings.view', 'settings.edit',
+  'admin.view', 'admin.users', 'admin.roles', 'admin.api', 'admin.logs',
   // Eigener Bereich
-  | 'self.shifts' | 'self.availability' | 'self.documents' | 'self.timesheets';
+  'self.shifts', 'self.availability', 'self.documents', 'self.timesheets',
+] as const;
+
+export type Permission = (typeof ALLE_RECHTE)[number];
 
 /** Eigener Bereich – hat jede Rolle mit Mitarbeiterprofil. */
 const SELBST: Permission[] = [

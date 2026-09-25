@@ -38,28 +38,33 @@ const SERVICE_TYPES = [
   { code: 'REINIGUNG', name: 'Reinigung', color: '#4D7C0F' },
 ];
 
+/*
+  Kurze Kuerzel, weil sie in der Leitstelle neben jedem Namen stehen.
+  „GASTRO_HYGIENE" haette dort drei Zeilen gebraucht; „HYG" reicht, und
+  der volle Name steht im Titel und auf der Qualifikationsseite.
+*/
 const QUALIFICATIONS = [
-  { code: '34A', name: 'Sachkunde §34a GewO', expires: false },
-  { code: 'UNTERRICHTUNG', name: 'Unterrichtung §34a GewO', expires: false },
-  { code: 'FUEHRUNGSZEUGNIS', name: 'Erweitertes Führungszeugnis', expires: true },
-  { code: 'ERSTHELFER', name: 'Ersthelfer', expires: true },
-  { code: 'BRANDSCHUTZ', name: 'Brandschutzhelfer', expires: true },
-  { code: 'GASTRO_HYGIENE', name: 'Hygieneschulung §43 IfSG', expires: true },
-  { code: 'STAPLER', name: 'Staplerschein', expires: true },
+  { code: '34a', name: 'Sachkunde § 34a GewO', description: 'Sachkundeprüfung bei der IHK', expires: false },
+  { code: 'UNT', name: 'Unterrichtung § 34a GewO', description: '40-stündige Unterrichtung bei der IHK', expires: false },
+  { code: 'FZ', name: 'Erweitertes Führungszeugnis', description: 'Belegart O, nicht älter als zwölf Monate', expires: true },
+  { code: 'EH', name: 'Ersthelfer', description: 'Erste-Hilfe-Kurs, Auffrischung alle zwei Jahre', expires: true },
+  { code: 'BS', name: 'Brandschutzhelfer', description: 'Unterweisung nach ASR A2.2', expires: true },
+  { code: 'HYG', name: 'Hygieneschulung § 43 IfSG', description: 'Belehrung durch das Gesundheitsamt', expires: true },
+  { code: 'STA', name: 'Staplerschein', description: 'Fahrausweis für Flurförderzeuge', expires: true },
   { code: 'PKW', name: 'Führerschein Klasse B', expires: false },
 ];
 
 const EMPLOYEES = [
-  { firstName: 'Max', lastName: 'Mustermann', city: 'Hamburg', zip: '20095', type: 'FESTANSTELLUNG', quals: ['34A', 'FUEHRUNGSZEUGNIS', 'ERSTHELFER'], areas: ['SICHERHEIT'], rate: 17.5 },
-  { firstName: 'Lena', lastName: 'Bergmann', city: 'Hamburg', zip: '22767', type: 'TEILZEIT', quals: ['34A', 'BRANDSCHUTZ'], areas: ['SICHERHEIT', 'LOGISTIK'], rate: 16.8 },
-  { firstName: 'Ayse', lastName: 'Yilmaz', city: 'Hamburg', zip: '21073', type: 'MINIJOB', quals: ['GASTRO_HYGIENE'], areas: ['GASTRO'], rate: 15.5 },
-  { firstName: 'Jan', lastName: 'Möller', city: 'Norderstedt', zip: '22846', type: 'AUSHILFE', quals: ['UNTERRICHTUNG'], areas: ['SICHERHEIT'], rate: 15.0 },
-  { firstName: 'Sophie', lastName: 'Kranz', city: 'Hamburg', zip: '20359', type: 'WERKSTUDENT', quals: ['GASTRO_HYGIENE', 'ERSTHELFER'], areas: ['GASTRO', 'PROMOTION'], rate: 15.8 },
-  { firstName: 'Dennis', lastName: 'Rohde', city: 'Pinneberg', zip: '25421', type: 'FESTANSTELLUNG', quals: ['34A', 'PKW', 'FUEHRUNGSZEUGNIS'], areas: ['SICHERHEIT', 'FAHRSERVICE'], rate: 18.2 },
-  { firstName: 'Marek', lastName: 'Kowalski', city: 'Hamburg', zip: '21107', type: 'AUSHILFE', quals: ['STAPLER'], areas: ['LOGISTIK'], rate: 16.0 },
+  { firstName: 'Max', lastName: 'Mustermann', city: 'Hamburg', zip: '20095', type: 'FESTANSTELLUNG', quals: ['34a', 'FZ', 'EH'], areas: ['SICHERHEIT'], rate: 17.5 },
+  { firstName: 'Lena', lastName: 'Bergmann', city: 'Hamburg', zip: '22767', type: 'TEILZEIT', quals: ['34a', 'BS'], areas: ['SICHERHEIT', 'LOGISTIK'], rate: 16.8 },
+  { firstName: 'Ayse', lastName: 'Yilmaz', city: 'Hamburg', zip: '21073', type: 'MINIJOB', quals: ['HYG'], areas: ['GASTRO'], rate: 15.5 },
+  { firstName: 'Jan', lastName: 'Möller', city: 'Norderstedt', zip: '22846', type: 'AUSHILFE', quals: ['UNT'], areas: ['SICHERHEIT'], rate: 15.0 },
+  { firstName: 'Sophie', lastName: 'Kranz', city: 'Hamburg', zip: '20359', type: 'WERKSTUDENT', quals: ['HYG', 'EH'], areas: ['GASTRO', 'PROMOTION'], rate: 15.8 },
+  { firstName: 'Dennis', lastName: 'Rohde', city: 'Pinneberg', zip: '25421', type: 'FESTANSTELLUNG', quals: ['34a', 'PKW', 'FZ'], areas: ['SICHERHEIT', 'FAHRSERVICE'], rate: 18.2 },
+  { firstName: 'Marek', lastName: 'Kowalski', city: 'Hamburg', zip: '21107', type: 'AUSHILFE', quals: ['STA'], areas: ['LOGISTIK'], rate: 16.0 },
   { firstName: 'Nina', lastName: 'Abel', city: 'Hamburg', zip: '22087', type: 'MINIJOB', quals: [], areas: ['PROMOTION'], rate: 15.2 },
   { firstName: 'Tobias', lastName: 'Steenbock', city: 'Buxtehude', zip: '21614', type: 'TEILZEIT', quals: ['PKW'], areas: ['FAHRSERVICE', 'LOGISTIK'], rate: 16.5 },
-  { firstName: 'Katja', lastName: 'Brinkmann', city: 'Hamburg', zip: '22303', type: 'TEILZEIT', quals: ['GASTRO_HYGIENE'], areas: ['REINIGUNG', 'GASTRO'], rate: 15.9 },
+  { firstName: 'Katja', lastName: 'Brinkmann', city: 'Hamburg', zip: '22303', type: 'TEILZEIT', quals: ['HYG'], areas: ['REINIGUNG', 'GASTRO'], rate: 15.9 },
 ];
 
 async function main() {
@@ -212,8 +217,8 @@ async function main() {
       hints: 'Akkreditierung am Eingang Süd abholen. Funkgeräte werden gestellt.',
       notes: 'Kunde wünscht ausdrücklich Dennis Rohde als Einsatzleitung.',
       positions: [
-        { title: 'Ordnungsdienst Südtribüne', service: 'SICHERHEIT', count: 4, start: '17:00', end: '01:00', pause: 30, quals: ['34A'], staff: [0, 1, 3] },
-        { title: 'Einlasskontrolle Nord', service: 'SICHERHEIT', count: 2, start: '16:30', end: '23:00', pause: 30, quals: ['UNTERRICHTUNG'], staff: [5] },
+        { title: 'Ordnungsdienst Südtribüne', service: 'SICHERHEIT', count: 4, start: '17:00', end: '01:00', pause: 30, quals: ['34a'], staff: [0, 1, 3] },
+        { title: 'Einlasskontrolle Nord', service: 'SICHERHEIT', count: 2, start: '16:30', end: '23:00', pause: 30, quals: ['UNT'], staff: [5] },
       ],
     },
     {
@@ -223,7 +228,7 @@ async function main() {
       dressCode: 'Weißes Hemd, schwarze Hose, schwarze Schürze (wird gestellt)',
       hints: 'Bitte kein Parfüm – der Kunde serviert ein Menü mit Weinbegleitung.',
       positions: [
-        { title: 'Servicekräfte Saal', service: 'GASTRO', count: 4, start: '18:00', end: '02:00', pause: 45, quals: ['GASTRO_HYGIENE'], staff: [2, 4, 9] },
+        { title: 'Servicekräfte Saal', service: 'GASTRO', count: 4, start: '18:00', end: '02:00', pause: 45, quals: ['HYG'], staff: [2, 4, 9] },
         { title: 'Garderobe & Empfang', service: 'PROMOTION', count: 2, start: '17:30', end: '23:30', pause: 30, staff: [7] },
       ],
     },
@@ -235,7 +240,7 @@ async function main() {
       hints: 'Ohne Sicherheitsschuhe ist kein Zutritt möglich.',
       positions: [
         { title: 'Auf- und Abbauhelfer', service: 'LOGISTIK', count: 6, start: '06:00', end: '14:00', pause: 45, staff: [6, 8] },
-        { title: 'Staplerfahrer', service: 'LOGISTIK', count: 1, start: '06:00', end: '14:00', pause: 45, quals: ['STAPLER'], staff: [6] },
+        { title: 'Staplerfahrer', service: 'LOGISTIK', count: 1, start: '06:00', end: '14:00', pause: 45, quals: ['STA'], staff: [6] },
       ],
     },
     {
