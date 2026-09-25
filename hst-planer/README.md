@@ -639,6 +639,10 @@ ohne Gegenstand und würde genau das verdecken, worauf es ankommt.
   bekommen einen sichtbaren Hinweis in der Kopfzeile und stehen im Sicherheitscheck.
   Abschalten geht nur mit Passwort **und** gültigem Code.
 * Sitzungen in der Datenbank, einzeln beendbar; Passwortwechsel beendet alle anderen.
+* Passwort vergessen über einen Link, der eine Stunde und genau einmal gilt. Gespeichert
+  wird nur sein Hash, die Antwort ist immer dieselbe – ob die Adresse bekannt ist oder
+  nicht. Ohne eingerichteten Mailversand landet der Link in der Serverkonsole, nie in der
+  Antwort an den Browser; dann vergibt die Administration ein Startpasswort.
 * Aufrufbegrenzung je Adresse und je Konto bei Anmeldung, Token-Abruf und öffentlicher
   Anfrage-Schnittstelle.
 

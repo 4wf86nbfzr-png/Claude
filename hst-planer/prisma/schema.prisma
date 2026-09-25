@@ -1486,3 +1486,21 @@ model ComplianceDocument {
 
   @@index([kind, status])
 }
+
+/// Zurücksetzen eines Passworts (SecPlan 14).
+///
+/// Gespeichert wird nur der Hash des Tokens – wer die Datenbank liest,
+/// bekommt damit keinen Zugang. Ein Token gilt eine Stunde und genau
+/// einmal; danach steht `usedAt`.
+model PasswordReset {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  userId    String
+  expiresAt DateTime
+  usedAt    DateTime?
+  ip        String?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}

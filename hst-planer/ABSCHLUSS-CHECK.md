@@ -114,6 +114,14 @@ beendet alle anderen. Der Sicherheitscheck prüft dreizehn Auffälligkeiten – 
 ausgeschiedene Mitarbeiter mit aktivem Zugang und privilegierte Konten ohne zweiten
 Faktor.
 
+Das Zurücksetzen eines Passworts läuft über einen Link, der eine Stunde und genau
+einmal gilt; gespeichert wird nur sein Hash. Die Antwort auf die Anforderung ist immer
+dieselbe – sonst wäre das Formular eine Auskunft darüber, wer hier ein Konto hat. Beim
+Einlösen enden alle Sitzungen, auch die, von der niemand weiß.
+
+Nachweis: `src/lib/auth/zuruecksetzen.ts`, `tests/zuruecksetzen.test.ts`,
+`scripts/pruefe-zuruecksetzen.ts` (Durchlauf im echten Browser).
+
 ## 13. Keine fehlende Dokumentation
 
 **Angelegt, im Entwurfsstand.** Acht Unterlagen unter `/compliance/dokumentation`, je mit
@@ -193,14 +201,17 @@ beruhigenden Vorgabewerts.
 
 ## Geprüft wurde
 
-* 221 automatisierte Tests, davon 34 zum Rollenkonzept, 18 zur Zuordnungsprüfung,
+* 231 automatisierte Tests, davon 34 zum Rollenkonzept, 18 zur Zuordnungsprüfung,
   15 zur Compliance-Zentrale, 14 zum zweiten Faktor (gegen die Werte aus Anhang B
-  des RFC 6238) und 9 zur Feldverschlüsselung.
+  des RFC 6238), 10 zum Zurücksetzen von Passwörtern und 9 zur Feldverschlüsselung.
 * `tsc --noEmit` und ESLint ohne Befund.
 * Produktionsbau erfolgreich.
 * Rauchtest über 77 Ziele mit allen neun Rollen: keine Fehler, Rollengrenzen halten.
   Eine Teamleitung erreicht weder Mitarbeiterakten noch Dokumente, Compliance oder
   Administration.
+* Der Weg „Passwort vergessen" einmal von Anfang bis Ende in einem echten Browser:
+  Anforderung, erfundener Link wird abgewiesen, neues Passwort, zweiter Aufruf des
+  Links schlägt fehl, Anmeldung mit dem neuen Passwort.
 
 ## Nicht geprüft wurde
 

@@ -3,13 +3,15 @@ import type { Metadata } from 'next';
 import { getSessionUser } from '@/lib/auth/session';
 import { homeFor } from '@/lib/auth/rbac';
 import { Logo } from '@/components/logo';
+import { Hinweis } from '@/components/ui';
 import { AnmeldeFormular } from './formular';
 
 export const metadata: Metadata = { title: 'Anmelden' };
 
-export default async function AnmeldenSeite() {
+export default async function AnmeldenSeite({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const user = await getSessionUser();
   if (user) redirect(homeFor(user.role));
+  const params = await searchParams;
 
   return (
     <main style={{ minHeight: '100dvh', display: 'grid', placeItems: 'center', padding: 20, background: 'var(--flaeche)' }}>
@@ -23,6 +25,14 @@ export default async function AnmeldenSeite() {
             </p>
           </div>
         </div>
+
+        {params.neu === '1' && (
+          <div style={{ marginBottom: 14 }}>
+            <Hinweis art="erfolg">
+              Das neue Passwort ist gespeichert. Bitte melden Sie sich damit an.
+            </Hinweis>
+          </div>
+        )}
 
         <div className="karte" style={{ padding: 20 }}>
           <AnmeldeFormular />

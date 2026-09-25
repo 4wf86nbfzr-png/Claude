@@ -113,6 +113,14 @@ async function main() {
   const dateien = await papierkorbLeeren(30);
   bericht.push(`${sitzungen} abgelaufene Sitzungen und ${dateien} Dateien im Papierkorb entfernt`);
 
+  // Kurzlebige Token: Dokumentzugriffe und Passwort-Zurücksetzungen.
+  // Sie sind nach Ablauf wertlos, gehören aber trotzdem weg – ein
+  // Vorrat abgelaufener Geheimnisse ist kein Vorrat, den man braucht.
+  const { tokenAufraeumen: dokumentToken } = await import('../src/lib/domain/dokumentzugriff');
+  const { tokenAufraeumen: passwortToken } = await import('../src/lib/auth/zuruecksetzen');
+  const entwertet = (await dokumentToken()) + (await passwortToken());
+  bericht.push(`${entwertet} abgelaufene oder verbrauchte Token entfernt`);
+
   console.log(`[${new Date().toISOString()}] Tägliche Aufgaben:`);
   for (const zeile of bericht) console.log(`  · ${zeile}`);
   await db.$disconnect();
