@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { Icon } from './icons';
+import { Logo } from './logo';
 import { THEME_COOKIE } from '@/lib/theme';
 
 /**
@@ -11,13 +12,15 @@ import { THEME_COOKIE } from '@/lib/theme';
  * Hell-/Dunkelmodus (Spec 64) und Abmeldung.
  */
 export function Kopfzeile({
-  ungelesen, theme, abmelden, faktorFehlt = false,
+  ungelesen, theme, abmelden, faktorFehlt = false, name, rolle,
 }: {
   ungelesen: number;
   theme: string;
   abmelden: () => Promise<void>;
   /** Punkt am Schloss, wenn ein privilegierter Zugang ohne zweiten Faktor läuft. */
   faktorFehlt?: boolean;
+  name: string;
+  rolle: string;
 }) {
   const router = useRouter();
   const [begriff, setBegriff] = useState('');
@@ -51,6 +54,14 @@ export function Kopfzeile({
 
   return (
     <header className="app-kopf">
+      <Link href="/" className="nav-marke" aria-label="Zur Startseite">
+        <Logo groesse={24} />
+        <div>
+          <strong>HST Planer</strong>
+          <span>Leitstelle</span>
+        </div>
+      </Link>
+
       <form
         role="search"
         onSubmit={(e) => { e.preventDefault(); if (begriff.trim()) router.push(`/suche?q=${encodeURIComponent(begriff.trim())}`); }}
@@ -74,6 +85,13 @@ export function Kopfzeile({
       </form>
 
       <div style={{ flex: 1 }} />
+
+      {/* Wer angemeldet ist, steht oben rechts – nicht am Fuß einer
+          Leiste, die es nicht mehr gibt. */}
+      <span className="kopf-konto nur-desktop" title={`${name} · ${rolle}`}>
+        <strong>{name}</strong>
+        <span>{rolle}</span>
+      </span>
 
       <Link href="/benachrichtigungen" className="knopf" aria-label={`Benachrichtigungen (${ungelesen} ungelesen)`}
             style={{ position: 'relative', width: 34, padding: 0, justifyContent: 'center' }}>

@@ -24,6 +24,9 @@ async function main() {
   const [email = 'dispo@hermserviceteam.com', ...pfade] = process.argv.slice(2);
   const browser = await starte();
   const kontext = await browser.newContext({ viewport: { width: 1440, height: 900 }, locale: 'de-DE', timezoneId: 'Europe/Berlin' });
+  if (process.env.BLICK_THEMA) {
+    await kontext.addCookies([{ name: 'hst_theme', value: process.env.BLICK_THEMA, url: BASIS }]);
+  }
   const antwort = await kontext.request.post(`${BASIS}/api/auth/login`, { data: { email, password: PASSWORT } });
   if (!antwort.ok()) throw new Error(`Anmeldung fehlgeschlagen: ${antwort.status()}`);
   const seite = await kontext.newPage();

@@ -544,7 +544,9 @@ werden für die Rolle nicht aus der Datenbank geladen (`personenAuswahl` in
 ihrer Stelle ein benanntes Schloss, damit ein leeres Feld nicht mit einem fehlenden
 Eintrag verwechselt wird.
 
-Die Navigation wird je Rolle gefiltert, und jede Datenbankabfrage mischt den
+Die Menüleiste oben führt die neun Bereiche waagerecht; wer Unterpunkte hat, klappt ein
+Blatt auf. Auf dem Smartphone wird daraus eine Schublade plus eine Fußleiste mit den vier
+Dingen, die unterwegs zählen. Die Navigation wird je Rolle gefiltert, und jede Datenbankabfrage mischt den
 Sichtbarkeitsfilter mit ein. Einsatz- und Teamleitung sehen dabei nicht den gesamten
 Mitarbeiterstamm, sondern nur die Kräfte ihrer eigenen Einsätze.
 

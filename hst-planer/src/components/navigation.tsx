@@ -2,21 +2,25 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Icon } from './icons';
-import { Logo } from './logo';
 import type { NavGruppe, NavItem } from '@/lib/auth/rbac';
 
 /**
- * Seitennavigation nach SecPlan 2 und 28.
+ * Menüleiste oben (SecPlan 2 und 28).
  *
- * Auf dem Desktop dauerhaft sichtbar und in neun Bereiche gegliedert;
- * die Gruppe des aktuellen Pfades ist aufgeklappt, die anderen sind zu.
- * Auf dem Smartphone wird daraus eine Schublade plus eine schmale
- * Fussleiste mit den vier Dingen, die unterwegs wirklich gebraucht werden.
+ * Neun Bereiche waagerecht; wer Unterpunkte hat, klappt ein Blatt auf.
+ * Die Leiste bleibt beim Scrollen stehen – in einer Disposition wird
+ * viel gescrollt, und der Weg in einen anderen Bereich soll nicht erst
+ * das Zurückscrollen kosten.
  *
- * Die Tastenkuerzel haengen hier, weil die Navigation auf jeder Seite
- * eingebunden ist.
+ * Bedienung: Klick öffnet, Klick daneben oder Esc schließt, Pfeiltasten
+ * laufen durch die Einträge. Bewusst kein Aufklappen beim bloßen
+ * Darüberfahren – auf dem Weg zur vierten Gruppe gingen sonst drei
+ * Blätter auf und wieder zu.
+ *
+ * Auf dem Smartphone wird aus derselben Struktur eine Schublade plus
+ * eine schmale Fußleiste mit den vier Dingen, die unterwegs zählen.
  */
 export function Navigation({
   gruppen, eigene, name, rolle,
@@ -28,9 +32,21 @@ export function Navigation({
 }) {
   const pfad = usePathname();
   const router = useRouter();
-  const [offen, setOffen] = useState(false);
 
-  /** Welche Gruppe gehoert zum aktuellen Pfad? */
+  /** Welches Blatt ist offen? (Die id der Gruppe, oder 'eigen'.) */
+  const [offenesBlatt, setOffenesBlatt] = useState<string | null>(null);
+  /** Schublade auf dem Smartphone. */
+  const [schublade, setSchublade] = useState(false);
+  const [ausgeklappt, setAusgeklappt] = useState<string[]>([]);
+
+  const leiste = useRef<HTMLElement>(null);
+
+  const istAktiv = useCallback(
+    (href: string) => pfad === href || pfad.startsWith(`${href}/`),
+    [pfad],
+  );
+
+  /** Welche Gruppe gehört zum aktuellen Pfad? Der längste Treffer gewinnt. */
   const aktiveGruppe = useMemo(() => {
     let treffer = '';
     let laenge = -1;
@@ -42,15 +58,28 @@ export function Navigation({
         }
       }
     }
+    if (eigene.some((i) => pfad === i.href || pfad.startsWith(`${i.href}/`))) return 'eigen';
     return treffer;
-  }, [gruppen, pfad]);
+  }, [gruppen, eigene, pfad]);
 
-  const [ausgeklappt, setAusgeklappt] = useState<string[]>([]);
+  // Seitenwechsel schließt alles.
   useEffect(() => {
-    setOffen(false);
+    setOffenesBlatt(null);
+    setSchublade(false);
     if (aktiveGruppe) setAusgeklappt((v) => (v.includes(aktiveGruppe) ? v : [...v, aktiveGruppe]));
   }, [pfad, aktiveGruppe]);
 
+  // Klick außerhalb der Leiste schließt das Blatt.
+  useEffect(() => {
+    if (!offenesBlatt) return;
+    function onKlick(event: MouseEvent) {
+      if (!leiste.current?.contains(event.target as Node)) setOffenesBlatt(null);
+    }
+    document.addEventListener('mousedown', onKlick);
+    return () => document.removeEventListener('mousedown', onKlick);
+  }, [offenesBlatt]);
+
+  // Tastenkürzel. Sie hängen hier, weil die Leiste auf jeder Seite steht.
   useEffect(() => {
     const erlaubt = new Set<string>();
     for (const gruppe of gruppen) {
@@ -64,8 +93,12 @@ export function Navigation({
     };
 
     function onKey(event: KeyboardEvent) {
-      if (event.key === 'Escape') { setOffen(false); return; }
-      // Kuerzel duerfen nie waehrend einer Eingabe ausloesen.
+      if (event.key === 'Escape') {
+        setOffenesBlatt(null);
+        setSchublade(false);
+        return;
+      }
+      // Kürzel dürfen nie während einer Eingabe auslösen.
       const aktiv = document.activeElement;
       if (aktiv instanceof HTMLElement && (aktiv.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(aktiv.tagName))) return;
       if (event.metaKey || event.ctrlKey || event.altKey) return;
@@ -82,27 +115,102 @@ export function Navigation({
     return () => window.removeEventListener('keydown', onKey);
   }, [gruppen, router]);
 
-  function istAktiv(href: string) {
-    return pfad === href || pfad.startsWith(`${href}/`);
+  /** Pfeiltasten innerhalb eines offenen Blattes. */
+  function onBlattTaste(event: React.KeyboardEvent<HTMLDivElement>) {
+    if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
+    const eintraege = Array.from(event.currentTarget.querySelectorAll<HTMLAnchorElement>('a'));
+    if (eintraege.length === 0) return;
+    event.preventDefault();
+    const jetzt = eintraege.indexOf(document.activeElement as HTMLAnchorElement);
+    const naechste = event.key === 'ArrowDown'
+      ? (jetzt + 1) % eintraege.length
+      : (jetzt <= 0 ? eintraege.length - 1 : jetzt - 1);
+    eintraege[naechste]?.focus();
+  }
+
+  function blattEintraege(items: NavItem[]) {
+    return items.map((item) => (
+      <Link key={item.href} href={item.href}
+            className="menue-eintrag"
+            data-aktiv={istAktiv(item.href) || undefined}
+            aria-current={istAktiv(item.href) ? 'page' : undefined}>
+        <span>{item.label}</span>
+        {item.shortcut && <kbd>{item.shortcut}</kbd>}
+      </Link>
+    ));
   }
 
   return (
     <>
-      <button type="button" className="knopf knopf-symbol nav-schalter nicht-drucken"
-              aria-label={offen ? 'Menü schließen' : 'Menü öffnen'} aria-expanded={offen}
-              onClick={() => setOffen((v) => !v)}>
-        <Icon name={offen ? 'close' : 'menu'} size={18} />
-      </button>
+      {/* ------------------------------------------------ Menüleiste ---- */}
+      <nav ref={leiste} className="app-menue nicht-drucken" aria-label="Hauptnavigation">
+        {gruppen.map((gruppe) => {
+          // Ein Bereich ohne Unterpunkte ist selbst der Link.
+          if (gruppe.items.length === 0) {
+            return (
+              <div className="menue-gruppe" key={gruppe.id}>
+                <Link href={gruppe.href} className="menue-knopf"
+                      data-aktiv={istAktiv(gruppe.href) || undefined}
+                      aria-current={istAktiv(gruppe.href) ? 'page' : undefined}>
+                  <Icon name={gruppe.icon} size={14} />
+                  <span>{gruppe.label}</span>
+                </Link>
+              </div>
+            );
+          }
 
-      {offen && <div className="nav-schleier nicht-drucken" onClick={() => setOffen(false)} />}
+          const offen = offenesBlatt === gruppe.id;
+          return (
+            <div className="menue-gruppe" key={gruppe.id}>
+              <button type="button" className="menue-knopf"
+                      data-aktiv={gruppe.id === aktiveGruppe || undefined}
+                      aria-expanded={offen} aria-haspopup="true"
+                      onClick={() => setOffenesBlatt(offen ? null : gruppe.id)}
+                      onKeyDown={(e) => { if (e.key === 'ArrowDown') { e.preventDefault(); setOffenesBlatt(gruppe.id); } }}>
+                <Icon name={gruppe.icon} size={14} />
+                <span>{gruppe.label}</span>
+                <Icon name="chevron-down" size={11} />
+              </button>
+              {offen && (
+                <div className="menue-blatt" onKeyDown={onBlattTaste}>
+                  {blattEintraege(gruppe.items)}
+                </div>
+              )}
+            </div>
+          );
+        })}
 
-      <nav aria-label="Hauptnavigation" data-offen={offen || undefined} className="app-nav nicht-drucken">
-        <div className="nav-marke">
-          <Logo groesse={24} />
-          <div>
-            <strong>HST Planer</strong>
-            <span>Leitstelle</span>
+        {/* Der eigene Bereich steht rechts – er gehört zur Person. */}
+        {eigene.length > 0 && (
+          <div className="menue-gruppe menue-eigen">
+            <button type="button" className="menue-knopf"
+                    data-aktiv={aktiveGruppe === 'eigen' || undefined}
+                    aria-expanded={offenesBlatt === 'eigen'} aria-haspopup="true"
+                    onClick={() => setOffenesBlatt(offenesBlatt === 'eigen' ? null : 'eigen')}
+                    onKeyDown={(e) => { if (e.key === 'ArrowDown') { e.preventDefault(); setOffenesBlatt('eigen'); } }}>
+              <Icon name="users" size={14} />
+              <span>Mein Bereich</span>
+              <Icon name="chevron-down" size={11} />
+            </button>
+            {offenesBlatt === 'eigen' && (
+              <div className="menue-blatt" onKeyDown={onBlattTaste}>
+                <span style={{ padding: '6px 10px 4px', fontSize: 10, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--text-3)' }}>
+                  {name} · {rolle}
+                </span>
+                {blattEintraege(eigene)}
+              </div>
+            )}
           </div>
+        )}
+      </nav>
+
+      {/* ------------------------------------- Schublade (Smartphone) --- */}
+      {schublade && <div className="nav-schleier nicht-drucken" onClick={() => setSchublade(false)} />}
+
+      <nav aria-label="Bereiche" data-offen={schublade || undefined} className="app-nav nicht-drucken">
+        <div className="nav-fuss" style={{ borderTop: 0, borderBottom: '1px solid rgba(255,255,255,.07)' }}>
+          <strong>{name}</strong>
+          <span>{rolle}</span>
         </div>
 
         <div className="nav-liste">
@@ -113,14 +221,13 @@ export function Navigation({
                 <Link key={item.href} href={item.href}
                       className="nav-unter" data-aktiv={istAktiv(item.href) || undefined}
                       aria-current={istAktiv(item.href) ? 'page' : undefined}>
-                  {item.label}
+                  <span>{item.label}</span>
                 </Link>
               ))}
             </div>
           )}
 
           {gruppen.map((gruppe) => {
-            // Gruppen ohne Unterpunkte (Dashboard) sind selbst der Link.
             if (gruppe.items.length === 0) {
               return (
                 <div className="nav-gruppe" key={gruppe.id}>
@@ -157,14 +264,9 @@ export function Navigation({
             );
           })}
         </div>
-
-        <div className="nav-fuss">
-          <strong>{name}</strong>
-          <span>{rolle}</span>
-        </div>
       </nav>
 
-      {/* Fussleiste nur auf dem Smartphone – vier Ziele, keine geschrumpfte Sidebar. */}
+      {/* Fußleiste nur auf dem Smartphone – vier Ziele, keine geschrumpfte Leiste. */}
       <nav className="fussnav nicht-drucken" aria-label="Schnellzugriff">
         {[
           { href: eigene[0]?.href ?? gruppen[0]?.href ?? '/dashboard', label: 'Einsätze', icon: 'calendar' },
@@ -178,6 +280,17 @@ export function Navigation({
           </Link>
         ))}
       </nav>
+
+      {/*
+        Der Schalter für die Schublade. Er liegt über der Kopfzeile statt
+        in ihr – so muss die Kopfzeile nichts über den Zustand der
+        Navigation wissen, und auf dem Desktop ist er schlicht nicht da.
+      */}
+      <button type="button" className="knopf knopf-symbol nav-schalter nicht-drucken"
+              aria-label={schublade ? 'Menü schließen' : 'Menü öffnen'} aria-expanded={schublade}
+              onClick={() => setSchublade((v) => !v)}>
+        <Icon name={schublade ? 'close' : 'menu'} size={18} />
+      </button>
     </>
   );
 }

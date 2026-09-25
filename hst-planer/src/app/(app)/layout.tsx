@@ -25,8 +25,22 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const faktorFehlt = !konto?.totpEnabled
     && (can(user.role, 'employees.file') || can(user.role, 'admin.users') || user.role === 'SUPERADMIN');
 
+  /*
+    Aufbau: oben die Kopfzeile mit Marke, Suche und Konto, darunter die
+    Menüleiste mit den neun Bereichen, darunter der Inhalt. Die
+    Navigation liefert beides – die Leiste und, auf dem Smartphone, die
+    Schublade dahinter.
+  */
   return (
     <div className="app">
+      <Kopfzeile
+        ungelesen={ungelesen}
+        theme={user.theme}
+        abmelden={abmelden}
+        faktorFehlt={faktorFehlt}
+        name={user.name}
+        rolle={ROLE_LABEL[user.role]}
+      />
       <Navigation
         gruppen={navFor(user.role)}
         eigene={eigeneNavFor(user.role, Boolean(user.employeeId))}
@@ -34,7 +48,6 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         rolle={ROLE_LABEL[user.role]}
       />
       <div className="app-inhalt">
-        <Kopfzeile ungelesen={ungelesen} theme={user.theme} abmelden={abmelden} faktorFehlt={faktorFehlt} />
         <main className="app-haupt">{children}</main>
       </div>
     </div>
