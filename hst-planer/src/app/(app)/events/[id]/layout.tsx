@@ -33,7 +33,7 @@ export default async function EventLayout({ children, params }: { children: Reac
   return (
     <>
       <header style={{ marginBottom: 14 }}>
-        <nav aria-label="Brotkrumen" style={{ display: 'flex', gap: 6, fontSize: 12, color: 'var(--text-gedaempft)', marginBottom: 4 }}>
+        <nav aria-label="Brotkrumen" style={{ display: 'flex', gap: 6, fontSize: 12, color: 'var(--text-3)', marginBottom: 4 }}>
           <Link href="/events" style={{ color: 'inherit' }}>Events</Link>
           <span aria-hidden>/</span>
           <span className="zahl">{event.reference}</span>
@@ -42,7 +42,7 @@ export default async function EventLayout({ children, params }: { children: Reac
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 14, flexWrap: 'wrap' }}>
           <div style={{ minWidth: 0 }}>
             <h1 style={{ fontSize: 20, fontWeight: 650, letterSpacing: '-.01em', margin: 0 }}>{event.name}</h1>
-            <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', fontSize: 13, color: 'var(--text-sekundaer)', marginTop: 5 }}>
+            <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', fontSize: 13, color: 'var(--text-2)', marginTop: 5 }}>
               {event.customer && <Link href={`/kunden/${event.customer.id}`} style={{ color: 'inherit' }}>{event.customer.name}</Link>}
               <span className="zahl">{weekdayDE(event.date)}, {formatDateDE(event.date)} · {event.startTime ?? '–'}–{event.endTime ?? '–'}</span>
               {(event.venue || event.city) && <span>{[event.venue, event.city].filter(Boolean).join(', ')}</span>}

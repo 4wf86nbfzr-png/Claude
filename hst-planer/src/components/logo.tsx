@@ -10,7 +10,7 @@ export function Logo({ groesse = 28 }: { groesse?: number }) {
       style={{
         display: 'grid', placeItems: 'center', flex: 'none',
         width: groesse, height: groesse, borderRadius: groesse * 0.22,
-        background: 'var(--akzent)', color: 'var(--akzent-kontrast)',
+        background: 'var(--blau)', color: 'var(--text-invers)',
         fontWeight: 700, fontSize: groesse * 0.4, letterSpacing: '-.02em',
       }}
     >

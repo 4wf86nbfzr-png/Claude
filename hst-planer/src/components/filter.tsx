@@ -49,7 +49,7 @@ export function Filterleiste({
   return (
     <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center', padding: '10px 14px', borderBottom: '1px solid var(--linie)' }}>
       <div style={{ position: 'relative', flex: '1 1 220px', minWidth: 180 }}>
-        <span style={{ position: 'absolute', left: 9, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-gedaempft)', pointerEvents: 'none' }}>
+        <span style={{ position: 'absolute', left: 9, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-3)', pointerEvents: 'none' }}>
           <Icon name="search" size={14} />
         </span>
         <input className="feld" type="search" value={begriff} onChange={(e) => setBegriff(e.target.value)}

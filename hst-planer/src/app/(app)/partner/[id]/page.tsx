@@ -47,8 +47,8 @@ export default async function PartnerDetail({ params }: { params: Promise<{ id: 
                   {partner.employees.map((person) => (
                     <tr key={person.id}>
                       <td><Link href={`/mitarbeiter/${person.id}`}>{person.lastName}, {person.firstName}</Link></td>
-                      <td className="zahl" style={{ fontSize: 12, color: 'var(--text-gedaempft)' }}>{person.personnelNo}</td>
-                      <td style={{ fontSize: 12, color: 'var(--text-sekundaer)' }}>{EMPLOYMENT_TYPE[person.employmentType] ?? person.employmentType}</td>
+                      <td className="zahl" style={{ fontSize: 12, color: 'var(--text-3)' }}>{person.personnelNo}</td>
+                      <td style={{ fontSize: 12, color: 'var(--text-2)' }}>{EMPLOYMENT_TYPE[person.employmentType] ?? person.employmentType}</td>
                       <td style={{ fontSize: 12 }}>{person.mobile ?? '–'}</td>
                     </tr>
                   ))}
@@ -66,7 +66,7 @@ export default async function PartnerDetail({ params }: { params: Promise<{ id: 
                     <tr key={a.id}>
                       <td className="zahl">{formatDateDE(a.event.date)}</td>
                       <td><Link href={`/events/${a.event.id}`}>{a.event.name}</Link></td>
-                      <td style={{ color: 'var(--text-sekundaer)' }}>{a.employee.firstName} {a.employee.lastName}</td>
+                      <td style={{ color: 'var(--text-2)' }}>{a.employee.firstName} {a.employee.lastName}</td>
                     </tr>
                   ))}
                 </tbody>

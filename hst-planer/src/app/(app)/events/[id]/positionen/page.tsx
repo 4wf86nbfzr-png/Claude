@@ -136,7 +136,7 @@ function PositionFormular({
         </label>
       </Raster>
 
-      <fieldset style={{ border: '1px solid var(--linie)', borderRadius: 'var(--radius-s)', padding: '10px 12px' }}>
+      <fieldset style={{ border: '1px solid var(--linie)', borderRadius: 'var(--r)', padding: '10px 12px' }}>
         <legend className="feld-label" style={{ padding: '0 5px' }}>Anforderungen</legend>
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
           {qualifikationen.map((q) => (

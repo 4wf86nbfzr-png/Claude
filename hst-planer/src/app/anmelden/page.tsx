@@ -18,7 +18,7 @@ export default async function AnmeldenSeite() {
           <Logo groesse={40} />
           <div style={{ textAlign: 'center' }}>
             <h1 style={{ fontSize: 22, fontWeight: 650, letterSpacing: '-.01em', margin: 0 }}>HST Planer</h1>
-            <p style={{ fontSize: 12, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--text-gedaempft)', margin: '4px 0 0' }}>
+            <p style={{ fontSize: 12, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--text-3)', margin: '4px 0 0' }}>
               Disposition &amp; Einsatzsteuerung
             </p>
           </div>
@@ -28,7 +28,7 @@ export default async function AnmeldenSeite() {
           <AnmeldeFormular />
         </div>
 
-        <p style={{ fontSize: 12, color: 'var(--text-gedaempft)', textAlign: 'center', marginTop: 16 }}>
+        <p style={{ fontSize: 12, color: 'var(--text-3)', textAlign: 'center', marginTop: 16 }}>
           HERM Service Team e.K. · Zugang nur für berechtigte Personen
         </p>
       </div>

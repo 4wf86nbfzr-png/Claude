@@ -101,7 +101,7 @@ export default async function AnfrageDetail({ params }: { params: Promise<{ id: 
                   <Paar label="Betreff">{anfrage.emailMessage.subject ?? '–'}</Paar>
                   <Paar label="Eingegangen">{formatDateDE(anfrage.emailMessage.receivedAt)}</Paar>
                 </Raster>
-                <pre style={{ margin: 0, whiteSpace: 'pre-wrap', fontFamily: 'inherit', fontSize: 13, background: 'var(--flaeche-tief)', padding: 12, borderRadius: 'var(--radius-s)', maxHeight: 320, overflow: 'auto' }}>
+                <pre style={{ margin: 0, whiteSpace: 'pre-wrap', fontFamily: 'inherit', fontSize: 13, background: 'var(--tief)', padding: 12, borderRadius: 'var(--r)', maxHeight: 320, overflow: 'auto' }}>
                   {anfrage.emailMessage.textBody ?? '(kein Textteil)'}
                 </pre>
               </div>

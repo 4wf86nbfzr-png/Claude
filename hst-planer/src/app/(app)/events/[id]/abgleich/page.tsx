@@ -51,8 +51,8 @@ export default async function EventAbgleich({ params }: { params: Promise<{ id: 
           <Karte key={abgleich.id}
                  titel={<span style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
                    <Link href={`/abgleiche/${abgleich.id}`} style={{ fontWeight: 600 }}>{abgleich.name}</Link>
-                   <span className="zahl" style={{ fontSize: 12, color: 'var(--text-gedaempft)' }}>{abgleich.reference}</span>
-                   <span style={{ fontSize: 12, color: 'var(--text-sekundaer)' }}>{formatDateDE(abgleich.createdAt)}</span>
+                   <span className="zahl" style={{ fontSize: 12, color: 'var(--text-3)' }}>{abgleich.reference}</span>
+                   <span style={{ fontSize: 12, color: 'var(--text-2)' }}>{formatDateDE(abgleich.createdAt)}</span>
                  </span>}>
             <div className="tabelle-scroll">
               <table className="tabelle">
@@ -63,11 +63,11 @@ export default async function EventAbgleich({ params }: { params: Promise<{ id: 
                       <td>{zeile.rawName ?? '–'}</td>
                       <td className="zahl">
                         {zeile.plannedStart ? `${zeile.plannedStart}–${zeile.plannedEnd ?? '?'}` : '–'}
-                        {zeile.plannedMinutes != null && <span style={{ display: 'block', fontSize: 11, color: 'var(--text-gedaempft)' }}>{formatHours(zeile.plannedMinutes)}</span>}
+                        {zeile.plannedMinutes != null && <span style={{ display: 'block', fontSize: 11, color: 'var(--text-3)' }}>{formatHours(zeile.plannedMinutes)}</span>}
                       </td>
                       <td className="zahl">
                         {zeile.actualStart ? `${zeile.actualStart}–${zeile.actualEnd ?? '?'}` : '–'}
-                        {zeile.actualMinutes != null && <span style={{ display: 'block', fontSize: 11, color: 'var(--text-gedaempft)' }}>{formatHours(zeile.actualMinutes)}</span>}
+                        {zeile.actualMinutes != null && <span style={{ display: 'block', fontSize: 11, color: 'var(--text-3)' }}>{formatHours(zeile.actualMinutes)}</span>}
                       </td>
                       <td className="zahl">{formatDiff(zeile.diffMinutes)}</td>
                       <td style={{ fontSize: 11 }}>

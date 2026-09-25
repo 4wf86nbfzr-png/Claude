@@ -62,12 +62,12 @@ export async function benutzerAendernAktion(_zustand: Ergebnis, formData: FormDa
     const rolle = String(formData.get('rolle') ?? konto.role) as $Enums.Role;
     const aktiv = formData.get('aktiv') === 'on';
 
-    if (konto.id === user.id && (!aktiv || rolle !== 'ADMIN') && konto.role === 'ADMIN') {
+    if (konto.id === user.id && (!aktiv || rolle !== 'SUPERADMIN') && konto.role === 'SUPERADMIN') {
       throw new ValidationError('Sie können sich nicht selbst die Administrationsrechte entziehen.');
     }
     if (!aktiv) {
-      const verbleibendeAdmins = await db.user.count({ where: { role: 'ADMIN', active: true, deletedAt: null, id: { not: id } } });
-      if (konto.role === 'ADMIN' && verbleibendeAdmins === 0) {
+      const verbleibendeAdmins = await db.user.count({ where: { role: 'SUPERADMIN', active: true, deletedAt: null, id: { not: id } } });
+      if (konto.role === 'SUPERADMIN' && verbleibendeAdmins === 0) {
         throw new ValidationError('Es muss mindestens ein aktiver Administrationszugang bestehen bleiben.');
       }
     }

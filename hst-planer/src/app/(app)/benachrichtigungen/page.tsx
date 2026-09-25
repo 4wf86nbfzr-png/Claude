@@ -46,15 +46,15 @@ export default async function Benachrichtigungen() {
                   style={{
                     display: 'flex', gap: 12, alignItems: 'flex-start', justifyContent: 'space-between',
                     padding: '12px 14px', borderBottom: '1px solid var(--linie)',
-                    background: eintrag.readAt ? undefined : 'var(--flaeche-hover)',
+                    background: eintrag.readAt ? undefined : 'var(--hover)',
                   }}>
                 <div style={{ minWidth: 0 }}>
                   <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
                     <span className={`marke marke-${FARBE[eintrag.kind] ?? 'grau'}`}>{eintrag.kind.replaceAll('_', ' ').toLowerCase()}</span>
                     <strong style={{ fontSize: 13, fontWeight: eintrag.readAt ? 500 : 650 }}>{eintrag.title}</strong>
-                    <span className="zahl" style={{ fontSize: 11, color: 'var(--text-gedaempft)' }}>{formatDateDE(eintrag.createdAt)}</span>
+                    <span className="zahl" style={{ fontSize: 11, color: 'var(--text-3)' }}>{formatDateDE(eintrag.createdAt)}</span>
                   </div>
-                  {eintrag.body && <p style={{ fontSize: 12, color: 'var(--text-sekundaer)', margin: '4px 0 0' }}>{eintrag.body}</p>}
+                  {eintrag.body && <p style={{ fontSize: 12, color: 'var(--text-2)', margin: '4px 0 0' }}>{eintrag.body}</p>}
                   {eintrag.link && <Link href={eintrag.link} style={{ fontSize: 12 }}>Öffnen</Link>}
                 </div>
                 {!eintrag.readAt && (

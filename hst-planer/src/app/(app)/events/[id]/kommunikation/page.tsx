@@ -39,10 +39,10 @@ export default async function EventKommunikation({ params }: { params: Promise<{
                     {nachricht.error ? 'Fehler' : nachricht.sentAt ? 'zugestellt' : 'offen'}
                   </span>
                   <strong style={{ fontSize: 13 }}>{nachricht.subject ?? '(ohne Betreff)'}</strong>
-                  <span className="zahl" style={{ fontSize: 11, color: 'var(--text-gedaempft)' }}>{formatDateDE(nachricht.createdAt)}</span>
+                  <span className="zahl" style={{ fontSize: 11, color: 'var(--text-3)' }}>{formatDateDE(nachricht.createdAt)}</span>
                 </div>
-                <div style={{ fontSize: 12, color: 'var(--text-sekundaer)' }}>an {nachricht.toAddress ?? 'intern'}</div>
-                <p style={{ fontSize: 12, margin: '4px 0 0', whiteSpace: 'pre-wrap', color: 'var(--text-gedaempft)' }}>{nachricht.body}</p>
+                <div style={{ fontSize: 12, color: 'var(--text-2)' }}>an {nachricht.toAddress ?? 'intern'}</div>
+                <p style={{ fontSize: 12, margin: '4px 0 0', whiteSpace: 'pre-wrap', color: 'var(--text-3)' }}>{nachricht.body}</p>
               </li>
             ))}
           </ul>

@@ -23,12 +23,12 @@ export default async function NeuerAbgleich() {
 
         <Karte titel="Gespeicherte Vorlagen">
           <div style={{ padding: 14, display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <p style={{ fontSize: 13, color: 'var(--text-sekundaer)', margin: 0 }}>
+            <p style={{ fontSize: 13, color: 'var(--text-2)', margin: 0 }}>
               Im nächsten Schritt können Sie eine dieser Vorlagen anwenden – dann stimmt die
               Spaltenzuordnung sofort.
             </p>
             <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13 }}>
-              {vorlagen.length === 0 && <li style={{ color: 'var(--text-gedaempft)', listStyle: 'none', marginLeft: -18 }}>Noch keine Vorlage gespeichert.</li>}
+              {vorlagen.length === 0 && <li style={{ color: 'var(--text-3)', listStyle: 'none', marginLeft: -18 }}>Noch keine Vorlage gespeichert.</li>}
               {vorlagen.map((vorlage) => <li key={vorlage.id}>{vorlage.name}</li>)}
             </ul>
           </div>

@@ -52,14 +52,14 @@ export default async function Auswertungen({ searchParams }: { searchParams: Pro
               {verlauf.map((monatswert) => (
                 <div key={monatswert.monat} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}
                      title={`${monatswert.monat}: ${monatswert.events} Events, ${monatswert.stunden} Stunden, ${monatswert.offen} offen`}>
-                  <span className="zahl" style={{ fontSize: 10, color: 'var(--text-gedaempft)' }}>{monatswert.events}</span>
+                  <span className="zahl" style={{ fontSize: 10, color: 'var(--text-3)' }}>{monatswert.events}</span>
                   <span style={{
                     width: '100%',
                     height: `${Math.max(2, (monatswert.events / hoechstwert) * 110)}px`,
-                    background: monatswert.offen > 0 ? 'var(--gelb)' : 'var(--akzent)',
+                    background: monatswert.offen > 0 ? 'var(--gelb)' : 'var(--blau)',
                     borderRadius: '3px 3px 0 0',
                   }} />
-                  <span className="zahl" style={{ fontSize: 9, color: 'var(--text-gedaempft)', transform: 'rotate(-45deg)', transformOrigin: 'center', whiteSpace: 'nowrap' }}>
+                  <span className="zahl" style={{ fontSize: 9, color: 'var(--text-3)', transform: 'rotate(-45deg)', transformOrigin: 'center', whiteSpace: 'nowrap' }}>
                     {monatswert.monat}
                   </span>
                 </div>

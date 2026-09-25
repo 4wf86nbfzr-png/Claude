@@ -47,7 +47,7 @@ export default async function Admin() {
   return (
     <>
       <Seitenkopf titel="Administration" unter="Benutzer, Schnittstellen und Protokoll"
-                  aktionen={can(user.role, 'admin.audit') && <Link href="/admin/protokoll" className="knopf">Protokoll ansehen</Link>} />
+                  aktionen={can(user.role, 'audit.view') && <Link href="/admin/protokoll" className="knopf">Protokoll ansehen</Link>} />
 
       <Raster min={150}>
         <Kennzahl wert={benutzer.filter((b) => b.active).length} label="Aktive Zugänge" />
@@ -69,7 +69,7 @@ export default async function Admin() {
                   <tr key={konto.id} className={konto.active ? undefined : 'zeile-grau'}>
                     <td>
                       {konto.name}
-                      {konto.employee && <span style={{ display: 'block', fontSize: 11, color: 'var(--text-gedaempft)' }}>Mitarbeiterprofil verknüpft</span>}
+                      {konto.employee && <span style={{ display: 'block', fontSize: 11, color: 'var(--text-3)' }}>Mitarbeiterprofil verknüpft</span>}
                     </td>
                     <td style={{ fontSize: 12 }}>{konto.email}</td>
                     <td>{ROLE_LABEL[konto.role as Role]}</td>
@@ -78,7 +78,7 @@ export default async function Admin() {
                       {konto.mustChangePassword && <span className="marke marke-gelb" style={{ marginLeft: 5 }}>Passwortwechsel</span>}
                       {konto.lockedUntil && konto.lockedUntil > new Date() && <span className="marke marke-rot" style={{ marginLeft: 5 }}>gesperrt bis {formatDateDE(konto.lockedUntil)}</span>}
                     </td>
-                    <td className="zahl" style={{ fontSize: 12, color: 'var(--text-sekundaer)' }}>{konto.lastLoginAt ? formatDateDE(konto.lastLoginAt) : 'nie'}</td>
+                    <td className="zahl" style={{ fontSize: 12, color: 'var(--text-2)' }}>{konto.lastLoginAt ? formatDateDE(konto.lastLoginAt) : 'nie'}</td>
                     {darfBenutzer && (
                       <td>
                         <Ausklapp titel="Bearbeiten" knopfKlasse="knopf knopf-klein">
@@ -147,7 +147,7 @@ export default async function Admin() {
                       <tr key={key.id} className={key.active ? undefined : 'zeile-grau'}>
                         <td>{key.name}</td>
                         <td className="zahl" style={{ fontSize: 12 }}>hst_{key.prefix}_…</td>
-                        <td style={{ fontSize: 12, color: 'var(--text-sekundaer)' }}>{key.scopes.join(', ') || 'alle'}</td>
+                        <td style={{ fontSize: 12, color: 'var(--text-2)' }}>{key.scopes.join(', ') || 'alle'}</td>
                         <td className="zahl" style={{ fontSize: 12 }}>{key.lastUsedAt ? formatDateDE(key.lastUsedAt) : 'nie'}</td>
                         <td>{key.active ? <span className="marke marke-gruen">aktiv</span> : <span className="marke marke-grau">gesperrt</span>}</td>
                         <td>
@@ -186,7 +186,7 @@ export default async function Admin() {
                       <tr key={hook.id}>
                         <td>{hook.name}</td>
                         <td style={{ fontSize: 12, wordBreak: 'break-all' }}>{hook.url}</td>
-                        <td style={{ fontSize: 11, color: 'var(--text-sekundaer)' }}>{hook.events.join(', ')}</td>
+                        <td style={{ fontSize: 11, color: 'var(--text-2)' }}>{hook.events.join(', ')}</td>
                         <td>
                           <AktionsFormular aktion={webhookEntfernenAktion} meldungOben={false}>
                             <input type="hidden" name="id" value={hook.id} />

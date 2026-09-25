@@ -41,7 +41,7 @@ export default async function Einsatzplan({ params }: { params: Promise<{ id: st
       <Drucken />
 
       <div className="druck-block" style={{ marginBottom: 18 }}>
-        <p style={{ fontSize: 11, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--text-gedaempft)', margin: 0 }}>
+        <p style={{ fontSize: 11, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--text-3)', margin: 0 }}>
           HERM Service Team · Einsatzplan
         </p>
         <h1 style={{ fontSize: 22, fontWeight: 650, margin: '4px 0 6px' }}>{event.name}</h1>
@@ -75,12 +75,12 @@ export default async function Einsatzplan({ params }: { params: Promise<{ id: st
             <thead><tr><th>Nr.</th><th>Mitarbeiter</th><th>Funktion</th><th>Telefon</th><th>Von</th><th>Bis</th><th>Bemerkung</th></tr></thead>
             <tbody>
               {position.assignments.length === 0 ? (
-                <tr><td colSpan={7} style={{ color: 'var(--text-gedaempft)' }}>Nicht besetzt</td></tr>
+                <tr><td colSpan={7} style={{ color: 'var(--text-3)' }}>Nicht besetzt</td></tr>
               ) : position.assignments.map((a, index) => (
                 <tr key={a.id}>
                   <td className="zahl">{index + 1}</td>
                   <td>{a.employee.lastName}, {a.employee.firstName}
-                    <span style={{ display: 'block', fontSize: 10, color: 'var(--text-gedaempft)' }}>{a.employee.personnelNo}</span>
+                    <span style={{ display: 'block', fontSize: 10, color: 'var(--text-3)' }}>{a.employee.personnelNo}</span>
                   </td>
                   <td>{a.isReserve ? 'Ersatz' : a.roleInTeam === 'MITARBEITER' ? '–' : a.roleInTeam.toLowerCase()}</td>
                   <td className="zahl">{a.employee.mobile ?? '–'}</td>
@@ -101,7 +101,7 @@ export default async function Einsatzplan({ params }: { params: Promise<{ id: st
         </div>
       )}
 
-      <p style={{ fontSize: 11, color: 'var(--text-gedaempft)', marginTop: 16 }}>
+      <p style={{ fontSize: 11, color: 'var(--text-3)', marginTop: 16 }}>
         Stand: {new Date().toLocaleString('de-DE', { timeZone: 'Europe/Berlin' })} · Interne Notizen sind in diesem Plan bewusst nicht enthalten.
       </p>
     </div>

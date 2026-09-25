@@ -111,7 +111,7 @@ export function MitarbeiterFormular({
             </Feld>
           </Raster>
 
-          <fieldset style={{ border: '1px solid var(--linie)', borderRadius: 'var(--radius-s)', padding: '10px 12px' }}>
+          <fieldset style={{ border: '1px solid var(--linie)', borderRadius: 'var(--r)', padding: '10px 12px' }}>
             <legend className="feld-label" style={{ padding: '0 5px' }}>Bevorzugte Einsatzbereiche</legend>
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
               {bereiche.map((b) => (
@@ -149,12 +149,12 @@ export function MitarbeiterFormular({
                   <input type="checkbox" name="qualifikationen" value={q.id} defaultChecked={Boolean(vorhanden)} />
                   {q.name}
                 </label>
-                <label style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 12, color: 'var(--text-sekundaer)' }}>
+                <label style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 12, color: 'var(--text-2)' }}>
                   erworben
                   <input type="date" name={`erworben_${q.id}`} className="feld" style={{ width: 'auto' }} defaultValue={vorhanden?.acquiredAt ?? ''} />
                 </label>
                 {q.expires && (
-                  <label style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 12, color: 'var(--text-sekundaer)' }}>
+                  <label style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 12, color: 'var(--text-2)' }}>
                     gültig bis
                     <input type="date" name={`ablauf_${q.id}`} className="feld" style={{ width: 'auto' }} defaultValue={vorhanden?.expiresAt ?? ''} />
                   </label>

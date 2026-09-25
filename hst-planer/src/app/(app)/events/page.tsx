@@ -98,15 +98,15 @@ export default async function EventListe({ searchParams }: { searchParams: Promi
                   return (
                     <tr key={event.id} className={b.offen > 0 ? 'zeile-gelb' : undefined}>
                       <td className="zahl" style={{ whiteSpace: 'nowrap' }}>{formatDateDE(event.date)}</td>
-                      <td className="zahl" style={{ color: 'var(--text-gedaempft)', fontSize: 12 }}>{event.reference}</td>
+                      <td className="zahl" style={{ color: 'var(--text-3)', fontSize: 12 }}>{event.reference}</td>
                       <td>
                         <Link href={`/events/${event.id}`} style={{ fontWeight: 500 }}>{event.name}</Link>
                         {event.serviceType && (
-                          <span style={{ display: 'block', fontSize: 11, color: 'var(--text-gedaempft)' }}>{event.serviceType.name}</span>
+                          <span style={{ display: 'block', fontSize: 11, color: 'var(--text-3)' }}>{event.serviceType.name}</span>
                         )}
                       </td>
-                      <td style={{ color: 'var(--text-sekundaer)' }}>{event.customer?.name ?? '–'}</td>
-                      <td style={{ color: 'var(--text-sekundaer)' }}>{event.venue ?? event.city ?? '–'}</td>
+                      <td style={{ color: 'var(--text-2)' }}>{event.customer?.name ?? '–'}</td>
+                      <td style={{ color: 'var(--text-2)' }}>{event.venue ?? event.city ?? '–'}</td>
                       <td className="zahl" style={{ whiteSpace: 'nowrap' }}>{event.startTime ?? '–'}–{event.endTime ?? '–'}</td>
                       <td><Balken ist={b.ist} soll={b.soll} /></td>
                       <td><StatusMarke status={label(EVENT_STATUS, event.status)} /></td>

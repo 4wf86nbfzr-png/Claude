@@ -76,7 +76,7 @@ export default async function KundeDetail({ params }: { params: Promise<{ id: st
                   {kunde.contacts.map((kontakt) => (
                     <tr key={kontakt.id}>
                       <td>{kontakt.name}{kontakt.primary && <span className="marke marke-blau" style={{ marginLeft: 6 }}>Hauptkontakt</span>}</td>
-                      <td style={{ color: 'var(--text-sekundaer)' }}>{kontakt.role ?? '–'}</td>
+                      <td style={{ color: 'var(--text-2)' }}>{kontakt.role ?? '–'}</td>
                       <td style={{ fontSize: 12 }}>{kontakt.email ? <a href={`mailto:${kontakt.email}`}>{kontakt.email}</a> : '–'}</td>
                       <td style={{ fontSize: 12 }}>{kontakt.phone ?? '–'}</td>
                     </tr>
@@ -122,7 +122,7 @@ export default async function KundeDetail({ params }: { params: Promise<{ id: st
                 {kunde.locations.map((ort) => (
                   <li key={ort.id} style={{ padding: '9px 14px', borderBottom: '1px solid var(--linie)', fontSize: 13 }}>
                     <strong>{ort.name}</strong>
-                    <span style={{ display: 'block', color: 'var(--text-sekundaer)', fontSize: 12 }}>
+                    <span style={{ display: 'block', color: 'var(--text-2)', fontSize: 12 }}>
                       {[ort.street, [ort.zip, ort.city].filter(Boolean).join(' ')].filter(Boolean).join(', ')}
                     </span>
                   </li>

@@ -41,7 +41,7 @@ export async function notifyRoles(roles: readonly Role[], input: NotifyInput): P
   return notifyUsers(users.map((u) => u.id), input);
 }
 
-export const DISPO_ROLES: Role[] = ['ADMIN', 'DISPOSITION', 'GESCHAEFTSFUEHRUNG'];
+export const DISPO_ROLES: Role[] = ['SUPERADMIN', 'DISPOSITION', 'GESCHAEFTSFUEHRUNG'];
 
 /** Benachrichtigung an die Disposition plus passender Webhook. */
 export async function notifyDispo(input: NotifyInput & { webhookEvent?: string; webhookPayload?: unknown }): Promise<void> {

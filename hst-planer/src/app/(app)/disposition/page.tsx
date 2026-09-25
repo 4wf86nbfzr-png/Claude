@@ -136,7 +136,7 @@ export default async function Disposition({ searchParams }: { searchParams: Prom
 
         {[...nachTag.entries()].map(([tag, tagesEvents]) => (
           <section key={tag}>
-            <h2 style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--text-gedaempft)', margin: '0 0 8px' }}>
+            <h2 style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--text-3)', margin: '0 0 8px' }}>
               {weekdayDE(new Date(`${tag}T00:00:00Z`))}, {formatDateDE(new Date(`${tag}T00:00:00Z`))}
             </h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -147,7 +147,7 @@ export default async function Disposition({ searchParams }: { searchParams: Prom
                          titel={
                            <span style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
                              <Link href={`/events/${event.id}`} style={{ fontWeight: 600 }}>{event.name}</Link>
-                             <span style={{ fontWeight: 400, fontSize: 12, color: 'var(--text-sekundaer)' }}>
+                             <span style={{ fontWeight: 400, fontSize: 12, color: 'var(--text-2)' }}>
                                {event.startTime ?? '–'}–{event.endTime ?? '–'}
                                {event.venue ? ` · ${event.venue}` : ''}
                                {event.customer ? ` · ${event.customer.name}` : ''}
@@ -189,7 +189,7 @@ export default async function Disposition({ searchParams }: { searchParams: Prom
                                   </td>
                                   <td style={{ fontSize: 12 }}>
                                     <span style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
-                                      {position.assignments.length === 0 && <span style={{ color: 'var(--text-gedaempft)' }}>–</span>}
+                                      {position.assignments.length === 0 && <span style={{ color: 'var(--text-3)' }}>–</span>}
                                       {position.assignments.map((a) => {
                                         const farbe = ASSIGNMENT_STATUS[a.status]?.farbe ?? 'grau';
                                         return (
@@ -202,7 +202,7 @@ export default async function Disposition({ searchParams }: { searchParams: Prom
                                       })}
                                     </span>
                                   </td>
-                                  <td style={{ fontSize: 11, color: 'var(--text-sekundaer)' }}>
+                                  <td style={{ fontSize: 11, color: 'var(--text-2)' }}>
                                     {position.requirements.map((r) => r.qualification.name).join(', ') || '–'}
                                   </td>
                                   {darfPlanen && (
@@ -221,7 +221,7 @@ export default async function Disposition({ searchParams }: { searchParams: Prom
                     )}
 
                     {(event.meetingPoint || event.dressCode || event.operationLead) && (
-                      <div style={{ padding: '10px 14px', borderTop: '1px solid var(--linie)', display: 'flex', gap: 18, flexWrap: 'wrap', fontSize: 12, color: 'var(--text-sekundaer)' }}>
+                      <div style={{ padding: '10px 14px', borderTop: '1px solid var(--linie)', display: 'flex', gap: 18, flexWrap: 'wrap', fontSize: 12, color: 'var(--text-2)' }}>
                         {event.operationLead && <span><Icon name="shield" size={13} /> Einsatzleitung: {event.operationLead.firstName} {event.operationLead.lastName}</span>}
                         {event.meetingPoint && <span><Icon name="pin" size={13} /> {event.meetingPoint}{event.meetingTime ? ` um ${event.meetingTime}` : ''}</span>}
                         {event.dressCode && <span>Dresscode: {event.dressCode}</span>}

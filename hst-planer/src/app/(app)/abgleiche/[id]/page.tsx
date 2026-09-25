@@ -147,29 +147,29 @@ export default async function AbgleichDetail({
                     const kandidaten = (zeile.candidates ?? []) as Array<{ employeeId: string; name: string; score: number }>;
                     return (
                       <tr key={zeile.id} className={`zeile-${farbe === 'grau' ? 'blau' : farbe}`}>
-                        <td className="zahl" style={{ color: 'var(--text-gedaempft)', fontSize: 12 }}>{zeile.rowNumber}</td>
+                        <td className="zahl" style={{ color: 'var(--text-3)', fontSize: 12 }}>{zeile.rowNumber}</td>
                         <td>
                           {zeile.employeeId
                             ? <Link href={`/mitarbeiter/${zeile.employeeId}`} style={{ fontWeight: 500 }}>{zeile.rawName ?? 'Mitarbeiter'}</Link>
                             : <span style={{ fontWeight: 500 }}>{zeile.rawName ?? '–'}</span>}
                           {zeile.matchScore > 0 && zeile.matchScore < 1 && (
-                            <span style={{ display: 'block', fontSize: 11, color: 'var(--text-gedaempft)' }}>
+                            <span style={{ display: 'block', fontSize: 11, color: 'var(--text-3)' }}>
                               Trefferguete {Math.round(zeile.matchScore * 100)} %
                             </span>
                           )}
                         </td>
                         <td style={{ fontSize: 12 }}>
-                          {zeile.event ? <Link href={`/events/${zeile.event.id}`}>{zeile.event.name}</Link> : <span style={{ color: 'var(--text-gedaempft)' }}>{zeile.rawEvent ?? '–'}</span>}
-                          {zeile.position && <span style={{ display: 'block', color: 'var(--text-gedaempft)', fontSize: 11 }}>{zeile.position.title}</span>}
+                          {zeile.event ? <Link href={`/events/${zeile.event.id}`}>{zeile.event.name}</Link> : <span style={{ color: 'var(--text-3)' }}>{zeile.rawEvent ?? '–'}</span>}
+                          {zeile.position && <span style={{ display: 'block', color: 'var(--text-3)', fontSize: 11 }}>{zeile.position.title}</span>}
                         </td>
                         <td className="zahl" style={{ whiteSpace: 'nowrap' }}>{zeile.date ? formatDateDE(zeile.date) : (zeile.rawDate ?? '–')}</td>
                         <td className="zahl" style={{ whiteSpace: 'nowrap' }}>
                           {zeile.plannedStart ? `${zeile.plannedStart}–${zeile.plannedEnd ?? '?'}` : '–'}
-                          {zeile.plannedMinutes != null && <span style={{ display: 'block', fontSize: 11, color: 'var(--text-gedaempft)' }}>{formatHours(zeile.plannedMinutes)}</span>}
+                          {zeile.plannedMinutes != null && <span style={{ display: 'block', fontSize: 11, color: 'var(--text-3)' }}>{formatHours(zeile.plannedMinutes)}</span>}
                         </td>
                         <td className="zahl" style={{ whiteSpace: 'nowrap' }}>
                           {zeile.actualStart ? `${zeile.actualStart}–${zeile.actualEnd ?? '?'}` : '–'}
-                          {zeile.actualMinutes != null && <span style={{ display: 'block', fontSize: 11, color: 'var(--text-gedaempft)' }}>{formatHours(zeile.actualMinutes)}</span>}
+                          {zeile.actualMinutes != null && <span style={{ display: 'block', fontSize: 11, color: 'var(--text-3)' }}>{formatHours(zeile.actualMinutes)}</span>}
                         </td>
                         <td className="zahl" style={{ fontWeight: zeile.diffMinutes ? 600 : 400, color: zeile.diffMinutes ? 'var(--gelb)' : undefined }}>
                           {formatDiff(zeile.diffMinutes)}
@@ -180,7 +180,7 @@ export default async function AbgleichDetail({
                               <span key={befund} className="marke marke-grau">{ISSUE_LABEL[befund as Issue] ?? befund}</span>
                             ))}
                           </span>
-                          {zeile.comment && <span style={{ display: 'block', color: 'var(--text-gedaempft)', marginTop: 3 }}>{zeile.comment}</span>}
+                          {zeile.comment && <span style={{ display: 'block', color: 'var(--text-3)', marginTop: 3 }}>{zeile.comment}</span>}
                         </td>
                         <td><StatusMarke status={label(ROW_STATUS, zeile.status)} /></td>
                         {darfBearbeiten && (

@@ -52,10 +52,10 @@ export default async function Abgleiche({ searchParams }: { searchParams: Promis
                   const ungeklaert = abgleich.unknownRows + abgleich.duplicateRows;
                   return (
                     <tr key={abgleich.id} className={ungeklaert > 0 ? 'zeile-rot' : abgleich.deviationRows > 0 ? 'zeile-gelb' : 'zeile-gruen'}>
-                      <td className="zahl" style={{ fontSize: 12, color: 'var(--text-gedaempft)' }}>{abgleich.reference}</td>
+                      <td className="zahl" style={{ fontSize: 12, color: 'var(--text-3)' }}>{abgleich.reference}</td>
                       <td>
                         <Link href={`/abgleiche/${abgleich.id}`} style={{ fontWeight: 500 }}>{abgleich.name}</Link>
-                        {abgleich.fileName && <span style={{ display: 'block', fontSize: 11, color: 'var(--text-gedaempft)' }}>{abgleich.fileName}</span>}
+                        {abgleich.fileName && <span style={{ display: 'block', fontSize: 11, color: 'var(--text-3)' }}>{abgleich.fileName}</span>}
                       </td>
                       <td className="zahl" style={{ whiteSpace: 'nowrap', fontSize: 12 }}>
                         {abgleich.periodFrom ? `${formatDateDE(abgleich.periodFrom)} – ${formatDateDE(abgleich.periodTo ?? abgleich.periodFrom)}` : '–'}
@@ -65,7 +65,7 @@ export default async function Abgleiche({ searchParams }: { searchParams: Promis
                       <td className="zahl" style={{ color: abgleich.deviationRows > 0 ? 'var(--gelb)' : undefined }}>{abgleich.deviationRows}</td>
                       <td className="zahl" style={{ color: ungeklaert > 0 ? 'var(--rot)' : undefined, fontWeight: ungeklaert > 0 ? 600 : 400 }}>{ungeklaert}</td>
                       <td><StatusMarke status={label(RECONCILIATION_STATUS, abgleich.status)} /></td>
-                      <td className="zahl" style={{ fontSize: 12, color: 'var(--text-sekundaer)' }}>{formatDateDE(abgleich.createdAt)}</td>
+                      <td className="zahl" style={{ fontSize: 12, color: 'var(--text-2)' }}>{formatDateDE(abgleich.createdAt)}</td>
                     </tr>
                   );
                 })}

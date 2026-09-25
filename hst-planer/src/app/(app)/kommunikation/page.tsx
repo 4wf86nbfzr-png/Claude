@@ -66,13 +66,13 @@ export default async function Kommunikation({ searchParams }: { searchParams: Pr
                       {nachricht.error ? 'Fehler' : nachricht.sentAt ? 'zugestellt' : 'offen'}
                     </span>
                     <strong style={{ fontSize: 13 }}>{nachricht.subject ?? '(ohne Betreff)'}</strong>
-                    <span className="zahl" style={{ fontSize: 11, color: 'var(--text-gedaempft)' }}>{formatDateDE(nachricht.createdAt)}</span>
+                    <span className="zahl" style={{ fontSize: 11, color: 'var(--text-3)' }}>{formatDateDE(nachricht.createdAt)}</span>
                   </div>
-                  <div style={{ fontSize: 12, color: 'var(--text-sekundaer)' }}>
+                  <div style={{ fontSize: 12, color: 'var(--text-2)' }}>
                     {nachricht.channel} an {nachricht.toAddress ?? 'intern'}
                     {nachricht.eventId && <> · <Link href={`/events/${nachricht.eventId}`}>Event</Link></>}
                   </div>
-                  <p style={{ fontSize: 12, color: 'var(--text-gedaempft)', margin: '4px 0 0', whiteSpace: 'pre-wrap' }}>
+                  <p style={{ fontSize: 12, color: 'var(--text-3)', margin: '4px 0 0', whiteSpace: 'pre-wrap' }}>
                     {nachricht.body.slice(0, 220)}{nachricht.body.length > 220 ? ' …' : ''}
                   </p>
                   {nachricht.error && <p style={{ fontSize: 12, color: 'var(--rot)', margin: '4px 0 0' }}>{nachricht.error}</p>}

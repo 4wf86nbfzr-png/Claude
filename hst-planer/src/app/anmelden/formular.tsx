@@ -33,7 +33,7 @@ export function AnmeldeFormular() {
 
       <Knopf />
 
-      <Link href="/passwort-vergessen" style={{ fontSize: 12, color: 'var(--text-sekundaer)', textAlign: 'center' }}>
+      <Link href="/passwort-vergessen" style={{ fontSize: 12, color: 'var(--text-2)', textAlign: 'center' }}>
         Passwort vergessen?
       </Link>
     </form>

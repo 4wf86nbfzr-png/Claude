@@ -49,7 +49,7 @@ export default async function EventUebersicht({ params }: { params: Promise<{ id
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(260px, 1fr)', gap: 16, alignItems: 'start' }} className="dashboard-raster">
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16, minWidth: 0 }}>
-        <Karte titel="Positionen" aktion={<Link href={`/events/${id}/positionen`} style={{ fontSize: 12, color: 'var(--text-sekundaer)' }}>Bearbeiten</Link>}>
+        <Karte titel="Positionen" aktion={<Link href={`/events/${id}/positionen`} style={{ fontSize: 12, color: 'var(--text-2)' }}>Bearbeiten</Link>}>
           {event.positions.length === 0 ? (
             <Leer>Es sind noch keine Positionen angelegt. Ohne Positionen kann kein Personal eingeplant werden.</Leer>
           ) : (
@@ -64,13 +64,13 @@ export default async function EventUebersicht({ params }: { params: Promise<{ id
                       <tr key={position.id} className={offen > 0 ? 'zeile-gelb' : 'zeile-gruen'}>
                         <td>
                           <strong style={{ fontWeight: 500 }}>{position.title}</strong>
-                          {position.serviceType && <span style={{ display: 'block', fontSize: 11, color: 'var(--text-gedaempft)' }}>{position.serviceType.name}</span>}
+                          {position.serviceType && <span style={{ display: 'block', fontSize: 11, color: 'var(--text-3)' }}>{position.serviceType.name}</span>}
                         </td>
                         <td className="zahl" style={{ whiteSpace: 'nowrap' }}>{position.startTime ?? event.startTime ?? '–'}–{position.endTime ?? event.endTime ?? '–'}</td>
                         <td className="zahl">{position.requiredCount}</td>
                         <td className="zahl">{aktive.length}</td>
-                        <td className="zahl" style={{ color: offen > 0 ? 'var(--gelb)' : 'var(--text-gedaempft)', fontWeight: offen > 0 ? 600 : 400 }}>{offen}</td>
-                        <td style={{ fontSize: 12, color: 'var(--text-sekundaer)' }}>
+                        <td className="zahl" style={{ color: offen > 0 ? 'var(--gelb)' : 'var(--text-3)', fontWeight: offen > 0 ? 600 : 400 }}>{offen}</td>
+                        <td style={{ fontSize: 12, color: 'var(--text-2)' }}>
                           {aktive.length === 0 ? '–' : aktive.map((a) => `${a.employee.firstName} ${a.employee.lastName}`).join(', ')}
                         </td>
                       </tr>
@@ -96,7 +96,7 @@ export default async function EventUebersicht({ params }: { params: Promise<{ id
             {event.tasks && <Paar label="Aufgaben"><span style={{ whiteSpace: 'pre-wrap' }}>{event.tasks}</span></Paar>}
             {event.hints && <Paar label="Hinweise für Mitarbeiter"><span style={{ whiteSpace: 'pre-wrap' }}>{event.hints}</span></Paar>}
             {intern && event.notesInternal && (
-              <div style={{ background: 'var(--gelb-flaeche)', border: '1px solid var(--gelb)33', borderRadius: 'var(--radius-s)', padding: '10px 12px' }}>
+              <div style={{ background: 'var(--gelb-flaeche)', border: '1px solid var(--gelb)33', borderRadius: 'var(--r)', padding: '10px 12px' }}>
                 <Paar label="Interne Notiz – nicht für Mitarbeiter"><span style={{ whiteSpace: 'pre-wrap' }}>{event.notesInternal}</span></Paar>
               </div>
             )}
@@ -112,11 +112,11 @@ export default async function EventUebersicht({ params }: { params: Promise<{ id
                     <strong style={{ fontSize: 13 }}>{INCIDENT_KIND[vorfall.kind] ?? vorfall.kind}</strong>
                     <StatusMarke status={label(INCIDENT_STATUS, vorfall.status)} />
                     <StatusMarke status={label(PRIORITY, vorfall.priority)} />
-                    <span className="zahl" style={{ fontSize: 11, color: 'var(--text-gedaempft)' }}>{formatDateDE(vorfall.occurredAt)}</span>
+                    <span className="zahl" style={{ fontSize: 11, color: 'var(--text-3)' }}>{formatDateDE(vorfall.occurredAt)}</span>
                   </div>
-                  {vorfall.employee && <div style={{ fontSize: 12, color: 'var(--text-sekundaer)' }}>{vorfall.employee.firstName} {vorfall.employee.lastName}</div>}
+                  {vorfall.employee && <div style={{ fontSize: 12, color: 'var(--text-2)' }}>{vorfall.employee.firstName} {vorfall.employee.lastName}</div>}
                   <p style={{ fontSize: 13, margin: '4px 0 0', whiteSpace: 'pre-wrap' }}>{vorfall.description}</p>
-                  {vorfall.resolution && <p style={{ fontSize: 12, color: 'var(--text-sekundaer)', margin: '4px 0 0' }}>Loesung: {vorfall.resolution}</p>}
+                  {vorfall.resolution && <p style={{ fontSize: 12, color: 'var(--text-2)', margin: '4px 0 0' }}>Loesung: {vorfall.resolution}</p>}
                   {vorfall.status !== 'GELOEST' && (
                     <AktionsFormular aktion={vorfallStatusAktion} stil={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap', alignItems: 'center' }}>
                       <input type="hidden" name="eventId" value={id} />

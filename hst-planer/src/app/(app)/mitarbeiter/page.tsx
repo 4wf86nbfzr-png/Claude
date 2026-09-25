@@ -101,9 +101,9 @@ export default async function MitarbeiterListe({ searchParams }: { searchParams:
                           {person.partner && <span className="marke marke-blau">{person.partner.name}</span>}
                         </span>
                       </td>
-                      <td className="zahl" style={{ fontSize: 12, color: 'var(--text-gedaempft)' }}>{person.personnelNo}</td>
-                      <td style={{ fontSize: 12, color: 'var(--text-sekundaer)' }}>{EMPLOYMENT_TYPE[person.employmentType] ?? person.employmentType}</td>
-                      <td style={{ color: 'var(--text-sekundaer)' }}>{person.city ?? '–'}</td>
+                      <td className="zahl" style={{ fontSize: 12, color: 'var(--text-3)' }}>{person.personnelNo}</td>
+                      <td style={{ fontSize: 12, color: 'var(--text-2)' }}>{EMPLOYMENT_TYPE[person.employmentType] ?? person.employmentType}</td>
+                      <td style={{ color: 'var(--text-2)' }}>{person.city ?? '–'}</td>
                       <td style={{ fontSize: 12 }}>
                         {person.mobile ? <a href={`tel:${person.mobile.replace(/\s/g, '')}`}>{person.mobile}</a> : '–'}
                       </td>

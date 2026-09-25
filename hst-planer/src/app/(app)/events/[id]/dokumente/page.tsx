@@ -36,7 +36,7 @@ export default async function EventDokumente({ params }: { params: Promise<{ id:
                   <td><a href={`/api/dokumente/${dokument.id}`} style={{ fontWeight: 500 }}>{dokument.title}</a></td>
                   <td style={{ fontSize: 12 }}>{DOCUMENT_TYPE[dokument.type] ?? dokument.type}</td>
                   <td className="zahl" style={{ fontSize: 12 }}>{Math.max(1, Math.round(dokument.sizeBytes / 1024))} KB</td>
-                  <td className="zahl" style={{ fontSize: 12, color: 'var(--text-sekundaer)' }}>{formatDateDE(dokument.createdAt)}</td>
+                  <td className="zahl" style={{ fontSize: 12, color: 'var(--text-2)' }}>{formatDateDE(dokument.createdAt)}</td>
                   {darfBearbeiten && (
                     <td>
                       <AktionsFormular aktion={dokumentEntfernenAktion} meldungOben={false}>

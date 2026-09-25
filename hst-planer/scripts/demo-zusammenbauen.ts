@@ -19,7 +19,8 @@ async function main() {
   const verzeichnis = JSON.parse(await readFile('demo/bilder/verzeichnis.json', 'utf8'));
   const bilderSkript = `<script>window.HST_BILDER = ${JSON.stringify(verzeichnis)};</script>\n`;
 
-  const seite = teile[0] + teile[1] + bilderSkript + teile[2];
+  const [kopf = '', rumpf = '', steuerung = ''] = teile;
+  const seite = kopf + rumpf + bilderSkript + steuerung;
   await writeFile('demo/index.html', seite, 'utf8');
 
   const info = await stat('demo/index.html');

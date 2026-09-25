@@ -76,18 +76,18 @@ export default async function Anfragen({ searchParams }: { searchParams: Promise
               <tbody>
                 {anfragen.map((anfrage) => (
                   <tr key={anfrage.id} className={anfrage.status === 'NEU' ? 'zeile-gelb' : anfrage.status === 'UEBERNOMMEN' ? 'zeile-gruen' : undefined}>
-                    <td className="zahl" style={{ fontSize: 12, color: 'var(--text-gedaempft)' }}>{anfrage.reference}</td>
+                    <td className="zahl" style={{ fontSize: 12, color: 'var(--text-3)' }}>{anfrage.reference}</td>
                     <td>
                       <Link href={`/anfragen/${anfrage.id}`} style={{ fontWeight: 500 }}>{anfrage.company ?? anfrage.contactPerson ?? anfrage.email ?? 'ohne Angabe'}</Link>
-                      <span style={{ display: 'block', fontSize: 11, color: 'var(--text-gedaempft)' }}>{anfrage.contactPerson ?? anfrage.email}</span>
+                      <span style={{ display: 'block', fontSize: 11, color: 'var(--text-3)' }}>{anfrage.contactPerson ?? anfrage.email}</span>
                     </td>
                     <td>{anfrage.eventName ?? '–'}</td>
                     <td className="zahl" style={{ whiteSpace: 'nowrap' }}>
                       {anfrage.eventDate ? formatDateDE(anfrage.eventDate) : <span className="marke marke-gelb">fehlt</span>}
                     </td>
-                    <td style={{ color: 'var(--text-sekundaer)' }}>{anfrage.location ?? '–'}</td>
+                    <td style={{ color: 'var(--text-2)' }}>{anfrage.location ?? '–'}</td>
                     <td className="zahl">{anfrage.employeesNeeded ?? <span className="marke marke-gelb">?</span>}</td>
-                    <td style={{ fontSize: 11, color: 'var(--text-sekundaer)' }}>{anfrage.channel}</td>
+                    <td style={{ fontSize: 11, color: 'var(--text-2)' }}>{anfrage.channel}</td>
                     <td>
                       <StatusMarke status={label(REQUEST_STATUS, anfrage.status)} />
                       {anfrage.missingFields.length > 0 && anfrage.status === 'NEU' && (
@@ -99,7 +99,7 @@ export default async function Anfragen({ searchParams }: { searchParams: Promise
                         <Link href={`/events/${anfrage.event.id}`} style={{ display: 'block', fontSize: 11 }}>{anfrage.event.reference}</Link>
                       )}
                     </td>
-                    <td className="zahl" style={{ fontSize: 12, color: 'var(--text-sekundaer)' }}>{formatDateDE(anfrage.createdAt)}</td>
+                    <td className="zahl" style={{ fontSize: 12, color: 'var(--text-2)' }}>{formatDateDE(anfrage.createdAt)}</td>
                   </tr>
                 ))}
               </tbody>

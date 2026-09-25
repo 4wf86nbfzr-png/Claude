@@ -50,7 +50,7 @@ export default async function EventZeiten({ params }: { params: Promise<{ id: st
         <Kennzahl wert={ohneZeit.length} label="Noch ohne Ist-Zeit" farbe={ohneZeit.length > 0 ? 'gelb' : 'gruen'} />
       </Raster>
 
-      <Karte titel="Erfasste Zeiten" aktion={<Link href={`/zeiterfassung?q=${encodeURIComponent(event.name)}`} style={{ fontSize: 12, color: 'var(--text-sekundaer)' }}>In der Zeiterfassung öffnen</Link>}>
+      <Karte titel="Erfasste Zeiten" aktion={<Link href={`/zeiterfassung?q=${encodeURIComponent(event.name)}`} style={{ fontSize: 12, color: 'var(--text-2)' }}>In der Zeiterfassung öffnen</Link>}>
         {event.timeEntries.length === 0 ? (
           <Leer>Noch keine Zeiten erfasst. Sie entstehen beim Abgleich eines Stundenzettels oder von Hand in der Zeiterfassung.</Leer>
         ) : (
@@ -60,11 +60,11 @@ export default async function EventZeiten({ params }: { params: Promise<{ id: st
               {event.timeEntries.map((zeit) => (
                 <tr key={zeit.id}>
                   <td><Link href={`/mitarbeiter/${zeit.employee.id}`}>{zeit.employee.firstName} {zeit.employee.lastName}</Link></td>
-                  <td style={{ color: 'var(--text-sekundaer)' }}>{zeit.position?.title ?? '–'}</td>
+                  <td style={{ color: 'var(--text-2)' }}>{zeit.position?.title ?? '–'}</td>
                   <td className="zahl">{zeit.start}–{zeit.end}</td>
                   <td className="zahl">{zeit.breakMinutes} Min</td>
                   <td className="zahl" style={{ fontWeight: 600 }}>{formatHours(zeit.minutes)}</td>
-                  <td style={{ fontSize: 11, color: 'var(--text-sekundaer)' }}>{zeit.source}</td>
+                  <td style={{ fontSize: 11, color: 'var(--text-2)' }}>{zeit.source}</td>
                   <td><StatusMarke status={label(TIME_ENTRY_STATUS, zeit.status)} /></td>
                 </tr>
               ))}
@@ -81,7 +81,7 @@ export default async function EventZeiten({ params }: { params: Promise<{ id: st
               {ohneZeit.map((a) => (
                 <tr key={a.id} className="zeile-gelb">
                   <td><Link href={`/mitarbeiter/${a.employee.id}`}>{a.employee.firstName} {a.employee.lastName}</Link></td>
-                  <td style={{ color: 'var(--text-sekundaer)' }}>{a.position.title}</td>
+                  <td style={{ color: 'var(--text-2)' }}>{a.position.title}</td>
                   <td className="zahl">{a.plannedStart ?? '–'}–{a.plannedEnd ?? '–'}</td>
                 </tr>
               ))}

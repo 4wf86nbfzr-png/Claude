@@ -8,7 +8,7 @@ export const metadata = { title: 'Protokoll' };
 export const dynamic = 'force-dynamic';
 
 export default async function EventProtokoll({ params }: { params: Promise<{ id: string }> }) {
-  const user = await seite('admin.audit');
+  const user = await seite('audit.view');
   const { id } = await params;
 
   const event = await db.event.findFirst({ where: { id, ...eventFilter(user) }, select: { id: true } });

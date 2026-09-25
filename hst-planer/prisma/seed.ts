@@ -170,14 +170,15 @@ async function main() {
   // --- Benutzer je Rolle --------------------------------------------------
   const passwordHash = await hashPassword(PASSWORD);
   const users: Array<{ email: string; name: string; role: $Enums.Role; employeeId?: string; partnerId?: string; customerId?: string }> = [
-    { email: 'admin@hermserviceteam.com', name: 'Systemadministration', role: 'ADMIN' },
+    { email: 'admin@hermserviceteam.com', name: 'Systemadministration', role: 'SUPERADMIN' },
     { email: 'gf@hermserviceteam.com', name: 'Maik Herm', role: 'GESCHAEFTSFUEHRUNG' },
+    { email: 'personal@hermserviceteam.com', name: 'Personalbüro HST', role: 'PERSONAL' },
     { email: 'dispo@hermserviceteam.com', name: 'Disposition HST', role: 'DISPOSITION' },
     { email: 'einsatzleitung@hermserviceteam.com', name: 'Dennis Rohde', role: 'EINSATZLEITUNG', employeeId: employees[5]!.id },
     { email: 'teamleitung@hermserviceteam.com', name: 'Lena Bergmann', role: 'TEAMLEITUNG', employeeId: employees[1]!.id },
     { email: 'max.mustermann@example.org', name: 'Max Mustermann', role: 'MITARBEITER', employeeId: employees[0]!.id },
     { email: 'ayse.yilmaz@example.org', name: 'Ayse Yilmaz', role: 'MITARBEITER', employeeId: employees[2]!.id },
-    { email: 'partner@elbwacht-demo.de', name: 'Ralf Timm (Elbwacht)', role: 'PARTNER', partnerId: partner.id },
+    { email: 'partner@elbwacht-demo.de', name: 'Ralf Timm (Elbwacht)', role: 'SUBUNTERNEHMER', partnerId: partner.id },
     { email: 'kunde@hafenlicht-demo.de', name: 'Marie Ahrens (Hafenlicht)', role: 'KUNDE', customerId: customers[0]!.id },
   ];
   for (const user of users) {

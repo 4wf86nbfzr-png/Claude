@@ -21,12 +21,12 @@ export function Blaettern({ seite, proSeite, gesamt }: { seite: number; proSeite
 
   return (
     <div className="nicht-drucken" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '9px 14px', borderTop: '1px solid var(--linie)', flexWrap: 'wrap' }}>
-      <span className="zahl" style={{ fontSize: 12, color: 'var(--text-sekundaer)' }}>
+      <span className="zahl" style={{ fontSize: 12, color: 'var(--text-2)' }}>
         {von.toLocaleString('de-DE')}–{bis.toLocaleString('de-DE')} von {gesamt.toLocaleString('de-DE')}
       </span>
       <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
         <button className="knopf knopf-klein" disabled={seite <= 1} onClick={() => gehe(seite - 1)}>Zurück</button>
-        <span className="zahl" style={{ fontSize: 12, color: 'var(--text-sekundaer)' }}>Seite {seite} / {seiten}</span>
+        <span className="zahl" style={{ fontSize: 12, color: 'var(--text-2)' }}>Seite {seite} / {seiten}</span>
         <button className="knopf knopf-klein" disabled={seite >= seiten} onClick={() => gehe(seite + 1)}>Weiter</button>
       </div>
     </div>

@@ -33,7 +33,7 @@ export default async function Dashboard() {
       />
 
       {/* -------------------------------------------------------- HEUTE */}
-      <h2 style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--text-gedaempft)', margin: '0 0 10px' }}>Heute</h2>
+      <h2 style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--text-3)', margin: '0 0 10px' }}>Heute</h2>
       <Raster min={150}>
         <Kennzahl wert={daten.heute.events.length} label="Events heute" href="/kalender" />
         <Kennzahl wert={daten.heute.aktiveEinsaetze} label="Eingeteilte Kräfte" />
@@ -53,7 +53,7 @@ export default async function Dashboard() {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(280px, 1fr)', gap: 16, marginTop: 20, alignItems: 'start' }} className="dashboard-raster">
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, minWidth: 0 }}>
-          <Karte titel="Heutige Einsätze" aktion={<Link href="/disposition" style={{ fontSize: 12, color: 'var(--text-sekundaer)' }}>Zur Disposition</Link>}>
+          <Karte titel="Heutige Einsätze" aktion={<Link href="/disposition" style={{ fontSize: 12, color: 'var(--text-2)' }}>Zur Disposition</Link>}>
             {daten.heute.events.length === 0 ? (
               <Leer>Heute stehen keine Einsätze an.</Leer>
             ) : (
@@ -72,10 +72,10 @@ export default async function Dashboard() {
                         <tr key={event.id} className={b.offen > 0 ? 'zeile-gelb' : 'zeile-gruen'}>
                           <td className="zahl" style={{ whiteSpace: 'nowrap' }}>{event.startTime ?? '–'}–{event.endTime ?? '–'}</td>
                           <td><Link href={`/events/${event.id}`} style={{ fontWeight: 500 }}>{event.name}</Link></td>
-                          <td style={{ color: 'var(--text-sekundaer)' }}>{event.customer?.name ?? '–'}</td>
-                          <td style={{ color: 'var(--text-sekundaer)' }}>{event.venue ?? event.city ?? '–'}</td>
+                          <td style={{ color: 'var(--text-2)' }}>{event.customer?.name ?? '–'}</td>
+                          <td style={{ color: 'var(--text-2)' }}>{event.venue ?? event.city ?? '–'}</td>
                           <td><Balken ist={b.ist} soll={b.soll} /></td>
-                          <td style={{ color: 'var(--text-sekundaer)' }}>
+                          <td style={{ color: 'var(--text-2)' }}>
                             {event.operationLead ? `${event.operationLead.firstName} ${event.operationLead.lastName}` : '–'}
                           </td>
                           <td><StatusMarke status={label(EVENT_STATUS, event.status)} /></td>
@@ -88,7 +88,7 @@ export default async function Dashboard() {
             )}
           </Karte>
 
-          <Karte titel="Nächste Einsätze" aktion={<Link href="/events" style={{ fontSize: 12, color: 'var(--text-sekundaer)' }}>Alle Events</Link>}>
+          <Karte titel="Nächste Einsätze" aktion={<Link href="/events" style={{ fontSize: 12, color: 'var(--text-2)' }}>Alle Events</Link>}>
             {daten.kommendeEvents.length === 0 ? (
               <Leer>Keine geplanten Einsätze.</Leer>
             ) : (
@@ -104,11 +104,11 @@ export default async function Dashboard() {
                         <tr key={event.id} className={b.offen > 0 ? 'zeile-gelb' : undefined}>
                           <td className="zahl" style={{ whiteSpace: 'nowrap' }}>
                             {formatDateDE(event.date)}
-                            <span style={{ color: 'var(--text-gedaempft)', marginLeft: 6 }}>{event.startTime ?? ''}</span>
+                            <span style={{ color: 'var(--text-3)', marginLeft: 6 }}>{event.startTime ?? ''}</span>
                           </td>
                           <td><Link href={`/events/${event.id}`} style={{ fontWeight: 500 }}>{event.name}</Link></td>
-                          <td style={{ color: 'var(--text-sekundaer)' }}>{event.customer?.name ?? '–'}</td>
-                          <td style={{ color: 'var(--text-sekundaer)' }}>{event.venue ?? event.city ?? '–'}</td>
+                          <td style={{ color: 'var(--text-2)' }}>{event.customer?.name ?? '–'}</td>
+                          <td style={{ color: 'var(--text-2)' }}>{event.venue ?? event.city ?? '–'}</td>
                           <td><Balken ist={b.ist} soll={b.soll} /></td>
                           <td><StatusMarke status={label(EVENT_STATUS, event.status)} /></td>
                         </tr>
@@ -134,7 +134,7 @@ export default async function Dashboard() {
             </ul>
           </Karte>
 
-          <Karte titel="Probleme &amp; Vorfälle" aktion={<Link href="/events" style={{ fontSize: 12, color: 'var(--text-sekundaer)' }}>Alle</Link>}>
+          <Karte titel="Probleme &amp; Vorfälle" aktion={<Link href="/events" style={{ fontSize: 12, color: 'var(--text-2)' }}>Alle</Link>}>
             {daten.vorfaelle.length === 0 ? (
               <Leer>Keine offenen Vorfälle.</Leer>
             ) : (
@@ -145,11 +145,11 @@ export default async function Dashboard() {
                       <StatusMarke status={label(PRIORITY, vorfall.priority)} />
                       <strong style={{ fontSize: 13 }}>{INCIDENT_KIND[vorfall.kind] ?? vorfall.kind}</strong>
                     </div>
-                    <div style={{ fontSize: 12, color: 'var(--text-sekundaer)' }}>
+                    <div style={{ fontSize: 12, color: 'var(--text-2)' }}>
                       {vorfall.employee ? `${vorfall.employee.firstName} ${vorfall.employee.lastName} · ` : ''}
                       <Link href={`/events/${vorfall.event.id}`}>{vorfall.event.name}</Link>
                     </div>
-                    <p style={{ fontSize: 12, color: 'var(--text-gedaempft)', margin: '3px 0 0' }}>{vorfall.description}</p>
+                    <p style={{ fontSize: 12, color: 'var(--text-3)', margin: '3px 0 0' }}>{vorfall.description}</p>
                   </li>
                 ))}
               </ul>
@@ -169,7 +169,7 @@ export default async function Dashboard() {
                         <Link href={`/mitarbeiter/${nachweis.employee.id}`} style={{ fontWeight: 500, fontSize: 13 }}>
                           {nachweis.employee.firstName} {nachweis.employee.lastName}
                         </Link>
-                        <span style={{ display: 'block', fontSize: 12, color: 'var(--text-sekundaer)' }}>{nachweis.qualification.name}</span>
+                        <span style={{ display: 'block', fontSize: 12, color: 'var(--text-2)' }}>{nachweis.qualification.name}</span>
                       </span>
                       <span className={`marke marke-${tage < 0 ? 'rot' : tage <= 14 ? 'gelb' : 'grau'}`} style={{ whiteSpace: 'nowrap' }}>
                         {tage < 0 ? `seit ${Math.abs(tage)} T abgelaufen` : `in ${tage} T`}
@@ -188,7 +188,7 @@ export default async function Dashboard() {
 
 function StatusZeile({ label: text, wert, href, warnAb, kritisch }: { label: string; wert: number; href: string; warnAb?: number; kritisch?: boolean }) {
   const auffaellig = warnAb != null && wert >= warnAb;
-  const farbe = auffaellig ? (kritisch ? 'var(--rot)' : 'var(--gelb)') : 'var(--text-gedaempft)';
+  const farbe = auffaellig ? (kritisch ? 'var(--rot)' : 'var(--gelb)') : 'var(--text-3)';
   return (
     <li style={{ borderBottom: '1px solid var(--linie)' }}>
       <Link href={href} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '9px 14px', textDecoration: 'none', color: 'inherit' }}>

@@ -33,9 +33,9 @@ export function HochladeFormular() {
                onChange={(e) => setDateiname(e.target.files?.[0]?.name ?? '')} />
       </Feld>
 
-      {dateiname && <p style={{ fontSize: 13, color: 'var(--text-sekundaer)', margin: 0 }}>Ausgewaehlt: {dateiname}</p>}
+      {dateiname && <p style={{ fontSize: 13, color: 'var(--text-2)', margin: 0 }}>Ausgewaehlt: {dateiname}</p>}
 
-      <p style={{ fontSize: 12, color: 'var(--text-gedaempft)', margin: 0 }}>
+      <p style={{ fontSize: 12, color: 'var(--text-3)', margin: 0 }}>
         Die Datei wird nur gelesen und gespeichert – es werden noch keine Zeiten übernommen.
         Vor dem Import sehen Sie eine Vorschau und können die Zuordnung anpassen.
       </p>

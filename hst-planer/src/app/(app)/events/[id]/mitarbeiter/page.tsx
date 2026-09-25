@@ -64,7 +64,7 @@ export default async function EventMitarbeiter({
                  titel={
                    <span style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
                      <span>{position.title}</span>
-                     <span style={{ fontWeight: 400, color: 'var(--text-sekundaer)', fontSize: 12 }}>
+                     <span style={{ fontWeight: 400, color: 'var(--text-2)', fontSize: 12 }}>
                        {position.startTime ?? event.startTime ?? '–'}–{position.endTime ?? event.endTime ?? '–'} · Pause {position.breakMinutes} Min
                      </span>
                      <span className={`marke marke-${offen > 0 ? 'gelb' : 'gruen'}`}>{aktive.length}/{position.requiredCount}</span>
@@ -95,11 +95,11 @@ export default async function EventMitarbeiter({
                           <Link href={`/mitarbeiter/${assignment.employee.id}`} style={{ fontWeight: 500 }}>
                             {assignment.employee.firstName} {assignment.employee.lastName}
                           </Link>
-                          <span style={{ display: 'block', fontSize: 11, color: 'var(--text-gedaempft)' }}>
+                          <span style={{ display: 'block', fontSize: 11, color: 'var(--text-3)' }}>
                             {assignment.employee.personnelNo}{assignment.partner ? ` · ${assignment.partner.name}` : ''}
                           </span>
                         </td>
-                        <td style={{ fontSize: 12, color: 'var(--text-sekundaer)' }}>
+                        <td style={{ fontSize: 12, color: 'var(--text-2)' }}>
                           {assignment.isReserve ? 'Ersatz' : assignment.roleInTeam === 'MITARBEITER' ? '–' : assignment.roleInTeam.toLowerCase()}
                         </td>
                         <td className="zahl" style={{ whiteSpace: 'nowrap' }}>{assignment.plannedStart ?? '–'}–{assignment.plannedEnd ?? '–'}</td>
@@ -109,7 +109,7 @@ export default async function EventMitarbeiter({
                         <td>
                           <StatusMarke status={label(ASSIGNMENT_STATUS, assignment.status)} />
                           {assignment.declineReason && (
-                            <span style={{ display: 'block', fontSize: 11, color: 'var(--text-gedaempft)' }}>{assignment.declineReason}</span>
+                            <span style={{ display: 'block', fontSize: 11, color: 'var(--text-3)' }}>{assignment.declineReason}</span>
                           )}
                         </td>
                         {darfPlanen && (
@@ -139,7 +139,7 @@ export default async function EventMitarbeiter({
             )}
 
             {geoeffnet && (
-              <div style={{ borderTop: '1px solid var(--linie)', background: 'var(--flaeche-tief)' }}>
+              <div style={{ borderTop: '1px solid var(--linie)', background: 'var(--tief)' }}>
                 <Personalsuche eventId={id} positionId={position.id} vorschlaege={vorschlaege} such={such} />
               </div>
             )}
@@ -185,9 +185,9 @@ function Personalsuche({
                 <tr key={v.id} className={v.abwesend || v.belegt ? 'zeile-rot' : v.qualifiziert ? 'zeile-gruen' : 'zeile-gelb'}>
                   <td>
                     <Link href={`/mitarbeiter/${v.id}`} style={{ fontWeight: 500 }}>{v.name}</Link>
-                    <span style={{ display: 'block', fontSize: 11, color: 'var(--text-gedaempft)' }}>{v.personnelNo}{v.city ? ` · ${v.city}` : ''}</span>
+                    <span style={{ display: 'block', fontSize: 11, color: 'var(--text-3)' }}>{v.personnelNo}{v.city ? ` · ${v.city}` : ''}</span>
                   </td>
-                  <td style={{ fontSize: 12, color: 'var(--text-sekundaer)' }}>{EMPLOYMENT_TYPE[v.employmentType] ?? v.employmentType}</td>
+                  <td style={{ fontSize: 12, color: 'var(--text-2)' }}>{EMPLOYMENT_TYPE[v.employmentType] ?? v.employmentType}</td>
                   <td style={{ fontSize: 12 }}>
                     <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
                       {v.qualifiziert ? <span className="marke marke-gruen">qualifiziert</span> : <span className="marke marke-gelb">{v.fehlendeNachweise.join(', ')}</span>}
@@ -197,7 +197,7 @@ function Personalsuche({
                       {v.gesperrt && <span className="marke marke-rot">Sperrvermerk</span>}
                     </div>
                   </td>
-                  <td className="zahl" style={{ fontSize: 12, color: 'var(--text-sekundaer)' }}>
+                  <td className="zahl" style={{ fontSize: 12, color: 'var(--text-2)' }}>
                     {v.einsaetzeBeiKunde} bei diesem Kunden · {v.einsaetzeGesamt} gesamt
                   </td>
                   <td>

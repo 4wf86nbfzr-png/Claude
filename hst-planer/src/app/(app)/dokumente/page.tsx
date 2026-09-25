@@ -96,7 +96,7 @@ export default async function Dokumente({ searchParams }: { searchParams: Promis
                     <tr key={dokument.id} className={abgelaufen ? 'zeile-rot' : laeuftAb ? 'zeile-gelb' : undefined}>
                       <td>
                         <a href={`/api/dokumente/${dokument.id}`} style={{ fontWeight: 500 }}>{dokument.title}</a>
-                        <span style={{ display: 'block', fontSize: 11, color: 'var(--text-gedaempft)' }}>{dokument.fileName}</span>
+                        <span style={{ display: 'block', fontSize: 11, color: 'var(--text-3)' }}>{dokument.fileName}</span>
                       </td>
                       <td style={{ fontSize: 12 }}>{DOCUMENT_TYPE[dokument.type] ?? dokument.type}</td>
                       <td style={{ fontSize: 12 }}>
@@ -107,7 +107,7 @@ export default async function Dokumente({ searchParams }: { searchParams: Promis
                       </td>
                       <td className="zahl">{dokument.expiresAt ? formatDateDE(dokument.expiresAt) : '–'}</td>
                       <td className="zahl" style={{ fontSize: 12 }}>{Math.max(1, Math.round(dokument.sizeBytes / 1024))} KB</td>
-                      <td className="zahl" style={{ fontSize: 12, color: 'var(--text-sekundaer)' }}>{formatDateDE(dokument.createdAt)}</td>
+                      <td className="zahl" style={{ fontSize: 12, color: 'var(--text-2)' }}>{formatDateDE(dokument.createdAt)}</td>
                       <td>
                         {darfBearbeiten && (
                           <AktionsFormular aktion={dokumentEntfernenAktion} meldungOben={false}>

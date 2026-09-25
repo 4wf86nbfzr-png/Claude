@@ -1,284 +1,682 @@
 @import "tailwindcss";
 
 /*
-  HST PLANER – Designsystem
-  --------------------------------------------------------------------------
-  Grundsatz: eine Dispositionsoberflaeche lebt von Dichte und Ruhe, nicht von
-  Farbe. Flaeche und Schrift sind neutral, Farbe traegt ausschliesslich
-  Bedeutung (Status). Der Akzent ist das Violett aus dem HST-Logo und
-  erscheint sparsam: aktive Navigation, primaere Schaltflaeche, Fokusring.
+  HST Planer – Designsystem
+  ==========================================================================
+
+  Leitbild: professionelle Dispositionssoftware für einen deutschen
+  Sicherheits- und Personaldienstleister. Eine Leitstelle, kein Startup-
+  Dashboard. Der Disponent sitzt acht Stunden davor und braucht Dichte,
+  Ruhe und eindeutige Signale – keine Effekte.
+
+  Farbwelt
+  ------------------------------------------------------------------
+  Dunkelblau   Navigation, Kopfzeile, primäre Schaltfläche, aktive Zustände
+  Beige        Hervorhebung, Statusfläche, ausgewählte Zeile, dezenter Akzent
+  Off-White    Hauptflächen, Tabellen, Karten, Formulare
+  Anthrazit    Text und sekundäre Information
+  Grau         Linien und Ruhezonen
+
+  Statusfarben sind gedeckt gehalten (Forstgrün, Ocker, Ziegelrot, Stahlblau).
+  Sie tragen ausschließlich Bedeutung und sind nie Dekoration.
+
+  Dichte
+  ------------------------------------------------------------------
+  Grundschrift 13 px, Tabellenzeilen 30 px. Das wirkt auf den ersten Blick
+  eng und ist genau richtig: In eine Tagesdisposition gehören dreißig Zeilen
+  auf den Bildschirm, nicht acht.
 */
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", "Roboto Mono", monospace;
-
-  --color-akzent: #7C3AED;
-  --color-akzent-hell: #A78BFA;
-
-  --color-status-gruen: #15803D;
-  --color-status-gelb: #B45309;
-  --color-status-rot: #B91C1C;
-  --color-status-blau: #1D4ED8;
 }
 
 :root {
   color-scheme: light;
 
-  --flaeche:        #F4F4F6;  /* Seitenhintergrund */
-  --flaeche-karte:  #FFFFFF;  /* Karten, Tabellen */
-  --flaeche-tief:   #EBEBEF;  /* abgesetzte Bereiche, Tabellenkopf */
-  --flaeche-hover:  #F0F0F4;
-  --flaeche-nav:    #17171C;  /* Seitennavigation bleibt in beiden Modi dunkel */
+  /* --- Flächen ------------------------------------------------------ */
+  --flaeche:        #F2F0EA;   /* Seitenhintergrund, warmes Off-White     */
+  --karte:          #FCFBF8;   /* Karten, Tabellen, Formulare            */
+  --karte-2:        #FFFFFF;   /* Eingabefelder, hellste Ebene           */
+  --tief:           #E8E4DA;   /* Tabellenkopf, abgesetzte Bereiche      */
+  --hover:          #EDEAE2;   /* Zeilen- und Schaltflächen-Hover        */
+  --gewaehlt:       #F0E7D4;   /* ausgewählte Zeile – Beige              */
 
-  --text:           #14141A;
-  --text-sekundaer: #55555F;
-  --text-gedaempft: #7A7A86;
-  --text-nav:       #C9C9D2;
+  /* --- Navigation (immer dunkelblau, in beiden Modi) ---------------- */
+  --nav:            #16243E;
+  --nav-tief:       #101B2F;
+  --nav-aktiv:      #24395F;
+  --nav-text:       #A9B6CC;
+  --nav-text-hell:  #FFFFFF;
+  --nav-linie:      #253651;
 
-  --linie:          #DCDCE3;
-  --linie-stark:    #C4C4CE;
+  /* --- Text --------------------------------------------------------- */
+  --text:           #23272E;   /* Anthrazit                              */
+  --text-2:         #565C65;
+  --text-3:         #878D96;
+  --text-invers:    #FFFFFF;
 
-  --akzent:         #7C3AED;
-  --akzent-kontrast:#FFFFFF;
-  --akzent-schwach: #F1EBFE;
+  /* --- Linien ------------------------------------------------------- */
+  --linie:          #DCD7CB;
+  --linie-2:        #C6BFAF;
+  --linie-stark:    #A89F8B;
 
-  --gruen:          #15803D;  --gruen-flaeche:  #E8F6ED;
-  --gelb:           #B45309;  --gelb-flaeche:   #FDF2E3;
-  --rot:            #B91C1C;  --rot-flaeche:    #FDECEC;
-  --blau:           #1D4ED8;  --blau-flaeche:   #EAF0FE;
+  /* --- Akzente ------------------------------------------------------ */
+  --blau:           #1B2A4A;   /* primäre Aktion, aktiver Zustand        */
+  --blau-hell:      #2C4470;
+  --blau-flaeche:   #E6EAF1;
+  --beige:          #B79A63;   /* Hervorhebung, Markierung               */
+  --beige-tief:     #8F7746;
+  --beige-flaeche:  #F2E9D8;
 
-  --schatten:       0 1px 2px rgba(20, 20, 26, .06), 0 1px 3px rgba(20, 20, 26, .04);
-  --radius:         8px;
-  --radius-s:       6px;
+  /* --- Status (gedeckt) --------------------------------------------- */
+  --gruen:          #2E6A4E;  --gruen-flaeche:  #E3EDE7;
+  --gelb:           #96681C;  --gelb-flaeche:   #F6EDDA;
+  --rot:            #A23A31;  --rot-flaeche:    #F7E7E4;
+  --info:           #2B4C7E;  --info-flaeche:   #E5EAF2;
+  --neutral:        #6E7480;  --neutral-flaeche:#EAE7DF;
+
+  /* --- Maße --------------------------------------------------------- */
+  --r:              4px;       /* dezent abgerundet, nie verspielt       */
+  --r-gross:        6px;
+  --schatten:       0 1px 2px rgba(35, 39, 46, .05);
+  --schatten-hoch:  0 4px 12px rgba(35, 39, 46, .10);
+  --zeile:          30px;      /* Tabellenzeilenhöhe                     */
+  --kopfhoehe:      46px;
+  --navbreite:      232px;
 }
 
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --flaeche:        #0D0D11;
-  --flaeche-karte:  #16161C;
-  --flaeche-tief:   #1D1D24;
-  --flaeche-hover:  #22222A;
-  --flaeche-nav:    #101014;
+  --flaeche:        #14181F;
+  --karte:          #1B202A;
+  --karte-2:        #212733;
+  --tief:           #252C38;
+  --hover:          #2A313E;
+  --gewaehlt:       #35302370;
 
-  --text:           #F2F2F5;
-  --text-sekundaer: #A8A8B4;
-  --text-gedaempft: #7C7C88;
-  --text-nav:       #C9C9D2;
+  --nav:            #0E1725;
+  --nav-tief:       #0A111C;
+  --nav-aktiv:      #1F3255;
+  --nav-text:       #99A6BC;
+  --nav-text-hell:  #FFFFFF;
 
-  --linie:          #2A2A33;
-  --linie-stark:    #3A3A46;
+  --text:           #E7E4DD;
+  --text-2:         #A3A9B3;
+  --text-3:         #767D88;
+  --text-invers:    #14181F;
 
-  --akzent:         #9B7BFF;
-  --akzent-kontrast:#12121A;
-  --akzent-schwach: #241C3D;
+  --linie:          #2B323F;
+  --linie-2:        #3A4250;
+  --linie-stark:    #4E5768;
 
-  --gruen:          #4ADE80;  --gruen-flaeche:  #12261A;
-  --gelb:           #FBBF24;  --gelb-flaeche:   #2A1F09;
-  --rot:            #F87171;  --rot-flaeche:    #2C1414;
-  --blau:           #7EA6FF;  --blau-flaeche:   #111C33;
+  --blau:           #3E5E96;
+  --blau-hell:      #4F74B3;
+  --blau-flaeche:   #1B2740;
+  --beige:          #C7AC79;
+  --beige-tief:     #A98F5E;
+  --beige-flaeche:  #2E2A20;
 
-  --schatten:       0 1px 2px rgba(0, 0, 0, .5);
+  --gruen:          #5FA67F;  --gruen-flaeche:  #1A2822;
+  --gelb:           #C99B45;  --gelb-flaeche:   #2C2415;
+  --rot:            #CC6A5F;  --rot-flaeche:    #2C1B18;
+  --info:           #6D93CC;  --info-flaeche:   #18222F;
+  --neutral:        #8D95A1;  --neutral-flaeche:#242A34;
+
+  --schatten:       0 1px 2px rgba(0, 0, 0, .40);
+  --schatten-hoch:  0 6px 18px rgba(0, 0, 0, .50);
 }
 
-* { border-color: var(--linie); }
-
+* { border-color: var(--linie); box-sizing: border-box; }
 html, body { height: 100%; }
 
 body {
+  margin: 0;
   background: var(--flaeche);
   color: var(--text);
   font-family: var(--font-sans);
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 13px;
+  line-height: 1.45;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  font-variant-numeric: tabular-nums;
 }
 
-/* Sichtbarer Fokus ist Pflicht – Tastaturbedienung muss nachvollziehbar sein. */
+/* Sichtbarer Fokus ist Pflicht – die Disposition wird viel über die Tastatur bedient. */
 :focus-visible {
-  outline: 2px solid var(--akzent);
-  outline-offset: 2px;
-  border-radius: 4px;
+  outline: 2px solid var(--blau);
+  outline-offset: 1px;
+  border-radius: 2px;
 }
+[data-theme="dark"] :focus-visible { outline-color: var(--beige); }
 
-::selection { background: var(--akzent); color: var(--akzent-kontrast); }
+::selection { background: var(--beige); color: #1B1710; }
 
-/* ------------------------------------------------------------------ Bausteine */
+h1, h2, h3, h4 { margin: 0; font-weight: 600; letter-spacing: -.005em; }
+h1 { font-size: 17px; }
+h2 { font-size: 15px; }
+h3 { font-size: 13px; }
+a { color: var(--blau); text-decoration: none; }
+a:hover { text-decoration: underline; }
+[data-theme="dark"] a { color: var(--blau-hell); }
+
+/* ====================================================== Grundbausteine */
 
 .karte {
-  background: var(--flaeche-karte);
+  background: var(--karte);
   border: 1px solid var(--linie);
-  border-radius: var(--radius);
+  border-radius: var(--r);
   box-shadow: var(--schatten);
 }
 
-.karte-titel {
-  display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  padding: 12px 16px;
+.karte-kopf {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  min-height: 34px; padding: 7px 12px;
   border-bottom: 1px solid var(--linie);
-  font-weight: 600; font-size: 13px;
-  letter-spacing: .01em;
+  background: var(--karte);
+  font-size: 12px; font-weight: 600;
+  letter-spacing: .02em;
 }
 
-.knopf {
-  display: inline-flex; align-items: center; gap: 6px;
-  height: 34px; padding: 0 14px;
-  border: 1px solid var(--linie-stark);
-  border-radius: var(--radius-s);
-  background: var(--flaeche-karte);
-  color: var(--text);
-  font-size: 13px; font-weight: 500;
-  cursor: pointer;
-  transition: background .12s ease, border-color .12s ease;
-  white-space: nowrap;
+.karte-fuss {
+  padding: 7px 12px;
+  border-top: 1px solid var(--linie);
+  background: var(--karte);
 }
-.knopf:hover:not(:disabled) { background: var(--flaeche-hover); border-color: var(--text-gedaempft); }
-.knopf:disabled { opacity: .5; cursor: not-allowed; }
+
+/* Abschnittsüberschrift über einem Block – ersetzt eine weitere Karte. */
+.abschnitt {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: var(--text-3);
+  margin: 0 0 7px;
+}
+
+/* --- Schaltflächen ---------------------------------------------------- */
+.knopf {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  height: 28px; padding: 0 11px;
+  border: 1px solid var(--linie-2);
+  border-radius: var(--r);
+  background: var(--karte-2);
+  color: var(--text);
+  font: inherit; font-size: 12px; font-weight: 500;
+  cursor: pointer; white-space: nowrap;
+  transition: background .1s linear, border-color .1s linear;
+}
+.knopf:hover:not(:disabled) { background: var(--hover); border-color: var(--linie-stark); }
+.knopf:active:not(:disabled) { background: var(--tief); }
+.knopf:disabled { opacity: .45; cursor: not-allowed; }
 
 .knopf-primaer {
-  background: var(--akzent); border-color: var(--akzent); color: var(--akzent-kontrast);
+  background: var(--blau); border-color: var(--blau); color: #fff;
 }
-.knopf-primaer:hover:not(:disabled) { filter: brightness(1.08); background: var(--akzent); border-color: var(--akzent); }
+.knopf-primaer:hover:not(:disabled) { background: var(--blau-hell); border-color: var(--blau-hell); }
+.knopf-primaer:active:not(:disabled) { background: var(--blau); }
+
+.knopf-beige {
+  background: var(--beige); border-color: var(--beige-tief); color: #241D0E;
+}
+.knopf-beige:hover:not(:disabled) { background: var(--beige-tief); border-color: var(--beige-tief); color: #fff; }
 
 .knopf-gefahr { color: var(--rot); border-color: var(--rot); background: transparent; }
 .knopf-gefahr:hover:not(:disabled) { background: var(--rot-flaeche); border-color: var(--rot); }
 
-.knopf-klein { height: 28px; padding: 0 10px; font-size: 12px; }
-.knopf-gross { height: 44px; padding: 0 20px; font-size: 15px; }
+.knopf-still { border-color: transparent; background: transparent; color: var(--text-2); }
+.knopf-still:hover:not(:disabled) { background: var(--hover); border-color: var(--linie); color: var(--text); }
 
+.knopf-klein { height: 24px; padding: 0 8px; font-size: 11px; }
+.knopf-gross { height: 34px; padding: 0 16px; font-size: 13px; }
+.knopf-symbol { width: 28px; padding: 0; }
+
+.knopfgruppe { display: inline-flex; }
+.knopfgruppe .knopf { border-radius: 0; margin-left: -1px; }
+.knopfgruppe .knopf:first-child { border-radius: var(--r) 0 0 var(--r); margin-left: 0; }
+.knopfgruppe .knopf:last-child { border-radius: 0 var(--r) var(--r) 0; }
+.knopfgruppe .knopf[aria-pressed="true"] { background: var(--blau); border-color: var(--blau); color: #fff; z-index: 1; }
+
+/* --- Formularfelder --------------------------------------------------- */
 .feld {
-  width: 100%; height: 34px; padding: 0 10px;
-  background: var(--flaeche-karte);
-  border: 1px solid var(--linie-stark);
-  border-radius: var(--radius-s);
-  color: var(--text); font-size: 13px; font-family: inherit;
+  width: 100%; height: 28px; padding: 0 8px;
+  background: var(--karte-2);
+  border: 1px solid var(--linie-2);
+  border-radius: var(--r);
+  color: var(--text);
+  font: inherit; font-size: 12px;
 }
-.feld:hover { border-color: var(--text-gedaempft); }
-textarea.feld { height: auto; min-height: 76px; padding: 8px 10px; line-height: 1.5; resize: vertical; }
-select.feld { padding-right: 28px; }
-.feld::placeholder { color: var(--text-gedaempft); }
+.feld:hover:not(:disabled) { border-color: var(--linie-stark); }
+.feld:disabled { background: var(--tief); color: var(--text-3); cursor: not-allowed; }
+textarea.feld { height: auto; min-height: 64px; padding: 6px 8px; line-height: 1.5; resize: vertical; }
+select.feld { padding-right: 22px; }
+.feld::placeholder { color: var(--text-3); }
 
-.feld-gruppe { display: flex; flex-direction: column; gap: 5px; }
-.feld-label { font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--text-sekundaer); }
-.feld-hinweis { font-size: 12px; color: var(--text-gedaempft); }
-.feld-fehler { font-size: 12px; color: var(--rot); }
+.feld-gruppe { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.feld-label {
+  font-size: 10px; font-weight: 700; letter-spacing: .07em;
+  text-transform: uppercase; color: var(--text-3);
+}
+.feld-hinweis { font-size: 11px; color: var(--text-3); line-height: 1.4; }
+.feld-fehler { font-size: 11px; color: var(--rot); }
 
-/* Statusfarben tragen Bedeutung – nie dekorativ einsetzen (Spec 5). */
+/* --- Statusmarken ----------------------------------------------------- */
 .marke {
-  display: inline-flex; align-items: center; gap: 5px;
-  height: 20px; padding: 0 8px;
-  border-radius: 999px;
-  font-size: 11px; font-weight: 600; letter-spacing: .02em;
-  white-space: nowrap;
+  display: inline-flex; align-items: center; gap: 4px;
+  height: 18px; padding: 0 7px;
+  border-radius: 2px;
+  font-size: 10.5px; font-weight: 600; letter-spacing: .01em;
+  white-space: nowrap; vertical-align: middle;
 }
-.marke-gruen { background: var(--gruen-flaeche); color: var(--gruen); }
-.marke-gelb  { background: var(--gelb-flaeche);  color: var(--gelb); }
-.marke-rot   { background: var(--rot-flaeche);   color: var(--rot); }
-.marke-blau  { background: var(--blau-flaeche);  color: var(--blau); }
-.marke-grau  { background: var(--flaeche-tief);  color: var(--text-sekundaer); }
+.marke-gruen    { background: var(--gruen-flaeche);   color: var(--gruen); }
+.marke-gelb     { background: var(--gelb-flaeche);    color: var(--gelb); }
+.marke-rot      { background: var(--rot-flaeche);     color: var(--rot); }
+.marke-blau     { background: var(--info-flaeche);    color: var(--info); }
+.marke-grau     { background: var(--neutral-flaeche); color: var(--neutral); }
+.marke-beige    { background: var(--beige-flaeche);   color: var(--beige-tief); }
 
-.punkt { width: 7px; height: 7px; border-radius: 999px; background: currentColor; flex: none; }
+.punkt { width: 6px; height: 6px; border-radius: 999px; background: currentColor; flex: none; }
 
-table.tabelle { width: 100%; border-collapse: collapse; font-size: 13px; }
+/* --- Tabellen --------------------------------------------------------- */
+table.tabelle { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 12px; }
 table.tabelle thead th {
-  position: sticky; top: 0; z-index: 1;
-  background: var(--flaeche-tief);
-  text-align: left; font-size: 11px; font-weight: 600;
-  letter-spacing: .05em; text-transform: uppercase; color: var(--text-sekundaer);
-  padding: 8px 12px; border-bottom: 1px solid var(--linie);
+  position: sticky; top: 0; z-index: 2;
+  height: 28px; padding: 0 10px;
+  background: var(--tief);
+  text-align: left; font-size: 10px; font-weight: 700;
+  letter-spacing: .07em; text-transform: uppercase; color: var(--text-2);
+  border-bottom: 1px solid var(--linie-2);
   white-space: nowrap;
 }
-table.tabelle tbody td { padding: 9px 12px; border-bottom: 1px solid var(--linie); vertical-align: middle; }
-table.tabelle tbody tr:hover { background: var(--flaeche-hover); }
-table.tabelle tbody tr:last-child td { border-bottom: none; }
+table.tabelle tbody td {
+  height: var(--zeile); padding: 0 10px;
+  border-bottom: 1px solid var(--linie);
+  vertical-align: middle;
+}
+table.tabelle tbody td.hoch { height: auto; padding-top: 6px; padding-bottom: 6px; }
+table.tabelle tbody tr:hover td { background: var(--hover); }
+table.tabelle tbody tr[aria-selected="true"] td { background: var(--gewaehlt); }
+table.tabelle tbody tr:last-child td { border-bottom: 0; }
+table.tabelle tfoot td {
+  height: 28px; padding: 0 10px;
+  background: var(--tief); font-weight: 600;
+  border-top: 1px solid var(--linie-2);
+}
+
+/* Kennzeichnung am Zeilenanfang statt eines weiteren Kastens. */
+.zeile-gruen td:first-child { box-shadow: inset 3px 0 0 var(--gruen); }
+.zeile-gelb  td:first-child { box-shadow: inset 3px 0 0 var(--gelb); }
+.zeile-rot   td:first-child { box-shadow: inset 3px 0 0 var(--rot); }
+.zeile-blau  td:first-child { box-shadow: inset 3px 0 0 var(--info); }
+.zeile-beige td:first-child { box-shadow: inset 3px 0 0 var(--beige); }
+.zeile-grau  { opacity: .55; }
+
 .zahl { font-variant-numeric: tabular-nums; }
+.einheit { color: var(--text-3); font-size: 11px; }
+.tabelle-scroll { overflow-x: auto; }
 
-.leerhinweis { padding: 40px 20px; text-align: center; color: var(--text-gedaempft); font-size: 13px; }
+.leer {
+  padding: 28px 16px; text-align: center;
+  color: var(--text-3); font-size: 12px;
+}
 
-.trennlinie { height: 1px; background: var(--linie); border: 0; }
+/* --- Hinweise --------------------------------------------------------- */
+.hinweis {
+  display: flex; gap: 8px; align-items: flex-start;
+  padding: 8px 11px; border-radius: var(--r);
+  font-size: 12px; line-height: 1.5;
+  border: 1px solid transparent;
+}
+.hinweis-info    { background: var(--info-flaeche);  color: var(--info);  border-color: color-mix(in srgb, var(--info) 22%, transparent); }
+.hinweis-warnung { background: var(--gelb-flaeche);  color: var(--gelb);  border-color: color-mix(in srgb, var(--gelb) 25%, transparent); }
+.hinweis-fehler  { background: var(--rot-flaeche);   color: var(--rot);   border-color: color-mix(in srgb, var(--rot) 25%, transparent); }
+.hinweis-erfolg  { background: var(--gruen-flaeche); color: var(--gruen); border-color: color-mix(in srgb, var(--gruen) 25%, transparent); }
+.hinweis-beige   { background: var(--beige-flaeche); color: var(--beige-tief); border-color: color-mix(in srgb, var(--beige) 35%, transparent); }
 
-/* Zeile im Abgleich – der farbige Balken links ersetzt einen weiteren Kasten. */
-.zeile-gruen { box-shadow: inset 3px 0 0 var(--gruen); }
-.zeile-gelb  { box-shadow: inset 3px 0 0 var(--gelb); }
-.zeile-rot   { box-shadow: inset 3px 0 0 var(--rot); }
-.zeile-blau  { box-shadow: inset 3px 0 0 var(--blau); }
+/* --- Kennzahlen ------------------------------------------------------- */
+.kennzahl {
+  display: flex; flex-direction: column; gap: 1px;
+  padding: 9px 12px;
+  background: var(--karte);
+  border: 1px solid var(--linie);
+  border-radius: var(--r);
+  text-decoration: none; color: inherit;
+  min-width: 0;
+}
+a.kennzahl:hover { background: var(--hover); border-color: var(--linie-2); text-decoration: none; }
+.kennzahl-wert { font-size: 21px; font-weight: 650; line-height: 1.15; letter-spacing: -.02em; }
+.kennzahl-label { font-size: 11px; color: var(--text-2); }
+.kennzahl-zusatz { font-size: 10px; color: var(--text-3); }
 
-/* ------------------------------------------------------------------ Druck (Spec 63) */
+/* --- Besetzungsbalken ------------------------------------------------- */
+.balken { display: inline-flex; align-items: center; gap: 6px; }
+.balken-spur { width: 46px; height: 4px; border-radius: 2px; background: var(--tief); overflow: hidden; flex: none; }
+.balken-wert { display: block; height: 100%; }
+
+hr.trenner { height: 1px; background: var(--linie); border: 0; margin: 0; }
+
+/* ====================================================== Anwendungsgerüst */
+
+.app { display: grid; grid-template-columns: var(--navbreite) 1fr; min-height: 100dvh; }
+
+.app-nav {
+  position: sticky; top: 0; height: 100dvh;
+  display: flex; flex-direction: column;
+  background: var(--nav); color: var(--nav-text);
+  border-right: 1px solid var(--nav-tief);
+}
+.app-inhalt { min-width: 0; display: flex; flex-direction: column; }
+
+.app-kopf {
+  position: sticky; top: 0; z-index: 30;
+  display: flex; align-items: center; gap: 8px;
+  height: var(--kopfhoehe); padding: 0 14px;
+  background: var(--karte);
+  border-bottom: 1px solid var(--linie);
+}
+
+.app-haupt { flex: 1; min-width: 0; padding: 14px 16px 40px; }
+
+/* Arbeitsflächen, die den ganzen Bildschirm brauchen (Disposition). */
+.app-haupt-voll { padding: 0; display: flex; flex-direction: column; min-height: 0; }
+
+/* --- Navigation ------------------------------------------------------- */
+.nav-marke {
+  display: flex; align-items: center; gap: 9px;
+  height: var(--kopfhoehe); padding: 0 14px;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+  flex: none;
+}
+.nav-liste { flex: 1; overflow-y: auto; padding: 6px 0 14px; margin: 0; list-style: none; }
+.nav-liste::-webkit-scrollbar { width: 8px; }
+.nav-liste::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 4px; }
+
+/* Eine Gruppe ist der Behälter, .nav-titel die Zwischenüberschrift. */
+.nav-gruppe { display: block; }
+.nav-gruppe + .nav-gruppe { margin-top: 1px; }
+.nav-titel {
+  display: block; padding: 12px 14px 4px;
+  font-size: 9.5px; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; color: #6A7B96;
+}
+.nav-eintrag {
+  display: flex; align-items: center; gap: 9px; width: 100%;
+  height: 28px; padding: 0 12px 0 14px;
+  color: var(--nav-text); font-size: 12.5px; text-align: left;
+  background: none; border: 0; border-left: 2px solid transparent;
+  text-decoration: none; cursor: pointer;
+  font-family: inherit;
+}
+.nav-eintrag > span:first-of-type { flex: 1; min-width: 0; }
+.nav-eintrag:hover { background: rgba(255,255,255,.05); color: #fff; text-decoration: none; }
+.nav-eintrag:focus-visible { outline: 2px solid var(--beige); outline-offset: -2px; }
+.nav-eintrag[data-aktiv] {
+  background: var(--nav-aktiv); color: #fff; font-weight: 600;
+  border-left-color: var(--beige);
+}
+.nav-eintrag .nav-zahl {
+  margin-left: auto; font-size: 10px; font-weight: 700;
+  background: var(--beige); color: #241D0E;
+  border-radius: 2px; padding: 0 5px; min-width: 17px; text-align: center;
+}
+.nav-unter {
+  display: flex; align-items: center; gap: 8px;
+  height: 24px; padding: 0 14px 0 35px;
+  color: #8E9CB4; font-size: 12px; text-decoration: none;
+  border-left: 2px solid transparent;
+}
+.nav-unter > span { flex: 1; min-width: 0; }
+.nav-unter kbd {
+  font-family: var(--font-mono); font-size: 9.5px;
+  border: 1px solid rgba(255,255,255,.18); border-radius: 2px;
+  padding: 0 3px; color: #7F8DA6;
+}
+.nav-unter:hover { color: #fff; background: rgba(255,255,255,.04); text-decoration: none; }
+.nav-unter:focus-visible { outline: 2px solid var(--beige); outline-offset: -2px; }
+.nav-unter[data-aktiv] { color: #fff; font-weight: 600; border-left-color: var(--beige); background: rgba(255,255,255,.05); }
+
+/* Menüschalter und Abdunkelung – nur auf schmalen Geräten sichtbar. */
+.nav-schalter { position: fixed; top: 7px; left: 10px; z-index: 60; display: none; }
+.nav-schleier { position: fixed; inset: 0; background: rgba(8,12,20,.55); z-index: 55; display: none; }
+
+/* Zwischenüberschrift in Karten (Altbestand, deckungsgleich mit .karte-kopf) */
+.karte-titel {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; padding: 8px 12px; min-height: 34px;
+  border-bottom: 1px solid var(--linie); background: var(--karte);
+  font-size: 12.5px; font-weight: 650;
+}
+.leerhinweis {
+  margin: 0; padding: 22px 12px; text-align: center;
+  color: var(--text-3); font-size: 12.5px;
+}
+/* Kennzahlenreihe des Dashboards: gleich hohe Kacheln, keine Riesenkarten. */
+.dashboard-raster {
+  display: grid; gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.nav-fuss {
+  flex: none; padding: 9px 14px;
+  border-top: 1px solid rgba(255,255,255,.07);
+  font-size: 11.5px;
+}
+
+/* --- Seitenkopf im Inhalt -------------------------------------------- */
+.seitenkopf {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 14px; flex-wrap: wrap; margin-bottom: 12px;
+}
+.brotkrumen { display: flex; gap: 5px; font-size: 11px; color: var(--text-3); margin-bottom: 2px; }
+.brotkrumen a { color: inherit; }
+
+/* --- Reiter ----------------------------------------------------------- */
+.reiter {
+  display: flex; gap: 0; overflow-x: auto;
+  border-bottom: 1px solid var(--linie); margin-bottom: 14px;
+}
+.reiter a {
+  padding: 7px 13px; font-size: 12.5px; white-space: nowrap;
+  color: var(--text-2); text-decoration: none;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+}
+.reiter a:hover { color: var(--text); text-decoration: none; background: var(--hover); }
+.reiter a[aria-current="page"] { color: var(--blau); font-weight: 600; border-bottom-color: var(--blau); }
+[data-theme="dark"] .reiter a[aria-current="page"] { color: var(--beige); border-bottom-color: var(--beige); }
+
+/* --- Werkzeugleiste über Tabellen ------------------------------------ */
+.werkzeuge {
+  display: flex; align-items: center; gap: 7px; flex-wrap: wrap;
+  padding: 7px 12px; border-bottom: 1px solid var(--linie);
+  background: var(--karte);
+}
+.werkzeuge-trenner { width: 1px; height: 18px; background: var(--linie); flex: none; }
+
+/* ====================================================== Leitstelle */
+
+/*
+  Der Einsatzplan ist eine Zeitleiste: links die Mitarbeiter, rechts die
+  Stunden. Die Spaltenbreite je Stunde steckt in --stunde, damit sich der
+  Zoom an genau einer Stelle ändert.
+*/
+.leitstelle { --stunde: 58px; --spur: 26px; display: flex; flex-direction: column; min-height: 0; flex: 1; }
+
+.leitstelle-kopf {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  padding: 8px 12px; background: var(--karte);
+  border-bottom: 1px solid var(--linie);
+}
+
+.leitstelle-raster { display: grid; grid-template-columns: 236px 1fr; flex: 1; min-height: 0; }
+
+.leitstelle-seite {
+  border-right: 1px solid var(--linie-2);
+  background: var(--karte);
+  overflow-y: auto; min-height: 0;
+}
+.leitstelle-plan { overflow: auto; min-height: 0; background: var(--karte); position: relative; }
+
+.zeitkopf {
+  position: sticky; top: 0; z-index: 3;
+  display: flex; height: 24px;
+  background: var(--tief); border-bottom: 1px solid var(--linie-2);
+}
+.zeitkopf span {
+  width: var(--stunde); flex: none;
+  font-size: 10px; font-weight: 600; color: var(--text-2);
+  padding-left: 4px; border-left: 1px solid var(--linie);
+  display: flex; align-items: center;
+}
+
+.plan-zeile {
+  position: relative; height: var(--spur);
+  border-bottom: 1px solid var(--linie);
+}
+.plan-zeile:nth-child(even) { background: color-mix(in srgb, var(--tief) 45%, transparent); }
+.plan-zeile.ziel-aktiv { background: var(--beige-flaeche); outline: 1px dashed var(--beige); outline-offset: -1px; }
+
+/* Stundenraster als Hintergrund – keine einzelnen Elemente je Stunde. */
+.plan-gitter {
+  background-image: repeating-linear-gradient(
+    to right,
+    var(--linie) 0 1px,
+    transparent 1px var(--stunde)
+  );
+}
+
+.einsatzbalken {
+  position: absolute; top: 3px; bottom: 3px;
+  display: flex; align-items: center; gap: 5px;
+  padding: 0 7px; border-radius: 3px;
+  font-size: 11px; font-weight: 500; color: #fff;
+  background: var(--blau); border: 1px solid var(--blau);
+  overflow: hidden; white-space: nowrap; cursor: pointer;
+}
+.einsatzbalken:hover { filter: brightness(1.12); text-decoration: none; }
+.einsatzbalken-offen   { background: var(--gelb);  border-color: var(--gelb); }
+.einsatzbalken-kritisch{ background: var(--rot);   border-color: var(--rot); }
+.einsatzbalken-fertig  { background: var(--gruen); border-color: var(--gruen); }
+.einsatzbalken-leer {
+  background: repeating-linear-gradient(45deg, var(--tief) 0 6px, transparent 6px 12px);
+  border: 1px dashed var(--linie-stark); color: var(--text-2);
+}
+
+.mitarbeiterzeile {
+  display: flex; align-items: center; gap: 7px;
+  height: var(--spur); padding: 0 10px;
+  border-bottom: 1px solid var(--linie);
+  font-size: 12px; cursor: grab;
+}
+.mitarbeiterzeile:hover { background: var(--hover); }
+.mitarbeiterzeile[data-gezogen="true"] { opacity: .4; }
+.mitarbeiterzeile:active { cursor: grabbing; }
+.mitarbeiterzeile .kuerzel {
+  width: 20px; height: 20px; flex: none; border-radius: 2px;
+  background: var(--tief); color: var(--text-2);
+  display: grid; place-items: center; font-size: 9px; font-weight: 700;
+}
+
+/* ====================================================== Sonstiges */
+
+.raster { display: grid; gap: 10px; }
+.stapel { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.reihe  { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+.paar { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.paar-label { font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text-3); }
+.paar-wert { font-size: 12.5px; word-break: break-word; }
+
+/* Bereich, den eine Rolle nicht sehen darf – wird nie leer gelassen,
+   sondern benannt. Sonst hält der Benutzer es für einen Fehler. */
+.gesperrt {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 1px 7px; border-radius: 2px;
+  background: var(--neutral-flaeche); color: var(--text-3);
+  font-size: 11px; font-style: italic;
+}
+
+details > summary { list-style: none; cursor: pointer; }
+details > summary::-webkit-details-marker { display: none; }
+
+kbd {
+  font-family: var(--font-mono); font-size: 10px;
+  padding: 1px 4px; border-radius: 2px;
+  border: 1px solid var(--linie-2); background: var(--karte-2); color: var(--text-3);
+}
+
+/* ====================================================== Druck (Spec 63) */
 @media print {
   :root { color-scheme: light; }
-  body { background: #fff; color: #000; font-size: 11pt; }
-  .nicht-drucken, nav, aside, header.app-kopf { display: none !important; }
+  body { background: #fff; color: #000; font-size: 10pt; }
+  .nicht-drucken, .app-nav, .app-kopf, .werkzeuge, .reiter { display: none !important; }
+  .app { grid-template-columns: 1fr; }
+  .app-haupt { padding: 0; }
   .karte { border: 1px solid #999; box-shadow: none; break-inside: avoid; }
   table.tabelle thead th { background: #eee; color: #000; }
   a[href]::after { content: ""; }
   .druck-block { break-inside: avoid; }
 }
 
+/* ====================================================== Größenanpassung */
+
+/* Desktop zuerst: ab 1600 px mehr Luft, die Dichte bleibt. */
+@media (min-width: 1600px) {
+  :root { --navbreite: 248px; }
+  .app-haupt { padding: 16px 22px 48px; }
+}
+
+@media (max-width: 1100px) {
+  .leitstelle-raster { grid-template-columns: 200px 1fr; }
+}
+
+/* Tablet: Navigation schmaler, Beschriftungen bleiben. */
+@media (max-width: 900px) {
+  :root { --navbreite: 190px; }
+  .app-haupt { padding: 12px 12px 36px; }
+}
+
+/* Smartphone: Navigation als Schublade, größere Ziele, eigene Fußnavigation. */
+@media (max-width: 700px) {
+  :root { --zeile: 38px; }
+  body { font-size: 14px; }
+  .app { grid-template-columns: 1fr; }
+  .app-nav {
+    position: fixed; inset: 0 auto 0 0; z-index: 60; width: 264px;
+    transform: translateX(-100%); transition: transform .16s ease-out;
+  }
+  .app-nav[data-offen="true"] { transform: none; box-shadow: var(--schatten-hoch); }
+  .nav-schalter { display: inline-flex; }
+  .nav-schleier { display: block; }
+  .app-haupt { padding: 12px 12px 76px; }
+  .knopf { height: 34px; padding: 0 13px; font-size: 13px; }
+  .knopf-klein { height: 28px; font-size: 12px; }
+  .feld { height: 34px; font-size: 16px; }  /* 16px verhindert das Zoomen in iOS */
+  table.tabelle tbody td { height: auto; padding: 8px 10px; }
+  .nur-desktop { display: none !important; }
+  .leitstelle-raster { grid-template-columns: 1fr; }
+  .leitstelle-seite { display: none; }
+}
+
+@media (min-width: 701px) {
+  .nur-mobil { display: none !important; }
+}
+
+/* Fußnavigation nur auf dem Smartphone. */
+.fussnav {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+  display: none; align-items: stretch;
+  background: var(--nav); border-top: 1px solid var(--nav-tief);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+@media (max-width: 700px) { .fussnav { display: flex; } }
+.fussnav a {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; padding: 7px 2px; color: var(--nav-text);
+  font-size: 10px; text-decoration: none;
+}
+.fussnav a[data-aktiv] { color: #fff; }
+.fussnav a[data-aktiv] svg { color: var(--beige); }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
-
-/* ------------------------------------------------------------------ App-Gerüst */
-
-.app {
-  display: grid;
-  grid-template-columns: 220px 1fr;
-  min-height: 100dvh;
-}
-
-.app-nav {
-  display: flex;
-  flex-direction: column;
-  position: sticky;
-  top: 0;
-  height: 100dvh;
-}
-
-.app-inhalt { min-width: 0; display: flex; flex-direction: column; }
-
-.app-kopf {
-  position: sticky; top: 0; z-index: 30;
-  display: flex; align-items: center; gap: 10;
-  padding: 9px 20px;
-  background: color-mix(in srgb, var(--flaeche) 88%, transparent);
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--linie);
-}
-
-.app-haupt { padding: 20px; flex: 1; min-width: 0; }
-
-[data-nur-mobil] { display: none; }
-
-@media (max-width: 900px) {
-  .app { grid-template-columns: 1fr; }
-  .app-nav {
-    position: fixed; inset: 0 auto 0 0; z-index: 56; width: 250px;
-    transform: translateX(-100%); transition: transform .18s ease;
-  }
-  .app-nav[data-offen] { transform: none; }
-  [data-nur-mobil] { display: inline-flex; }
-  .app-kopf { padding-left: 56px; }
-  .app-haupt { padding: 14px; }
-}
-
-/* Auf dem Smartphone bekommen Bedienelemente mehr Flaeche (Spec 44). */
-@media (max-width: 640px) {
-  body { font-size: 15px; }
-  .knopf { height: 40px; padding: 0 16px; font-size: 14px; }
-  .knopf-klein { height: 32px; font-size: 13px; }
-  .feld { height: 40px; font-size: 16px; } /* 16px verhindert das Zoomen in iOS */
-  .tabelle-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-}
-
-.tabelle-scroll { overflow-x: auto; }
-
-@media (max-width: 1100px) {
-  .dashboard-raster { grid-template-columns: 1fr !important; }
-}
-
-details > summary::-webkit-details-marker { display: none; }
-details > summary { list-style: none; }
-
-.zeile-grau { opacity: .6; }

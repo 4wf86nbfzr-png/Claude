@@ -94,7 +94,7 @@ export default async function Kalender({ searchParams }: { searchParams: Promise
                          <span style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                            <span>{weekdayDE(tag)}, {formatDateDE(tag)}</span>
                            {istHeute && <span className="marke marke-blau">heute</span>}
-                           <span style={{ fontWeight: 400, color: 'var(--text-gedaempft)', fontSize: 12 }}>
+                           <span style={{ fontWeight: 400, color: 'var(--text-3)', fontSize: 12 }}>
                              {tagesEvents.length === 0 ? 'keine Einsätze' : `${tagesEvents.length} Einsätze`}
                            </span>
                          </span>
@@ -108,8 +108,8 @@ export default async function Kalender({ searchParams }: { searchParams: Promise
                             <tr key={event.id} className={b.offen > 0 ? 'zeile-gelb' : 'zeile-gruen'}>
                               <td className="zahl" style={{ whiteSpace: 'nowrap', width: 110 }}>{event.startTime ?? '–'}–{event.endTime ?? '–'}</td>
                               <td><Link href={`/events/${event.id}`} style={{ fontWeight: 500 }}>{event.name}</Link></td>
-                              <td style={{ color: 'var(--text-sekundaer)' }}>{event.customer?.name ?? '–'}</td>
-                              <td style={{ color: 'var(--text-sekundaer)' }}>{event.venue ?? event.city ?? '–'}</td>
+                              <td style={{ color: 'var(--text-2)' }}>{event.customer?.name ?? '–'}</td>
+                              <td style={{ color: 'var(--text-2)' }}>{event.venue ?? event.city ?? '–'}</td>
                               <td><Balken ist={b.ist} soll={b.soll} /></td>
                               <td><StatusMarke status={label(EVENT_STATUS, event.status)} /></td>
                             </tr>
@@ -134,7 +134,7 @@ function Monatsraster({ tage, nachTag }: { tage: Date[]; nachTag: Map<string, Ar
     <div className="karte" style={{ padding: 10 }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, minmax(0, 1fr))', gap: 6 }}>
         {['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'].map((tag) => (
-          <div key={tag} style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.05em', textTransform: 'uppercase', color: 'var(--text-gedaempft)', padding: '2px 4px' }}>{tag}</div>
+          <div key={tag} style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.05em', textTransform: 'uppercase', color: 'var(--text-3)', padding: '2px 4px' }}>{tag}</div>
         ))}
         {tage.map((tag) => {
           const schluessel = isoDate(tag);
@@ -143,11 +143,11 @@ function Monatsraster({ tage, nachTag }: { tage: Date[]; nachTag: Map<string, Ar
           return (
             <div key={schluessel}
                  style={{
-                   minHeight: 92, padding: 6, borderRadius: 'var(--radius-s)',
-                   border: `1px solid ${istHeute ? 'var(--akzent)' : 'var(--linie)'}`,
-                   background: 'var(--flaeche-karte)',
+                   minHeight: 92, padding: 6, borderRadius: 'var(--r)',
+                   border: `1px solid ${istHeute ? 'var(--blau)' : 'var(--linie)'}`,
+                   background: 'var(--karte)',
                  }}>
-              <div className="zahl" style={{ fontSize: 11, fontWeight: 600, color: istHeute ? 'var(--akzent)' : 'var(--text-gedaempft)', marginBottom: 4 }}>
+              <div className="zahl" style={{ fontSize: 11, fontWeight: 600, color: istHeute ? 'var(--blau)' : 'var(--text-3)', marginBottom: 4 }}>
                 {tag.getUTCDate()}.
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
@@ -164,7 +164,7 @@ function Monatsraster({ tage, nachTag }: { tage: Date[]; nachTag: Map<string, Ar
                   );
                 })}
                 {tagesEvents.length > 4 && (
-                  <span style={{ fontSize: 10, color: 'var(--text-gedaempft)' }}>+{tagesEvents.length - 4} weitere</span>
+                  <span style={{ fontSize: 10, color: 'var(--text-3)' }}>+{tagesEvents.length - 4} weitere</span>
                 )}
               </div>
             </div>

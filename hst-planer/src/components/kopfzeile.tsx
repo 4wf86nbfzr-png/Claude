@@ -48,7 +48,7 @@ export function Kopfzeile({ ungelesen, theme, abmelden }: { ungelesen: number; t
         onSubmit={(e) => { e.preventDefault(); if (begriff.trim()) router.push(`/suche?q=${encodeURIComponent(begriff.trim())}`); }}
         style={{ position: 'relative', flex: 1, maxWidth: 440 }}
       >
-        <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-gedaempft)', pointerEvents: 'none' }}>
+        <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-3)', pointerEvents: 'none' }}>
           <Icon name="search" size={15} />
         </span>
         <input
@@ -61,7 +61,7 @@ export function Kopfzeile({ ungelesen, theme, abmelden }: { ungelesen: number; t
           aria-label="Globale Suche"
           style={{ paddingLeft: 32, paddingRight: 32 }}
         />
-        <kbd style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', fontSize: 10, color: 'var(--text-gedaempft)', border: '1px solid var(--linie)', borderRadius: 3, padding: '1px 4px', fontFamily: 'var(--font-mono)' }}>/</kbd>
+        <kbd style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', fontSize: 10, color: 'var(--text-3)', border: '1px solid var(--linie)', borderRadius: 3, padding: '1px 4px', fontFamily: 'var(--font-mono)' }}>/</kbd>
       </form>
 
       <div style={{ flex: 1 }} />

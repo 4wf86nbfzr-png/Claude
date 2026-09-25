@@ -45,7 +45,7 @@ export default async function Zuordnen({ params }: { params: Promise<{ id: strin
               <tbody>
                 {blatt.rows.slice(0, 12).map((zeile, index) => (
                   <tr key={index}>
-                    <td className="zahl" style={{ color: 'var(--text-gedaempft)' }}>{index + 2}</td>
+                    <td className="zahl" style={{ color: 'var(--text-3)' }}>{index + 2}</td>
                     {blatt.headers.map((h) => (
                       <td key={h} style={{ whiteSpace: 'nowrap', maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {formatiere(zeile[h])}

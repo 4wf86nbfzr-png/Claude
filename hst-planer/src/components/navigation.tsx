@@ -2,36 +2,70 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Icon } from './icons';
 import { Logo } from './logo';
-import type { NavItem } from '@/lib/auth/rbac';
-
-/** Platzhalter, der in der Liste eine Zwischenüberschrift markiert. */
-const TRENNER: NavItem = { href: '__trenner__', label: '', permission: 'dashboard.view', icon: 'grid' };
+import type { NavGruppe, NavItem } from '@/lib/auth/rbac';
 
 /**
- * Seitennavigation (Spec 6/45).
- * Auf dem Desktop dauerhaft sichtbar, auf dem Smartphone als Schublade.
- * Die Tastenkuerzel aus Spec 46 hängen hier, weil die Navigation auf
- * jeder Seite eingebunden ist.
+ * Seitennavigation nach SecPlan 2 und 28.
+ *
+ * Auf dem Desktop dauerhaft sichtbar und in neun Bereiche gegliedert;
+ * die Gruppe des aktuellen Pfades ist aufgeklappt, die anderen sind zu.
+ * Auf dem Smartphone wird daraus eine Schublade plus eine schmale
+ * Fussleiste mit den vier Dingen, die unterwegs wirklich gebraucht werden.
+ *
+ * Die Tastenkuerzel haengen hier, weil die Navigation auf jeder Seite
+ * eingebunden ist.
  */
-export function Navigation({ items, eigene, name, rolle }: { items: NavItem[]; eigene: NavItem[]; name: string; rolle: string }) {
+export function Navigation({
+  gruppen, eigene, name, rolle,
+}: {
+  gruppen: NavGruppe[];
+  eigene: NavItem[];
+  name: string;
+  rolle: string;
+}) {
   const pfad = usePathname();
   const router = useRouter();
   const [offen, setOffen] = useState(false);
 
-  useEffect(() => { setOffen(false); }, [pfad]);
+  /** Welche Gruppe gehoert zum aktuellen Pfad? */
+  const aktiveGruppe = useMemo(() => {
+    let treffer = '';
+    let laenge = -1;
+    for (const gruppe of gruppen) {
+      for (const ziel of [gruppe.href, ...gruppe.items.map((i) => i.href)]) {
+        if ((pfad === ziel || pfad.startsWith(`${ziel}/`)) && ziel.length > laenge) {
+          treffer = gruppe.id;
+          laenge = ziel.length;
+        }
+      }
+    }
+    return treffer;
+  }, [gruppen, pfad]);
+
+  const [ausgeklappt, setAusgeklappt] = useState<string[]>([]);
+  useEffect(() => {
+    setOffen(false);
+    if (aktiveGruppe) setAusgeklappt((v) => (v.includes(aktiveGruppe) ? v : [...v, aktiveGruppe]));
+  }, [pfad, aktiveGruppe]);
 
   useEffect(() => {
-    const erlaubt = new Set(items.map((i) => i.href));
+    const erlaubt = new Set<string>();
+    for (const gruppe of gruppen) {
+      erlaubt.add(gruppe.href);
+      for (const item of gruppe.items) erlaubt.add(item.href);
+    }
+
     const ziel: Record<string, string> = {
-      n: '/events/neu', s: '/suche', e: '/mitarbeiter', k: '/kalender', a: '/abgleiche',
+      n: '/events/neu', s: '/suche', e: '/mitarbeiter',
+      k: '/kalender', t: '/disposition', a: '/abgleiche',
     };
 
     function onKey(event: KeyboardEvent) {
       if (event.key === 'Escape') { setOffen(false); return; }
-      // Kürzel dürfen nie während einer Eingabe auslösen.
+      // Kuerzel duerfen nie waehrend einer Eingabe ausloesen.
       const aktiv = document.activeElement;
       if (aktiv instanceof HTMLElement && (aktiv.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(aktiv.tagName))) return;
       if (event.metaKey || event.ctrlKey || event.altKey) return;
@@ -39,80 +73,110 @@ export function Navigation({ items, eigene, name, rolle }: { items: NavItem[]; e
       const href = ziel[event.key.toLowerCase()];
       if (!href) return;
       const basis = `/${href.split('/')[1]}`;
-      if (!erlaubt.has(basis) && basis !== '/suche') return;
+      if (!erlaubt.has(basis) && !erlaubt.has(href) && basis !== '/suche') return;
       event.preventDefault();
       router.push(href);
     }
 
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [items, router]);
+  }, [gruppen, router]);
+
+  function istAktiv(href: string) {
+    return pfad === href || pfad.startsWith(`${href}/`);
+  }
 
   return (
     <>
-      <button type="button" className="knopf nicht-drucken" aria-label="Menü öffnen" aria-expanded={offen}
-              onClick={() => setOffen((v) => !v)}
-              style={{ position: 'fixed', top: 10, left: 10, zIndex: 60, width: 36, padding: 0, justifyContent: 'center' }}
-              data-nur-mobil>
+      <button type="button" className="knopf knopf-symbol nav-schalter nicht-drucken"
+              aria-label={offen ? 'Menü schließen' : 'Menü öffnen'} aria-expanded={offen}
+              onClick={() => setOffen((v) => !v)}>
         <Icon name={offen ? 'close' : 'menu'} size={18} />
       </button>
 
-      {offen && <div onClick={() => setOffen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.5)', zIndex: 55 }} data-nur-mobil />}
+      {offen && <div className="nav-schleier nicht-drucken" onClick={() => setOffen(false)} />}
 
-      <nav aria-label="Hauptnavigation" data-offen={offen || undefined}
-           className="app-nav nicht-drucken"
-           style={{ background: 'var(--flaeche-nav)', color: 'var(--text-nav)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '14px 14px 12px' }}>
-          <Logo groesse={26} />
-          <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: 13, fontWeight: 650, color: '#fff', lineHeight: 1.2 }}>HST Planer</div>
-            <div style={{ fontSize: 10, letterSpacing: '.08em', textTransform: 'uppercase', color: '#8A8A98' }}>Disposition</div>
+      <nav aria-label="Hauptnavigation" data-offen={offen || undefined} className="app-nav nicht-drucken">
+        <div className="nav-marke">
+          <Logo groesse={24} />
+          <div>
+            <strong>HST Planer</strong>
+            <span>Leitstelle</span>
           </div>
         </div>
 
-        <ul style={{ listStyle: 'none', margin: 0, padding: '4px 8px', display: 'flex', flexDirection: 'column', gap: 1, flex: 1, overflowY: 'auto' }}>
-          {eigene.length > 0 && items.length > 0 && (
-            <li style={{ padding: '8px 9px 3px', fontSize: 10, letterSpacing: '.08em', textTransform: 'uppercase', color: '#6E6E7C' }}>
-              Mein Bereich
-            </li>
+        <div className="nav-liste">
+          {eigene.length > 0 && (
+            <div className="nav-gruppe">
+              <div className="nav-titel">Mein Bereich</div>
+              {eigene.map((item) => (
+                <Link key={item.href} href={item.href}
+                      className="nav-unter" data-aktiv={istAktiv(item.href) || undefined}
+                      aria-current={istAktiv(item.href) ? 'page' : undefined}>
+                  {item.label}
+                </Link>
+              ))}
+            </div>
           )}
-          {[...eigene, ...(eigene.length > 0 && items.length > 0 ? [TRENNER] : []), ...items].map((item) => {
-            if (item === TRENNER) {
+
+          {gruppen.map((gruppe) => {
+            // Gruppen ohne Unterpunkte (Dashboard) sind selbst der Link.
+            if (gruppe.items.length === 0) {
               return (
-                <li key="trenner" style={{ padding: '10px 9px 3px', fontSize: 10, letterSpacing: '.08em', textTransform: 'uppercase', color: '#6E6E7C' }}>
-                  Disposition
-                </li>
+                <div className="nav-gruppe" key={gruppe.id}>
+                  <Link href={gruppe.href} className="nav-eintrag"
+                        data-aktiv={istAktiv(gruppe.href) || undefined}
+                        aria-current={istAktiv(gruppe.href) ? 'page' : undefined}>
+                    <Icon name={gruppe.icon} size={15} />
+                    <span>{gruppe.label}</span>
+                  </Link>
+                </div>
               );
             }
-            const aktiv = pfad === item.href || pfad.startsWith(`${item.href}/`);
+
+            const auf = ausgeklappt.includes(gruppe.id);
             return (
-              <li key={item.href}>
-                <Link href={item.href}
-                      aria-current={aktiv ? 'page' : undefined}
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: 9,
-                        padding: '7px 9px', borderRadius: 6, fontSize: 13,
-                        color: aktiv ? '#fff' : 'var(--text-nav)',
-                        background: aktiv ? 'rgba(124,58,237,.9)' : 'transparent',
-                        fontWeight: aktiv ? 600 : 400, textDecoration: 'none',
-                      }}>
-                  <Icon name={item.icon} size={16} />
-                  <span style={{ flex: 1 }}>{item.label}</span>
-                  {item.shortcut && (
-                    <kbd style={{ fontSize: 10, padding: '1px 4px', borderRadius: 3, border: '1px solid #ffffff22', color: '#8A8A98', fontFamily: 'var(--font-mono)' }}>
-                      {item.shortcut}
-                    </kbd>
-                  )}
-                </Link>
-              </li>
+              <div className="nav-gruppe" key={gruppe.id}>
+                <button type="button" className="nav-eintrag"
+                        data-aktiv={gruppe.id === aktiveGruppe || undefined}
+                        aria-expanded={auf}
+                        onClick={() => setAusgeklappt((v) => (auf ? v.filter((x) => x !== gruppe.id) : [...v, gruppe.id]))}>
+                  <Icon name={gruppe.icon} size={15} />
+                  <span>{gruppe.label}</span>
+                  <Icon name={auf ? 'chevron-up' : 'chevron-down'} size={13} />
+                </button>
+                {auf && gruppe.items.map((item) => (
+                  <Link key={item.href} href={item.href}
+                        className="nav-unter" data-aktiv={istAktiv(item.href) || undefined}
+                        aria-current={istAktiv(item.href) ? 'page' : undefined}>
+                    <span>{item.label}</span>
+                    {item.shortcut && <kbd>{item.shortcut}</kbd>}
+                  </Link>
+                ))}
+              </div>
             );
           })}
-        </ul>
-
-        <div style={{ borderTop: '1px solid #ffffff14', padding: '10px 14px', fontSize: 12 }}>
-          <div style={{ color: '#fff', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</div>
-          <div style={{ color: '#8A8A98', fontSize: 11 }}>{rolle}</div>
         </div>
+
+        <div className="nav-fuss">
+          <strong>{name}</strong>
+          <span>{rolle}</span>
+        </div>
+      </nav>
+
+      {/* Fussleiste nur auf dem Smartphone – vier Ziele, keine geschrumpfte Sidebar. */}
+      <nav className="fussnav nicht-drucken" aria-label="Schnellzugriff">
+        {[
+          { href: eigene[0]?.href ?? gruppen[0]?.href ?? '/dashboard', label: 'Einsätze', icon: 'calendar' },
+          { href: '/meine-verfuegbarkeit', label: 'Verfügbar', icon: 'clock' },
+          { href: '/benachrichtigungen', label: 'Hinweise', icon: 'bell' },
+          { href: '/suche', label: 'Suche', icon: 'search' },
+        ].map((z) => (
+          <Link key={z.href} href={z.href} data-aktiv={istAktiv(z.href) || undefined}>
+            <Icon name={z.icon} size={17} />
+            <span>{z.label}</span>
+          </Link>
+        ))}
       </nav>
     </>
   );

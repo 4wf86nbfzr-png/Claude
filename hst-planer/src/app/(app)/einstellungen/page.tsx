@@ -144,7 +144,7 @@ export default async function Einstellungen() {
                 {vorlagen.map((vorlage) => (
                   <tr key={vorlage.id}>
                     <td>{vorlage.name}</td>
-                    <td style={{ fontSize: 11, color: 'var(--text-sekundaer)' }}>
+                    <td style={{ fontSize: 11, color: 'var(--text-2)' }}>
                       {Object.entries(vorlage.mapping as Record<string, string>).map(([feld, spalte]) => `${feld}: ${spalte}`).join(' · ')}
                     </td>
                     {darfAendern && (

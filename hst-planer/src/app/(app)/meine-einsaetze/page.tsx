@@ -62,7 +62,7 @@ export default async function MeineEinsaetze() {
       )}
 
       <section style={{ marginBottom: 22 }}>
-        <h2 style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--text-gedaempft)', margin: '0 0 8px' }}>Heute</h2>
+        <h2 style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--text-3)', margin: '0 0 8px' }}>Heute</h2>
         {heutige.length === 0
           ? <Karte><Leer>Heute haben Sie keinen Einsatz.</Leer></Karte>
           : <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -71,7 +71,7 @@ export default async function MeineEinsaetze() {
       </section>
 
       <section>
-        <h2 style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--text-gedaempft)', margin: '0 0 8px' }}>
+        <h2 style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--text-3)', margin: '0 0 8px' }}>
           Kommende Einsätze
         </h2>
         {kommende.length === 0
@@ -82,7 +82,7 @@ export default async function MeineEinsaetze() {
       </section>
 
       <section style={{ marginTop: 22 }}>
-        <h2 style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--text-gedaempft)', margin: '0 0 8px' }}>
+        <h2 style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--text-3)', margin: '0 0 8px' }}>
           Nachricht an die Disposition
         </h2>
         <Karte>
@@ -158,11 +158,11 @@ function EinsatzKarte({ einsatz, gross, antwortNoetig }: { einsatz: Einsatz; gro
           <div>
             <div className="zahl" style={{ fontSize: gross ? 30 : 20, fontWeight: 650, lineHeight: 1.1 }}>
               {einsatz.plannedStart ?? event.startTime ?? '–'}
-              <span style={{ fontSize: gross ? 18 : 14, color: 'var(--text-sekundaer)', fontWeight: 500 }}>
+              <span style={{ fontSize: gross ? 18 : 14, color: 'var(--text-2)', fontWeight: 500 }}>
                 {' '}bis {einsatz.plannedEnd ?? event.endTime ?? '–'}
               </span>
             </div>
-            <div style={{ fontSize: 13, color: 'var(--text-sekundaer)' }}>
+            <div style={{ fontSize: 13, color: 'var(--text-2)' }}>
               {weekdayDE(event.date)}, {formatDateDE(event.date)}
             </div>
           </div>
@@ -172,11 +172,11 @@ function EinsatzKarte({ einsatz, gross, antwortNoetig }: { einsatz: Einsatz; gro
         <div>
           <div style={{ fontSize: gross ? 18 : 15, fontWeight: 600 }}>{(event.venue ?? event.city ?? event.name).toUpperCase()}</div>
           <div style={{ fontSize: 14 }}>{einsatz.position.title}</div>
-          <div style={{ fontSize: 13, color: 'var(--text-sekundaer)' }}>{event.name}{event.customer ? ` · ${event.customer.name}` : ''}</div>
+          <div style={{ fontSize: 13, color: 'var(--text-2)' }}>{event.name}{event.customer ? ` · ${event.customer.name}` : ''}</div>
         </div>
 
         {event.meetingPoint && (
-          <div style={{ background: 'var(--blau-flaeche)', color: 'var(--blau)', borderRadius: 'var(--radius-s)', padding: '10px 12px', fontSize: 14 }}>
+          <div style={{ background: 'var(--blau-flaeche)', color: 'var(--blau)', borderRadius: 'var(--r)', padding: '10px 12px', fontSize: 14 }}>
             <strong>Treffpunkt{event.meetingTime ? ` um ${event.meetingTime}` : ''}:</strong> {event.meetingPoint}
           </div>
         )}

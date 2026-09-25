@@ -90,7 +90,7 @@ export default async function MeineDokumente() {
                     <td><a href={`/api/dokumente/${dokument.id}`}>{dokument.title}</a></td>
                     <td style={{ fontSize: 12 }}>{DOCUMENT_TYPE[dokument.type] ?? dokument.type}</td>
                     <td className="zahl">{dokument.expiresAt ? formatDateDE(dokument.expiresAt) : '–'}</td>
-                    <td className="zahl" style={{ fontSize: 12, color: 'var(--text-sekundaer)' }}>{formatDateDE(dokument.createdAt)}</td>
+                    <td className="zahl" style={{ fontSize: 12, color: 'var(--text-2)' }}>{formatDateDE(dokument.createdAt)}</td>
                   </tr>
                 ))}
               </tbody>

@@ -75,7 +75,7 @@ export default async function MeineVerfuegbarkeit() {
                     <td><StatusMarke status={label(AVAILABILITY_KIND, eintrag.kind)} /></td>
                     <td className="zahl">{formatDateDE(eintrag.from)}</td>
                     <td className="zahl">{formatDateDE(eintrag.to)}</td>
-                    <td style={{ color: 'var(--text-sekundaer)' }}>{eintrag.note ?? '–'}</td>
+                    <td style={{ color: 'var(--text-2)' }}>{eintrag.note ?? '–'}</td>
                     <td>
                       <AktionsFormular aktion={verfuegbarkeitLoeschenAktion} meldungOben={false}>
                         <input type="hidden" name="id" value={eintrag.id} />

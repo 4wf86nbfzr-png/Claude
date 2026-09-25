@@ -84,7 +84,7 @@ export default async function MitarbeiterDetail({ params }: { params: Promise<{ 
                       <tr key={a.id}>
                         <td className="zahl" style={{ whiteSpace: 'nowrap' }}>{formatDateDE(a.event.date)}</td>
                         <td><Link href={`/events/${a.event.id}`}>{a.event.name}</Link></td>
-                        <td style={{ color: 'var(--text-sekundaer)' }}>{a.position.title}</td>
+                        <td style={{ color: 'var(--text-2)' }}>{a.position.title}</td>
                         <td className="zahl" style={{ whiteSpace: 'nowrap' }}>{a.plannedStart ?? '–'}–{a.plannedEnd ?? '–'}</td>
                         <td><StatusMarke status={label(ASSIGNMENT_STATUS, a.status)} /></td>
                       </tr>
@@ -106,7 +106,7 @@ export default async function MitarbeiterDetail({ params }: { params: Promise<{ 
                         <td><StatusMarke status={label(AVAILABILITY_KIND, eintrag.kind)} /></td>
                         <td className="zahl">{formatDateDE(eintrag.from)}</td>
                         <td className="zahl">{formatDateDE(eintrag.to)}</td>
-                        <td style={{ color: 'var(--text-sekundaer)' }}>{eintrag.note ?? '–'}</td>
+                        <td style={{ color: 'var(--text-2)' }}>{eintrag.note ?? '–'}</td>
                         {darfBearbeiten && (
                           <td>
                             <AktionsFormular aktion={verfuegbarkeitLoeschenAktion} meldungOben={false}>
@@ -204,7 +204,7 @@ export default async function MitarbeiterDetail({ params }: { params: Promise<{ 
               <div style={{ padding: 14, display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {employee.infoForEmployee && <Paar label="Info für den Mitarbeiter"><span style={{ whiteSpace: 'pre-wrap' }}>{employee.infoForEmployee}</span></Paar>}
                 {employee.notesInternal && (
-                  <div style={{ background: 'var(--gelb-flaeche)', border: '1px solid var(--gelb)33', borderRadius: 'var(--radius-s)', padding: '10px 12px' }}>
+                  <div style={{ background: 'var(--gelb-flaeche)', border: '1px solid var(--gelb)33', borderRadius: 'var(--r)', padding: '10px 12px' }}>
                     <Paar label="Intern – nicht für den Mitarbeiter"><span style={{ whiteSpace: 'pre-wrap' }}>{employee.notesInternal}</span></Paar>
                   </div>
                 )}
@@ -230,7 +230,7 @@ export default async function MitarbeiterDetail({ params }: { params: Promise<{ 
                   </AktionsFormular>
                 </Ausklapp>
               ) : (
-                <p style={{ fontSize: 13, color: 'var(--text-sekundaer)', margin: 0 }}>Kein Zugang eingerichtet.</p>
+                <p style={{ fontSize: 13, color: 'var(--text-2)', margin: 0 }}>Kein Zugang eingerichtet.</p>
               )}
             </div>
           </Karte>

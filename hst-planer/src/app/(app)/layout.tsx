@@ -15,7 +15,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <div className="app">
       <Navigation
-        items={navFor(user.role)}
+        gruppen={navFor(user.role)}
         eigene={eigeneNavFor(user.role, Boolean(user.employeeId))}
         name={user.name}
         rolle={ROLE_LABEL[user.role]}

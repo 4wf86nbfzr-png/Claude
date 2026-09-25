@@ -13,7 +13,7 @@ const REITER = [
   { pfad: '/dokumente', label: 'Dokumente', recht: 'documents.view' },
   { pfad: '/kommunikation', label: 'Kommunikation', recht: 'communication.view' },
   { pfad: '/abgleich', label: 'Abgleich', recht: 'reconciliation.view' },
-  { pfad: '/protokoll', label: 'Protokoll', recht: 'admin.audit' },
+  { pfad: '/protokoll', label: 'Protokoll', recht: 'audit.view' },
 ] as const;
 
 export function EventReiter({ id, rolle }: { id: string; rolle: Role }) {
@@ -30,9 +30,9 @@ export function EventReiter({ id, rolle }: { id: string; rolle: Role }) {
           <Link key={href} href={href} aria-current={aktiv ? 'page' : undefined}
                 style={{
                   padding: '8px 12px', fontSize: 13, whiteSpace: 'nowrap', textDecoration: 'none',
-                  color: aktiv ? 'var(--text)' : 'var(--text-sekundaer)',
+                  color: aktiv ? 'var(--text)' : 'var(--text-2)',
                   fontWeight: aktiv ? 600 : 400,
-                  borderBottom: `2px solid ${aktiv ? 'var(--akzent)' : 'transparent'}`,
+                  borderBottom: `2px solid ${aktiv ? 'var(--blau)' : 'transparent'}`,
                   marginBottom: -1,
                 }}>
             {reiter.label}

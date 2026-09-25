@@ -32,6 +32,16 @@ const PFADE: Record<string, string> = {
   copy: 'M9 9h10v12H9zM5 15H3V3h12v2',
   print: 'M6 9V3h12v6M6 18H4v-6h16v6h-2M8 14h8v7H8z',
   refresh: 'M21 12a9 9 0 1 1-2.6-6.4M21 3v6h-6',
+  'chevron-down': 'M6 9l6 6 6-6',
+  'chevron-up': 'M6 15l6-6 6 6',
+  'chevron-right': 'M9 6l6 6-6 6',
+  lock: 'M5 11h14v10H5zM8 11V7a4 4 0 0 1 8 0v4',
+  scale: 'M12 3v18M7 21h10M6 7h12M6 7 3 14h6zM18 7l-3 7h6z',
+  book: 'M4 4h11a3 3 0 0 1 3 3v13H7a3 3 0 0 1-3-3zM18 7h2v13H7',
+  graduation: 'M12 4 2 9l10 5 10-5zM6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5',
+  clipboard: 'M9 4h6v3H9zM7 5H5v16h14V5h-2',
+  eye: 'M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6',
+  building: 'M4 21V4h10v17M14 9h6v12M7 8h4M7 12h4M7 16h4M17 13h1M17 17h1',
 };
 
 export function Icon({ name, size = 16, strich = 1.6 }: { name: string; size?: number; strich?: number }) {

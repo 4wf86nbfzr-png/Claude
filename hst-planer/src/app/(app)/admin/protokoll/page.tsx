@@ -12,7 +12,7 @@ export const dynamic = 'force-dynamic';
 
 /** Audit Log (Spec 32). Nur lesbar – Einträge werden nie geändert oder gelöscht. */
 export default async function Protokoll({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
-  await seite('admin.audit');
+  await seite('audit.view');
   const params = await searchParams;
   const { page, perPage, skip } = pagination(params, 50);
 
@@ -54,10 +54,10 @@ export default async function Protokoll({ searchParams }: { searchParams: Promis
                       {eintrag.createdAt.toLocaleString('de-DE', { timeZone: 'Europe/Berlin' })}
                     </td>
                     <td style={{ fontSize: 12 }}>{eintrag.actorLabel}</td>
-                    <td className="zahl" style={{ fontSize: 11, color: 'var(--text-sekundaer)' }}>{eintrag.action}</td>
-                    <td style={{ fontSize: 11, color: 'var(--text-gedaempft)' }}>{eintrag.entity}</td>
+                    <td className="zahl" style={{ fontSize: 11, color: 'var(--text-2)' }}>{eintrag.action}</td>
+                    <td style={{ fontSize: 11, color: 'var(--text-3)' }}>{eintrag.entity}</td>
                     <td style={{ fontSize: 13 }}>{eintrag.summary}</td>
-                    <td style={{ fontSize: 11, color: 'var(--text-gedaempft)', maxWidth: 260 }}>
+                    <td style={{ fontSize: 11, color: 'var(--text-3)', maxWidth: 260 }}>
                       {eintrag.before || eintrag.after ? (
                         <details>
                           <summary style={{ cursor: 'pointer' }}>vorher / nachher</summary>

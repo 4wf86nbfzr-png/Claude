@@ -94,8 +94,8 @@ export default async function Suche({ searchParams }: { searchParams: Promise<Re
                 {mitarbeiter.map((person) => (
                   <tr key={person.id}>
                     <td><Link href={`/mitarbeiter/${person.id}`} style={{ fontWeight: 500 }}>{person.lastName}, {person.firstName}</Link></td>
-                    <td className="zahl" style={{ fontSize: 12, color: 'var(--text-gedaempft)' }}>{person.personnelNo}</td>
-                    <td style={{ color: 'var(--text-sekundaer)' }}>{person.city ?? '–'}</td>
+                    <td className="zahl" style={{ fontSize: 12, color: 'var(--text-3)' }}>{person.personnelNo}</td>
+                    <td style={{ color: 'var(--text-2)' }}>{person.city ?? '–'}</td>
                     <td style={{ fontSize: 12 }}>{person.mobile ?? '–'}</td>
                   </tr>
                 ))}
@@ -112,8 +112,8 @@ export default async function Suche({ searchParams }: { searchParams: Promise<Re
                   <tr key={event.id}>
                     <td className="zahl" style={{ whiteSpace: 'nowrap' }}>{formatDateDE(event.date)}</td>
                     <td><Link href={`/events/${event.id}`} style={{ fontWeight: 500 }}>{event.name}</Link></td>
-                    <td className="zahl" style={{ fontSize: 12, color: 'var(--text-gedaempft)' }}>{event.reference}</td>
-                    <td style={{ color: 'var(--text-sekundaer)' }}>{event.venue ?? '–'}</td>
+                    <td className="zahl" style={{ fontSize: 12, color: 'var(--text-3)' }}>{event.reference}</td>
+                    <td style={{ color: 'var(--text-2)' }}>{event.venue ?? '–'}</td>
                     <td><StatusMarke status={label(EVENT_STATUS, event.status)} /></td>
                   </tr>
                 ))}
@@ -129,7 +129,7 @@ export default async function Suche({ searchParams }: { searchParams: Promise<Re
                 {kunden.map((kunde) => (
                   <tr key={kunde.id}>
                     <td><Link href={`/kunden/${kunde.id}`} style={{ fontWeight: 500 }}>{kunde.name}</Link></td>
-                    <td style={{ color: 'var(--text-sekundaer)' }}>{kunde.city ?? '–'}</td>
+                    <td style={{ color: 'var(--text-2)' }}>{kunde.city ?? '–'}</td>
                     <td style={{ fontSize: 12 }}>{kunde.email ?? '–'}</td>
                   </tr>
                 ))}
@@ -145,7 +145,7 @@ export default async function Suche({ searchParams }: { searchParams: Promise<Re
                 {partner.map((p) => (
                   <tr key={p.id}>
                     <td><Link href={`/partner/${p.id}`} style={{ fontWeight: 500 }}>{p.name}</Link></td>
-                    <td style={{ color: 'var(--text-sekundaer)' }}>{p.contactName ?? '–'}</td>
+                    <td style={{ color: 'var(--text-2)' }}>{p.contactName ?? '–'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -159,10 +159,10 @@ export default async function Suche({ searchParams }: { searchParams: Promise<Re
               <tbody>
                 {anfragen.map((anfrage) => (
                   <tr key={anfrage.id}>
-                    <td className="zahl" style={{ fontSize: 12, color: 'var(--text-gedaempft)' }}>{anfrage.reference}</td>
+                    <td className="zahl" style={{ fontSize: 12, color: 'var(--text-3)' }}>{anfrage.reference}</td>
                     <td><Link href={`/anfragen/${anfrage.id}`} style={{ fontWeight: 500 }}>{anfrage.company ?? anfrage.contactPerson ?? 'ohne Angabe'}</Link></td>
                     <td className="zahl">{anfrage.eventDate ? formatDateDE(anfrage.eventDate) : '–'}</td>
-                    <td style={{ fontSize: 12, color: 'var(--text-sekundaer)' }}>{anfrage.status}</td>
+                    <td style={{ fontSize: 12, color: 'var(--text-2)' }}>{anfrage.status}</td>
                   </tr>
                 ))}
               </tbody>

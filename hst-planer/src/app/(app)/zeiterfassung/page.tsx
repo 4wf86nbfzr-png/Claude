@@ -123,16 +123,16 @@ export default async function Zeiterfassung({ searchParams }: { searchParams: Pr
                         <td className="zahl" style={{ whiteSpace: 'nowrap' }}>{formatDateDE(eintrag.date)}</td>
                         <td>
                           <Link href={`/mitarbeiter/${eintrag.employee.id}`}>{eintrag.employee.lastName}, {eintrag.employee.firstName}</Link>
-                          <span style={{ display: 'block', fontSize: 11, color: 'var(--text-gedaempft)' }}>{eintrag.employee.personnelNo}</span>
+                          <span style={{ display: 'block', fontSize: 11, color: 'var(--text-3)' }}>{eintrag.employee.personnelNo}</span>
                         </td>
                         <td style={{ fontSize: 12 }}>
-                          {eintrag.event ? <Link href={`/events/${eintrag.event.id}`}>{eintrag.event.name}</Link> : <span style={{ color: 'var(--text-gedaempft)' }}>ohne Event</span>}
-                          {eintrag.position && <span style={{ display: 'block', color: 'var(--text-gedaempft)', fontSize: 11 }}>{eintrag.position.title}</span>}
+                          {eintrag.event ? <Link href={`/events/${eintrag.event.id}`}>{eintrag.event.name}</Link> : <span style={{ color: 'var(--text-3)' }}>ohne Event</span>}
+                          {eintrag.position && <span style={{ display: 'block', color: 'var(--text-3)', fontSize: 11 }}>{eintrag.position.title}</span>}
                         </td>
                         <td className="zahl" style={{ whiteSpace: 'nowrap' }}>{eintrag.start}–{eintrag.end}</td>
                         <td className="zahl">{eintrag.breakMinutes} Min</td>
                         <td className="zahl" style={{ fontWeight: 600 }}>{formatHours(eintrag.minutes)}</td>
-                        <td style={{ fontSize: 11, color: 'var(--text-sekundaer)' }}>{eintrag.source}</td>
+                        <td style={{ fontSize: 11, color: 'var(--text-2)' }}>{eintrag.source}</td>
                         <td><StatusMarke status={label(TIME_ENTRY_STATUS, eintrag.status)} /></td>
                         {darfBearbeiten && (
                           <td>

@@ -55,8 +55,8 @@ export default async function Partner({ searchParams }: { searchParams: Promise<
                     <Link href={`/partner/${p.id}`} style={{ fontWeight: 500 }}>{p.name}</Link>
                     {!p.active && <span className="marke marke-grau" style={{ marginLeft: 6 }}>inaktiv</span>}
                   </td>
-                  <td style={{ color: 'var(--text-sekundaer)' }}>{p.contactName ?? '–'}</td>
-                  <td style={{ color: 'var(--text-sekundaer)' }}>{p.city ?? '–'}</td>
+                  <td style={{ color: 'var(--text-2)' }}>{p.contactName ?? '–'}</td>
+                  <td style={{ color: 'var(--text-2)' }}>{p.city ?? '–'}</td>
                   <td style={{ fontSize: 12 }}>{p.email ? <a href={`mailto:${p.email}`}>{p.email}</a> : p.phone ?? '–'}</td>
                   <td className="zahl">{p._count.employees}</td>
                   <td className="zahl">{p._count.assignments}</td>

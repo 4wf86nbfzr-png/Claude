@@ -67,8 +67,8 @@ export default async function Kunden({ searchParams }: { searchParams: Promise<R
                       <Link href={`/kunden/${kunde.id}`} style={{ fontWeight: 500 }}>{kunde.name}</Link>
                       {!kunde.active && <span className="marke marke-grau" style={{ marginLeft: 6 }}>inaktiv</span>}
                     </td>
-                    <td style={{ color: 'var(--text-sekundaer)' }}>{kunde.contacts[0]?.name ?? '–'}</td>
-                    <td style={{ color: 'var(--text-sekundaer)' }}>{kunde.city ?? '–'}</td>
+                    <td style={{ color: 'var(--text-2)' }}>{kunde.contacts[0]?.name ?? '–'}</td>
+                    <td style={{ color: 'var(--text-2)' }}>{kunde.city ?? '–'}</td>
                     <td style={{ fontSize: 12 }}>
                       {kunde.email ? <a href={`mailto:${kunde.email}`}>{kunde.email}</a> : kunde.phone ?? '–'}
                     </td>
