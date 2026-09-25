@@ -11,8 +11,17 @@
 # Adresse kennt, kann sie allerdings öffnen — für echten
 # Zugriffsschutz siehe README.md.
 #
-# Läuft bei jedem Push auf den Branch und lässt sich unter
-# "Actions" auch von Hand starten.
+# Läuft bei jedem Push auf main und lässt sich unter "Actions"
+# auch von Hand starten.
+#
+# Warum main und nicht der Arbeitsbranch: Die Umgebung
+# "github-pages" dieses Repositories lässt nur bestimmte Branches
+# veröffentlichen. Ein Push von einem Arbeitsbranch endet sonst mit
+#   Branch "…" is not allowed to deploy to github-pages
+#   due to environment protection rules.
+# Wer die Vorschau schon vor dem Zusammenführen sehen will, trägt
+# den Branch unter Settings → Environments → github-pages →
+# "Deployment branches and tags" ein.
 #
 # Die Aktionen sind auf einen Commit festgenagelt statt auf ein
 # Versionsschild wie @v4. Das verlangt die Einstellung dieses
@@ -27,7 +36,7 @@ name: Interne Vorschau
 
 on:
   push:
-    branches: [claude/peaceful-thompson-9gihsv]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
