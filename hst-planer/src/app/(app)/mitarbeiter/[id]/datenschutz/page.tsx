@@ -7,6 +7,7 @@ import { employeeFilter } from '@/lib/queries/scope';
 import { formatDateDE } from '@/lib/time';
 import { ANFRAGE_STATUS, BETROFFENEN_RECHT, DOCUMENT_TYPE, label } from '@/lib/status';
 import { Gesperrt, Hinweis, Karte, Leer, Paar, StatusMarke } from '@/components/ui';
+import { BesondereKategorieAnlegen, InhaltAnfordern } from './formular';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Datenschutz' };
@@ -106,7 +107,7 @@ export default async function AkteDatenschutz({ params }: { params: Promise<{ id
         ) : (
           <div className="tabelle-scroll">
             <table className="tabelle">
-              <thead><tr><th>Kategorie</th><th>Rechtsgrundlage</th><th>Erfasst</th><th>Gültig bis</th><th>Löschdatum</th></tr></thead>
+              <thead><tr><th>Kategorie</th><th>Rechtsgrundlage</th><th>Erfasst</th><th>Gültig bis</th><th>Löschdatum</th><th>Inhalt</th></tr></thead>
               <tbody>
                 {besondere.map((eintrag) => (
                   <tr key={eintrag.id} className="zeile-beige">
@@ -123,10 +124,16 @@ export default async function AkteDatenschutz({ params }: { params: Promise<{ id
                         ? <span className={eintrag.deleteAt <= heute ? 'marke marke-rot' : undefined}>{formatDateDE(eintrag.deleteAt)}</span>
                         : <span className="marke marke-gelb">offen</span>}
                     </td>
+                    <td><InhaltAnfordern id={eintrag.id} /></td>
                   </tr>
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+        {darfBesondere && (
+          <div className="karte-fuss">
+            <BesondereKategorieAnlegen employeeId={employee.id} />
           </div>
         )}
       </Karte>

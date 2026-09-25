@@ -34,7 +34,8 @@ Seite ohne Build-Schritt, der Planer bringt Datenbank, Anmeldung und API mit.
 18. [Architektur](#architektur)
 19. [Datenschutz & Sicherheit](#datenschutz--sicherheit)
 20. [Backups](#backups)
-21. [Was noch offen ist](#was-noch-offen-ist)
+21. [Compliance-Zentrale](#compliance-zentrale)
+22. [Was noch offen ist](#was-noch-offen-ist)
 
 ---
 
@@ -42,19 +43,21 @@ Seite ohne Build-Schritt, der Planer bringt Datenbank, Anmeldung und API mit.
 
 | Bereich | Funktion |
 |---|---|
-| **Dashboard** | Heutige Einsätze, offene Positionen, Absagen, ablaufende Nachweise, Dispo-Status |
-| **Disposition** | Zeitraumansicht über alle Events, Lücken je Position, Personalsuche mit einem Klick |
+| **Dashboard** | Die Lage des Tages in sechs Zahlen, dazu die Tagesdisposition als Zeitstreifen |
+| **Disposition** | Leitstelle: Tagesplanung als Zeitachse mit Ziehen und Ablegen, Wochenplanung, offene Positionen, unbesetzte Schichten, Mitarbeiterzuordnung |
 | **Kalender** | Tag, Woche, Monat; Filter nach Kunde, Bereich, Status, Mitarbeiter |
-| **Events** | Stammdaten, Positionen mit Anforderungen, Team, Zeiten, Dokumente, Vorfälle, Protokoll |
-| **Mitarbeiter** | Profil, Qualifikationen mit Ablaufüberwachung, Verfügbarkeiten, Dokumente, Zugang zur App |
-| **Kunden & Partner** | Stammdaten, Ansprechpartner, Einsatzorte, Konditionen |
+| **Personal** | Mitarbeiter, Bewerber, Mitarbeiterakten mit sieben Reitern, Qualifikationen, Dokumente, Verfügbarkeiten, Schulungen |
+| **Einsätze** | Veranstaltungen, Objekte, Kunden, Einsatzorte, Teamleiter, Einsatzhistorie |
+| **Zeiterfassung** | Stundenzettel, Arbeitszeiten je Monat, Korrekturen aus dem Protokoll, Freigaben |
+| **Partner** | Subunternehmer, Partnerunternehmen, Partner-Mitarbeiter, Partner-Einsätze |
+| **Kommunikation** | Nachrichten, E-Mail-Eingänge, WhatsApp, interne Kommunikation |
+| **Compliance** | Verarbeitungsverzeichnis, TOM, Auftragsverarbeiter, Löschfristen, Audit-Log, Datenschutzvorfälle, DSFA, Dokumentation, Sicherheitscheck |
+| **Administration** | Benutzer, Rollen, Rechtematrix, Systemeinstellungen, Schnittstellen, Protokolle |
 | **Anfragen** | Website-Formular, E-Mail-Parser, telefonische Erfassung; Übernahme in ein Event |
 | **Abgleiche** | Excel-/CSV-Import, automatische Zuordnung, manuelle Korrektur, Abschluss |
-| **Zeiterfassung** | Soll/Ist, Freigabe, Excel-Export als Stundennachweis |
 | **Auswertungen** | Besetzungsquote, Ausfälle, Monatsvergleich, Bereiche, Kunden |
 | **Finanzen** | Erlös-, Kosten- und Margenschätzung aus hinterlegten Stundensätzen |
-| **Mitarbeiter-App** | Mobile Ansicht: heutige Einsätze, annehmen/ablehnen, Verfügbarkeit melden, eigene Nachweise hochladen, Nachricht an die Disposition |
-| **Admin** | Benutzer, Rollen, API-Schlüssel, Webhooks, revisionssicheres Protokoll |
+| **Mitarbeiter-App** | Mobile Ansicht: heutige Einsätze, annehmen/ablehnen, Verfügbarkeit melden, eigene Stunden ansehen, Nachweise hochladen |
 
 ---
 
@@ -513,21 +516,37 @@ erreichbarer Empfänger bremst die Disposition nicht aus.
 
 ## Rollen und Rechte
 
-| Rolle | Sieht | Darf |
-|---|---|---|
-| **Administration** | alles | alles, inklusive Benutzer und Schnittstellen |
-| **Geschäftsführung** | alles | wie Disposition, zusätzlich Finanzen und Protokoll |
-| **Disposition** | alles | Events, Positionen, Mitarbeiter, Kunden, Abgleiche, Freigaben |
-| **Einsatzleitung** | eigene Events | Zeiten erfassen, Team sehen, Nachrichten senden |
-| **Teamleitung** | eigene Events | lesen, eigene Einsätze |
-| **Mitarbeiter** | nur eigene Einsätze | annehmen/ablehnen, Verfügbarkeit melden |
-| **Partner** | Events mit eigenen Kräften | lesen |
-| **Kunde** | eigene Aufträge | lesen |
+Standard ist **DENY ALL**: eine Rolle kann nur das, was in `src/lib/auth/rbac.ts`
+ausdrücklich aufgezählt ist. Es gibt keine Vererbung und keinen Platzhalter – die einzige
+Ausnahme ist SUPERADMIN, und die steht als eigener Zweig in `can()`, damit sie beim Lesen
+nicht zu übersehen ist.
 
-Die Navigation wird automatisch gefiltert, und jede Datenbankabfrage mischt den
-Sichtbarkeitsfilter der Rolle mit ein (`src/lib/queries/scope.ts`). **Interne Notizen**
-sind nie für Mitarbeiter, Partner oder Kunden sichtbar – dafür gibt es das getrennte
-Feld „Hinweise für Mitarbeiter“.
+| Rolle | Sieht | Aufgabe |
+|---|---|---|
+| **Superadmin** | alles | Technischer Vollzugriff einschließlich Benutzerverwaltung und Protokollen. Nur für wenige benannte Personen. |
+| **Geschäftsführung** | alles | Betrieb, Auswertungen, Finanzen, Compliance-Zentrale. Keine Benutzerverwaltung. |
+| **Personal** | alles | Personalakten, Bewerber, Qualifikationen, Schulungen, Dokumente. Kein Zugriff auf die Disposition. |
+| **Disposition** | alles | Einsätze, Objekte, Zuordnung, Zeiterfassung, Kunden, Partner. Sieht keine Personalakten. |
+| **Einsatzleitung** | eigene Einsätze | Führt Einsätze vor Ort, pflegt Zeiten nach. |
+| **Teamleitung** | eigene Einsätze | Sieht zum eigenen Einsatz Name, Funktion, Zeit, Ort, nötige Qualifikation. |
+| **Mitarbeiter** | nur eigene Einsätze | Annehmen/ablehnen, Verfügbarkeit melden, eigene Stunden und Dokumente. |
+| **Kunde** | eigene Aufträge | Eigene Anfragen und freigegebene Unterlagen. |
+| **Subunternehmer** | Einsätze mit eigenen Kräften | Zeiten nachpflegen, gemeldete Kräfte einsehen. |
+
+Die vollständige Matrix – jedes Recht über jede Rolle – steht unter
+`/admin/berechtigungen` und wird aus derselben Quelle erzeugt, die auch die Prüfung macht.
+Sie kann deshalb nicht davon abweichen.
+
+**Was eine Teamleitung ausdrücklich nicht sieht:** Bankdaten, vollständige Personalakte,
+private Anschrift, Arbeitsvertrag, Gesundheitsdaten, interne Personalnotizen. Diese Felder
+werden für die Rolle nicht aus der Datenbank geladen (`personenAuswahl` in
+`src/lib/queries/scope.ts`) – sie sind nicht nur ausgeblendet. In der Oberfläche steht an
+ihrer Stelle ein benanntes Schloss, damit ein leeres Feld nicht mit einem fehlenden
+Eintrag verwechselt wird.
+
+Die Navigation wird je Rolle gefiltert, und jede Datenbankabfrage mischt den
+Sichtbarkeitsfilter mit ein. Einsatz- und Teamleitung sehen dabei nicht den gesamten
+Mitarbeiterstamm, sondern nur die Kräfte ihrer eigenen Einsätze.
 
 ---
 
@@ -598,29 +617,106 @@ auf Mitarbeiter, Kunde, Partner und Position) stehen bereits im Datenmodell.
 
 ## Datenschutz & Sicherheit
 
-Der Planer verarbeitet personenbezogene Mitarbeiterdaten. Umgesetzt sind:
+Der Planer verarbeitet personenbezogene Mitarbeiterdaten. **Er behauptet nicht, DSGVO-konform
+zu sein.** Er unterscheidet durchgehend zwischen
 
-* **Passwörter** mit scrypt gehasht, je Passwort ein eigener Zufallswert.
-  Mindestens 12 Zeichen, Sperre nach 8 Fehlversuchen für 15 Minuten.
-* **Sitzungen** in der Datenbank, beendbar; Passwortwechsel beendet alle anderen Sitzungen.
-* **Rollen und Sichtbarkeitsgrenzen** in jeder Abfrage, nicht nur in der Oberfläche.
-* **Dateien** außerhalb des Web-Roots, Ausgabe nur über `/api/dokumente/:id` nach
-  Rechteprüfung; Uploads werden auf Größe, MIME-Typ, Endung und Dateiinhalt geprüft
-  und unter einer zufälligen ID abgelegt.
-* **Eingaben** durchgängig mit Zod validiert; Prisma verhindert SQL-Injection,
-  React maskiert Ausgaben.
-* **Begrenzung** der Aufrufe bei Anmeldung und öffentlicher Anfrage-Schnittstelle.
-* **Sicherheits-Header** (`X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`,
+* **technisch umgesetzt** – im System vorhanden, im Quelltext nachlesbar, und
+* **rechtlich geprüft** – von einer benannten Person bewertet.
+
+Das erste lässt sich hier feststellen, das zweite nie. Die Compliance-Zentrale unter
+`/compliance` hält Nachweise vor und zeigt, was offen ist; sie ersetzt keine rechtliche
+Prüfung. Eine Erfüllungsquote gibt es bewusst nicht: „98 % DSGVO-konform" wäre eine Zahl
+ohne Gegenstand und würde genau das verdecken, worauf es ankommt.
+
+### Technisch umgesetzt
+
+**Anmeldung und Sitzungen**
+
+* Passwörter mit scrypt gehasht, je Passwort ein eigener Zufallswert. Mindestens 12 Zeichen,
+  Sperre nach 8 Fehlversuchen für 15 Minuten. Klartextpasswörter werden nirgends gespeichert
+  und nirgends protokolliert.
+* Zweiter Faktor (TOTP nach RFC 6238) für alle Rollen; privilegierte Zugänge ohne Faktor
+  bekommen einen sichtbaren Hinweis in der Kopfzeile und stehen im Sicherheitscheck.
+  Abschalten geht nur mit Passwort **und** gültigem Code.
+* Sitzungen in der Datenbank, einzeln beendbar; Passwortwechsel beendet alle anderen.
+* Aufrufbegrenzung je Adresse und je Konto bei Anmeldung, Token-Abruf und öffentlicher
+  Anfrage-Schnittstelle.
+
+**Zugriff**
+
+* Rollenkonzept mit Standard DENY ALL, geprüft in jeder Abfrage – nicht nur in der Oberfläche.
+* Feldweise Einschränkung in der Personalakte: was eine Rolle nicht sehen darf, wird nicht
+  geladen.
+* Besondere Kategorien nach Art. 9 DSGVO in einer eigenen Tabelle, mit eigenem Recht,
+  eigenem Protokoll und AES-256-GCM-Verschlüsselung (`src/lib/krypto.ts`). Sie erscheinen
+  nie in normalen Listen.
+
+**Dokumente**
+
+* Dateien liegen außerhalb des ausgelieferten Verzeichnisses unter zufälliger ID. Es gibt
+  keine Adresse, unter der eine Datei ohne Prüfung liegt.
+* Der Abruf läuft über `/api/dokumente/:id` und prüft Anmeldung, Recht, Zugriffsebene und
+  den Bezug zur eigenen Zuständigkeit.
+* Jeder Versuch wird protokolliert – auch der abgewiesene, mit dem Grund.
+* Für die Weitergabe gibt es kurzlebige Token: eine Datei, eine Person, eine Stunde, ein
+  Abruf. Wer den Link weitergibt, verbraucht ihn.
+* Uploads werden auf Größe, MIME-Typ, Endung und Dateiinhalt geprüft.
+
+**Protokoll und Export**
+
+* Audit-Log über alle wichtigen Aktionen mit Benutzer, Zeit, Objekt sowie altem und neuem
+  Wert. Geheimnisse werden ausgefiltert. Es gibt in der Oberfläche keine Möglichkeit, einen
+  Eintrag zu ändern oder zu löschen, und keine Server-Aktion dafür.
+* Exporte brauchen ein eigenes Recht (`export.run`) – sehen und mitnehmen ist nicht dasselbe –
+  und werden mit Umfang, Format und Filter festgehalten.
+* Keine öffentlichen Downloadlinks.
+
+**Übrige Technik**
+
+* Eingaben durchgängig mit Zod validiert; Prisma verhindert SQL-Injection, React maskiert
+  Ausgaben.
+* Sicherheits-Header (`X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`,
   `Permissions-Policy`), Cookies `httpOnly`, `sameSite=lax` und bei HTTPS `secure`.
-* **Audit Log** über alle wichtigen Aktionen mit Benutzer, Zeit, Objekt sowie
-  vorherigem und neuem Wert. Geheimnisse werden dabei ausgefiltert.
-* **Soft Delete und Archivierung** statt Löschen; Dateien wandern erst nach 30 Tagen
-  endgültig aus dem Papierkorb.
-* **Datenexport** je Bereich als XLSX oder CSV vorbereitet (Auskunftsersuchen).
+* Soft Delete und Archivierung statt Löschen; Dateien wandern erst nach 30 Tagen endgültig
+  aus dem Papierkorb.
 
-Offen und von der Organisation zu leisten: Verzeichnis von Verarbeitungstätigkeiten,
-Auftragsverarbeitungsverträge mit Hoster und Mailanbieter, Löschkonzept mit Fristen,
-Betriebsvereinbarung zur Zeiterfassung.
+### Künstliche Intelligenz
+
+**An externe KI-Systeme gehen keine personenbezogenen Mitarbeiterdaten.** Die optionale
+Textauswertung eingehender Anfragen (standardmäßig aus) bekommt den Text einer Anfrage –
+nicht die Personalakte. Eine automatisierte Bewertung von Beschäftigten findet nicht statt
+und wäre ohne eigene rechtliche Prüfung auch nicht zulässig.
+
+Vor jeder Nutzung eines KI-Dienstes gehört geklärt: Anbieter, Serverstandort, Speicherung,
+Nutzung zum Training, Unterauftragnehmer, Auftragsverarbeitungsvertrag, Drittlandtransfer,
+Rechtsgrundlage, Löschfrist. Die AVV-Liste unter `/compliance/avv` markiert solche Einträge
+gesondert.
+
+### Was das System nicht tut
+
+* Es trägt **keine Rechtsgrundlage** von sich aus ein. Wo keine geprüft wurde, steht
+  „noch nicht geprüft".
+* Es bewertet **nicht**, ob ein Datenschutzvorfall meldepflichtig ist. Art. 33 Abs. 1 DSGVO
+  knüpft das an eine Abwägung; das Feld bleibt leer, bis ein Mensch es ausfüllt. Die 72
+  Stunden seit Kenntnis werden gezeigt, nicht bewertet.
+* Es **löscht nichts automatisch**. Die Löschfristen-Seite zeigt, was fällig wäre; ob eine
+  Aufbewahrungspflicht entgegensteht, entscheidet ein Mensch.
+* Es nennt **keine Erfüllungsquote** und behauptet an keiner Stelle, konform zu sein.
+
+### Von der Organisation zu leisten
+
+Das Verzeichnis von Verarbeitungstätigkeiten, das Löschkonzept, die TOM-Liste und die
+Compliance-Dokumentation sind im System **angelegt und im Entwurfsstand**. Sie brauchen:
+
+* die anwaltliche Prüfung der eingetragenen Rechtsgrundlagen,
+* unterzeichnete Auftragsverarbeitungsverträge mit Hoster und Mailanbieter,
+* eine Betriebsvereinbarung zur Zeiterfassung,
+* die schriftliche Verpflichtung aller Beschäftigten auf das Datengeheimnis,
+* eine Entscheidung, ob eine Datenschutz-Folgenabschätzung nach Art. 35 nötig ist,
+* und die Benennung einer verantwortlichen Person je Bereich.
+
+Bei mehr als 20 Personen, die ständig mit personenbezogenen Daten arbeiten, ist zusätzlich
+ein Datenschutzbeauftragter zu benennen (§ 38 BDSG).
 
 ---
 
@@ -649,24 +745,64 @@ auch nicht: im Browser liegt nur die Wahl zwischen heller und dunkler Ansicht.
 
 ---
 
+## Compliance-Zentrale
+
+Unter `/compliance` liegen neun Bereiche. Jeder führt Einträge und sagt, was daran offen
+ist – ohne Quote und ohne Bewertung.
+
+| Bereich | Inhalt |
+|---|---|
+| **Datenschutz** | Verzeichnis von Verarbeitungstätigkeiten (Art. 30) und Betroffenenanfragen (Art. 12–22) mit Fristen |
+| **TOM** | Technische und organisatorische Maßnahmen (Art. 32), jede mit Fundstelle im Quelltext |
+| **AVV** | Auftragsverarbeiter (Art. 28), Unterauftragnehmer, Drittlandtransfers, KI-Systeme |
+| **Löschfristen** | Löschkonzept je Datenkategorie: Zweck, Grundlage, Aufbewahrungsgrund, Frist, Fristbeginn |
+| **Audit-Log** | Fachliche Änderungen, Dokumentzugriffe (auch abgewiesene) und Exporte |
+| **Datenschutzvorfälle** | Art. 33/34 – ohne automatische Aussage zur Meldepflicht |
+| **DSFA** | Folgenabschätzung (Art. 35), beginnend bei der Frage, ob eine nötig ist |
+| **Dokumentation** | Richtlinien, Einwilligungen, Informationspflichten, Nachweise – je mit Version, Stand, Ersteller, Freigabe und nächster Prüfung |
+| **Sicherheitscheck** | Dreizehn Prüfungen auf ausgeschiedene Zugänge, fehlenden zweiten Faktor, offene Anfragen, fällige Löschungen und auffällige Zugriffe |
+
+Der Sicherheitscheck nennt zu jedem Befund einen Namen und ein Ziel. „3 Auffälligkeiten"
+hilft niemandem; „Ralf Timm hat seit dem Ausscheiden noch einen aktiven Zugang" schon.
+
+Der mitgelieferte Grundbestand (`prisma/seed-compliance.ts`) ist ein **Arbeitsstand**: alle
+Einträge tragen den Status Entwurf, Rechtsgrundlagen sind teils offen. Die TOM sind die
+Ausnahme – dass ein Passwort mit scrypt gehasht wird, lässt sich im Quelltext nachsehen.
+Das ist eine Tatsachenbehauptung über den Code, keine über die Angemessenheit im Sinne des
+Art. 32 Abs. 1.
+
+---
+
 ## Was noch offen ist
 
-* **Drag & Drop in der Disposition** ist vorbereitet (Positionen und Zuweisungen sind
-  saubere Datensätze mit eigener ID), aber noch nicht umgesetzt. Bis dahin läuft die
-  Einteilung über „Personal suchen“ – das ist mit zwei Klicks vergleichbar schnell.
+* **Ziehen und Ablegen** funktioniert in der Leitstelle (`/disposition`). In der
+  Wochenplanung und im Kalender läuft die Einteilung weiterhin über „Personal suchen“.
 * **Spaltenauswahl und Sortierung per Klick** fehlen in den Tabellen. Suche, Filter,
   Pagination und Export sind vorhanden; die Sortierung folgt einer festen, fachlich
-  sinnvollen Reihenfolge (Events nach Datum, Mitarbeiter nach Nachname).
+  sinnvollen Reihenfolge (Einsätze nach Datum, Mitarbeiter nach Nachname).
 * **PDF-Ausgabe** erfolgt über die Druckansicht des Browsers (`Einsatzplan`, `Auswertungen`).
   Eine serverseitige PDF-Erzeugung ist bewusst nicht eingebaut, solange die Druckansicht
   reicht.
-* **2FA** ist im Datenmodell vorbereitet (`User.totpSecret`, `User.totpEnabled`),
-  aber noch nicht aktiviert.
+* **QR-Code für den zweiten Faktor** fehlt: das Geheimnis wird zum Abtippen angezeigt, die
+  otpauth-Adresse steht daneben und funktioniert auf dem Telefon per Antippen. Ein eigener
+  QR-Encoder wären mehrere hundert Zeilen Reed-Solomon-Arithmetik, die niemand nachprüft;
+  eine Bibliothek dafür wäre eine Abhängigkeit an einer heiklen Stelle.
+* **Wiederherstellungscodes** für den zweiten Faktor gibt es nicht. Wer sein Telefon
+  verliert, wendet sich an die Systemadministration – die kann den Faktor am Konto
+  zurücksetzen. Für ein Haus dieser Größe ist das der ehrlichere Weg als ein zweiter
+  Satz Geheimnisse, der im Schreibtisch liegt.
+* **WhatsApp** ist im Datenmodell vorgesehen, aber an keinen Dienst angebunden. Die Seite
+  sagt das und nennt, was vorher zu klären wäre.
+* **Objekte** (`/objekte`) sind angelegt, aber noch nicht mit einem eigenen Planungsweg
+  verbunden – Einsätze an einem Objekt laufen weiterhin als Veranstaltung.
 * **Mehrere Instanzen:** Die Aufrufbegrenzung liegt im Prozessspeicher. Beim Betrieb
   hinter mehreren Instanzen gehört dort ein gemeinsamer Speicher hin
   (`src/lib/rate-limit.ts`, die Schnittstelle bleibt gleich).
-* **Rechtstexte und Datenschutzerklärung** für den Planer selbst sind noch zu
-  erstellen; die der Website gelten dafür nicht.
+* **Rechtstexte und Datenschutzerklärung** für den Planer selbst sind noch zu erstellen;
+  die der Website gelten dafür nicht.
+* **Datensicherung ist nicht eingerichtet.** Die TOM-Liste führt sie ausdrücklich als
+  *nicht umgesetzt*, damit sie nicht in Vergessenheit gerät. Befehle stehen unter
+  [Backups](#backups).
 * **Das Docker-Abbild wurde in der Entwicklungsumgebung nicht gebaut** – dort stand kein
   Docker-Daemon zur Verfügung. Geprüft ist stattdessen der Teil, der im Container läuft:
   die Standalone-Ausgabe startet, beantwortet Anfragen und spricht mit der Datenbank.
@@ -681,14 +817,19 @@ ohne Server, ohne Datenbank, ohne Internet:
 
 ```
 demo/index.html        im Browser öffnen
-demo/bilder/           31 Bildschirmfotos aus der laufenden Anwendung
+demo/bilder/           62 Bildschirmfotos aus der laufenden Anwendung
 demo/hst-logik.js      gebündelte Fachlogik aus src/lib
 ```
 
-Sie zeigt die Anwendung in Bildern und lässt vier Rechenkerne im Browser mitlaufen:
-Zeitberechnung, Namensabgleich, E-Mail-Parser und den vollständigen Abgleich mit
-bearbeitbarem Stundenzettel. Das ist **kein Nachbau**: `demo/hst-logik.js` wird aus
-denselben Modulen gebaut, die auch der Server benutzt.
+Sie zeigt die Anwendung in Bildern und lässt sechs Rechenkerne im Browser mitlaufen:
+Zeitberechnung, Namensabgleich, E-Mail-Parser, den vollständigen Abgleich mit
+bearbeitbarem Stundenzettel, die Zuordnungsprüfung aus der Leitstelle und die
+Rechtematrix. Das ist **kein Nachbau**: `demo/hst-logik.js` wird aus denselben Modulen
+gebaut, die auch der Server benutzt.
+
+Nicht dabei ist der zweite Faktor – er rechnet mit `node:crypto` und liesse sich im
+Browser nur nachbauen. Ein Nachbau ist genau das, was diese Datei nicht sein soll; er
+steht unter `tests/totp.test.ts`, geprüft gegen die Werte aus Anhang B des RFC 6238.
 
 Neu erzeugen, nachdem sich Oberfläche oder Fachlogik geändert haben:
 
@@ -696,9 +837,13 @@ Neu erzeugen, nachdem sich Oberfläche oder Fachlogik geändert haben:
 npm run build
 bash scripts/server-start.sh 3100
 npm run seed                                  # gleiche Daten wie auf den Bildern
-npx tsx --tsconfig scripts/tsconfig.json scripts/demo-bilder.ts
-npx tsx scripts/demo-bilder-verkleinern.ts    # spart rund zwei Drittel Speicher
-npx tsx scripts/demo-bauen.ts                 # bündelt die Fachlogik neu
+npm run demo:bilder                           # 62 Aufnahmen über neun Rollen
+npm run demo:verkleinern                      # spart rund zwei Drittel Speicher
+npm run demo:logik                            # bündelt die Fachlogik neu
+npm run demo:seite                            # setzt demo/index.html zusammen
+
+# Danach einmal in einem echten Browser nachsehen:
+npx tsx --tsconfig scripts/tsconfig.json scripts/demo-pruefen.ts
 ```
 
 Anmeldung, Datenbank, Uploads, E-Mail-Versand und die Rollentrennung lassen sich in einer

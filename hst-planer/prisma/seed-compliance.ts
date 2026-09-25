@@ -260,8 +260,8 @@ export async function seedCompliance(db: PrismaClient): Promise<void> {
     },
     {
       bereich: 'WEITERGABE', title: 'Verschlüsselte Übertragung',
-      description: 'Auslieferung ausschließlich über TLS; Sitzungskennungen werden als httpOnly-, secure- und sameSite-Cookie gesetzt.',
-      status: 'TECHNISCH_UMGESETZT', evidence: 'src/lib/auth/session.ts, next.config.ts', responsible: 'Systemadministration',
+      description: 'HSTS-Kopf mit einem Jahr Gültigkeit; Sitzungskennungen als httpOnly-, secure- und sameSite-Cookie. Dass der Server ausschließlich über HTTPS erreichbar ist, muss der Betrieb sicherstellen – das kann die Anwendung nicht erzwingen.',
+      status: 'TECHNISCH_UMGESETZT', evidence: 'next.config.ts (Strict-Transport-Security), src/lib/auth/session.ts', responsible: 'Systemadministration',
     },
     {
       bereich: 'WEITERGABE', title: 'Exporte werden protokolliert',
@@ -270,8 +270,8 @@ export async function seedCompliance(db: PrismaClient): Promise<void> {
     },
     {
       bereich: 'VERSCHLUESSELUNG', title: 'Besondere Kategorien verschlüsselt ablegen',
-      description: 'Angaben nach Art. 9 DSGVO liegen in einer eigenen Tabelle und werden mit einem Schlüssel aus der Umgebung verschlüsselt.',
-      status: 'TECHNISCH_UMGESETZT', evidence: 'src/lib/krypto.ts, Modell EmployeeSensitive', responsible: 'Systemadministration',
+      description: 'Angaben nach Art. 9 DSGVO liegen in einer eigenen Tabelle, verschlüsselt mit AES-256-GCM. Ohne hinterlegten Schlüssel werden sie nicht gespeichert – kein stiller Rückfall auf Klartext. Der Inhalt erscheint nie in einer Liste und wird nur auf ausdrückliche Anforderung angezeigt; der Abruf steht im Protokoll.',
+      status: 'TECHNISCH_UMGESETZT', evidence: 'src/lib/krypto.ts, tests/krypto.test.ts, /mitarbeiter/:id/datenschutz', responsible: 'Systemadministration',
     },
     {
       bereich: 'TRENNUNG', title: 'Mandantentrennung über Sichtbarkeitsbereiche',
