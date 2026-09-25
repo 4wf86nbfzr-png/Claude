@@ -73,6 +73,29 @@ Der Planer braucht **keinen** Redis, keine Suchmaschine und keinen Objektspeiche
 
 ---
 
+## Zum Ausprobieren: ein Aufruf
+
+```bash
+cd hst-planer
+./starten.sh
+```
+
+Das Skript legt beim ersten Mal eine `.env` an und würfelt die Geheimnisse
+selbst aus (sie landen nur dort, nie im Quellcode), startet PostgreSQL und die
+Anwendung über Docker, spielt die Migrationen ein, legt einmalig die
+Beispieldaten an und nennt am Ende die Adresse samt allen neun Zugängen.
+
+```bash
+./starten.sh --ohne-docker   # mit einem PostgreSQL, das schon läuft
+./starten.sh --stoppen       # anhalten, Daten bleiben
+./starten.sh --loeschen      # anhalten und Datenbank samt Ablage wegwerfen
+```
+
+Gebraucht wird dafür nur Docker Desktop (Windows/macOS) oder Docker Engine
+(Linux). Ohne Docker: Node.js 20 oder neuer und ein erreichbares PostgreSQL.
+
+---
+
 ## Installation
 
 ```bash

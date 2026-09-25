@@ -41,7 +41,7 @@ function abbrechen(text, rat) {
 async function umgebungLaden() {
   const datei = path.join(WURZEL, '.env');
   if (!existsSync(datei)) {
-    abbrechen('Keine .env gefunden.', 'Vorlage: cp .env.beispiel .env – und die Werte eintragen.');
+    abbrechen('Keine .env gefunden.', 'Vorlage: cp .env.example .env – oder einfach ./starten.sh benutzen.');
   }
   const { config } = await import('dotenv');
   config({ path: datei, quiet: true });
