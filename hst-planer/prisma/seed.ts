@@ -14,6 +14,8 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import ExcelJS from 'exceljs';
+import { seedCompliance } from './seed-compliance';
+import { seedPersonalUndObjekte } from './seed-personal';
 import { PrismaClient, type $Enums } from '@prisma/client';
 import { hashPassword } from '../src/lib/auth/password';
 import { shiftMinutes } from '../src/lib/time';
@@ -386,6 +388,10 @@ async function main() {
     ],
   });
 
+  // --- Compliance-Zentrale, Bewerber, Objekte, Schulungen ----------------
+  await seedCompliance(db);
+  await seedPersonalUndObjekte(db, employees, customers);
+
   // --- Beispieldatei für den Abgleich ------------------------------------
   await writeSampleTimesheet(createdEvents[0]!, employees);
 
@@ -394,6 +400,10 @@ async function main() {
     Kunden: await db.customer.count(), Partner: await db.partner.count(),
     Events: await db.event.count(), Positionen: await db.position.count(),
     Zuweisungen: await db.assignment.count(), Anfragen: await db.request.count(),
+    Bewerber: await db.applicant.count(), Schulungen: await db.training.count(),
+    Objekte: await db.objekt.count(),
+    Verarbeitungstaetigkeiten: await db.processingActivity.count(),
+    Loeschregeln: await db.retentionRule.count(), TOM: await db.tomMeasure.count(),
   };
   console.log('Angelegt:', counts);
   console.log(`\nAnmeldung mit dem Passwort: ${PASSWORD}`);

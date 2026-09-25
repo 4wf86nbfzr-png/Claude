@@ -2,6 +2,8 @@ import { redirect } from 'next/navigation';
 import { getSessionUser } from '@/lib/auth/session';
 import { eigeneNavFor, navFor, ROLE_LABEL } from '@/lib/auth/rbac';
 import { unreadCount } from '@/lib/notify';
+import { can } from '@/lib/auth/rbac';
+import { db } from '@/lib/db';
 import { Navigation } from '@/components/navigation';
 import { Kopfzeile } from '@/components/kopfzeile';
 import { abmelden } from '@/app/anmelden/actions';
@@ -10,7 +12,18 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const user = await getSessionUser();
   if (!user) redirect('/anmelden');
 
-  const [ungelesen] = await Promise.all([unreadCount(user.id)]);
+  const [ungelesen, konto] = await Promise.all([
+    unreadCount(user.id),
+    db.user.findUnique({ where: { id: user.id }, select: { totpEnabled: true } }),
+  ]);
+
+  /*
+    SecPlan 14: Wer Personalakten öffnen oder Benutzer verwalten kann und
+    keinen zweiten Faktor hat, bekommt einen Punkt am Schloss in der
+    Kopfzeile. Kein Zwang, aber auch kein Wegsehen.
+  */
+  const faktorFehlt = !konto?.totpEnabled
+    && (can(user.role, 'employees.file') || can(user.role, 'admin.users') || user.role === 'SUPERADMIN');
 
   return (
     <div className="app">
@@ -21,7 +34,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         rolle={ROLE_LABEL[user.role]}
       />
       <div className="app-inhalt">
-        <Kopfzeile ungelesen={ungelesen} theme={user.theme} abmelden={abmelden} />
+        <Kopfzeile ungelesen={ungelesen} theme={user.theme} abmelden={abmelden} faktorFehlt={faktorFehlt} />
         <main className="app-haupt">{children}</main>
       </div>
     </div>

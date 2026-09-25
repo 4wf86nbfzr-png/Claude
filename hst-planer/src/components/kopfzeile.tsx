@@ -10,7 +10,15 @@ import { THEME_COOKIE } from '@/lib/theme';
  * Kopfzeile mit globaler Suche (Spec 27), Benachrichtigungen (Spec 28),
  * Hell-/Dunkelmodus (Spec 64) und Abmeldung.
  */
-export function Kopfzeile({ ungelesen, theme, abmelden }: { ungelesen: number; theme: string; abmelden: () => Promise<void> }) {
+export function Kopfzeile({
+  ungelesen, theme, abmelden, faktorFehlt = false,
+}: {
+  ungelesen: number;
+  theme: string;
+  abmelden: () => Promise<void>;
+  /** Punkt am Schloss, wenn ein privilegierter Zugang ohne zweiten Faktor läuft. */
+  faktorFehlt?: boolean;
+}) {
   const router = useRouter();
   const [begriff, setBegriff] = useState('');
   const sucheRef = useRef<HTMLInputElement>(null);
@@ -75,6 +83,18 @@ export function Kopfzeile({ ungelesen, theme, abmelden }: { ungelesen: number; t
             borderRadius: 999, background: 'var(--rot)', color: '#fff',
             fontSize: 10, fontWeight: 700, display: 'grid', placeItems: 'center',
           }}>{ungelesen > 99 ? '99+' : ungelesen}</span>
+        )}
+      </Link>
+
+      <Link href="/konto/sicherheit" className="knopf knopf-symbol" aria-label="Sicherheit des eigenen Kontos"
+            title={faktorFehlt ? 'Kein zweiter Faktor eingerichtet' : 'Sicherheit'}
+            style={{ position: 'relative' }}>
+        <Icon name="lock" size={16} />
+        {faktorFehlt && (
+          <span aria-hidden style={{
+            position: 'absolute', top: -3, right: -3, width: 8, height: 8,
+            borderRadius: 999, background: 'var(--gelb)',
+          }} />
         )}
       </Link>
 

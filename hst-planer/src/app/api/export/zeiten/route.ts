@@ -4,6 +4,7 @@ import { requirePermission } from '@/lib/auth/session';
 import { db } from '@/lib/db';
 import { minutesToHours } from '@/lib/time';
 import { alsCsv, alsExcel, dateiname, EXCEL_TYP, type Spalte } from '@/lib/export/excel';
+import { filterAusUrl, protokolliereExport } from '@/lib/export/protokoll';
 import { TIME_ENTRY_STATUS } from '@/lib/status';
 import type { Prisma } from '@prisma/client';
 
@@ -30,6 +31,13 @@ export const GET = route(async (request: Request) => {
     },
     orderBy: [{ date: 'asc' }, { employee: { lastName: 'asc' } }],
     take: 50000,
+  });
+
+  await protokolliereExport(user, {
+    bereich: 'zeiten',
+    format: format === 'csv' ? 'CSV' : 'XLSX',
+    rowCount: zeiten.length,
+    filter: filterAusUrl(request.url),
   });
 
   type Zeile = (typeof zeiten)[number];

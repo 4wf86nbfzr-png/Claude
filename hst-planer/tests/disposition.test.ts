@@ -6,6 +6,13 @@ import { db, testBenutzer, TEST_USER } from './hilfen/db';
 import { eventAnlegen, eventDuplizieren, eventStornieren, serieAnlegen } from '@/lib/domain/events';
 import { mitarbeiterAnlegen, mitarbeiterDeaktivieren } from '@/lib/domain/employees';
 import { pruefeZuweisung, statusSetzen, zuweisen, zuweisungEntfernen } from '@/lib/domain/assignments';
+
+/*
+  Die frisch angelegten Testkraefte haben keine Pflichtschulung und keine
+  hinterlegten Unterlagen. Das erzeugt zu Recht eine Warnung (SecPlan 4) –
+  deshalb steht in den Tests, in denen es nicht um Konflikte geht,
+  `trotzdem: true`. Genau das taete ein Disponent an der Stelle auch.
+*/
 import { positionAnlegen } from '@/lib/domain/positions';
 import { besetzungAus } from '@/lib/queries/coverage';
 
@@ -118,7 +125,7 @@ describe('Zuweisung', () => {
     const employee = await mitarbeiterAnlegen(TEST_USER, formular({ firstName: 'Anton', lastName: MARKE, active: 'on' }));
     aufraeumen.mitarbeiter.push(employee.id);
 
-    const assignment = await zuweisen(TEST_USER, { positionId: position.id, employeeId: employee.id });
+    const assignment = await zuweisen(TEST_USER, { positionId: position.id, employeeId: employee.id, trotzdem: true });
     expect(assignment.status).toBe('ANGEFRAGT');
 
     const nachher = await db.event.findUniqueOrThrow({ where: { id: event.id } });
@@ -135,7 +142,7 @@ describe('Zuweisung', () => {
     const employee = await mitarbeiterAnlegen(TEST_USER, formular({ firstName: 'Berta', lastName: MARKE, active: 'on' }));
     aufraeumen.mitarbeiter.push(employee.id);
 
-    await zuweisen(TEST_USER, { positionId: position.id, employeeId: employee.id });
+    await zuweisen(TEST_USER, { positionId: position.id, employeeId: employee.id, trotzdem: true });
     await expect(zuweisen(TEST_USER, { positionId: position.id, employeeId: employee.id }))
       .rejects.toMatchObject({ userMessage: expect.stringContaining('steht bereits auf dieser Position') });
   });
@@ -151,7 +158,7 @@ describe('Zuweisung', () => {
     const p1 = await positionAnlegen(TEST_USER, ersterEinsatz.id, formular({ title: 'Einlass Nord', requiredCount: '1', startTime: '18:00', endTime: '23:00' }));
     const p2 = await positionAnlegen(TEST_USER, zweiterEinsatz.id, formular({ title: 'Einlass Süd', requiredCount: '1', startTime: '20:00', endTime: '02:00' }));
 
-    await zuweisen(TEST_USER, { positionId: p1.id, employeeId: employee.id });
+    await zuweisen(TEST_USER, { positionId: p1.id, employeeId: employee.id, trotzdem: true });
     const konflikte = await pruefeZuweisung(p2.id, employee.id);
     expect(konflikte.some((k) => k.art === 'UEBERSCHNEIDUNG' && k.blockierend)).toBe(true);
 
@@ -184,7 +191,7 @@ describe('Zuweisung', () => {
     const employee = await mitarbeiterAnlegen(TEST_USER, formular({ firstName: 'Emil', lastName: MARKE, active: 'on' }));
     aufraeumen.mitarbeiter.push(employee.id);
 
-    const assignment = await zuweisen(TEST_USER, { positionId: position.id, employeeId: employee.id, status: 'ZUGESAGT' });
+    const assignment = await zuweisen(TEST_USER, { positionId: position.id, employeeId: employee.id, trotzdem: true, status: 'ZUGESAGT' });
     let nachher = await db.event.findUniqueOrThrow({ where: { id: event.id } });
     expect(nachher.status).toBe('BESETZT');
 
@@ -203,7 +210,7 @@ describe('Zuweisung', () => {
     const employee = await mitarbeiterAnlegen(TEST_USER, formular({ firstName: 'Frieda', lastName: MARKE, active: 'on' }));
     aufraeumen.mitarbeiter.push(employee.id);
 
-    const assignment = await zuweisen(TEST_USER, { positionId: position.id, employeeId: employee.id });
+    const assignment = await zuweisen(TEST_USER, { positionId: position.id, employeeId: employee.id, trotzdem: true });
     await zuweisungEntfernen(TEST_USER, assignment.id, 'Planaenderung');
 
     const geloescht = await db.assignment.findUniqueOrThrow({ where: { id: assignment.id } });
@@ -218,7 +225,7 @@ describe('Duplizieren und Serien (Spec 33/34)', () => {
     const position = await positionAnlegen(TEST_USER, event.id, formular({ title: 'Ordner', requiredCount: '2', startTime: '18:00', endTime: '02:00' }));
     const employee = await mitarbeiterAnlegen(TEST_USER, formular({ firstName: 'Gustav', lastName: MARKE, active: 'on' }));
     aufraeumen.mitarbeiter.push(employee.id);
-    await zuweisen(TEST_USER, { positionId: position.id, employeeId: employee.id, status: 'ZUGESAGT' });
+    await zuweisen(TEST_USER, { positionId: position.id, employeeId: employee.id, trotzdem: true, status: 'ZUGESAGT' });
 
     const kopie = await eventDuplizieren(TEST_USER, event.id, { datum: '2031-08-19', mitZuweisungen: true });
     aufraeumen.events.push(kopie.id);
@@ -257,7 +264,7 @@ describe('Stornieren und Deaktivieren (Spec 73)', () => {
     const position = await positionAnlegen(TEST_USER, event.id, formular({ title: 'Posten', requiredCount: '1' }));
     const employee = await mitarbeiterAnlegen(TEST_USER, formular({ firstName: 'Hanna', lastName: MARKE, active: 'on' }));
     aufraeumen.mitarbeiter.push(employee.id);
-    await zuweisen(TEST_USER, { positionId: position.id, employeeId: employee.id, status: 'ZUGESAGT' });
+    await zuweisen(TEST_USER, { positionId: position.id, employeeId: employee.id, trotzdem: true, status: 'ZUGESAGT' });
 
     await eventStornieren(TEST_USER, event.id, 'Kunde hat abgesagt');
 
@@ -273,7 +280,7 @@ describe('Stornieren und Deaktivieren (Spec 73)', () => {
     const event = await eventAnlegen(TEST_USER, { ...EVENT_VORLAGE, name: `Bindung ${MARKE}` });
     aufraeumen.events.push(event.id);
     const position = await positionAnlegen(TEST_USER, event.id, formular({ title: 'Posten', requiredCount: '1' }));
-    const assignment = await zuweisen(TEST_USER, { positionId: position.id, employeeId: employee.id });
+    const assignment = await zuweisen(TEST_USER, { positionId: position.id, employeeId: employee.id, trotzdem: true });
 
     await expect(mitarbeiterDeaktivieren(TEST_USER, employee.id, 'Vertragsende'))
       .rejects.toMatchObject({ userMessage: expect.stringContaining('kommende Einsätze') });

@@ -5,6 +5,7 @@ import { db } from '@/lib/db';
 import { eventFilter } from '@/lib/queries/scope';
 import { toDateOnly } from '@/lib/time';
 import { alsExcel, dateiname, EXCEL_TYP, type Spalte } from '@/lib/export/excel';
+import { filterAusUrl, protokolliereExport } from '@/lib/export/protokoll';
 import { ASSIGNMENT_STATUS } from '@/lib/status';
 
 /** Einsatzplanung je Mitarbeiter und Position (Spec 25/62). */
@@ -23,6 +24,13 @@ export const GET = route(async (request: Request) => {
     },
     orderBy: [{ event: { date: 'asc' } }, { position: { sortOrder: 'asc' } }],
     take: 20000,
+  });
+
+  await protokolliereExport(user, {
+    bereich: 'einsatzplanung',
+    format: 'XLSX',
+    rowCount: zuweisungen.length,
+    filter: filterAusUrl(request.url),
   });
 
   type Zeile = (typeof zuweisungen)[number];

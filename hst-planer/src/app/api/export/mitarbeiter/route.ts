@@ -4,6 +4,7 @@ import { requirePermission } from '@/lib/auth/session';
 import { db } from '@/lib/db';
 import { employeeFilter } from '@/lib/queries/scope';
 import { alsCsv, alsExcel, dateiname, EXCEL_TYP, type Spalte } from '@/lib/export/excel';
+import { filterAusUrl, protokolliereExport } from '@/lib/export/protokoll';
 import { EMPLOYMENT_TYPE } from '@/lib/status';
 
 export const GET = route(async (request: Request) => {
@@ -19,6 +20,13 @@ export const GET = route(async (request: Request) => {
     },
     orderBy: [{ lastName: 'asc' }, { firstName: 'asc' }],
     take: 20000,
+  });
+
+  await protokolliereExport(user, {
+    bereich: 'mitarbeiter',
+    format: format === 'csv' ? 'CSV' : 'XLSX',
+    rowCount: mitarbeiter.length,
+    filter: filterAusUrl(request.url),
   });
 
   type Zeile = (typeof mitarbeiter)[number];

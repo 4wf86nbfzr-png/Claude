@@ -5,6 +5,7 @@ import { db } from '@/lib/db';
 import { eventFilter } from '@/lib/queries/scope';
 import { besetzungAus, EVENT_MIT_BESETZUNG } from '@/lib/queries/coverage';
 import { alsCsv, alsExcel, dateiname, EXCEL_TYP, type Spalte } from '@/lib/export/excel';
+import { filterAusUrl, protokolliereExport } from '@/lib/export/protokoll';
 import { EVENT_STATUS } from '@/lib/status';
 
 export const GET = route(async (request: Request) => {
@@ -20,6 +21,13 @@ export const GET = route(async (request: Request) => {
     include: { customer: { select: { name: true } }, serviceType: { select: { name: true } }, ...EVENT_MIT_BESETZUNG },
     orderBy: { date: 'asc' },
     take: 5000,
+  });
+
+  await protokolliereExport(user, {
+    bereich: 'einsaetze',
+    format: format === 'csv' ? 'CSV' : 'XLSX',
+    rowCount: events.length,
+    filter: filterAusUrl(request.url),
   });
 
   type Zeile = (typeof events)[number];
