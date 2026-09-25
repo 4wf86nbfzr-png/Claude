@@ -26,9 +26,8 @@
 [[headers]]
   for = "/*"
   [headers.values]
-    # ---- TESTBETRIEB: VOR DEM LIVE-GANG ENTFERNEN (1 von 3) ----
-    # Sperrt die Vorschau für Suchmaschinen, auch wenn jemand die
-    # Meta-Angabe in einer Seite übersieht.
+    # ---- TESTBETRIEB: hält Suchmaschinen fern ----
+    # Gesetzt und entfernt von tools/live-schalter.mjs.
     X-Robots-Tag = "noindex, nofollow, noarchive, nosnippet"
 
     # ---- Sicherheit ----

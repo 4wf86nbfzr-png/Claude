@@ -1,0 +1,1506 @@
+// HST PLANER – Datenmodell
+// Konventionen:
+//  * Soft Delete ueber `deletedAt` (nie hart loeschen, siehe Spec 73)
+//  * Change History ueber createdAt/updatedAt/createdById/updatedById (Spec 74)
+//  * Alle Zeiten werden als UTC-DateTime gespeichert; reine Uhrzeiten als "HH:MM"-String,
+//    damit Nachtschichten ueber Mitternacht sauber berechnet werden koennen (siehe src/lib/time).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------- Benutzer & Rechte
+
+/// Rollen nach SecPlan-Vorgabe. SUPERADMIN ist die einzige Rolle mit
+/// technischem Vollzugriff; alle anderen bekommen ausschliesslich das,
+/// was in ROLE_PERMISSIONS ausdruecklich steht (Standard: DENY ALL).
+enum Role {
+  SUPERADMIN
+  GESCHAEFTSFUEHRUNG
+  PERSONAL
+  DISPOSITION
+  EINSATZLEITUNG
+  TEAMLEITUNG
+  MITARBEITER
+  KUNDE
+  SUBUNTERNEHMER
+}
+
+model User {
+  id                 String    @id @default(cuid())
+  email              String    @unique
+  passwordHash       String
+  name               String
+  role               Role      @default(MITARBEITER)
+  active             Boolean   @default(true)
+  mustChangePassword Boolean   @default(false)
+  totpSecret         String? // 2FA vorbereitet
+  totpEnabled        Boolean   @default(false)
+  failedLogins       Int       @default(0)
+  lockedUntil        DateTime?
+  lastLoginAt        DateTime?
+  theme              String    @default("system") // light | dark | system
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  deletedAt          DateTime?
+
+  employee   Employee? @relation(fields: [employeeId], references: [id])
+  employeeId String?   @unique
+  partner    Partner?  @relation(fields: [partnerId], references: [id])
+  partnerId  String?
+  customer   Customer? @relation(fields: [customerId], references: [id])
+  customerId String?
+
+  sessions      Session[]
+  auditLogs     AuditLog[]
+  notifications Notification[]
+  apiKeys       ApiKey[]       @relation("ApiKeyCreator")
+
+  @@index([role, active])
+  @@index([partnerId])
+  @@index([customerId])
+}
+
+model Session {
+  id        String    @id @default(cuid())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  tokenHash String    @unique
+  userAgent String?
+  ip        String?
+  createdAt DateTime  @default(now())
+  expiresAt DateTime
+  revokedAt DateTime?
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+// ---------------------------------------------------------------- Stammdaten
+
+enum EmploymentType {
+  FESTANSTELLUNG
+  TEILZEIT
+  MINIJOB
+  AUSHILFE
+  WERKSTUDENT
+  SUBUNTERNEHMER
+}
+
+model Employee {
+  id              String         @id @default(cuid())
+  personnelNo     String         @unique
+  firstName       String
+  lastName        String
+  photoPath       String?
+  phone           String?
+  mobile          String?
+  email           String?
+  street          String?
+  zip             String?
+  city            String?
+  country         String         @default("DE")
+  birthDate       DateTime?
+  employmentType  EmploymentType @default(AUSHILFE)
+  hourlyRate      Decimal?       @db.Decimal(10, 2)
+  drivingLicence  String?
+  active          Boolean        @default(true)
+  blocked         Boolean        @default(false)
+  blockReason     String?
+  notesInternal   String? // NICHT fuer Mitarbeiter sichtbar (Spec 79)
+  infoForEmployee String? // fuer Mitarbeiter sichtbar
+  preferredAreas  String[]       @default([])
+  latitude        Float?
+  longitude       Float?
+
+  user      User?
+  partner   Partner? @relation(fields: [partnerId], references: [id])
+  partnerId String?
+
+  qualifications EmployeeQualification[]
+  availabilities Availability[]
+  assignments    Assignment[]
+  documents      Document[]
+  timeEntries    TimeEntry[]
+  incidents      Incident[]
+  leadEvents     Event[]                 @relation("EventOperationLead")
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  createdById String?
+  updatedById String?
+
+  @@index([lastName, firstName])
+  @@index([active, deletedAt])
+  @@index([partnerId])
+}
+
+model Qualification {
+  id          String  @id @default(cuid())
+  code        String  @unique // z.B. "34A"
+  name        String
+  description String?
+  expires     Boolean @default(false)
+  active      Boolean @default(true)
+
+  employees EmployeeQualification[]
+  positions PositionRequirement[]
+}
+
+model EmployeeQualification {
+  id              String        @id @default(cuid())
+  employee        Employee      @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employeeId      String
+  qualification   Qualification @relation(fields: [qualificationId], references: [id], onDelete: Cascade)
+  qualificationId String
+  acquiredAt      DateTime?
+  expiresAt       DateTime?
+  note            String?
+
+  @@unique([employeeId, qualificationId])
+  @@index([expiresAt])
+}
+
+enum AvailabilityKind {
+  VERFUEGBAR
+  NICHT_VERFUEGBAR
+  BEVORZUGT
+  URLAUB
+  KRANK
+}
+
+model Availability {
+  id         String           @id @default(cuid())
+  employee   Employee         @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employeeId String
+  kind       AvailabilityKind
+  from       DateTime
+  to         DateTime
+  note       String?
+  createdAt  DateTime         @default(now())
+
+  @@index([employeeId, from, to])
+}
+
+model Customer {
+  id             String   @id @default(cuid())
+  name           String
+  shortName      String?
+  email          String?
+  phone          String?
+  street         String?
+  zip            String?
+  city           String?
+  billingAddress String?
+  vatId          String?
+  hourlyRate     Decimal? @db.Decimal(10, 2)
+  contractNote   String?
+  notesInternal  String?
+  active         Boolean  @default(true)
+
+  contacts  CustomerContact[]
+  locations CustomerLocation[]
+  events    Event[]
+  requests  Request[]
+  documents Document[]
+  users     User[]
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  createdById String?
+  updatedById String?
+  objekts     Objekt[]
+
+  @@index([name])
+}
+
+model CustomerContact {
+  id         String   @id @default(cuid())
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customerId String
+  name       String
+  role       String?
+  email      String?
+  phone      String?
+  primary    Boolean  @default(false)
+
+  @@index([customerId])
+}
+
+model CustomerLocation {
+  id         String   @id @default(cuid())
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customerId String
+  name       String
+  street     String?
+  zip        String?
+  city       String?
+  note       String?
+
+  @@index([customerId])
+}
+
+model Partner {
+  id            String   @id @default(cuid())
+  name          String
+  contactName   String?
+  email         String?
+  phone         String?
+  street        String?
+  zip           String?
+  city          String?
+  hourlyRate    Decimal? @db.Decimal(10, 2)
+  notesInternal String?
+  active        Boolean  @default(true)
+
+  employees   Employee[]
+  users       User[]
+  documents   Document[]
+  assignments Assignment[]
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  createdById String?
+  updatedById String?
+
+  @@index([name])
+}
+
+// ---------------------------------------------------------------- Events & Positionen
+
+enum EventStatus {
+  ANFRAGE
+  PLANUNG
+  TEILBESETZT
+  BESETZT
+  BESTAETIGT
+  LAUFEND
+  ABGESCHLOSSEN
+  ABGERECHNET
+  STORNIERT
+}
+
+enum Priority {
+  NIEDRIG
+  NORMAL
+  HOCH
+  KRITISCH
+}
+
+model ServiceType {
+  id        String     @id @default(cuid())
+  code      String     @unique // SICHERHEIT, GASTRO, PROMOTION, LOGISTIK, FAHRSERVICE, REINIGUNG
+  name      String
+  color     String     @default("#3B82F6")
+  active    Boolean    @default(true)
+  positions Position[]
+  events    Event[]
+}
+
+model Event {
+  id            String       @id @default(cuid())
+  reference     String       @unique // Event-ID, z.B. EV-2026-0042
+  name          String
+  customer      Customer?    @relation(fields: [customerId], references: [id])
+  customerId    String?
+  serviceType   ServiceType? @relation(fields: [serviceTypeId], references: [id])
+  serviceTypeId String?
+
+  contactName  String?
+  contactPhone String?
+  contactEmail String?
+
+  venue  String?
+  street String?
+  zip    String?
+  city   String?
+
+  date         DateTime // Einsatztag (00:00 lokal)
+  startTime    String? // "HH:MM"
+  endTime      String? // "HH:MM" – kann ueber Mitternacht gehen
+  buildUpTime  String?
+  teardownTime String?
+  meetingPoint String?
+  meetingTime  String?
+
+  eventKind String? // Veranstaltungsart
+  priority  Priority    @default(NORMAL)
+  status    EventStatus @default(PLANUNG)
+
+  dressCode     String?
+  tasks         String?
+  hints         String? // besondere Hinweise (fuer Mitarbeiter sichtbar)
+  notesInternal String? // NICHT fuer Mitarbeiter sichtbar
+
+  operationLeadId String?
+  operationLead   Employee? @relation("EventOperationLead", fields: [operationLeadId], references: [id])
+  overallLeadId   String?
+
+  revenue Decimal? @db.Decimal(12, 2)
+
+  seriesId   String? // Wiederkehrende Events (Spec 34)
+  archivedAt DateTime?
+
+  positions          Position[]
+  assignments        Assignment[]
+  timeEntries        TimeEntry[]
+  documents          Document[]
+  incidents          Incident[]
+  requests           Request[]
+  reconciliationRows ReconciliationRow[]
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  createdById String?
+  updatedById String?
+  objekt      Objekt?   @relation(fields: [objektId], references: [id])
+  objektId    String?
+
+  @@index([date, status])
+  @@index([customerId, date])
+  @@index([seriesId])
+  @@index([name])
+}
+
+model Position {
+  id            String       @id @default(cuid())
+  event         Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId       String
+  title         String
+  serviceType   ServiceType? @relation(fields: [serviceTypeId], references: [id])
+  serviceTypeId String?
+  requiredCount Int          @default(1)
+  startTime     String? // "HH:MM" – faellt auf Event zurueck
+  endTime       String?
+  breakMinutes  Int          @default(0)
+  dressCode     String?
+  note          String?
+  sortOrder     Int          @default(0)
+  hourlyRate    Decimal?     @db.Decimal(10, 2)
+
+  requirements       PositionRequirement[]
+  assignments        Assignment[]
+  timeEntries        TimeEntry[]
+  reconciliationRows ReconciliationRow[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([eventId])
+}
+
+model PositionRequirement {
+  id              String        @id @default(cuid())
+  position        Position      @relation(fields: [positionId], references: [id], onDelete: Cascade)
+  positionId      String
+  qualification   Qualification @relation(fields: [qualificationId], references: [id], onDelete: Cascade)
+  qualificationId String
+  mandatory       Boolean       @default(true)
+
+  @@unique([positionId, qualificationId])
+}
+
+enum AssignmentStatus {
+  VORGESCHLAGEN
+  ANGEFRAGT
+  ZUGESAGT
+  ABGESAGT
+  EINGETEILT
+  ERSCHIENEN
+  NICHT_ERSCHIENEN
+  STORNIERT
+}
+
+enum AssignmentRole {
+  MITARBEITER
+  TEAMLEITUNG
+  EINSATZLEITUNG
+  ERSATZ
+}
+
+model Assignment {
+  id         String   @id @default(cuid())
+  event      Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId    String
+  position   Position @relation(fields: [positionId], references: [id], onDelete: Cascade)
+  positionId String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  employeeId String
+  partner    Partner? @relation(fields: [partnerId], references: [id])
+  partnerId  String?
+
+  status     AssignmentStatus @default(EINGETEILT)
+  roleInTeam AssignmentRole   @default(MITARBEITER)
+  isReserve  Boolean          @default(false)
+
+  plannedStart        String? // "HH:MM" – faellt auf Position/Event zurueck
+  plannedEnd          String?
+  plannedBreakMinutes Int     @default(0)
+
+  respondedAt     DateTime?
+  declineReason   String?
+  noteForEmployee String?
+  notesInternal   String?
+
+  checkInAt  DateTime?
+  checkOutAt DateTime?
+
+  timeEntries TimeEntry[]
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  createdById String?
+  updatedById String?
+
+  @@unique([positionId, employeeId])
+  @@index([employeeId, status])
+  @@index([eventId])
+}
+
+// ---------------------------------------------------------------- Zeiterfassung
+
+enum TimeEntrySource {
+  PLANUNG
+  IMPORT
+  MANUELL
+  CHECKIN
+}
+
+enum TimeEntryStatus {
+  OFFEN
+  GEPRUEFT
+  FREIGEGEBEN
+  ABGERECHNET
+}
+
+model TimeEntry {
+  id           String      @id @default(cuid())
+  employee     Employee    @relation(fields: [employeeId], references: [id])
+  employeeId   String
+  event        Event?      @relation(fields: [eventId], references: [id])
+  eventId      String?
+  position     Position?   @relation(fields: [positionId], references: [id])
+  positionId   String?
+  assignment   Assignment? @relation(fields: [assignmentId], references: [id])
+  assignmentId String?
+
+  date         DateTime
+  start        String // "HH:MM"
+  end          String // "HH:MM"
+  breakMinutes Int             @default(0)
+  minutes      Int // berechnete Netto-Minuten (Nachtschicht-sicher)
+  source       TimeEntrySource @default(IMPORT)
+  status       TimeEntryStatus @default(OFFEN)
+  note         String?
+
+  reconciliationRow ReconciliationRow?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  createdById String?
+  updatedById String?
+
+  @@index([employeeId, date])
+  @@index([eventId, date])
+  @@index([status])
+}
+
+// ---------------------------------------------------------------- Anfragen & E-Mail
+
+enum RequestStatus {
+  NEU
+  IN_PRUEFUNG
+  ANGEBOT
+  UEBERNOMMEN
+  ABGELEHNT
+  ARCHIVIERT
+}
+
+enum RequestChannel {
+  WEBSITE
+  EMAIL
+  TELEFON
+  MANUELL
+  API
+}
+
+model Request {
+  id        String         @id @default(cuid())
+  reference String         @unique // AN-2026-0007
+  channel   RequestChannel @default(WEBSITE)
+  status    RequestStatus  @default(NEU)
+
+  company       String?
+  contactPerson String?
+  email         String?
+  phone         String?
+
+  eventName       String?
+  eventDate       DateTime?
+  startTime       String?
+  endTime         String?
+  meetingTime     String?
+  location        String?
+  employeesNeeded Int?
+  serviceType     String?
+  message         String?
+
+  parsedFields  Json? // Rohergebnis des Parsers inkl. Konfidenz je Feld
+  missingFields String[] @default([])
+  confidence    Float    @default(0)
+  needsReview   Boolean  @default(true)
+
+  customer       Customer?     @relation(fields: [customerId], references: [id])
+  customerId     String?
+  event          Event?        @relation(fields: [eventId], references: [id])
+  eventId        String?
+  emailMessage   EmailMessage? @relation(fields: [emailMessageId], references: [id])
+  emailMessageId String?       @unique
+
+  sourceIp String?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  createdById String?
+  updatedById String?
+
+  @@index([status, createdAt])
+}
+
+enum EmailStatus {
+  NEU
+  VERARBEITET
+  IGNORIERT
+  FEHLER
+}
+
+model EmailMessage {
+  id         String      @id @default(cuid())
+  messageId  String      @unique
+  fromName   String?
+  fromEmail  String
+  toEmail    String?
+  subject    String?
+  receivedAt DateTime
+  textBody   String?
+  htmlBody   String?
+  status     EmailStatus @default(NEU)
+  isRequest  Boolean     @default(false)
+  error      String?
+  request    Request?
+
+  createdAt DateTime @default(now())
+
+  @@index([status, receivedAt])
+}
+
+// ---------------------------------------------------------------- Import & Abgleich
+
+model ImportTemplate {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  kind        String   @default("TIMESHEET") // TIMESHEET | EMPLOYEES | EVENTS
+  mapping     Json // { spaltenName: feldName }
+  options     Json? // { dateFormat, decimalComma, sheetName, headerRow }
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdById String?
+}
+
+enum ReconciliationStatus {
+  ENTWURF
+  VERARBEITET
+  ABGESCHLOSSEN
+}
+
+enum RowStatus {
+  OK // gruen  – identisch
+  ABWEICHUNG // gelb   – Zeitabweichung
+  FEHLEND // rot    – geplant, keine Ist-Zeit
+  UNBEKANNT // rot    – Mitarbeiter nicht gefunden
+  ZUSAETZLICH // rot    – Ist-Zeit ohne Planung
+  DUPLIKAT // rot    – doppelter Datensatz
+  MEHRDEUTIG // rot    – mehrere aehnliche Treffer
+  GEPRUEFT // blau   – manuell bestaetigt
+  IGNORIERT
+}
+
+model Reconciliation {
+  id         String               @id @default(cuid())
+  reference  String               @unique
+  name       String
+  status     ReconciliationStatus @default(ENTWURF)
+  fileName   String?
+  filePath   String?
+  templateId String?
+  mapping    Json?
+  periodFrom DateTime?
+  periodTo   DateTime?
+
+  totalRows     Int @default(0)
+  matchedRows   Int @default(0)
+  deviationRows Int @default(0)
+  unknownRows   Int @default(0)
+  duplicateRows Int @default(0)
+  missingRows   Int @default(0)
+
+  rows ReconciliationRow[]
+
+  closedAt    DateTime?
+  closedById  String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  createdById String?
+  updatedById String?
+
+  @@index([status, createdAt])
+}
+
+model ReconciliationRow {
+  id               String         @id @default(cuid())
+  reconciliation   Reconciliation @relation(fields: [reconciliationId], references: [id], onDelete: Cascade)
+  reconciliationId String
+  rowNumber        Int
+
+  rawName     String?
+  rawDate     String?
+  rawStart    String?
+  rawEnd      String?
+  rawBreak    String?
+  rawEvent    String?
+  rawPosition String?
+  raw         Json?
+
+  employeeId   String?
+  eventId      String?
+  event        Event?    @relation(fields: [eventId], references: [id])
+  positionId   String?
+  position     Position? @relation(fields: [positionId], references: [id])
+  assignmentId String?
+
+  date           DateTime?
+  plannedStart   String?
+  plannedEnd     String?
+  plannedBreak   Int?
+  plannedMinutes Int?
+  actualStart    String?
+  actualEnd      String?
+  actualBreak    Int?
+  actualMinutes  Int?
+  diffMinutes    Int?
+
+  status     RowStatus @default(ABWEICHUNG)
+  matchScore Float     @default(0)
+  candidates Json? // [{ employeeId, name, score }]
+  issues     String[]  @default([])
+  comment    String?
+
+  reviewedAt   DateTime?
+  reviewedById String?
+
+  timeEntry   TimeEntry? @relation(fields: [timeEntryId], references: [id])
+  timeEntryId String?    @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([reconciliationId, status])
+  @@index([employeeId])
+}
+
+// ---------------------------------------------------------------- Dokumente
+
+enum DocumentType {
+  FUEHRUNGSZEUGNIS
+  AUSWEIS
+  SCHULUNGSNACHWEIS
+  VERTRAG
+  ANGEBOT
+  EINSATZPLAN
+  STUNDENZETTEL
+  ARBEITSVERTRAG
+  BEWERBUNG
+  COMPLIANCE
+  SONSTIGES
+}
+
+/// Zugriffsebene eines Dokuments (SecPlan 6). Bestimmt zusammen mit der Rolle,
+/// wer eine Datei ueberhaupt anfordern darf. Standard ist die engste Stufe.
+enum DocumentAccess {
+  PERSONAL_INTERN // nur Personal, Geschaeftsfuehrung, Superadmin
+  DISPOSITION // zusaetzlich Disposition und Einsatzleitung
+  EINSATZBEZOGEN // zusaetzlich Teamleitung fuer den eigenen Einsatz
+  MITARBEITER // die betroffene Person selbst
+  KUNDE // der zugehoerige Kunde
+  PARTNER // das zugehoerige Partnerunternehmen
+}
+
+model Document {
+  id                String       @id @default(cuid())
+  type              DocumentType @default(SONSTIGES)
+  title             String
+  fileName          String
+  filePath          String
+  mimeType          String
+  sizeBytes         Int
+  checksum          String?
+  issuedAt          DateTime?
+  expiresAt         DateTime?
+  visibleToEmployee Boolean      @default(false)
+
+  // --- Metadaten nach SecPlan 6 -------------------------------------------
+  version         Int            @default(1)
+  validFrom       DateTime?
+  access          DocumentAccess @default(PERSONAL_INTERN)
+  /// Besondere Kategorie nach Art. 9 DSGVO (z.B. Gesundheitsdaten).
+  /// Solche Dokumente erscheinen nie in normalen Listen.
+  specialCategory Boolean        @default(false)
+  /// Geplantes Loeschdatum aus dem Loeschkonzept.
+  deleteAt        DateTime?
+  retentionRule   RetentionRule? @relation(fields: [retentionRuleId], references: [id])
+  retentionRuleId String?
+
+  accessLog DocumentAccessLog[]
+
+  employee   Employee? @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employeeId String?
+  customer   Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customerId String?
+  event      Event?    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId    String?
+  partner    Partner?  @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  partnerId  String?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  createdById String?
+
+  @@index([employeeId])
+  @@index([eventId])
+  @@index([expiresAt])
+}
+
+// ---------------------------------------------------------------- Vorfaelle
+
+enum IncidentKind {
+  NICHT_ERSCHIENEN
+  VERSPAETET
+  FALSCHE_KLEIDUNG
+  ERSATZ_ERFORDERLICH
+  KUNDENBESCHWERDE
+  TECHNISCHES_PROBLEM
+  SONSTIGES
+}
+
+enum IncidentStatus {
+  OFFEN
+  IN_BEARBEITUNG
+  GELOEST
+  VERWORFEN
+}
+
+model Incident {
+  id          String         @id @default(cuid())
+  event       Event          @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId     String
+  employee    Employee?      @relation(fields: [employeeId], references: [id])
+  employeeId  String?
+  kind        IncidentKind
+  status      IncidentStatus @default(OFFEN)
+  priority    Priority       @default(NORMAL)
+  occurredAt  DateTime       @default(now())
+  assigneeId  String?
+  description String
+  resolution  String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdById String?
+
+  @@index([eventId, status])
+}
+
+// ---------------------------------------------------------------- Benachrichtigungen & Kommunikation
+
+enum NotificationKind {
+  NEUE_ANFRAGE
+  EINSATZ_ZUGESAGT
+  EINSATZ_ABGESAGT
+  POSITION_UNBESETZT
+  DOKUMENT_LAEUFT_AB
+  ABGLEICH_ABGESCHLOSSEN
+  ABWEICHUNG_ERKANNT
+  EVENT_MORGEN
+  EVENT_UNTERBESETZT
+  NACHRICHT
+  SYSTEM
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  kind      NotificationKind
+  title     String
+  body      String?
+  link      String?
+  readAt    DateTime?
+  dedupeKey String?
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, dedupeKey])
+  @@index([userId, readAt])
+}
+
+enum MessageChannel {
+  EMAIL
+  SMS
+  WHATSAPP
+  PUSH
+  INTERN
+}
+
+enum MessageDirection {
+  EIN
+  AUS
+}
+
+model Message {
+  id         String           @id @default(cuid())
+  channel    MessageChannel   @default(INTERN)
+  direction  MessageDirection @default(AUS)
+  subject    String?
+  body       String
+  toAddress  String?
+  fromUserId String?
+  employeeId String?
+  eventId    String?
+  sentAt     DateTime?
+  error      String?
+
+  createdAt DateTime @default(now())
+
+  @@index([eventId])
+  @@index([employeeId])
+}
+
+// ---------------------------------------------------------------- API, Webhooks, Audit, Settings
+
+model ApiKey {
+  id          String    @id @default(cuid())
+  name        String
+  prefix      String    @unique
+  keyHash     String
+  scopes      String[]  @default([])
+  active      Boolean   @default(true)
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
+  createdAt   DateTime  @default(now())
+  createdBy   User?     @relation("ApiKeyCreator", fields: [createdById], references: [id])
+  createdById String?
+}
+
+model Webhook {
+  id        String   @id @default(cuid())
+  name      String
+  url       String
+  secret    String
+  events    String[] @default([])
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  deliveries WebhookDelivery[]
+}
+
+model WebhookDelivery {
+  id          String    @id @default(cuid())
+  webhook     Webhook   @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+  webhookId   String
+  event       String
+  payload     Json
+  status      Int?
+  error       String?
+  attempts    Int       @default(0)
+  deliveredAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([webhookId, createdAt])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  user       User?    @relation(fields: [userId], references: [id])
+  userId     String?
+  actorLabel String // bleibt lesbar, auch wenn Benutzer spaeter deaktiviert wird
+  action     String // z.B. "assignment.create"
+  entity     String // z.B. "Assignment"
+  entityId   String?
+  summary    String
+  before     Json?
+  after      Json?
+  ip         String?
+  createdAt  DateTime @default(now())
+
+  @@index([entity, entityId])
+  @@index([createdAt])
+  @@index([userId])
+}
+
+model Setting {
+  key         String   @id
+  value       Json
+  updatedAt   DateTime @updatedAt
+  updatedById String?
+}
+
+model Counter {
+  key   String @id
+  value Int    @default(0)
+}
+
+// ================================================================
+//  SecPlan-Erweiterung: Personal, Objekte, Schulungen
+// ================================================================
+
+enum ApplicantStatus {
+  EINGEGANGEN
+  IN_PRUEFUNG
+  GESPRAECH
+  ZUSAGE
+  ABSAGE
+  UEBERNOMMEN
+}
+
+/// Bewerber (SecPlan 2, Bereich PERSONAL). Bewusst getrennt vom
+/// Mitarbeiterstamm: solange jemand nur beworben ist, liegen weniger
+/// Daten vor und die Loeschfrist ist eine andere (Absage + 6 Monate).
+model Applicant {
+  id         String          @id @default(cuid())
+  firstName  String
+  lastName   String
+  email      String?
+  phone      String?
+  city       String?
+  source     String? // woher die Bewerbung kam
+  position   String? // beworben als
+  status     ApplicantStatus @default(EINGEGANGEN)
+  note       String?
+  appliedAt  DateTime        @default(now())
+  decidedAt  DateTime?
+  /// Uebernommen als Mitarbeiter – dann zeigt diese Spalte dorthin.
+  employeeId String?
+  /// Loeschdatum aus dem Loeschkonzept (Bewerberdaten, s. RetentionRule).
+  deleteAt   DateTime?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  createdById String?
+
+  @@index([status, deletedAt])
+  @@index([lastName, firstName])
+}
+
+/// Objekt = dauerhaft betreuter Standort (Werkschutz, Empfang, Revier).
+/// Unterschied zum Event: laeuft ohne Enddatum und hat einen Objektleiter.
+model Objekt {
+  id            String    @id @default(cuid())
+  name          String
+  shortName     String?
+  street        String?
+  zip           String?
+  city          String?
+  customer      Customer? @relation(fields: [customerId], references: [id])
+  customerId    String?
+  leadId        String? // Employee.id des Objektleiters
+  active        Boolean   @default(true)
+  serviceNote   String?
+  notesInternal String?
+
+  events Event[]
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  createdById String?
+  updatedById String?
+
+  @@index([active, deletedAt])
+  @@index([customerId])
+}
+
+/// Schulung (SecPlan 2, PERSONAL → Schulungen). Unterscheidet sich von der
+/// Qualifikation: die Qualifikation ist der Nachweis, die Schulung der Termin.
+model Training {
+  id              String   @id @default(cuid())
+  title           String
+  description     String?
+  /// Qualifikation, die mit dem Bestehen erworben wird (optional).
+  qualificationId String?
+  startsAt        DateTime
+  endsAt          DateTime
+  location        String?
+  seats           Int?
+  mandatory       Boolean  @default(false)
+  /// Wiederholung in Monaten (z.B. 12 fuer jaehrliche Unterweisung).
+  repeatMonths    Int?
+
+  participants TrainingParticipant[]
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  createdById String?
+
+  @@index([startsAt])
+}
+
+enum TrainingResult {
+  ANGEMELDET
+  TEILGENOMMEN
+  BESTANDEN
+  NICHT_BESTANDEN
+  ABGEMELDET
+}
+
+model TrainingParticipant {
+  id         String         @id @default(cuid())
+  training   Training       @relation(fields: [trainingId], references: [id], onDelete: Cascade)
+  trainingId String
+  employeeId String
+  result     TrainingResult @default(ANGEMELDET)
+  note       String?
+  createdAt  DateTime       @default(now())
+
+  @@unique([trainingId, employeeId])
+  @@index([employeeId])
+}
+
+// ================================================================
+//  SecPlan-Erweiterung: Datenschutz und Nachweise
+// ================================================================
+
+/// Besondere Kategorien personenbezogener Daten (Art. 9 DSGVO).
+/// Bewusst eine eigene Tabelle: eigene Berechtigung, eigenes Protokoll,
+/// eigene Loeschfrist – und damit nie Teil einer normalen Mitarbeiterliste.
+model EmployeeSensitive {
+  id          String    @id @default(cuid())
+  employeeId  String
+  /// Kurzbezeichnung der Kategorie, z.B. "Schwerbehinderung",
+  /// "Betriebsaerztliche Bescheinigung". Kein Freitext-Diagnosefeld.
+  category    String
+  /// Verschluesselt abgelegter Inhalt (siehe src/lib/krypto.ts).
+  valueEnc    String
+  lawfulBasis String? // muss eingetragen werden, wird nie geraten
+  validUntil  DateTime?
+  deleteAt    DateTime?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdById String?
+
+  @@index([employeeId])
+}
+
+enum ZugriffsErgebnis {
+  GEWAEHRT
+  VERWEIGERT
+}
+
+/// Jeder Dokumentzugriff wird protokolliert (SecPlan 6 und 16).
+model DocumentAccessLog {
+  id         String           @id @default(cuid())
+  document   Document         @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  documentId String
+  userId     String?
+  role       Role?
+  action     String // ANSEHEN | HERUNTERLADEN | TOKEN_ERZEUGT
+  result     ZugriffsErgebnis @default(GEWAEHRT)
+  reason     String? // bei VERWEIGERT: welche Pruefung griff
+  ip         String?
+  userAgent  String?
+  createdAt  DateTime         @default(now())
+
+  @@index([documentId, createdAt])
+  @@index([userId, createdAt])
+}
+
+/// Kurzlebiger Zugriffstoken fuer genau eine Datei und genau eine Person.
+/// Dokumente sind sonst ueber keine URL erreichbar (SecPlan 6).
+model DocumentToken {
+  id         String    @id @default(cuid())
+  tokenHash  String    @unique
+  documentId String
+  userId     String
+  expiresAt  DateTime
+  usedAt     DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([documentId])
+  @@index([expiresAt])
+}
+
+/// Jeder Export wird protokolliert (SecPlan 21): wer, was, wie viele
+/// Datensaetze, mit welcher Begruendung.
+model ExportLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  role      Role?
+  bereich   String // z.B. "mitarbeiter", "einsaetze"
+  format    String // CSV | XLSX | PDF | JSON
+  rowCount  Int
+  filter    String? // die angewandte Einschraenkung, als Text
+  purpose   String? // Zweck, sofern angegeben
+  ip        String?
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([bereich, createdAt])
+}
+
+enum RechtsgrundlageArt {
+  ART6_1A_EINWILLIGUNG
+  ART6_1B_VERTRAG
+  ART6_1C_RECHTLICHE_PFLICHT
+  ART6_1D_LEBENSWICHTIG
+  ART6_1E_OEFFENTLICHES_INTERESSE
+  ART6_1F_BERECHTIGTES_INTERESSE
+  PARA26_BDSG_BESCHAEFTIGUNG
+  /// Bewusst vorhanden: solange niemand die Grundlage geprueft hat, steht
+  /// sie auf OFFEN. Das System erfindet keine Rechtsgrundlage (SecPlan 10).
+  OFFEN
+}
+
+enum PruefStatus {
+  ENTWURF
+  IN_PRUEFUNG
+  /// technisch umgesetzt – sagt nichts ueber die rechtliche Bewertung
+  TECHNISCH_UMGESETZT
+  /// rechtlich geprueft – nur durch eine benannte Person setzbar
+  RECHTLICH_GEPRUEFT
+  UEBERHOLT
+}
+
+/// Verzeichnis von Verarbeitungstaetigkeiten, Art. 30 DSGVO (SecPlan 18).
+model ProcessingActivity {
+  id              String             @id @default(cuid())
+  number          String             @unique
+  name            String
+  purpose         String
+  lawfulBasis     RechtsgrundlageArt @default(OFFEN)
+  lawfulBasisNote String?
+  dataSubjects    String // Kategorien betroffener Personen
+  dataCategories  String // Kategorien der Daten
+  specialCategory Boolean            @default(false)
+  recipients      String?
+  thirdCountry    String? // Drittlandtransfer, sonst leer
+  retention       String // Loeschfrist in Worten
+  tomSummary      String?
+  responsible     String?
+  status          PruefStatus        @default(ENTWURF)
+  reviewedBy      String?
+  reviewedAt      DateTime?
+  nextReviewAt    DateTime?
+
+  processors ProcessorLink[]
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  createdById String?
+
+  @@index([status])
+}
+
+enum AvvStatus {
+  NICHT_VORHANDEN
+  ENTWURF
+  UNTERZEICHNET
+  GEKUENDIGT
+}
+
+/// Auftragsverarbeiter, Art. 28 DSGVO (SecPlan 19).
+model Processor {
+  id            String    @id @default(cuid())
+  name          String
+  service       String
+  country       String    @default("DE")
+  thirdCountry  Boolean   @default(false)
+  /// Grundlage des Drittlandtransfers, z.B. "EU-Standardvertragsklauseln".
+  transferBasis String?
+  avvStatus     AvvStatus @default(NICHT_VORHANDEN)
+  avvSignedAt   DateTime?
+  avvUntil      DateTime?
+  contactEmail  String?
+  subProcessors String?
+  /// Werden hier personenbezogene Mitarbeiterdaten verarbeitet?
+  personalData  Boolean   @default(true)
+  /// Handelt es sich um ein KI-System? Dann gilt SecPlan 20 zusaetzlich.
+  aiSystem      Boolean   @default(false)
+  aiTrainingUse String? // Angabe des Anbieters zur Trainingsnutzung
+  note          String?
+
+  activities ProcessorLink[]
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  createdById String?
+
+  @@index([avvStatus])
+}
+
+model ProcessorLink {
+  id          String             @id @default(cuid())
+  processor   Processor          @relation(fields: [processorId], references: [id], onDelete: Cascade)
+  processorId String
+  activity    ProcessingActivity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  activityId  String
+
+  @@unique([processorId, activityId])
+}
+
+/// Loeschkonzept (SecPlan 16): eine Regel je Datenkategorie.
+model RetentionRule {
+  id          String             @id @default(cuid())
+  category    String             @unique
+  purpose     String
+  lawfulBasis RechtsgrundlageArt @default(OFFEN)
+  /// Warum ueberhaupt aufbewahrt wird, z.B. "§ 147 AO", "§ 257 HGB".
+  keepReason  String?
+  /// Frist in Monaten ab Fristbeginn.
+  months      Int
+  /// Woran der Fristlauf haengt, z.B. "Ende des Beschaeftigungsverhaeltnisses".
+  startsFrom  String
+  responsible String?
+  status      PruefStatus        @default(ENTWURF)
+  note        String?
+
+  documents Document[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([status])
+}
+
+enum BetroffenenRecht {
+  AUSKUNFT
+  BERICHTIGUNG
+  LOESCHUNG
+  EINSCHRAENKUNG
+  DATENUEBERTRAGBARKEIT
+  WIDERSPRUCH
+  WIDERRUF_EINWILLIGUNG
+}
+
+enum AnfrageStatus {
+  EINGEGANGEN
+  IDENTITAET_PRUEFEN
+  IN_BEARBEITUNG
+  BEANTWORTET
+  ABGELEHNT
+  FRIST_UEBERSCHRITTEN
+}
+
+/// Betroffenenanfragen, Art. 12–22 DSGVO (SecPlan 17).
+model DataSubjectRequest {
+  id                String           @id @default(cuid())
+  number            String           @unique
+  right             BetroffenenRecht
+  status            AnfrageStatus    @default(EINGEGANGEN)
+  subjectName       String
+  subjectKind       String // Mitarbeiter | Bewerber | Kunde | Sonstige
+  employeeId        String?
+  receivedAt        DateTime         @default(now())
+  /// Art. 12 Abs. 3 DSGVO: ein Monat, verlaengerbar auf drei.
+  dueAt             DateTime
+  extendedTo        DateTime?
+  identityCheckedAt DateTime?
+  answeredAt        DateTime?
+  /// Bei Ablehnung: die Begruendung gehoert dokumentiert.
+  rejectReason      String?
+  description       String
+  handledBy         String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdById String?
+
+  @@index([status, dueAt])
+}
+
+enum VorfallStatus {
+  ENTDECKT
+  IN_BEWERTUNG
+  GEMELDET
+  ABGESCHLOSSEN
+  KEINE_MELDUNG
+}
+
+/// Datenschutzvorfaelle, Art. 33/34 DSGVO (SecPlan 17).
+/// Wichtig: das System bewertet NICHT selbst, ob ein Vorfall meldepflichtig
+/// ist. `reportable` bleibt null, bis ein Mensch es eintraegt.
+model DataBreach {
+  id                 String        @id @default(cuid())
+  number             String        @unique
+  title              String
+  status             VorfallStatus @default(ENTDECKT)
+  noticedAt          DateTime
+  occurredAt         DateTime?
+  description        String
+  affectedData       String
+  affectedCount      Int?
+  measures           String?
+  /// null = noch nicht bewertet. true/false nur durch eine benannte Person.
+  reportable         Boolean?
+  reportableNote     String?
+  assessedBy         String?
+  assessedAt         DateTime?
+  reportedAt         DateTime?
+  authority          String?
+  subjectsInformedAt DateTime?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdById String?
+
+  @@index([status, noticedAt])
+}
+
+enum DsfaErgebnis {
+  NICHT_ERFORDERLICH
+  ERFORDERLICH
+  DURCHGEFUEHRT
+  OFFEN
+}
+
+/// Datenschutz-Folgenabschaetzung, Art. 35 DSGVO (SecPlan 17).
+model Dpia {
+  id            String       @id @default(cuid())
+  title         String
+  activityId    String?
+  necessity     DsfaErgebnis @default(OFFEN)
+  necessityNote String?
+  risks         String?
+  measures      String?
+  residualRisk  String?
+  status        PruefStatus  @default(ENTWURF)
+  consultedDpo  Boolean      @default(false)
+  reviewedBy    String?
+  reviewedAt    DateTime?
+  nextReviewAt  DateTime?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdById String?
+}
+
+enum TomBereich {
+  ZUTRITT
+  ZUGANG
+  ZUGRIFF
+  WEITERGABE
+  EINGABE
+  AUFTRAG
+  VERFUEGBARKEIT
+  TRENNUNG
+  VERSCHLUESSELUNG
+  BELASTBARKEIT
+  WIEDERHERSTELLUNG
+  UEBERPRUEFUNG
+}
+
+enum TomStatus {
+  GEPLANT
+  /// im System vorhanden – ausdruecklich keine rechtliche Bewertung
+  TECHNISCH_UMGESETZT
+  ORGANISATORISCH_GEREGELT
+  NICHT_UMGESETZT
+}
+
+/// Technische und organisatorische Massnahmen, Art. 32 DSGVO (SecPlan 15).
+model TomMeasure {
+  id          String     @id @default(cuid())
+  bereich     TomBereich
+  title       String
+  description String
+  status      TomStatus  @default(GEPLANT)
+  /// Wo im System das nachweisbar ist, z.B. "src/lib/auth/password.ts".
+  evidence    String?
+  responsible String?
+  lastCheckAt DateTime?
+  nextCheckAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([bereich])
+}
+
+enum ComplianceDocKind {
+  RICHTLINIE
+  VERFAHRENSANWEISUNG
+  EINWILLIGUNG
+  INFORMATIONSPFLICHT
+  VERPFLICHTUNG
+  SCHULUNGSUNTERLAGE
+  NACHWEIS
+  SONSTIGES
+}
+
+/// Dokumentierte Nachweise der Compliance-Zentrale (SecPlan 22/23).
+/// Jedes Dokument traegt Version, Status, Ersteller, Freigabe und naechste Pruefung.
+model ComplianceDocument {
+  id           String            @id @default(cuid())
+  kind         ComplianceDocKind @default(SONSTIGES)
+  title        String
+  summary      String?
+  version      String            @default("1.0")
+  status       PruefStatus       @default(ENTWURF)
+  author       String?
+  approvedBy   String?
+  approvedAt   DateTime?
+  nextReviewAt DateTime?
+  documentId   String? // optionale Datei im geschuetzten Speicher
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  createdById String?
+
+  @@index([kind, status])
+}
+
+/// Zurücksetzen eines Passworts (SecPlan 14).
+///
+/// Gespeichert wird nur der Hash des Tokens – wer die Datenbank liest,
+/// bekommt damit keinen Zugang. Ein Token gilt eine Stunde und genau
+/// einmal; danach steht `usedAt`.
+model PasswordReset {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  userId    String
+  expiresAt DateTime
+  usedAt    DateTime?
+  ip        String?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}

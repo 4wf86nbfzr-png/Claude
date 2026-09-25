@@ -983,7 +983,7 @@ body.menu-open #mobileMenu{ transform:none; visibility:visible; }
    ============================================================ */
 footer{ border-top:1px solid var(--line); padding:70px 0 40px; }
 .foot__grid{ display:grid; grid-template-columns:1.5fr 1fr 1fr 1fr; gap:40px; }
-footer h4{ font-family:var(--font-mono); font-size:.68rem; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); margin-bottom:18px; }
+footer h2{ font-family:var(--font-mono); font-size:.68rem; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); margin-bottom:18px; }
 footer ul{ list-style:none; display:flex; flex-direction:column; gap:10px; }
 footer ul a{ color:var(--chrome); font-size:.92rem; }
 footer ul a:hover{ color:var(--paper); }
@@ -1141,7 +1141,7 @@ footer ul a:hover{ color:var(--paper); }
 .content__lead p{ color:var(--chrome); font-size:var(--fs-lead); max-width:var(--measure); }
 .content__lead p+p{ margin-top:1.05em; }
 .side{ background:var(--ink-2); border:1px solid var(--line); border-radius:var(--r-m); padding:clamp(24px,2.4vw,32px); position:sticky; top:100px; }
-.side h4{ font-family:var(--font-mono); font-size:.66rem; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); margin-bottom:18px; }
+.side h2{ font-family:var(--font-mono); font-size:.66rem; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); margin-bottom:18px; }
 .side .btn{ width:100%; justify-content:center; margin-top:24px; }
 .side__hinweis{ color:var(--muted); font-size:.84rem; margin-top:14px; text-align:center; }
 .ticklist{ list-style:none; display:flex; flex-direction:column; gap:12px; }

@@ -1,0 +1,68 @@
+# HST Planer als Dienst auf einem eigenen Server.
+#
+#   sudo cp betrieb/hst-planer.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now hst-planer
+#   systemctl status hst-planer
+#   journalctl -u hst-planer -f        # Protokoll mitlesen
+#
+# Erwartet wird: das Projekt liegt unter /srv/hst-planer, gehoert dem Benutzer
+# "hst", und die .env liegt darin. Passen Sie die drei Pfade unten an, wenn es
+# bei Ihnen anders ist.
+
+[Unit]
+Description=HST Planer – Disposition und Einsatzsteuerung
+Documentation=file:/srv/hst-planer/README.md
+# Laeuft die Datenbank auf demselben Rechner, soll sie zuerst da sein.
+# Steht sie woanders, schadet die Zeile nicht – das Startskript wartet ohnehin.
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=hst
+Group=hst
+WorkingDirectory=/srv/hst-planer
+
+# Das Startskript prueft die Geheimnisse, wartet auf die Datenbank, spielt
+# ausstehende Migrationen ein, baut bei Bedarf neu und startet dann.
+ExecStart=/usr/bin/node scripts/server.mjs
+Environment=NODE_ENV=production
+Environment=PORT=3000
+# Die Geheimnisse liest das Startskript selbst aus der .env im
+# Arbeitsverzeichnis. Bewusst kein EnvironmentFile: systemd liest .env-Dateien
+# nach eigenen Regeln und quittiert eine Zeile, die es nicht versteht, mit
+# einem Dienst, der gar nicht erst startet.
+
+# Neustart bei einem Absturz, aber nicht in einer Endlosschleife.
+Restart=on-failure
+RestartSec=5
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
+# Ein Neustart soll nicht mit einem belegten Port enden: erst freundlich
+# bitten, nach 20 Sekunden beenden.
+KillSignal=SIGTERM
+TimeoutStopSec=20
+
+# ---- Was der Dienst nicht duerfen muss ----
+# Ein Webdienst braucht weder neue Rechte noch Zugriff auf /home oder /root.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictNamespaces=true
+LockPersonality=true
+# Schreiben darf er genau dort, wo er schreiben muss. Der Build gehoert in
+# die Bereitstellung (`npm ci && npm run build`), nicht in den Dienststart –
+# aber wenn das Startskript merkt, dass der Build fehlt, soll es ihn machen
+# koennen, statt mit einem Rechtefehler stehenzubleiben. Dafuer braucht es
+# .next und node_modules (dorthin schreibt `prisma generate`).
+ReadWritePaths=/srv/hst-planer/storage /srv/hst-planer/.next /srv/hst-planer/node_modules
+
+[Install]
+WantedBy=multi-user.target

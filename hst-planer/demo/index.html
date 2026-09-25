@@ -1,0 +1,1382 @@
+<!doctype html>
+<html lang="de" data-thema="hell">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>HST Planer – zum Ansehen und Ausprobieren</title>
+<style>
+/*
+  Diese Datei ist bewusst eigenständig: Doppelklick genügt, kein Server,
+  keine Datenbank, kein Internet. Sie zeigt die Anwendung in Bildern und
+  lässt die echte Fachlogik im Browser mitrechnen (demo/hst-logik.js).
+  Das Aussehen übernimmt dieselben Gestaltungsregeln wie der Planer selbst.
+*/
+/*
+  Dieselbe Palette wie der Planer: dunkelblau, beige, Off-White,
+  anthrazit. Kein Violett, keine Verläufe – Farbe trägt Bedeutung,
+  nicht Dekoration.
+*/
+:root{
+  color-scheme:light;
+  --flaeche:#F2F0EA; --karte:#FCFBF8; --flaeche2:#EDEAE2; --tief:#E8E4DA; --hover:#EDEAE2;
+  --text:#23272E; --text2:#565C65; --text3:#878D96;
+  --linie:#DCD7CB; --linie2:#C6BFAF;
+  --akzent:#1B2A4A; --akzent-kontrast:#fff; --akzent-schwach:#E6EAF1;
+  --beige:#B79A63; --beige-f:#F2E9D8;
+  --gruen:#2E6A4E; --gruen-f:#E3EDE7;
+  --gelb:#96681C;  --gelb-f:#F6EDDA;
+  --rot:#A23A31;   --rot-f:#F7E7E4;
+  --blau:#2B4C7E;  --blau-f:#E5EAF2;
+  --schatten:0 1px 2px rgba(35,39,46,.05);
+  --r:6px;
+}
+html[data-thema="dunkel"]{
+  color-scheme:dark;
+  --flaeche:#14181F; --karte:#1B202A; --flaeche2:#252C38; --tief:#252C38; --hover:#2A313E;
+  --text:#E7E4DD; --text2:#A3A9B3; --text3:#767D88;
+  --linie:#2B323F; --linie2:#3A4250;
+  --akzent:#4F74B3; --akzent-kontrast:#101720; --akzent-schwach:#1B2740;
+  --beige:#C7AC79; --beige-f:#2E2A20;
+  --gruen:#5FA67F; --gruen-f:#1A2822;
+  --gelb:#C99B45;  --gelb-f:#2C2415;
+  --rot:#CC6A5F;   --rot-f:#2C1B18;
+  --blau:#6D93CC;  --blau-f:#18222F;
+  --schatten:0 1px 2px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--flaeche);color:var(--text);
+  font:15px/1.6 "Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+:focus-visible{outline:2px solid var(--akzent);outline-offset:2px;border-radius:4px}
+a{color:var(--akzent)}
+code,kbd,pre{font-family:ui-monospace,"SF Mono","Cascadia Mono",monospace}
+
+/* --- Kopf ------------------------------------------------------------- */
+header.kopf{
+  position:sticky;top:0;z-index:20;
+  background:color-mix(in srgb,var(--flaeche) 90%,transparent);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--linie);
+}
+.kopf-inhalt{max-width:1180px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.logo{width:34px;height:34px;border-radius:8px;background:var(--akzent);color:var(--akzent-kontrast);
+  display:grid;place-items:center;font-weight:700;font-size:13px;flex:none}
+.kopf h1{font-size:17px;margin:0;font-weight:650;letter-spacing:-.01em}
+.kopf p{margin:0;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3)}
+nav.reiter{max-width:1180px;margin:0 auto;padding:0 20px;display:flex;gap:2px;overflow-x:auto}
+nav.reiter button{
+  background:none;border:0;border-bottom:2px solid transparent;
+  padding:9px 13px;font:inherit;font-size:14px;color:var(--text2);cursor:pointer;white-space:nowrap
+}
+nav.reiter button[aria-selected="true"]{color:var(--text);font-weight:600;border-bottom-color:var(--akzent)}
+
+main{max-width:1180px;margin:0 auto;padding:24px 20px 80px}
+section[hidden]{display:none}
+h2{font-size:20px;font-weight:650;letter-spacing:-.01em;margin:0 0 6px}
+h3{font-size:15px;font-weight:650;margin:26px 0 8px}
+.vorspann{color:var(--text2);max-width:72ch;margin:0 0 20px}
+
+.karte{background:var(--karte);border:1px solid var(--linie);border-radius:var(--r);box-shadow:var(--schatten);margin-bottom:16px}
+.karte > h4{margin:0;padding:12px 16px;border-bottom:1px solid var(--linie);font-size:13px;font-weight:650}
+.karte-inhalt{padding:16px}
+
+.knopf{
+  display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;
+  border:1px solid var(--linie2);border-radius:7px;background:var(--karte);color:var(--text);
+  font:inherit;font-size:14px;font-weight:500;cursor:pointer
+}
+.knopf:hover{background:var(--hover)}
+.knopf-primaer{background:var(--akzent);border-color:var(--akzent);color:var(--akzent-kontrast)}
+.knopf-primaer:hover{filter:brightness(1.08);background:var(--akzent)}
+.knopf-klein{height:30px;padding:0 10px;font-size:13px}
+
+label.feld{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;
+  letter-spacing:.04em;text-transform:uppercase;color:var(--text2)}
+input,select,textarea{
+  font:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--linie2);border-radius:7px;
+  background:var(--karte);color:var(--text);font-weight:400;letter-spacing:normal;text-transform:none
+}
+textarea{line-height:1.5;resize:vertical;font-size:13px}
+/* Schalterzeile: Kästchen und Text nebeneinander, nicht übereinander. */
+label.feld-schalter{flex-direction:row;align-items:center;gap:8px;text-transform:none;
+  letter-spacing:normal;font-weight:400;font-size:13px;color:var(--text)}
+label.feld-schalter input{width:auto;padding:0;accent-color:var(--akzent)}
+.merker{display:inline-block;padding:1px 7px;border-radius:4px;font-size:11px;font-weight:600}
+.merker-ja{background:var(--gruen-f);color:var(--gruen)}
+.merker-nein{background:var(--flaeche2);color:var(--text3)}
+.merker-hart{background:var(--rot-f);color:var(--rot)}
+.merker-weich{background:var(--gelb-f);color:var(--gelb)}
+.reihe{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.raster{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--text2);
+  padding:8px 10px;background:var(--tief);border-bottom:1px solid var(--linie);white-space:nowrap}
+td{padding:8px 10px;border-bottom:1px solid var(--linie);vertical-align:top}
+tr:last-child td{border-bottom:0}
+.zahl{font-variant-numeric:tabular-nums}
+.streifen{overflow-x:auto}
+
+.marke{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 8px;border-radius:999px;
+  font-size:11px;font-weight:600;white-space:nowrap}
+.marke-gruen{background:var(--gruen-f);color:var(--gruen)}
+.marke-gelb{background:var(--gelb-f);color:var(--gelb)}
+.marke-rot{background:var(--rot-f);color:var(--rot)}
+.marke-blau{background:var(--blau-f);color:var(--blau)}
+.marke-grau{background:var(--tief);color:var(--text2)}
+.punkt{width:7px;height:7px;border-radius:999px;background:currentColor;flex:none}
+
+.zeile-gruen{box-shadow:inset 3px 0 0 var(--gruen)}
+.zeile-gelb{box-shadow:inset 3px 0 0 var(--gelb)}
+.zeile-rot{box-shadow:inset 3px 0 0 var(--rot)}
+.zeile-blau{box-shadow:inset 3px 0 0 var(--blau)}
+
+.hinweis{border-radius:8px;padding:10px 13px;font-size:14px;margin:0 0 14px;border:1px solid transparent}
+.hinweis-info{background:var(--blau-f);color:var(--blau);border-color:color-mix(in srgb,var(--blau) 25%,transparent)}
+.hinweis-warn{background:var(--gelb-f);color:var(--gelb);border-color:color-mix(in srgb,var(--gelb) 25%,transparent)}
+.hinweis-gut{background:var(--gruen-f);color:var(--gruen);border-color:color-mix(in srgb,var(--gruen) 25%,transparent)}
+
+.ergebnis{background:var(--tief);border-radius:8px;padding:12px 14px;font-size:14px;margin-top:12px}
+.ergebnis dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 14px}
+.ergebnis dt{color:var(--text2);font-size:12px}
+.ergebnis dd{margin:0;font-weight:500}
+.gross{font-size:30px;font-weight:650;line-height:1.1;font-variant-numeric:tabular-nums}
+
+/* --- Galerie ---------------------------------------------------------- */
+.galerie{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(330px,1fr))}
+figure{margin:0;background:var(--karte);border:1px solid var(--linie);border-radius:var(--r);
+  overflow:hidden;box-shadow:var(--schatten)}
+figure img{display:block;width:100%;height:auto;border-bottom:1px solid var(--linie);cursor:zoom-in;background:var(--tief)}
+figure.handy img{max-height:none}
+figcaption{padding:10px 13px;font-size:13px}
+figcaption b{display:block;font-weight:600;margin-bottom:2px}
+figcaption span{color:var(--text2);font-size:12px}
+
+dialog.lupe{border:0;padding:0;background:transparent;max-width:96vw;max-height:96vh}
+dialog.lupe::backdrop{background:rgba(0,0,0,.82)}
+dialog.lupe img{max-width:96vw;max-height:88vh;display:block;border-radius:8px;background:#fff}
+dialog.lupe p{color:#fff;text-align:center;margin:10px 0 0;font-size:13px}
+
+.liste{margin:0;padding-left:20px}
+.liste li{margin-bottom:6px}
+.schritt{counter-increment:schritt;display:flex;gap:12px;margin-bottom:14px}
+.schritt::before{content:counter(schritt);flex:none;width:24px;height:24px;border-radius:999px;
+  background:var(--akzent);color:var(--akzent-kontrast);display:grid;place-items:center;
+  font-size:12px;font-weight:700}
+.schritte{counter-reset:schritt}
+pre.block{background:var(--tief);padding:12px 14px;border-radius:8px;overflow-x:auto;font-size:12.5px;margin:0 0 14px}
+
+footer{border-top:1px solid var(--linie);margin-top:40px;padding:20px 0;color:var(--text3);font-size:12.5px}
+@media (max-width:640px){
+  main{padding:18px 14px 60px}
+  .kopf-inhalt{padding:10px 14px}
+  nav.reiter{padding:0 14px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="kopf">
+  <div class="kopf-inhalt">
+    <span class="logo">HST</span>
+    <div style="flex:1;min-width:0">
+      <h1>HST Planer</h1>
+      <p>Disposition &amp; Einsatzsteuerung — Demo zum Ansehen und Ausprobieren</p>
+    </div>
+    <button class="knopf knopf-klein" id="themaKnopf" type="button">Dunkle Ansicht</button>
+  </div>
+  <nav class="reiter" role="tablist" aria-label="Bereiche">
+    <button role="tab" aria-selected="true"  data-ziel="start">Worum es geht</button>
+    <button role="tab" aria-selected="false" data-ziel="bilder">Die Anwendung in Bildern</button>
+    <button role="tab" aria-selected="false" data-ziel="zeit">Zeitrechner</button>
+    <button role="tab" aria-selected="false" data-ziel="namen">Namensabgleich</button>
+    <button role="tab" aria-selected="false" data-ziel="mail">E-Mail-Parser</button>
+    <button role="tab" aria-selected="false" data-ziel="abgleich">Abgleich</button>
+    <button role="tab" aria-selected="false" data-ziel="zuordnung">Zuordnungsprüfung</button>
+    <button role="tab" aria-selected="false" data-ziel="rechte">Rollen &amp; Rechte</button>
+    <button role="tab" aria-selected="false" data-ziel="design">Gestaltung</button>
+    <button role="tab" aria-selected="false" data-ziel="starten">Selbst starten</button>
+  </nav>
+</header>
+
+<main>
+
+<!-- ================================================== Worum es geht -->
+<section id="start">
+  <h2>Was Sie hier vor sich haben</h2>
+  <p class="vorspann">
+    Der HST Planer ist die Dispositionsplattform für das HERM Service Team: von der eingehenden
+    Anfrage über die Personalplanung bis zum Abgleich der tatsächlich geleisteten Zeiten.
+    Diese Datei zeigt ihn zweifach — in <strong>Bildschirmfotos der laufenden Anwendung</strong>
+    und zum <strong>Selbst-Ausprobieren der Rechenkerne</strong>.
+  </p>
+
+  <div class="hinweis hinweis-info">
+    <strong>Wichtig:</strong> Die Werkzeuge auf den Reitern „Zeitrechner“, „Namensabgleich“,
+    „E-Mail-Parser“, „Abgleich“, „Zuordnungsprüfung“ und „Rollen &amp; Rechte“ sind keine
+    Nachbauten. Sie führen denselben Code aus, den auch der Server benutzt — gebündelt aus
+    <code>src/lib/</code>. Was hier herauskommt, kommt dort genauso heraus.
+  </div>
+
+  <div class="raster">
+    <div class="karte"><div class="karte-inhalt">
+      <b>Menüleiste oben</b>
+      <p style="margin:6px 0 0;color:var(--text2);font-size:14px">
+        Neun Bereiche waagerecht, jeder mit seinen Unterpunkten. Sie bleibt beim Scrollen
+        stehen — in einer Disposition wird viel gescrollt, und der Weg in einen anderen
+        Bereich soll nicht erst das Zurückscrollen kosten.
+      </p>
+    </div></div>
+    <div class="karte"><div class="karte-inhalt">
+      <b>Leitstelle</b>
+      <p style="margin:6px 0 0;color:var(--text2);font-size:14px">
+        Der Tag als Zeitachse: links die Kräfte mit Zustand und Qualifikation, rechts der
+        Einsatzplan. Ein Name wird auf eine Schicht gezogen, geprüft wird beim Ablegen.
+      </p>
+    </div></div>
+    <div class="karte"><div class="karte-inhalt">
+      <b>Rollen &amp; Rechte</b>
+      <p style="margin:6px 0 0;color:var(--text2);font-size:14px">
+        Neun Rollen, Standard DENY ALL. Eine Teamleitung sieht zum eigenen Einsatz Name,
+        Funktion, Zeit, Ort und Qualifikation — Vertrag und Anschrift werden für sie gar
+        nicht erst geladen.
+      </p>
+    </div></div>
+    <div class="karte"><div class="karte-inhalt">
+      <b>HST Compliance</b>
+      <p style="margin:6px 0 0;color:var(--text2);font-size:14px">
+        Verarbeitungsverzeichnis, TOM, Auftragsverarbeiter, Löschkonzept, Betroffenenanfragen,
+        Vorfälle, DSFA und ein Sicherheitscheck — ohne Erfüllungsquote und ohne die Behauptung,
+        DSGVO-konform zu sein.
+      </p>
+    </div></div>
+    <div class="karte"><div class="karte-inhalt">
+      <b>Abgleich</b>
+      <p style="margin:6px 0 0;color:var(--text2);font-size:14px">
+        Stundenzettel als Excel oder CSV einlesen, Mitarbeiter zuordnen, jede Abweichung zeigen,
+        von Hand korrigieren und beim Abschluss in die Zeiterfassung übernehmen.
+      </p>
+    </div></div>
+    <div class="karte"><div class="karte-inhalt">
+      <b>Anfragen</b>
+      <p style="margin:6px 0 0;color:var(--text2);font-size:14px">
+        Website-Formular, E-Mail-Parser und telefonische Erfassung. Eine eingehende Anfrage ist
+        nie eine Buchung, sondern immer ein Vorgang zur Prüfung.
+      </p>
+    </div></div>
+    <div class="karte"><div class="karte-inhalt">
+      <b>Mitarbeiter-App</b>
+      <p style="margin:6px 0 0;color:var(--text2);font-size:14px">
+        Mobile Ansicht: heutige Einsätze, annehmen oder ablehnen, Verfügbarkeit melden,
+        Nachweise hochladen, Nachricht an die Disposition.
+      </p>
+    </div></div>
+  </div>
+
+  <h3>Was hier nicht geht</h3>
+  <p style="color:var(--text2);max-width:72ch">
+    Anmeldung, Datenbank, Datei-Uploads, E-Mail-Versand und der zweite Faktor lassen sich in
+    einer einzelnen HTML-Datei nicht ehrlich zeigen — sie brauchen den Server. Der zweite
+    Faktor rechnet zudem mit Funktionen, die es im Browser nicht gibt; er ist gegen die
+    Prüfwerte aus Anhang B des RFC 6238 getestet. Wie Sie den Server in wenigen Minuten
+    starten, steht unter <a href="#" data-sprung="starten">Selbst starten</a>.
+  </p>
+
+  <h3>Was dieses System nicht behauptet</h3>
+  <p style="color:var(--text2);max-width:72ch">
+    Es behauptet nicht, DSGVO-konform zu sein. Es unterscheidet zwischen
+    <em>technisch umgesetzt</em> — das lässt sich feststellen — und <em>rechtlich geprüft</em> —
+    das kann nur ein Mensch. Es trägt keine Rechtsgrundlage von sich aus ein, und es bewertet
+    nicht, ob ein Datenschutzvorfall meldepflichtig ist. Eine Erfüllungsquote gibt es nicht:
+    „98 % DSGVO-konform“ wäre eine Zahl ohne Gegenstand.
+  </p>
+
+  <h3>Zahlen zum Stand</h3>
+  <div class="raster" id="kennzahlen"></div>
+</section>
+
+<!-- ================================================== Bilder -->
+<section id="bilder" hidden>
+  <h2>Die Anwendung in Bildern</h2>
+  <p class="vorspann">
+    Alle Aufnahmen stammen aus der laufenden Anwendung mit den Testdaten aus
+    <code>npm run seed</code> — keine Entwürfe. Ein Klick vergrößert.
+  </p>
+  <div class="reihe" style="margin-bottom:18px">
+    <button class="knopf knopf-klein" data-gruppe="alle" aria-pressed="true">Alle</button>
+    <button class="knopf knopf-klein" data-gruppe="desktop">Arbeitsplatz</button>
+    <button class="knopf knopf-klein" data-gruppe="handy">Mitarbeiter-App</button>
+    <button class="knopf knopf-klein" data-gruppe="dunkel">Dunkelmodus</button>
+  </div>
+  <div class="galerie" id="galerie"></div>
+</section>
+
+<!-- ================================================== Zeitrechner -->
+<section id="zeit" hidden>
+  <h2>Zeitrechner</h2>
+  <p class="vorspann">
+    Einsätze laufen regelmäßig über Mitternacht. 18:00 bis 02:00 sind acht Stunden — nicht
+    minus sechzehn. Genau daran scheitern Tabellen in der Praxis, deshalb rechnet der Planer
+    in Minuten ab Schichtbeginn. Probieren Sie es aus.
+  </p>
+
+  <div class="karte">
+    <h4>Dauer einer Schicht</h4>
+    <div class="karte-inhalt">
+      <div class="reihe">
+        <label class="feld">Beginn<input id="zBeginn" value="18:00" size="8"></label>
+        <label class="feld">Ende<input id="zEnde" value="02:00" size="8"></label>
+        <label class="feld">Pause (Min)<input id="zPause" type="number" value="30" min="0" max="600" style="width:100px"></label>
+        <button class="knopf knopf-primaer" id="zRechnen" type="button">Rechnen</button>
+      </div>
+      <div class="ergebnis" id="zErgebnis"></div>
+      <p style="color:var(--text3);font-size:13px;margin:12px 0 0">
+        Der Leser versteht auch <code>17.00</code>, <code>1700</code>, <code>17</code>,
+        <code>17:00 Uhr</code> und Excel-Uhrzeiten als Tagesbruchteil (<code>0,75</code> = 18:00).
+      </p>
+    </div>
+  </div>
+
+  <div class="karte">
+    <h4>Abweichung zwischen Soll und Ist</h4>
+    <div class="karte-inhalt">
+      <div class="reihe">
+        <label class="feld">Geplant<input id="dSoll" value="23:55" size="8"></label>
+        <label class="feld">Tatsächlich<input id="dIst" value="00:10" size="8"></label>
+        <button class="knopf" id="dRechnen" type="button">Vergleichen</button>
+      </div>
+      <div class="ergebnis" id="dErgebnis"></div>
+      <p style="color:var(--text3);font-size:13px;margin:12px 0 0">
+        Die Differenz bleibt im Fenster von zwölf Stunden. „Geplant 23:55, gekommen 00:10“ sind
+        15 Minuten zu spät — nicht 23 Stunden zu früh.
+      </p>
+    </div>
+  </div>
+
+  <div class="karte">
+    <h4>Deutsche Datumsangaben</h4>
+    <div class="karte-inhalt">
+      <div class="reihe">
+        <label class="feld" style="flex:1;min-width:200px">Eingabe
+          <input id="datEin" value="15.10." placeholder="15.10.2026, 15. Oktober, 2026-10-15, 46310">
+        </label>
+        <button class="knopf" id="datRechnen" type="button">Lesen</button>
+      </div>
+      <div class="ergebnis" id="datErgebnis"></div>
+      <p style="color:var(--text3);font-size:13px;margin:12px 0 0">
+        Ohne Jahresangabe wird das nächste Vorkommen genommen — so, wie es in einer E-Mail
+        gemeint ist. Zahlen über 20000 gelten als Excel-Seriennummer.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================== Namen -->
+<section id="namen" hidden>
+  <h2>Namensabgleich</h2>
+  <p class="vorspann">
+    In Partner-Stundenzetteln steht mal „Max Mustermann“, mal „Mustermann, Max“, mal
+    „MUSTERMANN  Max“ — und gelegentlich ein Tippfehler. Der Planer ordnet zu, ohne zu raten:
+    ab einer Trefferquote von 92 % automatisch, aber nur, wenn kein zweiter Kandidat fast
+    gleich gut passt.
+  </p>
+
+  <div class="karte">
+    <h4>Zwei Namen vergleichen</h4>
+    <div class="karte-inhalt">
+      <div class="reihe">
+        <label class="feld" style="flex:1;min-width:180px">Aus der Planung<input id="nA" value="Max Mustermann"></label>
+        <label class="feld" style="flex:1;min-width:180px">Aus der Datei<input id="nB" value="Mustermann, Max"></label>
+        <button class="knopf knopf-primaer" id="nRechnen" type="button">Vergleichen</button>
+      </div>
+      <div class="ergebnis" id="nErgebnis"></div>
+    </div>
+  </div>
+
+  <div class="karte">
+    <h4>In einer Mitarbeiterliste suchen</h4>
+    <div class="karte-inhalt">
+      <div class="reihe">
+        <label class="feld" style="flex:1;min-width:220px">Name aus dem Stundenzettel
+          <input id="sName" value="Max Mustremann">
+        </label>
+        <button class="knopf knopf-primaer" id="sSuchen" type="button">Zuordnen</button>
+      </div>
+      <p style="color:var(--text3);font-size:13px;margin:10px 0 0">
+        Gesucht wird in den zehn Mitarbeitern aus den Testdaten. Versuchen Sie auch
+        <code>Moeller Jan</code>, <code>HST-0003</code>, <code>Yilmaz</code> oder
+        einen Namen, den es nicht gibt.
+      </p>
+      <div id="sErgebnis"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================== E-Mail -->
+<section id="mail" hidden>
+  <h2>E-Mail-Parser</h2>
+  <p class="vorspann">
+    Geht eine Personalanfrage an <code>info@hermserviceteam.com</code>, liest der Planer sie
+    aus. Er arbeitet konservativ: Was nicht sicher erkannt wird, bleibt leer und erscheint als
+    fehlende Angabe — geraten wird nicht.
+  </p>
+  <div class="reihe" style="margin-bottom:14px">
+    <button class="knopf knopf-klein" data-beispiel="freitext">Freitext-Anfrage</button>
+    <button class="knopf knopf-klein" data-beispiel="formular">Formular-Mail</button>
+    <button class="knopf knopf-klein" data-beispiel="knapp">Unvollständige Anfrage</button>
+    <button class="knopf knopf-klein" data-beispiel="werbung">Werbung (keine Anfrage)</button>
+  </div>
+
+  <div class="karte">
+    <h4>Text der E-Mail</h4>
+    <div class="karte-inhalt">
+      <label class="feld" style="margin-bottom:10px">Betreff<input id="mBetreff" value="Anfrage: Firmenjubiläum"></label>
+      <label class="feld">Nachricht
+        <textarea id="mText" rows="10"></textarea>
+      </label>
+      <div class="reihe" style="margin-top:12px">
+        <button class="knopf knopf-primaer" id="mLesen" type="button">Auswerten</button>
+        <span style="color:var(--text3);font-size:13px">Absender: brand@nordlicht-events.de</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="mErgebnis"></div>
+</section>
+
+<!-- ================================================== Abgleich -->
+<section id="abgleich" hidden>
+  <h2>Abgleich: Planung gegen Ist-Zeiten</h2>
+  <p class="vorspann">
+    Die wichtigste Funktion. Links steht die Planung, rechts der Stundenzettel, wie ihn ein
+    Partner liefert — mit gedrehtem Namen, Tippfehler, Zeitabweichung, unbekannter Person und
+    einer Dublette. Ändern Sie die Tabelle und rechnen Sie neu.
+  </p>
+
+  <div class="karte">
+    <h4>Geplant (aus der Disposition)</h4>
+    <div class="streifen"><table id="planTabelle"></table></div>
+  </div>
+
+  <div class="karte">
+    <h4>Stundenzettel (CSV — hier bearbeitbar)</h4>
+    <div class="karte-inhalt">
+      <textarea id="csvText" rows="9" style="width:100%"></textarea>
+      <div class="reihe" style="margin-top:12px">
+        <button class="knopf knopf-primaer" id="abRechnen" type="button">Abgleich starten</button>
+        <label class="feld">Zeittoleranz (Min)<input id="abToleranz" type="number" value="15" min="0" max="240" style="width:90px"></label>
+        <button class="knopf knopf-klein" id="abZuruecksetzen" type="button">Beispiel zurücksetzen</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="abErgebnis"></div>
+</section>
+
+<!-- ================================================== Zuordnungspruefung -->
+<section id="zuordnung" hidden>
+  <h2>Zuordnungsprüfung</h2>
+  <p class="vorspann">
+    Wenn in der Leitstelle ein Name auf eine Schicht gezogen wird, läuft genau dieser Code.
+    Er prüft Qualifikation, Verfügbarkeit, Überschneidung, Schulung, Unterlagen, Ablaufdaten,
+    die Funktion und die Ruhezeit nach § 5 ArbZG. Stellen Sie die Lage ein und sehen Sie,
+    was herauskommt.
+  </p>
+
+  <div class="hinweis hinweis-info">
+    Blockierende Gründe lassen sich nicht übergehen. Hinweise schon — aber nur ausdrücklich,
+    und die Zuordnung steht danach im Protokoll.
+  </div>
+
+  <div class="karte">
+    <div class="karte-inhalt">
+      <div class="raster">
+        <label class="feld">Name<input id="zpName" value="Lena Bergmann"></label>
+        <label class="feld">Neue Schicht von<input id="zpVon" value="20:00"></label>
+        <label class="feld">bis<input id="zpBis" value="02:00"></label>
+        <label class="feld">Funktion<input id="zpRolle" value="Ordnungsdienst"></label>
+      </div>
+
+      <h4 style="margin-top:18px">Lage</h4>
+      <div class="raster">
+        <label class="feld feld-schalter"><input type="checkbox" id="zpGesperrt"> Sperrvermerk</label>
+        <label class="feld feld-schalter"><input type="checkbox" id="zpInaktiv"> nicht mehr aktiv</label>
+        <label class="feld feld-schalter"><input type="checkbox" id="zpBelegt" checked> bereits eingeplant 18:00–23:00</label>
+        <label class="feld feld-schalter"><input type="checkbox" id="zpNacht"> Nachtschicht Vortag bis 06:00</label>
+        <label class="feld feld-schalter"><input type="checkbox" id="zpUrlaub"> im Urlaub</label>
+        <label class="feld feld-schalter"><input type="checkbox" id="zpQualFehlt" checked> Sachkunde § 34a fehlt</label>
+        <label class="feld feld-schalter"><input type="checkbox" id="zpQualAlt"> Erste Hilfe abgelaufen</label>
+        <label class="feld feld-schalter"><input type="checkbox" id="zpSchulung"> Pflichtunterweisung fehlt</label>
+        <label class="feld feld-schalter"><input type="checkbox" id="zpDokument"> Führungszeugnis abgelaufen</label>
+        <label class="feld feld-schalter"><input type="checkbox" id="zpFunktion"> für die Funktion nicht freigegeben</label>
+        <label class="feld">Vortag endete um<input id="zpVortag" value="" placeholder="z. B. 23:00" style="width:120px"></label>
+      </div>
+    </div>
+  </div>
+
+  <div id="zpErgebnis"></div>
+</section>
+
+<!-- ================================================== Rollen und Rechte -->
+<section id="rechte" hidden>
+  <h2>Rollen &amp; Rechte</h2>
+  <p class="vorspann">
+    Neun Rollen, Standard DENY ALL. Diese Tabelle wird aus derselben Quelle erzeugt, die im
+    laufenden System die Prüfung macht — sie kann deshalb nicht davon abweichen.
+  </p>
+
+  <div class="hinweis hinweis-warn">
+    <strong>Was eine Teamleitung nicht sieht:</strong> Bankdaten, vollständige Personalakte,
+    private Anschrift, Arbeitsvertrag, Gesundheitsdaten, interne Personalnotizen. Diese Felder
+    werden für die Rolle gar nicht erst aus der Datenbank geladen.
+  </div>
+
+  <div class="karte">
+    <h4>Eine Rolle ansehen</h4>
+    <div class="karte-inhalt">
+      <label class="feld">Rolle<select id="rolleWahl"></select></label>
+      <div id="rolleErgebnis" style="margin-top:14px"></div>
+    </div>
+  </div>
+
+  <div class="karte">
+    <h4>Welche Felder einer Person sieht diese Rolle?</h4>
+    <div class="streifen"><table id="felderTabelle"></table></div>
+  </div>
+
+  <div class="karte">
+    <h4>Vollständige Rechtematrix</h4>
+    <div class="streifen"><table id="rechteTabelle"></table></div>
+  </div>
+</section>
+
+<!-- ================================================== Gestaltung -->
+<section id="design" hidden>
+  <h2>Gestaltung</h2>
+  <p class="vorspann">
+    Eine Dispositionsoberfläche lebt von Dichte und Ruhe, nicht von Farbe. Fläche und Schrift
+    sind neutral, Farbe trägt ausschließlich Bedeutung. Der Akzent ist das Violett aus dem
+    HST-Logo und erscheint sparsam: aktive Navigation, primäre Schaltfläche, Fokusring.
+  </p>
+
+  <div class="karte">
+    <h4>Statusfarben</h4>
+    <div class="karte-inhalt">
+      <p style="margin:0 0 14px;color:var(--text2);font-size:14px">
+        Grün = bestätigt, besetzt, erledigt · Gelb = offen, braucht Aufmerksamkeit ·
+        Rot = Problem, unbesetzt, Fehler · Blau = Information, Planung
+      </p>
+      <div id="statusSchau" class="reihe" style="gap:8px"></div>
+    </div>
+  </div>
+
+  <div class="karte">
+    <h4>Zeilen im Abgleich</h4>
+    <div class="karte-inhalt">
+      <p style="margin:0 0 12px;color:var(--text2);font-size:14px">
+        Der farbige Balken links ersetzt einen weiteren Kasten — so bleibt die Tabelle dicht
+        und trotzdem lesbar.
+      </p>
+      <table>
+        <tr class="zeile-gruen"><td>Identisch</td><td class="zahl">17:00–01:00</td><td class="zahl">17:00–01:00</td><td class="zahl">0 Min</td></tr>
+        <tr class="zeile-gelb"><td>Abweichung</td><td class="zahl">17:00–01:00</td><td class="zahl">17:05–01:30</td><td class="zahl">+25 Min</td></tr>
+        <tr class="zeile-rot"><td>Unbekannt</td><td class="zahl">–</td><td class="zahl">17:00–01:00</td><td class="zahl">–</td></tr>
+        <tr class="zeile-blau"><td>Manuell geprüft</td><td class="zahl">17:00–01:00</td><td class="zahl">17:05–01:30</td><td class="zahl">+25 Min</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="karte">
+    <h4>Farbwerte</h4>
+    <div class="karte-inhalt"><div class="raster" id="farbSchau"></div></div>
+  </div>
+
+  <div class="karte">
+    <h4>Bausteine</h4>
+    <div class="karte-inhalt">
+      <div class="reihe" style="margin-bottom:14px">
+        <button class="knopf knopf-primaer" type="button">Primäre Aktion</button>
+        <button class="knopf" type="button">Sekundär</button>
+        <button class="knopf knopf-klein" type="button">Klein</button>
+      </div>
+      <div class="raster">
+        <label class="feld">Textfeld<input value="Nordstadion"></label>
+        <label class="feld">Auswahl<select><option>Sicherheit &amp; Ordnungsdienst</option><option>Gastro- &amp; Servicepersonal</option></select></label>
+        <label class="feld">Uhrzeit<input type="time" value="17:00"></label>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================== Starten -->
+<section id="starten" hidden>
+  <h2>Die vollständige Anwendung selbst starten</h2>
+  <p class="vorspann">
+    Für Anmeldung, Rollen, Datenbank, Uploads und E-Mail brauchen Sie den Server. Mit den
+    Testdaten ist er in wenigen Minuten einsatzbereit.
+  </p>
+
+  <div class="schritte">
+    <div class="schritt"><div>
+      <b>Voraussetzungen</b><br>
+      <span style="color:var(--text2)">Node.js 20 oder neuer und PostgreSQL 14 oder neuer. Sonst nichts.</span>
+    </div></div>
+    <div class="schritt"><div>
+      <b>Einrichten</b>
+      <pre class="block">cd hst-planer
+npm install
+cp .env.example .env
+# In der .env DATABASE_URL setzen und ein Geheimnis erzeugen:
+#   openssl rand -base64 48   →  AUTH_SECRET</pre>
+    </div></div>
+    <div class="schritt"><div>
+      <b>Datenbank und Testdaten</b>
+      <pre class="block">npx prisma migrate deploy
+npm run seed</pre>
+    </div></div>
+    <div class="schritt"><div>
+      <b>Starten</b>
+      <pre class="block">npm run dev        # http://localhost:3000</pre>
+    </div></div>
+  </div>
+
+  <div class="karte">
+    <h4>Zugänge aus den Testdaten</h4>
+    <div class="karte-inhalt">
+      <p style="margin:0 0 12px;color:var(--text2);font-size:14px">
+        Passwort für alle: <code>Hafencity!2026</code>. Jede Rolle zeigt eine andere Oberfläche —
+        das ist der schnellste Weg, die Rollentrennung zu prüfen.
+      </p>
+      <div class="streifen"><table>
+        <thead><tr><th>Rolle</th><th>Anmeldung</th><th>Sieht</th></tr></thead>
+        <tbody>
+          <tr><td>Administration</td><td><code>admin@hermserviceteam.com</code></td><td>alles, inkl. Benutzer und Schnittstellen</td></tr>
+          <tr><td>Geschäftsführung</td><td><code>gf@hermserviceteam.com</code></td><td>wie Disposition, zusätzlich Finanzen und Protokoll</td></tr>
+          <tr><td>Disposition</td><td><code>dispo@hermserviceteam.com</code></td><td>Events, Personal, Kunden, Abgleiche</td></tr>
+          <tr><td>Einsatzleitung</td><td><code>einsatzleitung@hermserviceteam.com</code></td><td>eigene Events, Zeiten erfassen</td></tr>
+          <tr><td>Teamleitung</td><td><code>teamleitung@hermserviceteam.com</code></td><td>eigene Events, lesend</td></tr>
+          <tr><td>Mitarbeiter</td><td><code>max.mustermann@example.org</code></td><td>nur eigene Einsätze</td></tr>
+          <tr><td>Partner</td><td><code>partner@elbwacht-demo.de</code></td><td>Events mit eigenen Kräften</td></tr>
+          <tr><td>Kunde</td><td><code>kunde@hafenlicht-demo.de</code></td><td>eigene Aufträge</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <div class="karte">
+    <h4>Was Sie als Erstes ausprobieren sollten</h4>
+    <div class="karte-inhalt">
+      <ol class="liste">
+        <li><b>Abgleich durchspielen.</b> <em>Abgleiche → Datei hochladen</em>, dann
+          <code>beispiele/stundenzettel-beispiel.xlsx</code> wählen. Die Datei enthält absichtlich
+          einen gedrehten Namen, einen Tippfehler, eine Zeitabweichung, eine unbekannte Person und
+          eine Dublette. Spalten bestätigen, Abgleich starten, die roten Zeilen von Hand klären,
+          abschließen — die Zeiten stehen danach in der Zeiterfassung.</li>
+        <li><b>Lücke schließen.</b> <em>Disposition</em> öffnen, bei einer Position auf
+          „Personal suchen“ klicken. Der Planer sortiert nach Eignung und warnt bei Urlaub,
+          Überschneidung oder fehlendem Nachweis — blockiert aber nur, wo es fachlich nötig ist.</li>
+        <li><b>Rollen prüfen.</b> Als <code>max.mustermann@example.org</code> anmelden. Die
+          Navigation schrumpft auf den eigenen Bereich, und <code>/events</code> leitet auf einen
+          verständlichen Hinweis um statt auf eine Fehlerseite.</li>
+        <li><b>Anfrage übernehmen.</b> <em>Anfragen</em> öffnen, eine Anfrage in ein Event
+          überführen — Position und Personalbedarf werden gleich mit angelegt.</li>
+        <li><b>Einsatzplan drucken.</b> Auf einer Event-Seite „Einsatzplan“ öffnen und drucken.
+          Interne Notizen stehen bewusst nicht darauf.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="karte">
+    <h4>Prüfen ohne Klicken</h4>
+    <div class="karte-inhalt">
+      <pre class="block">npm test                  # 148 Tests, davon mehrere gegen eine echte Datenbank
+npm run typecheck         # TypeScript
+npm run lint              # Linter
+npm run build             # Produktionsbau
+
+# Alle Hauptseiten in einer Rolle abrufen:
+bash scripts/server-start.sh 3100
+npx tsx scripts/pruefe-seiten.ts http://localhost:3100 dispo@hermserviceteam.com</pre>
+      <p style="margin:0;color:var(--text2);font-size:14px">
+        Der letzte Aufruf meldet für Mitarbeiter, Partner und Kunden bewusst „Rollengrenze“ statt
+        „Fehler“ — dass diese Seiten gesperrt sind, ist das erwartete Ergebnis.
+      </p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<dialog class="lupe" id="lupe">
+  <form method="dialog" style="margin:0">
+    <button type="submit" style="all:unset;cursor:zoom-out;display:block">
+      <img id="lupeBild" alt="">
+    </button>
+    <p id="lupeText"></p>
+  </form>
+</dialog>
+
+<footer>
+  <div style="max-width:1180px;margin:0 auto;padding:0 20px">
+    HERM Service Team e.K. · HST Planer · Diese Datei ist eine Vorschau für interne Zwecke.
+    Die Testdaten sind frei erfunden.
+  </div>
+</footer>
+
+<script src="hst-logik.js"></script>
+<script>window.HST_BILDER = [{"datei":"anmelden.png","titel":"Anmeldung","geraet":"desktop","thema":"hell","pfad":"/anmelden"},{"datei":"dashboard.png","titel":"Dashboard – die Lage des Tages","geraet":"desktop","thema":"hell","pfad":"/dashboard"},{"datei":"dashboard-dunkel.png","titel":"Dashboard im Dunkelmodus","geraet":"desktop","thema":"dunkel","pfad":"/dashboard"},{"datei":"leitstelle.png","titel":"Tagesplanung als Leitstelle","geraet":"desktop","thema":"hell","pfad":"/disposition"},{"datei":"leitstelle-dunkel.png","titel":"Leitstelle im Dunkelmodus","geraet":"desktop","thema":"dunkel","pfad":"/disposition"},{"datei":"disposition-woche.png","titel":"Wochenplanung","geraet":"desktop","thema":"hell","pfad":"/disposition/woche"},{"datei":"offene-positionen.png","titel":"Offene Positionen","geraet":"desktop","thema":"hell","pfad":"/disposition/offene-positionen"},{"datei":"unbesetzte-schichten.png","titel":"Unbesetzte Schichten","geraet":"desktop","thema":"hell","pfad":"/disposition/unbesetzt"},{"datei":"mitarbeiterzuordnung.png","titel":"Mitarbeiterzuordnung über die Woche","geraet":"desktop","thema":"hell","pfad":"/disposition/zuordnung"},{"datei":"kalender-monat.png","titel":"Kalender – Monatsansicht","geraet":"desktop","thema":"hell","pfad":"/kalender?ansicht=monat"},{"datei":"events.png","titel":"Einsätze","geraet":"desktop","thema":"hell","pfad":"/events"},{"datei":"event-uebersicht.png","titel":"Einsatz – Übersicht","geraet":"desktop","thema":"hell","pfad":"/events/cmugp9ub7003z7d6kjpbwb0yf"},{"datei":"event-mitarbeiter.png","titel":"Einsatz – Team und Personalsuche","geraet":"desktop","thema":"hell","pfad":"/events/cmugp9ub7003z7d6kjpbwb0yf/mitarbeiter"},{"datei":"einsatzplan.png","titel":"Druckbarer Einsatzplan","geraet":"desktop","thema":"hell","pfad":"/events/cmugp9ub7003z7d6kjpbwb0yf/einsatzplan"},{"datei":"einsatzhistorie.png","titel":"Einsatzhistorie","geraet":"desktop","thema":"hell","pfad":"/einsatzhistorie"},{"datei":"teamleiter.png","titel":"Teamleiter und was sie sehen dürfen","geraet":"desktop","thema":"hell","pfad":"/teamleiter"},{"datei":"mitarbeiter.png","titel":"Mitarbeiterliste","geraet":"desktop","thema":"hell","pfad":"/mitarbeiter"},{"datei":"akte-uebersicht.png","titel":"Mitarbeiterakte – Übersicht (Personal)","geraet":"desktop","thema":"hell","pfad":"/mitarbeiter/cmugp9u5y000o7d6k2kd14q2t"},{"datei":"akte-gesperrt.png","titel":"Dieselbe Akte als Teamleitung: gesperrte Felder","geraet":"desktop","thema":"hell","pfad":"/mitarbeiter/cmugp9u5y000o7d6k2kd14q2t"},{"datei":"akte-qualifikationen.png","titel":"Mitarbeiterakte – Qualifikationen","geraet":"desktop","thema":"hell","pfad":"/mitarbeiter/cmugp9u5y000o7d6k2kd14q2t/qualifikationen"},{"datei":"akte-dokumente.png","titel":"Mitarbeiterakte – Dokumente mit Zugriffsebene","geraet":"desktop","thema":"hell","pfad":"/mitarbeiter/cmugp9u5y000o7d6k2kd14q2t/dokumente"},{"datei":"akte-datenschutz.png","titel":"Mitarbeiterakte – Datenschutz","geraet":"desktop","thema":"hell","pfad":"/mitarbeiter/cmugp9u5y000o7d6k2kd14q2t/datenschutz"},{"datei":"mitarbeiterakten.png","titel":"Vollständigkeit der Personalakten","geraet":"desktop","thema":"hell","pfad":"/mitarbeiterakten"},{"datei":"bewerber.png","titel":"Bewerber mit Löschdatum","geraet":"desktop","thema":"hell","pfad":"/bewerber"},{"datei":"qualifikationen.png","titel":"Qualifikationen und Fristen","geraet":"desktop","thema":"hell","pfad":"/qualifikationen"},{"datei":"schulungen.png","titel":"Schulungen und offene Pflichtunterweisungen","geraet":"desktop","thema":"hell","pfad":"/schulungen"},{"datei":"verfuegbarkeiten.png","titel":"Verfügbarkeiten über vier Wochen","geraet":"desktop","thema":"hell","pfad":"/verfuegbarkeiten"},{"datei":"zeiterfassung.png","titel":"Stundenzettel","geraet":"desktop","thema":"hell","pfad":"/zeiterfassung"},{"datei":"arbeitszeiten.png","titel":"Arbeitszeiten je Monat","geraet":"desktop","thema":"hell","pfad":"/zeiterfassung/arbeitszeiten"},{"datei":"freigaben.png","titel":"Freigaben","geraet":"desktop","thema":"hell","pfad":"/zeiterfassung/freigaben"},{"datei":"abgleiche.png","titel":"Abgleiche","geraet":"desktop","thema":"hell","pfad":"/abgleiche"},{"datei":"abgleich-hochladen.png","titel":"Stundenzettel hochladen","geraet":"desktop","thema":"hell","pfad":"/abgleiche/neu"},{"datei":"anfragen.png","titel":"Anfragen","geraet":"desktop","thema":"hell","pfad":"/anfragen"},{"datei":"anfrage-detail.png","titel":"Anfrage prüfen und übernehmen","geraet":"desktop","thema":"hell","pfad":"/anfragen/cmugp9ubm004e7d6k4gt8hw7a"},{"datei":"kunden.png","titel":"Kunden","geraet":"desktop","thema":"hell","pfad":"/kunden"},{"datei":"partner-unternehmen.png","titel":"Partnerunternehmen","geraet":"desktop","thema":"hell","pfad":"/partner/unternehmen"},{"datei":"partner-einsaetze.png","titel":"Partner-Einsätze","geraet":"desktop","thema":"hell","pfad":"/partner/einsaetze"},{"datei":"kommunikation.png","titel":"Kommunikation","geraet":"desktop","thema":"hell","pfad":"/kommunikation"},{"datei":"email-eingang.png","titel":"E-Mail-Eingänge","geraet":"desktop","thema":"hell","pfad":"/kommunikation/email"},{"datei":"compliance.png","titel":"HST Compliance – Stand je Bereich","geraet":"desktop","thema":"hell","pfad":"/compliance"},{"datei":"compliance-datenschutz.png","titel":"Verzeichnis der Verarbeitungstätigkeiten","geraet":"desktop","thema":"hell","pfad":"/compliance/datenschutz"},{"datei":"compliance-tom.png","titel":"Technische und organisatorische Maßnahmen","geraet":"desktop","thema":"hell","pfad":"/compliance/tom"},{"datei":"compliance-avv.png","titel":"Auftragsverarbeiter und Drittlandtransfers","geraet":"desktop","thema":"hell","pfad":"/compliance/avv"},{"datei":"compliance-loeschfristen.png","titel":"Löschkonzept","geraet":"desktop","thema":"hell","pfad":"/compliance/loeschfristen"},{"datei":"compliance-vorfaelle.png","titel":"Datenschutzvorfälle","geraet":"desktop","thema":"hell","pfad":"/compliance/vorfaelle"},{"datei":"compliance-dokumentation.png","titel":"Dokumentation und Nachweise","geraet":"desktop","thema":"hell","pfad":"/compliance/dokumentation"},{"datei":"audit-log.png","titel":"Audit-Log, Dokumentzugriffe, Exporte","geraet":"desktop","thema":"hell","pfad":"/compliance/audit-log"},{"datei":"sicherheitscheck.png","titel":"Sicherheitscheck","geraet":"desktop","thema":"hell","pfad":"/compliance/sicherheitscheck"},{"datei":"admin.png","titel":"Administration","geraet":"desktop","thema":"hell","pfad":"/admin"},{"datei":"admin-benutzer.png","titel":"Benutzer und zweiter Faktor","geraet":"desktop","thema":"hell","pfad":"/admin/benutzer"},{"datei":"admin-rollen.png","titel":"Die neun Rollen","geraet":"desktop","thema":"hell","pfad":"/admin/rollen"},{"datei":"admin-berechtigungen.png","titel":"Vollständige Rechtematrix","geraet":"desktop","thema":"hell","pfad":"/admin/berechtigungen"},{"datei":"admin-schnittstellen.png","titel":"Schnittstellen","geraet":"desktop","thema":"hell","pfad":"/admin/schnittstellen"},{"datei":"konto-sicherheit.png","titel":"Eigene Sicherheit: zweiter Faktor und Sitzungen","geraet":"desktop","thema":"hell","pfad":"/konto/sicherheit"},{"datei":"einstellungen.png","titel":"Systemeinstellungen","geraet":"desktop","thema":"hell","pfad":"/einstellungen"},{"datei":"finanzen.png","titel":"Finanzen","geraet":"desktop","thema":"hell","pfad":"/finanzen"},{"datei":"suche.png","titel":"Globale Suche","geraet":"desktop","thema":"hell","pfad":"/suche?q=mustermann"},{"datei":"kein-zugriff.png","titel":"Rollengrenze: ein Mitarbeiter sieht keine Einsätze","geraet":"desktop","thema":"hell","pfad":"/events"},{"datei":"app-einsaetze.png","titel":"Mitarbeiter-App – Meine Einsätze","geraet":"handy","thema":"hell","pfad":"/meine-einsaetze"},{"datei":"app-zeiten.png","titel":"Mitarbeiter-App – Meine Stunden","geraet":"handy","thema":"hell","pfad":"/meine-zeiten"},{"datei":"app-verfuegbarkeit.png","titel":"Mitarbeiter-App – Verfügbarkeit","geraet":"handy","thema":"hell","pfad":"/meine-verfuegbarkeit"},{"datei":"app-dokumente.png","titel":"Mitarbeiter-App – Meine Dokumente","geraet":"handy","thema":"hell","pfad":"/meine-dokumente"}];</script>
+<script>
+/* --------------------------------------------------------------------------
+   Steuerung der Demo. Die Fachlogik kommt aus window.HST (hst-logik.js) und
+   stammt unveraendert aus src/lib – hier wird nur angezeigt und eingesammelt.
+   -------------------------------------------------------------------------- */
+(function () {
+  'use strict';
+  const H = window.HST;
+  const $ = (wahl) => document.querySelector(wahl);
+  const $$ = (wahl) => Array.from(document.querySelectorAll(wahl));
+  const text = (wert) => String(wert == null ? '' : wert)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+  /* ---------------------------------------------------------- Reiter */
+  function zeige(ziel) {
+    $$('main > section').forEach((abschnitt) => { abschnitt.hidden = abschnitt.id !== ziel; });
+    $$('nav.reiter button').forEach((knopf) => {
+      knopf.setAttribute('aria-selected', String(knopf.dataset.ziel === ziel));
+    });
+    if (location.hash.slice(1) !== ziel) history.replaceState(null, '', '#' + ziel);
+    window.scrollTo({ top: 0 });
+  }
+  $$('nav.reiter button').forEach((knopf) => knopf.addEventListener('click', () => zeige(knopf.dataset.ziel)));
+  $$('[data-sprung]').forEach((verweis) => verweis.addEventListener('click', (e) => { e.preventDefault(); zeige(verweis.dataset.sprung); }));
+  if (location.hash.length > 1) zeige(location.hash.slice(1));
+
+  /* ---------------------------------------------------------- Hell/Dunkel */
+  const themaKnopf = $('#themaKnopf');
+  function setzeThema(wert) {
+    document.documentElement.dataset.thema = wert;
+    themaKnopf.textContent = wert === 'dunkel' ? 'Helle Ansicht' : 'Dunkle Ansicht';
+    try { localStorage.setItem('hst-demo-thema', wert); } catch (e) { /* privates Fenster */ }
+  }
+  let start = 'hell';
+  try { start = localStorage.getItem('hst-demo-thema') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dunkel' : 'hell'); } catch (e) {}
+  setzeThema(start);
+  themaKnopf.addEventListener('click', () => setzeThema(document.documentElement.dataset.thema === 'dunkel' ? 'hell' : 'dunkel'));
+
+  /* ---------------------------------------------------------- Kennzahlen */
+  const KENNZAHLEN = [
+    ['31', 'Bildschirmfotos aus der laufenden Anwendung'],
+    ['148', 'automatische Tests, alle grün'],
+    ['51', 'Seiten in der Anwendung'],
+    ['21', 'Schnittstellen (REST, Export, Jobs)'],
+    ['30', 'Tabellen im Datenmodell'],
+    ['8', 'Rollen mit eigenen Rechten'],
+  ];
+  $('#kennzahlen').innerHTML = KENNZAHLEN.map(([wert, beschriftung]) => `
+    <div class="karte"><div class="karte-inhalt">
+      <div class="gross">${text(wert)}</div>
+      <div style="color:var(--text2);font-size:13px">${text(beschriftung)}</div>
+    </div></div>`).join('');
+
+  /* ---------------------------------------------------------- Galerie */
+  const BILDER = window.HST_BILDER || [];
+  const galerie = $('#galerie');
+  function zeichneGalerie(gruppe) {
+    const auswahl = BILDER.filter((bild) => {
+      if (gruppe === 'alle') return true;
+      if (gruppe === 'handy') return bild.geraet === 'handy';
+      if (gruppe === 'dunkel') return bild.thema === 'dunkel';
+      return bild.geraet === 'desktop' && bild.thema !== 'dunkel';
+    });
+    galerie.innerHTML = auswahl.map((bild) => `
+      <figure class="${bild.geraet === 'handy' ? 'handy' : ''}">
+        <img src="bilder/${text(bild.datei)}" alt="${text(bild.titel)}" loading="lazy"
+             data-titel="${text(bild.titel)}">
+        <figcaption>
+          <b>${text(bild.titel)}</b>
+          <span>${bild.geraet === 'handy' ? 'Smartphone' : 'Arbeitsplatz'}${bild.thema === 'dunkel' ? ' · Dunkelmodus' : ''} · <code>${text(bild.pfad)}</code></span>
+        </figcaption>
+      </figure>`).join('');
+  }
+  zeichneGalerie('alle');
+  $$('[data-gruppe]').forEach((knopf) => knopf.addEventListener('click', () => {
+    $$('[data-gruppe]').forEach((k) => k.setAttribute('aria-pressed', String(k === knopf)));
+    zeichneGalerie(knopf.dataset.gruppe);
+  }));
+
+  const lupe = $('#lupe');
+  galerie.addEventListener('click', (ereignis) => {
+    const bild = ereignis.target.closest('img');
+    if (!bild) return;
+    $('#lupeBild').src = bild.src;
+    $('#lupeBild').alt = bild.alt;
+    $('#lupeText').textContent = bild.dataset.titel + ' — klicken zum Schließen';
+    lupe.showModal();
+  });
+
+  /* ---------------------------------------------------------- Zeitrechner */
+  function zeitRechnen() {
+    const beginn = $('#zBeginn').value;
+    const ende = $('#zEnde').value;
+    const pause = Number($('#zPause').value || 0);
+    const dauer = H.shiftDuration(beginn, ende, pause);
+    const ziel = $('#zErgebnis');
+
+    if (!dauer) {
+      ziel.innerHTML = '<div class="hinweis hinweis-warn" style="margin:0">Die Zeiten konnten nicht gelesen werden. Erlaubt sind z. B. 17:00, 17.00, 1700 oder 17.</div>';
+      return;
+    }
+    ziel.innerHTML = `
+      <div class="gross" style="color:var(--gruen)">${text(H.formatHours(dauer.netMinutes))}</div>
+      <dl style="margin-top:10px">
+        <dt>Gelesen als</dt><dd class="zahl">${text(H.normalizeTime(beginn))} bis ${text(H.normalizeTime(ende))}</dd>
+        <dt>Brutto</dt><dd class="zahl">${text(H.formatHours(dauer.grossMinutes))} (${dauer.grossMinutes} Minuten)</dd>
+        <dt>Pause</dt><dd class="zahl">${pause} Minuten</dd>
+        <dt>Netto</dt><dd class="zahl">${dauer.netMinutes} Minuten = ${text(H.minutesToHours(dauer.netMinutes).toLocaleString('de-DE'))} Dezimalstunden</dd>
+        <dt>Über Mitternacht</dt><dd>${dauer.overnight ? '<span class="marke marke-blau">ja</span>' : '<span class="marke marke-grau">nein</span>'}</dd>
+      </dl>`;
+  }
+  $('#zRechnen').addEventListener('click', zeitRechnen);
+  ['zBeginn','zEnde','zPause'].forEach((id) => $('#' + id).addEventListener('input', zeitRechnen));
+  zeitRechnen();
+
+  function diffRechnen() {
+    const diff = H.timeDiffMinutes($('#dSoll').value, $('#dIst').value);
+    $('#dErgebnis').innerHTML = diff == null
+      ? '<div class="hinweis hinweis-warn" style="margin:0">Eine der Zeiten war nicht lesbar.</div>'
+      : `<div class="gross" style="color:${diff === 0 ? 'var(--gruen)' : Math.abs(diff) > 15 ? 'var(--gelb)' : 'var(--text)'}">${text(H.formatDiff(diff))}</div>
+         <div style="color:var(--text2);font-size:13px;margin-top:4px">
+           ${diff === 0 ? 'punktgenau' : diff > 0 ? 'später als geplant' : 'früher als geplant'}
+           — bei einer Toleranz von 15 Minuten gilt das als
+           ${Math.abs(diff) > 15 ? '<b>Abweichung</b>' : '<b>identisch</b>'}.
+         </div>`;
+  }
+  $('#dRechnen').addEventListener('click', diffRechnen);
+  ['dSoll','dIst'].forEach((id) => $('#' + id).addEventListener('input', diffRechnen));
+  diffRechnen();
+
+  function datumLesen() {
+    const eingabe = $('#datEin').value.trim();
+    const zahl = Number(eingabe);
+    const geparst = H.parseGermanDate(Number.isFinite(zahl) && eingabe !== '' ? zahl : eingabe);
+    $('#datErgebnis').innerHTML = !geparst
+      ? '<div class="hinweis hinweis-warn" style="margin:0">Nicht lesbar — das Feld bliebe in der Anfrage leer und würde als fehlende Angabe gemeldet.</div>'
+      : `<dl>
+          <dt>Erkanntes Datum</dt><dd class="zahl">${text(H.formatDateDE(geparst))}</dd>
+          <dt>Wochentag</dt><dd>${text(H.weekdayDE(geparst))}</dd>
+          <dt>Technisch</dt><dd class="zahl">${text(H.isoDate(geparst))}</dd>
+         </dl>`;
+  }
+  $('#datRechnen').addEventListener('click', datumLesen);
+  $('#datEin').addEventListener('input', datumLesen);
+  datumLesen();
+
+  /* ---------------------------------------------------------- Namen */
+  const MITARBEITER = [
+    { id: 'e1', firstName: 'Max',    lastName: 'Mustermann', personnelNo: 'HST-0001' },
+    { id: 'e2', firstName: 'Lena',   lastName: 'Bergmann',   personnelNo: 'HST-0002' },
+    { id: 'e3', firstName: 'Ayse',   lastName: 'Yilmaz',     personnelNo: 'HST-0003' },
+    { id: 'e4', firstName: 'Jan',    lastName: 'Möller',     personnelNo: 'HST-0004' },
+    { id: 'e5', firstName: 'Sophie', lastName: 'Kranz',      personnelNo: 'HST-0005' },
+    { id: 'e6', firstName: 'Dennis', lastName: 'Rohde',      personnelNo: 'HST-0006' },
+    { id: 'e7', firstName: 'Marek',  lastName: 'Kowalski',   personnelNo: 'HST-0007' },
+    { id: 'e8', firstName: 'Nina',   lastName: 'Abel',       personnelNo: 'HST-0008' },
+    { id: 'e9', firstName: 'Tobias', lastName: 'Steenbock',  personnelNo: 'HST-0009' },
+    { id: 'e10',firstName: 'Katja',  lastName: 'Brinkmann',  personnelNo: 'HST-0010' },
+  ];
+  const namenVon = (m) => [m.firstName + ' ' + m.lastName, m.lastName + ' ' + m.firstName, m.personnelNo];
+
+  function namenVergleich() {
+    const a = $('#nA').value, b = $('#nB').value;
+    const quote = H.nameSimilarity(a, b);
+    const prozent = Math.round(quote * 100);
+    const farbe = quote >= 0.92 ? 'var(--gruen)' : quote >= 0.62 ? 'var(--gelb)' : 'var(--rot)';
+    $('#nErgebnis').innerHTML = `
+      <div class="gross" style="color:${farbe}">${prozent} %</div>
+      <dl style="margin-top:10px">
+        <dt>Zerlegt</dt><dd class="zahl">[${text(H.nameTokens(a).join(', '))}] gegen [${text(H.nameTokens(b).join(', '))}]</dd>
+        <dt>Normalisiert</dt><dd class="zahl">„${text(H.normalizeName(a))}“ / „${text(H.normalizeName(b))}“</dd>
+        <dt>Bewertung</dt><dd>${quote >= 0.92
+          ? '<span class="marke marke-gruen">sicher genug für eine automatische Zuordnung</span>'
+          : quote >= 0.62
+            ? '<span class="marke marke-gelb">wird als Vorschlag angeboten</span>'
+            : '<span class="marke marke-rot">kein Treffer</span>'}</dd>
+      </dl>`;
+  }
+  $('#nRechnen').addEventListener('click', namenVergleich);
+  ['nA','nB'].forEach((id) => $('#' + id).addEventListener('input', namenVergleich));
+  namenVergleich();
+
+  function namenSuche() {
+    const eingabe = $('#sName').value;
+    const ergebnis = H.matchName(eingabe, MITARBEITER, namenVon);
+    const ziel = $('#sErgebnis');
+
+    if (ergebnis.match) {
+      ziel.innerHTML = `
+        <div class="hinweis hinweis-gut" style="margin-top:14px">
+          <b>Automatisch zugeordnet:</b> ${text(ergebnis.match.firstName + ' ' + ergebnis.match.lastName)}
+          (${text(ergebnis.match.personnelNo)}) — Trefferquote ${Math.round(ergebnis.score * 100)} %
+        </div>`;
+      return;
+    }
+    if (ergebnis.candidates.length) {
+      ziel.innerHTML = `
+        <div class="hinweis hinweis-warn" style="margin-top:14px">
+          <b>${ergebnis.ambiguous ? 'Mehrere gleich gute Treffer' : 'Nicht sicher genug'}</b> — die Disposition wählt aus:
+        </div>
+        <table><thead><tr><th>Vorschlag</th><th>Personalnummer</th><th>Trefferquote</th></tr></thead><tbody>
+        ${ergebnis.candidates.map((kandidat) => `
+          <tr><td>${text(kandidat.item.firstName + ' ' + kandidat.item.lastName)}</td>
+              <td class="zahl">${text(kandidat.item.personnelNo)}</td>
+              <td class="zahl">${Math.round(kandidat.score * 100)} %</td></tr>`).join('')}
+        </tbody></table>`;
+      return;
+    }
+    ziel.innerHTML = `
+      <div class="hinweis hinweis-warn" style="margin-top:14px">
+        <b>Kein Treffer.</b> Die Zeile erscheint im Abgleich als „unbekannter Mitarbeiter“ und muss
+        von Hand zugeordnet werden — oder sie wird bewusst nicht übernommen.
+      </div>`;
+  }
+  $('#sSuchen').addEventListener('click', namenSuche);
+  $('#sName').addEventListener('input', namenSuche);
+  namenSuche();
+
+  /* ---------------------------------------------------------- E-Mail */
+  const BEISPIELE = {
+    freitext: {
+      betreff: 'Anfrage: Firmenjubiläum',
+      text: 'Hallo,\n\nfür den 15.10.2031 benötigen wir für eine Veranstaltung in Hamburg 12 Sicherheitskräfte von 17 bis 01 Uhr.\nTreffpunkt ist 16:30 Uhr.\n\nViele Grüße\nThomas Brand',
+    },
+    formular: {
+      betreff: 'Kontaktformular hermserviceteam.com',
+      text: 'Firma: Hafenlicht GmbH\nAnsprechpartner: Marie Ahrens\nTelefon: 040 123456\nVeranstaltungsort: Elbphilharmonie, 20457 Hamburg\nDatum: 05.12.2031\nZeit: von 18:00 bis 23:30\nBenötigte Mitarbeiter: 8 Servicekräfte',
+    },
+    knapp: {
+      betreff: 'Personal gesucht',
+      text: 'Moin, wir brauchen Personal für unser Event. Melden Sie sich bitte kurzfristig.\n\nViele Grüße',
+    },
+    werbung: {
+      betreff: 'Newsletter Oktober',
+      text: 'Jetzt 20 % Rabatt auf unsere Bürostühle sichern! Nur bis Monatsende.',
+    },
+  };
+
+  function mailLesen() {
+    const ergebnis = H.parseRequestEmail({
+      subject: $('#mBetreff').value,
+      body: $('#mText').value,
+      fromName: 'Thomas Brand',
+      fromEmail: 'brand@nordlicht-events.de',
+    });
+
+    const felder = [
+      ['Firma', ergebnis.company], ['Ansprechpartner', ergebnis.contactPerson],
+      ['E-Mail', ergebnis.email], ['Telefon', ergebnis.phone],
+      ['Anlass', ergebnis.eventName], ['Datum', ergebnis.eventDate],
+      ['Beginn', ergebnis.startTime], ['Ende', ergebnis.endTime],
+      ['Treffzeit', ergebnis.meetingTime], ['Ort', ergebnis.location],
+      ['Anzahl Mitarbeiter', ergebnis.employeesNeeded], ['Leistungsart', ergebnis.serviceType],
+    ];
+
+    const konfidenzFarbe = ergebnis.confidence >= 0.7 ? 'gruen' : ergebnis.confidence >= 0.4 ? 'gelb' : 'rot';
+
+    $('#mErgebnis').innerHTML = `
+      <div class="karte">
+        <h4>Erkannt</h4>
+        <div class="karte-inhalt">
+          <div class="reihe" style="margin-bottom:14px">
+            <span class="marke marke-${ergebnis.isRequest ? 'gruen' : 'grau'}">
+              ${ergebnis.isRequest ? 'sieht nach einer Personalanfrage aus' : 'keine Personalanfrage'}
+            </span>
+            <span class="marke marke-${konfidenzFarbe}">Auswertung ${Math.round(ergebnis.confidence * 100)} %</span>
+          </div>
+          <div class="streifen"><table>
+            <thead><tr><th>Feld</th><th>Wert</th><th>Sicherheit</th><th>Woher</th></tr></thead>
+            <tbody>${felder.map(([beschriftung, feld]) => `
+              <tr class="${feld.value == null ? 'zeile-gelb' : 'zeile-gruen'}">
+                <td>${text(beschriftung)}</td>
+                <td>${feld.value == null
+                      ? '<span class="marke marke-gelb">bleibt leer</span>'
+                      : '<b>' + text(feld.value) + '</b>'}</td>
+                <td class="zahl">${feld.value == null ? '–' : Math.round(feld.confidence * 100) + ' %'}</td>
+                <td style="color:var(--text2);font-size:12px">${text(feld.evidence || '')}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table></div>
+          ${ergebnis.missingFields.length ? `
+            <div class="hinweis hinweis-warn" style="margin:14px 0 0">
+              <b>Angaben unvollständig.</b> Die Disposition sieht: ${text(ergebnis.missingFields.join(', '))}.
+              Die Anfrage wird trotzdem angelegt — als Vorgang zur Prüfung, nie als Buchung.
+            </div>` : `
+            <div class="hinweis hinweis-gut" style="margin:14px 0 0">
+              Alle Pflichtangaben erkannt. Die Anfrage kann mit einem Klick in ein Event überführt werden —
+              geprüft wird sie trotzdem von Hand.
+            </div>`}
+        </div>
+      </div>`;
+  }
+  $('#mLesen').addEventListener('click', mailLesen);
+  $('#mText').addEventListener('input', mailLesen);
+  $('#mBetreff').addEventListener('input', mailLesen);
+  $$('[data-beispiel]').forEach((knopf) => knopf.addEventListener('click', () => {
+    const beispiel = BEISPIELE[knopf.dataset.beispiel];
+    $('#mBetreff').value = beispiel.betreff;
+    $('#mText').value = beispiel.text;
+    mailLesen();
+  }));
+  $('#mText').value = BEISPIELE.freitext.text;
+  mailLesen();
+
+  /* ---------------------------------------------------------- Abgleich */
+  const PLANUNG = [
+    { assignmentId: 'a1', employeeId: 'e1', eventId: 'ev1', eventReference: 'EV-2031-0001',
+      eventName: 'Nordstadion – Heimspiel', positionId: 'p1', positionTitle: 'Ordnungsdienst Südtribüne',
+      date: '2031-10-15', start: '17:00', end: '01:00', breakMinutes: 30 },
+    { assignmentId: 'a2', employeeId: 'e2', eventId: 'ev1', eventReference: 'EV-2031-0001',
+      eventName: 'Nordstadion – Heimspiel', positionId: 'p1', positionTitle: 'Ordnungsdienst Südtribüne',
+      date: '2031-10-15', start: '17:00', end: '01:00', breakMinutes: 30 },
+    { assignmentId: 'a3', employeeId: 'e4', eventId: 'ev1', eventReference: 'EV-2031-0001',
+      eventName: 'Nordstadion – Heimspiel', positionId: 'p1', positionTitle: 'Ordnungsdienst Südtribüne',
+      date: '2031-10-15', start: '17:00', end: '01:00', breakMinutes: 30 },
+    { assignmentId: 'a4', employeeId: 'e6', eventId: 'ev1', eventReference: 'EV-2031-0001',
+      eventName: 'Nordstadion – Heimspiel', positionId: 'p2', positionTitle: 'Einlasskontrolle Nord',
+      date: '2031-10-15', start: '16:30', end: '23:00', breakMinutes: 30 },
+  ];
+
+  const CSV_BEISPIEL = [
+    'Mitarbeiter;Datum;Beginn;Ende;Pause;Event',
+    'Mustermann Max;15.10.2031;17:00;01:00;30;Nordstadion – Heimspiel',
+    'Lena Bergman;15.10.2031;17:05;01:30;30;Nordstadion – Heimspiel',
+    'Jan Moeller;15.10.2031;17:00;01:00;30;Nordstadion – Heimspiel',
+    'Petra Schneider;15.10.2031;17:00;01:00;30;Nordstadion – Heimspiel',
+    'Mustermann Max;15.10.2031;17:00;01:00;30;Nordstadion – Heimspiel',
+  ].join('\n');
+
+  $('#planTabelle').innerHTML = `
+    <thead><tr><th>Mitarbeiter</th><th>Position</th><th>Datum</th><th>Soll</th><th>Pause</th><th>Stunden</th></tr></thead>
+    <tbody>${PLANUNG.map((schicht) => {
+      const person = MITARBEITER.find((m) => m.id === schicht.employeeId);
+      return `<tr>
+        <td>${text(person.firstName + ' ' + person.lastName)}<br>
+            <span style="color:var(--text3);font-size:11px">${text(person.personnelNo)}</span></td>
+        <td>${text(schicht.positionTitle)}</td>
+        <td class="zahl">${text(H.formatDateDE(new Date(schicht.date + 'T00:00:00Z')))}</td>
+        <td class="zahl">${text(schicht.start)}–${text(schicht.end)}</td>
+        <td class="zahl">${schicht.breakMinutes} Min</td>
+        <td class="zahl">${text(H.formatHours(H.shiftMinutes(schicht.start, schicht.end, schicht.breakMinutes)))}</td>
+      </tr>`;
+    }).join('')}</tbody>`;
+
+  $('#csvText').value = CSV_BEISPIEL;
+
+  function abgleichRechnen() {
+    let blatt;
+    try {
+      blatt = H.parseCsv($('#csvText').value);
+    } catch (fehler) {
+      $('#abErgebnis').innerHTML = '<div class="hinweis hinweis-warn">' + text(fehler.userMessage || fehler.message) + '</div>';
+      return;
+    }
+
+    const vorschlag = H.suggestMapping(blatt.headers);
+    const zuordnung = vorschlag.mapping;
+
+    if (vorschlag.missingRequired.length) {
+      $('#abErgebnis').innerHTML = `
+        <div class="hinweis hinweis-warn">
+          Diese Pflichtspalten fehlen: <b>${text(vorschlag.missingRequired.join(', '))}</b>.
+          In der Anwendung ordnen Sie sie vor dem Import von Hand zu.
+        </div>`;
+      return;
+    }
+
+    const istZeilen = blatt.rows.map((zeile, index) => ({
+      rowNumber: index + 2,
+      name: H.readName(zeile, zuordnung),
+      date: H.readCell(zeile, zuordnung, 'date'),
+      start: H.readCell(zeile, zuordnung, 'start'),
+      end: H.readCell(zeile, zuordnung, 'end'),
+      break: H.readCell(zeile, zuordnung, 'break'),
+      event: zuordnung.event ? String(zeile[zuordnung.event] || '') : null,
+    }));
+
+    const ergebnis = H.reconcile(istZeilen, PLANUNG, MITARBEITER, {
+      toleranceMinutes: Number($('#abToleranz').value || 15),
+      referenceDate: new Date('2031-10-15T00:00:00Z'),
+    });
+    const z = ergebnis.summary;
+
+    const kennzahl = (wert, beschriftung, farbe) => `
+      <div class="karte"><div class="karte-inhalt">
+        <div class="gross" ${farbe ? 'style="color:var(--' + farbe + ')"' : ''}>${wert}</div>
+        <div style="color:var(--text2);font-size:13px">${text(beschriftung)}</div>
+      </div></div>`;
+
+    $('#abErgebnis').innerHTML = `
+      <div class="hinweis hinweis-info">
+        <b>${z.totalRows} Datensätze verarbeitet</b> · ${z.matchedRows} automatisch zugeordnet ·
+        ${z.deviationRows} Abweichungen · ${z.unknownRows} unbekannte Mitarbeiter ·
+        ${z.duplicateRows} doppelte Einträge · ${z.missingRows} ohne Ist-Zeit
+      </div>
+      <div class="raster" style="margin-bottom:16px">
+        ${kennzahl(z.totalRows, 'Datensätze')}
+        ${kennzahl(z.matchedRows, 'Zugeordnet', 'gruen')}
+        ${kennzahl(z.deviationRows, 'Abweichungen', z.deviationRows ? 'gelb' : null)}
+        ${kennzahl(z.unknownRows, 'Unbekannt', z.unknownRows ? 'rot' : null)}
+        ${kennzahl(z.duplicateRows, 'Doppelt', z.duplicateRows ? 'rot' : null)}
+        ${kennzahl(z.missingRows, 'Ohne Ist-Zeit', z.missingRows ? 'gelb' : null)}
+      </div>
+      <div class="karte">
+        <h4>Ergebnis je Zeile</h4>
+        <div class="streifen"><table>
+          <thead><tr>
+            <th>#</th><th>Mitarbeiter</th><th>Zuordnung</th><th>Soll</th><th>Ist</th>
+            <th>Differenz</th><th>Befund</th><th>Status</th>
+          </tr></thead>
+          <tbody>${ergebnis.rows.map((zeile) => {
+            const status = H.ROW_STATUS[zeile.status] || { label: zeile.status, farbe: 'grau' };
+            const balken = status.farbe === 'grau' ? 'blau' : status.farbe;
+            return `<tr class="zeile-${balken}">
+              <td class="zahl" style="color:var(--text3)">${zeile.rowNumber}</td>
+              <td>${text(zeile.rawName || '–')}</td>
+              <td>${zeile.employeeName
+                    ? text(zeile.employeeName) + (zeile.matchScore < 1
+                        ? ' <span style="color:var(--text3);font-size:11px">(' + Math.round(zeile.matchScore * 100) + ' %)</span>'
+                        : '')
+                    : (zeile.candidates.length
+                        ? '<span class="marke marke-gelb">' + text(zeile.candidates.map((k) => k.name).join(', ')) + '?</span>'
+                        : '<span class="marke marke-rot">nicht gefunden</span>')}</td>
+              <td class="zahl">${zeile.plannedStart ? text(zeile.plannedStart + '–' + (zeile.plannedEnd || '?')) : '–'}</td>
+              <td class="zahl">${zeile.actualStart ? text(zeile.actualStart + '–' + (zeile.actualEnd || '?')) : '–'}</td>
+              <td class="zahl" style="${zeile.diffMinutes ? 'font-weight:600;color:var(--gelb)' : ''}">${text(H.formatDiff(zeile.diffMinutes))}</td>
+              <td style="font-size:11px">${zeile.issues.map((befund) =>
+                    '<span class="marke marke-grau" style="margin:1px">' + text(H.ISSUE_LABEL[befund] || befund) + '</span>').join(' ')}</td>
+              <td><span class="marke marke-${status.farbe}"><span class="punkt"></span>${text(status.label)}</span></td>
+            </tr>`;
+          }).join('')}</tbody>
+        </table></div>
+      </div>
+      <div class="hinweis hinweis-warn">
+        In der Anwendung wäre jetzt Handarbeit gefragt: die unbekannte Person zuordnen oder
+        bewusst nicht übernehmen, die Dublette verwerfen. Erst wenn keine Zeile mehr ungeklärt
+        ist, lässt sich der Abgleich abschließen — dann entstehen daraus Zeiteinträge.
+      </div>`;
+  }
+  $('#abRechnen').addEventListener('click', abgleichRechnen);
+  $('#abToleranz').addEventListener('input', abgleichRechnen);
+  $('#abZuruecksetzen').addEventListener('click', () => { $('#csvText').value = CSV_BEISPIEL; abgleichRechnen(); });
+  abgleichRechnen();
+
+  /* ---------------------------------------------------------- Gestaltung */
+  $('#statusSchau').innerHTML = Object.entries(H.EVENT_STATUS)
+    .map(([, s]) => `<span class="marke marke-${s.farbe}"><span class="punkt"></span>${text(s.label)}</span>`)
+    .join('') +
+    Object.entries(H.ASSIGNMENT_STATUS)
+    .map(([, s]) => `<span class="marke marke-${s.farbe}"><span class="punkt"></span>${text(s.label)}</span>`)
+    .join('');
+
+  /* ------------------------------------------- Zuordnungspruefung (SecPlan 4) */
+  /*
+     Dieselbe Funktion, die der Server beim Ablegen eines Namens aufruft.
+     Hier wird nur die Lage zusammengebaut, die dort aus der Datenbank kommt.
+  */
+  const ZP_TAG = new Date('2026-05-16T00:00:00Z');
+
+  function zpLage() {
+    const an = (id) => $('#' + id).checked;
+    const wert = (id) => $('#' + id).value.trim();
+    const abgelaufen = new Date('2026-01-31T00:00:00Z');
+
+    return {
+      tag: ZP_TAG,
+      ziel: { start: wert('zpVon') || null, ende: wert('zpBis') || null, bezeichnung: wert('zpRolle') },
+      person: {
+        name: wert('zpName') || 'Die Kraft',
+        aktiv: !an('zpInaktiv'),
+        gesperrt: an('zpGesperrt'),
+        sperrgrund: an('zpGesperrt') ? 'Ausweis eingezogen' : null,
+      },
+      belegt: an('zpBelegt')
+        ? [{ start: '18:00', ende: '23:00', bezeichnung: 'Hafenlicht Open Air' }]
+        : [],
+      belegtVortag: an('zpNacht')
+        ? [{ start: '22:00', ende: '06:00', bezeichnung: 'Werkschutz Nacht' }]
+        : [],
+      abwesend: an('zpUrlaub') ? [{ art: 'URLAUB', hinweis: 'bis 20.05.' }] : [],
+      qualifikationen: [
+        { name: 'Sachkunde § 34a', vorhanden: !an('zpQualFehlt'), laeuftAb: null },
+        { name: 'Erste Hilfe', vorhanden: true, laeuftAb: an('zpQualAlt') ? abgelaufen : null },
+      ],
+      schulungen: an('zpSchulung')
+        ? [{ name: 'Jährliche Unterweisung', vorhanden: false, laeuftAb: null }]
+        : [],
+      dokumente: an('zpDokument')
+        ? [{ name: 'Führungszeugnis', vorhanden: true, laeuftAb: abgelaufen }]
+        : [],
+      rolle: an('zpFunktion')
+        ? { name: $('#zpRolle').value || 'Funktion', erlaubt: false, grund: 'keine Unterweisung' }
+        : undefined,
+      vortagEnde: wert('zpVortag') || (an('zpNacht') ? '06:00' : null),
+    };
+  }
+
+  function zpZeichnen() {
+    if (!H || !H.pruefe) return;
+    const konflikte = H.pruefe(zpLage());
+    const hart = H.blockiert(konflikte);
+    const kopf = H.ueberschrift(konflikte);
+
+    const liste = konflikte.length === 0
+      ? '<p style="margin:0;color:var(--text2)">Keine Einwände – die Zuordnung ließe sich ohne Rückfrage speichern.</p>'
+      : '<ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px">'
+        + konflikte.map((k) => `
+            <li style="display:flex;gap:10px;align-items:flex-start;padding:9px 11px;border-radius:var(--r);
+                       background:var(${k.blockierend ? '--rot-f' : '--gelb-f'});
+                       border-left:2px solid var(${k.blockierend ? '--rot' : '--gelb'})">
+              <span class="merker merker-${k.blockierend ? 'hart' : 'weich'}">${k.blockierend ? 'Verbot' : 'Hinweis'}</span>
+              <span style="font-size:13.5px;line-height:1.45">${text(k.text)}</span>
+            </li>`).join('')
+        + '</ul>';
+
+    $('#zpErgebnis').innerHTML = `
+      <div class="karte">
+        <h4>${text(kopf)}</h4>
+        <div class="karte-inhalt">
+          ${liste}
+          <p style="margin:14px 0 0;font-size:13px;color:var(--text2)">
+            ${hart
+              ? 'Mindestens ein Grund blockiert. Die Zuordnung lässt sich nicht speichern – auch nicht mit „trotzdem".'
+              : konflikte.length === 0
+                ? 'Der Server würde ohne Rückfrage speichern.'
+                : 'Alles davon lässt sich ausdrücklich übergehen. Die Zuordnung steht danach im Protokoll.'}
+          </p>
+        </div>
+      </div>`;
+  }
+
+  if ($('#zpErgebnis')) {
+    ['zpName','zpVon','zpBis','zpRolle','zpVortag','zpGesperrt','zpInaktiv','zpBelegt','zpNacht',
+     'zpUrlaub','zpQualFehlt','zpQualAlt','zpSchulung','zpDokument','zpFunktion']
+      .forEach((id) => {
+        const feld = $('#' + id);
+        if (feld) feld.addEventListener('input', zpZeichnen);
+        if (feld) feld.addEventListener('change', zpZeichnen);
+      });
+    zpZeichnen();
+  }
+
+  /* --------------------------------------------- Rollen und Rechte (SecPlan 7/8) */
+  const FELD_NAMEN = {
+    stammdaten: 'Name, Personalnummer, Beschäftigung',
+    einsatzdaten: 'Einsatzzeit, Einsatzort, Qualifikation',
+    kontakt: 'Telefon, dienstliche E-Mail',
+    anschrift: 'Private Anschrift, Geburtsdatum',
+    vertrag: 'Arbeitsvertrag, Stundensatz, Bankdaten',
+    notizen: 'Interne Personalnotizen',
+    gesundheit: 'Gesundheitsdaten (Art. 9 DSGVO)',
+  };
+
+  function rolleZeichnen() {
+    if (!H || !H.ROLES) return;
+    const rolle = $('#rolleWahl').value;
+    const rechte = rolle === 'SUPERADMIN' ? H.ALLE_RECHTE : H.ROLE_PERMISSIONS[rolle];
+    const bereiche = H.navFor(rolle);
+    const bereich = H.scopeOf(rolle);
+    const bereichText = {
+      ALLE: 'alles', EVENT: 'nur eigene Einsätze', PARTNER: 'nur das eigene Unternehmen',
+      KUNDE: 'nur eigene Aufträge', EIGENE: 'nur der eigene Datensatz',
+    }[bereich] || bereich;
+
+    $('#rolleErgebnis').innerHTML = `
+      <p style="margin:0 0 10px;color:var(--text2);font-size:13.5px;max-width:70ch">
+        ${text(H.ROLE_BESCHREIBUNG[rolle])}
+      </p>
+      <p style="margin:0 0 10px;font-size:13px">
+        Sieht: <span class="merker merker-${bereich === 'ALLE' ? 'weich' : 'nein'}">${text(bereichText)}</span>
+        &nbsp;·&nbsp; Rechte: <b>${rolle === 'SUPERADMIN' ? 'alle' : rechte.length}</b> von ${H.ALLE_RECHTE.length}
+      </p>
+      <div class="reihe" style="gap:5px">
+        ${bereiche.map((g) => `<span class="merker merker-nein">${text(g.label)}</span>`).join('')}
+      </div>`;
+  }
+
+  if ($('#rolleWahl')) {
+    $('#rolleWahl').innerHTML = H.ROLES
+      .map((r) => `<option value="${r}">${text(H.ROLE_LABEL[r])}</option>`).join('');
+    $('#rolleWahl').value = 'TEAMLEITUNG';
+    $('#rolleWahl').addEventListener('change', rolleZeichnen);
+    rolleZeichnen();
+
+    // Feldsichtbarkeit je Rolle
+    const felder = Object.keys(FELD_NAMEN);
+    $('#felderTabelle').innerHTML =
+      '<thead><tr><th>Feld einer Person</th>'
+      + H.ROLES.map((r) => `<th style="text-align:center">${text(H.ROLE_LABEL[r])}</th>`).join('')
+      + '</tr></thead><tbody>'
+      + felder.map((feld) => {
+          const zellen = H.ROLES.map((r) => {
+            const sichtbar = H.personenfelder(r)[feld];
+            return `<td style="text-align:center">${sichtbar
+              ? '<span class="merker merker-ja">ja</span>'
+              : '<span style="color:var(--text3)">–</span>'}</td>`;
+          }).join('');
+          return `<tr><td>${text(FELD_NAMEN[feld])}</td>${zellen}</tr>`;
+        }).join('')
+      + '</tbody>';
+
+    // Vollstaendige Rechtematrix
+    const nachBereich = new Map();
+    H.ALLE_RECHTE.forEach((recht) => {
+      const kopf = recht.split('.')[0];
+      if (!nachBereich.has(kopf)) nachBereich.set(kopf, []);
+      nachBereich.get(kopf).push(recht);
+    });
+
+    let zeilen = '';
+    nachBereich.forEach((rechte, bereich) => {
+      zeilen += `<tr><td colspan="${H.ROLES.length + 1}"
+        style="background:var(--tief);font-weight:700;font-size:11px;letter-spacing:.08em;
+               text-transform:uppercase;color:var(--text2)">${text(bereich)}</td></tr>`;
+      rechte.forEach((recht) => {
+        const zellen = H.ROLES.map((r) => `<td style="text-align:center">${H.can(r, recht)
+          ? '<span class="merker merker-ja">ja</span>'
+          : '<span style="color:var(--text3)">–</span>'}</td>`).join('');
+        zeilen += `<tr><td><code style="font-size:12px">${text(recht)}</code></td>${zellen}</tr>`;
+      });
+    });
+
+    $('#rechteTabelle').innerHTML =
+      '<thead><tr><th>Recht</th>'
+      + H.ROLES.map((r) => `<th style="text-align:center;font-size:11px">${text(H.ROLE_LABEL[r])}</th>`).join('')
+      + '</tr></thead><tbody>' + zeilen + '</tbody>';
+  }
+
+  const FARBEN = [
+    ['Dunkelblau', '--akzent', 'Navigation, primäre Schaltfläche, aktiver Zustand'],
+    ['Beige', '--beige', 'Hervorhebung, ausgewählte Zeile, Markierung'],
+    ['Grün', '--gruen', 'bestätigt, besetzt, erledigt'],
+    ['Gelb', '--gelb', 'offen, braucht Aufmerksamkeit'],
+    ['Rot', '--rot', 'Problem, unbesetzt, Fehler'],
+    ['Blau', '--blau', 'Information, Planung'],
+    ['Fläche', '--flaeche', 'Seitenhintergrund'],
+    ['Karte', '--karte', 'Karten und Tabellen'],
+    ['Linie', '--linie', 'Trennung ohne weiteren Kasten'],
+  ];
+  $('#farbSchau').innerHTML = FARBEN.map(([name, variable, zweck]) => `
+    <div style="display:flex;gap:10px;align-items:flex-start">
+      <span style="width:34px;height:34px;border-radius:7px;flex:none;border:1px solid var(--linie);
+                   background:var(${variable})"></span>
+      <span>
+        <b style="font-size:13px">${text(name)}</b>
+        <span style="display:block;color:var(--text2);font-size:12px">${text(zweck)}</span>
+        <code style="font-size:11px;color:var(--text3)">var(${text(variable)})</code>
+      </span>
+    </div>`).join('');
+})();
+</script>
+</body>
+</html>

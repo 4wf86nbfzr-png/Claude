@@ -188,32 +188,60 @@ Diese Punkte müssen erledigt sein. Erst danach die Sperren lösen.
 
 **Technisch**
 
-- [ ] `robots.txt`: oberen Block löschen, unteren einkommentieren.
-- [ ] In allen 14 Seiten den Block `TESTBETRIEB` samt
-      `<meta name="robots" content="noindex, …">` entfernen.
-- [ ] In `netlify.toml` die Zeile `X-Robots-Tag` entfernen.
-- [ ] Domain verbinden, HTTPS-Zertifikat erzeugen lassen.
-- [ ] `sitemap.xml` in der Google Search Console einreichen.
-- [ ] Passwortschutz aufheben.
-
-Suchbefehl für alle drei Sperren auf einmal:
+Die Sperre gegen Suchmaschinen steht an drei Stellen: als `<meta name="robots">`
+in jeder der 14 Seiten, in `robots.txt` und als Header in `netlify.toml`. Von
+Hand sind das sechzehn Änderungen — und genau eine davon vergisst man. Deshalb
+gibt es einen Schalter:
 
 ```bash
-grep -rn "TESTBETRIEB" . --include="*.html" --include="*.toml" --include="*.txt"
+node tools/live-schalter.mjs          # Stand anzeigen
+node tools/live-schalter.mjs live     # Sperren lösen
+node tools/live-schalter.mjs test     # Sperren wieder setzen
 ```
+
+`live` weigert sich, solange in Impressum oder Datenschutzerklärung noch
+`bitte ergänzen` steht, und sagt, welche Abschnitte es sind. Eine Seite ohne
+vollständiges Impressum online zu stellen ist kein Schönheitsfehler, sondern
+abmahnfähig (§ 5 DDG).
+
+Was der Schalter nicht kann und von Hand kommt:
+
+- [ ] Domain verbinden, HTTPS-Zertifikat erzeugen lassen.
+- [ ] `sitemap.xml` in der Google Search Console einreichen.
+- [ ] Passwortschutz der Vorschau aufheben.
+- [ ] Formularbenachrichtigungen setzen: Anfragen → `dispo@hermserviceteam.com`,
+      Bewerbungen → `info@hermserviceteam.com`.
 
 ---
 
 ## Prüfungen
 
-Die Testskripte liegen nicht im Repository; geprüft wurde vor der Übergabe:
+Die Prüfungen liegen im Repository, unter `tools/`. Eine Prüfung, die nur
+einmal vor der Übergabe lief, ist nach der ersten Änderung nichts mehr wert.
+Sie starten einen eigenen Server auf einem freien Port und fahren die Seite in
+echtem Chromium:
 
-- alle Links, Sprungmarken und Dateipfade auf 14 Seiten (841 Links)
-- jeder Link und Knopf hat einen zugänglichen Namen
-- Farbkontraste nach WCAG auf allen Seiten, auch bei geöffnetem Menü
+```bash
+node tools/pruefe-website.mjs         # Links, Bilder, Konsole, Überlauf
+node tools/pruefe-bedienung.mjs       # Formulare, Lightbox, Menü, Bühnen
+node tools/pruefe-zugaenglichkeit.mjs # Namen, Gliederung, Kontraste
+```
+
+Die Website selbst hat keine Abhängigkeiten — das ist Absicht und soll so
+bleiben. Die Prüfungen brauchen Playwright und nehmen es aus
+`hst-planer/node_modules`; dort einmal `npm install` genügt.
+
+Geprüft wird damit:
+
+- alle Links, Sprungmarken und Dateipfade auf 14 Seiten (758 Links), jedes
+  Bild zeigt wirklich etwas
+- jeder Link und Knopf hat einen zugänglichen Namen, jedes Feld eine
+  Beschriftung, die Überschriften überspringen keine Stufe
+- Farbkontraste nach WCAG AA, auf der gerenderten Seite gemessen
 - kein waagerechter Überlauf bei 320, 390, 768, 1280 und 1440 px
 - Formulare: Pflichtfeldprüfung, Fehlermeldungen, Korrekturverhalten,
-  Honigtopf, Übermittlung, Bestätigung — auf Desktop und Smartphone
+  Honigtopf, Zeitprüfung, Empfänger — auf Desktop und Smartphone
+- Lightbox, mobiles Menü samt Escape, Bühnen-Effekt, Top-Knopf
 - keine JavaScript-Fehler, keine fehlenden Dateien
 - `prefers-reduced-motion` und Betrieb ohne JavaScript
 

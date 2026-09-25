@@ -34,8 +34,16 @@
     bar.style.width = (h>0 ? (y/h*100) : 0) + '%';
     toTop.classList.toggle('show', y > window.innerHeight * 0.9);
   }
-  /* Instant jump to top — bypasses the scroll-scrubbed effects entirely */
+  /* Sofort nach oben — die gescrubbten Effekte sollen beim Hochfahren nicht
+     rückwärts ablaufen. `behavior:'instant'` schlägt das `scroll-behavior:smooth`
+     aus dem Stylesheet sicher; das kurzzeitige Umstellen der Inline-Eigenschaft
+     tat das nicht (Chromium nimmt für den Viewport weiter den alten Wert und
+     scrollte weich). Ältere Browser ohne 'instant' bekommen den alten Weg. */
   toTop.addEventListener('click', ()=>{
+    try{
+      window.scrollTo({ top:0, left:0, behavior:'instant' });
+      if(window.scrollY === 0) return;
+    }catch(e){ /* Browser kennt das Objekt-Argument nicht */ }
     const html = document.documentElement;
     const prev = html.style.scrollBehavior;
     html.style.scrollBehavior = 'auto';
@@ -54,6 +62,15 @@
     document.body.classList.remove('menu-open','locked');
     burger.setAttribute('aria-expanded', false);
   }));
+  /* Escape schließt das Menü und gibt den Fokus an den Schalter zurück — wer
+     es mit der Tastatur geöffnet hat, kommt sonst nur per Tab-Reise wieder
+     heraus. Gleiches Verhalten wie in der Lightbox. */
+  document.addEventListener('keydown', (ev)=>{
+    if(ev.key !== 'Escape' || !document.body.classList.contains('menu-open')) return;
+    document.body.classList.remove('menu-open','locked');
+    burger.setAttribute('aria-expanded', false);
+    burger.focus();
+  });
 
   /* Eintritte beim Scrollen. Gruppen mit data-stagger bekommen pro Kind einen
      Index, damit sie nacheinander statt gleichzeitig erscheinen — das gibt dem

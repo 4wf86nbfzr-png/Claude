@@ -11,14 +11,32 @@
 # Adresse kennt, kann sie allerdings öffnen — für echten
 # Zugriffsschutz siehe README.md.
 #
-# Läuft bei jedem Push auf den Branch und lässt sich unter
-# "Actions" auch von Hand starten.
+# Läuft bei jedem Push auf main und lässt sich unter "Actions"
+# auch von Hand starten.
+#
+# Warum main und nicht der Arbeitsbranch: Die Umgebung
+# "github-pages" dieses Repositories lässt nur bestimmte Branches
+# veröffentlichen. Ein Push von einem Arbeitsbranch endet sonst mit
+#   Branch "…" is not allowed to deploy to github-pages
+#   due to environment protection rules.
+# Wer die Vorschau schon vor dem Zusammenführen sehen will, trägt
+# den Branch unter Settings → Environments → github-pages →
+# "Deployment branches and tags" ein.
+#
+# Die Aktionen sind auf einen Commit festgenagelt statt auf ein
+# Versionsschild wie @v4. Das verlangt die Einstellung dieses
+# Repositories ("all actions must be pinned to a full-length
+# commit SHA") — und es ist ohnehin der sichere Weg: ein Schild
+# lässt sich verschieben, ein Commit nicht. Wer aktualisiert,
+# holt sich den neuen Commit mit
+#   git ls-remote --tags https://github.com/actions/checkout
+# und zieht den Kommentar dahinter nach.
 # ============================================================
 name: Interne Vorschau
 
 on:
   push:
-    branches: [claude/entpacken-demo-oeffnen-29f7th]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -40,29 +58,41 @@ jobs:
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - name: Quellstand holen
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       - name: Pages einrichten
         # enablement schaltet Pages beim ersten Lauf selbst frei,
         # damit niemand es in den Einstellungen suchen muss.
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5.0.0
         with:
           enablement: true
 
-      - name: Jekyll abschalten
-        # Ohne diese Datei würde GitHub Ordner mit Unterstrich
-        # verschlucken. Das Projekt hat keine, aber die Datei
-        # kostet nichts und verhindert Überraschungen.
-        run: touch .nojekyll
+      - name: Nur die Website einsammeln
+        # Vorher ging das ganze Repository hoch — mit dem kompletten
+        # Quellcode des Planers. Der gehört nicht auf eine Seite, die
+        # jeder öffnen kann, der die Adresse kennt, und er hat mit der
+        # Vorschau der Website nichts zu tun. Also nur das, was zur
+        # Website gehört.
+        #
+        # .nojekyll muss mit: ohne diese Datei verschluckt GitHub
+        # Ordner mit Unterstrich.
+        run: |
+          set -euo pipefail
+          mkdir -p _vorschau
+          cp -r assets dienstleistungen _vorschau/
+          cp ./*.html robots.txt sitemap.xml _vorschau/
+          touch _vorschau/.nojekyll
+          echo "Für die Vorschau gepackt:"
+          find _vorschau -type f | wc -l
 
       - name: Seite packen
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
         with:
-          path: .
+          path: _vorschau
 
       - name: Veröffentlichen
         id: deploy
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
 
       - name: Adresse ausgeben
         run: echo "Vorschau liegt unter ${{ steps.deploy.outputs.page_url }}"

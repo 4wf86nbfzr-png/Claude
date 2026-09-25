@@ -1,0 +1,548 @@
+<header class="kopf">
+  <div class="kopf-inhalt">
+    <span class="logo">HST</span>
+    <div style="flex:1;min-width:0">
+      <h1>HST Planer</h1>
+      <p>Disposition &amp; Einsatzsteuerung — Demo zum Ansehen und Ausprobieren</p>
+    </div>
+    <button class="knopf knopf-klein" id="themaKnopf" type="button">Dunkle Ansicht</button>
+  </div>
+  <nav class="reiter" role="tablist" aria-label="Bereiche">
+    <button role="tab" aria-selected="true"  data-ziel="start">Worum es geht</button>
+    <button role="tab" aria-selected="false" data-ziel="bilder">Die Anwendung in Bildern</button>
+    <button role="tab" aria-selected="false" data-ziel="zeit">Zeitrechner</button>
+    <button role="tab" aria-selected="false" data-ziel="namen">Namensabgleich</button>
+    <button role="tab" aria-selected="false" data-ziel="mail">E-Mail-Parser</button>
+    <button role="tab" aria-selected="false" data-ziel="abgleich">Abgleich</button>
+    <button role="tab" aria-selected="false" data-ziel="zuordnung">Zuordnungsprüfung</button>
+    <button role="tab" aria-selected="false" data-ziel="rechte">Rollen &amp; Rechte</button>
+    <button role="tab" aria-selected="false" data-ziel="design">Gestaltung</button>
+    <button role="tab" aria-selected="false" data-ziel="starten">Selbst starten</button>
+  </nav>
+</header>
+
+<main>
+
+<!-- ================================================== Worum es geht -->
+<section id="start">
+  <h2>Was Sie hier vor sich haben</h2>
+  <p class="vorspann">
+    Der HST Planer ist die Dispositionsplattform für das HERM Service Team: von der eingehenden
+    Anfrage über die Personalplanung bis zum Abgleich der tatsächlich geleisteten Zeiten.
+    Diese Datei zeigt ihn zweifach — in <strong>Bildschirmfotos der laufenden Anwendung</strong>
+    und zum <strong>Selbst-Ausprobieren der Rechenkerne</strong>.
+  </p>
+
+  <div class="hinweis hinweis-info">
+    <strong>Wichtig:</strong> Die Werkzeuge auf den Reitern „Zeitrechner“, „Namensabgleich“,
+    „E-Mail-Parser“, „Abgleich“, „Zuordnungsprüfung“ und „Rollen &amp; Rechte“ sind keine
+    Nachbauten. Sie führen denselben Code aus, den auch der Server benutzt — gebündelt aus
+    <code>src/lib/</code>. Was hier herauskommt, kommt dort genauso heraus.
+  </div>
+
+  <div class="raster">
+    <div class="karte"><div class="karte-inhalt">
+      <b>Menüleiste oben</b>
+      <p style="margin:6px 0 0;color:var(--text2);font-size:14px">
+        Neun Bereiche waagerecht, jeder mit seinen Unterpunkten. Sie bleibt beim Scrollen
+        stehen — in einer Disposition wird viel gescrollt, und der Weg in einen anderen
+        Bereich soll nicht erst das Zurückscrollen kosten.
+      </p>
+    </div></div>
+    <div class="karte"><div class="karte-inhalt">
+      <b>Leitstelle</b>
+      <p style="margin:6px 0 0;color:var(--text2);font-size:14px">
+        Der Tag als Zeitachse: links die Kräfte mit Zustand und Qualifikation, rechts der
+        Einsatzplan. Ein Name wird auf eine Schicht gezogen, geprüft wird beim Ablegen.
+      </p>
+    </div></div>
+    <div class="karte"><div class="karte-inhalt">
+      <b>Rollen &amp; Rechte</b>
+      <p style="margin:6px 0 0;color:var(--text2);font-size:14px">
+        Neun Rollen, Standard DENY ALL. Eine Teamleitung sieht zum eigenen Einsatz Name,
+        Funktion, Zeit, Ort und Qualifikation — Vertrag und Anschrift werden für sie gar
+        nicht erst geladen.
+      </p>
+    </div></div>
+    <div class="karte"><div class="karte-inhalt">
+      <b>HST Compliance</b>
+      <p style="margin:6px 0 0;color:var(--text2);font-size:14px">
+        Verarbeitungsverzeichnis, TOM, Auftragsverarbeiter, Löschkonzept, Betroffenenanfragen,
+        Vorfälle, DSFA und ein Sicherheitscheck — ohne Erfüllungsquote und ohne die Behauptung,
+        DSGVO-konform zu sein.
+      </p>
+    </div></div>
+    <div class="karte"><div class="karte-inhalt">
+      <b>Abgleich</b>
+      <p style="margin:6px 0 0;color:var(--text2);font-size:14px">
+        Stundenzettel als Excel oder CSV einlesen, Mitarbeiter zuordnen, jede Abweichung zeigen,
+        von Hand korrigieren und beim Abschluss in die Zeiterfassung übernehmen.
+      </p>
+    </div></div>
+    <div class="karte"><div class="karte-inhalt">
+      <b>Anfragen</b>
+      <p style="margin:6px 0 0;color:var(--text2);font-size:14px">
+        Website-Formular, E-Mail-Parser und telefonische Erfassung. Eine eingehende Anfrage ist
+        nie eine Buchung, sondern immer ein Vorgang zur Prüfung.
+      </p>
+    </div></div>
+    <div class="karte"><div class="karte-inhalt">
+      <b>Mitarbeiter-App</b>
+      <p style="margin:6px 0 0;color:var(--text2);font-size:14px">
+        Mobile Ansicht: heutige Einsätze, annehmen oder ablehnen, Verfügbarkeit melden,
+        Nachweise hochladen, Nachricht an die Disposition.
+      </p>
+    </div></div>
+  </div>
+
+  <h3>Was hier nicht geht</h3>
+  <p style="color:var(--text2);max-width:72ch">
+    Anmeldung, Datenbank, Datei-Uploads, E-Mail-Versand und der zweite Faktor lassen sich in
+    einer einzelnen HTML-Datei nicht ehrlich zeigen — sie brauchen den Server. Der zweite
+    Faktor rechnet zudem mit Funktionen, die es im Browser nicht gibt; er ist gegen die
+    Prüfwerte aus Anhang B des RFC 6238 getestet. Wie Sie den Server in wenigen Minuten
+    starten, steht unter <a href="#" data-sprung="starten">Selbst starten</a>.
+  </p>
+
+  <h3>Was dieses System nicht behauptet</h3>
+  <p style="color:var(--text2);max-width:72ch">
+    Es behauptet nicht, DSGVO-konform zu sein. Es unterscheidet zwischen
+    <em>technisch umgesetzt</em> — das lässt sich feststellen — und <em>rechtlich geprüft</em> —
+    das kann nur ein Mensch. Es trägt keine Rechtsgrundlage von sich aus ein, und es bewertet
+    nicht, ob ein Datenschutzvorfall meldepflichtig ist. Eine Erfüllungsquote gibt es nicht:
+    „98 % DSGVO-konform“ wäre eine Zahl ohne Gegenstand.
+  </p>
+
+  <h3>Zahlen zum Stand</h3>
+  <div class="raster" id="kennzahlen"></div>
+</section>
+
+<!-- ================================================== Bilder -->
+<section id="bilder" hidden>
+  <h2>Die Anwendung in Bildern</h2>
+  <p class="vorspann">
+    Alle Aufnahmen stammen aus der laufenden Anwendung mit den Testdaten aus
+    <code>npm run seed</code> — keine Entwürfe. Ein Klick vergrößert.
+  </p>
+  <div class="reihe" style="margin-bottom:18px">
+    <button class="knopf knopf-klein" data-gruppe="alle" aria-pressed="true">Alle</button>
+    <button class="knopf knopf-klein" data-gruppe="desktop">Arbeitsplatz</button>
+    <button class="knopf knopf-klein" data-gruppe="handy">Mitarbeiter-App</button>
+    <button class="knopf knopf-klein" data-gruppe="dunkel">Dunkelmodus</button>
+  </div>
+  <div class="galerie" id="galerie"></div>
+</section>
+
+<!-- ================================================== Zeitrechner -->
+<section id="zeit" hidden>
+  <h2>Zeitrechner</h2>
+  <p class="vorspann">
+    Einsätze laufen regelmäßig über Mitternacht. 18:00 bis 02:00 sind acht Stunden — nicht
+    minus sechzehn. Genau daran scheitern Tabellen in der Praxis, deshalb rechnet der Planer
+    in Minuten ab Schichtbeginn. Probieren Sie es aus.
+  </p>
+
+  <div class="karte">
+    <h4>Dauer einer Schicht</h4>
+    <div class="karte-inhalt">
+      <div class="reihe">
+        <label class="feld">Beginn<input id="zBeginn" value="18:00" size="8"></label>
+        <label class="feld">Ende<input id="zEnde" value="02:00" size="8"></label>
+        <label class="feld">Pause (Min)<input id="zPause" type="number" value="30" min="0" max="600" style="width:100px"></label>
+        <button class="knopf knopf-primaer" id="zRechnen" type="button">Rechnen</button>
+      </div>
+      <div class="ergebnis" id="zErgebnis"></div>
+      <p style="color:var(--text3);font-size:13px;margin:12px 0 0">
+        Der Leser versteht auch <code>17.00</code>, <code>1700</code>, <code>17</code>,
+        <code>17:00 Uhr</code> und Excel-Uhrzeiten als Tagesbruchteil (<code>0,75</code> = 18:00).
+      </p>
+    </div>
+  </div>
+
+  <div class="karte">
+    <h4>Abweichung zwischen Soll und Ist</h4>
+    <div class="karte-inhalt">
+      <div class="reihe">
+        <label class="feld">Geplant<input id="dSoll" value="23:55" size="8"></label>
+        <label class="feld">Tatsächlich<input id="dIst" value="00:10" size="8"></label>
+        <button class="knopf" id="dRechnen" type="button">Vergleichen</button>
+      </div>
+      <div class="ergebnis" id="dErgebnis"></div>
+      <p style="color:var(--text3);font-size:13px;margin:12px 0 0">
+        Die Differenz bleibt im Fenster von zwölf Stunden. „Geplant 23:55, gekommen 00:10“ sind
+        15 Minuten zu spät — nicht 23 Stunden zu früh.
+      </p>
+    </div>
+  </div>
+
+  <div class="karte">
+    <h4>Deutsche Datumsangaben</h4>
+    <div class="karte-inhalt">
+      <div class="reihe">
+        <label class="feld" style="flex:1;min-width:200px">Eingabe
+          <input id="datEin" value="15.10." placeholder="15.10.2026, 15. Oktober, 2026-10-15, 46310">
+        </label>
+        <button class="knopf" id="datRechnen" type="button">Lesen</button>
+      </div>
+      <div class="ergebnis" id="datErgebnis"></div>
+      <p style="color:var(--text3);font-size:13px;margin:12px 0 0">
+        Ohne Jahresangabe wird das nächste Vorkommen genommen — so, wie es in einer E-Mail
+        gemeint ist. Zahlen über 20000 gelten als Excel-Seriennummer.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================== Namen -->
+<section id="namen" hidden>
+  <h2>Namensabgleich</h2>
+  <p class="vorspann">
+    In Partner-Stundenzetteln steht mal „Max Mustermann“, mal „Mustermann, Max“, mal
+    „MUSTERMANN  Max“ — und gelegentlich ein Tippfehler. Der Planer ordnet zu, ohne zu raten:
+    ab einer Trefferquote von 92 % automatisch, aber nur, wenn kein zweiter Kandidat fast
+    gleich gut passt.
+  </p>
+
+  <div class="karte">
+    <h4>Zwei Namen vergleichen</h4>
+    <div class="karte-inhalt">
+      <div class="reihe">
+        <label class="feld" style="flex:1;min-width:180px">Aus der Planung<input id="nA" value="Max Mustermann"></label>
+        <label class="feld" style="flex:1;min-width:180px">Aus der Datei<input id="nB" value="Mustermann, Max"></label>
+        <button class="knopf knopf-primaer" id="nRechnen" type="button">Vergleichen</button>
+      </div>
+      <div class="ergebnis" id="nErgebnis"></div>
+    </div>
+  </div>
+
+  <div class="karte">
+    <h4>In einer Mitarbeiterliste suchen</h4>
+    <div class="karte-inhalt">
+      <div class="reihe">
+        <label class="feld" style="flex:1;min-width:220px">Name aus dem Stundenzettel
+          <input id="sName" value="Max Mustremann">
+        </label>
+        <button class="knopf knopf-primaer" id="sSuchen" type="button">Zuordnen</button>
+      </div>
+      <p style="color:var(--text3);font-size:13px;margin:10px 0 0">
+        Gesucht wird in den zehn Mitarbeitern aus den Testdaten. Versuchen Sie auch
+        <code>Moeller Jan</code>, <code>HST-0003</code>, <code>Yilmaz</code> oder
+        einen Namen, den es nicht gibt.
+      </p>
+      <div id="sErgebnis"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================== E-Mail -->
+<section id="mail" hidden>
+  <h2>E-Mail-Parser</h2>
+  <p class="vorspann">
+    Geht eine Personalanfrage an <code>info@hermserviceteam.com</code>, liest der Planer sie
+    aus. Er arbeitet konservativ: Was nicht sicher erkannt wird, bleibt leer und erscheint als
+    fehlende Angabe — geraten wird nicht.
+  </p>
+  <div class="reihe" style="margin-bottom:14px">
+    <button class="knopf knopf-klein" data-beispiel="freitext">Freitext-Anfrage</button>
+    <button class="knopf knopf-klein" data-beispiel="formular">Formular-Mail</button>
+    <button class="knopf knopf-klein" data-beispiel="knapp">Unvollständige Anfrage</button>
+    <button class="knopf knopf-klein" data-beispiel="werbung">Werbung (keine Anfrage)</button>
+  </div>
+
+  <div class="karte">
+    <h4>Text der E-Mail</h4>
+    <div class="karte-inhalt">
+      <label class="feld" style="margin-bottom:10px">Betreff<input id="mBetreff" value="Anfrage: Firmenjubiläum"></label>
+      <label class="feld">Nachricht
+        <textarea id="mText" rows="10"></textarea>
+      </label>
+      <div class="reihe" style="margin-top:12px">
+        <button class="knopf knopf-primaer" id="mLesen" type="button">Auswerten</button>
+        <span style="color:var(--text3);font-size:13px">Absender: brand@nordlicht-events.de</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="mErgebnis"></div>
+</section>
+
+<!-- ================================================== Abgleich -->
+<section id="abgleich" hidden>
+  <h2>Abgleich: Planung gegen Ist-Zeiten</h2>
+  <p class="vorspann">
+    Die wichtigste Funktion. Links steht die Planung, rechts der Stundenzettel, wie ihn ein
+    Partner liefert — mit gedrehtem Namen, Tippfehler, Zeitabweichung, unbekannter Person und
+    einer Dublette. Ändern Sie die Tabelle und rechnen Sie neu.
+  </p>
+
+  <div class="karte">
+    <h4>Geplant (aus der Disposition)</h4>
+    <div class="streifen"><table id="planTabelle"></table></div>
+  </div>
+
+  <div class="karte">
+    <h4>Stundenzettel (CSV — hier bearbeitbar)</h4>
+    <div class="karte-inhalt">
+      <textarea id="csvText" rows="9" style="width:100%"></textarea>
+      <div class="reihe" style="margin-top:12px">
+        <button class="knopf knopf-primaer" id="abRechnen" type="button">Abgleich starten</button>
+        <label class="feld">Zeittoleranz (Min)<input id="abToleranz" type="number" value="15" min="0" max="240" style="width:90px"></label>
+        <button class="knopf knopf-klein" id="abZuruecksetzen" type="button">Beispiel zurücksetzen</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="abErgebnis"></div>
+</section>
+
+<!-- ================================================== Zuordnungspruefung -->
+<section id="zuordnung" hidden>
+  <h2>Zuordnungsprüfung</h2>
+  <p class="vorspann">
+    Wenn in der Leitstelle ein Name auf eine Schicht gezogen wird, läuft genau dieser Code.
+    Er prüft Qualifikation, Verfügbarkeit, Überschneidung, Schulung, Unterlagen, Ablaufdaten,
+    die Funktion und die Ruhezeit nach § 5 ArbZG. Stellen Sie die Lage ein und sehen Sie,
+    was herauskommt.
+  </p>
+
+  <div class="hinweis hinweis-info">
+    Blockierende Gründe lassen sich nicht übergehen. Hinweise schon — aber nur ausdrücklich,
+    und die Zuordnung steht danach im Protokoll.
+  </div>
+
+  <div class="karte">
+    <div class="karte-inhalt">
+      <div class="raster">
+        <label class="feld">Name<input id="zpName" value="Lena Bergmann"></label>
+        <label class="feld">Neue Schicht von<input id="zpVon" value="20:00"></label>
+        <label class="feld">bis<input id="zpBis" value="02:00"></label>
+        <label class="feld">Funktion<input id="zpRolle" value="Ordnungsdienst"></label>
+      </div>
+
+      <h4 style="margin-top:18px">Lage</h4>
+      <div class="raster">
+        <label class="feld feld-schalter"><input type="checkbox" id="zpGesperrt"> Sperrvermerk</label>
+        <label class="feld feld-schalter"><input type="checkbox" id="zpInaktiv"> nicht mehr aktiv</label>
+        <label class="feld feld-schalter"><input type="checkbox" id="zpBelegt" checked> bereits eingeplant 18:00–23:00</label>
+        <label class="feld feld-schalter"><input type="checkbox" id="zpNacht"> Nachtschicht Vortag bis 06:00</label>
+        <label class="feld feld-schalter"><input type="checkbox" id="zpUrlaub"> im Urlaub</label>
+        <label class="feld feld-schalter"><input type="checkbox" id="zpQualFehlt" checked> Sachkunde § 34a fehlt</label>
+        <label class="feld feld-schalter"><input type="checkbox" id="zpQualAlt"> Erste Hilfe abgelaufen</label>
+        <label class="feld feld-schalter"><input type="checkbox" id="zpSchulung"> Pflichtunterweisung fehlt</label>
+        <label class="feld feld-schalter"><input type="checkbox" id="zpDokument"> Führungszeugnis abgelaufen</label>
+        <label class="feld feld-schalter"><input type="checkbox" id="zpFunktion"> für die Funktion nicht freigegeben</label>
+        <label class="feld">Vortag endete um<input id="zpVortag" value="" placeholder="z. B. 23:00" style="width:120px"></label>
+      </div>
+    </div>
+  </div>
+
+  <div id="zpErgebnis"></div>
+</section>
+
+<!-- ================================================== Rollen und Rechte -->
+<section id="rechte" hidden>
+  <h2>Rollen &amp; Rechte</h2>
+  <p class="vorspann">
+    Neun Rollen, Standard DENY ALL. Diese Tabelle wird aus derselben Quelle erzeugt, die im
+    laufenden System die Prüfung macht — sie kann deshalb nicht davon abweichen.
+  </p>
+
+  <div class="hinweis hinweis-warn">
+    <strong>Was eine Teamleitung nicht sieht:</strong> Bankdaten, vollständige Personalakte,
+    private Anschrift, Arbeitsvertrag, Gesundheitsdaten, interne Personalnotizen. Diese Felder
+    werden für die Rolle gar nicht erst aus der Datenbank geladen.
+  </div>
+
+  <div class="karte">
+    <h4>Eine Rolle ansehen</h4>
+    <div class="karte-inhalt">
+      <label class="feld">Rolle<select id="rolleWahl"></select></label>
+      <div id="rolleErgebnis" style="margin-top:14px"></div>
+    </div>
+  </div>
+
+  <div class="karte">
+    <h4>Welche Felder einer Person sieht diese Rolle?</h4>
+    <div class="streifen"><table id="felderTabelle"></table></div>
+  </div>
+
+  <div class="karte">
+    <h4>Vollständige Rechtematrix</h4>
+    <div class="streifen"><table id="rechteTabelle"></table></div>
+  </div>
+</section>
+
+<!-- ================================================== Gestaltung -->
+<section id="design" hidden>
+  <h2>Gestaltung</h2>
+  <p class="vorspann">
+    Eine Dispositionsoberfläche lebt von Dichte und Ruhe, nicht von Farbe. Fläche und Schrift
+    sind neutral, Farbe trägt ausschließlich Bedeutung. Der Akzent ist das Violett aus dem
+    HST-Logo und erscheint sparsam: aktive Navigation, primäre Schaltfläche, Fokusring.
+  </p>
+
+  <div class="karte">
+    <h4>Statusfarben</h4>
+    <div class="karte-inhalt">
+      <p style="margin:0 0 14px;color:var(--text2);font-size:14px">
+        Grün = bestätigt, besetzt, erledigt · Gelb = offen, braucht Aufmerksamkeit ·
+        Rot = Problem, unbesetzt, Fehler · Blau = Information, Planung
+      </p>
+      <div id="statusSchau" class="reihe" style="gap:8px"></div>
+    </div>
+  </div>
+
+  <div class="karte">
+    <h4>Zeilen im Abgleich</h4>
+    <div class="karte-inhalt">
+      <p style="margin:0 0 12px;color:var(--text2);font-size:14px">
+        Der farbige Balken links ersetzt einen weiteren Kasten — so bleibt die Tabelle dicht
+        und trotzdem lesbar.
+      </p>
+      <table>
+        <tr class="zeile-gruen"><td>Identisch</td><td class="zahl">17:00–01:00</td><td class="zahl">17:00–01:00</td><td class="zahl">0 Min</td></tr>
+        <tr class="zeile-gelb"><td>Abweichung</td><td class="zahl">17:00–01:00</td><td class="zahl">17:05–01:30</td><td class="zahl">+25 Min</td></tr>
+        <tr class="zeile-rot"><td>Unbekannt</td><td class="zahl">–</td><td class="zahl">17:00–01:00</td><td class="zahl">–</td></tr>
+        <tr class="zeile-blau"><td>Manuell geprüft</td><td class="zahl">17:00–01:00</td><td class="zahl">17:05–01:30</td><td class="zahl">+25 Min</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="karte">
+    <h4>Farbwerte</h4>
+    <div class="karte-inhalt"><div class="raster" id="farbSchau"></div></div>
+  </div>
+
+  <div class="karte">
+    <h4>Bausteine</h4>
+    <div class="karte-inhalt">
+      <div class="reihe" style="margin-bottom:14px">
+        <button class="knopf knopf-primaer" type="button">Primäre Aktion</button>
+        <button class="knopf" type="button">Sekundär</button>
+        <button class="knopf knopf-klein" type="button">Klein</button>
+      </div>
+      <div class="raster">
+        <label class="feld">Textfeld<input value="Nordstadion"></label>
+        <label class="feld">Auswahl<select><option>Sicherheit &amp; Ordnungsdienst</option><option>Gastro- &amp; Servicepersonal</option></select></label>
+        <label class="feld">Uhrzeit<input type="time" value="17:00"></label>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================== Starten -->
+<section id="starten" hidden>
+  <h2>Die vollständige Anwendung selbst starten</h2>
+  <p class="vorspann">
+    Für Anmeldung, Rollen, Datenbank, Uploads und E-Mail brauchen Sie den Server. Mit den
+    Testdaten ist er in wenigen Minuten einsatzbereit.
+  </p>
+
+  <div class="schritte">
+    <div class="schritt"><div>
+      <b>Voraussetzungen</b><br>
+      <span style="color:var(--text2)">Node.js 20 oder neuer und PostgreSQL 14 oder neuer. Sonst nichts.</span>
+    </div></div>
+    <div class="schritt"><div>
+      <b>Einrichten</b>
+      <pre class="block">cd hst-planer
+npm install
+cp .env.example .env
+# In der .env DATABASE_URL setzen und ein Geheimnis erzeugen:
+#   openssl rand -base64 48   →  AUTH_SECRET</pre>
+    </div></div>
+    <div class="schritt"><div>
+      <b>Datenbank und Testdaten</b>
+      <pre class="block">npx prisma migrate deploy
+npm run seed</pre>
+    </div></div>
+    <div class="schritt"><div>
+      <b>Starten</b>
+      <pre class="block">npm run dev        # http://localhost:3000</pre>
+    </div></div>
+  </div>
+
+  <div class="karte">
+    <h4>Zugänge aus den Testdaten</h4>
+    <div class="karte-inhalt">
+      <p style="margin:0 0 12px;color:var(--text2);font-size:14px">
+        Passwort für alle: <code>Hafencity!2026</code>. Jede Rolle zeigt eine andere Oberfläche —
+        das ist der schnellste Weg, die Rollentrennung zu prüfen.
+      </p>
+      <div class="streifen"><table>
+        <thead><tr><th>Rolle</th><th>Anmeldung</th><th>Sieht</th></tr></thead>
+        <tbody>
+          <tr><td>Administration</td><td><code>admin@hermserviceteam.com</code></td><td>alles, inkl. Benutzer und Schnittstellen</td></tr>
+          <tr><td>Geschäftsführung</td><td><code>gf@hermserviceteam.com</code></td><td>wie Disposition, zusätzlich Finanzen und Protokoll</td></tr>
+          <tr><td>Disposition</td><td><code>dispo@hermserviceteam.com</code></td><td>Events, Personal, Kunden, Abgleiche</td></tr>
+          <tr><td>Einsatzleitung</td><td><code>einsatzleitung@hermserviceteam.com</code></td><td>eigene Events, Zeiten erfassen</td></tr>
+          <tr><td>Teamleitung</td><td><code>teamleitung@hermserviceteam.com</code></td><td>eigene Events, lesend</td></tr>
+          <tr><td>Mitarbeiter</td><td><code>max.mustermann@example.org</code></td><td>nur eigene Einsätze</td></tr>
+          <tr><td>Partner</td><td><code>partner@elbwacht-demo.de</code></td><td>Events mit eigenen Kräften</td></tr>
+          <tr><td>Kunde</td><td><code>kunde@hafenlicht-demo.de</code></td><td>eigene Aufträge</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <div class="karte">
+    <h4>Was Sie als Erstes ausprobieren sollten</h4>
+    <div class="karte-inhalt">
+      <ol class="liste">
+        <li><b>Abgleich durchspielen.</b> <em>Abgleiche → Datei hochladen</em>, dann
+          <code>beispiele/stundenzettel-beispiel.xlsx</code> wählen. Die Datei enthält absichtlich
+          einen gedrehten Namen, einen Tippfehler, eine Zeitabweichung, eine unbekannte Person und
+          eine Dublette. Spalten bestätigen, Abgleich starten, die roten Zeilen von Hand klären,
+          abschließen — die Zeiten stehen danach in der Zeiterfassung.</li>
+        <li><b>Lücke schließen.</b> <em>Disposition</em> öffnen, bei einer Position auf
+          „Personal suchen“ klicken. Der Planer sortiert nach Eignung und warnt bei Urlaub,
+          Überschneidung oder fehlendem Nachweis — blockiert aber nur, wo es fachlich nötig ist.</li>
+        <li><b>Rollen prüfen.</b> Als <code>max.mustermann@example.org</code> anmelden. Die
+          Navigation schrumpft auf den eigenen Bereich, und <code>/events</code> leitet auf einen
+          verständlichen Hinweis um statt auf eine Fehlerseite.</li>
+        <li><b>Anfrage übernehmen.</b> <em>Anfragen</em> öffnen, eine Anfrage in ein Event
+          überführen — Position und Personalbedarf werden gleich mit angelegt.</li>
+        <li><b>Einsatzplan drucken.</b> Auf einer Event-Seite „Einsatzplan“ öffnen und drucken.
+          Interne Notizen stehen bewusst nicht darauf.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="karte">
+    <h4>Prüfen ohne Klicken</h4>
+    <div class="karte-inhalt">
+      <pre class="block">npm test                  # 148 Tests, davon mehrere gegen eine echte Datenbank
+npm run typecheck         # TypeScript
+npm run lint              # Linter
+npm run build             # Produktionsbau
+
+# Alle Hauptseiten in einer Rolle abrufen:
+bash scripts/server-start.sh 3100
+npx tsx scripts/pruefe-seiten.ts http://localhost:3100 dispo@hermserviceteam.com</pre>
+      <p style="margin:0;color:var(--text2);font-size:14px">
+        Der letzte Aufruf meldet für Mitarbeiter, Partner und Kunden bewusst „Rollengrenze“ statt
+        „Fehler“ — dass diese Seiten gesperrt sind, ist das erwartete Ergebnis.
+      </p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<dialog class="lupe" id="lupe">
+  <form method="dialog" style="margin:0">
+    <button type="submit" style="all:unset;cursor:zoom-out;display:block">
+      <img id="lupeBild" alt="">
+    </button>
+    <p id="lupeText"></p>
+  </form>
+</dialog>
+
+<footer>
+  <div style="max-width:1180px;margin:0 auto;padding:0 20px">
+    HERM Service Team e.K. · HST Planer · Diese Datei ist eine Vorschau für interne Zwecke.
+    Die Testdaten sind frei erfunden.
+  </div>
+</footer>
+
+<script src="hst-logik.js"></script>
