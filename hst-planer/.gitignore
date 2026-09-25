@@ -12,3 +12,9 @@ beispiele/
 *.tsbuildinfo
 next-env.d.ts
 coverage/
+
+# Die eigenständige Demo-Fassung (rund 5 MB) entsteht aus Dateien, die
+# ohnehin im Repo liegen: `npm run demo:einzeldatei`. Sie mitzuführen
+# hiesse, bei jedem Neubau einen weiteren 5-MB-Blob in die Historie zu
+# legen – und die wird man nicht wieder los.
+demo/hst-planer-demo.html

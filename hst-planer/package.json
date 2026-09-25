@@ -22,7 +22,9 @@
     "demo:bilder": "tsx --tsconfig scripts/tsconfig.json scripts/demo-bilder.ts",
     "demo:verkleinern": "tsx scripts/demo-bilder-verkleinern.ts",
     "demo:logik": "tsx scripts/demo-bauen.ts",
-    "demo:seite": "tsx scripts/demo-zusammenbauen.ts"
+    "demo:seite": "tsx scripts/demo-zusammenbauen.ts",
+    "demo:einzeldatei": "tsx scripts/demo-einzeldatei.ts",
+    "demo:pruefen": "tsx --tsconfig scripts/tsconfig.json scripts/pruefe-einzeldatei.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

@@ -822,9 +822,24 @@ Im Ordner `demo/` liegt eine eigenständige HTML-Datei, die sich per Doppelklick
 ohne Server, ohne Datenbank, ohne Internet:
 
 ```
-demo/index.html        im Browser öffnen
-demo/bilder/           62 Bildschirmfotos aus der laufenden Anwendung
-demo/hst-logik.js      gebündelte Fachlogik aus src/lib
+demo/hst-planer-demo.html   EINE Datei – alles eingebettet, zum Doppelklicken
+demo/index.html             dieselbe Seite, aber mit dem Ordner daneben
+demo/bilder/                62 Bildschirmfotos aus der laufenden Anwendung
+demo/hst-logik.js           gebündelte Fachlogik aus src/lib
+```
+
+**Zum Weitergeben ist `hst-planer-demo.html` gedacht.** Darin stecken das Skript und
+alle Bilder (als WebP-Datenadressen); sie braucht nichts daneben und läuft ohne Server,
+ohne Internet, ohne Datenbank. Rund 5 MB. `index.html` ist die gleiche Seite für die
+Entwicklung – sie lädt Bilder und Skript aus dem Ordner und ist deshalb schneller neu
+gebaut, aber allein heruntergeladen unbrauchbar.
+
+Die eigenständige Fassung liegt **nicht** im Repo: sie entsteht aus Dateien, die ohnehin
+darin sind, und jeder Neubau legte sonst einen weiteren 5-MB-Blob in die Historie. Ein
+Befehl genügt:
+
+```bash
+npm run demo:einzeldatei     # → demo/hst-planer-demo.html
 ```
 
 Sie zeigt die Anwendung in Bildern und lässt sechs Rechenkerne im Browser mitlaufen:
@@ -847,9 +862,12 @@ npm run demo:bilder                           # 62 Aufnahmen über neun Rollen
 npm run demo:verkleinern                      # spart rund zwei Drittel Speicher
 npm run demo:logik                            # bündelt die Fachlogik neu
 npm run demo:seite                            # setzt demo/index.html zusammen
+npm run demo:einzeldatei                      # baut die eigenständige Fassung
 
-# Danach einmal in einem echten Browser nachsehen:
-npx tsx --tsconfig scripts/tsconfig.json scripts/demo-pruefen.ts
+# Danach einmal in einem echten Browser nachsehen. Die Prüfung kopiert die
+# Datei vorher in einen leeren Ordner – läge sie neben demo/bilder/, fiele
+# ein vergessener Verweis nicht auf:
+npm run demo:pruefen
 ```
 
 Anmeldung, Datenbank, Uploads, E-Mail-Versand und die Rollentrennung lassen sich in einer
