@@ -81,21 +81,21 @@
     "titel": "Einsatz – Übersicht",
     "geraet": "desktop",
     "thema": "hell",
-    "pfad": "/events/cmugortq0003z7d494v1lcvne"
+    "pfad": "/events/cmugp9ub7003z7d6kjpbwb0yf"
   },
   {
     "datei": "event-mitarbeiter.png",
     "titel": "Einsatz – Team und Personalsuche",
     "geraet": "desktop",
     "thema": "hell",
-    "pfad": "/events/cmugortq0003z7d494v1lcvne/mitarbeiter"
+    "pfad": "/events/cmugp9ub7003z7d6kjpbwb0yf/mitarbeiter"
   },
   {
     "datei": "einsatzplan.png",
     "titel": "Druckbarer Einsatzplan",
     "geraet": "desktop",
     "thema": "hell",
-    "pfad": "/events/cmugortq0003z7d494v1lcvne/einsatzplan"
+    "pfad": "/events/cmugp9ub7003z7d6kjpbwb0yf/einsatzplan"
   },
   {
     "datei": "einsatzhistorie.png",
@@ -123,35 +123,35 @@
     "titel": "Mitarbeiterakte – Übersicht (Personal)",
     "geraet": "desktop",
     "thema": "hell",
-    "pfad": "/mitarbeiter/cmugortkr000o7d49bvsxkyqo"
+    "pfad": "/mitarbeiter/cmugp9u5y000o7d6k2kd14q2t"
   },
   {
     "datei": "akte-gesperrt.png",
     "titel": "Dieselbe Akte als Teamleitung: gesperrte Felder",
     "geraet": "desktop",
     "thema": "hell",
-    "pfad": "/mitarbeiter/cmugortkr000o7d49bvsxkyqo"
+    "pfad": "/mitarbeiter/cmugp9u5y000o7d6k2kd14q2t"
   },
   {
     "datei": "akte-qualifikationen.png",
     "titel": "Mitarbeiterakte – Qualifikationen",
     "geraet": "desktop",
     "thema": "hell",
-    "pfad": "/mitarbeiter/cmugortkr000o7d49bvsxkyqo/qualifikationen"
+    "pfad": "/mitarbeiter/cmugp9u5y000o7d6k2kd14q2t/qualifikationen"
   },
   {
     "datei": "akte-dokumente.png",
     "titel": "Mitarbeiterakte – Dokumente mit Zugriffsebene",
     "geraet": "desktop",
     "thema": "hell",
-    "pfad": "/mitarbeiter/cmugortkr000o7d49bvsxkyqo/dokumente"
+    "pfad": "/mitarbeiter/cmugp9u5y000o7d6k2kd14q2t/dokumente"
   },
   {
     "datei": "akte-datenschutz.png",
     "titel": "Mitarbeiterakte – Datenschutz",
     "geraet": "desktop",
     "thema": "hell",
-    "pfad": "/mitarbeiter/cmugortkr000o7d49bvsxkyqo/datenschutz"
+    "pfad": "/mitarbeiter/cmugp9u5y000o7d6k2kd14q2t/datenschutz"
   },
   {
     "datei": "mitarbeiterakten.png",
@@ -235,7 +235,7 @@
     "titel": "Anfrage prüfen und übernehmen",
     "geraet": "desktop",
     "thema": "hell",
-    "pfad": "/anfragen/cmugortqg004e7d491egzlbeo"
+    "pfad": "/anfragen/cmugp9ubm004e7d6k4gt8hw7a"
   },
   {
     "datei": "kunden.png",

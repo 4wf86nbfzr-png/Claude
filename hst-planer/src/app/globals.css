@@ -472,6 +472,26 @@ hr.trenner { height: 1px; background: var(--linie); border: 0; margin: 0; }
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 }
 
+/*
+  Zweispaltige Arbeitsflächen: links der Inhalt, rechts die Randspalte.
+  Die Breite der Randspalte steht je Seite in --zweite; der Umbruch
+  passiert, wenn beide Spalten zusammen nicht mehr passen.
+
+  Bewusst als Klasse und nicht als Inline-Stil: ein inline gesetztes
+  grid-template-columns schlägt jede Medienabfrage, und dann bricht auf
+  dem Smartphone gar nichts um. Genau das war hier der Fall.
+*/
+.zweispaltig {
+  --zweite: 280px;
+  display: grid; gap: 14px; align-items: start;
+  grid-template-columns: minmax(0, 1fr) minmax(var(--zweite), 1fr);
+}
+.zweispaltig-breit { grid-template-columns: minmax(0, 2fr) minmax(var(--zweite), 1fr); }
+
+@media (max-width: 1100px) {
+  .zweispaltig, .zweispaltig-breit { grid-template-columns: minmax(0, 1fr); }
+}
+
 .nav-fuss {
   flex: none; padding: 8px 14px; line-height: 1.3;
   border-top: 1px solid rgba(255,255,255,.07);
@@ -734,6 +754,15 @@ kbd {
 @media (min-width: 1600px) {
   :root { --navbreite: 248px; }
   .app-haupt { padding: 16px 22px 48px; }
+  /* Mehr Platz heißt hier mehr Stunden im Blick, nicht größere Schrift. */
+  .leitstelle { --stunde: 68px; }
+  .leitstelle-raster { grid-template-columns: 268px 1fr; }
+  .plan-inhalt { --label: 236px; }
+}
+
+@media (min-width: 1900px) {
+  .leitstelle { --stunde: 78px; }
+  .leitstelle-raster { grid-template-columns: 296px 1fr; }
 }
 
 @media (max-width: 1100px) {
@@ -764,6 +793,10 @@ kbd {
   .feld { height: 34px; font-size: 16px; }  /* 16px verhindert das Zoomen in iOS */
   table.tabelle tbody td { height: auto; padding: 8px 10px; }
   .nur-desktop { display: none !important; }
+  /* Die Suche steht auf dem Smartphone in der Fußleiste; im Kopf bliebe
+     von ihr auf 390 px ohnehin nur ein Stummel. */
+  .kopf-suche { display: none; }
+  .app-kopf { padding-left: 52px; }
   .leitstelle-raster { grid-template-columns: 1fr; }
   .leitstelle-seite { display: none; }
 }

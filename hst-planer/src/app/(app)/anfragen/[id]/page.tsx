@@ -65,7 +65,7 @@ export default async function AnfrageDetail({ params }: { params: Promise<{ id: 
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(280px, 1fr)', gap: 16, alignItems: 'start' }} className="dashboard-raster">
+      <div className="zweispaltig zweispaltig-breit" style={{ ['--zweite' as string]: '280px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, minWidth: 0 }}>
           <Karte titel="Angaben aus der Anfrage">
             <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 14 }}>

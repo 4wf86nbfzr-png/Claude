@@ -48,7 +48,7 @@ export default async function KundeDetail({ params }: { params: Promise<{ id: st
         }
       />
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(260px, 1fr)', gap: 16, alignItems: 'start' }} className="dashboard-raster">
+      <div className="zweispaltig zweispaltig-breit" style={{ ['--zweite' as string]: '260px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, minWidth: 0 }}>
           <Karte titel="Events">
             {kunde.events.length === 0 ? <Leer>Noch keine Events.</Leer> : (

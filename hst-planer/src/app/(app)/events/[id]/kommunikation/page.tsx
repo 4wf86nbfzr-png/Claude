@@ -20,7 +20,7 @@ export default async function EventKommunikation({ params }: { params: Promise<{
   const nachrichten = await db.message.findMany({ where: { eventId: id }, orderBy: { createdAt: 'desc' }, take: 50 });
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(300px, 1fr)', gap: 16, alignItems: 'start' }} className="dashboard-raster">
+    <div className="zweispaltig" style={{ ['--zweite' as string]: '300px' }}>
       {can(user.role, 'communication.send') && (
         <Karte titel="Nachricht an das Team">
           <div style={{ padding: 16 }}>

@@ -63,8 +63,7 @@ export default async function MitarbeiterUebersicht({ params }: { params: Promis
         <Kennzahl wert={abgesagt} label="Absagen" farbe={abgesagt > 2 ? 'gelb' : 'grau'} />
       </Raster>
 
-      <div className="dashboard-raster"
-           style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(260px, 1fr)', gap: 14, marginTop: 14, alignItems: 'start' }}>
+      <div className="zweispaltig" style={{ ['--zweite' as string]: '260px', marginTop: 14 }}>
         <Karte titel="Kontakt und Person">
           <div style={{ padding: 12, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12 }}>
             <Paar label="Mobil">

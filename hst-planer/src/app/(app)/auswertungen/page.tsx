@@ -45,7 +45,7 @@ export default async function Auswertungen({ searchParams }: { searchParams: Pro
         </Raster>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: 16, marginTop: 16, alignItems: 'start' }} className="dashboard-raster">
+      <div className="zweispaltig" style={{ ['--zweite' as string]: '260px', marginTop: 16 }}>
         <Karte titel="Monatsvergleich (12 Monate)">
           <div style={{ padding: 16 }}>
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, height: 150 }}>

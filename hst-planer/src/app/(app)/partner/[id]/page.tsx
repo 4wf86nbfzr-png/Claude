@@ -37,7 +37,7 @@ export default async function PartnerDetail({ params }: { params: Promise<{ id: 
                   unter={[partner.contactName, partner.city].filter(Boolean).join(' · ') || undefined}
                   aktionen={darfBearbeiten && <Link href={`/partner/${id}/bearbeiten`} className="knopf knopf-primaer">Bearbeiten</Link>} />
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(260px, 1fr)', gap: 16, alignItems: 'start' }} className="dashboard-raster">
+      <div className="zweispaltig zweispaltig-breit" style={{ ['--zweite' as string]: '260px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, minWidth: 0 }}>
           <Karte titel="Kräfte des Partners">
             {partner.employees.length === 0 ? <Leer>Keine Mitarbeiter hinterlegt.</Leer> : (

@@ -14,7 +14,7 @@ export default async function NeuerAbgleich() {
     <>
       <Seitenkopf titel="Stundenzettel hochladen" brotkrumen={[{ href: '/abgleiche', label: 'Abgleiche' }]}
                   unter="Excel (.xlsx) oder CSV. Die Spalten werden im nächsten Schritt zugeordnet." />
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(240px, 1fr)', gap: 16, alignItems: 'start' }} className="dashboard-raster">
+      <div className="zweispaltig zweispaltig-breit" style={{ ['--zweite' as string]: '240px' }}>
         <Karte titel="Datei auswählen">
           <div style={{ padding: 16 }}>
             <HochladeFormular />

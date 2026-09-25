@@ -44,7 +44,7 @@ export default async function Kommunikation({ searchParams }: { searchParams: Pr
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(300px, 1fr)', gap: 16, alignItems: 'start' }} className="dashboard-raster">
+      <div className="zweispaltig" style={{ ['--zweite' as string]: '300px' }}>
         {darfSenden && (
           <Karte titel="Nachricht senden">
             <div style={{ padding: 16 }}>

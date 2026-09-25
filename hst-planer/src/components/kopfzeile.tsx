@@ -54,6 +54,7 @@ export function Kopfzeile({
       <form
         role="search"
         onSubmit={(e) => { e.preventDefault(); if (begriff.trim()) router.push(`/suche?q=${encodeURIComponent(begriff.trim())}`); }}
+        className="kopf-suche"
         style={{ position: 'relative', flex: 1, maxWidth: 440 }}
       >
         <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-3)', pointerEvents: 'none' }}>

@@ -36,7 +36,7 @@ export default async function Einstellungen() {
     <>
       <Seitenkopf titel="Einstellungen" unter="Stammdaten, Regeln und Vorlagen" />
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: 16, alignItems: 'start' }} className="dashboard-raster">
+      <div className="zweispaltig" style={{ ['--zweite' as string]: '260px' }}>
         <Karte titel="Firma">
           <div style={{ padding: 16 }}>
             <AktionsFormular aktion={firmaSpeichernAktion} stil={{ display: 'flex', flexDirection: 'column', gap: 12 }}>

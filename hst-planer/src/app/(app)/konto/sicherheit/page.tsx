@@ -52,8 +52,7 @@ export default async function Sicherheit() {
         </div>
       )}
 
-      <div className="dashboard-raster"
-           style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(280px, 1fr)', gap: 14, alignItems: 'start' }}>
+      <div className="zweispaltig" style={{ ['--zweite' as string]: '280px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14, minWidth: 0 }}>
           <Karte titel="Zweiter Faktor">
             <div style={{ padding: 14 }}>

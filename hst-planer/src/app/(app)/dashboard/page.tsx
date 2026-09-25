@@ -60,7 +60,7 @@ export default async function Dashboard() {
       <h2 className="abschnitt">Tagesdisposition</h2>
       <Tagesstreifen events={daten.heute.events} />
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(280px, 1fr)', gap: 16, marginTop: 20, alignItems: 'start' }} className="dashboard-raster">
+      <div className="zweispaltig zweispaltig-breit" style={{ ['--zweite' as string]: '280px', marginTop: 16 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, minWidth: 0 }}>
           <Karte titel="Heutige Einsätze" aktion={<Link href="/disposition" style={{ fontSize: 12, color: 'var(--text-2)' }}>Zur Disposition</Link>}>
             {daten.heute.events.length === 0 ? (

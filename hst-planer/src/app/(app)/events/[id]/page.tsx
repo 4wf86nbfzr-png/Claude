@@ -47,7 +47,7 @@ export default async function EventUebersicht({ params }: { params: Promise<{ id
   }, 0);
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(260px, 1fr)', gap: 16, alignItems: 'start' }} className="dashboard-raster">
+    <div className="zweispaltig zweispaltig-breit" style={{ ['--zweite' as string]: '260px' }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16, minWidth: 0 }}>
         <Karte titel="Positionen" aktion={<Link href={`/events/${id}/positionen`} style={{ fontSize: 12, color: 'var(--text-2)' }}>Bearbeiten</Link>}>
           {event.positions.length === 0 ? (
