@@ -1,239 +1,182 @@
-import Link from 'next/link';
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { seite } from '@/lib/auth/guard';
 import { can } from '@/lib/auth/rbac';
 import { db } from '@/lib/db';
-import { eventFilter } from '@/lib/queries/scope';
-import { besetzungAus } from '@/lib/queries/coverage';
-import { formatDateDE, isoDate, toDateOnly, weekdayDE } from '@/lib/time';
-import { ASSIGNMENT_STATUS, EVENT_STATUS, PRIORITY, label } from '@/lib/status';
-import { Balken, Hinweis, Karte, Kennzahl, Leer, Raster, Seitenkopf, StatusMarke } from '@/components/ui';
+import { eventFilter, employeeFilter } from '@/lib/queries/scope';
+import { formatDateDE, isoDate, toDateOnly, weekdayDE, shiftDuration } from '@/lib/time';
 import { Icon } from '@/components/icons';
-import { Zeitraumwahl } from './zeitraumwahl';
+import { Leitstelle, type PlanGruppe, type PlanKraft } from './leitstelle';
+import { zuordnenAktion } from './actions';
 
-export const metadata: Metadata = { title: 'Disposition' };
+export const metadata: Metadata = { title: 'Tagesplanung' };
 export const dynamic = 'force-dynamic';
 
 /**
- * Die Disposition ist die Arbeitsflaeche des Disponenten (Spec 8/45/59).
+ * Tagesplanung (SecPlan 4 und 27).
  *
- * Aufbau: links der Zeitraum mit allen Einsätzen, je Event die Positionen
- * mit Besetzungsgrad und den bereits eingeteilten Kraeften; rechts die
- * Punkte, die heute Aufmerksamkeit brauchen. Von jeder Lücke führt genau
- * ein Klick zur Personalsuche.
+ * Diese Seite ist die Arbeitsfläche eines Disponenten und sieht deshalb
+ * anders aus als der Rest: keine Karten, kein Seitenrand, sondern eine
+ * Fläche, die vom Kopf bis zum unteren Rand reicht. Die Wochenübersicht
+ * liegt unter /disposition/woche, der Monatsblick im Kalender.
  */
-export default async function Disposition({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
+export default async function Tagesplanung({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const user = await seite('dispo.view');
   const params = await searchParams;
-  const darfPlanen = can(user.role, 'dispo.edit');
+  const darfPlanen = can(user.role, 'dispo.assign');
 
-  const von = params.von && /^\d{4}-\d{2}-\d{2}$/.test(params.von) ? new Date(`${params.von}T00:00:00Z`) : toDateOnly(new Date());
-  const tage = Math.min(31, Math.max(1, Number(params.tage ?? 7)));
-  const bis = new Date(von.getTime() + (tage - 1) * 86400000);
+  const tag = params.tag && /^\d{4}-\d{2}-\d{2}$/.test(params.tag)
+    ? new Date(`${params.tag}T00:00:00Z`)
+    : toDateOnly(new Date());
+  const vortag = new Date(tag.getTime() - 86400000);
+  const naechster = new Date(tag.getTime() + 86400000);
 
-  const events = await db.event.findMany({
-    where: {
-      ...eventFilter(user),
-      date: { gte: von, lte: bis },
-      status: { notIn: ['ABGERECHNET'] },
-      ...(params.event ? { id: params.event } : {}),
-      ...(params.kunde ? { customerId: params.kunde } : {}),
-      ...(params.nur === 'lücken' ? {} : {}),
-    },
-    include: {
-      customer: { select: { id: true, name: true } },
-      serviceType: { select: { name: true, color: true } },
-      operationLead: { select: { firstName: true, lastName: true, mobile: true } },
-      positions: {
-        orderBy: { sortOrder: 'asc' },
-        include: {
-          requirements: { include: { qualification: { select: { name: true } } } },
-          assignments: {
-            where: { deletedAt: null },
-            include: { employee: { select: { id: true, firstName: true, lastName: true, mobile: true } } },
-            orderBy: [{ isReserve: 'asc' }, { createdAt: 'asc' }],
+  const [events, kraefte] = await Promise.all([
+    db.event.findMany({
+      where: { ...eventFilter(user), date: tag, status: { notIn: ['ABGERECHNET', 'STORNIERT'] } },
+      select: {
+        id: true, name: true, venue: true, startTime: true, endTime: true,
+        customer: { select: { name: true } },
+        positions: {
+          orderBy: { sortOrder: 'asc' },
+          select: {
+            id: true, title: true, startTime: true, endTime: true, requiredCount: true,
+            requirements: { select: { qualification: { select: { name: true } } } },
+            assignments: {
+              where: { deletedAt: null },
+              orderBy: [{ isReserve: 'asc' }, { createdAt: 'asc' }],
+              select: {
+                id: true, status: true, isReserve: true, plannedStart: true, plannedEnd: true,
+                employee: { select: { id: true, firstName: true, lastName: true } },
+              },
+            },
           },
         },
       },
-    },
-    orderBy: [{ date: 'asc' }, { startTime: 'asc' }],
+      orderBy: [{ startTime: 'asc' }, { name: 'asc' }],
+    }),
+    db.employee.findMany({
+      where: { ...employeeFilter(user), active: true },
+      select: {
+        id: true, firstName: true, lastName: true, blocked: true, blockReason: true,
+        qualifications: { select: { expiresAt: true, qualification: { select: { code: true } } } },
+        availabilities: {
+          where: { from: { lte: tag }, to: { gte: tag } },
+          select: { kind: true, note: true },
+        },
+        assignments: {
+          where: { deletedAt: null, status: { notIn: ['ABGESAGT', 'STORNIERT'] }, event: { date: tag } },
+          select: { plannedStart: true, plannedEnd: true, position: { select: { startTime: true, endTime: true } }, event: { select: { startTime: true, endTime: true } } },
+        },
+      },
+      orderBy: [{ lastName: 'asc' }, { firstName: 'asc' }],
+      take: 400,
+    }),
+  ]);
+
+  const gruppen: PlanGruppe[] = events.map((event) => ({
+    eventId: event.id,
+    name: event.name,
+    ort: event.venue,
+    kunde: event.customer?.name ?? null,
+    zeilen: event.positions.map((position) => {
+      const aktive = position.assignments.filter(
+        (a) => !a.isReserve && ['EINGETEILT', 'ZUGESAGT', 'ANGEFRAGT', 'ERSCHIENEN'].includes(a.status),
+      );
+      return {
+        positionId: position.id,
+        titel: position.title,
+        start: position.startTime ?? event.startTime,
+        ende: position.endTime ?? event.endTime,
+        soll: position.requiredCount,
+        ist: aktive.length,
+        anforderungen: position.requirements.map((r) => r.qualification.name),
+        balken: position.assignments.map((a) => ({
+          id: a.id,
+          name: `${a.employee.firstName} ${a.employee.lastName}`,
+          start: a.plannedStart ?? position.startTime ?? event.startTime,
+          ende: a.plannedEnd ?? position.endTime ?? event.endTime,
+          status: a.status,
+          ersatz: a.isReserve,
+          mitarbeiterId: a.employee.id,
+        })),
+      };
+    }),
+  }));
+
+  const heute = new Date();
+  const planKraefte: PlanKraft[] = kraefte.map((person) => {
+    const abwesend = person.availabilities.find((a) => ['NICHT_VERFUEGBAR', 'URLAUB', 'KRANK'].includes(a.kind));
+    const verplant = person.assignments.reduce((summe, a) => {
+      const start = a.plannedStart ?? a.position.startTime ?? a.event.startTime;
+      const ende = a.plannedEnd ?? a.position.endTime ?? a.event.endTime;
+      return summe + (start && ende ? (shiftDuration(start, ende)?.grossMinutes ?? 0) : 0);
+    }, 0);
+
+    const zustand: PlanKraft['zustand'] = person.blocked
+      ? 'gesperrt'
+      : abwesend ? 'abwesend'
+      : person.assignments.length > 0 ? 'eingeplant'
+      : 'frei';
+
+    return {
+      id: person.id,
+      name: `${person.lastName}, ${person.firstName}`,
+      kuerzel: `${person.firstName.charAt(0)}${person.lastName.charAt(0)}`.toUpperCase(),
+      qualifikationen: person.qualifications
+        .filter((q) => !q.expiresAt || q.expiresAt >= heute)
+        .map((q) => q.qualification.code)
+        .slice(0, 5),
+      zustand,
+      hinweis: person.blocked
+        ? `Sperrvermerk: ${person.blockReason ?? 'ohne Angabe'}`
+        : abwesend ? `${abwesend.kind.toLowerCase()}${abwesend.note ? `: ${abwesend.note}` : ''}` : null,
+      verplant,
+    };
   });
 
-  const gefiltert = params.nur === 'lücken'
-    ? events.filter((event) => besetzungAus(event.positions).offen > 0)
-    : events;
-
-  const gesamt = gefiltert.reduce(
-    (acc, event) => {
-      const b = besetzungAus(event.positions);
-      return { soll: acc.soll + b.soll, ist: acc.ist + b.ist, offen: acc.offen + b.offen, bestaetigt: acc.bestaetigt + b.bestaetigt };
-    },
-    { soll: 0, ist: 0, offen: 0, bestaetigt: 0 },
-  );
-
-  const absagen = gefiltert.flatMap((event) =>
-    event.positions.flatMap((position) =>
-      position.assignments
-        .filter((a) => a.status === 'ABGESAGT')
-        .map((a) => ({ event, position, assignment: a })),
-    ),
-  );
-
-  const nachTag = new Map<string, typeof gefiltert>();
-  for (const event of gefiltert) {
-    const schluessel = isoDate(event.date);
-    const liste = nachTag.get(schluessel);
-    if (liste) liste.push(event);
-    else nachTag.set(schluessel, [event]);
-  }
+  const offen = gruppen.reduce((s, g) => s + g.zeilen.reduce((t, z) => t + Math.max(0, z.soll - z.ist), 0), 0);
+  const geplant = gruppen.reduce((s, g) => s + g.zeilen.reduce((t, z) => t + z.ist, 0), 0);
 
   return (
-    <>
-      <Seitenkopf
-        titel="Disposition"
-        unter={`${formatDateDE(von)} bis ${formatDateDE(bis)} · ${gefiltert.length} Einsätze`}
-        aktionen={darfPlanen && (
-          <>
-            <Link href={`/events/neu?datum=${isoDate(von)}`} className="knopf knopf-primaer"><Icon name="plus" /> Neues Event</Link>
-            <Link href="/kalender" className="knopf"><Icon name="calendar" /> Kalender</Link>
-          </>
-        )}
+    <div className="leitstelle">
+      <div className="leitstelle-kopf nicht-drucken">
+        <Link href={`/disposition?tag=${isoDate(vortag)}`} className="knopf knopf-klein" aria-label="Vortag">
+          <Icon name="chevron-left" size={13} />
+        </Link>
+        <strong style={{ fontSize: 13, minWidth: 190 }}>
+          {weekdayDE(tag)}, {formatDateDE(tag)}
+        </strong>
+        <Link href={`/disposition?tag=${isoDate(naechster)}`} className="knopf knopf-klein" aria-label="Folgetag">
+          <Icon name="chevron-right" size={13} />
+        </Link>
+        <Link href="/disposition" className="knopf knopf-klein">Heute</Link>
+
+        <span className="werkzeuge-trenner" aria-hidden />
+
+        <span style={{ fontSize: 12, color: 'var(--text-2)' }}>
+          {gruppen.length} {gruppen.length === 1 ? 'Einsatz' : 'Einsätze'} · {geplant} eingeplant
+          {offen > 0 && <> · <strong style={{ color: 'var(--rot)' }}>{offen} offen</strong></>}
+        </span>
+
+        <span style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
+          <Link href="/disposition/woche" className="knopf knopf-klein">Woche</Link>
+          <Link href="/kalender" className="knopf knopf-klein">Kalender</Link>
+          {can(user.role, 'dispo.edit') && (
+            <Link href={`/events/neu?datum=${isoDate(tag)}`} className="knopf knopf-klein knopf-primaer">
+              <Icon name="plus" size={13} /> Einsatz
+            </Link>
+          )}
+        </span>
+      </div>
+
+      <Leitstelle
+        gruppen={gruppen}
+        kraefte={planKraefte}
+        darfPlanen={darfPlanen}
+        zuordnen={zuordnenAktion}
+        tagIso={isoDate(tag)}
       />
-
-      <Zeitraumwahl von={isoDate(von)} tage={tage} nurLuecken={params.nur === 'lücken'} />
-
-      <div style={{ marginTop: 14 }}>
-        <Raster min={150}>
-          <Kennzahl wert={gesamt.soll} label="Benötigte Kräfte" />
-          <Kennzahl wert={gesamt.ist} label="Eingeplant" farbe={gesamt.offen === 0 ? 'gruen' : 'grau'} />
-          <Kennzahl wert={gesamt.bestaetigt} label="Zugesagt" farbe={gesamt.bestaetigt < gesamt.ist ? 'gelb' : 'gruen'} />
-          <Kennzahl wert={gesamt.offen} label="Offen" farbe={gesamt.offen > 0 ? 'rot' : 'gruen'} />
-          <Kennzahl wert={absagen.length} label="Absagen im Zeitraum" farbe={absagen.length > 0 ? 'rot' : 'grau'} />
-        </Raster>
-      </div>
-
-      {absagen.length > 0 && (
-        <div style={{ marginTop: 14 }}>
-          <Hinweis art="warnung">
-            <strong>Absagen, die Ersatz brauchen:</strong>{' '}
-            {absagen.slice(0, 6).map(({ event, assignment }, index) => (
-              <span key={assignment.id}>
-                {index > 0 && ' · '}
-                <Link href={`/events/${event.id}/mitarbeiter`}>
-                  {assignment.employee.firstName} {assignment.employee.lastName} ({event.name})
-                </Link>
-              </span>
-            ))}
-            {absagen.length > 6 && ` und ${absagen.length - 6} weitere`}
-          </Hinweis>
-        </div>
-      )}
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 18, marginTop: 16 }}>
-        {gefiltert.length === 0 && (
-          <Karte><Leer>In diesem Zeitraum gibt es keine Einsaetze{params.nur === 'lücken' ? ' mit offenen Positionen' : ''}.</Leer></Karte>
-        )}
-
-        {[...nachTag.entries()].map(([tag, tagesEvents]) => (
-          <section key={tag}>
-            <h2 style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--text-3)', margin: '0 0 8px' }}>
-              {weekdayDE(new Date(`${tag}T00:00:00Z`))}, {formatDateDE(new Date(`${tag}T00:00:00Z`))}
-            </h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {tagesEvents.map((event) => {
-                const b = besetzungAus(event.positions);
-                return (
-                  <Karte key={event.id}
-                         titel={
-                           <span style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
-                             <Link href={`/events/${event.id}`} style={{ fontWeight: 600 }}>{event.name}</Link>
-                             <span style={{ fontWeight: 400, fontSize: 12, color: 'var(--text-2)' }}>
-                               {event.startTime ?? '–'}–{event.endTime ?? '–'}
-                               {event.venue ? ` · ${event.venue}` : ''}
-                               {event.customer ? ` · ${event.customer.name}` : ''}
-                             </span>
-                             <StatusMarke status={label(EVENT_STATUS, event.status)} />
-                             {event.priority !== 'NORMAL' && <StatusMarke status={label(PRIORITY, event.priority)} />}
-                             <Balken ist={b.ist} soll={b.soll} />
-                           </span>
-                         }
-                         aktion={darfPlanen && (
-                           <Link href={`/events/${event.id}/mitarbeiter`} className="knopf knopf-klein knopf-primaer">
-                             {b.offen > 0 ? `${b.offen} Lücken schließen` : 'Team bearbeiten'}
-                           </Link>
-                         )}>
-                    {event.positions.length === 0 ? (
-                      <Leer>
-                        Keine Positionen angelegt.{' '}
-                        {darfPlanen && <Link href={`/events/${event.id}/positionen`}>Jetzt anlegen</Link>}
-                      </Leer>
-                    ) : (
-                      <div className="tabelle-scroll">
-                        <table className="tabelle">
-                          <thead>
-                            <tr><th>Position</th><th>Zeit</th><th>Soll/Ist</th><th>Team</th><th>Anforderungen</th>{darfPlanen && <th style={{ width: 1 }} />}</tr>
-                          </thead>
-                          <tbody>
-                            {event.positions.map((position) => {
-                              const aktive = position.assignments.filter((a) => !a.isReserve && ['EINGETEILT', 'ZUGESAGT', 'ANGEFRAGT', 'ERSCHIENEN'].includes(a.status));
-                              const offen = Math.max(0, position.requiredCount - aktive.length);
-                              return (
-                                <tr key={position.id} className={offen > 0 ? (aktive.length === 0 ? 'zeile-rot' : 'zeile-gelb') : 'zeile-gruen'}>
-                                  <td style={{ fontWeight: 500 }}>{position.title}</td>
-                                  <td className="zahl" style={{ whiteSpace: 'nowrap' }}>
-                                    {position.startTime ?? event.startTime ?? '–'}–{position.endTime ?? event.endTime ?? '–'}
-                                  </td>
-                                  <td className="zahl">
-                                    {aktive.length}/{position.requiredCount}
-                                    {offen > 0 && <span className="marke marke-gelb" style={{ marginLeft: 6 }}>{offen} offen</span>}
-                                  </td>
-                                  <td style={{ fontSize: 12 }}>
-                                    <span style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
-                                      {position.assignments.length === 0 && <span style={{ color: 'var(--text-3)' }}>–</span>}
-                                      {position.assignments.map((a) => {
-                                        const farbe = ASSIGNMENT_STATUS[a.status]?.farbe ?? 'grau';
-                                        return (
-                                          <Link key={a.id} href={`/mitarbeiter/${a.employee.id}`} className={`marke marke-${farbe}`}
-                                                title={`${ASSIGNMENT_STATUS[a.status]?.label ?? a.status}${a.isReserve ? ' · Ersatz' : ''}`}>
-                                            {a.employee.firstName} {a.employee.lastName.charAt(0)}.
-                                            {a.isReserve ? ' (E)' : ''}
-                                          </Link>
-                                        );
-                                      })}
-                                    </span>
-                                  </td>
-                                  <td style={{ fontSize: 11, color: 'var(--text-2)' }}>
-                                    {position.requirements.map((r) => r.qualification.name).join(', ') || '–'}
-                                  </td>
-                                  {darfPlanen && (
-                                    <td>
-                                      <Link href={`/events/${event.id}/mitarbeiter?position=${position.id}`} className="knopf knopf-klein">
-                                        Personal suchen
-                                      </Link>
-                                    </td>
-                                  )}
-                                </tr>
-                              );
-                            })}
-                          </tbody>
-                        </table>
-                      </div>
-                    )}
-
-                    {(event.meetingPoint || event.dressCode || event.operationLead) && (
-                      <div style={{ padding: '10px 14px', borderTop: '1px solid var(--linie)', display: 'flex', gap: 18, flexWrap: 'wrap', fontSize: 12, color: 'var(--text-2)' }}>
-                        {event.operationLead && <span><Icon name="shield" size={13} /> Einsatzleitung: {event.operationLead.firstName} {event.operationLead.lastName}</span>}
-                        {event.meetingPoint && <span><Icon name="pin" size={13} /> {event.meetingPoint}{event.meetingTime ? ` um ${event.meetingTime}` : ''}</span>}
-                        {event.dressCode && <span>Dresscode: {event.dressCode}</span>}
-                      </div>
-                    )}
-                  </Karte>
-                );
-              })}
-            </div>
-          </section>
-        ))}
-      </div>
-    </>
+    </div>
   );
 }

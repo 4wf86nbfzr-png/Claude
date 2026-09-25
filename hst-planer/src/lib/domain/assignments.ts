@@ -5,7 +5,7 @@ import { ConflictError, ForbiddenError, NotFoundError, ValidationError } from '.
 import { notifyDispo, notifyUsers } from '../notify';
 import { dispatchWebhook } from '../webhooks';
 import { statusNachziehen } from '../queries/coverage';
-import { formatDateDE, shiftDuration } from '../time';
+import { formatDateDE } from '../time';
 import type { SessionUser } from '../auth/session';
 import type { $Enums } from '@prisma/client';
 import { pruefe, type Konflikt, type NachweisStand } from '../dispo/pruefung';

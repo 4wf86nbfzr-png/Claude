@@ -87,12 +87,35 @@ export async function dashboardDaten(user: SessionUser) {
     return b.offen > 0;
   }).length;
 
-  const [aktiveEinsaetze, nichtErschienen] = await Promise.all([
+  // SecPlan 3 unterscheidet zwei Dinge, die leicht vermischt werden:
+  // eine OFFENE POSITION ist eine Stelle ohne Namen, eine UNBESETZTE
+  // SCHICHT eine Stelle, auf der heute niemand steht – also eine, die
+  // gleich beginnt und für die niemand zugesagt hat.
+  const unbesetzteSchichten = heutigeEvents.reduce((summe, event) => {
+    for (const position of event.positions) {
+      const zugesagt = position.assignments.filter(
+        (a) => !a.isReserve && ['ZUGESAGT', 'ERSCHIENEN', 'EINGETEILT'].includes(a.status),
+      ).length;
+      if (zugesagt === 0 && position.requiredCount > 0) summe += 1;
+    }
+    return summe;
+  }, 0);
+
+  const [aktiveEinsaetze, nichtErschienen, kurzfristigeAusfaelle] = await Promise.all([
     db.assignment.count({
       where: { deletedAt: null, status: { in: ['EINGETEILT', 'ZUGESAGT', 'ERSCHIENEN'] }, event: { date: { gte: heute, lt: morgen } } },
     }),
     db.assignment.count({
       where: { deletedAt: null, status: 'NICHT_ERSCHIENEN', event: { date: { gte: heute, lt: morgen } } },
+    }),
+    // Kurzfristig heisst: die Absage kam, als der Einsatz schon in den
+    // naechsten 72 Stunden lag. Genau die kosten die Disposition den Abend.
+    db.assignment.count({
+      where: {
+        deletedAt: null,
+        status: { in: ['ABGESAGT', 'NICHT_ERSCHIENEN'] },
+        event: { ...sichtbar, date: { gte: heute, lte: new Date(heute.getTime() + 3 * 86400000) } },
+      },
     }),
   ]);
 
@@ -104,6 +127,9 @@ export async function dashboardDaten(user: SessionUser) {
       nichtErschienen,
       verspaetet: vorfaelle.filter((v) => v.kind === 'VERSPAETET').length,
       kritisch: vorfaelle.filter((v) => v.priority === 'KRITISCH' || v.priority === 'HOCH').length,
+      unbesetzteSchichten,
+      kurzfristigeAusfaelle,
+      hinweise: vorfaelle.length + ablaufendeNachweise.length,
     },
     kommendeEvents,
     dispo: {

@@ -193,6 +193,8 @@ a:hover { text-decoration: underline; }
   color: var(--text-3);
   margin: 0 0 7px;
 }
+h2.abschnitt + * { margin-top: 0; }
+* + h2.abschnitt { margin-top: 18px; }
 
 /* --- Schaltflächen ---------------------------------------------------- */
 .knopf {
@@ -251,6 +253,7 @@ a:hover { text-decoration: underline; }
 textarea.feld { height: auto; min-height: 64px; padding: 6px 8px; line-height: 1.5; resize: vertical; }
 select.feld { padding-right: 22px; }
 .feld::placeholder { color: var(--text-3); }
+.feld-klein { height: 25px; font-size: 11.5px; }
 
 .feld-gruppe { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .feld-label {
@@ -358,6 +361,8 @@ hr.trenner { height: 1px; background: var(--linie); border: 0; margin: 0; }
 /* ====================================================== Anwendungsgerüst */
 
 .app { display: grid; grid-template-columns: var(--navbreite) 1fr; min-height: 100dvh; }
+/* Die Leitstelle scrollt in sich selbst, nicht mit der Seite. */
+.app:has(.leitstelle) { height: 100dvh; overflow: hidden; }
 
 .app-nav {
   position: sticky; top: 0; height: 100dvh;
@@ -365,7 +370,7 @@ hr.trenner { height: 1px; background: var(--linie); border: 0; margin: 0; }
   background: var(--nav); color: var(--nav-text);
   border-right: 1px solid var(--nav-tief);
 }
-.app-inhalt { min-width: 0; display: flex; flex-direction: column; }
+.app-inhalt { min-width: 0; min-height: 0; display: flex; flex-direction: column; }
 
 .app-kopf {
   position: sticky; top: 0; z-index: 30;
@@ -378,6 +383,11 @@ hr.trenner { height: 1px; background: var(--linie); border: 0; margin: 0; }
 .app-haupt { flex: 1; min-width: 0; padding: 14px 16px 40px; }
 
 /* Arbeitsflächen, die den ganzen Bildschirm brauchen (Disposition). */
+/*
+  Die Leitstelle braucht die ganze Fläche. Statt der Seite eine Sonder-
+  Klasse aufzuzwingen, erkennt das Layout sie am Inhalt.
+*/
+.app-haupt:has(> .leitstelle) { padding: 0; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
 .app-haupt-voll { padding: 0; display: flex; flex-direction: column; min-height: 0; }
 
 /* --- Navigation ------------------------------------------------------- */
@@ -386,6 +396,12 @@ hr.trenner { height: 1px; background: var(--linie); border: 0; margin: 0; }
   height: var(--kopfhoehe); padding: 0 14px;
   border-bottom: 1px solid rgba(255,255,255,.07);
   flex: none;
+}
+.nav-marke > div { min-width: 0; line-height: 1.2; }
+.nav-marke strong { display: block; font-size: 12.5px; font-weight: 650; color: #fff; }
+.nav-marke span {
+  display: block; font-family: var(--font-mono);
+  font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: #6A7B96;
 }
 .nav-liste { flex: 1; overflow-y: auto; padding: 6px 0 14px; margin: 0; list-style: none; }
 .nav-liste::-webkit-scrollbar { width: 8px; }
@@ -457,10 +473,15 @@ hr.trenner { height: 1px; background: var(--linie); border: 0; margin: 0; }
 }
 
 .nav-fuss {
-  flex: none; padding: 9px 14px;
+  flex: none; padding: 8px 14px; line-height: 1.3;
   border-top: 1px solid rgba(255,255,255,.07);
   font-size: 11.5px;
 }
+.nav-fuss strong {
+  display: block; color: #fff; font-weight: 550;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.nav-fuss span { display: block; font-size: 10.5px; color: #7F8DA6; }
 
 /* --- Seitenkopf im Inhalt -------------------------------------------- */
 .seitenkopf {
@@ -501,6 +522,12 @@ hr.trenner { height: 1px; background: var(--linie); border: 0; margin: 0; }
 */
 .leitstelle { --stunde: 58px; --spur: 26px; display: flex; flex-direction: column; min-height: 0; flex: 1; }
 
+/*
+  Derselbe Plan, aber eingebettet in eine Karte (Dashboard). Eigene Klasse,
+  damit die Regel, die der Leitstelle die ganze Seite gibt, hier nicht greift.
+*/
+.zeitstreifen { --stunde: 58px; --spur: 26px; overflow: hidden; }
+
 .leitstelle-kopf {
   display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
   padding: 8px 12px; background: var(--karte);
@@ -521,6 +548,11 @@ hr.trenner { height: 1px; background: var(--linie); border: 0; margin: 0; }
   display: flex; height: 24px;
   background: var(--tief); border-bottom: 1px solid var(--linie-2);
 }
+.zeitkopf .zeitkopf-label {
+  position: sticky; left: 0; z-index: 2; flex: none;
+  width: var(--label); background: var(--tief);
+  border-right: 1px solid var(--linie-2); border-left: 0;
+}
 .zeitkopf span {
   width: var(--stunde); flex: none;
   font-size: 10px; font-weight: 600; color: var(--text-2);
@@ -528,9 +560,46 @@ hr.trenner { height: 1px; background: var(--linie); border: 0; margin: 0; }
   display: flex; align-items: center;
 }
 
+/* Der Planbereich scrollt in beide Richtungen; Zeitkopf und Beschriftung
+   bleiben dabei stehen. --label ist die Breite der Beschriftungsspalte. */
+.plan-inhalt { --label: 208px; min-width: max-content; position: relative; }
+
 .plan-zeile {
-  position: relative; height: var(--spur);
-  border-bottom: 1px solid var(--linie);
+  position: relative; display: flex; align-items: stretch;
+  height: var(--spur); border-bottom: 1px solid var(--linie);
+}
+.plan-label {
+  position: sticky; left: 0; z-index: 2; flex: none;
+  width: var(--label); padding: 0 9px;
+  display: flex; align-items: center; gap: 6px;
+  background: var(--karte); border-right: 1px solid var(--linie-2);
+  font-size: 11.5px; white-space: nowrap; overflow: hidden;
+}
+.plan-label .plan-soll {
+  margin-left: auto; font-family: var(--font-mono); font-size: 10px;
+  color: var(--text-3); flex: none;
+}
+.plan-spur { position: relative; flex: 1; min-width: 0; }
+
+/* Kopfzeile je Veranstaltung – trennt die Blöcke ohne weiteren Kasten. */
+.plan-gruppe {
+  position: sticky; left: 0; z-index: 2;
+  display: flex; align-items: center; gap: 8px;
+  height: 25px; padding: 0 9px; width: max-content; min-width: 100%;
+  background: var(--tief); border-bottom: 1px solid var(--linie-2);
+  border-top: 1px solid var(--linie-2);
+  font-size: 11px; font-weight: 650;
+}
+.plan-gruppe a { color: inherit; }
+
+/* Jetzt-Linie: die einzige rote Senkrechte im Plan. */
+.plan-jetzt {
+  position: absolute; top: 0; bottom: 0; width: 1px;
+  background: var(--rot); z-index: 1; pointer-events: none;
+}
+.plan-jetzt::before {
+  content: ''; position: absolute; top: 0; left: -3px;
+  border: 3px solid transparent; border-top-color: var(--rot);
 }
 .plan-zeile:nth-child(even) { background: color-mix(in srgb, var(--tief) 45%, transparent); }
 .plan-zeile.ziel-aktiv { background: var(--beige-flaeche); outline: 1px dashed var(--beige); outline-offset: -1px; }
@@ -563,9 +632,9 @@ hr.trenner { height: 1px; background: var(--linie); border: 0; margin: 0; }
 
 .mitarbeiterzeile {
   display: flex; align-items: center; gap: 7px;
-  height: var(--spur); padding: 0 10px;
+  min-height: 34px; padding: 4px 10px;
   border-bottom: 1px solid var(--linie);
-  font-size: 12px; cursor: grab;
+  font-size: 12px; line-height: 1.25; cursor: grab;
 }
 .mitarbeiterzeile:hover { background: var(--hover); }
 .mitarbeiterzeile[data-gezogen="true"] { opacity: .4; }
@@ -575,6 +644,37 @@ hr.trenner { height: 1px; background: var(--linie); border: 0; margin: 0; }
   background: var(--tief); color: var(--text-2);
   display: grid; place-items: center; font-size: 9px; font-weight: 700;
 }
+
+/* --- Rückfrage-Blatt über dem Plan ----------------------------------- */
+/*
+  Kein zentriertes Modal mit Weichzeichner: das Blatt kommt von unten,
+  bleibt an der Arbeitsfläche und verdeckt den Plan nicht ganz.
+*/
+.blatt-schleier {
+  position: fixed; inset: 0; z-index: 70;
+  background: rgba(10, 15, 24, .38);
+  display: flex; align-items: flex-end; justify-content: center;
+}
+.blatt {
+  width: min(540px, 100%); max-height: 78vh; overflow: auto;
+  background: var(--karte); border: 1px solid var(--linie-2);
+  border-bottom: 0; border-radius: var(--r-gross) var(--r-gross) 0 0;
+  box-shadow: var(--schatten-hoch); padding: 16px 18px 14px;
+}
+.blatt h2 { margin: 0; font-size: 15px; font-weight: 650; }
+.blatt-unter { margin: 3px 0 12px; font-size: 12.5px; color: var(--text-2); }
+.blatt-liste { list-style: none; margin: 0 0 14px; padding: 0; display: flex; flex-direction: column; gap: 7px; }
+.blatt-liste li {
+  display: flex; gap: 8px; align-items: flex-start;
+  font-size: 12.5px; line-height: 1.45;
+  padding: 7px 9px; border-radius: var(--r);
+  border-left: 2px solid var(--linie-stark); background: var(--tief);
+}
+.blatt-liste li.ist-hart  { border-left-color: var(--rot);  background: var(--rot-flaeche); }
+.blatt-liste li.ist-weich { border-left-color: var(--gelb); background: var(--gelb-flaeche); }
+.blatt-liste li .marke { flex: none; }
+.blatt-fuss { display: flex; gap: 8px; justify-content: flex-end; }
+.blatt-fussnote { margin: 10px 0 0; font-size: 11.5px; color: var(--text-2); }
 
 /* ====================================================== Sonstiges */
 

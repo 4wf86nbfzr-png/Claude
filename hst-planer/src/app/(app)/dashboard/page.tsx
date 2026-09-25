@@ -8,6 +8,7 @@ import { EVENT_STATUS, INCIDENT_KIND, PRIORITY, label } from '@/lib/status';
 import { Balken, Karte, Kennzahl, Leer, Raster, Seitenkopf, StatusMarke } from '@/components/ui';
 import { Icon } from '@/components/icons';
 import { can } from '@/lib/auth/rbac';
+import { Tagesstreifen } from './tagesstreifen';
 
 export const metadata: Metadata = { title: 'Dashboard' };
 export const dynamic = 'force-dynamic';
@@ -33,23 +34,31 @@ export default async function Dashboard() {
       />
 
       {/* -------------------------------------------------------- HEUTE */}
-      <h2 style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--text-3)', margin: '0 0 10px' }}>Heute</h2>
-      <Raster min={150}>
-        <Kennzahl wert={daten.heute.events.length} label="Events heute" href="/kalender" />
-        <Kennzahl wert={daten.heute.aktiveEinsaetze} label="Eingeteilte Kräfte" />
+      {/*
+        SecPlan 3: eine Zeile, die die Lage des Tages in sechs Zahlen sagt.
+        Offene Positionen und unbesetzte Schichten stehen bewusst
+        nebeneinander – das eine ist eine Stelle ohne Namen, das andere
+        eine Schicht, auf der heute niemand zugesagt hat.
+      */}
+      <h2 className="abschnitt">Heute</h2>
+      <Raster min={148}>
+        <Kennzahl wert={daten.heute.events.length} label="Einsätze heute" href="/disposition" />
+        <Kennzahl wert={daten.heute.aktiveEinsaetze} label="Mitarbeiter im Einsatz" href="/disposition" />
         <Kennzahl wert={daten.heute.besetzung.offen} label="Offene Positionen"
-                  farbe={daten.heute.besetzung.offen > 0 ? 'gelb' : 'gruen'} href="/disposition" />
-        <Kennzahl wert={daten.dispo.unbesetzteEvents} label="Events mit Lücken"
-                  farbe={daten.dispo.unbesetzteEvents > 0 ? 'gelb' : 'gruen'} href="/disposition" />
-        <Kennzahl wert={daten.heute.nichtErschienen} label="Nicht erschienen"
-                  farbe={daten.heute.nichtErschienen > 0 ? 'rot' : 'grau'} />
-        <Kennzahl wert={daten.heute.verspaetet} label="Verspätet"
-                  farbe={daten.heute.verspaetet > 0 ? 'gelb' : 'grau'} />
-        <Kennzahl wert={daten.heute.kritisch} label="Kritische Probleme"
-                  farbe={daten.heute.kritisch > 0 ? 'rot' : 'gruen'} />
-        <Kennzahl wert={daten.dispo.offeneAnfragen} label="Offene Anfragen"
-                  farbe={daten.dispo.offeneAnfragen > 0 ? 'gelb' : 'grau'} href="/anfragen" />
+                  farbe={daten.heute.besetzung.offen > 0 ? 'gelb' : 'gruen'} href="/disposition/offene-positionen" />
+        <Kennzahl wert={daten.heute.unbesetzteSchichten} label="Unbesetzte Schichten"
+                  farbe={daten.heute.unbesetzteSchichten > 0 ? 'rot' : 'gruen'} href="/disposition/unbesetzt" />
+        <Kennzahl wert={daten.heute.kurzfristigeAusfaelle} label="Kurzfristige Ausfälle"
+                  hinweis="Absagen für die nächsten drei Tage"
+                  farbe={daten.heute.kurzfristigeAusfaelle > 0 ? 'rot' : 'grau'} href="/disposition" />
+        <Kennzahl wert={daten.heute.hinweise} label="Hinweise"
+                  hinweis="Vorfälle und ablaufende Nachweise"
+                  farbe={daten.heute.hinweise > 0 ? 'gelb' : 'grau'} href="/benachrichtigungen" />
       </Raster>
+
+      {/* ------------------------------------------- Tagesdisposition */}
+      <h2 className="abschnitt">Tagesdisposition</h2>
+      <Tagesstreifen events={daten.heute.events} />
 
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(280px, 1fr)', gap: 16, marginTop: 20, alignItems: 'start' }} className="dashboard-raster">
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, minWidth: 0 }}>
