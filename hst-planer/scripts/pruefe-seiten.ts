@@ -12,12 +12,38 @@ const email = process.argv[3] ?? 'dispo@hermserviceteam.com';
 const passwort = process.argv[4] ?? 'Hafencity!2026';
 
 const SEITEN = [
-  '/dashboard', '/disposition', '/kalender', '/events', '/events/neu',
-  '/mitarbeiter', '/mitarbeiter/neu', '/kunden', '/kunden/neu', '/partner', '/partner/neu',
-  '/anfragen', '/anfragen/neu', '/abgleiche', '/abgleiche/neu', '/zeiterfassung',
-  '/dokumente', '/kommunikation', '/auswertungen', '/einstellungen', '/admin',
-  '/admin/protokoll', '/meine-einsaetze', '/meine-verfuegbarkeit', '/meine-dokumente', '/konto/passwort',
-  '/benachrichtigungen', '/suche?q=mustermann',
+  // Dashboard und Disposition
+  '/dashboard',
+  '/disposition', '/disposition/woche', '/disposition/offene-positionen',
+  '/disposition/unbesetzt', '/disposition/zuordnung', '/kalender',
+  // Personal
+  '/mitarbeiter', '/mitarbeiter/neu', '/bewerber', '/mitarbeiterakten',
+  '/qualifikationen', '/dokumente', '/verfuegbarkeiten', '/schulungen',
+  // Einsaetze
+  '/events', '/events/neu', '/objekte', '/kunden', '/kunden/neu',
+  '/einsatzorte', '/teamleiter', '/einsatzhistorie',
+  // Zeiterfassung
+  '/zeiterfassung', '/zeiterfassung/arbeitszeiten',
+  '/zeiterfassung/korrekturen', '/zeiterfassung/freigaben',
+  // Partner
+  '/partner', '/partner/neu', '/partner/unternehmen',
+  '/partner/mitarbeiter', '/partner/einsaetze',
+  // Kommunikation
+  '/kommunikation', '/kommunikation/email', '/kommunikation/whatsapp', '/kommunikation/intern',
+  // Compliance
+  '/compliance', '/compliance/datenschutz', '/compliance/tom', '/compliance/avv',
+  '/compliance/loeschfristen', '/compliance/audit-log', '/compliance/vorfaelle',
+  '/compliance/dsfa', '/compliance/dokumentation', '/compliance/sicherheitscheck',
+  // Administration
+  '/admin', '/admin/benutzer', '/admin/rollen', '/admin/berechtigungen',
+  '/admin/schnittstellen', '/admin/protokoll', '/einstellungen',
+  // Weitere Arbeitsflaechen
+  '/anfragen', '/anfragen/neu', '/abgleiche', '/abgleiche/neu',
+  '/auswertungen', '/finanzen', '/benachrichtigungen', '/suche?q=mustermann',
+  // Eigener Bereich
+  '/meine-einsaetze', '/meine-verfuegbarkeit', '/meine-zeiten', '/meine-dokumente',
+  '/konto/passwort', '/konto/sicherheit',
+  // Schnittstellen
   '/api/auth/session', '/api/events', '/api/employees', '/api/shifts',
   '/api/requests', '/api/timesheets', '/api/reconciliation', '/api/customers',
   '/api/partners', '/api/notifications',
