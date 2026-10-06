@@ -4617,3 +4617,105 @@ Kunden mit `tools/kunden.js`; eine Selbstregistrierung gibt es bewusst nicht.
 Keine Cookies, kein Tracking, keine externen Schriften, keine
 Social-Media-Plugins, keine Analyse-Werkzeuge. Deshalb braucht die Seite kein
 Cookie-Banner. Wer daran etwas ändert, muss die Datenschutzerklärung nachziehen.
+
+---
+
+## Vier Fallen beim Aufsatteln neuer Effekte, Oktober 2026
+
+Der Auftrag war eine Liste aktueller Gestaltungsmittel — 3D, experimentelle
+Navigation, fette Typografie, Dunkelmodus, Motion, Neumorphismus, Collage —
+auf der gelieferten Fassung unter `redesign/`. Gebaut ist alles additiv: zwei
+neue Dateien und ein neuer Abschnitt, keine Zeile an einer bestehenden Regel
+(`tools/trends-einhaengen.py`, mit `--aus` wieder zurück).
+
+Die vier Fallen gelten aber unabhängig von diesem einen Auftrag, und drei
+davon sind alte Bekannte in neuer Verkleidung.
+
+### 1. Ein Effekt, der gegen die Aufblende verliert
+
+Alles, was aufblendet, endet bei `transform:none` — `.reveal-up.in` mit
+(0,2,0) und `[data-stagger].in > *` ebenso. Eine neue Regel
+`[data-kipp]{ transform: … }` hat (0,1,0) und **gilt nie**. Der Effekt ist
+dann vollständig vorhanden, sichtbar passiert nichts, und es gibt keine
+Fehlermeldung, nach der man suchen könnte.
+
+Immer gewinnen darf er aber auch nicht: dann wäre der *Startwert* der
+Aufblende überschrieben und die Elemente kämen ohne Fahrt herein. Richtig
+ist eine Regel, die nur im aktiven Zustand gilt (`[data-kipp].kippt`) — bei
+Gleichstand gewinnt die spätere Datei, und danach fällt das Element auf das
+`transform:none` der Aufblende zurück, also genau auf die Ruhelage.
+
+**Wer eine Bewegung auf ein Element legt, das schon eine hat, prüft zuerst,
+womit die vorhandene endet.**
+
+### 2. `transition:` löscht `transition-delay`
+
+Die Kurzschreibweise setzt **alle** Unterangaben, auch die Verzögerung, und
+zwar auf null. An `[data-stagger] > *` hängt
+`transition-delay: calc(var(--i,0) * 55ms)` — die ganze Staffelung. Eine
+neue Regel mit `transition:` an denselben Elementen nimmt sie mit.
+
+Und es sieht nicht kaputt aus: vier Blöcke, die gleichzeitig aufblenden,
+liest niemand als Fehler. Es stehen deshalb `transition-property`,
+`-duration` und `-timing-function` einzeln da. Dieselbe Familie wie
+`padding` gegen `.wrap`, nur bei einer anderen Eigenschaft.
+
+### 3. Eine unsichtbare Fläche ist keine fehlende Fläche
+
+Die neue Kapitelrail ist eine Punktspalte am linken Rand; die Beschriftung
+daneben trägt `white-space:nowrap` und steht auf `opacity:0`. Deckkraft null
+nimmt einem Element aber **nicht** seinen Platz: die Rail war dadurch
+gemessen **1383 px breit** und fing über die halbe Fensterbreite jeden Klick
+ab. Im Bild war davon nichts zu sehen.
+
+Zwei Dinge haben es gelöst: die Beschriftung liegt `position:absolute` (dann
+zählt sie nicht zur Breite), und die Rail bekommt ihre Breite ausdrücklich
+(`width:max-content`) statt sie dem Schrumpfen eines `position:fixed` ohne
+`right` zu überlassen.
+
+Nachmessen lässt sich so etwas nur im Bild, nie im Stylesheet:
+
+```js
+for (let x = 30; x < innerWidth; x += 70)
+  for (let y = 120; y < innerHeight; y += 70) {
+    const o = document.elementFromPoint(x, y);
+    if (o && o.closest('.kapitel')) console.log(x, y);
+  }
+```
+
+### 4. Ein `h2` hat in diesem Stylesheet keine Größe
+
+Es gibt keine einzige Regel `h2{ font-size: … }`. Stattdessen bringt jeder
+Abschnitt seine eigene mit: `.intro h2`, `.testi__head h2`, `.ablauf__kopf h2`,
+`.expect h2`, `.panel h2`. Ein neuer Abschnitt, der das nicht tut, bekommt
+die Vorgabe des Browsers — 1,5 em, also rund 24 px mitten zwischen
+Überschriften von 70. Genau so stand die Collage im ersten Durchgang da, und
+es sah nicht nach Fehler aus, sondern nach einer kleinen
+Zwischenüberschrift.
+
+**Wer einen Abschnitt dazunimmt, bringt seine Typografie mit** — und seine
+Abstandstokens (`var(--sec)`, `var(--sec-end)`), sonst fällt er beim
+nächsten Eingriff am Rhythmus aus der Reihe.
+
+### Und eine Zeile, die ganz gefehlt hat
+
+`color-scheme: dark` stand nirgends. Ohne sie zeichnet der Browser den
+Rollbalken, das Kalendersymbol in `<input type=date>`, die Uhr in
+`type=time` und den Pfeil eines `<select>` in seiner hellen Fassung — auf
+schwarzem Grund allein im Anfrageformular sechs Felder. Dieselbe Lücke war
+2026 im Hauptprojekt beim Umbau auf Dunkel aufgefallen; in der gelieferten
+Fassung ist sie nie angekommen. **Was in zwei Fassungen nebeneinander
+gepflegt wird, läuft genau an solchen Einzelzeilen auseinander.**
+
+### Zum sechsten Mal: eine Tonleiter ist nicht symmetrisch
+
+Der Dunkelmodus ist jetzt schaltbar, aber nur in der Tiefe (#000 gegen
+#101217), nicht in der Richtung. Eine helle Fassung würde die Folie über
+dem Hintergrundfilm auseinandernehmen. Und selbst der kleine Schritt kostet
+drei Werte statt einem — gerechnet gegen den hellsten Bildpunkt des Films:
+
+| Grund | Folie | `--muted` | gedämpfter Text |
+|---|---|---|---|
+| #000000 | .84 | .52 | 5,6:1 |
+| #101217 | .84 | .52 | **4,56:1** — knapp |
+| #101217 | **.88** | **.58** | 5,6:1 |

@@ -57,6 +57,12 @@
 <!-- Zuletzt: nimmt die waagerechten Trennlinien zwischen den
      Textbloecken weg. Was trennt, ist der Abstand. -->
 <link rel="stylesheet" href="assets/css/ohne-striche.css">
+<!-- Sieben Zusaetze (3D, Sprungpalette, fette Typografie,
+     schaltbarer Dunkelmodus, Motion, Neumorphismus, Collage).
+     Steht GANZ zuletzt: mehrere Regeln darin gewinnen allein durch
+     die Reihenfolge. Herausnehmen mit
+     python3 tools/trends-einhaengen.py --aus -->
+<link rel="stylesheet" href="assets/css/trends.css">
 <!-- Inhalte werden beim Scrollen eingeblendet. Ohne JavaScript bliebe die
      Seite sonst leer — diese Zeile nimmt die Sperre sofort zurück. -->
 <script>
@@ -519,6 +525,92 @@ document.documentElement.classList.remove("kein-js");
   </div>
 </section>
 
+<!-- ============ LAUFBAND ============ -->
+<!-- Fette Typografie, und zwar scrollgefuehrt: das Band wandert mit
+     `--durch` und steht still, sobald das Scrollen still steht. Es gibt
+     in diesem Projekt keine Dauerbewegung.
+
+     `aria-hidden`, weil es nichts Neues sagt: dieselben sechs Bereiche
+     stehen im Menue, im Balken unter der Kopfzeile und im Fuss. Ein
+     Vorlesewerkzeug bekaeme sie hier zum vierten Mal. -->
+<section class="laufband" data-durch aria-hidden="true">
+  <div class="laufband__spur">
+    <span>Service</span><span>Sicherheit</span><span>Hostessen</span><span>Logistik</span><span>Fahrservice</span><span>Reinigung</span><span>Service</span><span>Sicherheit</span><span>Hostessen</span><span>Logistik</span><span>Fahrservice</span><span>Reinigung</span>
+  </div>
+</section>
+
+<!-- ============ COLLAGE ============ -->
+<!-- Sechs Aufnahmen aus dem Betrieb, ueberlappend und jede mit eigenem
+     Tempo beim Scrollen. Alle sechs stehen so schon in der Galerie;
+     Bildunterschriften und Alternativtexte sind von dort uebernommen,
+     Wort fuer Wort. Hier wird nichts ueber den Betrieb behauptet, was
+     nicht ohnehin auf der Website steht.
+
+     Die Lagen stehen im Stylesheet (`--collage__stueck--1` bis `--6`),
+     nicht hier: ein Raster laesst sich in jeder Fensterbreite rechnen,
+     absolute Pixel stimmen in genau einer. -->
+<section class="collage" id="einblicke" data-durch>
+  <span class="collage__wort" aria-hidden="true">Einsatz</span>
+  <div class="wrap collage__inner">
+    <div class="collage__kopf">
+      <span class="eyebrow reveal-up">Aus dem Einsatz</span>
+      <h2 class="reveal-up u-caps" data-d="1">Sechs Bereiche, ein Abend</h2>
+      <p class="reveal-up" data-d="2">Aufnahmen aus laufenden Einsätzen: Service, Sicherheit,
+        Empfang, Messe und Logistik.</p>
+      <a class="btn reveal-up" data-d="3" href="galerie.html">Zur ganzen Galerie</a>
+    </div>
+
+    <div class="collage__flaeche">
+      <figure class="collage__stueck collage__stueck--1">
+        <picture><source type="image/avif" srcset="assets/img/event-empfang.avif" /><source type="image/webp" srcset="assets/img/event-empfang.webp" /><img src="assets/img/event-empfang.jpg" alt="Servicekraft mit Tablett zwischen den Gästen eines Abendempfangs" loading="lazy" width="1200" height="1600" /></picture>
+        <figcaption>Zwischen den Gästen</figcaption>
+      </figure>
+      <figure class="collage__stueck collage__stueck--2">
+        <picture><source type="image/avif" srcset="assets/img/event-doormen.avif" /><source type="image/webp" srcset="assets/img/event-doormen.webp" /><img src="assets/img/event-doormen.jpg" alt="Fünf Doormen in Uniform mit weißen Handschuhen am Eingang" loading="lazy" width="1600" height="1200" /></picture>
+        <figcaption>Doormen am Eingang</figcaption>
+      </figure>
+      <figure class="collage__stueck collage__stueck--3">
+        <picture><source type="image/avif" srcset="assets/img/gastro.avif" /><source type="image/webp" srcset="assets/img/gastro.webp" /><img src="assets/img/gastro.jpg" alt="Gedeckte Tafeln in einer Hamburger Eventlocation vor dem Empfang" loading="lazy" width="1600" height="1600" /></picture>
+        <figcaption>Gedeckt und bereit, kurz vor dem Empfang</figcaption>
+      </figure>
+      <figure class="collage__stueck collage__stueck--4">
+        <picture><source type="image/avif" srcset="assets/img/promotion-messe.avif" /><source type="image/webp" srcset="assets/img/promotion-messe.webp" /><img src="assets/img/promotion-messe.jpg" alt="Betreuung eines Messestands durch zwei Hostessen" loading="lazy" width="639" height="900" /></picture>
+        <figcaption>Messestand-Betreuung</figcaption>
+      </figure>
+      <figure class="collage__stueck collage__stueck--5">
+        <picture><source type="image/avif" srcset="assets/img/logistik.avif" /><source type="image/webp" srcset="assets/img/logistik.webp" /><img src="assets/img/logistik.jpg" alt="Blick durch das geöffnete Hallentor in einen bestuhlten Veranstaltungssaal" loading="lazy" width="1600" height="1600" /></picture>
+        <figcaption>Tor auf, Saal fertig, Halle 45</figcaption>
+      </figure>
+      <figure class="collage__stueck collage__stueck--6">
+        <picture><source type="image/avif" srcset="assets/img/sicherheit-detail.avif" /><source type="image/webp" srcset="assets/img/sicherheit-detail.webp" /><img src="assets/img/sicherheit-detail.jpg" alt="Ordner am Absperrgitter vor dem Publikum" loading="lazy" width="1600" height="1600" /></picture>
+        <figcaption>Am Absperrgitter</figcaption>
+      </figure>
+    </div>
+
+    <!-- Ein wirklich raeumliches Objekt, ohne eine einzige Bibliothek:
+         das Wortzeichen zwoelfmal uebereinander, jede Lage einen Pixel
+         tiefer und eine Spur dunkler. Gedreht wird mit dem Scrollen.
+         `aria-hidden`, weil es das Zeichen ist, das in der Kopfzeile
+         und im Fuss ohnehin mit Namen steht. -->
+    <div class="marke3d" data-durch aria-hidden="true">
+      <div class="marke3d__koerper">
+        <img src="assets/logo/logo-herm-mark.png" alt="" style="--s:11" width="512" height="512" loading="lazy" />
+        <img src="assets/logo/logo-herm-mark.png" alt="" style="--s:10" width="512" height="512" loading="lazy" />
+        <img src="assets/logo/logo-herm-mark.png" alt="" style="--s:9" width="512" height="512" loading="lazy" />
+        <img src="assets/logo/logo-herm-mark.png" alt="" style="--s:8" width="512" height="512" loading="lazy" />
+        <img src="assets/logo/logo-herm-mark.png" alt="" style="--s:7" width="512" height="512" loading="lazy" />
+        <img src="assets/logo/logo-herm-mark.png" alt="" style="--s:6" width="512" height="512" loading="lazy" />
+        <img src="assets/logo/logo-herm-mark.png" alt="" style="--s:5" width="512" height="512" loading="lazy" />
+        <img src="assets/logo/logo-herm-mark.png" alt="" style="--s:4" width="512" height="512" loading="lazy" />
+        <img src="assets/logo/logo-herm-mark.png" alt="" style="--s:3" width="512" height="512" loading="lazy" />
+        <img src="assets/logo/logo-herm-mark.png" alt="" style="--s:2" width="512" height="512" loading="lazy" />
+        <img src="assets/logo/logo-herm-mark.png" alt="" style="--s:1" width="512" height="512" loading="lazy" />
+        <img src="assets/logo/logo-herm-mark.png" alt="" style="--s:0" width="512" height="512" loading="lazy" />
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ============ CTA / KONTAKT ============ -->
 <section class="cta" id="kontakt">
   <div class="wrap cta__inner">
@@ -679,5 +771,6 @@ document.documentElement.classList.remove("kein-js");
      Zahlen. Aendert kein Aussehen, holt nur Funktion nach. -->
 <script src="assets/js/nachtrag.js"></script>
 <script src="assets/js/hintergrundfilm.js"></script>
+<script src="assets/js/trends.js"></script>
 </body>
 </html>

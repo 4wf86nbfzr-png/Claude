@@ -876,3 +876,89 @@ wo jemand nachsieht, der die Seite aufsetzt.
 | `/api/formular` | Boden in der Funktion (neu im Paket) |
 | Netlify Forms | Einstellung in der Netlify-Oberfläche |
 | `mailto:` als letzter Ausweg | `data-empfaenger` am `<form>`, war schon richtig |
+
+---
+
+## Sieben Zusätze: 3D, Navigation, Typografie, Dunkelstufe, Motion, Neumorphismus, Collage
+
+Bestellt war eine Liste aktueller Gestaltungsmittel. Umgesetzt ist alles
+sieben, und zwar **additiv**: zwei neue Dateien (`assets/css/trends.css`,
+`assets/js/trends.js`), ein neuer Abschnitt auf der Startseite, sonst
+keine Zeile an einer bestehenden Regel. Herausnehmen lässt sich alles
+mit `python3 tools/trends-einhaengen.py --aus`.
+
+| | wo | was |
+|---|---|---|
+| **3D** | Galeriekacheln, die vier Versprechen | Neigung am Zeiger mit Perspektive und einem Glanz, der dem Zeiger folgt |
+| | Collage | das Wortzeichen zwölffach gestapelt, als echter Körper, scrollgeführt gedreht |
+| **Navigation** | überall | Sprungpalette mit `Strg/⌘ + K` oder `/`, Pfeiltasten, Enter, Esc; dazu die Kapitelrail links ab 1200 px |
+| **Typografie** | Startseite | Laufband in Konturversalien, scrollgeführt; Riesenwort hinter der Collage |
+| **Dunkelmodus** | überall | zwei Tiefen, **tief** (#000) und **weich** (#101217), gemerkt; dazu `color-scheme:dark` |
+| **Motion** | überall | magnetische Knöpfe, Scrollspur `--durch` für Collage, Band und Zeichen |
+| **Neumorphismus** | Bedienelemente, die vier Versprechen | zwei gegenläufige Schatten, gedrückt als Mulde |
+| **Collage** | Startseite, vor dem Schlussblock | sechs überlappende Aufnahmen, jede mit eigenem Tempo |
+
+### Was dabei NICHT passiert ist
+
+- **Keine Bibliothek.** Kein three.js, kein GSAP. Das 3D-Zeichen ist ein
+  Stapel aus zwölf Lagen mit `translateZ`, die Neigung sind zwei
+  Winkel aus `transform`. Die Seite lädt weiterhin nichts von fremden
+  Servern, und das Cookie-Banner bleibt deshalb aus.
+- **Keine Dauerbewegung.** Alles Neue hängt am Scrollen oder am Zeiger
+  und steht still, sobald beides still steht. Bei reduzierter Bewegung
+  wird gar keine Spur angemeldet.
+- **Kein heller Modus.** Der Auftritt *ist* ein Dunkelmodus. Eine helle
+  Fassung würde die Folie über dem Hintergrundfilm auseinandernehmen
+  und jeden gemessenen Kontrast ungültig machen. Schaltbar ist deshalb
+  die Tiefe, nicht die Richtung.
+- **Nichts entfernt.** Kopfzeile, Vollbildmenü, App-Leiste, Fuß und die
+  bestehenden Aufblenden sind unberührt.
+
+### Drei Fallen, die beim Bauen zugeschlagen haben
+
+**1. Eine Neigung, die nie gilt.** Die gekippten Elemente sind
+`.gal__item.reveal-up` und die Kinder eines `[data-stagger]`. Beide
+bekommen beim Aufblenden ein `transform:none` mit der Spezifität
+(0,2,0). Eine Regel `[data-kipp]{transform:…}` hat (0,1,0) und hätte
+schlicht nie gegolten — der Effekt wäre da gewesen, sichtbar nichts,
+und niemand hätte den Grund gefunden. Sie steht deshalb als
+`[data-kipp].kippt`, also nur, solange der Zeiger wirklich darauf
+steht; danach fällt das Element auf das `transform:none` der Aufblende
+zurück, und das ist genau die Ruhelage.
+
+**2. `transition:` löscht `transition-delay`.** Die vier Versprechen
+sind Kinder eines `[data-stagger]`, und das setzt
+`transition-delay: calc(var(--i,0) * 55ms)` — daran hängt, dass sie
+nacheinander kommen. Die Kurzschreibweise hätte alle Unterangaben
+gesetzt, auch die Verzögerung, und zwar auf null. Vier Blöcke, die
+gleichzeitig aufblenden, sehen aus wie Absicht; gefunden hätte es
+niemand. Es stehen deshalb Langschreibweisen da. Dieselbe Familie wie
+`padding` gegen `.wrap`.
+
+**3. Zwei neue Abschnitte ohne Folie.** `hintergrundfilm.css` zählt die
+Abschnitte auf, die über dem Film eine 84-prozentige Folie tragen.
+Collage und Laufband standen nicht darin — der Film hätte dort in
+voller Helligkeit gestanden, und eine weiße Konturschrift auf einem
+hellen Bildpunkt ist weiß auf weiß. Nachgetragen, mit demselben
+gemessenen Wert.
+
+### Die Tonleiter ist zum sechsten Mal nicht symmetrisch
+
+Die weiche Dunkelstufe konnte die Werte der tiefen nicht mitnehmen.
+Gerechnet gegen den hellsten Bildpunkt des Films:
+
+| Grund | Folie | `--muted` | gedämpfter Text |
+|---|---|---|---|
+| #000000 | .84 | .52 | 5,6:1 |
+| #101217 | .84 | .52 | **4,56:1** — knapp |
+| #101217 | **.88** | **.58** | 5,6:1 |
+
+In der weichen Stufe stehen deshalb drei Werte anders, nicht einer.
+
+### Nebenbei: `color-scheme:dark` hat ganz gefehlt
+
+Ohne diese eine Zeile zeichnet der Browser Rollbalken, das
+Kalendersymbol in `<input type=date>`, die Uhr in `type=time` und den
+Pfeil eines `<select>` in seiner hellen Fassung. Auf schwarzem Grund
+sind das allein im Anfrageformular sechs Felder. Es ist der billigste
+Gewinn dieses Durchgangs.
