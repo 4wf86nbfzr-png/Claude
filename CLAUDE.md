@@ -4808,3 +4808,36 @@ Zwei Ausnahmen, beide nachgerechnet: **Schatten behalten ihr Schwarz**
 innerhalb eines Verlaufs zu `rgb(var(--grund-rgb) / 0)` — sonst führt
 der Weg von Weinrot nach durchsichtigem SCHWARZ durch einen schmutzigen
 Streifen.
+
+### Eine Kontrastmessung am Bild hat drei Arten, sich selbst zu messen
+
+Die Umstellung auf Beige und Weinrot hat ein Verfahren gebraucht, das
+den Grund im BILD nimmt statt im DOM — über dem Film, über einem Foto
+und auf den beigen Bahnen gibt es keinen deckenden Vorfahren. Das
+Verfahren hat dreimal sich selbst gemessen, und jedes Mal sah der
+Befund echt aus:
+
+1. **Verstecken nimmt einem Element auch seinen Grund.**
+   `visibility:hidden` auf jedes Textelement löscht bei einem gefüllten
+   Knopf und bei einer Bildunterschrift mit eigenem Verlauf genau die
+   Fläche, gegen die gemessen werden soll. Beide meldeten sich mit
+   1,0:1. Richtig ist, nur die Glyphen wegzunehmen
+   (`color:transparent`) — und für Elemente, die ihren Text und ihren
+   Grund selbst tragen, bleibt auch das unzureichend: dort hilft nur
+   Hinsehen.
+2. **Feste Leisten liegen über dem Inhalt.** Jedes Textstück, das sich
+   mit Kopfzeile, App-Leiste oder Werkzeugleiste überschneidet, wird
+   gegen deren Grund gemessen. Achtzehn Befunde kamen allein daher.
+3. **Wer zu früh fotografiert, misst eine halbe Aufblende.** Die
+   Übergänge laufen `--t-slow`, also 1,15 s; die Messung wartete 0,65 s
+   und fand Text bei halber Deckkraft. Gewartet wird jetzt, bis keine
+   Aufblende mehr zwischen 2 % und 98 % steht. Dieselbe Familie wie
+   „Tests, die blind warten".
+
+Von 37 Befunden blieben danach 12, und alle zwölf sind der erste Fall:
+sieben Bildunterschriften der Galerie, ein gefüllter Knopf und vier
+Verlaufsüberschriften. Einzeln im Bild nachgesehen, alle in Ordnung.
+
+**Die Regel, die daraus folgt, ist unbequem:** eine Messung am Bild ist
+dem DOM überlegen, aber sie hat mehr Arten, falsch zu liegen. Ein
+Befund aus ihr gilt erst, wenn die Stelle einmal angesehen wurde.

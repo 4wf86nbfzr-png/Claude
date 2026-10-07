@@ -1092,7 +1092,9 @@ die Korrektur nie gewandert.
 | | |
 |---|---|
 | waagerechter Überlauf, 9 Breiten × 16 Seiten | **0** |
+| Kontrast im DOM, 16 Seiten × 2 Dunkelstufen × 2 Lagen | **0** |
 | Textflächen über dem laufenden Film, 45 Phasen und Scrollstände | **0** unter der Grenze |
+| Textflächen im Bild, 286 über 54 Lagen (Film, Fotos, beige Bahnen) | 12 Meldungen, alle einzeln nachgesehen und in Ordnung |
 | harte Kanten an Abschnittsgrenzen | **0** |
 | reduzierte Bewegung | keine Spur angemeldet, kein Text unsichtbar |
 | ohne JavaScript | Farbraum steht, keine Bedienelemente, kein Text unsichtbar |
