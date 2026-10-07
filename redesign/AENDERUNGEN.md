@@ -1098,3 +1098,130 @@ die Korrektur nie gewandert.
 | harte Kanten an Abschnittsgrenzen | **0** |
 | reduzierte Bewegung | keine Spur angemeldet, kein Text unsichtbar |
 | ohne JavaScript | Farbraum steht, keine Bedienelemente, kein Text unsichtbar |
+
+---
+
+## Mehr Beige, Oktober 2026
+
+Bestellt: „mehr beige". Der naheliegende Griff wäre gewesen, das
+Beigelicht im Farbfeld aufzudrehen — und genau dort ist es am teuersten.
+Das Licht liegt **über** dem Film, hebt also den Grund an der Stelle, an
+der der Kontrast ohnehin am knappsten ist. Gerechnet gegen den hellsten
+Bildpunkt:
+
+| Beigelicht | Grund | voller Text | gedämpfte Stufe |
+|---|---|---|---|
+| .17 (vorher) | rgb(94,70,73) | 6,76:1 | 3,97:1 |
+| .22 | rgb(103,80,81) | 5,86:1 | 3,56:1 |
+| .26 | rgb(110,87,88) | 5,23:1 | 3,27:1 |
+
+Und es ist der einzige Regler im ganzen Farbschema, der schon am
+Anschlag stand: bei .19 fällt der Markenton — das dunkle Ende des
+Schriftverlaufs — über dem Film von 3,19:1 auf **3,01:1**, und große
+Schrift braucht 3,0. Auf den Unterseiten fällt er bei .16 auf 4,42:1,
+und dort trägt er Text, der 4,5 braucht.
+
+**Das Licht bleibt deshalb unverändert.** Beige als Fläche kostet
+dagegen nichts, solange die Fläche ihre Tonleiter mitdreht: sie ist
+deckend, also gibt es keinen zweiten Grund mehr, gegen den gerechnet
+werden müsste. Der ganze Auftrag wird von Flächen getragen.
+
+### Die beiden Buchstützen auf der Startseite
+
+Bisher stand in `farben.css`: auf der Startseite gibt es keine beige
+Bahn, weil der Film hinter allem läuft. Das gilt weiter — **für die
+Mitte**. Zwei Flächen sind der Sonderfall, und zwar aus einem Grund, den
+man nachsehen kann statt ihn abzuwägen: **beide waren schon vorher
+deckend.**
+
+| | vorher | jetzt |
+|---|---|---|
+| `.trust` (Vertrauensband unter dem Kopfbild) | deckend Wein | deckend Beige |
+| `body > footer` (Fußzeile, alle 16 Seiten) | durchsichtig über dem Film | deckend Beige |
+
+Das Vertrauensband zu tauschen deckt **keinen Quadratmillimeter Film
+zusätzlich** zu — es ist ein Tausch, kein Zuwachs. Die Fußzeile deckt den
+letzten Bildschirm zu, und das ist der Punkt: die Seite liest sich jetzt
+als Bogen. Titelbild, beiges Band, der Film über fünf Bildschirme,
+beiger Fuß. Hell am Anfang, hell am Ende, der Film dazwischen.
+
+### Der Farbtakt auf der längsten Seite
+
+`dienstleistungen.html` hatte **keinen einzigen** beigen Abschnitt — die
+sechs Bereichsblöcke heißen `bblock`, und im Raster von
+`tools/beige-bahnen.py` standen nur drei andere Klassennamen. Jetzt
+wechseln sie ab: Wein, Beige, Wein, Beige, Wein, Beige. Ihr Foto sitzt im
+Satzspiegel und nicht an der Fensterkante, die Regel „was auf einem Foto
+sitzt, bleibt Wein" greift dort also nicht.
+
+Das Anfrageformular auf `kontakt.html` bleibt bewusst Wein. Technisch
+spräche nichts dagegen, aber das ist der Weg, über den Geld hereinkommt,
+und er wird nicht wegen einer Farbe angefasst.
+
+### Drei Fehler, die erst das Beige sichtbar gemacht hat
+
+**1. Der Mittelstopp des Schriftverlaufs stand fest im Stylesheet.**
+`#E8C6C4` trägt auf dem Weingrund 11,30:1 — und auf einer beigen Bahn
+**1,13:1**. Die Mitte jeder großen Zeile auf einer beigen Bahn war damit
+praktisch weg, seit es beige Bahnen gibt, auf neun Seiten. Er steht jetzt
+als `--verlauf-mitte` und dreht mit: `#9B3A4C`, gerechnet 4,87:1.
+
+Das ist dieselbe Sorte Fehler wie die sieben fest eingetragenen Farben
+beim Umbau auf Dunkel im Hauptprojekt: **was eine Tonleiter nicht
+erreicht, ist eine Farbe, die in einer Regel steht.**
+
+**2. „Zum Anfrageformular" im Fuß war unsichtbar.** `.foot__claim` trägt
+den Schriftverlauf über `background-clip:text` und
+`-webkit-text-fill-color:transparent`. Die Füllfarbe **vererbt** sich,
+die Clipmaske des Elternteils reicht aber nur über seine eigenen
+Zeilenkästen. `.foot__claim-go` ist `display:inline-flex` und
+`position:relative`, hat also einen eigenen Formatierungskontext: es erbt
+die durchsichtige Füllung und bekommt den Verlauf nicht. Sichtbar war
+allein der Pfeil, weil ein SVG an `color` hängt und nicht an
+`-webkit-text-fill-color`.
+
+Keine Kontrastprüfung findet das — `color` ist dort korrekt gesetzt.
+Gefunden hat es ein Blick auf das Bild.
+
+**3. Ein Rahmen liegt außerhalb der Blende.** `.trust` trägt
+`border-bottom:1px`, und die Blende ist absolut gesetzt, reicht also nur
+bis zur **Polsterkante**. Der Elementgrund reicht bis zur
+**Rahmenkante**. Unter der fertig ausgeblendeten Unterkante stand deshalb
+genau eine Bildzeile in vollem Beige — ein heller Strich auf dem Film,
+also exakt die Kante, die die Blende gerade weggenommen hatte. Gemessen
+187 Stufen von 255. `background-clip:padding-box` löst es, ohne an der
+Höhe zu drehen; danach 7,3.
+
+### Und eine Zahl, die vorher falsch gewählt war
+
+Die Blende des Vertrauensbands stand im ersten Entwurf auf 26 px, damit
+sie in das vorhandene Polster passt. Im Bild war die Unterkante damit
+trotzdem ein Strich: 26 px sind rund zwei Prozent der Bandhöhe, und
+darunter fängt sofort der Film an. Das Band hat 16 px oben und 30 px
+unten dazubekommen, die Blende steht auf 46 px. Die Seite wächst um
+46 Pixel.
+
+### Abnahme
+
+| | |
+|---|---|
+| waagerechter Überlauf, 9 Breiten × 16 Seiten | **0** |
+| Kontrast im DOM, 16 Seiten × 2 Dunkelstufen × 2 Lagen | **0** |
+| harte Kanten an Abschnittsgrenzen (31 gemessen) | **0** — kein größter Sprung in der Kantenzeile |
+| größter Sprung Band → Film | 187 → **7,3** |
+| Textflächen im Bild, 347 über 63 Lagen (Film, Fotos, beige Bahnen) | 13 Meldungen, alle aus den zwei bekannten Verfahrensfamilien |
+| reduzierte Bewegung / ohne JavaScript | beige Flächen stehen, Text dunkel |
+| die fünf Referenzzeichen auf der beigen Bahn | dunkelster Bildpunkt 54–59 auf Grund 214 |
+
+Und die Verlaufsstopps, gerechnet statt im Bild geschätzt (große Schrift
+braucht 3,0:1):
+
+| Stopp | auf Wein | über dem Film | auf Beige |
+|---|---|---|---|
+| `--paper` | 14,08:1 | 6,38:1 | 12,83:1 |
+| `--verlauf-mitte` | 11,30:1 | 5,12:1 | **4,87:1** (vorher 1,13:1) |
+| `--marke` | 6,64:1 | 3,19:1 | 7,17:1 |
+
+Der mittlere Wert der letzten Zeile ist der knappste der ganzen Seite.
+Er ist nicht neu und wurde hier nicht verschlechtert — aber er ist der
+Grund, warum das Beigelicht nicht steigen durfte.

@@ -42,7 +42,19 @@ WURZEL = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)
 # Nur ruhige Textbahnen. `content` steht oft direkt unter dem Kopfbild
 # und ist dessen Fortsetzung — eine Farbkante mitten in einem Gedanken
 # liest als Fehler.
-BAHNEN = ('section-soft', 'testi', 'expect')
+#
+# `bblock` ist seit „mehr Beige" dabei: die sechs Bereichsbloecke auf
+# `dienstleistungen.html`. Sie fielen beim ersten Durchgang durch das
+# Raster, weil dort nur drei Klassennamen standen — die laengste Seite
+# der Website hatte damit keinen einzigen beigen Abschnitt. Ihr Foto
+# sitzt im Satzspiegel und nicht an der Fensterkante, Regel 2 greift
+# also nicht: abwechselnd Wein und Beige ist dort genau der Farbtakt,
+# den das Hauptprojekt unter „Der Farbtakt" beschreibt.
+#
+# `content` bleibt bewusst draussen. Auf `kontakt.html` waeren das das
+# Anfrageformular und der Ansprechpartner — der Weg, ueber den Geld
+# hereinkommt. Er wird nicht wegen einer Farbe angefasst.
+BAHNEN = ('section-soft', 'testi', 'expect', 'bblock')
 
 SECTION = re.compile(r'<section class="([^"]*)"')
 

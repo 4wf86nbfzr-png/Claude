@@ -95,6 +95,27 @@
 
   /* Die Zone, ueber die eine Kante ausgeblendet wird. */
   --blende: clamp(56px, 7vw, 120px);
+
+  /* ---- Der Grund, in den eine Blende ausLAEUFT ----
+     Das ist NICHT dasselbe wie `--grund-rgb`, und der Unterschied hat
+     genau einen Grund: eine beige Flaeche dreht `--grund-rgb` auf Beige
+     um (siehe `.auf-beige`), ihre Blende muss aber weiter in den
+     Seitengrund laufen. Stuende dort `--grund-rgb`, blendete Beige nach
+     Beige — also gar nicht, und aus dem Uebergang waere wieder eine
+     Kante geworden. `--aus-rgb` wird deshalb von keiner Tonleiter
+     angefasst, nur von der Dunkelstufe. */
+  --aus-rgb: 43 14 22;
+
+  /* ---- Der Mittelstopp des Schriftverlaufs ----
+     Er stand fest als #E8C6C4 im Stylesheet, und das war ein Fehler,
+     den man erst sieht, wenn eine Flaeche beige wird: auf #E7D9C2
+     traegt dieses Rose **1,13:1**. Die Mitte jeder grossen Zeile auf
+     einer beigen Bahn war damit praktisch weg — und zwar seit der
+     ersten beigen Bahn, auf neun Seiten.
+     Dieselbe Sorte Fehler wie die sieben fest eingetragenen Farben beim
+     Umbau auf Dunkel: **was eine Tonleiter nicht erreicht, ist eine
+     Farbe, die in einer Regel steht.** */
+  --verlauf-mitte: #e8c6c4;
 }
 
 /* Die weiche Dunkelstufe aus `trends.css`, in Wein uebersetzt: derselbe
@@ -105,6 +126,7 @@ html[data-dunkel="weich"] {
   --ink-2: #431c28;
   --ink-3: #4e2330;
   --grund-rgb: 58 22 32;
+  --aus-rgb: 58 22 32;
   --muted: rgb(var(--tinte-rgb) / 0.72);
   --line: rgb(var(--tinte-rgb) / 0.16);
   --film-folie: 0.92;
@@ -189,7 +211,17 @@ body::before {
      Deckkraft, und die kosten nichts. */
   background:
     /* Oben links ein warmes Beigelicht, als faellt Licht in den Raum.
-       Hier ist das Beige eine FLAECHE und nicht nur die Schrift. */
+       ---- Warum es bei .17 BLEIBT ----
+       Beim Auftrag „mehr beige" war das der naheliegende Regler, und
+       er ist der einzige im ganzen Farbschema, der schon am Anschlag
+       steht. Gerechnet gegen den hellsten Bildpunkt des Films faellt
+       der Markenton (das dunkle Ende des Schriftverlaufs) von 3,19:1
+       auf 3,01:1, sobald das Licht auf .19 geht — grosse Schrift
+       braucht 3,0. Auf den Unterseiten faellt er bei .16 auf 4,42:1,
+       und dort traegt er Text, der 4,5 braucht.
+       Mehr Beige kommt deshalb aus FLAECHEN (siehe 4b), nicht aus
+       Licht: eine deckende Flaeche dreht ihre Tonleiter mit und hat
+       keinen zweiten Grund mehr, gegen den gerechnet werden muesste. */
     radial-gradient(
       120% 90% at 8% calc(2% + var(--seite) * 16%),
       rgb(var(--tinte-rgb) / 0.17) 0%,
@@ -356,12 +388,12 @@ body > footer {
    ============================================================ */
 :root {
   --blende-aus:
-    rgb(var(--grund-rgb) / 1) 0%,
-    rgb(var(--grund-rgb) / 0.896) 20%,
-    rgb(var(--grund-rgb) / 0.648) 40%,
-    rgb(var(--grund-rgb) / 0.352) 60%,
-    rgb(var(--grund-rgb) / 0.104) 80%,
-    rgb(var(--grund-rgb) / 0) 100%;
+    rgb(var(--aus-rgb) / 1) 0%,
+    rgb(var(--aus-rgb) / 0.896) 20%,
+    rgb(var(--aus-rgb) / 0.648) 40%,
+    rgb(var(--aus-rgb) / 0.352) 60%,
+    rgb(var(--aus-rgb) / 0.104) 80%,
+    rgb(var(--aus-rgb) / 0) 100%;
 }
 
 /* Das Kopfbild loest sich nach unten auf. Der Verlauf liegt an `.hero`
@@ -466,12 +498,21 @@ body > footer {
    Umstellung jede Regel im Stylesheet ueber `--grund-rgb` und
    `--tinte-rgb` laeuft.
 
-   Auf der Startseite gibt es sie bewusst NICHT: eine deckende beige
-   Bahn wuerde den Film auf ihrer ganzen Hoehe zudecken, und
-   durchscheinend waere sie dunkle Tinte ueber einem Bild, dessen
-   Helligkeit sich 44 Sekunden lang aendert.
+   Mitten in der Seite gibt es sie auf der Startseite bewusst NICHT:
+   eine deckende beige Bahn wuerde den Film auf ihrer ganzen Hoehe
+   zudecken, und durchscheinend waere sie dunkle Tinte ueber einem
+   Bild, dessen Helligkeit sich 44 Sekunden lang aendert. Die beiden
+   Buchstuetzen — Vertrauensband und Fusszeile — sind der Sonderfall,
+   und warum, steht unter 4b.
+
+   Die Tonleiter steht in einer EIGENEN Regel, getrennt von der
+   Flaeche: Band und Fuss brauchen dieselbe Umkehr, aber ein anderes
+   Polster und eine andere Blende. Wer beides in einen Block schreibt,
+   bekommt beim ersten Sonderfall eine Kopie.
    ============================================================ */
-.auf-beige {
+.auf-beige,
+.trust,
+body > footer {
   --grund-rgb: 231 217 194;
   --tinte-rgb: 43 14 22;
   --ink: #e7d9c2;
@@ -494,10 +535,22 @@ body > footer {
   --neu-grund-2: #e9ddc8;
   --neu-licht: rgb(255 255 255 / 0.65);
   --neu-schatten: rgb(var(--tinte-rgb) / 0.18);
+  /* Gerechnet: #9B3A4C traegt auf #E7D9C2 4,87:1, ist also auch fuer
+     kleine Schrift sicher, und liest neben der weinroten Tinte noch
+     als eigener Ton. #B06470 waere mit 3,08:1 das Minimum fuer grosse
+     Schrift — zu knapp fuer einen Wert, der in einem Verlauf steht und
+     dessen genaue Lage im Wort niemand nachrechnet. */
+  --verlauf-mitte: #9b3a4c;
 
+  color: var(--paper);
+}
+
+/* Die Flaeche selbst. Sie gilt nur fuer die Bahn, nicht fuer Band und
+   Fuss: die haben ihr eigenes Polster, und mit dem Polster haengt die
+   Blende zusammen. */
+.auf-beige {
   position: relative;
   isolation: isolate;
-  color: var(--paper);
   /* Der Grund steht als BILD, nicht als Farbe: so traegt dieselbe
      Eigenschaft die Flaeche und ihre beiden Blenden, und es kommt kein
      Element hinzu, das mit dem Inhalt um die Stapelreihenfolge
@@ -541,19 +594,145 @@ body > footer {
   padding-bottom: max(var(--sec-end), calc(var(--blende) + 24px));
   border-top-color: transparent;
 }
+/* ---- Die sechs Bereichsbloecke ----
+   Ihr Polster steht bei `clamp(56px,8vw,128px)`, die Blende der Bahn
+   bei `clamp(56px,7vw,120px)` — am Telefon waeren beide 56 px, und
+   dann faengt der Text genau dort an, wo die Blende endet. Die Bahn
+   loest das sonst ueber `padding:max(var(--sec), …)`, aber damit
+   waechst jeder der sechs Bloecke; auf der laengsten Seite der
+   Website ist das sechsmal. Hier ist die Blende kleiner die bessere
+   Antwort: 40 px lassen am Telefon 16 px Luft und aendern die
+   Seitenhoehe um kein Pixel. */
+.bblock.auf-beige {
+  --blende: 40px;
+  padding-block: clamp(56px, 8vw, 128px);
+}
+
 /* Fremde Zeichen kann eine Tonleiter nicht drehen: die fuenf
    Referenzlogos sind weiss auf durchsichtigem Grund und waeren auf
    Beige nicht gedaempft, sondern weg. `invert` dreht eine einfarbig
    weisse Zeichnung verlustfrei um — es ist die Fassung, die diese
    Haeuser selbst auf hellem Papier benutzen. */
-.auf-beige .reflogos__reihe img {
+.auf-beige .reflogos__reihe img,
+.auf-beige .tcard .who__logo img {
   filter: invert(1);
   opacity: 0.74;
 }
 /* Die Bedienteile, die der Browser selbst zeichnet, haengen an keinem
    Token — ein Datumsfeld stuende sonst schwarz auf Beige. */
-.auf-beige {
+.auf-beige,
+.trust,
+body > footer {
   color-scheme: light;
+}
+
+/* ============================================================
+   4b. Die beiden Buchstuetzen
+   ------------------------------------------------------------
+   Bestellt war „mehr Beige". Der naheliegende Griff waere, das
+   Beigelicht im Farbfeld aufzudrehen — und genau dort ist es am
+   teuersten: das Licht liegt UEBER dem Film, hebt also den Grund
+   genau da, wo der Kontrast ohnehin am knappsten ist. Gerechnet gegen
+   den hellsten Bildpunkt faellt die gedaempfte Stufe von .17 auf .26
+   von 3,97:1 auf 3,27:1.
+
+   Beige als FLAECHE kostet dagegen nichts, solange die Flaeche ihre
+   Tonleiter mitdreht — und es sind zwei Flaechen da, die seit dem
+   ersten Entwurf deckend sind und es bleiben muessen:
+
+     `.trust`  das Vertrauensband unter dem Kopfbild
+     `footer`  die Fusszeile
+
+   **Beide waren schon vorher deckend** (`.hero,.trust{background-
+   color:var(--ink)}`, und der Fuss steht am Seitenende). Sie von Wein
+   auf Beige zu stellen deckt deshalb keinen Quadratmillimeter Film
+   zusaetzlich zu — es ist ein Tausch, kein Zuwachs. Das ist der ganze
+   Unterschied zu einer beigen Bahn mitten in der Seite, und es ist
+   der Grund, warum das hier auch auf der Startseite geht.
+
+   Gelesen wird die Startseite dadurch als Bogen: Titelbild, beiges
+   Band, der Film ueber fuenf Bildschirme, beiger Fuss. Die Seite
+   faengt hell an und endet hell, und dazwischen laeuft der Film.
+   ============================================================ */
+
+/* ---- Das Vertrauensband ----
+   Die Blende ist hier 46 px und nicht 56 bis 120. Der Grund ist
+   dieselbe Rechnung wie bei der beigen Bahn, nur andersherum: das Band
+   ist niedrig (gemessen 243 px), sein Polster steht bei
+   `clamp(34px,4.6vw,64px)` am `.trust__grid`. Eine Blende von 56 px
+   laege damit am Telefon UNTER dem Text — und dunkle Tinte im dunklen
+   Teil einer Blende ist dunkel auf dunkel.
+
+   **Ein Effekt, der in absoluten Werten an beiden Kanten eines Kastens
+   sitzt, muss wissen, wie hoch der Kasten ist.** Zum zweiten Mal in
+   dieser Datei, und es ist derselbe Satz.
+
+   Der erste Versuch stand auf 26 px und blieb innerhalb des
+   vorhandenen Polsters — gemessen und im Bild angesehen war die
+   Unterkante damit trotzdem ein Strich: 26 px sind bei 1440 px
+   Fensterbreite rund zwei Prozent der Bandhoehe, und darunter faengt
+   sofort der Film an. Das Band bekommt deshalb 16 px oben und 30 px
+   unten dazu; damit traegt die Blende 46 px und hat an beiden Kanten
+   noch Luft zum Text (oben 50, unten 64). Die Seite waechst dadurch
+   um 46 Pixel. */
+.trust {
+  --blende: 46px;
+  background-color: var(--ink);
+  padding-top: 16px;
+  padding-bottom: 30px;
+  /* ---- Die Falle: ein Rahmen liegt AUSSERHALB der Blende ----
+     `.trust` traegt `border-bottom:1px solid var(--line)`, und Section
+     3 nimmt der Linie die Farbe. Weg ist sie damit nicht: ein
+     Elementgrund reicht standardmaessig bis zur Rahmenkante, eine
+     absolut gesetzte Blende aber nur bis zur POLSTERkante. Gemessen
+     stand unter der fertig ausgeblendeten Unterkante noch genau eine
+     Bildzeile in vollem Beige (231,217,194) — ein heller Strich auf
+     dem Film, also exakt die Kante, die die Blende gerade
+     weggenommen hatte.
+     `padding-box` loest es ohne an der Hoehe zu drehen. */
+  background-clip: padding-box;
+}
+
+/* ---- Die Fusszeile ----
+   Sie blendet nur OBEN ein. Nach unten laeuft das Beige bis zur
+   Seitenkante durch, und das ist Absicht: eine Blende am Seitenende
+   zeigte einen weinroten Streifen unter dem Fuss, und beim Ueberziehen
+   am Telefon genau dort eine Kante. Was unten gebraucht wird, ist
+   Flaeche, keine Aufloesung. */
+body > footer {
+  --blende: 44px;
+  position: relative;
+  isolation: isolate;
+  background-color: transparent;
+  background-image: linear-gradient(
+    to bottom,
+    rgb(var(--grund-rgb) / 0) 0,
+    rgb(var(--grund-rgb) / 0.104) calc(var(--blende) * 0.2),
+    rgb(var(--grund-rgb) / 0.352) calc(var(--blende) * 0.4),
+    rgb(var(--grund-rgb) / 0.648) calc(var(--blende) * 0.6),
+    rgb(var(--grund-rgb) / 0.896) calc(var(--blende) * 0.8),
+    rgb(var(--grund-rgb) / 1) var(--blende),
+    rgb(var(--grund-rgb) / 1) 100%
+  );
+  /* Derselbe Riegel wie am Vertrauensband, nur an der Oberkante: der
+     Verlauf wird ueber der Polsterkante gekachelt, und die letzte
+     Kachelzeile ist volles Beige. Ohne `padding-box` stuende die ueber
+     dem weichen Anfang. */
+  background-clip: padding-box;
+  border-top-color: transparent;
+}
+
+/* ---- Das Wortzeichen im Fuss ----
+   Es liegt als helle Zeichnung auf durchsichtigem Grund und waere auf
+   Beige nicht gedaempft, sondern weg. Gemessen ist es EINFARBIG (ein
+   einziger Farbwert ueber alle deckenden Bildpunkte), und genau dann
+   dreht `invert(1)` es verlustfrei um — dieselbe Begruendung wie bei
+   den fuenf Referenzlogos, und derselbe Grund, warum hier keine zweite
+   Bilddatei dazukommt: die dunkle Fassung liegt in diesem Paket nicht
+   bei, und eine abgeleitete Datei, die von Hand gepflegt wird, laeuft
+   beim naechsten Farbwechsel auseinander. */
+body > footer .brand__logo {
+  filter: invert(1);
 }
 
 /* ============================================================
@@ -596,7 +775,7 @@ body > footer {
       104deg,
       var(--paper) 0%,
       var(--paper) 36%,
-      #e8c6c4 64%,
+      var(--verlauf-mitte) 64%,
       var(--marke) 100%
     );
     background-size: 220% 100%;
@@ -612,6 +791,23 @@ body > footer {
   .foot__claim .line span {
     color: inherit;
     -webkit-text-fill-color: inherit;
+  }
+  /* ---- Die Falle: `background-clip:text` erreicht nicht jedes Kind ----
+     `-webkit-text-fill-color:transparent` VERERBT sich, die Clipmaske
+     des Elternteils reicht aber nur ueber seine eigenen Zeilenkaesten.
+     Ein Kind mit eigenem Formatierungskontext — hier
+     `.foot__claim-go` mit `display:inline-flex; position:relative` —
+     erbt also die durchsichtige Fuellung, bekommt den Verlauf aber
+     nicht: „Zum Anfrageformular" stand als leere Flaeche da, und
+     sichtbar war allein der Pfeil, weil ein SVG an `color` haengt und
+     nicht an `-webkit-text-fill-color`.
+
+     Gefunden hat es kein Stylesheet und keine Kontrastpruefung
+     (`color` ist dort korrekt gesetzt), sondern ein Blick auf das
+     Bild. **Wer eine Fuellfarbe auf durchsichtig setzt, muss jedes
+     Kind nennen, das nicht im selben Zeilenkasten liegt.** */
+  .foot__claim-go {
+    -webkit-text-fill-color: currentColor;
   }
 }
 

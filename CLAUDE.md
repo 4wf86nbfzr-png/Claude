@@ -4841,3 +4841,112 @@ Verlaufsüberschriften. Einzeln im Bild nachgesehen, alle in Ordnung.
 **Die Regel, die daraus folgt, ist unbequem:** eine Messung am Bild ist
 dem DOM überlegen, aber sie hat mehr Arten, falsch zu liegen. Ein
 Befund aus ihr gilt erst, wenn die Stelle einmal angesehen wurde.
+
+---
+
+## Mehr Beige, Oktober 2026
+
+Bestellt war ein Wort: „mehr beige". Die Antwort darauf ist eine
+Unterscheidung, die in diesem Projekt noch nicht aufgeschrieben war:
+**Beige als Licht und Beige als Fläche kosten nicht dasselbe.**
+
+Das Licht liegt im Farbfeld **über** dem Hintergrundfilm. Es hebt also
+den Grund genau an der Stelle an, an der der Kontrast ohnehin am
+knappsten ist, und es hebt die durchscheinende Schrift mit — dieselbe
+Mechanik wie unter „Über einem Film gibt es keinen Grund, gegen den man
+rechnen kann". Gerechnet gegen den hellsten Bildpunkt:
+
+| Beigelicht | Grund | voller Text | gedämpfte Stufe |
+|---|---|---|---|
+| .17 | rgb(94,70,73) | 6,76:1 | 3,97:1 |
+| .22 | rgb(103,80,81) | 5,86:1 | 3,56:1 |
+| .26 | rgb(110,87,88) | 5,23:1 | 3,27:1 |
+
+Das Licht ist zugleich der einzige Regler im ganzen Farbschema, der
+schon am Anschlag stand. Bei .19 fällt der Markenton — das dunkle Ende
+des Schriftverlaufs — über dem Film von 3,19:1 auf **3,01:1**, und
+große Schrift braucht 3,0. Auf den Unterseiten fällt er bei .16 auf
+4,42:1, und dort trägt er Text, der 4,5 braucht.
+
+Eine Fläche kostet davon **nichts**, solange sie ihre Tonleiter
+mitdreht: sie ist deckend, also gibt es keinen zweiten Grund mehr, gegen
+den gerechnet werden müsste. **Das Licht ist deshalb unverändert
+geblieben, und der ganze Auftrag wird von Flächen getragen.** Das ist
+die allgemeine Form: wer mehr von einer Farbe bestellt, bekommt sie
+billiger als Fläche denn als Licht — und über einem bewegten Grund ist
+Licht der teuerste Weg, den es gibt.
+
+### Eine Fläche, die schon deckend war, ist umsonst
+
+Auf der Startseite läuft der Film hinter allem, und deshalb steht dort
+seit dem Farbwechsel: keine beige Bahn. Das gilt weiter — **für die
+Mitte.** Zwei Flächen sind der Sonderfall, und der Grund ist nachsehbar
+statt abwägbar: `.trust` stand auf `background-color:var(--ink)` und die
+Fußzeile steht am Seitenende. **Beide waren schon vorher deckend.** Sie
+von Wein auf Beige zu stellen deckt keinen Quadratmillimeter Film
+zusätzlich zu.
+
+Daraus wird eine Regel für jeden künftigen Wunsch nach einer hellen
+Fläche über einem bewegten Grund: **nicht fragen „verträgt der Film das",
+sondern „war dort vorher schon etwas Deckendes".** Wenn ja, ist es ein
+Tausch und keine Entscheidung.
+
+Gelesen wird die Startseite seitdem als Bogen: Titelbild, beiges Band,
+Film über fünf Bildschirme, beiger Fuß. Hell am Anfang, hell am Ende.
+
+### Zum achten Mal: eine Farbe, die in einer Regel steht
+
+`#E8C6C4` war der Mittelstopp des Schriftverlaufs — fest eingetragen,
+und auf dem Weingrund mit 11,30:1 völlig unauffällig. Auf einer beigen
+Bahn sind es **1,13:1**. Die Mitte jeder großen Zeile auf einer beigen
+Bahn war damit praktisch weg, seit es beige Bahnen gibt, auf neun
+Seiten.
+
+Das ist exakt der Fehler aus „Drei helle Flächen, die seit dem Umbau auf
+Dunkel ausgeliefert wurden" und aus „Vier Stellen, die eine Farbe fest
+eingetragen hatten", nur in einem Verlauf statt in einer Fläche: **was
+eine Tonleiter nicht erreicht, ist eine Farbe, die in einer Regel
+steht.** Ein Verlauf ist dabei der unauffälligste Ort dafür, weil
+niemand nachrechnet, wo im Wort welcher Stopp landet.
+
+### `background-clip:text` erreicht nicht jedes Kind
+
+`-webkit-text-fill-color:transparent` **vererbt** sich, die Clipmaske
+des Elternteils reicht aber nur über seine eigenen Zeilenkästen. Ein
+Kind mit eigenem Formatierungskontext — `.foot__claim-go` ist
+`display:inline-flex; position:relative` — erbt also die durchsichtige
+Füllung und bekommt den Verlauf nicht. „Zum Anfrageformular" stand als
+leere Fläche da; sichtbar war allein der Pfeil, weil ein SVG an `color`
+hängt und nicht an `-webkit-text-fill-color`.
+
+Keine Kontrastprüfung findet das: `color` ist an der Stelle korrekt
+gesetzt und ergibt einen tadellosen Wert. **Wer eine Füllfarbe auf
+durchsichtig setzt, muss jedes Kind nennen, das nicht im selben
+Zeilenkasten liegt** — und es im Bild nachsehen, nicht im DOM.
+
+### Ein Rahmen liegt außerhalb der Blende
+
+`.trust` trägt `border-bottom:1px`. Eine absolut gesetzte Blende
+(`bottom:0`) reicht bis zur **Polsterkante**, der Elementgrund bis zur
+**Rahmenkante**. Unter der fertig ausgeblendeten Unterkante stand
+deshalb genau eine Bildzeile in vollem Beige: ein heller Strich auf dem
+Film, also exakt die Kante, die die Blende gerade weggenommen hatte.
+Gemessen 187 Stufen von 255, nach `background-clip:padding-box` noch
+7,3.
+
+Das ergänzt die Regel aus „Und: wo eine Blende die Farbe wechselt, steht
+kein Strich mehr". Dort reichte `border-top-color:transparent`, weil der
+Abschnitt keinen eigenen deckenden Grund trug. **Sobald er einen hat,
+ist eine durchsichtige Rahmenfarbe zu wenig — der Grund scheint
+darunter weiter durch.**
+
+### Und die Zahl, die zum vierten Mal zu klein war
+
+Die Blende des Vertrauensbands stand zuerst auf 26 px, damit sie in das
+vorhandene Polster passt. Im Bild war die Unterkante damit trotzdem ein
+Strich: 26 px sind zwei Prozent der Bandhöhe, und darunter fängt sofort
+der Film an. Das Band hat 46 px Polster dazubekommen, damit die Blende
+46 px tragen kann. **Ein Effekt, der in absoluten Werten an beiden
+Kanten eines Kastens sitzt, muss wissen, wie hoch der Kasten ist** — und
+wenn der Kasten zu niedrig ist, wächst der Kasten, nicht die Zahl nach
+unten.
