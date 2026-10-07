@@ -74,8 +74,8 @@ a {
   text-decoration: none;
 }
 ::selection {
-  background: #fff;
-  color: #000;
+  background: var(--paper);
+  color: var(--ink);
 }
 body:after {
   content: "";
@@ -258,7 +258,7 @@ button.btn:before {
 button.btn:after {
   inset: 0;
   height: auto;
-  background: #fff;
+  background: var(--paper);
   transform: scaleY(0);
   transform-origin: bottom;
   z-index: -1;
@@ -266,7 +266,7 @@ button.btn:after {
 }
 button.btn:hover:not(:disabled),
 button.btn:focus-visible:not(:disabled) {
-  color: #000;
+  color: var(--ink);
 }
 button.btn:hover:not(:disabled):after,
 button.btn:focus-visible:not(:disabled):after {
@@ -319,7 +319,7 @@ button.btn--zeile:focus-visible:not(:disabled):after {
   transform-origin: left;
 }
 :focus-visible {
-  outline: 2px solid #fff;
+  outline: 2px solid var(--paper);
   outline-offset: 4px;
   border-radius: var(--r-s);
 }
@@ -364,11 +364,11 @@ button.btn--zeile:focus-visible:not(:disabled):after {
   inset: -12% -35%;
   background: linear-gradient(
     112deg,
-    transparent 34%,
-    rgba(255, 255, 255, 0.05) 45%,
-    rgba(255, 255, 255, 0.11) 50%,
-    rgba(255, 255, 255, 0.05) 55%,
-    transparent 66%
+    rgb(var(--grund-rgb) / 0) 34%,
+    rgb(var(--tinte-rgb) / 0.05) 45%,
+    rgb(var(--tinte-rgb) / 0.11) 50%,
+    rgb(var(--tinte-rgb) / 0.05) 55%,
+    rgb(var(--grund-rgb) / 0) 66%
   );
   transform: translate(-46%);
   animation: preLicht 2s var(--ease-soft) 0.1s forwards;
@@ -413,7 +413,7 @@ button.btn--zeile:focus-visible:not(:disabled):after {
   pointer-events: none;
   -webkit-mask: url(../logo/logo-herm.png) center / contain no-repeat;
   mask: url(../logo/logo-herm.png) center / contain no-repeat;
-  background: linear-gradient(112deg, transparent 38%, #fff 50%, transparent 62%);
+  background: linear-gradient(112deg, rgb(var(--grund-rgb) / 0) 38%, var(--paper) 50%, rgb(var(--grund-rgb) / 0) 62%);
   background-size: 300% 100%;
   background-position: 150% 0;
   background-repeat: no-repeat;
@@ -459,7 +459,7 @@ button.btn--zeile:focus-visible:not(:disabled):after {
   height: 1px;
   width: 0;
   z-index: 9999;
-  background: #fff;
+  background: var(--paper);
   opacity: 0.75;
 }
 header.nav {
@@ -655,7 +655,7 @@ body.menu-open .burger i:nth-child(3) {
   position: fixed;
   inset: 0;
   z-index: 850;
-  background: #000;
+  background: var(--ink);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -1068,8 +1068,8 @@ body.megabar-auf header.nav {
   inset: 0;
   pointer-events: none;
   background:
-    linear-gradient(180deg, var(--ink) 0%, rgba(0, 0, 0, 0.34) 12%, rgba(0, 0, 0, 0) 30%),
-    linear-gradient(0deg, var(--ink) 0%, rgba(0, 0, 0, 0.34) 12%, rgba(0, 0, 0, 0) 30%);
+    linear-gradient(180deg, var(--ink) 0%, rgb(var(--grund-rgb) / 0.34) 12%, rgb(var(--grund-rgb) / 0) 30%),
+    linear-gradient(0deg, var(--ink) 0%, rgb(var(--grund-rgb) / 0.34) 12%, rgb(var(--grund-rgb) / 0) 30%);
 }
 .kein-js .schaubild img {
   animation: none;
@@ -1080,7 +1080,7 @@ body.megabar-auf header.nav {
   inset: 0;
   background:
     linear-gradient(180deg, #000000b3, #00000057 9%, #0000 26%),
-    linear-gradient(180deg, rgba(0, 0, 0, 0) 34%, rgba(6, 6, 9, 0.66) 64%, rgba(7, 7, 10, 0.92) 86%, var(--ink) 100%),
+    linear-gradient(180deg, rgb(var(--grund-rgb) / 0) 34%, rgba(6, 6, 9, 0.66) 64%, rgba(7, 7, 10, 0.92) 86%, var(--ink) 100%),
     linear-gradient(90deg, #0000008c, #0000002e 42%, #0000 70%);
 }
 .hero__inner {
@@ -1159,7 +1159,7 @@ body.megabar-auf header.nav {
   width: 100%;
   margin-top: clamp(24px, 4.4vh, 48px);
   padding-top: clamp(18px, 2.6vh, 30px);
-  border-top: 1px solid rgba(255, 255, 255, 0.22);
+  border-top: 1px solid rgb(var(--tinte-rgb) / 0.22);
 }
 .hero__sub {
   max-width: 44ch;
@@ -1273,7 +1273,7 @@ body.megabar-auf header.nav {
 .scrollcue i {
   width: 1px;
   height: clamp(44px, 9vh, 86px);
-  background: linear-gradient(#fff, transparent);
+  background: linear-gradient(var(--paper), rgb(var(--grund-rgb) / 0));
 }
 .hero[data-weg] .scrollcue {
   opacity: clamp(0, calc(1 - var(--weg, 0) * 9), 1);
@@ -1402,7 +1402,7 @@ body.megabar-auf header.nav {
   position: absolute;
   inset: auto 0 0;
   height: 52%;
-  background: linear-gradient(to top, rgba(4, 4, 6, 0.88) 0%, rgba(4, 4, 6, 0.55) 38%, transparent 100%);
+  background: linear-gradient(to top, rgba(4, 4, 6, 0.88) 0%, rgba(4, 4, 6, 0.55) 38%, rgb(var(--grund-rgb) / 0) 100%);
   pointer-events: none;
 }
 .film__untertitel {
@@ -1418,10 +1418,10 @@ body.megabar-auf header.nav {
   font-size: clamp(1.02rem, 1.9vw, 1.6rem);
   line-height: 1.35;
   font-weight: 600;
-  color: #fff;
+  color: var(--paper);
   text-shadow:
-    0 2px 14px rgba(0, 0, 0, 0.9),
-    0 1px 3px rgba(0, 0, 0, 0.8);
+    0 2px 14px rgb(var(--grund-rgb) / 0.9),
+    0 1px 3px rgb(var(--grund-rgb) / 0.8);
   opacity: 0;
   transition: opacity var(--t-fast) var(--ease-swift);
 }
@@ -1444,7 +1444,7 @@ body.megabar-auf header.nav {
   padding: 0.6em 1em;
   min-height: 44px;
   border-radius: 0;
-  border: 1px solid rgba(255, 255, 255, 0.28);
+  border: 1px solid rgb(var(--tinte-rgb) / 0.28);
   background: #0000008c;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
@@ -1461,12 +1461,12 @@ body.megabar-auf header.nav {
 }
 .film__knopf:hover {
   background: #ffffffeb;
-  color: #000;
+  color: var(--ink);
   border-color: transparent;
 }
 .film__knopf--wartet {
-  background: #fff;
-  color: #000;
+  background: var(--paper);
+  color: var(--ink);
   border-color: transparent;
   box-shadow: 0 6px 24px -10px #000c;
 }
@@ -1474,7 +1474,7 @@ body.megabar-auf header.nav {
   background: #ffffffdb;
 }
 .film__knopf:focus-visible {
-  outline: 2px solid #fff;
+  outline: 2px solid var(--paper);
   outline-offset: 3px;
 }
 .film__knopf svg {
@@ -1602,8 +1602,8 @@ body.megabar-auf header.nav {
   font-size: var(--fs-h3);
   margin: 0.4em 0 0.2em;
   text-shadow:
-    0 2px 24px rgba(0, 0, 0, 0.75),
-    0 1px 3px rgba(0, 0, 0, 0.6);
+    0 2px 24px rgb(var(--grund-rgb) / 0.75),
+    0 1px 3px rgb(var(--grund-rgb) / 0.6);
 }
 .panel .num,
 .panel .tag,
@@ -1744,7 +1744,7 @@ body.megabar-auf header.nav {
   bottom: 0;
   width: 2px;
   transform: translate(-50%);
-  background: linear-gradient(180deg, transparent, rgba(255, 214, 170, 0.85), transparent);
+  background: linear-gradient(180deg, rgb(var(--grund-rgb) / 0), rgba(255, 214, 170, 0.85), rgb(var(--grund-rgb) / 0));
   opacity: calc(var(--door, 0) * 1.6);
   filter: blur(2px);
 }
@@ -1830,7 +1830,7 @@ body.megabar-auf header.nav {
   left: 0;
   right: 0;
   height: 1px;
-  background: #fff;
+  background: var(--paper);
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.55s var(--ease-out);
@@ -1963,7 +1963,7 @@ body.megabar-auf header.nav {
   left: 0;
   right: 0;
   height: 1px;
-  background: #fff;
+  background: var(--paper);
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.55s var(--ease-out);
@@ -2122,7 +2122,7 @@ body.megabar-auf header.nav {
   font-size: 0.95rem;
 }
 .ansprech__txt a:hover {
-  color: #fff;
+  color: var(--paper);
 }
 .contact-cards {
   display: grid;
@@ -2290,7 +2290,7 @@ body > footer ul li.foot__fakt {
   height: 18px;
 }
 .socials a:hover {
-  color: #fff;
+  color: var(--paper);
   transform: translateY(-2px);
 }
 .foot__bottom {
@@ -2351,7 +2351,7 @@ body > footer ul li.foot__fakt {
   content: "";
   width: 1px;
   height: clamp(34px, 6vh, 64px);
-  background: linear-gradient(transparent, currentColor);
+  background: linear-gradient(rgb(var(--grund-rgb) / 0), currentColor);
 }
 #toTop:after {
   content: "Nach oben";
@@ -2973,7 +2973,7 @@ header.nav {
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.55);
+  border: 1px solid rgb(var(--tinte-rgb) / 0.55);
   display: grid;
   place-items: center;
   opacity: 0;
@@ -3005,7 +3005,7 @@ header.nav {
   font-size: 0.56rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: #000;
+  color: var(--ink);
   opacity: 0;
   transition: opacity 0.3s var(--ease-swift);
 }
@@ -3213,9 +3213,9 @@ header.nav {
   background:
     linear-gradient(
       180deg,
-      rgba(0, 0, 0, 0.66) 0%,
-      rgba(0, 0, 0, 0.24) 12%,
-      rgba(0, 0, 0, 0) 30%,
+      rgb(var(--grund-rgb) / 0.66) 0%,
+      rgb(var(--grund-rgb) / 0.24) 12%,
+      rgb(var(--grund-rgb) / 0) 30%,
       rgba(4, 4, 7, 0.72) 82%,
       var(--ink) 100%
     ),
@@ -3245,7 +3245,7 @@ header.nav {
   transition: color var(--t-fast) var(--ease-swift);
 }
 .breadcrumb a:hover {
-  color: #fff;
+  color: var(--paper);
 }
 .subhero h1 {
   text-shadow: 0 2px 30px rgba(0, 0, 0, 0.7);
@@ -3272,7 +3272,7 @@ header.nav {
   max-width: 46ch;
   text-shadow: 0 1px 16px rgba(0, 0, 0, 0.7);
   padding-top: clamp(16px, 2.2vh, 24px);
-  border-top: 1px solid rgba(255, 255, 255, 0.22);
+  border-top: 1px solid rgb(var(--tinte-rgb) / 0.22);
 }
 .subhero--band {
   display: block;
@@ -3288,9 +3288,9 @@ header.nav {
 .subhero--band .subhero__photo:after {
   background: linear-gradient(
     180deg,
-    rgba(0, 0, 0, 0.3) 0%,
-    rgba(0, 0, 0, 0) 22%,
-    rgba(0, 0, 0, 0) 74%,
+    rgb(var(--grund-rgb) / 0.3) 0%,
+    rgb(var(--grund-rgb) / 0) 22%,
+    rgb(var(--grund-rgb) / 0) 74%,
     rgba(8, 8, 10, 0.7) 94%,
     var(--ink) 100%
   );
@@ -3731,7 +3731,7 @@ header.nav {
 .pullquote {
   margin: var(--gap-l) 0 0;
   padding-left: clamp(18px, 2.4vw, 28px);
-  border-left: 2px solid rgba(255, 255, 255, 0.35);
+  border-left: 2px solid rgb(var(--tinte-rgb) / 0.35);
 }
 .pullquote blockquote {
   font-family: var(--font-display);
@@ -3812,7 +3812,7 @@ header.nav {
   display: none;
 }
 .faq summary:hover {
-  color: #fff;
+  color: var(--paper);
 }
 .faq summary:after {
   content: "";
@@ -4016,7 +4016,7 @@ header.nav {
 .form select:focus,
 .form textarea:focus {
   outline: none;
-  border-bottom-color: #fff;
+  border-bottom-color: var(--paper);
   box-shadow: 0 1px #fff;
 }
 .form textarea {
@@ -4074,7 +4074,7 @@ header.nav {
   height: 20px;
   flex: none;
   margin-top: 2px;
-  accent-color: #fff;
+  accent-color: var(--paper);
   border-radius: 4px;
   padding: 0;
 }
@@ -4149,8 +4149,8 @@ header.nav {
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: #fff;
-  color: #000;
+  background: var(--paper);
+  color: var(--ink);
   margin-bottom: 6px;
 }
 .danke h2 {
@@ -4345,7 +4345,7 @@ header.nav {
   left: 0;
   width: clamp(38px, 5vw, 64px);
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--paper));
+  background: linear-gradient(90deg, rgb(var(--grund-rgb) / 0), var(--paper));
   transform: translate(calc(var(--lauf, 0) * (100vw - clamp(38px, 5vw, 64px))));
   will-change: auto;
   opacity: 0.5;
@@ -4543,8 +4543,8 @@ body > footer[data-spur]:before {
   gap: 9px;
   opacity: clamp(0, calc((var(--kapitel, 1) - 0.015) / 0.07), 1);
   text-shadow:
-    0 1px 14px rgba(0, 0, 0, 0.9),
-    0 0 3px rgba(0, 0, 0, 0.7);
+    0 1px 14px rgb(var(--grund-rgb) / 0.9),
+    0 0 3px rgb(var(--grund-rgb) / 0.7);
 }
 .stage__zeile {
   display: flex;
@@ -4559,7 +4559,7 @@ body > footer[data-spur]:before {
   width: clamp(84px, 11vw, 148px);
   height: 1px;
   background:
-    linear-gradient(#fff, #fff) left center / calc(var(--kapitel, 0) * 100%) 100% no-repeat,
+    linear-gradient(var(--paper), var(--paper)) left center / calc(var(--kapitel, 0) * 100%) 100% no-repeat,
     #fff3;
 }
 .kapitel {
@@ -4607,7 +4607,7 @@ body > footer[data-spur]:before {
   width: 30px;
 }
 .kapitel a.ist {
-  color: #fff;
+  color: var(--paper);
 }
 .kapitel a.ist:after {
   width: 40px;
@@ -4667,8 +4667,8 @@ h3.reveal-up {
   padding-block: 0.14em;
   opacity: 1;
   transform: none;
-  -webkit-mask-image: linear-gradient(#000, #000);
-  mask-image: linear-gradient(#000, #000);
+  -webkit-mask-image: linear-gradient(var(--ink), var(--ink));
+  mask-image: linear-gradient(var(--ink), var(--ink));
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
   -webkit-mask-size: 100% 0%;
@@ -4785,8 +4785,8 @@ h3.reveal-up.in {
   white-space: nowrap;
   padding: 0;
   border: 0;
-  background: #fff;
-  color: #000;
+  background: var(--paper);
+  color: var(--ink);
   font-family: var(--font-body);
   font-weight: 600;
   font-size: 0.95rem;

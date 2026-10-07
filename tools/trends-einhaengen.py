@@ -36,14 +36,16 @@ WURZEL = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'redesig
 WURZEL = os.path.normpath(WURZEL)
 
 ANKER_CSS = re.compile(r'([ \t]*)<link rel="stylesheet" href="([^"]*)assets/css/ohne-striche\.css">')
-ZEILE_CSS = '<link rel="stylesheet" href="{p}assets/css/trends.css">'
+ZEILE_CSS = ('<link rel="stylesheet" href="{p}assets/css/trends.css">\n'
+             '{e}<link rel="stylesheet" href="{p}assets/css/farben.css">')
 ZEILE_JS = '<script src="{p}assets/js/trends.js"></script>'
 
 KOMMENTAR = (
-    '<!-- Sieben Zusaetze (3D, Sprungpalette, fette Typografie,\n'
-    '     schaltbarer Dunkelmodus, Motion, Neumorphismus, Collage).\n'
-    '     Steht GANZ zuletzt: mehrere Regeln darin gewinnen allein durch\n'
-    '     die Reihenfolge. Herausnehmen mit\n'
+    '<!-- Die beiden letzten Stylesheets, und die Reihenfolge ist die ganze\n'
+    '     Wirkung: `trends.css` bringt die Effekte, `farben.css` danach die\n'
+    '     Palette (Beige und Weinrot), das Farbfeld und die weichen Kanten.\n'
+    '     Mehrere Regeln darin gewinnen allein dadurch, dass sie spaeter\n'
+    '     stehen. Herausnehmen mit\n'
     '     python3 tools/trends-einhaengen.py --aus -->'
 )
 
@@ -70,9 +72,9 @@ def einhaengen(text):
         raise SystemExit('Anker `ohne-striche.css` fehlt — Seite nicht in der erwarteten Form.')
     einzug, praefix = treffer.group(1), treffer.group(2)
 
-    if 'assets/css/trends.css' not in text:
+    if 'assets/css/trends.css' not in text or 'assets/css/farben.css' not in text:
         ersatz = treffer.group(0) + '\n' + einzug + KOMMENTAR.replace('\n', '\n' + einzug) \
-                 + '\n' + einzug + ZEILE_CSS.format(p=praefix)
+                 + '\n' + einzug + ZEILE_CSS.format(p=praefix, e=einzug)
         text = text[:treffer.start()] + ersatz + text[treffer.end():]
         geaendert += 1
 
@@ -91,10 +93,13 @@ def aushaengen(text):
 
     # Der Kommentarblock mitsamt der Zeile darunter.
     text = re.sub(
-        r'\n[ \t]*<!-- Sieben Zusaetze.*?-->\n[ \t]*<link rel="stylesheet" href="[^"]*assets/css/trends\.css">',
+        r'\n[ \t]*<!-- Die beiden letzten Stylesheets.*?-->'
+        r'\n[ \t]*<link rel="stylesheet" href="[^"]*assets/css/trends\.css">'
+        r'\n[ \t]*<link rel="stylesheet" href="[^"]*assets/css/farben\.css">',
         '', text, flags=re.S)
     # Und, falls der Kommentar einmal fehlen sollte, die Zeile allein.
-    text = re.sub(r'\n[ \t]*<link rel="stylesheet" href="[^"]*assets/css/trends\.css">', '', text)
+    text = re.sub(r'\n[ \t]*<!-- Sieben Zusaetze.*?-->', '', text, flags=re.S)
+    text = re.sub(r'\n[ \t]*<link rel="stylesheet" href="[^"]*assets/css/(trends|farben)\.css">', '', text)
     text = re.sub(r'\n?[ \t]*<script src="[^"]*assets/js/trends\.js"></script>', '', text)
 
     if text != vorher:

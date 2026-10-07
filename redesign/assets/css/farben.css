@@ -1,0 +1,867 @@
+/* ============================================================
+   Beige und Weinrot
+   ------------------------------------------------------------
+   Diese Datei liegt GANZ zuletzt und traegt drei Dinge:
+
+     1. die Palette          gerechnet, nicht gewaehlt
+     2. das Farbfeld         ein fester Farbraum hinter der Seite
+     3. die weichen Kanten   kein Abschnitt stoesst mehr an einen Strich
+
+   Voraussetzung dafuer war ein Handgriff, der nichts aussieht und
+   alles traegt: `tools/farben-umstellen.py` hat 160 fest eingetragene
+   Schwarz- und Weisswerte auf zwei Tokens umgestellt
+   (`--grund-rgb`, `--tinte-rgb`). Ohne das waere jeder Fotoschleier
+   weiter schwarz und jede Haarlinie weiter weiss — auf Weinrot und
+   Beige sieht das nicht kaputt aus, sondern billig, und genau diese
+   Sorte Fehler ueberlebt drei Farbwechsel.
+   ============================================================ */
+
+/* ============================================================
+   1. Die Palette
+   ------------------------------------------------------------
+   Gerechnet gegen DREI Gruende, nicht gegen einen: den Seitengrund,
+   den Seitengrund ueber dem hellsten Bildpunkt des Films, und die
+   beige Bahn. Eine Stufe, die nur gegen den ersten besteht, faellt
+   ueber dem Film durch — und dort sieht es niemand, weil die DOM-
+   Pruefung den Film gar nicht kennt.
+
+       Stufe     Alpha   auf Grund   ueber Film   auf Beige
+       tinte     1.00    14,1:1      10,8:1       12,8:1
+       chrome     .80     9,4:1       7,6:1        7,9:1
+       muted      .66     6,7:1       5,6:1        5,1:1
+
+   `--muted` stand in der schwarzen Fassung auf .52. Mitgenommen
+   ergaebe das ueber dem Film 4,1:1 und auf Beige 3,8:1 — zweimal
+   durchgefallen. **Zum siebten Mal in diesem Projekt: eine Tonleiter
+   ist nicht symmetrisch.**
+   ============================================================ */
+:root {
+  /* Die beiden Zahlentripel, an denen seit der Umstellung alles haengt.
+     Wer die Seite noch einmal umfaerbt, aendert hier zwei Zeilen. */
+  --grund-rgb: 43 14 22;      /* #2B0E16, tiefes Weinrot */
+  --tinte-rgb: 239 227 208;   /* #EFE3D0, warmes Beige   */
+
+  /* Nicht #000 und nicht #1a0000: auf OLED schaltet ein Kanal auf 0 die
+     Pixel ab, und ein angeschnittenes Foto hat dann keinen Rand mehr,
+     an dem es aufhoert. Alle drei Kanaele stehen ueber null. */
+  --ink: #2b0e16;
+  --ink-2: #341320;
+  --ink-3: #3f1927;
+
+  --paper: #efe3d0;
+  --chrome: rgb(var(--tinte-rgb) / 0.8);
+  --muted: rgb(var(--tinte-rgb) / 0.66);
+  --line: rgb(var(--tinte-rgb) / 0.14);
+  --line-stark: rgb(var(--tinte-rgb) / 0.3);
+  --accent: var(--paper);
+
+  /* ---- Der Markenton ----
+     Er darf NICHT beige sein. Beige neben beiger Tinte traegt nur ueber
+     den Abstand zur Tinte, und der ist hier klein: der Markenpunkt im
+     aktiven Menuepunkt stuende in #E6D8BE neben Schrift in #EFE3D0 und
+     waere kein Punkt mehr, sondern ein Tippfehler. Dieselbe Falle wie
+     im Hauptprojekt unter „Dunkelblau und Beige".
+
+     Er ist deshalb das aufgehellte Weinrot: eindeutig rot neben der
+     cremefarbenen Tinte, und mit 6,5:1 traegt er auch Text. */
+  --marke: #ce8c96;        /* auf dem Weingrund,  6,5:1 */
+  --marke-2: #7a2234;      /* auf der beigen Bahn, 7,2:1 */
+
+  /* Drei Namen aus der schwarzen Fassung, die noch an rund zwanzig
+     Stellen stehen. Sie zeigen auf den Markenton statt auf Weiss —
+     umbenannt werden sie nicht, solange sie nur Durchreiche sind. */
+  --violet: var(--marke);
+  --orchid: var(--marke);
+  --glow: var(--marke);
+
+  /* ---- Die beige Bahn ----
+     Das hellere der beiden Beige traegt die Flaeche, das dunklere die
+     abgesetzte Karte darauf. Andersherum faellt die Textstaffelung in
+     sich zusammen: auf #DCCBB0 braeuchte die gedaempfte Stufe .84, und
+     dann sieht sie nicht mehr gedaempft aus. */
+  --hell: #e7d9c2;
+  --hell-2: #dccbb0;
+
+  /* ---- Der Film ----
+     .90 statt .84. Der Grund ist nicht Geschmack: das Weinrot ist
+     heller als Schwarz (L 0,009 gegen 0), also kommt bei gleicher
+     Deckkraft mehr Licht durch. Gemessen stand die gedaempfte Stufe
+     bei .84 nur noch auf 4,1:1. */
+  --film-folie: 0.9;
+
+  /* Wie weit die Seite gescrollt ist, 0 bis 1. Schreibt `trends.js`.
+     Ohne Skript bleibt sie auf 0, und das Farbfeld steht einfach still. */
+  --seite: 0;
+
+  /* Die Zone, ueber die eine Kante ausgeblendet wird. */
+  --blende: clamp(56px, 7vw, 120px);
+}
+
+/* Die weiche Dunkelstufe aus `trends.css`, in Wein uebersetzt: derselbe
+   Ton, eine Spur angehoben. Auch hier gilt die Tonleiter nicht
+   symmetrisch — der Grund steigt, also steigt die gedaempfte Stufe mit. */
+html[data-dunkel="weich"] {
+  --ink: #3a1620;
+  --ink-2: #431c28;
+  --ink-3: #4e2330;
+  --grund-rgb: 58 22 32;
+  --muted: rgb(var(--tinte-rgb) / 0.72);
+  --line: rgb(var(--tinte-rgb) / 0.16);
+  --film-folie: 0.92;
+}
+
+/* Der Neumorphismus steht auf einer Platte, die aus dem Grund
+   herausgedrueckt ist — sie muss deshalb AUS dem Grund kommen und nicht
+   aus einem eigenen Grau. */
+:root {
+  --neu-grund: #3b1722;
+  --neu-grund-2: #461d2a;
+  --neu-licht: rgb(var(--tinte-rgb) / 0.07);
+  --neu-schatten: rgba(0, 0, 0, 0.72);
+}
+html[data-dunkel="weich"] {
+  --neu-grund: #4a2130;
+  --neu-grund-2: #552838;
+}
+
+/* `color-scheme` folgt dem Grund: an den Bedienteilen, die der Browser
+   selbst zeichnet, haengt kein Token. */
+:root {
+  color-scheme: dark;
+}
+
+/* ============================================================
+   2. Das Farbfeld
+   ------------------------------------------------------------
+   Bestellt waren „keine scharfen Farbkanten, sondern schoene
+   Farbuebergaenge". Der naheliegende Weg waere, an jede
+   Abschnittsgrenze einen Verlauf zu setzen — bei rund fuenfzig
+   Abschnitten sind das fuenfzig Stellen, an denen eine Kante entstehen
+   KANN.
+
+   Hier geht es andersherum: es gibt nur noch EINEN Farbraum, fest
+   hinter der ganzen Seite, und die Abschnitte darueber sind
+   durchsichtig. Dann kann zwischen zwei Abschnitten gar keine Kante
+   mehr entstehen, weil es zwischen ihnen keinen Farbwechsel mehr gibt.
+
+   Technisch ist es `body::after`: eine feste Lage, die als LETZTES Kind
+   des `body` erzeugt wird und deshalb bei gleichem `z-index` ueber dem
+   Film malt. Es kommt kein Element ins Markup, und sechzehn Seiten
+   mussten dafuer nicht angefasst werden.
+
+   (Die Regel war frei: in der schwarzen Fassung lag dort das
+   Papierkorn, und `redesign.css` hatte es auf `display:none` gesetzt.)
+   ============================================================ */
+/* ---- Die Falle, die nur im Bild zu sehen war ----
+   Der erste Entwurf legte das Feld als `body::after` mit `z-index:-1`
+   hinter die Seite — dieselbe Ebene wie der Film, aber spaeter im
+   Dokument, also darueber. Nach der Malreihenfolge stimmt das.
+
+   Im Bild stimmte es nicht: Chromium hebt ein `<video>` auf eine eigene
+   Compositing-Ebene, und die stand ueber dem Feld. Gemessen war die
+   Seite MIT Folie heller (Mittel 132) als ohne (107) — die Folie hat
+   also nicht abgedunkelt, sondern nur ihre eigenen Lichter
+   dazugelegt. Gefunden hat es kein Nachdenken ueber die Spezifikation,
+   sondern eine Kontrollaufnahme mit `body::after{background:red}`: das
+   Rot lag sichtbar HINTER dem Film.
+
+   **Eine Lage, die etwas abdecken soll, gehoert in dessen eigenen
+   Stapel** — nicht daneben auf dieselbe Ebene. Feld und Licht liegen
+   deshalb als `::before` und `::after` IM Film, mit positivem z-index:
+   ein positioniertes Element mit z-index ueber null wird nach allem
+   Inhalt gemalt, und daran aendert auch eine Compositing-Ebene nichts.
+   ------------------------------------------------------------ */
+.filmgrund {
+  isolation: isolate;
+}
+
+/* ---- Die Lage mit dem Farbraum und der Folie ---- */
+.filmgrund::before,
+body::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  /* KEIN mix-blend-mode und KEIN filter. Beides muesste der Browser
+     ueber die volle Fensterflaeche bei jedem Bild neu rechnen, und
+     darunter laeuft ein Film. Was hier steht, sind Farben mit
+     Deckkraft, und die kosten nichts. */
+  background:
+    /* Oben links ein warmes Beigelicht, als faellt Licht in den Raum.
+       Hier ist das Beige eine FLAECHE und nicht nur die Schrift. */
+    radial-gradient(
+      120% 90% at 8% calc(2% + var(--seite) * 16%),
+      rgb(var(--tinte-rgb) / 0.17) 0%,
+      rgb(var(--tinte-rgb) / 0.09) 26%,
+      rgb(var(--tinte-rgb) / 0.03) 48%,
+      rgb(var(--tinte-rgb) / 0) 70%
+    ),
+    /* Rechts unten der Gegenpol in sattem Wein. */
+    radial-gradient(
+      110% 100% at 92% calc(88% - var(--seite) * 22%),
+      rgb(150 38 58 / 0.3) 0%,
+      rgb(110 28 44 / 0.18) 30%,
+      rgb(var(--grund-rgb) / 0.08) 56%,
+      rgb(var(--grund-rgb) / 0) 76%
+    ),
+    /* Und darunter die Folie, die den Film traegt. Sie ist nicht flach:
+       oben etwas dichter als unten, damit die Seite nach unten hin
+       aufmacht statt zuzufallen. */
+    linear-gradient(
+      to bottom,
+      rgb(var(--grund-rgb) / calc(var(--film-folie) + 0.04)) 0%,
+      rgb(var(--grund-rgb) / var(--film-folie)) 38%,
+      rgb(var(--grund-rgb) / calc(var(--film-folie) - 0.03)) 100%
+    );
+}
+
+/* Ohne Film gibt es nichts abzudecken — aber der Farbraum bleibt, denn
+   er ist der Raum und nicht die Folie. Auf den fuenfzehn Unterseiten
+   liegt er deshalb am `body`, wo kein Film darueber malen kann. */
+body::before {
+  position: fixed;
+  z-index: -1;
+  background:
+    radial-gradient(
+      120% 90% at 8% calc(2% + var(--seite) * 16%),
+      rgb(var(--tinte-rgb) / 0.13) 0%,
+      rgb(var(--tinte-rgb) / 0.06) 30%,
+      rgb(var(--tinte-rgb) / 0) 62%
+    ),
+    radial-gradient(
+      110% 100% at 92% calc(88% - var(--seite) * 22%),
+      rgb(150 38 58 / 0.26) 0%,
+      rgb(110 28 44 / 0.14) 34%,
+      rgb(var(--grund-rgb) / 0) 70%
+    );
+}
+/* Wo der Film laeuft, traegt er den Farbraum selbst — sonst laege er
+   zweimal uebereinander und der Grund waere zu dicht. Ohne Skript gibt
+   es keinen Film (`.kein-js .filmgrund{display:none}`), und `:has`
+   sieht ein `display:none`-Element trotzdem: die letzte Regel holt den
+   Raum deshalb ausdruecklich zurueck. */
+body:has(.filmgrund)::before {
+  display: none;
+}
+.kein-js body::before {
+  display: block;
+}
+
+/* ============================================================
+   2b. Das Zeigerlicht
+   ------------------------------------------------------------
+   Ein warmer Schein, der der Maus folgt — das, was einen Farbraum
+   lebendig macht, ohne dass irgendwo eine Kante entsteht.
+
+   **Es ist ein verschobenes Element, kein wandernder Verlauf.** Ein
+   `radial-gradient(… at var(--zx) …)` auf einer festen Lage muesste
+   der Browser bei jeder Zeigerbewegung ueber die volle Fensterflaeche
+   neu malen. Hier ist es eine Scheibe fester Groesse, die nur per
+   `transform` bewegt wird: das laeuft auf der Grafikkarte, und gemalt
+   wird gar nichts neu.
+
+   Es liegt EINE Stufe ueber dem Farbraum (z-index 2 gegen 1) — laege
+   es darunter, zoege die Folie es mit .90 ab und man saehe nichts.
+   ------------------------------------------------------------ */
+.filmgrund::after,
+body::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 2;
+  width: 76vmax;
+  height: 76vmax;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate3d(calc(var(--zx, 50vw) - 38vmax), calc(var(--zy, 50vh) - 38vmax), 0);
+  transition: opacity 0.6s var(--ease-out);
+  background: radial-gradient(
+    closest-side,
+    rgb(var(--tinte-rgb) / 0.1) 0%,
+    rgb(var(--tinte-rgb) / 0.045) 38%,
+    rgb(var(--tinte-rgb) / 0) 72%
+  );
+}
+body::after {
+  position: fixed;
+  z-index: -1;
+}
+body:has(.filmgrund)::after {
+  display: none;
+}
+/* Die Ebene entsteht erst, solange der Zeiger wirklich laeuft —
+   eine bildschirmfuellende Ebene auf Vorrat ist der teuerste Fehler,
+   den dieses Projekt schon einmal gemacht hat. */
+html.zeigt .filmgrund::after,
+html.zeigt body::after {
+  opacity: 1;
+  will-change: transform;
+}
+/* Ohne feinen Zeiger gibt es nichts zu beleuchten. */
+@media not all and (hover: hover) and (pointer: fine) {
+  .filmgrund::after,
+  body::after {
+    display: none;
+  }
+}
+
+/* ------------------------------------------------------------
+   Die Abschnitte geben ihren eigenen Grund ab
+
+   Solange jeder Abschnitt seine eigene Folie trug, stiessen zwei
+   Folien aneinander — und zwei gleiche Farben nebeneinander ergeben
+   trotzdem eine Kante, sobald eine davon auch nur ein Prozent anders
+   ist. Jetzt traegt das Farbfeld, und die Abschnitte sind durchsichtig.
+
+   `background-color` und nicht die Kurzschreibweise `background`: an
+   `.intro` haengt die Blende als `background-image`, und die
+   Kurzschreibweise loeschte sie wieder. Dieselbe Falle wie `padding`
+   gegen `.wrap`.
+   ------------------------------------------------------------ */
+.intro,
+.ablauf,
+.testi,
+.expect,
+.cta,
+.collage,
+.laufband,
+body > footer {
+  background-color: transparent;
+}
+.intro {
+  background-image: none;
+}
+
+/* Hero und Vertrauensband bleiben deckend: oben traegt das Titelbild,
+   und darunter soll der Film noch nicht zu sehen sein. */
+.hero,
+.trust {
+  background-color: var(--ink);
+}
+
+/* ============================================================
+   3. Keine Kante bleibt stehen
+   ------------------------------------------------------------
+   Was nach dem Farbfeld noch Kanten machen kann, ist nur noch eines:
+   etwas DECKENDES, das auf dem Feld liegt. Das sind die Fotos und das
+   Vertrauensband.
+
+   Die Stufen folgen `3t² − 2t³`, einer Kurve, die an beiden Enden
+   waagerecht auslaeuft. Ein linearer Deckkraftverlauf springt an
+   seinem Anfang von null auf konstant, und genau das sieht das Auge
+   als Linie (Machsche Baender) — es sieht dann aus, als FINGE der
+   Verlauf an einer Kante an.
+   ============================================================ */
+:root {
+  --blende-aus:
+    rgb(var(--grund-rgb) / 1) 0%,
+    rgb(var(--grund-rgb) / 0.896) 20%,
+    rgb(var(--grund-rgb) / 0.648) 40%,
+    rgb(var(--grund-rgb) / 0.352) 60%,
+    rgb(var(--grund-rgb) / 0.104) 80%,
+    rgb(var(--grund-rgb) / 0) 100%;
+}
+
+/* Das Kopfbild loest sich nach unten auf. Der Verlauf liegt an `.hero`
+   selbst, NICHT am Foto: `.hero[data-weg] .hero__photo` skaliert beim
+   Scrollen und schoebe eine Blende darin mit — die weiche Unterkante
+   liefe genau dann aus dem Beschnitt, wenn man scrollt, also in dem
+   Moment, in dem man die Kante ueberhaupt sieht. */
+.hero::after,
+.subhero::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: calc(var(--blende) * 1.6);
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(to top, var(--blende-aus));
+}
+.hero,
+.subhero {
+  position: relative;
+}
+
+/* Das Vertrauensband steht zwischen zwei weichen Flaechen und war das
+   einzige deckende Stueck dazwischen. Es laeuft jetzt an beiden Kanten
+   aus. */
+.trust {
+  position: relative;
+  border-top-color: transparent;
+  border-bottom-color: transparent;
+}
+.trust::before,
+.trust::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: var(--blende);
+  pointer-events: none;
+}
+.trust::before {
+  top: 0;
+  background: linear-gradient(to bottom, var(--blende-aus));
+}
+.trust::after {
+  bottom: 0;
+  background: linear-gradient(to top, var(--blende-aus));
+}
+
+/* Randlose Fotos im Fluss der Seite (Bildband, Kopfbaender der
+   Unterseiten) bekommen oben und unten dieselbe Behandlung. */
+.schaubild {
+  position: relative;
+}
+.schaubild::before,
+.schaubild::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: calc(var(--blende) * 1.3);
+  z-index: 2;
+  pointer-events: none;
+}
+.schaubild::before {
+  top: 0;
+  background: linear-gradient(to bottom, var(--blende-aus));
+}
+.schaubild::after {
+  bottom: 0;
+  background: linear-gradient(to top, var(--blende-aus));
+}
+
+/* ------------------------------------------------------------
+   Wo eine Blende die Kante schon weggenommen hat, steht kein Strich
+
+   `.ablauf`, `.expect`, `.cta` und `.section-soft` tragen eine
+   Haarlinie an der Oberkante. Zwischen zwei Textbloecken auf demselben
+   Grund ist sie richtig. Hier ist sie das Gegenteil: der Farbraum hat
+   die Kante gerade weggenommen, und die Linie baut sie wieder ein.
+
+   `border-top-color:transparent` und nicht `border-top:0` — an der
+   Linie haengt ein Pixel Hoehe, und eine Farbe wegzunehmen verschiebt
+   nichts.
+   ------------------------------------------------------------ */
+.ablauf,
+.expect,
+.cta,
+.testi,
+.section-soft,
+body > footer {
+  border-top-color: transparent;
+}
+
+/* ============================================================
+   4. Die beige Bahn
+   ------------------------------------------------------------
+   Auf den Unterseiten laeuft kein Film, und dort darf Beige eine
+   FLAECHE sein statt nur Licht. `.auf-beige` dreht die ganze Tonleiter
+   um — und das kostet genau diesen einen Block, weil seit der
+   Umstellung jede Regel im Stylesheet ueber `--grund-rgb` und
+   `--tinte-rgb` laeuft.
+
+   Auf der Startseite gibt es sie bewusst NICHT: eine deckende beige
+   Bahn wuerde den Film auf ihrer ganzen Hoehe zudecken, und
+   durchscheinend waere sie dunkle Tinte ueber einem Bild, dessen
+   Helligkeit sich 44 Sekunden lang aendert.
+   ============================================================ */
+.auf-beige {
+  --grund-rgb: 231 217 194;
+  --tinte-rgb: 43 14 22;
+  --ink: #e7d9c2;
+  --ink-2: #dccbb0;
+  --ink-3: #d2bfa0;
+  --paper: #2b0e16;
+  --chrome: rgb(var(--tinte-rgb) / 0.8);
+  /* .66 ergaebe auf Beige 5,1:1 und waere knapp. Die gedaempfte Stufe
+     traegt auf hellem Grund weniger als auf dunklem — zum siebten Mal
+     dieselbe Lehre, nur in die andere Richtung. */
+  --muted: rgb(var(--tinte-rgb) / 0.7);
+  --line: rgb(var(--tinte-rgb) / 0.18);
+  --line-stark: rgb(var(--tinte-rgb) / 0.38);
+  --accent: var(--paper);
+  --marke: var(--marke-2);
+  --violet: var(--marke-2);
+  --orchid: var(--marke-2);
+  --glow: var(--marke-2);
+  --neu-grund: #ded0b6;
+  --neu-grund-2: #e9ddc8;
+  --neu-licht: rgb(255 255 255 / 0.65);
+  --neu-schatten: rgb(var(--tinte-rgb) / 0.18);
+
+  position: relative;
+  isolation: isolate;
+  color: var(--paper);
+  /* Der Grund steht als BILD, nicht als Farbe: so traegt dieselbe
+     Eigenschaft die Flaeche und ihre beiden Blenden, und es kommt kein
+     Element hinzu, das mit dem Inhalt um die Stapelreihenfolge
+     streitet. */
+  background-color: transparent;
+  /* ---- Warum die Blende in PIXELN steht und nicht in Prozent ----
+     Der erste Entwurf blendete ueber die ersten und letzten 15 % der
+     Bahnhoehe aus. Gemessen im Bild fielen dadurch 37 Textstellen
+     durch: eine kurze Bahn hat bei 15 % oben und unten kaum noch
+     volle Farbe, und wo das Beige schon fast weg ist, steht die dunkle
+     Tinte auf dem dunklen Seitengrund. Im DOM sieht man davon nichts —
+     der Abschnitt hat ja die richtige Grundfarbe.
+
+     In Pixeln ist die Zone immer gleich hoch, und weil das
+     Abschnittspolster (`--sec`, mindestens 96 px) groesser ist als die
+     Blende (hoechstens 120 px, siehe `max()` unten), kann in ihr kein
+     Text mehr stehen.
+
+     **Ein Effekt, der in absoluten Werten an beiden Kanten eines
+     Kastens sitzt, muss wissen, wie hoch der Kasten ist.** */
+  background-image:
+    linear-gradient(
+      to bottom,
+      rgb(var(--grund-rgb) / 0) 0,
+      rgb(var(--grund-rgb) / 0.104) calc(var(--blende) * 0.2),
+      rgb(var(--grund-rgb) / 0.352) calc(var(--blende) * 0.4),
+      rgb(var(--grund-rgb) / 0.648) calc(var(--blende) * 0.6),
+      rgb(var(--grund-rgb) / 0.896) calc(var(--blende) * 0.8),
+      rgb(var(--grund-rgb) / 1) var(--blende),
+      rgb(var(--grund-rgb) / 1) calc(100% - var(--blende)),
+      rgb(var(--grund-rgb) / 0.896) calc(100% - var(--blende) * 0.8),
+      rgb(var(--grund-rgb) / 0.648) calc(100% - var(--blende) * 0.6),
+      rgb(var(--grund-rgb) / 0.352) calc(100% - var(--blende) * 0.4),
+      rgb(var(--grund-rgb) / 0.104) calc(100% - var(--blende) * 0.2),
+      rgb(var(--grund-rgb) / 0) 100%
+    );
+  /* Der Riegel dazu: das Polster ist nie kleiner als die Blende. In
+     der Praxis ist `--sec` ohnehin groesser — die Zeile steht da,
+     damit es beim naechsten Eingriff so bleibt. */
+  padding-top: max(var(--sec), calc(var(--blende) + 24px));
+  padding-bottom: max(var(--sec-end), calc(var(--blende) + 24px));
+  border-top-color: transparent;
+}
+/* Fremde Zeichen kann eine Tonleiter nicht drehen: die fuenf
+   Referenzlogos sind weiss auf durchsichtigem Grund und waeren auf
+   Beige nicht gedaempft, sondern weg. `invert` dreht eine einfarbig
+   weisse Zeichnung verlustfrei um — es ist die Fassung, die diese
+   Haeuser selbst auf hellem Papier benutzen. */
+.auf-beige .reflogos__reihe img {
+  filter: invert(1);
+  opacity: 0.74;
+}
+/* Die Bedienteile, die der Browser selbst zeichnet, haengen an keinem
+   Token — ein Datumsfeld stuende sonst schwarz auf Beige. */
+.auf-beige {
+  color-scheme: light;
+}
+
+/* ============================================================
+   5. Reduzierte Bewegung
+   ------------------------------------------------------------
+   Das Farbfeld bewegt sich nur ueber `--seite`, und die schreibt
+   `trends.js` dann gar nicht erst. Der Vorgabewert 0 ergibt von selbst
+   die ruhige Fassung — es gibt hier also nichts abzuschalten, und
+   genau deshalb steht es hier: damit niemand spaeter danach sucht.
+   ============================================================ */
+
+/* ============================================================
+   6. Schrift
+   ------------------------------------------------------------
+   Die grossen Zeilen stehen nicht mehr flach in Beige, sondern in
+   einem Verlauf von Beige in den Weinton. Das ist kein dritter Ton:
+   es sind die beiden, die die Seite ohnehin traegt, nur innerhalb
+   eines Wortes.
+
+   Und der Verlauf WANDERT mit `--seite`: oben auf der Seite steht die
+   Schrift fast reinbeige, unten laeuft sie in den Wein aus. Die
+   Farbreise, die der Raum macht, macht die Schrift mit.
+
+   Gerechnet, nicht gewaehlt: der dunkelste Stopp ist `--marke` mit
+   6,5:1 auf dem Grund und 5,5:1 ueber dem Film. Grosse Schrift
+   braucht 3:1, es ist also keine Stelle knapp — aber genau deshalb
+   steht der Verlauf NICHT auf dem Kopfbild: dort liegt die Zeile auf
+   einem Foto, und ein Verlauf nach unten ist dort kein Gestaltungs-
+   mittel, sondern eine zweite Unbekannte.
+   ------------------------------------------------------------ */
+@supports (-webkit-background-clip: text) or (background-clip: text) {
+  .cta h2,
+  .collage__kopf h2,
+  .expect h2,
+  .testi__head h2,
+  .ablauf__kopf h2,
+  .intro h2,
+  .foot__claim {
+    background-image: linear-gradient(
+      104deg,
+      var(--paper) 0%,
+      var(--paper) 36%,
+      #e8c6c4 64%,
+      var(--marke) 100%
+    );
+    background-size: 220% 100%;
+    background-position: calc(var(--seite) * 100%) 0;
+    background-repeat: no-repeat;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+  }
+  /* Die Fusszeile faehrt aus Masken auf; ihre Zeilen setzen eine eigene
+     Farbe und wuerden den Verlauf des Elternteils sonst zudecken. */
+  .foot__claim .line span {
+    color: inherit;
+    -webkit-text-fill-color: inherit;
+  }
+}
+
+/* Der Satz wird eine Spur grosszuegiger: groessere Mega-Stufe, engerer
+   Durchschuss, und ein Hauch negative Laufweite, wie es diese
+   Renaissance-Antiqua in grossen Graden vertraegt. Unter 1.04 geht der
+   Durchschuss NICHT — die Punkte auf einem Ae stehen bis rund 0,95 em
+   ueber der Grundlinie und sassen sonst in der Zeile darueber. */
+:root {
+  --fs-mega: clamp(3.6rem, 10.4vw, 11rem);
+  --fs-display: clamp(3.1rem, 7.8vw, 7.6rem);
+  --fs-h2: clamp(2.5rem, 5vw, 4.9rem);
+  --zeile-eng: 1.04;
+}
+h1,
+h2,
+.foot__claim {
+  letter-spacing: -0.018em;
+  text-wrap: balance;
+}
+
+/* ============================================================
+   7. Ein Ton ueber allen Fotos
+   ------------------------------------------------------------
+   Die Aufnahmen kommen aus verschiedenen Raeumen und verschiedenen
+   Lichtsituationen — ein Buero mit Tageslicht neben einer Halle mit
+   Buehnenlicht. Nebeneinander auf einem warmen Grund liest das kalte
+   Bild als Fremdkoerper, und zwar unabhaengig davon, wie gut es ist.
+
+   Ein sehr leichter Weinton ueber jedem Foto nimmt das weg. Er liegt
+   als Verlauf und nicht als Flaeche: eine gleichmaessige Tuenche sieht
+   nach Filter aus, ein Verlauf nach Licht.
+
+   `filter:sepia()` waere das naheliegende Mittel und das teuerste —
+   `filter` muesste der Browser bei jeder Bewegung des Bildes neu
+   rechnen, und die Collagenstuecke bewegen sich beim Scrollen.
+   ------------------------------------------------------------ */
+.intro__ort,
+.collage__stueck,
+.gal__item,
+.wide-shot {
+  position: relative;
+}
+.intro__ort::after,
+.collage__stueck::after,
+.gal__item::after,
+.wide-shot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(
+    160deg,
+    rgb(150 38 58 / 0.17) 0%,
+    rgb(var(--grund-rgb) / 0.18) 52%,
+    rgb(var(--grund-rgb) / 0.32) 100%
+  );
+}
+/* Die Galeriekachel traegt den Ton nur im Ruhezustand: wer sie
+   ansteuert, soll das Bild sehen und nicht die Tuenche. */
+.gal__item::after {
+  transition: opacity 0.4s var(--ease-out);
+}
+.gal__item:hover::after,
+.gal__item:focus-visible::after {
+  opacity: 0;
+}
+
+/* ============================================================
+   8. Die Werkzeugleiste kommt mit dem Lesen
+   ------------------------------------------------------------
+   Begruendung steht in `trends.js`. Sie faehrt von links herein, nicht
+   von unten: unten liegt am Telefon die App-Leiste, und zwei Dinge,
+   die aus derselben Richtung kommen, lesen als eines.
+   ------------------------------------------------------------ */
+.werkzeuge:not(.werkzeuge--immenue) {
+  opacity: 0;
+  transform: translateX(-14px);
+  pointer-events: none;
+  transition:
+    opacity 0.4s var(--ease-out),
+    transform 0.4s var(--ease-out);
+}
+.werkzeuge:not(.werkzeuge--immenue).bereit {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+@media (prefers-reduced-motion: reduce) {
+  .werkzeuge:not(.werkzeuge--immenue) {
+    transition: none;
+  }
+}
+
+/* ============================================================
+   9. Die letzten beiden harten Kanten
+   ------------------------------------------------------------
+   Nach dem Farbraum war noch zweierlei uebrig, und beides sass an
+   einem Rahmen statt an einem Farbwechsel.
+   ------------------------------------------------------------ */
+
+/* Das Laufband trug oben und unten eine Haarlinie. Zwischen zwei
+   Textbloecken auf demselben Grund ist sie richtig; hier steht sie
+   quer durch einen Farbraum, der gerade keine Kante mehr hat. Was das
+   Band begrenzt, ist jetzt es selbst: die Zeile laeuft an beiden
+   Fensterkanten aus, statt abgeschnitten zu werden. */
+.laufband {
+  border-block: 0;
+}
+.laufband__spur {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    rgb(0 0 0 / 0) 0%,
+    rgb(0 0 0 / 1) 9%,
+    rgb(0 0 0 / 1) 91%,
+    rgb(0 0 0 / 0) 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    rgb(0 0 0 / 0) 0%,
+    rgb(0 0 0 / 1) 9%,
+    rgb(0 0 0 / 1) 91%,
+    rgb(0 0 0 / 0) 100%
+  );
+}
+
+/* Das Kopfbild der Unterseiten steht als Kasten im Satzspiegel: vier
+   gerade Kanten mitten im Farbraum, und bei kalten Motiven dazu ein
+   Farbsprung. Beides nimmt dieselbe Maske weg.
+
+   `mask` und NICHT `clip-path`: ein beschnittenes Element hat eine
+   leere Schnittflaeche, der IntersectionObserver meldet sich nie, und
+   es bekommt nie sein `.in`. Eine Maske beschneidet nur die
+   Darstellung. Das ist in diesem Projekt genau einmal passiert und hat
+   sieben Ueberschriften verschwinden lassen.
+
+   Zwei Masken, die sich schneiden: eine nach unten, eine zu den
+   Seiten. `mask-composite:intersect` behaelt, was in beiden steht. */
+.subhero__photo {
+  -webkit-mask-image: linear-gradient(
+      to bottom,
+      rgb(0 0 0 / 0.35) 0%,
+      rgb(0 0 0 / 0.86) 3%,
+      rgb(0 0 0 / 1) 7%,
+      rgb(0 0 0 / 1) 52%,
+      rgb(0 0 0 / 0.896) 64%,
+      rgb(0 0 0 / 0.648) 76%,
+      rgb(0 0 0 / 0.352) 88%,
+      rgb(0 0 0 / 0) 100%
+    ),
+    linear-gradient(
+      to right,
+      rgb(0 0 0 / 0) 0%,
+      rgb(0 0 0 / 0.648) 4%,
+      rgb(0 0 0 / 1) 9%,
+      rgb(0 0 0 / 1) 91%,
+      rgb(0 0 0 / 0.648) 96%,
+      rgb(0 0 0 / 0) 100%
+    );
+  mask-image: linear-gradient(
+      to bottom,
+      rgb(0 0 0 / 0.35) 0%,
+      rgb(0 0 0 / 0.86) 3%,
+      rgb(0 0 0 / 1) 7%,
+      rgb(0 0 0 / 1) 52%,
+      rgb(0 0 0 / 0.896) 64%,
+      rgb(0 0 0 / 0.648) 76%,
+      rgb(0 0 0 / 0.352) 88%,
+      rgb(0 0 0 / 0) 100%
+    ),
+    linear-gradient(
+      to right,
+      rgb(0 0 0 / 0) 0%,
+      rgb(0 0 0 / 0.648) 4%,
+      rgb(0 0 0 / 1) 9%,
+      rgb(0 0 0 / 1) 91%,
+      rgb(0 0 0 / 0.648) 96%,
+      rgb(0 0 0 / 0) 100%
+    );
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+  position: relative;
+}
+/* Derselbe warme Ton wie ueber den uebrigen Fotos — sonst steht das
+   Kopfbild als einziges kalt im Raum. Er liegt INNEN, auf dem
+   `<picture>`: auf der maskierten Huelle laege er ausserhalb der
+   Maske und haette eine eigene harte Kante. */
+.subhero__photo picture {
+  position: relative;
+  display: block;
+}
+.subhero__photo picture::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    160deg,
+    rgb(150 38 58 / 0.17) 0%,
+    rgb(var(--grund-rgb) / 0.18) 52%,
+    rgb(var(--grund-rgb) / 0.32) 100%
+  );
+}
+
+/* ============================================================
+   10. Die beiden Zahlen im Vertrauensband
+   ------------------------------------------------------------
+   `.trust__item span` in `styles.css` meint die Beschreibungszeile
+   unter der Angabe und setzt .88rem in der gedaempften Stufe. Es
+   trifft damit auch die `<span class="zahl">` INNERHALB der
+   Ueberschrift darueber — „Ueber 20 Jahre" stand deshalb mit einer 20
+   von Fussnotengroesse mitten in einer Zeile von 2,6rem.
+
+   Im Hauptprojekt ist das mit `.trust__item > span` behoben; in die
+   gelieferte Fassung ist die Korrektur nie gewandert. Hier steht sie
+   als Rueckholung statt als Umschrift, weil diese Datei zuletzt laeuft
+   und `styles.css` unberuehrt bleiben soll.
+
+   `tabular-nums` dazu: die Zahl zaehlt hoch, und ohne gleiche
+   Ziffernbreite wackelt das Wort daneben bei jedem Schritt.
+   ------------------------------------------------------------ */
+.trust__item b .zahl {
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+  display: inline-block;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  text-align: left;
+}
+
+/* ============================================================
+   11. Zwei Stellen, die gemessen zu leise waren
+   ------------------------------------------------------------
+   Beide sind Zierrat und keine Aussage — die Initialen stehen fuer ein
+   Foto, das noch fehlt, und der Name steht in voller Staerke direkt
+   darunter. Trotzdem sind es Buchstaben, und 2,2:1 auf einer Kachel
+   von 340 px Hoehe liest nicht als zurueckhaltend, sondern als
+   kaputter Platzhalter.
+   ------------------------------------------------------------ */
+.member__initialen,
+.ansprech__initialen {
+  color: var(--paper);
+  opacity: 0.38;
+}
+/* Die Riesenziffer der Fehlerseite traegt `aria-hidden="true"` und ist
+   damit ausdruecklich kein Text — sie bleibt leise, aber sichtbar. */
+.fehler .nummer,
+.nummer[aria-hidden="true"] {
+  color: var(--paper);
+  opacity: 0.16;
+}

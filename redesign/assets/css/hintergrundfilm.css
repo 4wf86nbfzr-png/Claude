@@ -86,7 +86,7 @@
 .expect,
 .cta,
 body > footer {
-  background-color: rgba(0, 0, 0, 0.84);
+  background-color: rgb(var(--grund-rgb) / 0.84);
 }
 
 /* Der Uebergang ist ein Hintergrund, kein Element.
@@ -97,19 +97,19 @@ body > footer {
    auslaeuft — ein linearer Verlauf haette an seinem Anfang eine Ecke,
    und genau die sieht das Auge als Strich (Machsche Baender).
 
-   Der Endpunkt heisst `rgba(0,0,0,0)` und nicht `transparent`: hier ist
+   Der Endpunkt heisst `rgb(var(--grund-rgb) / 0)` und nicht `transparent`: hier ist
    beides dasselbe, weil der Verlauf ohnehin aus Schwarz kommt — die
    ausgeschriebene Fassung steht trotzdem da, damit sie beim naechsten
    Farbwechsel nicht durch Grau laeuft. */
 .intro {
   background-image: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 1) 0%,
-    rgba(0, 0, 0, 0.94) 4%,
-    rgba(0, 0, 0, 0.72) 9%,
-    rgba(0, 0, 0, 0.42) 14%,
-    rgba(0, 0, 0, 0.14) 19%,
-    rgba(0, 0, 0, 0) 24%
+    rgb(var(--grund-rgb) / 1) 0%,
+    rgb(var(--grund-rgb) / 0.94) 4%,
+    rgb(var(--grund-rgb) / 0.72) 9%,
+    rgb(var(--grund-rgb) / 0.42) 14%,
+    rgb(var(--grund-rgb) / 0.14) 19%,
+    rgb(var(--grund-rgb) / 0) 24%
   );
 }
 

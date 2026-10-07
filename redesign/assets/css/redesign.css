@@ -236,13 +236,13 @@ header.nav {
   border-bottom: 1px solid transparent;
 }
 header.nav.scrolled {
-  background: rgba(0, 0, 0, 0.86);
+  background: rgb(var(--grund-rgb) / 0.86);
   backdrop-filter: blur(16px) saturate(1.1);
   -webkit-backdrop-filter: blur(16px) saturate(1.1);
   border-bottom-color: var(--line);
 }
 body.megabar-auf header.nav {
-  background: rgba(0, 0, 0, 0.98);
+  background: rgb(var(--grund-rgb) / 0.98);
 }
 .nav__links a,
 .nav__phone {
@@ -360,7 +360,7 @@ body.megabar-auf header.nav {
   height: 34px;
   margin: -17px 0 0 -17px;
   border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.45);
+  border: 1px solid rgb(var(--tinte-rgb) / 0.45);
   opacity: 0;
   transition:
     opacity 0.4s,
@@ -378,14 +378,14 @@ body.zeiger-an.zeiger-link #cursorRing {
   width: 56px;
   height: 56px;
   margin: -28px 0 0 -28px;
-  border-color: rgba(255, 255, 255, 0.9);
+  border-color: rgb(var(--tinte-rgb) / 0.9);
 }
 body.zeiger-an.zeiger-bild #cursorRing {
   width: 84px;
   height: 84px;
   margin: -42px 0 0 -42px;
   border-color: transparent;
-  background: rgba(0, 0, 0, 0.22);
+  background: rgb(var(--grund-rgb) / 0.22);
   backdrop-filter: blur(2px);
 }
 body.zeiger-an.zeiger-druck #cursorRing {
@@ -537,8 +537,8 @@ button.btn--zeile:hover:not(:disabled) {
   inset: 0;
   pointer-events: none;
   background:
-    linear-gradient(180deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.26) 30%, rgba(0, 0, 0, 0.6) 62%, rgba(0, 0, 0, 0.96) 100%),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.34) 46%, rgba(0, 0, 0, 0.06) 100%);
+    linear-gradient(180deg, rgb(var(--grund-rgb) / 0.6) 0%, rgb(var(--grund-rgb) / 0.26) 30%, rgb(var(--grund-rgb) / 0.6) 62%, rgb(var(--grund-rgb) / 0.96) 100%),
+    linear-gradient(90deg, rgb(var(--grund-rgb) / 0.7) 0%, rgb(var(--grund-rgb) / 0.34) 46%, rgb(var(--grund-rgb) / 0.06) 100%);
 }
 .hero[data-weg] .hero__photo {
   transform: translate3d(0, calc(var(--weg, 0) * 10vh), 0);
@@ -588,7 +588,7 @@ button.btn--zeile:hover:not(:disabled) {
 }
 .hero__sub {
   max-width: 46ch;
-  color: rgba(255, 255, 255, 0.84);
+  color: rgb(var(--tinte-rgb) / 0.84);
 }
 .scrollcue {
   display: none;
@@ -607,7 +607,7 @@ button.btn--zeile:hover:not(:disabled) {
   }
   .hero__photo:after {
     background:
-      linear-gradient(180deg, rgba(0, 0, 0, 0.66) 0%, rgba(0, 0, 0, 0.62) 38%, rgba(0, 0, 0, 0.8) 60%, rgba(0, 0, 0, 0.97) 100%);
+      linear-gradient(180deg, rgb(var(--grund-rgb) / 0.66) 0%, rgb(var(--grund-rgb) / 0.62) 38%, rgb(var(--grund-rgb) / 0.8) 60%, rgb(var(--grund-rgb) / 0.97) 100%);
   }
   .eyebrow__mehr {
     display: none;
@@ -730,26 +730,26 @@ button.btn--zeile:hover:not(:disabled) {
    Film
    ------------------------------------------------------------ */
 .film__buehne {
-  background: #000000;
+  background: var(--ink);
 }
 .film__untertitel {
-  color: #fff;
+  color: var(--paper);
   font-family: var(--font-display);
   font-style: italic;
 }
 .film__knopf {
   border-radius: 100px;
-  border-color: rgba(255, 255, 255, 0.4);
-  background: rgba(0, 0, 0, 0.5);
-  color: #fff;
+  border-color: rgb(var(--tinte-rgb) / 0.4);
+  background: rgb(var(--grund-rgb) / 0.5);
+  color: var(--paper);
 }
 .film__knopf:hover,
 .film__knopf--wartet {
-  background: #fff;
-  color: #000000;
+  background: var(--paper);
+  color: var(--ink);
 }
 .film__knopf:focus-visible {
-  outline-color: #fff;
+  outline-color: var(--paper);
 }
 
 /* ------------------------------------------------------------
@@ -765,32 +765,32 @@ button.btn--zeile:hover:not(:disabled) {
   --accent: #ffffff;
 }
 .stage__sticky {
-  background: #000000;
+  background: var(--ink);
 }
 .stage__sticky:before {
-  background: #000000;
+  background: var(--ink);
 }
 .scene__photo,
 .stagevid {
   border-radius: 0;
 }
 .panel {
-  color: #fff;
+  color: var(--paper);
 }
 .panel:before {
   background:
-    radial-gradient(86% 80% at 12% 86%, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7) 34%, rgba(0, 0, 0, 0.42) 58%, rgba(0, 0, 0, 0.14) 74%, transparent 88%),
-    linear-gradient(180deg, transparent 0%, transparent 45%, rgba(0, 0, 0, 0.6) 100%);
+    radial-gradient(86% 80% at 12% 86%, rgb(var(--grund-rgb) / 0.9), rgb(var(--grund-rgb) / 0.7) 34%, rgb(var(--grund-rgb) / 0.42) 58%, rgb(var(--grund-rgb) / 0.14) 74%, rgb(var(--grund-rgb) / 0) 88%),
+    linear-gradient(180deg, rgb(var(--grund-rgb) / 0) 0%, rgb(var(--grund-rgb) / 0) 45%, rgb(var(--grund-rgb) / 0.6) 100%);
 }
 @media (max-width: 980px) {
   .panel:before {
     inset: -60% -40% -40% -40%;
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.55) 35%, rgba(0, 0, 0, 0.9) 100%);
+    background: linear-gradient(180deg, rgb(var(--grund-rgb) / 0) 0%, rgb(var(--grund-rgb) / 0.55) 35%, rgb(var(--grund-rgb) / 0.9) 100%);
   }
 }
 .panel h2 {
   font-size: var(--fs-h2);
-  color: #fff;
+  color: var(--paper);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
 }
 .panel .num {
@@ -800,7 +800,7 @@ button.btn--zeile:hover:not(:disabled) {
   letter-spacing: 0;
   word-spacing: normal;
   text-transform: none;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgb(var(--tinte-rgb) / 0.85);
 }
 .panel .num,
 .panel .tag,
@@ -810,22 +810,22 @@ button.btn--zeile:hover:not(:disabled) {
   text-shadow: none;
 }
 .panel .tag {
-  color: rgba(255, 255, 255, 0.9);
+  color: rgb(var(--tinte-rgb) / 0.9);
 }
 .panel p {
-  color: rgba(255, 255, 255, 0.82);
+  color: rgb(var(--tinte-rgb) / 0.82);
 }
 .panel .go {
-  background: #fff;
-  color: #000000;
-  border-color: #fff;
+  background: var(--paper);
+  color: var(--ink);
+  border-color: var(--paper);
 }
 .panel .go:hover {
-  background: rgba(255, 255, 255, 0.86);
-  color: #000000;
+  background: rgb(var(--tinte-rgb) / 0.86);
+  color: var(--ink);
 }
 .stage__index {
-  color: rgba(255, 255, 255, 0.92);
+  color: rgb(var(--tinte-rgb) / 0.92);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
 }
 .stage__titel {
@@ -836,8 +836,8 @@ button.btn--zeile:hover:not(:disabled) {
 }
 .stage__linie {
   background:
-    linear-gradient(#fff, #fff) left center / calc(var(--kapitel, 0) * 100%) 100% no-repeat,
-    rgba(255, 255, 255, 0.28);
+    linear-gradient(var(--paper), var(--paper)) left center / calc(var(--kapitel, 0) * 100%) 100% no-repeat,
+    rgb(var(--tinte-rgb) / 0.28);
 }
 .stage__nr,
 .megabar__num,
@@ -851,7 +851,7 @@ button.btn--zeile:hover:not(:disabled) {
   background: var(--ink);
 }
 .gate:after {
-  background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.6), transparent);
+  background: linear-gradient(180deg, rgb(var(--grund-rgb) / 0), rgb(var(--grund-rgb) / 0.6), rgb(var(--grund-rgb) / 0));
 }
 /* Kapitelmarken am rechten Rand: nur die Namen, keine Zahlen. */
 .kapitel a {
@@ -891,8 +891,8 @@ button.btn--zeile:hover:not(:disabled) {
   display: none;
 }
 .panel .chip {
-  border-color: rgba(0, 0, 0, 0.5);
-  color: #000000;
+  border-color: rgb(var(--grund-rgb) / 0.5);
+  color: var(--ink);
 }
 
 .intro__lead strong {
@@ -1037,7 +1037,7 @@ button.btn--zeile:hover:not(:disabled) {
 .member__initialen {
   font-family: var(--font-display);
   font-weight: 400;
-  color: rgba(255, 255, 255, 0.28);
+  color: rgb(var(--tinte-rgb) / 0.28);
 }
 .member__name {
   font-size: clamp(1.4rem, 1.9vw, 1.7rem);
@@ -1050,12 +1050,12 @@ button.btn--zeile:hover:not(:disabled) {
 
 /* Galerie und Lichtkasten */
 .gal__item figcaption {
-  background: linear-gradient(to top, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0));
-  color: #000000;
+  background: linear-gradient(to top, rgb(var(--tinte-rgb) / 0.8), rgb(var(--tinte-rgb) / 0));
+  color: var(--ink);
 }
 .lightbox,
 .lightbox::backdrop {
-  background: rgba(0, 0, 0, 0.97);
+  background: rgb(var(--grund-rgb) / 0.97);
 }
 .lightbox {
   color: var(--paper);
@@ -1082,12 +1082,12 @@ button.btn--zeile:hover:not(:disabled) {
 
 /* Offene Stellen, Hinweise */
 .offen {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgb(var(--tinte-rgb) / 0.06);
   box-shadow: inset 0 0 0 1px var(--line-stark);
   color: var(--paper);
 }
 .offen-kasten {
-  background: rgba(255, 255, 255, 0.04);
+  background: rgb(var(--tinte-rgb) / 0.04);
 }
 .offen-kasten b {
   color: var(--paper);
@@ -1214,7 +1214,7 @@ body > footer:after {
   text-transform: none;
 }
 .megabar {
-  background: rgba(0, 0, 0, 0.98);
+  background: rgb(var(--grund-rgb) / 0.98);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--line);
@@ -1237,11 +1237,11 @@ body > footer:after {
 
 /* App-Leiste unten auf dem Handy */
 .appleiste {
-  background: rgba(0, 0, 0, 0.94);
+  background: rgb(var(--grund-rgb) / 0.94);
   border-top-color: var(--line);
 }
 .appleiste.faehrt {
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.96), rgba(0, 0, 0, 0.7) 55%, rgba(0, 0, 0, 0));
+  background: linear-gradient(to top, rgb(var(--grund-rgb) / 0.96), rgb(var(--grund-rgb) / 0.7) 55%, rgb(var(--grund-rgb) / 0));
 }
 .appleiste a,
 .appleiste.faehrt a {
@@ -1274,12 +1274,12 @@ body > footer:after {
 }
 .form input::placeholder,
 .form textarea::placeholder {
-  color: rgba(255, 255, 255, 0.36);
+  color: rgb(var(--tinte-rgb) / 0.36);
 }
 .form input:hover,
 .form select:hover,
 .form textarea:hover {
-  border-bottom-color: rgba(255, 255, 255, 0.6);
+  border-bottom-color: rgb(var(--tinte-rgb) / 0.6);
 }
 .form input:focus,
 .form select:focus,

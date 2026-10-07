@@ -466,6 +466,109 @@
     };
   }
 
+  /* ==========================================================
+     5b. `--seite`: wie weit die Seite gescrollt ist, 0 bis 1
+     ----------------------------------------------------------
+     Daran haengt das Farbfeld in `farben.css` — die beiden Lichter
+     wandern ueber die Seitenlaenge langsam auseinander, und aus dem
+     Farbraum wird dadurch eine Fahrt statt eines Bildes.
+
+     ERST MESSEN, DANN SCHREIBEN gilt auch fuer eine einzige Zahl:
+     `scrollHeight` ist eine Layoutabfrage. Sie steht deshalb in einer
+     gemerkten Groesse, die nur bei `resize` und beim Nachladen von
+     Bildern neu geholt wird — nicht in jedem Scrollbild.
+
+     Bei reduzierter Bewegung wird gar nichts angemeldet. Der
+     Vorgabewert 0 in `var(--seite)` ergibt dann die ruhige Fassung;
+     das ist billiger und sicherer, als hinterher etwas zurueckzudrehen.
+     ========================================================== */
+  if (!ruhig) {
+    var hoehe = 0, wartetSeite = false;
+    var hoeheHolen = function () {
+      hoehe = Math.max(1, d.documentElement.scrollHeight - window.innerHeight);
+    };
+    var seiteSchreiben = function () {
+      wartetSeite = false;
+      var p = window.scrollY / hoehe;
+      d.documentElement.style.setProperty('--seite', (p < 0 ? 0 : p > 1 ? 1 : p).toFixed(4));
+    };
+    hoeheHolen();
+    seiteSchreiben();
+    window.addEventListener('scroll', function () {
+      if (wartetSeite) return;
+      wartetSeite = true;
+      requestAnimationFrame(seiteSchreiben);
+    }, { passive: true });
+    window.addEventListener('resize', function () { hoeheHolen(); seiteSchreiben(); });
+    /* Faul geladene Bilder lassen die Seite waehrend des Scrollens
+       wachsen. Ohne das bliebe `--seite` bei 1 stehen, lange bevor man
+       unten ist. */
+    window.addEventListener('load', function () { hoeheHolen(); seiteSchreiben(); });
+    if ('ResizeObserver' in window) {
+      new ResizeObserver(function () { hoeheHolen(); seiteSchreiben(); }).observe(d.documentElement);
+    }
+  }
+
+  /* ==========================================================
+     5c. Das Zeigerlicht
+     ----------------------------------------------------------
+     Geschrieben werden zwei Zahlen, `--zx` und `--zy`. Was daraus
+     wird, entscheidet allein `farben.css` — hier steht keine einzige
+     Angabe darueber, wie das Licht aussieht.
+
+     Ein `requestAnimationFrame` je Bild, nicht je Ereignis: ein
+     Zeiger meldet sich bis zu tausendmal in der Sekunde, gezeichnet
+     wird aber sechzigmal.
+     ========================================================== */
+  if (feinerZeiger && !ruhig) {
+    var lx = 0, ly = 0, wartetLicht = false, ausZeit = null;
+    var lichtSchreiben = function () {
+      wartetLicht = false;
+      var st = d.documentElement.style;
+      st.setProperty('--zx', lx + 'px');
+      st.setProperty('--zy', ly + 'px');
+    };
+    d.addEventListener('pointermove', function (ev) {
+      if (ev.pointerType && ev.pointerType !== 'mouse') return;
+      lx = ev.clientX;
+      ly = ev.clientY;
+      d.documentElement.classList.add('zeigt');
+      /* Steht der Zeiger still, geht das Licht nach zwei Sekunden aus —
+         und mit ihm die Ebene im Grafikspeicher. */
+      clearTimeout(ausZeit);
+      ausZeit = setTimeout(function () {
+        d.documentElement.classList.remove('zeigt');
+      }, 2000);
+      if (wartetLicht) return;
+      wartetLicht = true;
+      requestAnimationFrame(lichtSchreiben);
+    }, { passive: true });
+    d.addEventListener('pointerleave', function () {
+      clearTimeout(ausZeit);
+      d.documentElement.classList.remove('zeigt');
+    });
+  }
+
+  /* ==========================================================
+     5d. Die Werkzeugleiste kommt erst, wenn gelesen wird
+     ----------------------------------------------------------
+     Sie stand unten links fest — und lag damit auf dem Vorspanntext
+     des Kopfbilds, gemessen ueber dessen zweiter Zeile. Jedes feste
+     Bedienelement liegt irgendwann auf Inhalt; die Frage ist nur, ob
+     an der auffaelligsten Stelle der Seite.
+
+     Oben ist das Kopfbild die Aussage, also hat dort nichts anderes
+     zu stehen. Sie kommt mit dem ersten Bildschirm Scrollen —
+     dieselbe Mechanik, die „Nach oben" ohnehin benutzt.
+     ========================================================== */
+  if (!imMenue) {
+    var zeigen = function () {
+      werkzeuge.classList.toggle('bereit', window.scrollY > window.innerHeight * 0.55);
+    };
+    zeigen();
+    window.addEventListener('scroll', zeigen, { passive: true });
+  }
+
   /* Die Kapitelmarke folgt dem Scrollen. Sie haengt NICHT an der
      Schleife oben: die laeuft nur, solange eine Spur zu sehen ist, und
      die Rail steht auf jeder Seite. Ein eigener Beobachter kostet

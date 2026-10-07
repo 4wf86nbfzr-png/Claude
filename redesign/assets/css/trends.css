@@ -60,7 +60,7 @@
    gemessenen Kontrast ungueltig machen. Schaltbar ist deshalb die
    TIEFE, nicht die Richtung:
 
-       tief   #000000   wie bisher, Vorgabe
+       tief   var(--ink)   wie bisher, Vorgabe
        weich  #101217   OLED-schonender, weniger harte Kanten an Fotos
 
    Und auch hier gilt der Satz, der in diesem Projekt jetzt zum sechsten
@@ -69,7 +69,7 @@
    schneller, als man denkt, weil ueber dem Film auch der Grund steigt.
    Nachgerechnet gegen den hellsten Bildpunkt des Films:
 
-       Grund #000, Folie .84, --muted .52   ->  5,6:1
+       Grund var(--ink), Folie .84, --muted .52   ->  5,6:1
        Grund #101217 mit denselben Werten   ->  4,56:1   knapp
        Grund #101217, Folie .88, --muted .58 -> 5,6:1   so
 
@@ -123,7 +123,7 @@ html[data-dunkel="weich"] .intro {
   box-shadow:
     -7px -7px 16px var(--neu-licht),
     7px 7px 20px var(--neu-schatten);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  border: 1px solid rgb(var(--tinte-rgb) / 0.04);
 }
 /* Eingedrueckt: dieselben zwei Schatten, nur nach innen. Das ist der
    gedrueckte Zustand und der Rahmen eines Eingabefeldes — ein
@@ -134,7 +134,7 @@ html[data-dunkel="weich"] .intro {
   box-shadow:
     inset 4px 4px 10px var(--neu-schatten),
     inset -4px -4px 10px var(--neu-licht);
-  border: 1px solid rgba(0, 0, 0, 0.35);
+  border: 1px solid rgb(var(--grund-rgb) / 0.35);
 }
 .neu--knopf {
   transition:
@@ -169,8 +169,8 @@ html[data-dunkel="weich"] .intro {
   position: relative;
   background: var(--neu-grund);
   border-radius: var(--neu-r);
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  border-top-color: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgb(var(--tinte-rgb) / 0.04);
+  border-top-color: rgb(var(--tinte-rgb) / 0.04);
   box-shadow:
     -7px -7px 16px var(--neu-licht),
     7px 7px 20px var(--neu-schatten);
@@ -316,7 +316,7 @@ html[data-dunkel="weich"] .intro {
   align-items: start;
   justify-items: center;
   padding: clamp(60px, 12vh, 150px) clamp(16px, 5vw, 40px) 40px;
-  background: rgba(0, 0, 0, 0.72);
+  background: rgb(var(--grund-rgb) / 0.72);
   opacity: 0;
   visibility: hidden;
   /* `visibility` bekommt KEINE Dauer, sondern eine Verzoegerung. Steht
@@ -612,8 +612,8 @@ html[data-dunkel="weich"] .intro {
     transition: opacity 0.35s var(--ease-out);
     background: radial-gradient(
       circle at calc(var(--zx, 0.5) * 100%) calc(var(--zy, 0.5) * 100%),
-      rgba(255, 255, 255, 0.16),
-      rgba(255, 255, 255, 0) 60%
+      rgb(var(--tinte-rgb) / 0.16),
+      rgb(var(--tinte-rgb) / 0) 60%
     );
   }
   [data-kipp].kippt > .glanz {
@@ -685,8 +685,8 @@ html[data-dunkel="weich"] .intro {
   white-space: nowrap;
   padding-right: 0.42em;
   color: transparent;
-  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.42);
-  text-stroke: 1px rgba(255, 255, 255, 0.42);
+  -webkit-text-stroke: 1px rgb(var(--tinte-rgb) / 0.42);
+  text-stroke: 1px rgb(var(--tinte-rgb) / 0.42);
 }
 /* Jedes dritte Wort gefuellt: eine reine Konturzeile liest als Umriss,
    eine gemischte als Satz. */
@@ -726,7 +726,7 @@ html[data-dunkel="weich"] .intro {
    Bildpunkt des Films kommt damit bei 41 von 255 an. */
 .collage,
 .laufband {
-  background-color: rgba(0, 0, 0, 0.84);
+  background-color: rgb(var(--grund-rgb) / 0.84);
 }
 @media (prefers-reduced-motion: reduce) {
   .collage,
@@ -760,8 +760,8 @@ html[data-dunkel="weich"] .intro {
   text-transform: uppercase;
   white-space: nowrap;
   color: transparent;
-  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.1);
-  text-stroke: 1px rgba(255, 255, 255, 0.1);
+  -webkit-text-stroke: 1px rgb(var(--tinte-rgb) / 0.1);
+  text-stroke: 1px rgb(var(--tinte-rgb) / 0.1);
   pointer-events: none;
   user-select: none;
 }
@@ -845,7 +845,7 @@ html[data-dunkel="weich"] .intro {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--paper);
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.78), rgba(0, 0, 0, 0));
+  background: linear-gradient(to top, rgb(var(--grund-rgb) / 0.78), rgb(var(--grund-rgb) / 0));
   opacity: 0;
   transform: translateY(6px);
   transition:

@@ -962,3 +962,137 @@ Kalendersymbol in `<input type=date>`, die Uhr in `type=time` und den
 Pfeil eines `<select>` in seiner hellen Fassung. Auf schwarzem Grund
 sind das allein im Anfrageformular sechs Felder. Es ist der billigste
 Gewinn dieses Durchgangs.
+
+---
+
+## Beige und Weinrot, Oktober 2026
+
+Bestellt waren drei Dinge: die Website in Beige und Weinrot, die Effekte
+weiter ausgebaut, und **keine scharfen Farbkanten, sondern weiche
+Übergänge**. Der dritte Punkt hat die Bauweise bestimmt.
+
+### Zuerst 160 Stellen, die nichts aussehen
+
+Die gelieferte Fassung war in Schwarz und Weiß gebaut, und zwar
+wörtlich: 160 Regeln schrieben `#fff`, `#000000`, `rgba(0,0,0,.84)`
+oder `rgba(255,255,255,.12)` direkt hinein. Solange der Grund schwarz
+ist, fällt das nicht auf. Auf Weinrot ist **jede einzelne davon
+falsch** — ein schwarzer Fotoschleier liest als Graubraun, eine weiße
+Haarlinie als kalter Strich. Es sieht nicht kaputt aus, es sieht billig
+aus, und genau diese Sorte Fehler überlebt drei Farbwechsel.
+
+`tools/farben-umstellen.py` hat sie auf zwei Tokens umgestellt
+(`--grund-rgb`, `--tinte-rgb`). Ausgenommen sind Schatten — ein Schatten
+soll abdunkeln, nicht einfärben — und die Token-Definitionen selbst. In
+Verläufen wurde zusätzlich `transparent` ersetzt: `transparent` ist
+rgba(0,0,0,0), und der Weg von Weinrot nach durchsichtigem SCHWARZ führt
+durch einen schmutzigen Streifen.
+
+Ohne diesen Schritt wäre nichts von dem Folgenden möglich gewesen.
+
+### Die Palette ist gerechnet
+
+Gegen **drei** Gründe, nicht gegen einen: den Seitengrund, den
+Seitengrund über dem hellsten Bildpunkt des Films, und die beige Bahn.
+
+| Stufe | Alpha | auf Grund | über Film | auf Beige |
+|---|---|---|---|---|
+| `--paper` #EFE3D0 | 1.00 | 14,1:1 | 10,8:1 | 12,8:1 |
+| `--chrome` | .80 | 9,4:1 | 7,6:1 | 7,9:1 |
+| `--muted` | .66 | 6,7:1 | 5,6:1 | 5,1:1 |
+
+Die alte `--muted` von .52 mitzunehmen ergäbe über dem Film 4,1:1 und
+auf Beige 3,8:1 — zweimal durchgefallen. **Zum siebten Mal in diesem
+Projekt: eine Tonleiter ist nicht symmetrisch.** Die Folie über dem Film
+musste aus demselben Grund von .84 auf .90: Weinrot ist heller als
+Schwarz, also kommt bei gleicher Deckkraft mehr Licht durch.
+
+Der Markenton ist **nicht** beige, sondern das aufgehellte Weinrot
+(#CE8C96, 6,5:1). Beige neben beiger Tinte trägt nur über den Abstand
+zur Tinte, und der ist klein — dieselbe Falle wie bei Dunkelblau/Beige.
+
+### Ein Farbraum statt fünfzig Kanten
+
+Der naheliegende Weg gegen harte Kanten wäre, an jede Abschnittsgrenze
+einen Verlauf zu setzen. Bei rund fünfzig Abschnitten sind das fünfzig
+Stellen, an denen eine Kante entstehen **kann**.
+
+Hier geht es andersherum: es gibt nur noch **einen** Farbraum, fest
+hinter der ganzen Seite, und die Abschnitte darüber sind durchsichtig.
+Zwischen zwei Abschnitten kann dann gar keine Kante mehr entstehen, weil
+es zwischen ihnen keinen Farbwechsel mehr gibt. Zwei weiche Lichter —
+Beige oben links, Wein unten rechts — wandern über die Seitenlänge
+auseinander (`--seite`).
+
+Gemessen mit `scratchpad/wein/kante.js` (größter Sprung zwischen zwei
+benachbarten Bildzeilen; liegt er in Zeile 90 von 180, ist es die Kante):
+
+| Seite | Kanten gemessen | an der Kante |
+|---|---|---|
+| Startseite | 7 | **0** |
+| jobs | 6 | **0** |
+| kontakt | 2 | **0** |
+
+### Die Falle, die nur im Bild zu sehen war
+
+Der Farbraum lag zuerst als `body::after` mit `z-index:-1` — dieselbe
+Ebene wie der Film, aber später im Dokument. Nach der Malreihenfolge
+stimmt das.
+
+Im Bild stimmte es nicht: **Chromium hebt ein `<video>` auf eine eigene
+Compositing-Ebene**, und die stand darüber. Gemessen war die Seite MIT
+Folie heller (Mittel 132) als ohne (107) — die Folie hat nicht
+abgedunkelt, sondern nur ihre eigenen Lichter dazugelegt. Gefunden hat
+es eine Kontrollaufnahme mit `body::after{background:red}`: das Rot lag
+sichtbar hinter dem Film.
+
+**Eine Lage, die etwas abdecken soll, gehört in dessen eigenen Stapel.**
+Farbraum und Zeigerlicht liegen jetzt als `::before` und `::after` IM
+Film, mit positivem z-index.
+
+### Was an Effekten dazugekommen ist
+
+- **Verlaufsschrift** auf allen großen Zeilen, die auf dem Farbraum
+  stehen: von Beige in den Weinton, und der Verlauf wandert mit
+  `--seite`. Nicht auf dem Kopfbild — dort liegt die Zeile auf einem
+  Foto, und ein Verlauf wäre dort eine zweite Unbekannte.
+- **Zeigerlicht**: ein warmer Schein, der der Maus folgt. Es ist eine
+  verschobene Scheibe, kein wandernder Verlauf — `transform` läuft auf
+  der Grafikkarte, ein `radial-gradient(… at var(--zx))` müsste bei
+  jeder Bewegung die volle Fensterfläche neu malen.
+- **Ein warmer Ton über allen Fotos**, als Verlauf und nicht als
+  Fläche: eine gleichmäßige Tünche sieht nach Filter aus, ein Verlauf
+  nach Licht. (`filter:sepia()` wäre das teuerste Mittel — die
+  Collagenstücke bewegen sich beim Scrollen.)
+- **Größere Satzskala**, engerer Durchschuss (1.04, tiefer geht es
+  wegen der Umlautpunkte nicht) und `text-wrap:balance`.
+- **Weiche Masken** an den Kopfbildern der Unterseiten, an allen vier
+  Kanten. `mask` und nicht `clip-path`: ein beschnittenes Element hat
+  eine leere Schnittfläche und bekommt nie sein `.in`.
+
+### Beige als Fläche, nicht nur als Schrift
+
+`tools/beige-bahnen.py` setzt `auf-beige` auf jede zweite ruhige
+Textbahn der fünfzehn Unterseiten — 16 Bahnen. Die Klasse dreht die
+ganze Tonleiter um und kostet **einen** Block, weil seit der Umstellung
+jede Regel über die beiden Tokens läuft.
+
+Die Startseite bekommt keine: dort läuft der Film hinter allem, und eine
+deckende beige Bahn würde ihn auf ihrer ganzen Höhe zudecken.
+
+### Nebenbei behoben
+
+Die beiden Zahlen im Vertrauensband standen in Fußnotengröße mitten in
+einer Überschrift (`.trust__item span` traf auch die `.zahl` im `<b>`).
+Im Hauptprojekt ist das seit 2026 behoben, in die gelieferte Fassung ist
+die Korrektur nie gewandert.
+
+### Abnahme
+
+| | |
+|---|---|
+| waagerechter Überlauf, 9 Breiten × 16 Seiten | **0** |
+| Textflächen über dem laufenden Film, 45 Phasen und Scrollstände | **0** unter der Grenze |
+| harte Kanten an Abschnittsgrenzen | **0** |
+| reduzierte Bewegung | keine Spur angemeldet, kein Text unsichtbar |
+| ohne JavaScript | Farbraum steht, keine Bedienelemente, kein Text unsichtbar |

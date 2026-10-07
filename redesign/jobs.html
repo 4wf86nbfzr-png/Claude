@@ -50,12 +50,14 @@
 <!-- Zuletzt: nimmt die waagerechten Trennlinien zwischen den
      Textbloecken weg. Was trennt, ist der Abstand. -->
 <link rel="stylesheet" href="assets/css/ohne-striche.css">
-<!-- Sieben Zusaetze (3D, Sprungpalette, fette Typografie,
-     schaltbarer Dunkelmodus, Motion, Neumorphismus, Collage).
-     Steht GANZ zuletzt: mehrere Regeln darin gewinnen allein durch
-     die Reihenfolge. Herausnehmen mit
+<!-- Die beiden letzten Stylesheets, und die Reihenfolge ist die ganze
+     Wirkung: `trends.css` bringt die Effekte, `farben.css` danach die
+     Palette (Beige und Weinrot), das Farbfeld und die weichen Kanten.
+     Mehrere Regeln darin gewinnen allein dadurch, dass sie spaeter
+     stehen. Herausnehmen mit
      python3 tools/trends-einhaengen.py --aus -->
 <link rel="stylesheet" href="assets/css/trends.css">
+<link rel="stylesheet" href="assets/css/farben.css">
 <!-- Inhalte werden beim Scrollen eingeblendet. Ohne JavaScript bliebe die
      Seite sonst leer — diese Zeile nimmt die Sperre sofort zurück. -->
 <script>document.documentElement.classList.remove("kein-js")</script>
@@ -257,7 +259,7 @@
     </div>
   </section>
 
-  <section class="section-soft" id="stellen">
+  <section class="section-soft auf-beige" id="stellen">
     <div class="wrap">
       <span class="eyebrow reveal-up">Offene Bereiche</span>
       <h2 class="block-title reveal-up u-caps" data-d="1">Wen wir suchen</h2>
@@ -358,7 +360,7 @@
   </section>
 
   <!-- ============ BEWERBUNGSFORMULAR ============ -->
-  <section class="section-soft" id="bewerbung">
+  <section class="section-soft auf-beige" id="bewerbung">
     <div class="wrap content__grid">
       <div class="content__lead">
         <span class="eyebrow reveal-up">Bewerbung</span>

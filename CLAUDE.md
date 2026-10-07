@@ -4719,3 +4719,92 @@ drei Werte statt einem — gerechnet gegen den hellsten Bildpunkt des Films:
 | #000000 | .84 | .52 | 5,6:1 |
 | #101217 | .84 | .52 | **4,56:1** — knapp |
 | #101217 | **.88** | **.58** | 5,6:1 |
+
+---
+
+## Beige und Weinrot, Oktober 2026
+
+Vierter Farbwechsel der gelieferten Fassung, und der erste mit einer
+zusätzlichen Bedingung: **„keine scharfen Farbkanten, sondern schöne
+Farbübergänge".** Diese eine Zeile hat die Bauweise bestimmt.
+
+### Ein Farbraum ist billiger als fünfzig Blenden
+
+Der naheliegende Weg wäre eine Blende an jeder Abschnittsgrenze. Bei
+rund fünfzig Abschnitten sind das fünfzig Stellen, an denen eine Kante
+entstehen **kann** — und die nächste neue Sektion bringt die
+einundfünfzigste mit.
+
+Richtig ist die Umkehrung: **einen** Farbraum fest hinter der ganzen
+Seite, und die Abschnitte darüber durchsichtig. Dann kann zwischen zwei
+Abschnitten gar keine Kante mehr entstehen, weil es zwischen ihnen
+keinen Farbwechsel mehr gibt. Was danach noch Kanten machen kann, ist
+nur noch, was DECKEND darauf liegt — die Fotos und das Vertrauensband,
+also drei Stellen statt fünfzig.
+
+### Die Falle: eine Lage, die etwas abdecken soll, gehört in dessen Stapel
+
+Der Farbraum lag zuerst als `body::after` mit `z-index:-1`: dieselbe
+Ebene wie der Hintergrundfilm, aber später im Dokument, also nach der
+Malreihenfolge darüber. Im Bild lag er darunter — **Chromium hebt ein
+`<video>` auf eine eigene Compositing-Ebene.**
+
+Gemessen war die Seite MIT Folie heller (Mittel 132) als ohne (107): die
+Folie hat nicht abgedunkelt, sondern nur ihre eigenen Lichter
+dazugelegt. Gefunden hat es keine Überlegung zur Spezifikation, sondern
+eine Kontrollaufnahme mit `body::after{background:red}` — das Rot lag
+sichtbar hinter dem Film.
+
+Richtig ist `.filmgrund::before` mit `z-index:1`, also **im** Stapel des
+Films. Ein positioniertes Element mit positivem z-index wird nach allem
+Inhalt gemalt, und daran ändert auch eine Compositing-Ebene nichts.
+
+### Eine DOM-Prüfung sieht kein Hintergrundbild
+
+Die beigen Bahnen tragen ihre Fläche als `background-image`, damit
+dieselbe Eigenschaft die Farbe **und** ihre beiden Blenden hält. Der
+Kontrastprüfer sucht den ersten Vorfahren mit einer deckenden
+`background-color`, findet den dunklen `body` dahinter und meldet die
+ganze Bahn mit **1,00:1**.
+
+Das ist dieselbe Lücke wie bei der durchscheinenden App-Leiste und beim
+Foto im Hero, nur mit einem dritten Grund: diesmal ist es ein Verlauf.
+Der Prüfer bricht dort jetzt ab und meldet nichts, statt Unsinn zu
+melden; gemessen wird die Stelle im Bild
+(`scratchpad/wein/bildkontrast.js`).
+
+**Und die Regel, nach der man solche Meldungen sortiert, steht in diesem
+Projekt jetzt zum fünften Mal:** 174 Befunde mit exakt demselben Wert
+sind kein Befund, sondern ein kaputtes Verfahren. Dasselbe galt für die
+Verlaufsschrift — dort steht `color:transparent`, die Farbe liegt im
+Hintergrund, und der Prüfer rechnete 1,00:1 für jede einzelne große
+Zeile. Gemessen wird dort gegen den **dunkelsten Stopp** des Verlaufs.
+
+### Zum siebten Mal: eine Tonleiter ist nicht symmetrisch
+
+Weinrot (#2B0E16) ist heller als Schwarz (L 0,009 gegen 0). Dadurch
+kommt bei gleicher Deckkraft mehr Licht durch die Folie über dem Film,
+und die gedämpfte Stufe fiel von 5,6:1 auf 4,1:1 — durchgefallen, ohne
+dass sich an ihr etwas geändert hätte.
+
+| | Folie | `--muted` | auf Grund | über Film | auf Beige |
+|---|---|---|---|---|---|
+| mitgenommen | .84 | .52 | 5,0:1 | **4,1:1** | **3,8:1** |
+| gerechnet | **.90** | **.66** | 6,7:1 | 5,6:1 | 5,1:1 |
+
+### Was einen Farbwechsel wirklich kostet
+
+Die gelieferte Fassung hatte **160 fest eingetragene** Schwarz- und
+Weißwerte — Fotoschleier, Flächen, Linien, Verlaufsenden. Auf Schwarz
+fällt keiner auf; auf Weinrot ist jeder falsch, und zwar auf die Art,
+die man nicht als Fehler sieht, sondern als billige Anmutung.
+
+`tools/farben-umstellen.py` stellt sie auf zwei Zahlentripel um
+(`--grund-rgb`, `--tinte-rgb`). Erst danach kostet eine beige Bahn einen
+einzigen Block statt einer zweiten Fassung des Stylesheets.
+
+Zwei Ausnahmen, beide nachgerechnet: **Schatten behalten ihr Schwarz**
+(was abdunkeln soll, darf nicht einfärben), und `transparent` wird
+innerhalb eines Verlaufs zu `rgb(var(--grund-rgb) / 0)` — sonst führt
+der Weg von Weinrot nach durchsichtigem SCHWARZ durch einen schmutzigen
+Streifen.
