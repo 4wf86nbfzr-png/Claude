@@ -30,3 +30,9 @@ herm-website-redesign-neu.zip
 # Der Ordner redesign/ ist eine GELIEFERTE Fassung, kein Bauergebnis: dort
 # sind auch die gebuendelten Funktionen die Quelle, die wir haben.
 !redesign/netlify/functions/
+
+# Das SEPA-Lastschriftmandat der IKK gesund plus als ausfuellbares PDF.
+# Gehoert nicht zur Website: es ist ein Formular fuer den Betrieb, und das
+# Skript daneben baut es neu (Feldlaengen, Beschriftungen, Layout).
+SEPA-Lastschriftmandat-IKK-gesund-plus.pdf
+sepa-formular-bauen.py
