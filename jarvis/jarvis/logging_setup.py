@@ -29,16 +29,26 @@ MASK = "***"
 
 
 class SecretFilter(logging.Filter):
-    """Ersetzt Geheimnisse in Nachricht und Argumenten."""
+    """Ersetzt Geheimnisse in Nachricht und Argumenten.
 
-    def __init__(self, known: list[str] | None = None) -> None:
+    ``known`` darf eine Funktion sein. Das ist der Normalfall: beim Einrichten
+    der Protokollierung ist noch kein Zugangsschluessel gelesen worden -- die
+    kommen erst, wenn die Werkzeuge gebaut werden. Eine einmal kopierte Liste
+    wuerde diese Schluessel nie enthalten.
+    """
+
+    def __init__(self, known=None) -> None:
         super().__init__()
+        self._known = known
+
+    def _geheimnisse(self) -> list[str]:
+        werte = self._known() if callable(self._known) else (self._known or [])
         # Kurze Werte ignorieren: 'de' oder '1' als Geheimnis wuerde das
         # halbe Protokoll schwaerzen.
-        self._known = [k for k in (known or []) if len(k) >= 6]
+        return [k for k in werte if isinstance(k, str) and len(k) >= 6]
 
     def redact(self, text: str) -> str:
-        for geheim in self._known:
+        for geheim in self._geheimnisse():
             text = text.replace(geheim, MASK)
         for muster in SECRET_PATTERNS:
             text = muster.sub(lambda m: _mask_match(m), text)
@@ -93,7 +103,7 @@ RING = RingBufferHandler()
 
 
 def setup(log_path: Path | None = None, level: str = "INFO",
-          known_secrets: list[str] | None = None) -> RingBufferHandler:
+          known_secrets=None) -> RingBufferHandler:
     """Richtet die Protokollierung ein. Mehrfacher Aufruf ist unschaedlich."""
     root = logging.getLogger("jarvis")
     root.setLevel(getattr(logging, level.upper(), logging.INFO))
@@ -122,6 +132,11 @@ def setup(log_path: Path | None = None, level: str = "INFO",
         root.addHandler(datei)
 
     RING.records.clear()
+    # Alte Filter abraeumen: setup() wird in Tests und beim Neustart im selben
+    # Prozess mehrfach gerufen, und RING ist modulglobal -- sonst haengen dort
+    # mit der Zeit beliebig viele Filter.
+    for alter_filter in list(RING.filters):
+        RING.removeFilter(alter_filter)
     RING.addFilter(geheim)
     root.addHandler(RING)
     root.propagate = False

@@ -88,6 +88,7 @@ Absicht.
 | Neustart | beenden, dann `jarvis run` |
 | Eine Frage ohne Sprache | `jarvis ask "Was ist offen?"` |
 | Diagnose | `jarvis doctor` (`--json` zum Weitergeben) |
+| Messung | `jarvis bench` |
 | Konfiguration pruefen | `jarvis config-show` |
 | Aufgaben | `jarvis tasks` (`--all` auch erledigte) |
 | Gedaechtnis | `jarvis memory`, loeschen mit `--forget 7` |
@@ -153,6 +154,22 @@ erteilen -- die Richtlinie ist nach dem Start unveraenderlich.
 
 Beliebige Shell-Befehle fuehrt JARVIS nicht aus. Skripte muessen mit
 absolutem Pfad unter `allowed_scripts` stehen.
+
+## Sicherheit des Dashboards
+
+Das Dashboard laeuft auf `127.0.0.1` -- das allein schuetzt aber nicht. Eine
+beliebige Webseite im Browser des Nutzers kann ein Formular an `127.0.0.1`
+abschicken, und ein WebSocket unterliegt ueberhaupt nicht der
+Gleiche-Herkunft-Regel. Deshalb:
+
+* Aendernde Anfragen (POST, DELETE) werden abgewiesen, wenn der `Origin`-Kopf
+  gesetzt ist und nicht zum Dashboard gehoert.
+* Der WebSocket wird vor dem Annehmen geprueft. Ohne das koennte eine fremde
+  Seite den Zustandsstrom mitlesen -- darin stehen die letzte Aeusserung, die
+  letzte Antwort und alle offenen Aufgaben.
+* `seite_lesen` ruft keine Adressen im eigenen Netz ab (Loopback, private
+  Bereiche, Link-Local), auch nicht ueber eine Umleitung. Sonst koennte eine
+  gelesene Seite JARVIS dazu bringen, das eigene `/api/memory` abzurufen.
 
 ## Datenschutz
 

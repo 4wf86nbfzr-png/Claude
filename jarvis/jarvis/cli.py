@@ -130,6 +130,14 @@ def cmd_doctor(args) -> int:
     return 1 if report.problems else 0
 
 
+def cmd_bench(args) -> int:
+    from . import bench
+
+    print(bench.run(_load(args), mit_modell=not args.ohne_modell,
+                    mit_audio=not args.ohne_audio))
+    return 0
+
+
 def cmd_config_init(args) -> int:
     ziel = Path(args.path).expanduser() if args.path else DEFAULT_CONFIG_PATH
     if ziel.exists() and not args.force:
@@ -329,6 +337,13 @@ def build_parser() -> argparse.ArgumentParser:
     a = sub.add_parser("ask", help="eine Frage ohne Sprache stellen")
     a.add_argument("text", nargs="+", help="die Frage")
     a.set_defaults(func=cmd_ask)
+
+    b = sub.add_parser("bench", help="misst Geschwindigkeit und Speicherbedarf")
+    b.add_argument("--ohne-modell", action="store_true",
+                   help="das Sprachmodell nicht befragen")
+    b.add_argument("--ohne-audio", action="store_true",
+                   help="Whisper und Sprachausgabe auslassen")
+    b.set_defaults(func=cmd_bench)
 
     si = sub.add_parser("install-service",
                         help="richtet den Start beim Anmelden ein (launchd)")

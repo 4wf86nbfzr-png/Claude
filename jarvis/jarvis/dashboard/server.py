@@ -27,7 +27,7 @@ from pathlib import Path
 # WebSocket-Parameter fuer einen Query-Parameter und wiese die Verbindung ab.
 # Dass fastapi fehlen kann, ist in Ordnung: dieses Modul wird nur geladen,
 # wenn das Dashboard laeuft.
-from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -36,6 +36,26 @@ from ..logging_setup import RING, get_logger
 log = get_logger("dashboard")
 
 WEB_DIR = Path(__file__).parent / "web"
+
+
+def erlaubte_herkuenfte(host: str, port: int) -> set[str]:
+    """Die Adressen, unter denen das eigene Dashboard erreichbar ist."""
+    namen = {host, "127.0.0.1", "localhost", "[::1]"}
+    return {f"{schema}://{name}:{port}"
+            for name in namen for schema in ("http", "https")}
+
+
+def herkunft_passt(origin: str | None, erlaubt: set[str]) -> bool:
+    """Prueft den Origin-Kopf einer Anfrage.
+
+    Fehlt der Kopf, ist die Anfrage **nicht** aus einem Browser-Dokument
+    gekommen (curl, ein Skript, die eigene fetch-Anfrage gleicher Herkunft bei
+    manchen Browsern) -- das ist in Ordnung. Ist er gesetzt und passt nicht,
+    stammt sie von einer fremden Seite und wird abgelehnt.
+    """
+    if not origin or origin == "null":
+        return True
+    return origin.rstrip("/") in erlaubt
 
 
 class DashboardState:
@@ -84,6 +104,8 @@ class DashboardState:
 def create_app(runtime):
     """Baut die Anwendung. ``runtime`` ist ein ``JarvisRuntime``."""
     zustand = DashboardState()
+    erlaubt = erlaubte_herkuenfte(runtime.config.dashboard_host,
+                                  runtime.config.dashboard_port)
 
     @contextlib.asynccontextmanager
     async def lifespan(_app: FastAPI):
@@ -96,6 +118,27 @@ def create_app(runtime):
     app = FastAPI(title="JARVIS", docs_url=None, redoc_url=None, lifespan=lifespan)
     app.state.dashboard = zustand
     app.state.runtime = runtime
+    app.state.erlaubte_herkuenfte = erlaubt
+
+    @app.middleware("http")
+    async def herkunft_pruefen(request: Request, call_next):
+        """Weist aendernde Anfragen von fremden Seiten ab.
+
+        Das Dashboard laeuft auf 127.0.0.1, aber das schuetzt nicht: eine
+        beliebige Webseite im Browser des Nutzers kann ein Formular an
+        127.0.0.1 abschicken (ein einfacher Querverweis-Antrag, der ohne
+        Vorabfrage durchgeht). Ohne diese Pruefung koennte eine fremde Seite
+        das Mikrofon einschalten.
+        """
+        if request.method in ("POST", "PUT", "PATCH", "DELETE"):
+            if not herkunft_passt(request.headers.get("origin"), erlaubt):
+                log.warning("Anfrage von fremder Herkunft abgewiesen: %s %s (%s)",
+                            request.method, request.url.path,
+                            request.headers.get("origin"))
+                return JSONResponse(
+                    {"detail": "Anfrage von einer fremden Seite abgewiesen."},
+                    status_code=403)
+        return await call_next(request)
 
     # -- Oberflaeche ----------------------------------------------------
     if WEB_DIR.exists():
@@ -220,6 +263,16 @@ def create_app(runtime):
     # -- Live-Verbindung ------------------------------------------------
     @app.websocket("/ws")
     async def websocket_endpoint(websocket: WebSocket):
+        # Vor dem Annehmen pruefen. Ein WebSocket unterliegt NICHT der
+        # Gleiche-Herkunft-Regel: ohne diese Pruefung koennte jede beliebige
+        # Seite, die der Nutzer offen hat, eine Verbindung hierher aufbauen
+        # und den Strom mitlesen -- darin stehen die letzte Aeusserung, die
+        # letzte Antwort, alle offenen Aufgaben und wartende Rueckfragen.
+        if not herkunft_passt(websocket.headers.get("origin"), erlaubt):
+            log.warning("WebSocket von fremder Herkunft abgewiesen: %s",
+                        websocket.headers.get("origin"))
+            await websocket.close(code=1008, reason="fremde Herkunft")
+            return
         await websocket.accept()
         await zustand.add(websocket)
         try:

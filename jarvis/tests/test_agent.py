@@ -201,7 +201,10 @@ def test_zustimmung_fuehrt_aus():
     agent, db = make(llm, granted=(Scope.DELETE,))
     agent.respond("Loesch /tmp/alt.txt")
     antwort = agent.respond("Ja, mach")
-    assert antwort.text == "Erledigt."
+    # Die Antwort nennt die Aktion -- ein blosses "Erledigt" liesse offen,
+    # was eigentlich bestaetigt wurde.
+    assert antwort.text.startswith("Erledigt:")
+    assert "loeschen" in antwort.text
     assert antwort.tool_runs[0].ok
     assert agent.pending is None
     db.close()

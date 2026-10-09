@@ -33,12 +33,30 @@ from .tools.registry import ToolError, ToolRegistry, ToolResult
 
 log = get_logger("agent")
 
-#: Worte, die als Zustimmung gelten. Absichtlich knapp -- bei allem anderen
-#: wird nicht ausgefuehrt. Ein falsch verstandenes "ja" kann loeschen.
-YES = {"ja", "jawohl", "jo", "genau", "mach", "machen", "los", "ok", "okay",
-       "bestaetigt", "bestätigt", "einverstanden", "klar", "gerne", "bitte"}
-NO = {"nein", "nicht", "stop", "stopp", "abbrechen", "lass", "doch nicht",
-      "vergiss es", "nee", "ne"}
+#: Worte, die als Zustimmung gelten.
+#:
+#: Hoeflichkeitsfloskeln stehen bewusst NICHT hier. "bitte", "gerne", "klar"
+#: und "ok" kommen in ganz gewoehnlichen Saetzen vor: "Lies mir bitte die
+#: Nachrichten vor" waere sonst die Zustimmung zu einer wartenden Loeschung.
+#: Siehe _handle_confirmation -- dort muss die Aeusserung ausserdem *nur* aus
+#: Zustimmung bestehen.
+YES = {"ja", "jawohl", "jupp", "jep", "genau", "bestaetigt", "bestätigt",
+       "einverstanden", "zustimmung", "mach", "machen", "los", "weiter"}
+
+#: Ablehnung. Grosszuegiger als die Zustimmung -- im Zweifel lieber nicht tun.
+NO = {"nein", "nicht", "stop", "stopp", "abbrechen", "lass", "lassen",
+      "vergiss", "nee", "ne", "doch", "halt", "warte"}
+
+#: Fuellwoerter, die neben einer Zustimmung stehen duerfen, ohne sie zu
+#: entwerten: "Ja, bitte mach das" ist eine Zustimmung, "Lies mir bitte etwas
+#: vor" nicht.
+FUELLWORTE = {"bitte", "gerne", "gern", "klar", "ok", "okay", "schon", "doch",
+              "mal", "dann", "das", "es", "so", "gut", "danke", "aber", "na",
+              "also", "sicher", "unbedingt", "natuerlich", "natürlich"}
+
+#: So lange gilt eine Rueckfrage. Danach verfaellt sie -- eine Zustimmung, die
+#: drei Minuten spaeter kommt, bezieht sich wahrscheinlich auf etwas anderes.
+CONFIRMATION_TIMEOUT = 90.0
 
 
 @dataclass(slots=True)
@@ -239,6 +257,13 @@ class Agent:
         assert wartend is not None
         worte = {w.strip(".,!?;:").lower() for w in user_text.split()}
 
+        # Abgelaufene Rueckfragen verfallen. Eine Zustimmung, die lange nach
+        # der Frage kommt, meint vermutlich etwas anderes.
+        if self._clock() - wartend.created_at > CONFIRMATION_TIMEOUT:
+            log.info("Rueckfrage ist abgelaufen -- Aktion verfaellt.")
+            self.pending = None
+            return None
+
         if worte & NO:
             self.pending = None
             self.short_term.add("user", user_text)
@@ -246,7 +271,13 @@ class Agent:
             self.short_term.add("assistant", text)
             return AgentReply(text=text)
 
-        if worte & YES:
+        # Zustimmung nur, wenn die Aeusserung *nichts anderes* enthaelt.
+        # Ein einzelnes "ja" in einem Satz voller anderer Woerter ist keine
+        # Zustimmung zu einer Loeschung -- das ist der Unterschied zwischen
+        # "Ja, mach das" und "Ja, und lies mir die Nachrichten vor".
+        nur_zustimmung = bool(worte & YES) and worte <= (YES | FUELLWORTE)
+
+        if nur_zustimmung:
             self.pending = None
             self.short_term.add("user", user_text)
             try:
@@ -258,7 +289,9 @@ class Agent:
                 return AgentReply(text=text, error=str(exc))
             lauf = ToolRun(wartend.tool, wartend.arguments, ok=ergebnis.ok,
                            message=ergebnis.message, verification=ergebnis.verification)
-            text = ("Erledigt." if ergebnis.ok
+            # Nennen, was tatsaechlich getan wurde -- ein blosses "Erledigt"
+            # laesst den Nutzer im Unklaren, welche Aktion er bestaetigt hat.
+            text = (f"Erledigt: {wartend.description}" if ergebnis.ok
                     else f"Das hat nicht geklappt: {ergebnis.message}")
             self.short_term.add("assistant", text)
             return AgentReply(text=text, tool_runs=[lauf])

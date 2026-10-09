@@ -11,7 +11,6 @@ Modellkontext wandern, und eine Binaerdatei hat dort nichts zu suchen.
 from __future__ import annotations
 
 import fnmatch
-import shutil
 from pathlib import Path
 
 from ..logging_setup import get_logger

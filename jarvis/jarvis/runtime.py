@@ -126,7 +126,9 @@ class JarvisRuntime:
     def setup(self) -> None:
         from . import secrets
 
-        setup(self.config.log_path, self.config.log_level, secrets.known())
+        # secrets.known selbst uebergeben, nicht das Ergebnis: Zugangsdaten
+        # werden erst beim Bauen der Werkzeuge gelesen.
+        setup(self.config.log_path, self.config.log_level, secrets.known)
         log.info("JARVIS startet (Konfiguration: %s)", self.config.state_dir)
         self.lock.acquire()
 

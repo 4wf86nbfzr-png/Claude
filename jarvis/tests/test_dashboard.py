@@ -191,3 +191,71 @@ def test_websocket_sendet_den_zustand(client):
         daten = ws.receive_json()
         assert daten["typ"] == "status"
         assert "zustand" in daten
+
+
+# ======================================================================
+# Herkunftspruefung
+# ======================================================================
+def test_websocket_von_fremder_seite_wird_abgewiesen(client):
+    """Ein WebSocket unterliegt NICHT der Gleiche-Herkunft-Regel. Ohne diese
+    Pruefung koennte jede Seite, die der Nutzer offen hat, den Zustandsstrom
+    mitlesen -- darin stehen die letzte Aeusserung, die letzte Antwort, alle
+    offenen Aufgaben und wartende Rueckfragen."""
+    from starlette.websockets import WebSocketDisconnect
+
+    with pytest.raises(WebSocketDisconnect):
+        with client.websocket_connect(
+                "/ws", headers={"Origin": "https://boese.example"}):
+            pass
+
+
+def test_websocket_von_eigener_seite_geht(client):
+    with client.websocket_connect(
+            "/ws", headers={"Origin": "http://127.0.0.1:8765"}) as ws:
+        assert ws.receive_json()["typ"] == "status"
+
+
+def test_websocket_ohne_herkunft_geht(client):
+    """Nicht aus einem Browser-Dokument -- etwa ein eigenes Skript."""
+    with client.websocket_connect("/ws") as ws:
+        assert ws.receive_json()["typ"] == "status"
+
+
+def test_fremde_seite_kann_das_mikrofon_nicht_einschalten(client):
+    """Ein Formular auf einer beliebigen Seite kann an 127.0.0.1 abschicken,
+    ohne Vorabfrage. Ohne Pruefung waere das ein Abhoerkanal."""
+    antwort = client.post("/api/wake", headers={"Origin": "https://boese.example"})
+    assert antwort.status_code == 403
+    assert "fremden Seite" in antwort.json()["detail"]
+
+
+def test_fremde_seite_kann_nicht_unterbrechen(client):
+    assert client.post("/api/interrupt",
+                       headers={"Origin": "https://boese.example"}).status_code == 403
+
+
+def test_fremde_seite_kann_nichts_sagen_lassen(client):
+    antwort = client.post("/api/say", json={"text": "Loesch alles"},
+                          headers={"Origin": "https://boese.example"})
+    assert antwort.status_code == 403
+
+
+def test_fremde_seite_kann_nichts_loeschen(client):
+    fakt = client.runtime.agent.long_term.remember("Noah", "Buero", "Hamburg")
+    antwort = client.delete(f"/api/memory/{fakt.id}",
+                            headers={"Origin": "https://boese.example"})
+    assert antwort.status_code == 403
+    assert client.runtime.agent.long_term.lookup("Noah", "Buero") is not None
+
+
+def test_eigene_seite_darf_weiterhin_alles(client):
+    kopf = {"Origin": "http://127.0.0.1:8765"}
+    assert client.post("/api/interrupt", headers=kopf).status_code == 200
+    assert client.post("/api/say", json={"text": "Moin"}, headers=kopf).status_code == 200
+
+
+def test_lesen_bleibt_ohne_herkunftspruefung(client):
+    """GET aendert nichts; eine fremde Seite kann die Antwort ohnehin nicht
+    lesen (dafuer braeuchte sie CORS-Freigabe, die es nicht gibt)."""
+    assert client.get("/api/status",
+                      headers={"Origin": "https://boese.example"}).status_code == 200

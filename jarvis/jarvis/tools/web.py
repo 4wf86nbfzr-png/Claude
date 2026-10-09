@@ -14,8 +14,10 @@ Zwei Dinge sind hier wichtiger als Bequemlichkeit:
 from __future__ import annotations
 
 import html
+import ipaddress
 import json
 import re
+import socket
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -37,9 +39,66 @@ FREMDTEXT_HINWEIS = (
 )
 
 
+class ZielAbgelehnt(ValueError):
+    """Die Adresse zeigt ins eigene Netz."""
+
+
+def pruefe_ziel(url: str) -> str:
+    """Laesst nur oeffentliche Adressen durch.
+
+    Ohne diese Pruefung koennte eine gelesene Seite das Sprachmodell dazu
+    bringen, als naechstes das eigene Dashboard abzurufen -- dort stehen unter
+    /api/memory das ganze Langzeitgedaechtnis und unter /api/log das
+    Protokoll. Beides liegt bewusst nur auf 127.0.0.1; ein Abruf von innen
+    wuerde genau diese Grenze aushebeln. Dasselbe gilt fuer Geraete im
+    Heimnetz (Router, Drucker, NAS).
+
+    Geprueft wird nach der Namensaufloesung: ein Name, der auf 127.0.0.1
+    zeigt, hilft dem Angreifer sonst weiter.
+    """
+    teile = urllib.parse.urlsplit(url)
+    if teile.scheme not in ("http", "https"):
+        raise ZielAbgelehnt("Ich rufe nur http- und https-Adressen ab.")
+    if not teile.hostname:
+        raise ZielAbgelehnt("In der Adresse fehlt der Rechnername.")
+
+    try:
+        infos = socket.getaddrinfo(teile.hostname, teile.port or
+                                   (443 if teile.scheme == "https" else 80),
+                                   proto=socket.IPPROTO_TCP)
+    except socket.gaierror as exc:
+        raise ZielAbgelehnt(f"{teile.hostname} ist nicht auffindbar ({exc}).") from exc
+
+    for info in infos:
+        adresse = ipaddress.ip_address(info[4][0])
+        if (adresse.is_private or adresse.is_loopback or adresse.is_link_local
+                or adresse.is_reserved or adresse.is_multicast
+                or adresse.is_unspecified):
+            raise ZielAbgelehnt(
+                f"{teile.hostname} zeigt auf eine Adresse im eigenen Netz "
+                f"({adresse}). Seiten aus dem lokalen Netz rufe ich nicht ab.")
+    return url
+
+
+class _GepruefteUmleitung(urllib.request.HTTPRedirectHandler):
+    """Prueft auch das Umleitungsziel.
+
+    Sonst genuegt eine oeffentliche Adresse, die per 302 auf 127.0.0.1
+    verweist, um die Pruefung zu umgehen.
+    """
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        try:
+            pruefe_ziel(newurl)
+        except ZielAbgelehnt as exc:
+            raise urllib.error.HTTPError(newurl, code, str(exc), headers, fp) from exc
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
 def _fetch(url: str, timeout: float = 15.0) -> tuple[str, str]:
     """Holt eine Seite. Gibt (Inhaltstyp, Text) zurueck."""
-    opener = urllib.request.build_opener()
+    pruefe_ziel(url)
+    opener = urllib.request.build_opener(_GepruefteUmleitung())
     request = urllib.request.Request(url, headers={
         "User-Agent": USER_AGENT,
         "Accept": "text/html,application/xhtml+xml,text/plain,application/json",
@@ -134,10 +193,10 @@ def register(registry, policy: Policy) -> None:
         )
 
     def _read_url(url: str) -> ToolResult:
-        if not url.startswith(("http://", "https://")):
-            return ToolResult(ok=False, message="Ich rufe nur http- und https-Adressen ab.")
         try:
             typ, roh = _fetch(url)
+        except ZielAbgelehnt as exc:
+            return ToolResult(ok=False, message=str(exc))
         except urllib.error.HTTPError as exc:
             return ToolResult(ok=False, message=f"{url} antwortet mit HTTP {exc.code}.")
         except (urllib.error.URLError, OSError) as exc:

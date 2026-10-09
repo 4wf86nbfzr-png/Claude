@@ -168,6 +168,12 @@ class ToolRegistry:
             value = args[key]
             if spec.type is float and isinstance(value, int) and not isinstance(value, bool):
                 value = float(value)
+            # bool ist in Python eine Unterklasse von int -- ohne diese Zeile
+            # ginge True als Zahl durch und landete als 1 im Werkzeug.
+            if spec.type is int and isinstance(value, bool):
+                raise ArgumentError(
+                    f"{tool.name}: '{key}' muss eine Zahl sein, bekommen habe "
+                    "ich einen Wahrheitswert.")
             if not isinstance(value, spec.type):
                 raise ArgumentError(
                     f"{tool.name}: '{key}' muss {spec.type.__name__} sein, "

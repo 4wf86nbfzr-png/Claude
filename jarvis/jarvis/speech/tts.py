@@ -51,6 +51,16 @@ class Engine(Protocol):
     def available(self) -> tuple[bool, str]: ...
 
 
+def _ohne_fuehrenden_bindestrich(text: str) -> str:
+    """Nimmt fuehrende Bindestriche weg, damit kein Argument wie eine Option
+    aussieht. Gesprochen macht das keinen Unterschied.
+
+    Bleibt nichts uebrig (der Text bestand nur aus Bindestrichen), gibt es
+    auch nichts zu sprechen -- dann lieber leer als wieder mit Bindestrich.
+    """
+    return text.lstrip("-").lstrip()
+
+
 def _terminate(proc: subprocess.Popen) -> None:
     """Beendet einen Wiedergabeprozess zuegig.
 
@@ -168,7 +178,12 @@ class SayEngine:
         if self.config.speed and self.config.speed != 1.0:
             # `say` erwartet Woerter pro Minute; 180 ist etwa normal.
             befehl += ["-r", str(int(180 * self.config.speed))]
-        befehl.append(text)
+        # '--' beendet die Optionen, und ein fuehrender Bindestrich wird
+        # zusaetzlich entschaerft. Ohne beides wuerde `say` einen Satz, der mit
+        # '-' beginnt, als Option lesen: '-o/pfad' schreibt die Sprachausgabe
+        # in eine Datei, '-f/pfad' liest den Text aus einer. Ein Modell, das
+        # eine Aufzaehlung mit '- ' beginnt, reicht dafuer schon aus.
+        befehl += ["--", _ohne_fuehrenden_bindestrich(text)]
         try:
             proc = subprocess.Popen(befehl, stdout=subprocess.DEVNULL,
                                     stderr=subprocess.DEVNULL)
