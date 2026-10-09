@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+# Laufzeitdaten: Gedaechtnis, Protokolle, Modelle
+var/
+models/
+config.local.toml

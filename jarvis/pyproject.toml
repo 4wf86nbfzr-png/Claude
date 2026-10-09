@@ -1,0 +1,20 @@
+[project]
+name = "jarvis"
+version = "0.1.0"
+description = "Lokal orientierter persoenlicher Sprachassistent fuer macOS"
+requires-python = ">=3.11"
+# Der Kern laeuft bewusst mit der Standardbibliothek allein.
+# Alles Schwere steckt in Extras, damit Kern und Tests ueberall laufen.
+dependencies = []
+
+[project.optional-dependencies]
+dashboard = ["fastapi>=0.115", "uvicorn[standard]>=0.30"]
+speech = ["sounddevice>=0.4.6", "numpy>=1.26", "openwakeword>=0.6"]
+dev = ["pytest>=8", "pytest-asyncio>=0.23"]
+
+[project.scripts]
+jarvis = "jarvis.cli:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
