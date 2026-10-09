@@ -84,6 +84,44 @@ allowed_scripts = []
 '''
 
 
+LAUNCHD_TEMPLATE = """<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.jarvis.assistent</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>{python}</string>
+    <string>-m</string>
+    <string>jarvis.cli</string>
+    <string>run</string>
+  </array>
+  <key>RunAtLoad</key>
+  <true/>
+  <!-- Nach einem Absturz neu starten, aber nicht in einer Schleife:
+       ThrottleInterval haelt mindestens 20 s Abstand. -->
+  <key>KeepAlive</key>
+  <dict>
+    <key>SuccessfulExit</key>
+    <false/>
+  </dict>
+  <key>ThrottleInterval</key>
+  <integer>20</integer>
+  <key>WorkingDirectory</key>
+  <string>{state_dir}</string>
+  <key>StandardOutPath</key>
+  <string>{log}</string>
+  <key>StandardErrorPath</key>
+  <string>{fehler}</string>
+  <key>ProcessType</key>
+  <string>Interactive</string>
+</dict>
+</plist>
+"""
+
+
 def cmd_doctor(args) -> int:
     cfg = _load(args)
     report = doctor.run(cfg)
@@ -150,6 +188,102 @@ def cmd_memory(args) -> int:
     return 0
 
 
+
+def cmd_run(args) -> int:
+    """Startet JARVIS: Sprache, Dashboard, Hintergrunddienste."""
+    from .runtime import AlreadyRunning, JarvisRuntime
+
+    cfg = _load(args)
+    runtime = JarvisRuntime(cfg, with_voice=not args.ohne_sprache)
+    try:
+        runtime.setup()
+    except AlreadyRunning as exc:
+        print(exc, file=sys.stderr)
+        return 3
+
+    if args.ohne_dashboard:
+        runtime.run_forever()
+        return 0
+
+    try:
+        import uvicorn
+
+        from .dashboard.server import create_app
+    except ImportError as exc:
+        print(f"Das Dashboard braucht fastapi und uvicorn ({exc}).\n"
+              "Installieren: pip install 'jarvis[dashboard]'\n"
+              "Oder ohne Dashboard starten: jarvis run --ohne-dashboard",
+              file=sys.stderr)
+        runtime.shutdown()
+        return 4
+
+    app = create_app(runtime)
+    runtime.start()
+    print(f"JARVIS laeuft. Dashboard: http://{cfg.dashboard_host}:{cfg.dashboard_port}")
+    try:
+        uvicorn.run(app, host=cfg.dashboard_host, port=cfg.dashboard_port,
+                    log_level="warning", access_log=False)
+    finally:
+        runtime.shutdown()
+    return 0
+
+
+def cmd_ask(args) -> int:
+    """Eine einzelne Frage ohne Sprache -- zum Pruefen der Modellanbindung."""
+    from .runtime import AlreadyRunning, JarvisRuntime
+
+    cfg = _load(args)
+    runtime = JarvisRuntime(cfg, with_voice=False)
+    try:
+        runtime.setup()
+    except AlreadyRunning as exc:
+        print(exc, file=sys.stderr)
+        return 3
+    try:
+        antwort = runtime.agent.respond(" ".join(args.text))
+        if antwort.error:
+            print(f"Fehler: {antwort.error}", file=sys.stderr)
+        for lauf in antwort.tool_runs:
+            zeichen = "+" if lauf.ok else "-"
+            print(f"  [{zeichen}] {lauf.tool}: "
+                  f"{lauf.verification or lauf.message}", file=sys.stderr)
+        print(antwort.text)
+        return 1 if antwort.error else 0
+    finally:
+        runtime.shutdown()
+
+
+def cmd_install_service(args) -> int:
+    """Schreibt eine launchd-Datei, damit JARVIS beim Anmelden startet."""
+    import platform
+
+    if platform.system() != "Darwin":
+        print("launchd gibt es nur auf macOS.", file=sys.stderr)
+        return 2
+    cfg = _load(args)
+    python = Path(sys.executable).resolve()
+    ziel = Path("~/Library/LaunchAgents/com.jarvis.assistent.plist").expanduser()
+    inhalt = LAUNCHD_TEMPLATE.format(
+        python=python,
+        state_dir=cfg.state_dir,
+        log=cfg.state_dir / "launchd.log",
+        fehler=cfg.state_dir / "launchd-fehler.log",
+    )
+    if ziel.exists() and not args.force:
+        print(f"{ziel} gibt es schon. Mit --force ueberschreiben.", file=sys.stderr)
+        return 1
+    ziel.parent.mkdir(parents=True, exist_ok=True)
+    ziel.write_text(inhalt, "utf-8")
+    print(f"Geschrieben: {ziel}\n\n"
+          "Aktivieren:\n"
+          f"  launchctl load -w {ziel}\n"
+          "Beenden:\n"
+          f"  launchctl unload {ziel}\n"
+          "Zustand:\n"
+          "  launchctl list | grep jarvis")
+    return 0
+
+
 def _load(args) -> Config:
     try:
         return Config.load(args.config)
@@ -184,6 +318,22 @@ def build_parser() -> argparse.ArgumentParser:
     m = sub.add_parser("memory", help="zeigt oder loescht gespeicherte Fakten")
     m.add_argument("--forget", type=int, metavar="ID", help="Fakt endgueltig loeschen")
     m.set_defaults(func=cmd_memory)
+
+    r = sub.add_parser("run", help="startet JARVIS mit Sprache und Dashboard")
+    r.add_argument("--ohne-sprache", action="store_true",
+                   help="nur Dashboard und Werkzeuge, kein Mikrofon")
+    r.add_argument("--ohne-dashboard", action="store_true",
+                   help="nur Sprache, keine Oberflaeche")
+    r.set_defaults(func=cmd_run)
+
+    a = sub.add_parser("ask", help="eine Frage ohne Sprache stellen")
+    a.add_argument("text", nargs="+", help="die Frage")
+    a.set_defaults(func=cmd_ask)
+
+    si = sub.add_parser("install-service",
+                        help="richtet den Start beim Anmelden ein (launchd)")
+    si.add_argument("--force", action="store_true")
+    si.set_defaults(func=cmd_install_service)
     return p
 
 

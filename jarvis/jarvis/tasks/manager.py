@@ -31,7 +31,12 @@ class Status(str, Enum):
 
 #: Erlaubte Uebergaenge. Alles andere ist ein Programmfehler und wirft.
 TRANSITIONS: dict[Status, set[Status]] = {
-    Status.PLANNED: {Status.RUNNING, Status.BLOCKED, Status.CANCELLED, Status.FAILED},
+    # DONE ist auch direkt aus PLANNED erlaubt: wird eine kleine Aufgabe in
+    # einem Zug erledigt, waere ein erzwungener Zwischenschritt 'running' nur
+    # eine Stolperstelle. Die Ehrlichkeit haengt nicht am Startschritt, sondern
+    # am Pruefvermerk, den complete() verlangt.
+    Status.PLANNED: {Status.RUNNING, Status.BLOCKED, Status.CANCELLED,
+                     Status.FAILED, Status.DONE},
     Status.RUNNING: {Status.DONE, Status.FAILED, Status.BLOCKED,
                      Status.WAITING_EXTERNAL, Status.CANCELLED},
     Status.BLOCKED: {Status.RUNNING, Status.CANCELLED, Status.FAILED},

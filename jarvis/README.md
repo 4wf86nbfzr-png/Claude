@@ -67,13 +67,10 @@ mkdir -p ~/.local/share/jarvis/voices
 ```bash
 jarvis config-init     # schreibt ~/.config/jarvis/config.toml
 jarvis doctor          # prueft Hardware, Modelle, Audio, Rechte
-jarvis doctor --json   # dieselbe Ausgabe zum Weitergeben
-jarvis config-show     # zeigt, was tatsaechlich gilt
-jarvis tasks           # offene Aufgaben
-jarvis tasks --all     # auch abgeschlossene
-jarvis memory          # gespeicherte Fakten
-jarvis memory --forget 7   # Fakt 7 endgueltig loeschen
+jarvis run             # startet alles: Sprache + Dashboard
 ```
+
+Das Dashboard liegt dann auf <http://127.0.0.1:8765>.
 
 **Wichtig vor dem ersten Gespraech:** in der Konfiguration unter
 `[permissions]` die `roots` pruefen. Ausserhalb dieser Verzeichnisse liest und
@@ -84,15 +81,60 @@ Absicht.
 
 | Zweck | Befehl |
 | --- | --- |
-| Diagnose | `jarvis doctor` |
+| Starten | `jarvis run` |
+| Nur Dashboard, kein Mikrofon | `jarvis run --ohne-sprache` |
+| Nur Sprache, keine Oberflaeche | `jarvis run --ohne-dashboard` |
+| Beenden | `Strg-C`, oder `kill $(cat ~/.local/state/jarvis/jarvis.pid)` |
+| Neustart | beenden, dann `jarvis run` |
+| Eine Frage ohne Sprache | `jarvis ask "Was ist offen?"` |
+| Diagnose | `jarvis doctor` (`--json` zum Weitergeben) |
 | Konfiguration pruefen | `jarvis config-show` |
+| Aufgaben | `jarvis tasks` (`--all` auch erledigte) |
+| Gedaechtnis | `jarvis memory`, loeschen mit `--forget 7` |
 | Tests | `pytest` |
-| Protokoll | `~/.local/state/jarvis/jarvis.log` |
-| Gedaechtnis | `~/.local/state/jarvis/gedaechtnis.sqlite3` |
 
-Start, Beenden und Neustart des Sprachbetriebs sowie die Einrichtung als
-Hintergrunddienst (launchd) kommen mit der Sprachpipeline; sie sind noch
-nicht gebaut und hier deshalb bewusst nicht dokumentiert.
+Es laeuft immer nur ein JARVIS: eine Sperrdatei mit Prozesskennung verhindert,
+dass zwei Instanzen auf dasselbe Mikrofon und dieselbe Datenbank gehen. Eine
+Sperre von einem abgestuerzten Prozess wird beim naechsten Start uebernommen --
+aufraeumen von Hand ist nicht noetig.
+
+**Dateien im Betrieb**
+
+| Was | Wo |
+| --- | --- |
+| Protokoll (rotierend) | `~/.local/state/jarvis/jarvis.log` |
+| Gedaechtnis | `~/.local/state/jarvis/gedaechtnis.sqlite3` |
+| Sperrdatei | `~/.local/state/jarvis/jarvis.pid` |
+| Konfiguration | `~/.config/jarvis/config.toml` |
+
+### Beim Anmelden starten
+
+```bash
+jarvis install-service          # schreibt die launchd-Datei
+launchctl load -w ~/Library/LaunchAgents/com.jarvis.assistent.plist
+launchctl unload ~/Library/LaunchAgents/com.jarvis.assistent.plist   # beenden
+launchctl list | grep jarvis                                         # Zustand
+```
+
+Nach einem Absturz startet launchd neu, mit mindestens 20 Sekunden Abstand --
+eine Neustartschleife bei einem dauerhaften Fehler waere schlimmer als ein
+stiller Ausfall.
+
+## Dashboard
+
+Dunkle Kommandozentrale auf `127.0.0.1` -- bewusst nicht im Netz, denn sie
+kann das Mikrofon aktivieren und Aufgaben einsehen.
+
+Der Kern in der Mitte zeigt den echten Zustand: ruhiges Atmen im Leerlauf,
+Ringe auf dem Mikrofonpegel beim Zuhoeren, umlaufender Bogen beim Verarbeiten,
+Puls beim Sprechen, Warnring bei einer Stoerung. Daneben stehen offene
+Aufgaben mit dem Grund jeder Blockade, die Meldungen (auch die bewusst
+stummen, mit Begruendung), der Zustand aller Dienste und das Protokoll.
+
+Das Dashboard rechnet nichts selbst -- es zeigt, was Aufgabenmanager, Agent und
+Pipeline ohnehin fuehren. Es kann also nicht behaupten, etwas sei fertig, wenn
+der Aufgabenmanager das nicht sagt. Ueber das Eingabefeld laesst sich auch
+ohne Mikrofon mit JARVIS sprechen.
 
 ## Berechtigungen
 
@@ -133,14 +175,31 @@ jarvis/
   tasks/manager.py   Aufgaben mit erzwungenem Pruefvermerk
   notify/manager.py  Prioritaet, Ruhezeit, Entdopplung, Sperrzeit
   tools/registry.py  Werkzeuge mit Argumentpruefung
-  speech/            Audio, Aktivierungswort, Whisper, TTS  (noch leer)
-  llm/               Modellanbindung, Gespraechsverwaltung   (noch leer)
-  dashboard/         Oberflaeche                              (noch leer)
+  agent.py           Werkzeugkreislauf, Rueckfragen, proaktive Meldungen
+  runtime.py         Einzelinstanz, Start/Stopp, Gesundheitspruefung
+  logging_setup.py   Protokoll mit Schwaerzung von Zugangsdaten
+  secrets.py         Umgebungsvariable, dann macOS-Schluesselbund
+  llm/
+    client.py        Ollama: Streaming, Abbruch, Wiederholung
+    conversation.py  Systemtext, Fakten, offene Aufgaben
+  speech/
+    vad.py           Zerlegung in Aeusserungen
+    chunking.py      Abschnitte fuer die Sprachausgabe
+    stt.py           whisper.cpp
+    tts.py           Piper, `say`, Warteschlange, Unterbrechung
+    wakeword.py      openwakeword
+    audio.py         Mikrofon
+    pipeline.py      der Zustandsautomat
+  tools/
+    files.py  mac.py  web.py  builtin.py
+  dashboard/
+    server.py        FastAPI, WebSocket
+    web/             Oberflaeche und Kernanimation
 ```
 
 ## Tatsaechlicher Stand
 
-### Gebaut und getestet (75 Tests)
+### Gebaut und getestet (275 Tests)
 
 - **Gedaechtnis.** SQLite mit versionierten Migrationen. Kurzzeit mit
   begrenztem Kontextfenster (der vollstaendige Verlauf bleibt erhalten),
@@ -163,23 +222,51 @@ jarvis/
   Unterbrechung verwirft veraltete Ansagen.
 - **Diagnose und Konfiguration.** `doctor` prueft echte Systemzustaende und
   meldet Nichtgeprueftes als `unbekannt`, nicht als in Ordnung.
+- **Modellanbindung.** Ollama mit Streaming, Abbruch mitten im Strom,
+  Wiederholung und eigenen Ausnahmen je Fehlerfall -- getestet gegen einen
+  echten kleinen HTTP-Dienst, der Ollama nachspielt.
+- **Agent.** Werkzeugkreislauf mit Rundenbegrenzung, Rueckfrage bei
+  kritischen Aktionen (eine unklare Antwort fuehrt *nicht* aus), proaktive
+  Meldungen aus dem Vergleich gespeicherter Aufgabenstatus.
+- **Werkzeuge.** 32 angemeldet: Dateien, macOS (AppleScript), Netz,
+  Gedaechtnis und Aufgaben. Angeboten wird nur, was erlaubt und einsatzbereit ist.
+- **Sprachbausteine.** Aeusserungszerlegung und Abschnittsbildung als reine
+  Logik, deshalb ohne Mikrofon vollstaendig getestet. whisper.cpp, Piper,
+  `say`, openwakeword und sounddevice sind angebunden, jeweils mit
+  begruendetem Rueckfall statt Absturz.
+- **Sprachpipeline.** Zustandsautomat mit Gespraechsfortsetzung ohne erneutes
+  Aktivierungswort, Rueckfall auf untaetig nach Stille, Abbruch beim
+  Dazwischenreden -- mit Ersatzteilen (Listen-Audio, vorgegebene Transkripte,
+  stumme Ausgabe) getestet.
+- **Laufzeit.** Einzelinstanz mit Uebernahme verwaister Sperren, geordnetes
+  Herunterfahren auf SIGTERM/SIGINT, Gesundheitspruefung im Hintergrund,
+  Wiederaufnahme offener Aufgaben.
+- **Dashboard.** FastAPI mit WebSocket, dunkle Oberflaeche, Kern als
+  Zustandsanzeige -- gegen einen echten Testclient geprueft.
 
 ### Noch nicht gebaut
 
-Sprachpipeline (Mikrofon, Aktivierungswort, Whisper, TTS, Unterbrechung),
-Modellanbindung, Werkzeuge fuer macOS, Dashboard, Startmechanismus,
-externe Dienste.
+Externe Dienste ueber die vorhandenen hinaus: E-Mail-Versand (es gibt nur
+den Entwurf), WhatsApp Business, Kalenderschreiben, Dokumentenverwaltung.
+Die Werkzeugschnittstelle ist dafuer da; die Anbindungen fehlen.
 
 ### Nicht getestet -- und warum
 
 Entwickelt wurde dieser Stand in einem **Linux-Container ohne Audiohardware**,
 nicht auf einem Mac. Deshalb ist Folgendes ausdruecklich **ungetestet**:
 
-- Mikrofonaufnahme, Aktivierungswort, Sprachqualitaet, Antwortlatenz
-- `whisper.cpp`, Piper und `say` im Zusammenspiel
-- Ollama-Durchsatz und Speicherbedarf auf Apple Silicon
-- die macOS-Pfade in `doctor.py` (`sysctl`, `say -v ?`)
+- **Audio.** Mikrofonaufnahme, Aktivierungswort in der Praxis,
+  Sprachqualitaet, Antwortlatenz, Verhalten bei Geraetewechsel.
+- **Modelle.** `whisper.cpp`, Piper und `say` im echten Zusammenspiel;
+  Ollama-Durchsatz und Speicherbedarf auf Apple Silicon.
+- **AppleScript.** Notizen, Erinnerungen, Kalender, Mail-Entwurf, Finder,
+  Programmsteuerung. Die Skripte sind geschrieben, aber nie ausgefuehrt --
+  macOS wird ausserdem beim ersten Mal nach der Automationsfreigabe fragen.
+- **macOS-Pfade in `doctor.py`** (`sysctl`, `say -v ?`, `pmset`).
+- **launchd.** Die plist wird erzeugt, war aber nie geladen.
+- **Websuche.** Ohne hinterlegten Schluessel nicht ausgefuehrt; die
+  Aufbereitung ist getestet, der echte Abruf nicht.
 
-Der plattformunabhaengige Kern ist getestet; die macOS-Schicht muss auf dem
+Der plattformunabhaengige Teil ist getestet; die macOS-Schicht muss auf dem
 Zielrechner geprueft werden. `jarvis doctor --json` liefert dafuer die
-Ausgangslage.
+Ausgangslage. Was dort fehlschlaegt, gehoert gemeldet -- nicht umgangen.

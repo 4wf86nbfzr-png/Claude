@@ -119,3 +119,18 @@ def test_ereignisse_werden_protokolliert(tm):
     tm.complete(t.id, "ok", "geprueft")
     kinds = [e["kind"] for e in tm.events(t.id)]
     assert kinds == ["created", "running", "done"]
+
+
+def test_kleine_aufgabe_darf_ohne_zwischenschritt_erledigt_werden(tm):
+    """Ein erzwungenes 'start' waere nur eine Stolperstelle -- die Ehrlichkeit
+    haengt am Pruefvermerk, nicht am Zwischenschritt."""
+    t = tm.create("Kurz nachsehen")
+    erledigt = tm.complete(t.id, "nachgesehen", "Datei geoeffnet und gelesen")
+    assert erledigt.status is Status.DONE
+
+
+def test_aber_auch_dann_nicht_ohne_pruefvermerk(tm):
+    t = tm.create("Kurz nachsehen")
+    with pytest.raises(TaskError, match="Pruefvermerk"):
+        tm.complete(t.id, "fertig", "")
+    assert tm.get(t.id).status is Status.PLANNED

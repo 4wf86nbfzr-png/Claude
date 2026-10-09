@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="de" class="kein-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JARVIS</title>
+<script>document.documentElement.classList.remove('kein-js')</script>
+<link rel="icon" href="/static/kern.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/static/stil.css">
+</head>
+<body>
+<header class="kopf">
+  <div class="marke">
+    <span class="marke__name">JARVIS</span>
+    <span class="marke__zusatz" id="modell">—</span>
+  </div>
+  <div class="kopf__rechts">
+    <span class="laufzeit" id="laufzeit">—</span>
+    <span class="punkt" id="verbindung" title="Verbindung zum Dienst"></span>
+  </div>
+</header>
+
+<main class="raster">
+
+  <section class="feld feld--kern">
+    <canvas id="kern" width="420" height="420" aria-label="Zustandsanzeige"></canvas>
+    <div class="kern__text">
+      <p class="zustand" id="zustand">verbinde…</p>
+      <p class="zustand__zusatz" id="zustandZusatz"></p>
+    </div>
+    <div class="knoepfe">
+      <button id="btnWecken" type="button">Zuhören</button>
+      <button id="btnStopp" type="button" class="knopf--still">Stopp</button>
+    </div>
+  </section>
+
+  <section class="feld">
+    <h2>Gespräch</h2>
+    <div class="dialog" id="dialog" aria-live="polite"></div>
+    <form class="eingabe" id="formular">
+      <label class="versteckt" for="text">Nachricht an JARVIS</label>
+      <input id="text" type="text" autocomplete="off" placeholder="Schreiben statt sprechen…">
+      <button type="submit">Senden</button>
+    </form>
+  </section>
+
+  <section class="feld">
+    <h2>Aufgaben <span class="zahl" id="aufgabenZahl">0</span></h2>
+    <ul class="liste" id="aufgaben"><li class="leer">—</li></ul>
+  </section>
+
+  <section class="feld">
+    <h2>Meldungen</h2>
+    <ul class="liste" id="meldungen"><li class="leer">—</li></ul>
+  </section>
+
+  <section class="feld">
+    <h2>Dienste</h2>
+    <ul class="liste liste--dienste" id="dienste"><li class="leer">—</li></ul>
+  </section>
+
+  <section class="feld feld--weit">
+    <h2>Protokoll</h2>
+    <pre class="protokoll" id="protokoll"></pre>
+  </section>
+
+</main>
+<script src="/static/kern.js"></script>
+<script src="/static/dashboard.js"></script>
+</body>
+</html>
