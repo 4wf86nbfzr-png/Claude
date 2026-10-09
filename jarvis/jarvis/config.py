@@ -63,7 +63,16 @@ def _float(name: str, default: float) -> float:
         return default
 
 
-def _str(name: str, default: str = "") -> str:
+def _str(name: str, default: str = "", *, allow_empty: bool = False) -> str:
+    """Zeichenkette aus der Umgebung.
+
+    ``allow_empty`` unterscheidet "nicht gesetzt" von "ausdruecklich leer".
+    Das ist bei Schaltern wichtig, bei denen leer *aus* bedeutet: wer
+    ``MORNING_BRIEFING=`` schreibt, will keinen Tagesueberblick -- nicht den
+    Standardwert.
+    """
+    if allow_empty and name in os.environ:
+        return os.environ[name].strip()
     return (os.environ.get(name) or default).strip()
 
 
@@ -103,6 +112,9 @@ class Settings:
     telegram_token: str = ""
     telegram_allowed_ids: list[int] = field(default_factory=list)
     telegram_poll_timeout: int = 30
+    #: Normalerweise die offizielle Bot-API. Umstellbar fuer einen eigenen
+    #: Bot-API-Server (telegram-bot-api) oder fuer Tests gegen einen Stellvertreter.
+    telegram_api_base: str = "https://api.telegram.org"
 
     # --- KI ---------------------------------------------------------------
     ai_provider: str = "ollama"           # ollama | openai | anthropic | echo
@@ -137,6 +149,8 @@ class Settings:
     imap_user: str = ""
     imap_password: str = ""
     imap_folder: str = "INBOX"
+    #: Nur fuer einen Mailserver auf demselben Rechner abschaltbar.
+    imap_ssl: bool = True
     smtp_host: str = ""
     smtp_port: int = 587
     smtp_user: str = ""
@@ -152,6 +166,8 @@ class Settings:
     twilio_account_sid: str = ""
     twilio_auth_token: str = ""
     twilio_from_number: str = ""
+    #: Normalerweise die offizielle REST-Schnittstelle; umstellbar fuer Tests.
+    twilio_api_base: str = "https://api.twilio.com/2010-04-01"
     phone_my_number: str = ""
     phone_voice: str = "Google.de-DE-Standard-B"
     phone_language: str = "de-DE"
@@ -195,6 +211,7 @@ class Settings:
             telegram_token=_str("TELEGRAM_BOT_TOKEN"),
             telegram_allowed_ids=_int_list("TELEGRAM_ALLOWED_IDS"),
             telegram_poll_timeout=_int("TELEGRAM_POLL_TIMEOUT", 30),
+            telegram_api_base=_str("TELEGRAM_API_BASE", "https://api.telegram.org").rstrip("/"),
             ai_provider=_str("AI_PROVIDER", "ollama").lower(),
             ai_model=_str("AI_MODEL", "llama3.1:8b"),
             ai_fallback_provider=_str("AI_FALLBACK_PROVIDER").lower(),
@@ -223,6 +240,7 @@ class Settings:
             imap_user=_str("IMAP_USER"),
             imap_password=_str("IMAP_PASSWORD"),
             imap_folder=_str("IMAP_FOLDER", "INBOX"),
+            imap_ssl=_bool("IMAP_SSL", True),
             smtp_host=_str("SMTP_HOST"),
             smtp_port=_int("SMTP_PORT", 587),
             smtp_user=_str("SMTP_USER"),
@@ -240,6 +258,8 @@ class Settings:
             twilio_account_sid=_str("TWILIO_ACCOUNT_SID"),
             twilio_auth_token=_str("TWILIO_AUTH_TOKEN"),
             twilio_from_number=_str("TWILIO_FROM_NUMBER"),
+            twilio_api_base=_str(
+                "TWILIO_API_BASE", "https://api.twilio.com/2010-04-01").rstrip("/"),
             phone_my_number=_str("PHONE_MY_NUMBER"),
             phone_voice=_str("PHONE_VOICE", "Google.de-DE-Standard-B"),
             phone_language=_str("PHONE_LANGUAGE", "de-DE"),
@@ -257,11 +277,11 @@ class Settings:
             http_port=_int("HTTP_PORT", 8765),
             http_api_token=_str("HTTP_API_TOKEN"),
             public_base_url=_str("PUBLIC_BASE_URL").rstrip("/"),
-            quiet_hours_start=_str("QUIET_HOURS_START", "22:00"),
-            quiet_hours_end=_str("QUIET_HOURS_END", "07:00"),
+            quiet_hours_start=_str("QUIET_HOURS_START", "22:00", allow_empty=True),
+            quiet_hours_end=_str("QUIET_HOURS_END", "07:00", allow_empty=True),
             scheduler_tick_seconds=_int("SCHEDULER_TICK_SECONDS", 20),
             backup_keep=_int("BACKUP_KEEP", 14),
-            morning_briefing=_str("MORNING_BRIEFING", "07:30"),
+            morning_briefing=_str("MORNING_BRIEFING", "07:30", allow_empty=True),
             confirmation_ttl_minutes=_int("CONFIRMATION_TTL_MINUTES", 15),
         )
 

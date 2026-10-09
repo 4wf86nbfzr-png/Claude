@@ -168,6 +168,21 @@ class Memory:
         )
         return self._entry(row) if row else None
 
+    @staticmethod
+    def _stem(term: str) -> str:
+        """Grobe Stammform fuer die Suche.
+
+        Deutsch beugt kraeftig: wer nach "telefonieren" sucht, meint auch
+        "Telefoniert". Ein voller Stemmer waere hier zu viel Apparat -- lange
+        Woerter werden deshalb hinten gekuerzt, damit die Praefixsuche von FTS
+        die Beugungsformen mitnimmt. Kurze Woerter bleiben, wie sie sind.
+        """
+        if len(term) >= 8:
+            return term[:len(term) - 3]
+        if len(term) >= 6:
+            return term[:len(term) - 1]
+        return term
+
     def search_memory(self, query: str, limit: int = 8) -> list[MemoryEntry]:
         """Volltextsuche. Faellt auf LIKE zurueck, wenn FTS die Eingabe nicht mag."""
         query = (query or "").strip()
@@ -176,8 +191,13 @@ class Memory:
         terms = [t for t in (
             "".join(c if c.isalnum() or c.isspace() else " " for c in query.lower())
         ).split() if len(t) > 2]
-        if terms:
-            expression = " OR ".join(f'"{t}"*' for t in terms[:8])
+        stems = []
+        for term in terms[:8]:
+            stamm = self._stem(term)
+            if stamm not in stems:
+                stems.append(stamm)
+        if stems:
+            expression = " OR ".join(f'"{t}"*' for t in stems)
             try:
                 rows = self.db.query(
                     "SELECT m.id, m.key, m.value, m.kind, m.importance, m.updated_at "
@@ -189,11 +209,18 @@ class Memory:
                     return [self._entry(r) for r in rows]
             except Exception as exc:  # pragma: no cover - FTS-Syntax
                 log.debug("FTS-Suche fehlgeschlagen, nutze LIKE: %s", exc)
-        pattern = f"%{query}%"
+
+        # Rueckfallebene: Teilzeichenkette, ebenfalls mit gekuerzten Woertern.
+        muster = [f"%{query}%"] + [f"%{t}%" for t in stems]
+        bedingungen = " OR ".join("key LIKE ? OR value LIKE ?" for _ in muster)
+        werte: list[object] = []
+        for eintrag in muster:
+            werte.extend([eintrag, eintrag])
+        werte.append(limit)
         rows = self.db.query(
             "SELECT id, key, value, kind, importance, updated_at FROM memory "
-            "WHERE key LIKE ? OR value LIKE ? ORDER BY importance DESC, updated_at DESC LIMIT ?",
-            (pattern, pattern, limit),
+            f"WHERE {bedingungen} ORDER BY importance DESC, updated_at DESC LIMIT ?",
+            werte,
         )
         return [self._entry(r) for r in rows]
 

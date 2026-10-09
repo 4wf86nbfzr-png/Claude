@@ -78,10 +78,16 @@ class Services:
             self.db, ttl_minutes=settings.confirmation_ttl_minutes,
             allow_shell=self.store.get_bool("allow_shell", False),
         )
+        # ``store.get`` liefert None, wenn nichts gespeichert ist -- ein
+        # gespeicherter leerer Wert bedeutet dagegen "keine Ruhezeit".
+        gespeicherter_beginn = self.store.get("quiet_start")
+        gespeichertes_ende = self.store.get("quiet_end")
         self.notifier = Notifier(
             self.db, settings.tz,
-            quiet_start=self.store.get("quiet_start", settings.quiet_hours_start) or "",
-            quiet_end=self.store.get("quiet_end", settings.quiet_hours_end) or "",
+            quiet_start=(settings.quiet_hours_start if gespeicherter_beginn is None
+                         else gespeicherter_beginn),
+            quiet_end=(settings.quiet_hours_end if gespeichertes_ende is None
+                       else gespeichertes_ende),
         )
         self.notifier.muted = self.store.get_bool("stumm", False)
         self.models = ModelManager(settings)
@@ -148,7 +154,8 @@ class Services:
             self.email = EmailAdapter(
                 imap_host=self.settings.imap_host, imap_port=self.settings.imap_port,
                 imap_user=self.settings.imap_user, imap_password=self.settings.imap_password,
-                imap_folder=self.settings.imap_folder, smtp_host=self.settings.smtp_host,
+                imap_folder=self.settings.imap_folder, imap_ssl=self.settings.imap_ssl,
+                smtp_host=self.settings.smtp_host,
                 smtp_port=self.settings.smtp_port, smtp_user=self.settings.smtp_user,
                 smtp_password=self.settings.smtp_password,
                 smtp_starttls=self.settings.smtp_starttls, from_addr=self.settings.email_from,
@@ -172,6 +179,7 @@ class Services:
                 language=self.settings.phone_language,
                 public_base_url=self.settings.public_base_url,
                 daily_limit=self.settings.phone_daily_limit,
+                api_base=self.settings.twilio_api_base,
             )
         except JarvisError as exc:
             self.phone_error = exc.message

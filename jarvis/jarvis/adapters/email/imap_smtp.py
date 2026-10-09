@@ -116,7 +116,8 @@ def _strip_html(html: str) -> str:
 class EmailAdapter:
     def __init__(
         self, *, imap_host: str, imap_port: int, imap_user: str, imap_password: str,
-        imap_folder: str = "INBOX", smtp_host: str = "", smtp_port: int = 587,
+        imap_folder: str = "INBOX", imap_ssl: bool = True,
+        smtp_host: str = "", smtp_port: int = 587,
         smtp_user: str = "", smtp_password: str = "", smtp_starttls: bool = True,
         from_addr: str = "", important_senders: list[str] | None = None,
         important_keywords: list[str] | None = None, timeout: float = 30.0,
@@ -131,6 +132,7 @@ class EmailAdapter:
         self.imap_user = imap_user
         self.imap_password = imap_password
         self.folder = imap_folder or "INBOX"
+        self.imap_ssl = imap_ssl
         self.smtp_host = smtp_host or imap_host.replace("imap", "smtp")
         self.smtp_port = smtp_port
         self.smtp_user = smtp_user or imap_user
@@ -142,12 +144,17 @@ class EmailAdapter:
         self.timeout = timeout
 
     # --- Verbindung -------------------------------------------------------
-    def _connect(self) -> imaplib.IMAP4_SSL:
+    def _connect(self) -> imaplib.IMAP4:
         try:
-            context = ssl.create_default_context()
-            connection = imaplib.IMAP4_SSL(
-                self.imap_host, self.imap_port, ssl_context=context, timeout=self.timeout
-            )
+            if self.imap_ssl:
+                connection: imaplib.IMAP4 = imaplib.IMAP4_SSL(
+                    self.imap_host, self.imap_port,
+                    ssl_context=ssl.create_default_context(), timeout=self.timeout,
+                )
+            else:
+                # Nur sinnvoll, wenn der Mailserver auf demselben Rechner laeuft.
+                connection = imaplib.IMAP4(self.imap_host, self.imap_port,
+                                           timeout=self.timeout)
             connection.login(self.imap_user, self.imap_password)
         except imaplib.IMAP4.error as exc:
             raise CredentialsMissing(

@@ -144,3 +144,55 @@ def test_doctor_laeuft_ohne_netz_durch(services):
     # nicht als Fehler.
     email = next(s for s in zustand if s.name == "E-Mail")
     assert email.configured is False
+
+
+def test_leerer_wert_bedeutet_aus_und_nicht_standard(monkeypatch):
+    """Wer `MORNING_BRIEFING=` schreibt, will keinen Tagesueberblick."""
+    monkeypatch.setenv("MORNING_BRIEFING", "")
+    monkeypatch.setenv("QUIET_HOURS_START", "")
+    monkeypatch.setenv("QUIET_HOURS_END", "")
+    geladen = Settings.load()
+    assert geladen.morning_briefing == ""
+    assert geladen.quiet_hours_start == "" and geladen.quiet_hours_end == ""
+
+
+def test_nicht_gesetzte_werte_behalten_den_standard(monkeypatch):
+    monkeypatch.delenv("MORNING_BRIEFING", raising=False)
+    monkeypatch.delenv("QUIET_HOURS_START", raising=False)
+    geladen = Settings.load()
+    assert geladen.morning_briefing == "07:30"
+    assert geladen.quiet_hours_start == "22:00"
+
+
+def test_ohne_ruhezeit_wird_sofort_zugestellt(monkeypatch, tmp_path):
+    """Die abgeschaltete Ruhezeit muss bis zum Notifier durchkommen."""
+    monkeypatch.setenv("QUIET_HOURS_START", "")
+    monkeypatch.setenv("QUIET_HOURS_END", "")
+    from jarvis.core.services import Services
+    dienste = Services(Settings.load())
+    try:
+        assert dienste.notifier.quiet_start == ""
+        gesendet: list[str] = []
+
+        async def sender(text, keyboard=None):
+            gesendet.append(text)
+            return True
+
+        dienste.notifier.set_sender(sender)
+        assert asyncio.run(dienste.notifier.notify("t:1", "Jederzeit", priority=3)) is True
+        assert gesendet == ["Jederzeit"]
+    finally:
+        asyncio.run(dienste.stop())
+
+
+def test_tagesueberblick_wird_ohne_zeitangabe_nicht_eingeplant(monkeypatch):
+    monkeypatch.setenv("MORNING_BRIEFING", "")
+    from jarvis.core.services import Services
+    dienste = Services(Settings.load())
+    try:
+        asyncio.run(dienste.start())
+        arten = {job.kind for job in dienste.queue.pending(limit=50)}
+        assert "tagesueberblick" not in arten
+        assert "wachdienst" in arten
+    finally:
+        asyncio.run(dienste.stop())

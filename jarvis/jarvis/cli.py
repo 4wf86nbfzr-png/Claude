@@ -322,6 +322,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     sub.add_parser("run", help="Assistenten starten (Standard)")
     sub.add_parser("doctor", help="Zustand aller Bausteine pruefen")
+    sub.add_parser("selftest", help="Ganze Kette pruefen (eigene Datenbank, keine Anrufe)")
     sub.add_parser("setup", help=".env anlegen und Telegram-Daten abfragen")
     sub.add_parser("migrate", help="Datenbank auf den neuesten Stand bringen")
     sub.add_parser("backup", help="Sicherung schreiben")
@@ -360,6 +361,9 @@ def main(argv: list[str] | None = None) -> int:
             return asyncio.run(_run(settings))
         if command == "doctor":
             return asyncio.run(_doctor(settings))
+        if command == "selftest":
+            from .selftest import run_selftest
+            return asyncio.run(run_selftest(settings))
         if command == "ask":
             return asyncio.run(_ask(settings, " ".join(args.text)))
         if command == "bestaetigen":

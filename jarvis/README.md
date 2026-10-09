@@ -18,8 +18,15 @@ cd jarvis
 ./start.sh            # legt .venv und .env an, installiert httpx
 # TELEGRAM_BOT_TOKEN und TELEGRAM_ALLOWED_IDS in .env eintragen
 ./start.sh doctor     # prüft, was läuft und was fehlt
+./start.sh selftest   # lässt die ganze Kette einmal echt durchlaufen
 ./start.sh run        # starten
 ```
+
+`selftest` ist mehr als eine Zustandsabfrage: er legt eine Aufgabe an, plant
+eine Erinnerung in die Vergangenheit, lässt den Hintergrunddienst sie auslösen,
+prüft die Zustellung, löst eine Bestätigung ein und startet den Dienst neu — in
+einer eigenen Datenbank unter `data/selftest/`, die danach wieder gelöscht wird.
+Keine Anrufe, kein Mailversand, dein Bestand bleibt unberührt.
 
 Dann im Telegram dem eigenen Bot `/start` schreiben.
 
@@ -85,6 +92,17 @@ nie, etwas getan zu haben, bevor das Werkzeug es bestätigt hat.
 | `/status` | Zustand aller Dienste |
 | `/stumm`, `/telefonie an\|aus` | Benachrichtigungen, Anrufe |
 | `/vergessen`, `/export`, `/abbrechen`, `/hilfe` | Daten und Hilfe |
+
+Sprachnachrichten gehen auch (siehe unten).
+
+### Sprachnachrichten
+
+Schickst du eine Sprachnachricht, lädt Jarvis sie herunter, erkennt sie lokal
+(`STT_ENGINE=whisper`, dazu `pip install faster-whisper`), zeigt dir zuerst
+_„Verstanden: …"_ und behandelt den Text dann wie eine getippte Nachricht —
+auch mit Werkzeugen. Ohne lokale Erkennung sagt er das offen, statt die
+Nachricht stillschweigend zu verschlucken. Das Audio verlässt den Rechner
+nicht, und die heruntergeladene Datei wird nach der Erkennung gelöscht.
 
 ### Von allein melden
 
@@ -338,16 +356,41 @@ launchctl kickstart -k gui/$(id -u)/com.jarvis.assistent   # neu starten
 
 ```bash
 .venv/bin/pip install -r requirements-dev.txt
-.venv/bin/python -m pytest -q        # 155 Tests, rund 7 Sekunden
+.venv/bin/python -m pytest -q        # 237 Tests, rund 47 Sekunden
 ```
 
-Keine echten Anrufe, kein echter Mailversand, keine Netzzugriffe: Modell,
-Postfach und Twilio werden durch Doppelgänger ersetzt, die festhalten, ob sie
-*tatsächlich* benutzt worden wären. Geprüft werden unter anderem: Abweisung
-fremder Telegram-Nutzer, Gesprächskontext, Werkzeugschleife, Schutz vor
-Doppelausführung, Fortbestehen der Erinnerungen über einen Neustart, Migrationen,
-Bestätigungspflicht bei E-Mail und Anruf, Verhalten bei Modellausfall, Ruhezeiten
-und die Prüfung der Twilio-Signatur.
+Keine echten Anrufe, kein echter Mailversand, keine Zugriffe nach draußen.
+Entscheidend ist dabei: die vier Außenschnittstellen werden **nicht** mit
+Doppelgängern abgetan, sondern laufen gegen Stellvertreter-Server, die das
+jeweilige Protokoll wirklich sprechen — der echte Adapter, die echten Clients,
+die echte Datenbank:
+
+| Stellvertreter | Was damit wirklich durchläuft |
+|---|---|
+| **Telegram-Bot-API** (`tests/stub_telegram.py`) | `getMe`, Abrufschleife, Versatz, Nachrichten, Befehle, Inline-Knöpfe, zweistufiger Bestätigungsweg, Dateiabruf für Sprachnachrichten |
+| **IMAP + SMTP** (`tests/stub_mail.py`) | Verbindung, Anmeldung, Suche, Abruf, kodierte Kopfzeilen, HTML-Entschlackung, echter Versandweg |
+| **CalDAV** (`tests/stub_caldav.py`) | PROPFIND, REPORT, PUT, DELETE, GET — samt der Regel, dass jede Änderung nachgelesen wird |
+| **Twilio Voice** (`tests/stub_twilio.py`) | Anruf absetzen, TwiML, Tagesgrenze, Doppelanruf-Schutz — dazu die Webhooks gegen den **echten** HTTP-Dienst mit gültiger Signatur, inklusive Telefongespräch mit Werkzeugaufruf |
+
+Obendrauf eine **Gesamtprobe** (`tests/test_gesamtprobe.py`): alle vier
+Schnittstellen gleichzeitig angebunden, Hintergrunddienst und HTTP-Dienst
+laufen — und dann der Weg quer durchs Haus: Telegram-Nachricht legt einen
+Termin auf dem CalDAV-Server an, die Postfachprüfung meldet eine wichtige Mail
+nach Telegram, eine fällige Erinnerung löst einen echten Anruf beim Anbieter
+aus, das Dashboard zeigt denselben Stand, ein Telefongespräch läuft über den
+signierten Webhook, und eine E-Mail geht erst nach Bestätigung raus.
+
+Außerdem geprüft: Abweisung fremder Telegram-Nutzer, Gesprächskontext,
+Werkzeugschleife, Schutz vor Doppelausführung, Fortbestehen der Erinnerungen
+über einen Neustart, Migrationen, Bestätigungspflicht bei E-Mail und Anruf,
+Verhalten bei Modellausfall, Ruhezeiten, Dateischranke und Prompt-Injection-Schutz.
+
+Diese Durchläufe haben sechs echte Fehler gefunden, die vorher niemandem
+aufgefallen wären — darunter eine falsch berechnete Twilio-Signatur bei URLs
+mit Parametern (telefonische Bestätigungen hätten **nie** funktioniert) und
+ungültiges SQL in der Anrufzählung. Auch dass ein leerer Wert in der `.env`
+still auf den Standard zurückfiel — `MORNING_BRIEFING=` hätte trotzdem
+gefeuert — fiel erst hier auf.
 
 ## Wenn etwas nicht läuft
 
@@ -360,6 +403,7 @@ und die Prüfung der Twilio-Signatur.
 | Keine Meldungen nachts | Ruhezeit (`QUIET_HOURS_*`); Dringendes kommt trotzdem |
 | Telefongespräch endet sofort | `PUBLIC_BASE_URL` fehlt oder der Tunnel ist zu |
 | Dashboard sagt „nicht autorisiert" | `HTTP_API_TOKEN` setzen und oben im Dashboard eintragen |
+| Irgendetwas hakt, und du weißt nicht wo | `./start.sh selftest` — er sagt, welcher Schritt bricht |
 | Protokoll ansehen | `data/logs/jarvis.log`, oder Menü → System → Letzte Fehler |
 
 Alle Einstellungen sind in `.env.example` dokumentiert.

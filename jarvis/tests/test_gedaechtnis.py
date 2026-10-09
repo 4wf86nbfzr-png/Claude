@@ -76,3 +76,25 @@ def test_einstellungen(database):
     assert store.get_bool("stumm", False) is True
     store.set("stumm", "false")
     assert store.get_bool("stumm", True) is False
+
+
+def test_suche_findet_auch_gebeugte_formen(database):
+    """Deutsch beugt: wer "telefonieren" sucht, meint auch "Telefoniert"."""
+    memory = Memory(database)
+    memory.remember("Telefonzeit", "Telefoniert lieber vormittags")
+    memory.remember("Reinigung", "Reinigungskraefte kommen montags")
+    memory.remember("Angebot", "Angebote immer mit Festpreis")
+
+    assert memory.search_memory("telefonieren"), "gebeugte Form nicht gefunden"
+    assert memory.search_memory("telefonierte")[0].key == "Telefonzeit"
+    assert memory.search_memory("Reinigungskraft")[0].key == "Reinigung"
+    assert memory.search_memory("Angebot")[0].key == "Angebot"
+
+
+def test_suche_bleibt_trotzdem_treffsicher(database):
+    memory = Memory(database)
+    memory.remember("Buero", "Hamburg Bahrenfeld")
+    memory.remember("Lager", "Wilhelmsburg")
+    treffer = memory.search_memory("Bahrenfeld")
+    assert len(treffer) == 1 and treffer[0].key == "Buero"
+    assert memory.search_memory("Flugzeugbau") == []

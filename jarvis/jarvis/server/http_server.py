@@ -109,8 +109,10 @@ class JarvisHTTPServer:
             (query.get("token", [""])[0])
         return bool(provided) and hmac.compare_digest(provided, token)
 
-    def twilio_ok(self, handler: BaseHTTPRequestHandler, path: str,
+    def twilio_ok(self, handler: BaseHTTPRequestHandler, path_with_query: str,
                   params: dict[str, str]) -> bool:
+        """Signatur pruefen. ``path_with_query`` muss die Query enthalten --
+        Twilio signiert die Adresse, die es tatsaechlich aufgerufen hat."""
         auth_token = self.settings.twilio_auth_token
         if not auth_token:
             return False
@@ -119,10 +121,12 @@ class JarvisHTTPServer:
             log.warning("Telefonie-Rueckruf ohne PUBLIC_BASE_URL -- nur localhost erlaubt")
             return handler.client_address[0] in {"127.0.0.1", "::1"}
         signature = handler.headers.get("X-Twilio-Signature", "")
-        url = f"{self.settings.public_base_url}{path}"
+        url = f"{self.settings.public_base_url}{path_with_query}"
         if validate_twilio_signature(auth_token, url, params, signature):
             return True
-        log.warning("Telefonie-Rueckruf mit falscher Signatur abgewiesen (%s)", path)
+        log.warning(
+            "Telefonie-Rueckruf mit falscher Signatur abgewiesen (%s)", path_with_query
+        )
         return False
 
 
@@ -208,7 +212,9 @@ def _make_handler(service: JarvisHTTPServer):
             payload, form = self._body()
 
             if path.startswith("/telefon/"):
-                if not service.twilio_ok(self, path, form):
+                # Twilio signiert die vollstaendige URL samt Query -- also
+                # self.path, nicht den fuer die Zuordnung gekuerzten Pfad.
+                if not service.twilio_ok(self, self.path, form):
                     self.xml(
                         '<?xml version="1.0" encoding="UTF-8"?><Response><Reject/></Response>',
                         status=403,

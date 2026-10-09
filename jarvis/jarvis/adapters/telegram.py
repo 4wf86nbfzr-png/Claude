@@ -22,6 +22,7 @@ import asyncio
 import logging
 from dataclasses import dataclass
 from datetime import timedelta
+from pathlib import Path
 from typing import Any
 
 import httpx
@@ -35,7 +36,9 @@ from ..logging_setup import redact
 log = logging.getLogger(__name__)
 
 MAX_LENGTH = 3800
-API = "https://api.telegram.org"
+DEFAULT_API = "https://api.telegram.org"
+#: Laengste Sprachnachricht, die noch erkannt wird (Sekunden).
+MAX_VOICE_SECONDS = 300
 
 MAIN_MENU = [
     [("📋 Übersicht", "tool:tagesueberblick"), ("✅ Aufgaben", "menu:aufgaben")],
@@ -176,6 +179,8 @@ class Incoming:
     callback_id: str = ""
     callback_data: str = ""
     name: str = ""
+    voice_file_id: str = ""
+    voice_seconds: int = 0
 
 
 class TelegramBot:
@@ -183,6 +188,7 @@ class TelegramBot:
         self.services = services
         self.settings = services.settings
         self.token = self.settings.telegram_token
+        self.api_base = (self.settings.telegram_api_base or DEFAULT_API).rstrip("/")
         self.allowed = set(self.settings.telegram_allowed_ids)
         self.agent = services.build_agent()
         self._client: httpx.AsyncClient | None = None
@@ -201,7 +207,7 @@ class TelegramBot:
         return self._client
 
     async def _call(self, method: str, **payload: Any) -> dict[str, Any]:
-        url = f"{API}/bot{self.token}/{method}"
+        url = f"{self.api_base}/bot{self.token}/{method}"
         try:
             response = await self._http().post(url, json=payload)
         except httpx.HTTPError as exc:
@@ -290,7 +296,7 @@ class TelegramBot:
             pass
 
     async def send_document(self, chat_id: str, path: Any, caption: str = "") -> bool:
-        url = f"{API}/bot{self.token}/sendDocument"
+        url = f"{self.api_base}/bot{self.token}/sendDocument"
         try:
             with open(path, "rb") as handle:
                 response = await self._http().post(
@@ -449,13 +455,14 @@ class TelegramBot:
             return None
         user = message.get("from") or {}
         text = message.get("text") or message.get("caption") or ""
-        if not text and message.get("voice"):
-            text = "[Sprachnachricht]"
+        stimme = message.get("voice") or message.get("audio") or {}
         return Incoming(
             chat_id=str((message.get("chat") or {}).get("id", "")),
             user_id=int(user.get("id", 0)), text=text,
             message_id=int(message.get("message_id", 0)),
             name=user.get("first_name", ""),
+            voice_file_id=str(stimme.get("file_id", "")),
+            voice_seconds=int(stimme.get("duration", 0) or 0),
         )
 
     async def _answer_callback(self, callback_id: str, text: str = "") -> None:
@@ -467,14 +474,11 @@ class TelegramBot:
     # ------------------------------------------------------------- Nachrichten
     async def _handle_message(self, incoming: Incoming) -> None:
         text = incoming.text.strip()
+        if not text and incoming.voice_file_id:
+            text = await self._transcribe_voice(incoming)
+            if not text:
+                return
         if not text:
-            return
-        if text == "[Sprachnachricht]":
-            await self.send(
-                incoming.chat_id,
-                "Sprachnachrichten kann ich hier noch nicht auswerten. "
-                "Schreib es mir kurz, oder lass uns telefonieren (/telefonie).",
-            )
             return
 
         if text.startswith("/"):
@@ -496,6 +500,76 @@ class TelegramBot:
         await self.typing(incoming.chat_id)
         reply = await self.agent.handle(incoming.chat_id, text)
         await self._deliver(incoming.chat_id, reply)
+
+    async def _transcribe_voice(self, incoming: Incoming) -> str:
+        """Sprachnachricht herunterladen und erkennen.
+
+        Geht nur mit lokaler Erkennung (STT_ENGINE=whisper) -- die
+        Twilio-Erkennung gibt es nur im Telefongespraech. Fehlt sie, sagt
+        Jarvis das offen statt die Nachricht stillschweigend zu verschlucken.
+        """
+        if not self.services.speech_in.available or self.services.speech_in.engine != "whisper":
+            await self.send(
+                incoming.chat_id,
+                "Sprachnachrichten kann ich nur mit lokaler Erkennung auswerten. "
+                "Dafuer `STT_ENGINE=whisper` setzen und Whisper installieren "
+                "(`pip install faster-whisper`). Bis dahin: schreib es mir kurz, "
+                "oder lass uns telefonieren.",
+            )
+            return ""
+        if incoming.voice_seconds > MAX_VOICE_SECONDS:
+            await self.send(
+                incoming.chat_id,
+                f"Die Nachricht ist {incoming.voice_seconds // 60} Minuten lang -- "
+                "das dauert mir zu lange. Bitte kuerzer oder als Text.",
+            )
+            return ""
+
+        await self.typing(incoming.chat_id)
+        try:
+            datei = await self._download_file(incoming.voice_file_id)
+        except JarvisError as exc:
+            await self.send(incoming.chat_id, f"Die Sprachnachricht kam nicht an: {exc}")
+            return ""
+        if datei is None:
+            await self.send(incoming.chat_id, "Die Sprachnachricht liess sich nicht laden.")
+            return ""
+
+        try:
+            erkannt = (await self.services.speech_in.transcribe(datei)).strip()
+        finally:
+            datei.unlink(missing_ok=True)
+
+        if not erkannt:
+            await self.send(
+                incoming.chat_id,
+                "Ich habe nichts verstanden. Noch einmal, oder kurz als Text?",
+            )
+            return ""
+        # Offenlegen, was angekommen ist -- bei Erkennung ist das die halbe Arbeit.
+        await self.send(incoming.chat_id, f"_Verstanden:_ {erkannt}")
+        self.services.memory.remember_event(
+            "sprachnachricht", erkannt[:200], {"sekunden": incoming.voice_seconds}
+        )
+        return erkannt
+
+    async def _download_file(self, file_id: str) -> Path | None:
+        """Holt eine Datei ueber getFile. Landet im Datenordner, nicht in /tmp."""
+        info = await self._call("getFile", file_id=file_id)
+        pfad = str(info.get("file_path", ""))
+        if not pfad:
+            return None
+        ziel_ordner = Path(self.settings.data_dir) / "eingang"
+        ziel_ordner.mkdir(parents=True, exist_ok=True)
+        ziel = ziel_ordner / f"{file_id[:24]}{Path(pfad).suffix or '.oga'}"
+        url = f"{self.api_base}/file/bot{self.token}/{pfad}"
+        try:
+            antwort = await self._http().get(url)
+            antwort.raise_for_status()
+        except httpx.HTTPError as exc:
+            raise JarvisError(f"Datei nicht abrufbar: {type(exc).__name__}") from exc
+        ziel.write_bytes(antwort.content)
+        return ziel
 
     async def _deliver(self, chat_id: str, reply: AgentReply) -> None:
         rows = [[button] for button in reply.buttons] if reply.buttons else None

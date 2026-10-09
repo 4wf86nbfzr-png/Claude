@@ -32,7 +32,7 @@ from ...errors import ConfigError, CredentialsMissing, ExternalServiceError
 
 log = logging.getLogger(__name__)
 
-API_BASE = "https://api.twilio.com/2010-04-01"
+DEFAULT_API_BASE = "https://api.twilio.com/2010-04-01"
 PHONE_PATTERN = re.compile(r"^\+[1-9]\d{6,15}$")
 
 
@@ -112,7 +112,7 @@ class TwilioPhone:
         self, account_sid: str, auth_token: str, from_number: str, database: Database,
         *, my_number: str = "", voice: str = "Google.de-DE-Standard-B",
         language: str = "de-DE", public_base_url: str = "", daily_limit: int = 20,
-        timeout: float = 30.0,
+        timeout: float = 30.0, api_base: str = DEFAULT_API_BASE,
     ) -> None:
         if not (account_sid and auth_token and from_number):
             raise CredentialsMissing(
@@ -129,6 +129,7 @@ class TwilioPhone:
         self.public_base_url = (public_base_url or "").rstrip("/")
         self.daily_limit = daily_limit
         self.timeout = timeout
+        self.api_base = (api_base or DEFAULT_API_BASE).rstrip("/")
         self._client: httpx.AsyncClient | None = None
 
     def _http(self) -> httpx.AsyncClient:
@@ -146,7 +147,7 @@ class TwilioPhone:
     # --- Schutz -----------------------------------------------------------
     def calls_today(self) -> int:
         return int(self.db.scalar(
-            "SELECT COUNT(*) FROM call_log WHERE created_at >= ? AND status NOT IN ('abgelehnt',)",
+            "SELECT COUNT(*) FROM call_log WHERE created_at >= ? AND status <> 'abgelehnt'",
             (iso(utcnow() - timedelta(days=1)),),
         ) or 0)
 
@@ -176,9 +177,20 @@ class TwilioPhone:
                 "Derselbe Anruf ist gerade erst rausgegangen -- ich wiederhole ihn nicht."
             )
 
+        # Der Verweis auf die Erinnerung ist eine Annehmlichkeit fuer das
+        # Protokoll, keine Bedingung: ist sie inzwischen geloescht, wird der
+        # Anruf trotzdem gefuehrt und nur ohne Verweis vermerkt.
+        verweis = reminder_id
+        if verweis is not None and not self.db.query_one(
+            "SELECT id FROM reminder WHERE id = ?", (verweis,)
+        ):
+            log.info("Erinnerung %s gibt es nicht mehr -- Anruf wird ohne Verweis vermerkt",
+                     verweis)
+            verweis = None
+
         log_id = self.db.insert("call_log", {
             "provider_sid": "", "direction": "ausgehend", "to_number": target,
-            "purpose": purpose, "status": "geplant", "reminder_id": reminder_id,
+            "purpose": purpose, "status": "geplant", "reminder_id": verweis,
             "created_at": iso(utcnow()), "updated_at": iso(utcnow()),
         })
 
@@ -192,7 +204,7 @@ class TwilioPhone:
             data["StatusCallbackEvent"] = "completed"
         try:
             response = await self._http().post(
-                f"{API_BASE}/Accounts/{self.account_sid}/Calls.json", data=data
+                f"{self.api_base}/Accounts/{self.account_sid}/Calls.json", data=data
             )
         except httpx.HTTPError as exc:
             self._update(log_id, status="fehler", error=f"{type(exc).__name__}: {exc}")
@@ -248,7 +260,7 @@ class TwilioPhone:
     async def hangup(self, sid: str) -> bool:
         try:
             response = await self._http().post(
-                f"{API_BASE}/Accounts/{self.account_sid}/Calls/{sid}.json",
+                f"{self.api_base}/Accounts/{self.account_sid}/Calls/{sid}.json",
                 data={"Status": "completed"},
             )
         except httpx.HTTPError:
@@ -258,7 +270,7 @@ class TwilioPhone:
     async def call_status(self, sid: str) -> str:
         try:
             response = await self._http().get(
-                f"{API_BASE}/Accounts/{self.account_sid}/Calls/{sid}.json"
+                f"{self.api_base}/Accounts/{self.account_sid}/Calls/{sid}.json"
             )
         except httpx.HTTPError:
             return "unbekannt"
@@ -290,7 +302,7 @@ class TwilioPhone:
 
     async def health(self) -> tuple[bool, str]:
         try:
-            response = await self._http().get(f"{API_BASE}/Accounts/{self.account_sid}.json")
+            response = await self._http().get(f"{self.api_base}/Accounts/{self.account_sid}.json")
         except httpx.HTTPError as exc:
             return False, f"Twilio nicht erreichbar: {type(exc).__name__}"
         if response.status_code in (401, 403):

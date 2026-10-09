@@ -1,6 +1,6 @@
 """Zeitangaben -- das Nadeloehr fuer Erinnerungen."""
 
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
 import pytest
@@ -72,4 +72,10 @@ def test_ruhezeit_ueber_mitternacht():
 
 
 def test_formatierung_relativ():
-    assert format_local(REFERENCE, TZ).startswith("heute")
+    # Bezug ist die echte Uhrzeit, nicht REFERENCE -- sonst haengt der Test
+    # daran, an welchem Tag er laeuft.
+    jetzt = datetime.now(timezone.utc)
+    assert format_local(jetzt, TZ).startswith("heute")
+    assert format_local(jetzt + timedelta(days=1), TZ).startswith("morgen")
+    assert format_local(jetzt - timedelta(days=1), TZ).startswith("gestern")
+    assert format_local(None, TZ) == "ohne Termin"
