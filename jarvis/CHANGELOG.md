@@ -37,8 +37,9 @@ System unter `jarvis/`, das die Website nicht berührt.
   danach geloeschten Datenbank echt durchlaufen: Aufgabe, Gedaechtnis, Termin,
   faellige Erinnerung samt Zustellung, Doppelausfuehrungsschutz, Bestaetigung,
   Agentendurchlauf, Sicherung, Neustart.
-* **Tests** — 237 Tests ohne Zugriffe nach draussen, darunter eine
-  Gesamtprobe mit allen vier Schnittstellen gleichzeitig. Telegram, IMAP/SMTP,
+* **Tests** — 255 Tests ohne Zugriffe nach draussen, darunter eine
+  Gesamtprobe mit allen vier Schnittstellen gleichzeitig und Stellvertreter
+  fuer Ollama, OpenAI und Anthropic. Telegram, IMAP/SMTP,
   CalDAV und Twilio laufen gegen Stellvertreter-Server, die das jeweilige
   Protokoll wirklich sprechen; die Telefonie-Rueckrufe gehen signiert durch den
   echten HTTP-Dienst.

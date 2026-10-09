@@ -356,7 +356,7 @@ launchctl kickstart -k gui/$(id -u)/com.jarvis.assistent   # neu starten
 
 ```bash
 .venv/bin/pip install -r requirements-dev.txt
-.venv/bin/python -m pytest -q        # 237 Tests, rund 47 Sekunden
+.venv/bin/python -m pytest -q        # 255 Tests, rund 57 Sekunden
 ```
 
 Keine echten Anrufe, kein echter Mailversand, keine Zugriffe nach draußen.
@@ -371,6 +371,7 @@ die echte Datenbank:
 | **IMAP + SMTP** (`tests/stub_mail.py`) | Verbindung, Anmeldung, Suche, Abruf, kodierte Kopfzeilen, HTML-Entschlackung, echter Versandweg |
 | **CalDAV** (`tests/stub_caldav.py`) | PROPFIND, REPORT, PUT, DELETE, GET — samt der Regel, dass jede Änderung nachgelesen wird |
 | **Twilio Voice** (`tests/stub_twilio.py`) | Anruf absetzen, TwiML, Tagesgrenze, Doppelanruf-Schutz — dazu die Webhooks gegen den **echten** HTTP-Dienst mit gültiger Signatur, inklusive Telefongespräch mit Werkzeugaufruf |
+| **Ollama / OpenAI / Anthropic** (`tests/stub_ai.py`) | Anfrageaufbau (Modell, Werkzeugschema, Temperatur), alle drei Formen von Werkzeugaufrufen, Rückweg der Werkzeugergebnisse, Rückfall auf den Textweg bei Modellen ohne Werkzeuge, Wiederholung, Ersatzmodell, Notbetrieb, Modellwechsel |
 
 Obendrauf eine **Gesamtprobe** (`tests/test_gesamtprobe.py`): alle vier
 Schnittstellen gleichzeitig angebunden, Hintergrunddienst und HTTP-Dienst
