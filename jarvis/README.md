@@ -161,6 +161,14 @@ Gedaechtnis und Protokoll liegen ausschliesslich lokal in
 Ollama laeuft auf `127.0.0.1`. Sobald ein externer Dienst angebunden wird,
 steht das in der Konfiguration und JARVIS sagt es vor der Uebertragung.
 
+## Weiterlesen
+
+* [`docs/betrieb.md`](docs/betrieb.md) -- Fehlersuche: Aktivierungswort,
+  Spracherkennung, Stimme, Latenz, macOS-Freigaben, Protokoll, Gedaechtnis.
+* [`docs/integrationen.md`](docs/integrationen.md) -- was angebunden ist, was
+  fehlt, und was jede fehlende Anbindung konkret braucht (Websuche, Mailversand,
+  WhatsApp Business, Kalender schreiben).
+
 ## Aufbau
 
 ```
