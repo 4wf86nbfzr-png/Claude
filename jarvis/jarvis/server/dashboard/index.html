@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Jarvis</title>
+<style>
+  :root {
+    --ink: #0b0b0d; --ink-2: #14141a; --line: rgba(255,255,255,.12);
+    --paper: #f4f4f6; --chrome: #c3c3cb; --muted: #83838d;
+    --ok: #4ec98b; --warn: #e4b35c; --bad: #e4705c;
+    --r: 12px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--ink); color: var(--paper);
+    font: 15px/1.55 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  header {
+    display: flex; gap: 16px; align-items: baseline; flex-wrap: wrap;
+    padding: 20px 16px; border-bottom: 1px solid var(--line);
+    position: sticky; top: 0; background: var(--ink); z-index: 5;
+  }
+  h1 { font-size: 20px; margin: 0; letter-spacing: -.01em; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+  #stand { color: var(--muted); }
+  main { max-width: 1100px; margin: 0 auto; padding: 16px; display: grid; gap: 16px; }
+  @media (min-width: 820px) { main { grid-template-columns: 1fr 1fr; } .breit { grid-column: 1 / -1; } }
+  section {
+    border: 1px solid var(--line); border-radius: var(--r); padding: 14px 16px;
+    background: var(--ink-2);
+  }
+  h2 {
+    font-size: 11px; text-transform: uppercase; letter-spacing: .09em;
+    color: var(--muted); margin: 0 0 10px; font-weight: 600;
+  }
+  ul { list-style: none; margin: 0; padding: 0; }
+  li { padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,.06); }
+  li:last-child { border-bottom: 0; }
+  .leer { color: var(--muted); font-style: italic; }
+  .zeile { display: flex; gap: 10px; align-items: baseline; justify-content: space-between; }
+  .wann { color: var(--muted); font-size: 13px; white-space: nowrap; }
+  .punkt { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; }
+  .ok { background: var(--ok); } .bad { background: var(--bad); } .aus { background: var(--muted); }
+  .prio1 { border-left: 2px solid var(--bad); padding-left: 8px; margin-left: -10px; }
+  form { display: flex; gap: 8px; margin-top: 4px; }
+  input, button {
+    font: inherit; border-radius: 8px; border: 1px solid var(--line);
+    background: #1c1c23; color: var(--paper); padding: 9px 12px;
+  }
+  input { flex: 1; min-width: 0; }
+  input:focus-visible, button:focus-visible { outline: 2px solid var(--chrome); outline-offset: 2px; }
+  button { cursor: pointer; background: #24242d; }
+  button:hover { background: #2d2d38; }
+  #antwort { margin-top: 10px; white-space: pre-wrap; color: var(--chrome); font-size: 14px; }
+  #token { max-width: 260px; }
+  .hinweis { color: var(--warn); font-size: 13px; margin-top: 8px; }
+  .kennzahlen { display: flex; gap: 20px; flex-wrap: wrap; }
+  .kennzahl b { display: block; font-size: 22px; font-weight: 600; }
+  .kennzahl span { color: var(--muted); font-size: 12px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Jarvis</h1>
+  <span class="mono" id="stand">verbinde …</span>
+  <span style="flex:1"></span>
+  <input id="token" class="mono" type="password" placeholder="API-Token" autocomplete="off">
+  <button id="speichern" type="button">Merken</button>
+</header>
+
+<main>
+  <section class="breit">
+    <h2>Mit Jarvis sprechen</h2>
+    <form id="chat">
+      <input id="frage" placeholder="Was steht heute noch an?" autocomplete="off">
+      <button type="submit">Senden</button>
+    </form>
+    <div id="antwort"></div>
+  </section>
+
+  <section class="breit">
+    <h2>Zustand</h2>
+    <div class="kennzahlen" id="kennzahlen"></div>
+    <ul id="komponenten"></ul>
+    <div id="einrichtung"></div>
+  </section>
+
+  <section>
+    <h2>Aufgaben</h2>
+    <ul id="aufgaben"></ul>
+    <form id="neueAufgabe">
+      <input id="aufgabeTitel" placeholder="Neue Aufgabe" autocomplete="off">
+      <button type="submit">Anlegen</button>
+    </form>
+  </section>
+
+  <section>
+    <h2>Erinnerungen</h2>
+    <ul id="erinnerungen"></ul>
+  </section>
+
+  <section>
+    <h2>Termine</h2>
+    <ul id="termine"></ul>
+  </section>
+
+  <section>
+    <h2>Hintergrundaufträge</h2>
+    <ul id="auftraege"></ul>
+  </section>
+
+  <section class="breit">
+    <h2>Letzte Aktivität</h2>
+    <ul id="ereignisse"></ul>
+  </section>
+</main>
+
+<script>
+const speicher = window.localStorage;
+const tokenFeld = document.getElementById("token");
+tokenFeld.value = speicher.getItem("jarvis-token") || "";
+document.getElementById("speichern").onclick = () => {
+  speicher.setItem("jarvis-token", tokenFeld.value.trim());
+  laden();
+};
+
+function kopf() {
+  const token = tokenFeld.value.trim();
+  return token ? { "Authorization": "Bearer " + token } : {};
+}
+
+async function hole(pfad) {
+  const antwort = await fetch(pfad, { headers: kopf() });
+  if (antwort.status === 401) throw new Error("API-Token fehlt oder ist falsch.");
+  if (!antwort.ok) throw new Error("Fehler " + antwort.status);
+  return antwort.json();
+}
+
+async function sende(pfad, daten) {
+  const antwort = await fetch(pfad, {
+    method: "POST",
+    headers: Object.assign({ "Content-Type": "application/json" }, kopf()),
+    body: JSON.stringify(daten),
+  });
+  if (!antwort.ok) throw new Error("Fehler " + antwort.status);
+  return antwort.json();
+}
+
+function fuellen(id, eintraege, bauen, leerText) {
+  const liste = document.getElementById(id);
+  liste.innerHTML = "";
+  if (!eintraege || !eintraege.length) {
+    const li = document.createElement("li");
+    li.className = "leer";
+    li.textContent = leerText;
+    liste.appendChild(li);
+    return;
+  }
+  for (const eintrag of eintraege) liste.appendChild(bauen(eintrag));
+}
+
+function zeile(links, rechts, klasse) {
+  const li = document.createElement("li");
+  if (klasse) li.className = klasse;
+  const div = document.createElement("div");
+  div.className = "zeile";
+  const a = document.createElement("span"); a.textContent = links;
+  const b = document.createElement("span"); b.className = "wann"; b.textContent = rechts || "";
+  div.append(a, b);
+  li.appendChild(div);
+  return li;
+}
+
+async function laden() {
+  const stand = document.getElementById("stand");
+  try {
+    const status = await hole("/api/status");
+    stand.textContent = "Stand " + new Date().toLocaleTimeString("de-DE")
+      + " · Modell " + status.modell.anbieter + "/" + status.modell.modell
+      + (status.modell.ersatzbetrieb ? " (Ersatzbetrieb)" : "")
+      + (status.stumm ? " · stumm" : "");
+
+    const k = document.getElementById("kennzahlen");
+    k.innerHTML = "";
+    const zahlen = [
+      ["Offen", (status.aufgaben.offen || 0) + (status.aufgaben.laeuft || 0), "Aufgaben"],
+      ["Erinnerungen", status.erinnerungen.geplant || 0, "geplant"],
+      ["Aufträge", status.auftraege.geplant || 0, "in der Warteschlange"],
+      ["Gedächtnis", status.gedaechtnis || 0, "Einträge"],
+      ["Laufzeit", status.laufzeit_minuten + " min", "seit dem Start"],
+    ];
+    for (const [titel, wert, unten] of zahlen) {
+      const div = document.createElement("div");
+      div.className = "kennzahl";
+      div.innerHTML = "<b></b><span></span>";
+      div.querySelector("b").textContent = wert;
+      div.querySelector("span").textContent = titel + " · " + unten;
+      k.appendChild(div);
+    }
+
+    fuellen("komponenten", status.komponenten, (komponente) => {
+      const li = document.createElement("li");
+      const punkt = document.createElement("span");
+      punkt.className = "punkt " + (!komponente.eingerichtet ? "aus" : komponente.ok ? "ok" : "bad");
+      const name = document.createElement("strong");
+      name.textContent = komponente.name + " ";
+      const text = document.createElement("span");
+      text.className = "wann";
+      text.textContent = komponente.hinweis;
+      li.append(punkt, name, text);
+      return li;
+    }, "keine Angaben");
+
+    const einrichtung = document.getElementById("einrichtung");
+    einrichtung.innerHTML = "";
+    for (const schritt of status.einrichtung_offen || []) {
+      const div = document.createElement("div");
+      div.className = "hinweis";
+      div.textContent = (schritt.blockierend ? "! " : "– ") + schritt.titel + ": " + schritt.was_tun;
+      einrichtung.appendChild(div);
+    }
+
+    const aufgaben = await hole("/api/aufgaben");
+    fuellen("aufgaben", aufgaben, (aufgabe) => {
+      const li = zeile(aufgabe.titel, aufgabe.faellig, aufgabe.prioritaet === 1 ? "prio1" : "");
+      const knopf = document.createElement("button");
+      knopf.type = "button";
+      knopf.textContent = "✓";
+      knopf.style.cssText = "padding:2px 8px;margin-left:8px";
+      knopf.onclick = async () => {
+        await sende("/api/aufgabe/erledigt", { id: aufgabe.id });
+        laden();
+      };
+      li.querySelector(".zeile").appendChild(knopf);
+      return li;
+    }, "nichts offen");
+
+    const erinnerungen = await hole("/api/erinnerungen");
+    fuellen("erinnerungen", erinnerungen, (e) =>
+      zeile(e.text + (e.wiederholung ? " (" + e.wiederholung + ")" : ""), e.faellig),
+      "keine vorgemerkt");
+
+    try {
+      const termine = await hole("/api/termine?tage=7");
+      fuellen("termine", Array.isArray(termine) ? termine : [],
+        (t) => zeile(t.titel, t.beginn_lokal), "keine in sieben Tagen");
+    } catch (fehler) {
+      fuellen("termine", [], null, "Kalender nicht erreichbar");
+    }
+
+    const auftraege = await hole("/api/auftraege");
+    const alle = (auftraege.geplant || []).concat(
+      (auftraege.fehlgeschlagen || []).map((j) => ({ art: "✗ " + j.art, faellig: j.fehler })));
+    fuellen("auftraege", alle, (j) => zeile(j.art, j.faellig), "nichts geplant");
+
+    const ereignisse = await hole("/api/ereignisse?limit=12");
+    fuellen("ereignisse", ereignisse, (e) =>
+      zeile((e.ok ? "" : "✗ ") + e.kind + (e.subject ? ": " + e.subject : ""),
+            (e.created_at || "").slice(5, 16).replace("T", " ")), "noch nichts");
+  } catch (fehler) {
+    stand.textContent = fehler.message;
+  }
+}
+
+document.getElementById("chat").onsubmit = async (ereignis) => {
+  ereignis.preventDefault();
+  const feld = document.getElementById("frage");
+  const text = feld.value.trim();
+  if (!text) return;
+  const ausgabe = document.getElementById("antwort");
+  ausgabe.textContent = "…";
+  feld.value = "";
+  try {
+    const antwort = await sende("/api/nachricht", { text });
+    ausgabe.textContent = antwort.antwort || antwort.fehler || "(keine Antwort)";
+    if (antwort.bestaetigung) {
+      const knopf = document.createElement("button");
+      knopf.type = "button";
+      knopf.textContent = "Bestätigen";
+      knopf.style.marginTop = "8px";
+      knopf.onclick = async () => {
+        const ergebnis = await sende("/api/bestaetigen", { token: antwort.bestaetigung });
+        ausgabe.textContent = ergebnis.ergebnis || ergebnis.fehler;
+        laden();
+      };
+      ausgabe.appendChild(document.createElement("br"));
+      ausgabe.appendChild(knopf);
+    }
+    laden();
+  } catch (fehler) {
+    ausgabe.textContent = fehler.message;
+  }
+};
+
+document.getElementById("neueAufgabe").onsubmit = async (ereignis) => {
+  ereignis.preventDefault();
+  const feld = document.getElementById("aufgabeTitel");
+  const titel = feld.value.trim();
+  if (!titel) return;
+  feld.value = "";
+  await sende("/api/aufgabe", { titel });
+  laden();
+};
+
+laden();
+setInterval(laden, 30000);
+</script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  macOS-LaunchAgent: startet Jarvis bei der Anmeldung und haelt ihn am Leben.
+
+  Einrichten:
+    1. PFAD unten durch den echten Projektpfad ersetzen (zweimal).
+    2. cp launchagent/com.jarvis.assistent.plist ~/Library/LaunchAgents/
+    3. launchctl load -w ~/Library/LaunchAgents/com.jarvis.assistent.plist
+  Beenden:  launchctl unload -w ~/Library/LaunchAgents/com.jarvis.assistent.plist
+  Neustart: launchctl kickstart -k gui/$(id -u)/com.jarvis.assistent
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.jarvis.assistent</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/PFAD/ZU/jarvis/start.sh</string>
+    <string>run</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>/PFAD/ZU/jarvis</string>
+
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <dict>
+    <key>SuccessfulExit</key>
+    <false/>
+  </dict>
+  <key>ThrottleInterval</key>
+  <integer>30</integer>
+
+  <key>StandardOutPath</key>
+  <string>/PFAD/ZU/jarvis/data/logs/launchagent.log</string>
+  <key>StandardErrorPath</key>
+  <string>/PFAD/ZU/jarvis/data/logs/launchagent.err</string>
+
+  <key>ProcessType</key>
+  <string>Background</string>
+  <key>LowPriorityIO</key>
+  <true/>
+</dict>
+</plist>

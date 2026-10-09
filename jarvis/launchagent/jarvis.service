@@ -1,0 +1,25 @@
+# systemd-Unit fuer den spaeteren Serverbetrieb (Linux).
+#   sudo cp launchagent/jarvis.service /etc/systemd/system/
+#   sudo systemctl enable --now jarvis
+[Unit]
+Description=Jarvis -- persoenlicher KI-Assistent
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=jarvis
+WorkingDirectory=/opt/jarvis
+ExecStart=/opt/jarvis/.venv/bin/python -m jarvis run --leise
+Restart=always
+RestartSec=15
+# Die .env enthaelt die Zugangsdaten und bleibt ausserhalb der Unit.
+EnvironmentFile=/opt/jarvis/.env
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=read-only
+ReadWritePaths=/opt/jarvis/data
+
+[Install]
+WantedBy=multi-user.target

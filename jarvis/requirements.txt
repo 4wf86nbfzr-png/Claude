@@ -1,0 +1,9 @@
+# Laufzeit -- absichtlich nur eine Abhaengigkeit.
+# Telegram, Twilio, Google und CalDAV werden direkt ueber HTTP angesprochen;
+# IMAP/SMTP, SQLite und der HTTP-Dienst kommen aus der Standardbibliothek.
+httpx>=0.27,<1.0
+
+# Optional, nur fuer lokale Spracherkennung (STT_ENGINE=whisper):
+#   faster-whisper>=1.0
+# Lokale Sprachausgabe (TTS_ENGINE=piper) wird als Programm installiert,
+# nicht als Python-Paket: https://github.com/rhasspy/piper
