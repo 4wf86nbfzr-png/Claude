@@ -272,9 +272,13 @@ class JarvisRuntime:
                 if self.pipeline is not None:
                     self.pipeline.speak_pending_notifications()
                 else:
-                    # Ohne Sprache: nur als gesprochen vermerken waere falsch.
-                    # Die Meldungen bleiben im Dashboard sichtbar.
-                    pass
+                    # Ohne Sprachausgabe holt niemand die Meldungen ab. Sie
+                    # aus der Sprechliste nehmen, mit Grund -- als gesprochen
+                    # vermerken waere gelogen, und liegen lassen laesst die
+                    # Liste ueber Tage volllaufen.
+                    for note in self.agent.notifications.pending():
+                        note.silenced_reason = "keine Sprachausgabe verfuegbar"
+                    self.agent.notifications.clear_pending()
                 self.agent.notifications.retry_silenced()
             except Exception:  # noqa: BLE001
                 log.exception("Meldungsschleife gescheitert")

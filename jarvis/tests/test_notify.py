@@ -133,3 +133,39 @@ def test_unterbrechung_verwirft_veraltete_ansagen():
     assert verworfen == 2
     rest = nm.pending()
     assert len(rest) == 1 and rest[0].priority is Priority.URGENT
+
+
+def test_sprechliste_laeuft_nicht_voll():
+    """Ohne Sprachausgabe holt niemand die Meldungen ab -- ohne Grenze wuechse
+    die Liste bei einem Dauerlaeufer ueber Tage unbegrenzt."""
+    nm, _ = manager(min_gap_seconds=0, max_pending=5)
+    for i in range(20):
+        nm.push(f"Meldung {i}", Priority.IMPORTANT)
+    assert len(nm.pending()) == 5
+    # Was herausgefallen ist, bleibt im Verlauf sichtbar -- mit Grund.
+    verfallen = [n for n in nm.history() if n.silenced_reason == "verfallen, zu viele wartende Meldungen"]
+    assert verfallen
+
+
+def test_dringendes_bleibt_beim_beschneiden_erhalten():
+    nm, _ = manager(min_gap_seconds=0, max_pending=3)
+    nm.push("dringend", Priority.URGENT)
+    for i in range(10):
+        nm.push(f"wichtig {i}", Priority.IMPORTANT)
+    assert any(n.priority is Priority.URGENT for n in nm.pending())
+
+
+def test_verlauf_ist_begrenzt():
+    nm, _ = manager(min_gap_seconds=0)
+    for i in range(700):
+        nm.push(f"Meldung {i}", Priority.INFO)
+    assert len(nm.history(limit=1000)) <= 500
+
+
+def test_leeren_vermerkt_nichts_als_gesprochen():
+    nm, _ = manager(min_gap_seconds=0)
+    note = nm.push("Etwas", Priority.IMPORTANT)
+    assert nm.clear_pending() == 1
+    assert nm.pending() == []
+    assert note.spoken_at is None      # nicht gelogen
+    assert note in nm.history()        # im Dashboard weiter sichtbar

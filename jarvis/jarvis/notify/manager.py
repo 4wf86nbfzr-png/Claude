@@ -18,6 +18,7 @@ Vier Regeln:
 from __future__ import annotations
 
 import time
+from collections import deque
 from dataclasses import dataclass, field
 from enum import IntEnum
 
@@ -55,6 +56,11 @@ class NotifyConfig:
     quiet_hours: tuple[int, int] = (22, 8)
     #: Komplett stumm -- alles nur ins Dashboard.
     silent: bool = False
+    #: Hoechstens so viele Meldungen warten auf das Aussprechen. Laeuft JARVIS
+    #: ohne Sprachausgabe, holt sie niemand ab; ohne Grenze waechst die Liste
+    #: ueber Tage unbegrenzt. Die aeltesten und unwichtigsten fallen heraus --
+    #: im Dashboard bleiben sie sichtbar.
+    max_pending: int = 50
 
 
 class NotificationManager:
@@ -65,7 +71,8 @@ class NotificationManager:
         self.config = config or NotifyConfig()
         self._clock = clock
         self._localtime = localtime
-        self._queue: list[Notification] = []
+        # Begrenzt: ein Dauerlaeufer sammelt sonst ueber Wochen jede Meldung.
+        self._queue: deque[Notification] = deque(maxlen=500)
         self._seen: dict[str, float] = {}
         self._last_spoken_at: float = 0.0
         #: Was gesprochen werden soll, in der Reihenfolge der Dringlichkeit.
@@ -97,6 +104,7 @@ class NotificationManager:
             self._to_speak.append(note)
             # Dringendes zuerst, bei gleicher Prioritaet das Aeltere.
             self._to_speak.sort(key=lambda n: (-int(n.priority), n.created_at))
+            self._beschneiden()
         return note
 
     def _why_silent(self, note: Notification, now: float) -> str | None:
@@ -110,6 +118,17 @@ class NotificationManager:
                 and note.priority < Priority.URGENT:
             return "Sperrzeit nach der letzten Meldung"
         return None
+
+    def _beschneiden(self) -> None:
+        """Begrenzt die Sprechliste. Was herausfaellt, bleibt im Verlauf."""
+        ueberzaehlig = len(self._to_speak) - self.config.max_pending
+        if ueberzaehlig <= 0:
+            return
+        # Die Liste ist nach Dringlichkeit sortiert -- hinten steht das
+        # Unwichtigste und Aelteste.
+        for note in self._to_speak[-ueberzaehlig:]:
+            note.silenced_reason = "verfallen, zu viele wartende Meldungen"
+        del self._to_speak[-ueberzaehlig:]
 
     def _in_quiet_hours(self, now: float) -> bool:
         von, bis = self.config.quiet_hours
@@ -154,6 +173,7 @@ class NotificationManager:
                 note.silenced_reason = None
                 self._to_speak.append(note)
         self._to_speak.sort(key=lambda n: (-int(n.priority), n.created_at))
+        self._beschneiden()
         return len(zurueck)
 
     def interrupt(self) -> int:
@@ -168,5 +188,15 @@ class NotificationManager:
     def pending(self) -> list[Notification]:
         return list(self._to_speak)
 
+    def clear_pending(self) -> int:
+        """Leert die Sprechliste, ohne etwas als gesprochen zu vermerken.
+
+        Fuer den Betrieb ohne Sprachausgabe: die Meldungen bleiben im Verlauf
+        und damit im Dashboard sichtbar.
+        """
+        anzahl = len(self._to_speak)
+        self._to_speak.clear()
+        return anzahl
+
     def history(self, limit: int = 50) -> list[Notification]:
-        return self._queue[-limit:]
+        return list(self._queue)[-limit:]
