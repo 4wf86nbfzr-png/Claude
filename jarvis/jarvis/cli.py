@@ -71,8 +71,8 @@ silent = false
 
 [permissions]
 # Nicht hierarchisch: wer lesen darf, darf deshalb nicht loeschen.
-# Moeglich: read, create, edit, delete, external, system, app_control
-granted = ["read", "create", "edit"]
+# Moeglich: read, create, edit, delete, web, external, system, app_control
+granted = ["read", "create", "edit", "web"]
 # Stufen, bei denen die Rueckfrage entfaellt. Leer lassen ist die sichere Wahl --
 # delete, external und system fragen sonst bei jeder Aktion nach.
 auto_confirm = []

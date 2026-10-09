@@ -99,10 +99,13 @@ nicht gebaut und hier deshalb bewusst nicht dokumentiert.
 Sieben getrennte Stufen, **nicht** hierarchisch -- wer lesen darf, darf
 deshalb nicht loeschen:
 
-`read` `create` `edit` `delete` `external` `system` `app_control`
+`read` `create` `edit` `delete` `web` `external` `system` `app_control`
 
 `delete`, `external` und `system` fragen bei **jeder einzelnen Aktion** nach,
-solange sie nicht in `auto_confirm` stehen. Gesetzt wird das nur in der
+solange sie nicht in `auto_confirm` stehen. `web` (Suche, Seiten abrufen) fragt
+nicht: es holt etwas herein und veroeffentlicht nichts. Wer vor jedem
+Nachschlagen gefragt wird, schaltet die Rueckfrage irgendwann ganz ab -- und
+dann fehlt sie beim Loeschen auch. Gesetzt wird das nur in der
 Konfigurationsdatei: JARVIS hat keine Moeglichkeit, sich selbst eine Stufe zu
 erteilen -- die Richtlinie ist nach dem Start unveraenderlich.
 

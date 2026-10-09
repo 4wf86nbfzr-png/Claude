@@ -27,14 +27,20 @@ class Scope(str, Enum):
     CREATE = "create"          # neue Dateien, Notizen, Termine anlegen
     EDIT = "edit"              # Bestehendes aendern
     DELETE = "delete"          # Loeschen
-    EXTERNAL = "external"      # Nachrichten/Anfragen nach aussen
+    WEB = "web"                # Abruf aus dem Netz (Suche, Seiten lesen)
+    EXTERNAL = "external"      # etwas nach aussen senden oder veroeffentlichen
     SYSTEM = "system"          # Systemeinstellungen, Prozesse, Skripte
     APP_CONTROL = "app_control"  # Programme starten/steuern
 
 
 #: Stufen, bei denen jede einzelne Ausfuehrung ausdruecklich bestaetigt wird,
-#: solange sie nicht in ``auto_confirm`` steht. Loeschen und externer Versand
-#: sind nicht rueckholbar -- da fragt JARVIS.
+#: solange sie nicht in ``auto_confirm`` steht. Loeschen, Versand nach aussen
+#: und Systemaenderungen sind nicht rueckholbar -- da fragt JARVIS.
+#:
+#: ``WEB`` steht bewusst NICHT hier: eine Seite abzurufen schickt die eigene
+#: IP an einen Dritten, aber es veroeffentlicht nichts und laesst sich nicht
+#: nicht-rueckgaengig machen. Wer vor jedem Nachschlagen gefragt wird, schaltet
+#: die Rueckfrage irgendwann ganz ab -- und dann fehlt sie beim Loeschen auch.
 CONFIRM_BY_DEFAULT = frozenset({Scope.DELETE, Scope.EXTERNAL, Scope.SYSTEM})
 
 
