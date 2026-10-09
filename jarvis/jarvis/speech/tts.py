@@ -270,7 +270,19 @@ class Speaker:
         self._queue.put(SpeechItem(text=text, urgent=urgent))
 
     def interrupt(self) -> int:
-        """Bricht ab und verwirft Wartendes. Gibt zurueck, wie viel verfiel."""
+        """Bricht ab und verwirft Wartendes. Gibt zurueck, wie viel verfiel.
+
+        Das Stoppsignal wird hier **nicht** wieder freigegeben. Das macht der
+        Ausgabefaden, wenn er den naechsten Abschnitt aus der Warteschlange
+        nimmt.
+
+        Grund: Wuerde ``interrupt`` selbst freigeben, laege zwischen Setzen und
+        Freigeben nur die Zeit zum Leeren der Warteschlange -- Mikrosekunden.
+        Eine Ausgabe, die ihr Stoppsignal traeger abfragt (der echte
+        Wiedergabeprozess sieht alle 50 ms nach), verpasst das Signal dann und
+        redet ueber den Nutzer hinweg. Genau das soll Dazwischenreden
+        verhindern.
+        """
         self._stop.set()
         verworfen = 0
         behalten: list[SpeechItem] = []
@@ -287,8 +299,6 @@ class Speaker:
                 verworfen += 1
         for eintrag in behalten:
             self._queue.put(eintrag)
-        # Freigeben, damit der naechste Abschnitt wieder gesprochen wird.
-        self._stop.clear()
         return verworfen
 
     @property
@@ -320,8 +330,9 @@ class Speaker:
             eintrag = self._queue.get()
             if eintrag is None:
                 return
-            if self._stop.is_set() and not eintrag.urgent:
-                continue
+            # Ein neuer Abschnitt heisst: die Unterbrechung ist abgearbeitet.
+            # Erst hier freigeben -- siehe interrupt().
+            self._stop.clear()
             self._speaking.set()
             try:
                 self.engine.speak(eintrag.text, self._stop)
