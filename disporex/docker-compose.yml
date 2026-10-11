@@ -1,0 +1,80 @@
+# ------------------------------------------------------------------------------
+# DispoRex – lokaler Komplettbetrieb oder Grundlage für einen kleinen Server.
+#   docker compose up -d db            # nur Datenbank (für `pnpm dev`)
+#   docker compose up -d               # Datenbank, Migrationen, Web, Worker
+#   docker compose run --rm migrate    # Migrationen erneut ausführen
+# Geheimnisse (APP_ENCRYPTION_KEY, SMTP, …) kommen aus .env – niemals hier eintragen.
+# Beim ersten Start legt scripts/db-setup.sh Rollen und Datenbanken an (nur bei leerem Volume).
+# ------------------------------------------------------------------------------
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD:-postgres}
+      DISPOREX_OWNER_PASSWORD: ${DISPOREX_OWNER_PASSWORD:-disporex}
+      DISPOREX_APP_PASSWORD: ${DISPOREX_APP_PASSWORD:-disporex_app}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./scripts/db-setup.sh:/docker-entrypoint-initdb.d/10-disporex.sh:ro
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d disporex"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  migrate:
+    build: .
+    command: ["pnpm", "db:migrate"]
+    restart: "no"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: postgres://disporex_owner:${DISPOREX_OWNER_PASSWORD:-disporex}@db:5432/disporex
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build: .
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      DATABASE_URL: postgres://disporex_owner:${DISPOREX_OWNER_PASSWORD:-disporex}@db:5432/disporex
+      DATABASE_APP_URL: postgres://disporex_app:${DISPOREX_APP_PASSWORD:-disporex_app}@db:5432/disporex
+      STORAGE_LOCAL_PATH: /data/storage
+    volumes:
+      - storage:/data/storage
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  worker:
+    build: .
+    command: ["pnpm", "worker"]
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      DATABASE_URL: postgres://disporex_owner:${DISPOREX_OWNER_PASSWORD:-disporex}@db:5432/disporex
+      DATABASE_APP_URL: postgres://disporex_app:${DISPOREX_APP_PASSWORD:-disporex_app}@db:5432/disporex
+      STORAGE_LOCAL_PATH: /data/storage
+    volumes:
+      - storage:/data/storage
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+volumes:
+  db-data:
+  storage:

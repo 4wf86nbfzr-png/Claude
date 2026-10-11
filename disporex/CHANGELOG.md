@@ -4,6 +4,25 @@ Alle wesentlichen Änderungen. Format angelehnt an „Keep a Changelog“.
 
 ## [Unreleased]
 
+### Phase 7 – Tests, Sicherheitsprüfung, Deployment-Paket (2026-10-11)
+- Seed-Skript `pnpm db:seed` mit ausschließlich synthetischen Daten (Mandant „Demo Personaldienst
+  (synthetisch)“, 5 Konten, 12 Mitarbeiter, 3 Kunden, 4 Veranstaltungen inkl. abgeschlossener mit
+  Zeitnachweisen/Abgleich, Partnerangebot, Stundensätze, Zuschläge, Anfragen, Automatisierungsregeln);
+  gesperrt in Produktion, überschreibt nie einen bestehenden Demo-Mandanten; Integrationstest.
+- Deployment-Paket: `Dockerfile` (ein Image für Web, Worker, Migration, unprivilegierter Benutzer,
+  Health-Check), `docker-compose.yml` (db → migrate → web + worker, Rollen-Init beim ersten Start),
+  `.dockerignore`; `docs/DEPLOYMENT.md` (Umgebungen, Varianten, Rollout, Schutz produktiver Daten,
+  verbleibende manuelle Schritte) und `docs/BACKUP_RESTORE.md` (Sicherung von DB, Dokumenten und
+  Verschlüsselungsschlüssel, Wiederherstellung in Prüfinstanz, Übungsrhythmus).
+- CI: `.github/workflows/disporex-ci.yml` – Typen, Lint, Unit/Integration gegen PostgreSQL 16,
+  Produktionsbuild, Browser-Tests; kein Deployment.
+- Sicherheit: Content-Security-Policy und HSTS im Produktionsbuild; `pnpm audit --prod` ohne
+  bekannte Schwachstellen (transitive `uuid`-Version per Override angehoben); Eigenprüfung in
+  SECURITY.md dokumentiert, offene Punkte benannt (Nonce-CSP, verteiltes Rate-Limit, Virenscan, 2FA).
+- `instrumentation.ts` lädt die Fehlerüberwachung nur im Node-Runtime (kein Edge-Warnhinweis).
+- Abgleich der 13 Pflichtszenarien mit den Tests in PROJECT_STATUS.md.
+- Tests: 62 Unit/Integration, 8 Browser-Tests.
+
 ### Phase 6 – Auswertungen, Abrechnungsvorbereitung, Suche, Fehlerüberwachung (2026-10-11)
 - Berichte: Besetzungsquote je Veranstaltung, Rückmeldequoten je Mitarbeiter, geleistete Stunden (geplant/erfasst/
   bestätigt), Abweichungen, Kundenübersicht, ablaufende Qualifikationen/Dokumente, Personalbedarf je Woche, Auftragsstatus.

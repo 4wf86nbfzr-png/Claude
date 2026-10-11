@@ -1,0 +1,112 @@
+# ============================================================
+# DispoRex – Prüflauf (Typen, Lint, Unit/Integration, Build, E2E)
+# ------------------------------------------------------------
+# Läuft nur, wenn sich etwas unter disporex/ ändert. Die Tests
+# brauchen eine echte PostgreSQL-Instanz (Row-Level Security wird
+# gegen die Datenbank geprüft), deshalb ein Service-Container.
+# Es wird nichts deployt; Deployment siehe disporex/docs/DEPLOYMENT.md.
+# ============================================================
+name: DispoRex CI
+
+on:
+  push:
+    paths:
+      - "disporex/**"
+      - ".github/workflows/disporex-ci.yml"
+  pull_request:
+    paths:
+      - "disporex/**"
+      - ".github/workflows/disporex-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: disporex-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: disporex
+
+env:
+  NODE_ENV: test
+  APP_ENV: test
+  # Nur für den Testlauf; kein Produktionsgeheimnis.
+  APP_ENCRYPTION_KEY: ci-only-key-0123456789abcdef0123456789abcdef
+  DATABASE_URL: postgres://disporex_owner:disporex@localhost:5432/disporex
+  DATABASE_APP_URL: postgres://disporex_app:disporex_app@localhost:5432/disporex
+  DATABASE_TEST_URL: postgres://disporex_owner:disporex@localhost:5432/disporex_test
+  DATABASE_TEST_APP_URL: postgres://disporex_app:disporex_app@localhost:5432/disporex_test
+  LOG_LEVEL: warn
+
+jobs:
+  pruefen:
+    name: Prüfen
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 20
+    steps:
+      - name: Quellstand holen
+        uses: actions/checkout@v4
+
+      - name: pnpm einrichten
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.0
+
+      - name: Node einrichten
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: disporex/pnpm-lock.yaml
+
+      - name: Abhängigkeiten installieren
+        run: pnpm install --frozen-lockfile
+
+      - name: Datenbankrollen und Datenbanken anlegen
+        env:
+          PGPASSWORD: postgres
+          PSQL: psql -v ON_ERROR_STOP=1 -h localhost -U postgres
+        run: bash scripts/db-setup.sh
+
+      - name: Typen prüfen
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Unit- und Integrationstests
+        run: pnpm test
+
+      - name: Produktionsbuild
+        env:
+          NODE_ENV: production
+        run: pnpm build
+
+      - name: Browser für E2E installieren
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: End-to-End-Tests
+        run: pnpm test:e2e
+
+      - name: Testartefakte sichern (bei Fehlern)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: disporex-test-results
+          path: disporex/test-results
+          if-no-files-found: ignore
