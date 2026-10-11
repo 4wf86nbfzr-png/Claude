@@ -143,6 +143,7 @@ export const ROLE_PERMISSIONS: Record<RoleKey, ReadonlySet<Permission>> = {
     "orders:read",
     "shifts:read",
     "time:read",
+    "time:import",
     "time:approve",
     "time:correct",
     "billing:read",

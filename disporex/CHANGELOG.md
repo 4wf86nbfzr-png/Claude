@@ -4,6 +4,17 @@ Alle wesentlichen Änderungen. Format angelehnt an „Keep a Changelog“.
 
 ## [Unreleased]
 
+### Phase 4 – API, Import, Soll-Ist-Abgleich (2026-10-11)
+- REST-API v1 vollständig: Employees, Customers, CustomerRequests, Events/Positions, Shifts (assign/respond/confirm/withdraw),
+  Availability, Partners/PartnerOffers, TimeRecords (Import multipart/JSON), ReconciliationItems/-Reports, Documents,
+  Notifications, Webhooks. OpenAPI 3.1 unter /api/v1/openapi.json und `pnpm openapi`.
+- Zeitnachweise: CSV/XLSX-Parser mit Spaltenerkennung (deutsch/englisch), Importkennung, Datei- und Zeilen-Duplikatschutz,
+  Zuordnung über Mitarbeiter-ID, automatischer Soll-Ist-Abgleich (Toleranz je Mandant), fehlende und ungeplante Nachweise,
+  Korrekturen mit Protokoll (alt/neu/wer/wann/Begründung), Bestätigung/Ablehnung/Zurücksetzen, Prüfbericht als CSV,
+  manuelle Nachweise.
+- Rollen: Buchhaltung darf importieren; Einsatzleiter korrigieren, nicht bestätigen.
+- Tests: 50 Unit/Integration (inkl. API-Tests), 8 Browser-Tests.
+
 ### Phase 3 – Rückmeldungen, Partner, Dokumente, Worker (2026-10-11)
 - Verfügbarkeiten/Abwesenheiten (Disposition und Mitarbeiterportal), Konflikt bei Zuweisung.
 - Mitarbeiterportal: Einsatzanfragen mit Frist, Zu-/Absage, Einsatzdetails, Abwesenheiten, freigegebene Dokumente.

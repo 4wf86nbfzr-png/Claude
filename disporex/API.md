@@ -44,7 +44,13 @@ Jeder Schlüssel gehört genau einem Mandanten; Daten anderer Mandanten sind nic
 | Webhooks                | `GET/POST /webhooks`, `DELETE /webhooks/{id}`, `GET /webhooks/{id}/deliveries` | webhooks:manage |
 | Health                  | `GET /api/health` (öffentlich)                                            | —              |
 
-Welche Endpunkte bereits implementiert sind, steht in PROJECT_STATUS.md.
+Alle oben genannten Endpunkte sind implementiert (Stand Phase 4); zusätzlich:
+`POST /events/{id}/positions`, `PATCH /positions/{id}`, `POST /shifts/{id}/confirm`,
+`POST /shifts/{id}/withdraw`, `POST /partner-offers`, `POST /reconciliation-items/{id}/correct`,
+`PATCH /webhooks/{id}`, `GET /api/v1/openapi.json`.
+
+API-Tests: `tests/integration/api.test.ts` (401/403/400/404/409/422, Duplikate, Idempotenz,
+Mandantentrennung, Planung und Import über die API).
 
 ## Webhooks (ausgehend)
 

@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Getrennte Ausgabeverzeichnisse (z. B. .next-e2e für den Test-Dev-Server), damit ein
+  // paralleler `next build` den laufenden Dev-Server nicht in eine HMR-Reload-Schleife bringt.
+  distDir: process.env.NEXT_DIST_DIR ?? ".next",
   reactStrictMode: true,
   poweredByHeader: false,
   serverExternalPackages: ["pino", "pino-pretty", "pg", "exceljs", "nodemailer"],

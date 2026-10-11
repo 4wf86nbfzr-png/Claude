@@ -23,7 +23,7 @@ export default defineConfig({
     launchOptions: process.env.PLAYWRIGHT_CHROMIUM_PATH ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH } : {},
   },
   webServer: {
-    command: `APP_ENV=test DATABASE_URL=${TEST_DB} DATABASE_APP_URL=${TEST_APP_DB} LOG_LEVEL=warn LOG_PRETTY=false pnpm exec next dev -p ${PORT}`,
+    command: `NEXT_DIST_DIR=.next-e2e APP_ENV=test DATABASE_URL=${TEST_DB} DATABASE_APP_URL=${TEST_APP_DB} LOG_LEVEL=warn LOG_PRETTY=false pnpm exec next dev -p ${PORT}`,
     url: `http://localhost:${PORT}/api/health`,
     reuseExistingServer: true,
     timeout: 120_000,

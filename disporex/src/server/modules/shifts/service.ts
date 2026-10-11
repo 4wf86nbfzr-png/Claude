@@ -469,3 +469,20 @@ export async function calendarRange(ctx: AuthContext, from: Date, to: Date, filt
     };
   });
 }
+
+/** Zusätzlichen offenen Slot für eine Position anlegen (Bedarf +1). */
+export async function addSlot(ctx: AuthContext, positionId: string, times?: { startsAt?: Date; endsAt?: Date }): Promise<Shift> {
+  requirePermission(ctx, "shifts:write");
+  return withTenant(ctx.tenantId, async (tx) => {
+    const p = (await tx.select().from(positions).where(and(eq(positions.id, positionId), eq(positions.tenantId, ctx.tenantId))).limit(1))[0];
+    if (!p) throw new NotFoundError("Position nicht gefunden");
+    const startsAt = times?.startsAt ?? p.startsAt;
+    const endsAt = times?.endsAt ?? p.endsAt;
+    if (endsAt <= startsAt) throw new ValidationError("Ende muss nach Beginn liegen.");
+    const [row] = await tx.insert(shifts).values({ tenantId: ctx.tenantId, eventId: p.eventId, positionId: p.id, startsAt, endsAt, breakMinutes: p.breakMinutes, status: "open" }).returning();
+    await tx.update(positions).set({ headcountRequired: p.headcountRequired + 1 }).where(eq(positions.id, p.id));
+    await audit(tx, ctx, { action: "shift.slot_added", entityType: "shift", entityId: row!.id, after: { positionId } });
+    await emitEvent(tx, { tenantId: ctx.tenantId, type: "shift.created", entityType: "shift", entityId: row!.id, payload: publicShift(row!), actorUserId: ctx.userId });
+    return row!;
+  });
+}
