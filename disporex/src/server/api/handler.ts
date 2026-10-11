@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { ZodError, type ZodType } from "zod";
 import { AppError } from "../core/errors";
 import { logger } from "../core/logger";
+import { captureError } from "../core/monitoring";
 import { newRequestId } from "../core/ids";
 import { checkRateLimit } from "../core/rate-limit";
 import { env } from "../core/env";
@@ -51,6 +52,7 @@ export function mapError(err: unknown, requestId: string): NextResponse<ApiError
     return res;
   }
   logger.error({ err, requestId }, "Unbehandelter Fehler");
+  void captureError(err, { requestId, kind: "api" });
   return errorResponse(500, "internal_error", "Interner Fehler. Bitte Request-ID bei Rückfragen angeben.", requestId);
 }
 

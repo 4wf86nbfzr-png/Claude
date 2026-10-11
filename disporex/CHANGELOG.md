@@ -4,6 +4,20 @@ Alle wesentlichen Änderungen. Format angelehnt an „Keep a Changelog“.
 
 ## [Unreleased]
 
+### Phase 6 – Auswertungen, Abrechnungsvorbereitung, Suche, Fehlerüberwachung (2026-10-11)
+- Berichte: Besetzungsquote je Veranstaltung, Rückmeldequoten je Mitarbeiter, geleistete Stunden (geplant/erfasst/
+  bestätigt), Abweichungen, Kundenübersicht, ablaufende Qualifikationen/Dokumente, Personalbedarf je Woche, Auftragsstatus.
+  Alle Berichte mit Zeitraumfilter, CSV-Export und Kennzeichnung „vorläufig“, solange ein Abgleich noch offen ist.
+- Abrechnungsvorbereitung: Stundensätze je Kunde/Position/Qualifikation mit Gültigkeitszeitraum (neue Sätze schließen
+  Vorgänger tagesgenau ab, rückwirkende Änderungen bleiben ausgeschlossen), explizite Zuschlagsregeln (Nacht, Sonn-/
+  Feiertag, Wochenende, Überstunden; minutengenau in der Mandanten-Zeitzone), Abrechnungspositionen aus bestätigten
+  Nachweisen (sonst geplante Zeiten als „vorläufig“), Finalisierung nur mit bestätigten Minuten, CSV-Export. Keine
+  Rechnungsstellung, keine Steuerlogik.
+- Globale Suche über Mitarbeiter, Kunden, Veranstaltungen, Anfragen, Partner, Dokumente – nur, was die Rolle sehen darf.
+- Fehlerüberwachung: `captureError` in API-Wrapper, Worker und `instrumentation.ts`; strukturiertes Log immer,
+  Versand an einen Sentry-kompatiblen Endpunkt nur mit `SENTRY_DSN`, ohne Personendaten im Bericht.
+- Tests: 61 Unit/Integration, 8 Browser-Tests.
+
 ### Phase 5 – KI und E-Mail-Eingang (2026-10-11)
 - KI-Schnittstelle als austauschbarer Anbieter (`AiProvider`): Anthropic-Implementierung mit schema-validierten
   strukturierten Ausgaben, Refusal-/Fehlerbehandlung, Prompt-Injection-Schutz (Eingaben als gekennzeichnete Daten),

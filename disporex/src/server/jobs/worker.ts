@@ -3,6 +3,7 @@ import { claimNextJob, completeJob, failJob } from "./queue";
 import { handlers, scheduleMaintenance } from "./handlers";
 import { logger } from "../core/logger";
 import { env } from "../core/env";
+import { captureError } from "../core/monitoring";
 
 /**
  * Worker-Schleife: holt fällige Jobs, führt Handler aus, meldet Erfolg/Fehler zurück.
@@ -52,6 +53,7 @@ export async function processBatch(workerId: string, concurrency: number, types?
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
         logger.warn({ jobId: job.id, type: job.type, attempt: job.attempts, err: msg }, "Job fehlgeschlagen");
+        if (job.attempts >= job.maxAttempts) void captureError(err, { kind: `job:${job.type}`, tenantId: job.tenantId ?? undefined });
         await failJob(job, msg);
       }
     }),
