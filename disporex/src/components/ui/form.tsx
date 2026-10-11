@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useContext, useEffect, useState, type ReactNode } from "react";
+import { useActionState, useContext, useState, type ReactNode } from "react";
 import type { ActionState } from "@/lib/action-result";
 import { Alert, Button } from "./index";
 import { FormStateContext } from "./form-context";
@@ -23,11 +23,14 @@ export function ActionForm({ action, children, submitLabel = "Speichern", submit
   extraButtons?: ReactNode;
 }) {
   const [state, formAction, pending] = useActionState(action, null);
-  // Nach erfolgreichem Absenden Formular leeren (nur wenn gewünscht): Schlüssel hochzählen.
+  // Nach erfolgreichem Absenden Formular leeren (nur wenn gewünscht): Schlüssel hochzählen,
+  // als Zustandsableitung während des Renderns (kein Effekt nötig).
   const [formKey, setFormKey] = useState(0);
-  useEffect(() => {
-    if (reset && state?.ok) setFormKey((k) => k + 1);
-  }, [reset, state]);
+  const [seenState, setSeenState] = useState<ActionState>(null);
+  if (reset && state?.ok && state !== seenState) {
+    setSeenState(state);
+    setFormKey((k) => k + 1);
+  }
   return (
     <FormStateContext.Provider value={state}>
       <form
