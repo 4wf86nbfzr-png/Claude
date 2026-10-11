@@ -1,0 +1,256 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------
+   DispoRex Designsystem
+   Reduzierte Palette: dunkles Marineblau (Navigation, Kopf), neutrale
+   helle Flächen, eine dezente Akzentfarbe (Petrol). Statusfarben sind
+   semantisch und nur für Statuskennzeichen reserviert.
+   ------------------------------------------------------------------ */
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+
+  --color-navy-950: #0a1426;
+  --color-navy-900: #0f1f3d;
+  --color-navy-800: #172a4f;
+  --color-navy-700: #223a66;
+  --color-navy-600: #2f4b7c;
+  --color-navy-100: #dde4f0;
+
+  --color-surface: #f4f5f7;
+  --color-surface-2: #eceef2;
+  --color-panel: #ffffff;
+  --color-line: #e2e5ea;
+  --color-line-strong: #c9ced6;
+
+  --color-ink: #111827;
+  --color-ink-2: #3b4350;
+  --color-ink-3: #6b7280;
+  --color-ink-4: #9aa1ab;
+
+  --color-accent: #0f766e;
+  --color-accent-strong: #0b5f59;
+  --color-accent-soft: #e3f2f0;
+
+  --color-ok: #15803d;
+  --color-ok-soft: #e4f4e9;
+  --color-warn: #b45309;
+  --color-warn-soft: #fbeedb;
+  --color-danger: #b91c1c;
+  --color-danger-soft: #fbe5e5;
+  --color-info: #1d4ed8;
+  --color-info-soft: #e4ebfb;
+  --color-neutral-soft: #eceef2;
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+
+  --shadow-panel: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.1);
+  --shadow-pop: 0 8px 24px rgba(16, 24, 40, 0.16);
+}
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  @apply bg-surface text-ink font-sans antialiased;
+  font-size: 14px;
+  line-height: 1.5;
+  font-feature-settings: "cv11", "ss01", "tnum";
+}
+
+h1,
+h2,
+h3,
+h4 {
+  @apply text-ink font-semibold tracking-tight;
+}
+
+a {
+  @apply text-accent;
+}
+a:hover {
+  @apply text-accent-strong;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Tabellen mit Tabellenziffern und ruhigen Zeilen */
+.tbl {
+  @apply w-full border-collapse text-[13.5px];
+}
+.tbl th {
+  @apply text-left text-[11.5px] font-semibold uppercase tracking-wide text-ink-3 border-b border-line-strong px-3 py-2 whitespace-nowrap bg-panel;
+}
+.tbl td {
+  @apply border-b border-line px-3 py-2 align-middle;
+}
+.tbl tbody tr:hover {
+  background: #f8f9fb;
+}
+.tbl .num {
+  @apply text-right tabular-nums font-mono text-[12.5px];
+}
+
+.mono {
+  @apply font-mono tabular-nums;
+}
+
+/* Formularelemente */
+.input {
+  @apply w-full rounded-md border border-line-strong bg-panel px-3 py-[7px] text-[14px] text-ink placeholder:text-ink-4 shadow-none transition-colors;
+}
+.input:focus {
+  @apply border-accent outline-none ring-2 ring-accent/20;
+}
+.input[aria-invalid="true"] {
+  @apply border-danger;
+}
+select.input {
+  @apply pr-8 appearance-none bg-no-repeat;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-position: right 10px center;
+}
+textarea.input {
+  @apply min-h-[88px] leading-relaxed;
+}
+.label {
+  @apply block text-[12.5px] font-medium text-ink-2 mb-1;
+}
+.help {
+  @apply text-[12px] text-ink-3 mt-1;
+}
+.error {
+  @apply text-[12.5px] text-danger mt-1;
+}
+
+/* Knöpfe */
+.btn {
+  @apply inline-flex items-center justify-center gap-1.5 rounded-md border px-3 py-[7px] text-[13.5px] font-medium whitespace-nowrap transition-colors select-none disabled:opacity-50 disabled:cursor-not-allowed;
+}
+.btn-primary {
+  @apply bg-navy-900 text-white border-navy-900 hover:bg-navy-800;
+}
+.btn-accent {
+  @apply bg-accent text-white border-accent hover:bg-accent-strong;
+}
+.btn-secondary {
+  @apply bg-panel text-ink border-line-strong hover:bg-surface-2;
+}
+.btn-ghost {
+  @apply bg-transparent text-ink-2 border-transparent hover:bg-surface-2;
+}
+.btn-danger {
+  @apply bg-panel text-danger border-danger/40 hover:bg-danger-soft;
+}
+.btn-sm {
+  @apply px-2.5 py-1 text-[12.5px];
+}
+
+/* Flächen */
+.panel {
+  @apply bg-panel rounded-lg border border-line;
+}
+.panel-head {
+  @apply flex items-center justify-between gap-3 px-4 py-3 border-b border-line;
+}
+.panel-title {
+  @apply text-[13px] font-semibold text-ink;
+}
+
+/* Statuskennzeichen */
+.badge {
+  @apply inline-flex items-center gap-1 rounded-sm px-1.5 py-[1px] text-[11.5px] font-medium leading-5 whitespace-nowrap;
+}
+.badge-neutral {
+  @apply bg-neutral-soft text-ink-2;
+}
+.badge-ok {
+  @apply bg-ok-soft text-ok;
+}
+.badge-warn {
+  @apply bg-warn-soft text-warn;
+}
+.badge-danger {
+  @apply bg-danger-soft text-danger;
+}
+.badge-info {
+  @apply bg-info-soft text-info;
+}
+.badge-accent {
+  @apply bg-accent-soft text-accent-strong;
+}
+
+/* Kennzahlen */
+.kpi {
+  @apply bg-panel rounded-lg border border-line p-4 flex flex-col gap-1 hover:border-line-strong transition-colors;
+}
+.kpi-value {
+  @apply text-[26px] font-semibold tracking-tight tabular-nums leading-none text-ink;
+}
+.kpi-label {
+  @apply text-[12.5px] text-ink-3;
+}
+
+/* Navigation */
+.nav-item {
+  @apply flex items-center gap-2.5 rounded-md px-2.5 py-[7px] text-[13.5px] text-navy-100/85 hover:bg-white/8 hover:text-white transition-colors;
+}
+.nav-item[aria-current="page"] {
+  @apply bg-white/12 text-white font-medium;
+}
+.nav-group {
+  @apply px-2.5 pt-4 pb-1 text-[10.5px] font-semibold uppercase tracking-[0.08em] text-navy-100/45;
+}
+
+/* Hinweise */
+.alert {
+  @apply rounded-md border px-3 py-2.5 text-[13px];
+}
+.alert-info {
+  @apply bg-info-soft border-info/20 text-info;
+}
+.alert-ok {
+  @apply bg-ok-soft border-ok/20 text-ok;
+}
+.alert-warn {
+  @apply bg-warn-soft border-warn/20 text-warn;
+}
+.alert-danger {
+  @apply bg-danger-soft border-danger/20 text-danger;
+}
+
+/* Kalender */
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+.cal-cell {
+  @apply min-h-[108px] border-r border-b border-line p-1.5 align-top;
+}
+.cal-chip {
+  @apply block truncate rounded-sm px-1.5 py-[1px] text-[11.5px] leading-5 border-l-2 bg-surface-2 text-ink-2 hover:bg-navy-100;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
