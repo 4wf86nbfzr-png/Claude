@@ -12,6 +12,7 @@ export const NAV: NavGroup[] = [
       { href: "/veranstaltungen", label: "Veranstaltungen", permission: "events:read" },
       { href: "/schichten", label: "Schichten", permission: "shifts:read" },
       { href: "/anfragen", label: "Kundenanfragen", permission: "requests:read" },
+      { href: "/posteingang", label: "E-Mail-Eingang", permission: "requests:read" },
       { href: "/auftraege", label: "Aufträge", permission: "orders:read" },
     ],
   },

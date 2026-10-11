@@ -2,7 +2,9 @@ import Link from "next/link";
 import { requireCurrent } from "@/server/auth/current";
 import { getReconciliationItem, RECON_KIND_LABELS, RECON_STATUS_LABELS } from "@/server/modules/time/service";
 import { PageHeader, Panel, Badge, Dl, Field, Input, Alert } from "@/components/ui";
-import { ActionForm } from "@/components/ui/form";
+import { ActionForm, ActionButton } from "@/components/ui/form";
+import { explainDeviationAction } from "../../anfragen/ai-actions";
+import { aiAvailable } from "@/server/modules/ai/service";
 import { approveAction, rejectAction, correctAction, reopenAction } from "../../zeitnachweise/actions";
 import { fmtRange, fmtDateTime, fmtMinutes, toLocalInput } from "@/lib/format";
 
@@ -136,6 +138,12 @@ export default async function ReconciliationItemPage({ params }: { params: Promi
             </Panel>
           )}
           {!canCorrect && !canApprove && <p className="text-[13px] text-ink-3">Nur Lesezugriff.</p>}
+          {ctx.permissions.has("ai:use") && aiAvailable() && it.kind !== "match" && (
+            <Panel title="Verständliche Erklärung (KI)">
+              <ActionButton action={explainDeviationAction} label="Abweichung erklären" size={undefined} hidden={{ id: it.id }} className="block" />
+              <p className="help mt-2">Erklärt die Abweichung in Worten; die Entscheidung bleibt bei Ihnen.</p>
+            </Panel>
+          )}
         </div>
       </div>
     </>

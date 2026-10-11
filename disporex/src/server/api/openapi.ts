@@ -9,6 +9,7 @@ import { availabilityInput } from "../modules/availability/service";
 import { offerInput, offerResponseInput } from "../modules/partners/schema";
 import { reconListQuery, correctionInput, timeRecordListQuery } from "../modules/time/service";
 import { endpointInput } from "../modules/webhooks/service";
+import { inboundEmailInput } from "../modules/email/inbound";
 import { DOMAIN_EVENT_TYPES } from "../core/events";
 import { PERMISSIONS } from "../auth/permissions";
 
@@ -116,6 +117,7 @@ export function buildOpenApi(baseUrl = "http://localhost:3000") {
   r.registerPath({ method: "post", path: "/documents", tags: ["Documents"], summary: "Dokument hochladen", description: "Scope: documents:write (Mitarbeiterdokumente: employees:documents; vertraulich: documents:confidential). Typ-, Größen- und Inhaltsprüfung.", security: sec, request: { body: { content: { "multipart/form-data": { schema: z.object({ file: z.string().openapi({ format: "binary" }), entityType: z.string(), entityId: uuid, title: z.string(), category: z.string().optional(), confidentiality: z.string().optional(), expiresAt: z.string().optional() }) } } } }, responses: { 201: { description: "Angelegt", content: { "application/json": { schema: document } } }, ...errors } });
   get("/documents/{id}/download", "Documents", "documents:read", z.object({ url: z.string(), expiresInSeconds: z.number(), singleUse: z.boolean() }), "Einmaligen Download-Link erzeugen");
 
+  create("/inbound-email", "CustomerRequests", "requests:write", inboundEmailInput, z.object({ emailId: uuid, status: z.enum(["processed", "duplicate", "ignored"]), requestId: uuid.optional(), customerId: uuid.nullable().optional(), aiUsed: z.boolean() }), "Eingehende E-Mail als Anfrageentwurf verarbeiten (dedupliziert über messageId; Anhänge als Dokumente; KI-Vorschlag falls konfiguriert)");
   list("/notifications", "Notifications", "Sitzung", z.object({}), z.object({ id: uuid, title: z.string(), body: z.string(), readAt: z.string().nullable() }), "Eigene Benachrichtigungen (nur Sitzung)", false);
 
   list("/webhooks", "Webhooks", "webhooks:manage", z.object({}), webhook, "Webhook-Endpunkte", false);

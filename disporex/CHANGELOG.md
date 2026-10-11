@@ -4,6 +4,18 @@ Alle wesentlichen Änderungen. Format angelehnt an „Keep a Changelog“.
 
 ## [Unreleased]
 
+### Phase 5 – KI und E-Mail-Eingang (2026-10-11)
+- KI-Schnittstelle als austauschbarer Anbieter (`AiProvider`): Anthropic-Implementierung mit schema-validierten
+  strukturierten Ausgaben, Refusal-/Fehlerbehandlung, Prompt-Injection-Schutz (Eingaben als gekennzeichnete Daten),
+  Monats-Token-Budget je Mandant, Protokoll mit Tokens/Kosten/Dauer; Fake-Anbieter für Tests.
+- Funktionen: Extraktion von Anfragedaten (nur Vorschlag; fachliche Plausibilisierung; Übernahme gezielt je Feld durch
+  Menschen, protokolliert), Antwortentwürfe (nie automatischer Versand), Erklärung von Abweichungen, Zusammenfassung von
+  Textdokumenten. Ohne Anbieter bleiben alle Funktionen ausgeblendet, der Rest läuft unverändert.
+- E-Mail-Eingang: Webhook `POST /api/v1/inbound-email`, IMAP-Abruf im Worker (imapflow/mailparser), Deduplizierung über
+  Message-ID, Kundenzuordnung (Adresse, Ansprechpartner, eindeutige Domain), Anfrageentwurf mit Rohtext, Anhänge als
+  geprüfte Dokumente, Übersicht unter E-Mail-Eingang.
+- Tests: 57 Unit/Integration, 8 Browser-Tests.
+
 ### Phase 4 – API, Import, Soll-Ist-Abgleich (2026-10-11)
 - REST-API v1 vollständig: Employees, Customers, CustomerRequests, Events/Positions, Shifts (assign/respond/confirm/withdraw),
   Availability, Partners/PartnerOffers, TimeRecords (Import multipart/JSON), ReconciliationItems/-Reports, Documents,

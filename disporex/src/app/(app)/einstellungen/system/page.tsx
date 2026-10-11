@@ -4,13 +4,15 @@ import { PageHeader, Panel, Table, Badge, EmptyState } from "@/components/ui";
 import { fmtDateTime } from "@/lib/format";
 import { env } from "@/server/core/env";
 import { mailConfigured } from "@/server/modules/mail/mailer";
+import { monthlyUsage, aiAvailable } from "@/server/modules/ai/service";
+import { imapConfigured } from "@/server/modules/email/imap";
 
 export const metadata = { title: "System" };
 export const dynamic = "force-dynamic";
 
 export default async function SystemPage() {
   const { ctx } = await requireCurrent("settings:read");
-  const jobs = await listRecentJobs(ctx.tenantId, 50);
+  const [jobs, ai] = await Promise.all([listRecentJobs(ctx.tenantId, 50), monthlyUsage(ctx.tenantId)]);
   const e = env();
   const tone = (s: string) => (s === "completed" ? "ok" : s === "failed" ? "warn" : s === "dead" ? "danger" : s === "running" ? "info" : "neutral");
   return (
@@ -23,10 +25,13 @@ export default async function SystemPage() {
               E-Mail-Versand: {mailConfigured() ? <Badge tone="ok">SMTP konfiguriert</Badge> : <Badge tone="warn">nur Protokoll (SMTP_HOST fehlt)</Badge>}
             </li>
             <li>
-              Eingehende E-Mails: {e.IMAP_HOST ? <Badge tone="ok">IMAP konfiguriert</Badge> : <Badge tone="neutral">nicht konfiguriert</Badge>}
+              Eingehende E-Mails: {imapConfigured() ? <Badge tone="ok">IMAP-Abruf aktiv ({e.IMAP_FOLDER})</Badge> : <Badge tone="neutral">kein IMAP – Webhook /api/v1/inbound-email nutzbar</Badge>}
             </li>
             <li>
-              KI-Anbieter: {e.AI_PROVIDER !== "none" ? <Badge tone="ok">{e.AI_PROVIDER}</Badge> : <Badge tone="neutral">deaktiviert</Badge>}
+              KI-Anbieter: {aiAvailable() ? <Badge tone="ok">{e.AI_PROVIDER} · {e.AI_MODEL}</Badge> : <Badge tone="neutral">deaktiviert</Badge>}
+              <div className="text-[12px] text-ink-3">
+                Verbrauch diesen Monat: {ai.calls} Aufrufe, {ai.total.toLocaleString("de-DE")} Tokens{ai.budget > 0 ? ` von ${ai.budget.toLocaleString("de-DE")}` : ""}, ca. {(ai.cost / 1_000_000).toFixed(2)} € {ai.exhausted && <Badge tone="danger">Budget erschöpft</Badge>}
+              </div>
             </li>
             <li>
               WhatsApp Business: {e.WHATSAPP_ACCESS_TOKEN ? <Badge tone="ok">konfiguriert</Badge> : <Badge tone="neutral">nicht konfiguriert</Badge>}

@@ -5,7 +5,7 @@ import nextTs from "eslint-config-next/typescript";
 export default defineConfig([
   ...nextVitals,
   ...nextTs,
-  globalIgnores([".next/**", "node_modules/**", "storage/**", "playwright-report/**", "test-results/**", "drizzle/**"]),
+  globalIgnores([".next/**", ".next-e2e/**", "node_modules/**", "storage/**", "playwright-report/**", "test-results/**", "drizzle/**"]),
   {
     rules: {
       "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],

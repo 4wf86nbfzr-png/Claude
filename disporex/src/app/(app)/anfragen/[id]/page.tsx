@@ -9,6 +9,8 @@ import { ActionForm, ActionButton } from "@/components/ui/form";
 import { updateRequestAction, requestStatusAction, convertRequestAction, assignRequestAction } from "../actions";
 import { RequestFormFields } from "@/components/requests/request-form";
 import { fmtDateTime } from "@/lib/format";
+import { AiPanel } from "@/components/requests/ai-panel";
+import { aiAvailable } from "@/server/modules/ai/service";
 
 export const dynamic = "force-dynamic";
 
@@ -137,6 +139,7 @@ export default async function RequestDetailPage({ params }: { params: Promise<{ 
                 </ActionForm>
               </Panel>
             )}
+            {ctx.permissions.has("ai:use") && <AiPanel r={r} available={aiAvailable()} canWrite={canWrite} />}
             <Panel title="Zuständigkeit">
               {canWrite && members.length > 0 ? (
                 <ActionForm action={assignRequestAction} submitLabel="Zuweisen" submitVariant="secondary" className="[&>div]:mt-2">

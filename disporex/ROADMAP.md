@@ -8,8 +8,8 @@ Reihenfolge entspricht dem Umsetzungsplan; Status in PROJECT_STATUS.md.
 | 2 | Personal, Kunden, Veranstaltungen, Positionen, Schichten, Kalender, Qualifikationen, Konflikterkennung | abgeschlossen |
 | 3 | Verfügbarkeiten, Rückmeldeprozess mit Fristen, Partnerportal, Dokumente, Benachrichtigungskanäle | abgeschlossen |
 | 4 | REST-API v1 + OpenAPI, Webhooks, CSV/XLSX-Import, Soll-Ist-Abgleich, Prüfberichte, Automatisierungsengine | abgeschlossen |
-| 5 | KI-Schnittstelle (Anbieter austauschbar), E-Mail-Eingang, Anfrageentwürfe, Freigabeprozess | in Arbeit |
-| 6 | Auswertungen, Abrechnungsvorbereitung, globale Suche, Fehlerüberwachung, Performance | offen |
+| 5 | KI-Schnittstelle (Anbieter austauschbar), E-Mail-Eingang, Anfrageentwürfe, Freigabeprozess | abgeschlossen |
+| 6 | Auswertungen, Abrechnungsvorbereitung, globale Suche, Fehlerüberwachung, Performance | in Arbeit |
 | 7 | Vollständige Tests (13 Szenarien), Sicherheitsprüfung, Deployment-Paket, Fertigstellungsgrad | offen |
 
 ## Nach dem Pilotbetrieb (nicht Teil des ersten Lieferumfangs)

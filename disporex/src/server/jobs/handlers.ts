@@ -12,6 +12,7 @@ import { effectiveSettings } from "../modules/tenants/service";
 import { enqueueJob, releaseStaleJobs } from "./queue";
 import { dispatchDomainEvent } from "../modules/integrations/dispatch";
 import { deliverWebhook } from "../modules/webhooks/service";
+import { pollImapInbox, imapConfigured } from "../modules/email/imap";
 import type { jobs } from "../db/schema";
 
 export type JobHandler = (job: typeof jobs.$inferSelect) => Promise<void>;
@@ -78,6 +79,14 @@ const maintenance: JobHandler = async () => {
   }
   const purged = await purgeDeletedDocuments(30);
   if (purged) logger.info({ purged }, "Gelöschte Dokumente endgültig entfernt");
+  if (imapConfigured()) {
+    try {
+      const r = await pollImapInbox();
+      if (r.fetched) logger.info(r, "IMAP-Abruf");
+    } catch (err) {
+      logger.error({ err }, "IMAP-Abruf fehlgeschlagen");
+    }
+  }
 };
 
 async function remindExpiringQualifications(tenantId: string): Promise<number> {

@@ -88,6 +88,7 @@ export function ActionButton({ action, label, variant = "secondary", size = "sm"
         {label}
       </Button>
       {state?.error && <span className="ml-2 text-[12px] text-danger">{state.error}</span>}
+      {state?.ok && state.message && <div className="mt-2 text-[13px] whitespace-pre-wrap text-ink-2">{state.message}</div>}
     </form>
   );
 }
