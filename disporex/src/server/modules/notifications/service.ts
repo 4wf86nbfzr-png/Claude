@@ -1,4 +1,4 @@
-import { and, eq, sql, desc, isNull } from "drizzle-orm";
+import { and, eq, sql, desc, isNull, inArray } from "drizzle-orm";
 import { withTenant, type Tx } from "../../db/client";
 import { notifications, notificationPreferences, memberships, users } from "../../db/schema";
 import type { AuthContext } from "../../auth/context";
@@ -83,7 +83,7 @@ export async function notifyRoles(tx: Tx, tenantId: string, roles: RoleKey[], in
   const members = await tx
     .select({ userId: memberships.userId })
     .from(memberships)
-    .where(and(eq(memberships.tenantId, tenantId), eq(memberships.status, "active"), sql`${memberships.role} = ANY(${sql.raw(`ARRAY[${roles.map((r) => `'${r}'`).join(",")}]::role_key[]`)})`));
+    .where(and(eq(memberships.tenantId, tenantId), eq(memberships.status, "active"), inArray(memberships.role, roles)));
   let n = 0;
   for (const m of members) {
     const id = await notifyUser(tx, tenantId, { ...input, userId: m.userId, dedupeKey: input.dedupeKey ? `${input.dedupeKey}:${m.userId}` : null });

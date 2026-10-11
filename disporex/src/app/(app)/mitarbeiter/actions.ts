@@ -82,7 +82,7 @@ export async function inviteEmployeeAction(_p: ActionState, fd: FormData): Promi
     const { ctx } = await requireCurrent("users:write");
     const r = await createInvitation(ctx.tenantId, ctx.userId!, { email: str(fd, "email"), role: "employee", employeeId: str(fd, "id") });
     revalidatePath(`/mitarbeiter/${str(fd, "id")}`);
-    return { ok: true, message: r.mailOk ? "Einladung versendet." : `Einladung angelegt. Link: ${r.link}` };
+    return { ok: true, message: r.mailOk ? "Einladung versendet." : `Einladung angelegt. Kein E-Mail-Versand konfiguriert – Link bitte manuell weitergeben:\n${r.link}` };
   }, fd);
 }
 

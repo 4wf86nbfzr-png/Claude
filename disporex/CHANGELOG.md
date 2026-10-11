@@ -4,6 +4,24 @@ Alle wesentlichen Änderungen. Format angelehnt an „Keep a Changelog“.
 
 ## [Unreleased]
 
+### Phase 3 – Rückmeldungen, Partner, Dokumente, Worker (2026-10-11)
+- Verfügbarkeiten/Abwesenheiten (Disposition und Mitarbeiterportal), Konflikt bei Zuweisung.
+- Mitarbeiterportal: Einsatzanfragen mit Frist, Zu-/Absage, Einsatzdetails, Abwesenheiten, freigegebene Dokumente.
+- Partner: Profile, Ansprechpartner, Qualifikationen, Positionsangebote mit Frist, Rückmeldung (voll/teilweise/Absage),
+  Belegung offener Slots als Fremdpersonal, Partnerportal mit eingeschränkter Sicht.
+- Kundenportal: eigene Anfragen, freigegebene Aufträge und Dokumente.
+- Dokumente: Upload mit Typ-/Größen-/Magic-Bytes-Prüfung, Versionen, Vertraulichkeitsstufen, Ablaufdaten, einmalige
+  zeitlich begrenzte Download-Links, Soft-Delete mit späterer Bereinigung; Speicher lokal oder S3 (SigV4, ohne SDK).
+- Worker-Prozess: E-Mail-Zustellung mit Wiederholung und Fehlerprotokoll, Domain-Event-Verteilung, Wartungslauf
+  (Fristablauf, Erinnerungen, ablaufende Dokumente/Qualifikationen, Löschfristen).
+- Webhooks (Signatur, Zeitstempel, Wiederholung, SSRF-Schutz, Deaktivierung nach Dauerfehlern) und
+  Automatisierungsengine (Trigger/Bedingungen/Aktionen, Protokoll, Stundenlimit, Schleifenschutz) inkl. Einstellungsseiten.
+- Übersicht fehlgeschlagener Zustellungen. Rollenabhängige Startseite.
+
+### Phase 2 – Stammdaten und Planung (2026-10-11)
+- Mitarbeiter, Qualifikationen, Kunden, Kundenanfragen, Veranstaltungen, Positionen, Aufträge, Schichten,
+  Konflikterkennung, Kalender, Schichtexport, Events-API.
+
 ### Phase 1 – Grundlage (2026-10-11)
 - Projektgerüst: Next.js 16, TypeScript, Tailwind 4, Drizzle ORM, PostgreSQL.
 - Datenbankschema mit 44 mandantengebundenen Tabellen, Enums, Indizes, Fremdschlüsseln.

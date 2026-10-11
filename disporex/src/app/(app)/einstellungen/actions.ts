@@ -46,7 +46,7 @@ export async function inviteAction(_p: ActionState, fd: FormData): Promise<Actio
     revalidatePath("/einstellungen/benutzer");
     return {
       ok: true,
-      message: r.mailOk ? `Einladung an ${r.invitation.email} gesendet.` : `Einladung angelegt, E-Mail-Versand fehlgeschlagen. Link manuell weitergeben: ${r.link}`,
+      message: r.mailOk ? `Einladung an ${r.invitation.email} gesendet.` : `Einladung angelegt. Kein E-Mail-Versand konfiguriert – Link bitte manuell weitergeben:\n${r.link}`,
     };
   }, fd);
 }

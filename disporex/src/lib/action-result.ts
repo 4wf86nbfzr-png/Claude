@@ -6,7 +6,7 @@ export function retainValues(fd: FormData): Record<string, string> {
   const out: Record<string, string> = {};
   for (const [k, v] of fd.entries()) {
     if (typeof v !== "string") continue;
-    if (/pass|secret|token/i.test(k)) continue;
+    if (/pass|secret|token/i.test(k) || k.startsWith("$ACTION")) continue;
     if (k in out) continue;
     out[k] = v;
   }

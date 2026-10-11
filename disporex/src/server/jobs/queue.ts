@@ -32,7 +32,7 @@ export async function enqueue(input: JobInput): Promise<string | null> {
 /** Holt den nächsten fälligen Job mit Zeilensperre (SKIP LOCKED) und markiert ihn als laufend. */
 export async function claimNextJob(workerId: string, types?: string[]): Promise<typeof jobs.$inferSelect | null> {
   return withSystem(async (tx) => {
-    const typeFilter = types && types.length > 0 ? sql`and type = any(${types})` : sql``;
+    const typeFilter = types && types.length > 0 ? sql`and type in (${sql.join(types.map((t) => sql`${t}`), sql`, `)})` : sql``;
     const picked = await tx.execute<{ id: string }>(sql`
       select id from jobs
       where status = 'queued' and run_at <= now() ${typeFilter}

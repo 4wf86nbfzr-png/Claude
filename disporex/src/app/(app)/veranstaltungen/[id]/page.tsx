@@ -9,6 +9,8 @@ import { PageHeader, Panel, Badge, Alert, Input, Textarea, Field, Dl, LinkButton
 import { ActionForm, ActionButton } from "@/components/ui/form";
 import { updateEventAction, eventStatusAction, createPositionAction, deletePositionAction, orderAction, shiftConfirmAction, shiftWithdrawAction, shiftRespondAction, removeSlotAction } from "../actions";
 import { EventFormFields, PositionFormFields } from "@/components/events/event-form";
+import { listPartners } from "@/server/modules/partners/service";
+import { createOfferAction } from "../../partner/actions";
 import { fmtRange, fmtDateTime, fmtTime } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -28,6 +30,7 @@ export default async function EventDetailPage({ params, searchParams }: { params
   const [customers, locations, quals, cust] = internal
     ? await Promise.all([listCustomers(ctx, { pageSize: 200, status: "all" }).then((p) => p.items), listLocations(ctx, e.customerId), listQualifications(ctx), getCustomer(ctx, e.customerId)])
     : [[], [], [], null];
+  const partnerList = internal && ctx.permissions.has("partners:write") ? (await listPartners(ctx, { status: "active" })).map((r) => r.p) : [];
   const confirmedEvent = e.status === "confirmed" || e.status === "in_progress";
   const required = data.positions.reduce((a, p) => a + p.headcountRequired, 0);
   const filled = data.positions.reduce((a, p) => a + p.filled, 0);
@@ -160,6 +163,28 @@ export default async function EventDetailPage({ params, searchParams }: { params
                     ))}
                   </tbody>
                 </table>
+                {partnerList.length > 0 && p.open > 0 && (
+                  <details className="px-4 py-2 text-[12.5px] border-t border-line">
+                    <summary className="cursor-pointer text-ink-2">Offene Slots einem Partner anbieten</summary>
+                    <ActionForm action={createOfferAction} submitLabel="Angebot senden" submitVariant="secondary" className="mt-2 grid md:grid-cols-5 gap-2 items-end [&>div:last-child]:mt-0 [&>div>button]:btn-sm">
+                      <input type="hidden" name="eventId" value={e.id} />
+                      <input type="hidden" name="positionId" value={p.id} />
+                      <select name="partnerId" className="input py-1 text-[12.5px]" aria-label="Partner" required>
+                        {partnerList.map((pt) => (
+                          <option key={pt.id} value={pt.id}>
+                            {pt.name}
+                          </option>
+                        ))}
+                      </select>
+                      <Input name="headcountRequested" type="number" min={1} max={p.open} defaultValue={p.open} className="py-1 text-[12.5px]" aria-label="Anzahl" />
+                      <Input name="deadlineAt" type="datetime-local" className="py-1 text-[12.5px]" aria-label="Rückmeldung bis" />
+                      <Input name="message" placeholder="Nachricht an Partner" className="py-1 text-[12.5px]" aria-label="Nachricht" />
+                      <label className="flex items-center gap-1">
+                        <input type="checkbox" name="shareBriefing" defaultChecked /> Briefing teilen
+                      </label>
+                    </ActionForm>
+                  </details>
+                )}
               </div>
             ))}
             {canWrite && !["completed", "cancelled"].includes(e.status) && (

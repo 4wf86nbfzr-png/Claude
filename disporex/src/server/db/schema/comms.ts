@@ -84,7 +84,7 @@ export const jobs = pgTable(
     id: id(),
     tenantId: uuid("tenant_id").references(() => tenants.id, { onDelete: "cascade" }),
     type: text("type").notNull(),
-    payload: jsonb("payload").notNull().default(sql`'{}'::jsonb`),
+    payload: jsonb("payload").$type<Record<string, unknown>>().notNull().default(sql`'{}'::jsonb`),
     status: jobStatus("status").notNull().default("queued"),
     priority: integer("priority").notNull().default(0),
     attempts: integer("attempts").notNull().default(0),

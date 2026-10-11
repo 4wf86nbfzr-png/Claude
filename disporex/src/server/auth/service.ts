@@ -291,7 +291,8 @@ export async function createInvitation(tenantId: string, invitedBy: string, inpu
     subject: `Einladung zu DispoRex (${tenant.name})`,
     text: `Sie wurden zu DispoRex eingeladen (${tenant.name}).\n\nEinladung annehmen (7 Tage gültig):\n${link}`,
   });
-  return { invitation: inv!, link, mailOk: mail.ok };
+  // Ohne SMTP (Kanal "log") wird der Link in der Oberfläche angezeigt, damit Admins ihn manuell weitergeben können.
+  return { invitation: inv!, link, mailOk: mail.ok && mail.channel === "smtp" };
 }
 
 export async function getInvitationByToken(token: string) {

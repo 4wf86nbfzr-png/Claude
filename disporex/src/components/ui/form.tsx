@@ -23,13 +23,14 @@ export function ActionForm({ action, children, submitLabel = "Speichern", submit
   extraButtons?: ReactNode;
 }) {
   const [state, formAction, pending] = useActionState(action, null);
-  // Nach erfolgreichem Absenden Formular leeren (nur wenn gewünscht): Schlüssel hochzählen,
-  // als Zustandsableitung während des Renderns (kein Effekt nötig).
+  // Formular neu aufbauen, wenn ein neuer Zustand eintrifft: nach Fehlern, damit die
+  // zurückgegebenen Werte (values) als defaultValue greifen – auch bei <select> –,
+  // und nach Erfolg, wenn das Formular geleert werden soll. Zustandsableitung im Render, kein Effekt.
   const [formKey, setFormKey] = useState(0);
   const [seenState, setSeenState] = useState<ActionState>(null);
-  if (reset && state?.ok && state !== seenState) {
+  if (state && state !== seenState) {
     setSeenState(state);
-    setFormKey((k) => k + 1);
+    if (state.error || (reset && state.ok)) setFormKey((k) => k + 1);
   }
   return (
     <FormStateContext.Provider value={state}>

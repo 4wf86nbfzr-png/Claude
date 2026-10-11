@@ -7,6 +7,16 @@ import { SESSION_COOKIE, sessionCookieOptions, revokeSession, findSession } from
 import { runAction, str } from "@/server/actions";
 import type { ActionState } from "@/lib/action-result";
 import { clientIp } from "@/server/auth/current";
+import { buildContextFromSession } from "@/server/auth/session";
+import { homeForRole } from "@/server/auth/permissions";
+
+/** Zielseite nach Anmeldung anhand der Rolle im aktiven Mandanten. */
+async function homeAfterLogin(token: string): Promise<string> {
+  const info = await findSession(token);
+  if (!info) return "/login";
+  const ctx = await buildContextFromSession(info);
+  return ctx ? homeForRole(ctx.role) : "/login?grund=kein-mandant";
+}
 
 async function meta() {
   const h = await headers();
@@ -23,12 +33,13 @@ function safeNext(v: string): string {
 }
 
 export async function loginAction(_prev: ActionState, fd: FormData): Promise<ActionState> {
-  const next = safeNext(str(fd, "next"));
+  let next = str(fd, "next") ? safeNext(str(fd, "next")) : "";
   const r = await runAction(async () => {
     const res = await login({ email: str(fd, "email"), password: str(fd, "password") }, await meta());
     await setSessionCookie(res.session.token, res.session.expiresAt);
+    if (!next) next = await homeAfterLogin(res.session.token);
   }, fd);
-  if (r?.ok) redirect(next);
+  if (r?.ok) redirect(next || "/dashboard");
   return r;
 }
 
@@ -58,11 +69,13 @@ export async function resetAction(_prev: ActionState, fd: FormData): Promise<Act
 }
 
 export async function acceptInviteAction(_prev: ActionState, fd: FormData): Promise<ActionState> {
+  let next = "/dashboard";
   const r = await runAction(async () => {
     const res = await acceptInvitation(str(fd, "token"), { name: str(fd, "name"), password: str(fd, "password") }, await meta());
     await setSessionCookie(res.session.token, res.session.expiresAt);
+    next = await homeAfterLogin(res.session.token);
   }, fd);
-  if (r?.ok) redirect("/dashboard");
+  if (r?.ok) redirect(next);
   return r;
 }
 

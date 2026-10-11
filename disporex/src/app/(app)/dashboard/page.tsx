@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { requireCurrent } from "@/server/auth/current";
+import { redirect } from "next/navigation";
+import { homeForRole } from "@/server/auth/permissions";
 import { loadDashboard } from "@/server/modules/dashboard/service";
 import { PageHeader, Kpi, Panel, Alert, EmptyState, Badge } from "@/components/ui";
 import { fmtTime, fmtRelative, fmtDate } from "@/lib/format";
@@ -8,7 +10,9 @@ export const metadata = { title: "Dashboard" };
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ willkommen?: string }> }) {
-  const { ctx } = await requireCurrent("dashboard:view");
+  const current = await requireCurrent();
+  if (!current.ctx.permissions.has("dashboard:view")) redirect(homeForRole(current.ctx.role));
+  const { ctx } = current;
   const sp = await searchParams;
   const d = await loadDashboard(ctx);
   return (

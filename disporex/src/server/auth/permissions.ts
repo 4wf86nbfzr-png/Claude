@@ -186,3 +186,11 @@ export function resolvePermissions(role: RoleKey, overrides: { permission: strin
   }
   return result;
 }
+
+/** Startseite je Rolle: Portalrollen landen in ihrem Portal, interne Rollen auf dem Dashboard. */
+export function homeForRole(role: RoleKey | "system"): string {
+  if (role === "employee") return "/portal/mitarbeiter";
+  if (role === "customer") return "/portal/kunde";
+  if (role === "partner") return "/portal/partner";
+  return "/dashboard";
+}

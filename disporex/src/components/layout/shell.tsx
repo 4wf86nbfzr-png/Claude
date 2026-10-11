@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { Logo } from "./logo";
 import { NAV } from "./nav";
 import type { CurrentUser } from "@/server/auth/current";
-import { ROLE_LABELS } from "@/server/auth/permissions";
+import { ROLE_LABELS, homeForRole } from "@/server/auth/permissions";
 import { logoutAction } from "@/app/(auth)/actions";
 import { NavLinks } from "./nav-links";
 import { listUserTenants, getTenant } from "@/server/modules/tenants/service";
@@ -29,7 +29,7 @@ export async function AppShell({ current, children }: { current: CurrentUser; ch
     <div className="min-h-full flex">
       <aside className="w-[232px] shrink-0 bg-navy-900 text-white flex flex-col no-print">
         <div className="px-4 h-14 flex items-center border-b border-white/10">
-          <Link href="/dashboard" className="no-underline">
+          <Link href={homeForRole(ctx.role)} className="no-underline">
             <Logo light />
           </Link>
         </div>
