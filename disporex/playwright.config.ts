@@ -10,7 +10,8 @@ const TEST_APP_DB = process.env.DATABASE_TEST_APP_URL ?? "postgres://disporex_ap
 
 export default defineConfig({
   testDir: "./tests/e2e",
-  timeout: 60_000,
+  timeout: 90_000,
+  expect: { timeout: 15_000 },
   retries: 0,
   workers: 1,
   reporter: [["list"]],

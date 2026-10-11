@@ -9,7 +9,6 @@ export type Db = NodePgDatabase<typeof schema>;
 export type Tx = Parameters<Parameters<Db["transaction"]>[0]>[0];
 
 declare global {
-  // eslint-disable-next-line no-var
   var __disporexPool: Pool | undefined;
 }
 

@@ -32,7 +32,7 @@ export const customers = pgTable(
   ],
 );
 
-export type Address = { street?: string; zip?: string; city?: string; country?: string };
+export type Address = { street?: string | null; zip?: string | null; city?: string | null; country?: string | null };
 
 export const customerContacts = pgTable(
   "customer_contacts",

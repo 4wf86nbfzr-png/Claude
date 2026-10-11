@@ -11,4 +11,9 @@ export default defineConfig([
       "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
     },
   },
+  {
+    // Server Components laufen einmal pro Request; Date.now() ist dort legitim (aktuelle Uhrzeit, Fristen).
+    files: ["src/app/**/page.tsx", "src/app/**/layout.tsx", "src/components/layout/**/*.tsx"],
+    rules: { "react-hooks/purity": "off" },
+  },
 ]);

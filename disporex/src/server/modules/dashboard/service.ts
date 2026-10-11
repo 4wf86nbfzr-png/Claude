@@ -31,7 +31,10 @@ export async function loadDashboard(ctx: AuthContext, now = new Date(), tz = "Eu
   const dayEnd = addDays(dayStart, 1);
   const in7 = addDays(dayStart, 8);
   const in30 = addDays(dayStart, 30);
+  /** Veranstaltungen im Betrieb (für Tages-/Wochenlisten). */
   const activeEvent = inArray(events.status, ["planned", "confirmed", "in_progress"]);
+  /** Veranstaltungen in Planung inkl. Entwürfe (für Besetzungs-Kennzahlen). */
+  const workEvent = inArray(events.status, ["draft", "planned", "confirmed", "in_progress"]);
 
   return withTenant(ctx.tenantId, async (tx) => {
     const count = async (q: Promise<{ c: number }[]>) => (await q)[0]?.c ?? 0;
@@ -51,23 +54,31 @@ export async function loadDashboard(ctx: AuthContext, now = new Date(), tz = "Eu
         .select({ c: cnt })
         .from(shifts)
         .innerJoin(events, eq(events.id, shifts.eventId))
-        .where(and(inArray(shifts.status, ["open", "declined", "no_response", "withdrawn"]), gte(shifts.startsAt, now), activeEvent)),
+        .where(and(eq(shifts.status, "open"), gte(shifts.startsAt, now), workEvent)),
     );
     const unconfirmed = count(
       tx
         .select({ c: cnt })
         .from(shifts)
         .innerJoin(events, eq(events.id, shifts.eventId))
-        .where(and(inArray(shifts.status, ["requested", "accepted"]), gte(shifts.startsAt, now), activeEvent)),
+        .where(and(inArray(shifts.status, ["requested", "accepted"]), gte(shifts.startsAt, now), workEvent)),
     );
     const overdue = count(tx.select({ c: cnt }).from(shifts).where(and(eq(shifts.status, "requested"), lte(shifts.responseDeadlineAt, now), gte(shifts.startsAt, now))));
     const newRequests = count(tx.select({ c: cnt }).from(customerRequests).where(inArray(customerRequests.status, ["new", "needs_info"])));
+    // Absagen/Rückzüge/keine Rückmeldung, deren Ersatz-Slot noch unbesetzt ist
     const declines = count(
       tx
         .select({ c: cnt })
         .from(shifts)
         .innerJoin(events, eq(events.id, shifts.eventId))
-        .where(and(inArray(shifts.status, ["declined", "withdrawn"]), gte(shifts.startsAt, now), activeEvent)),
+        .where(
+          and(
+            inArray(shifts.status, ["declined", "withdrawn", "no_response"]),
+            gte(shifts.startsAt, now),
+            workEvent,
+            sql`(${shifts.replacedByShiftId} is null or exists (select 1 from shifts r where r.id = ${shifts.replacedByShiftId} and r.status = 'open'))`,
+          ),
+        ),
     );
     // Fehlende Zeitnachweise: vergangene bestätigte Schichten ohne Abgleichseintrag mit Zeitnachweis
     const missing = count(

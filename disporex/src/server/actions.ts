@@ -42,3 +42,11 @@ export function num(fd: FormData, key: string): number | null {
 export function list(fd: FormData, key: string): string[] {
   return fd.getAll(key).filter((v): v is string => typeof v === "string" && v !== "");
 }
+
+import { localToUtc } from "@/lib/tz";
+/** Liest ein <input type="datetime-local"> in der Mandantenzeitzone als UTC-Date (oder null). */
+export function dateTime(fd: FormData, key: string, tz = "Europe/Berlin"): Date | null {
+  const v = str(fd, key).trim();
+  if (!v) return null;
+  return localToUtc(v, tz);
+}
