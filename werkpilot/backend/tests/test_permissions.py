@@ -4,7 +4,11 @@ from tests.conftest import activate_plan, last_mail_link, make_operator, registe
 async def test_tenant_isolation(client):
     h1, t1 = await register_and_login(client, email="a@one.test", company="Eins GmbH")
     h2, t2 = await register_and_login(client, email="b@two.test", company="Zwei GmbH")
-    r = await client.post("/api/inquiries", headers=h1, json={"subject": "Heizung", "body": "Die Heizung ist ausgefallen, bitte dringend kommen. Musterstraße 1, 20095 Hamburg, Tel 040 123456"})
+    r = await client.post(
+        "/api/inquiries",
+        headers=h1,
+        json={"subject": "Heizung", "body": "Die Heizung ist ausgefallen, bitte dringend kommen. Musterstraße 1, 20095 Hamburg, Tel 040 123456"},
+    )
     assert r.status_code == 201
     inq_id = r.json()["id"]
     assert (await client.get(f"/api/inquiries/{inq_id}", headers=h2)).status_code == 404

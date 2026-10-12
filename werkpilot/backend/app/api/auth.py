@@ -54,8 +54,7 @@ async def _first_tenant(db: AsyncSession, user: User) -> str | None:
 
 
 def _user_dict(user: User) -> dict:
-    return {"id": user.id, "email": user.email, "full_name": user.full_name,
-            "email_verified": user.email_verified_at is not None, "is_operator": user.is_operator}
+    return {"id": user.id, "email": user.email, "full_name": user.full_name, "email_verified": user.email_verified_at is not None, "is_operator": user.is_operator}
 
 
 @router.post("/register", status_code=201, dependencies=[Depends(auth_rate_limit)])
@@ -65,8 +64,9 @@ async def register(data: RegisterIn, request: Request, db: AsyncSession = Depend
 
         raise HTTPException(422, "Bitte AGB und Datenschutzerklärung akzeptieren.")
     trade = data.trade if data.trade in TRADES else "sonstiges"
-    user, tenant = await auth_service.register(db, email=data.email, password=data.password, full_name=data.full_name,
-                                               company=data.company, trade=trade, ip=client_ip(request))
+    user, tenant = await auth_service.register(
+        db, email=data.email, password=data.password, full_name=data.full_name, company=data.company, trade=trade, ip=client_ip(request)
+    )
     await db.commit()
     return {"message": "Registrierung erfolgreich. Bitte E-Mail-Adresse bestätigen.", "user_id": user.id, "tenant_id": tenant.id}
 
@@ -93,8 +93,7 @@ async def resend_verification(payload: dict, db: AsyncSession = Depends(get_db))
 
 @router.post("/login", response_model=TokenOut, dependencies=[Depends(auth_rate_limit)])
 async def login(data: LoginIn, request: Request, response: Response, db: AsyncSession = Depends(get_db)):
-    user, refresh = await auth_service.login(db, email=data.email, password=data.password, ip=client_ip(request),
-                                             user_agent=request.headers.get("user-agent"))
+    user, refresh = await auth_service.login(db, email=data.email, password=data.password, ip=client_ip(request), user_agent=request.headers.get("user-agent"))
     tenant_id = await _first_tenant(db, user)
     await db.commit()
     access = create_access_token(user.id, tenant_id)
@@ -148,10 +147,10 @@ async def reset(payload: dict, db: AsyncSession = Depends(get_db)):
 
 @router.get("/me")
 async def me(user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
-    rows = (await db.execute(select(Membership, Tenant).join(Tenant, Tenant.id == Membership.tenant_id)
-                             .where(Membership.user_id == user.id, Tenant.deleted_at.is_(None)))).all()
-    return {"user": _user_dict(user),
-            "tenants": [{"id": t.id, "name": t.name, "slug": t.slug, "role": m.role, "trade": t.trade} for m, t in rows]}
+    rows = (
+        await db.execute(select(Membership, Tenant).join(Tenant, Tenant.id == Membership.tenant_id).where(Membership.user_id == user.id, Tenant.deleted_at.is_(None)))
+    ).all()
+    return {"user": _user_dict(user), "tenants": [{"id": t.id, "name": t.name, "slug": t.slug, "role": m.role, "trade": t.trade} for m, t in rows]}
 
 
 @router.post("/switch-tenant", response_model=TokenOut)

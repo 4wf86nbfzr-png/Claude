@@ -33,14 +33,54 @@ async def seed_knowledge(db) -> None:
     if (await db.execute(select(KnowledgeArticle.id).limit(1))).scalar_one_or_none():
         return
     articles = [
-        ("erste-schritte", "Erste Schritte", "einrichtung", "1. E-Mail bestätigen. 2. Betriebsdaten und Geschäftszeiten eintragen. 3. Kontaktformular oder E-Mail-Weiterleitung verbinden. 4. Erste Anfrage anlegen oder eingehen lassen. 5. Entwurf prüfen und freigeben."),
-        ("anfragen-erfassen", "Wie kommen Anfragen in WerkPilot?", "anfragen", "Per Kontaktformular Ihrer Website (Webhook mit Secret), per E-Mail-Weiterleitung an Ihre WerkPilot-Eingangsadresse oder manuell im Dashboard (z.B. nach einem Anruf)."),
-        ("entwuerfe-freigeben", "Antwortentwürfe prüfen und senden", "anfragen", "Jede KI-Antwort ist ein Entwurf. Unter „Entwürfe“ sehen Sie Text, Hinweise (z.B. geringe Sicherheit) und Terminvorschläge. Sie können bearbeiten, freigeben oder verwerfen. Automatisches Senden ist ab Tarif Business und nur ohne Warnhinweise möglich."),
-        ("terminvorschlaege", "Woher kommen Terminvorschläge?", "termine", "Aus Ihren Geschäftszeiten abzüglich bereits vergebener Termine. Mit verbundenem Google Kalender werden auch dortige Belegungen berücksichtigt. Bestätigte Termine werden in den Kalender eingetragen."),
-        ("angebote-nachfassen", "Erinnerung an offene Angebote", "angebote", "Tragen Sie ein gestelltes Angebot ein. Nach der eingestellten Frist (Standard 5 Tage) erinnert WerkPilot Sie und legt einen Nachfass-Entwurf an. Preise werden nie von der KI festgelegt."),
-        ("abo-und-rechnungen", "Abonnement, Rechnungen, Kündigung", "abrechnung", "Unter Abonnement → „Abo verwalten“ gelangen Sie ins Stripe-Kundenportal: Tarif wechseln, Zahlungsmittel ändern, Rechnungen laden, kündigen. Die Kündigung gilt zum Ende des Abrechnungszeitraums."),
-        ("datenschutz-export-loeschung", "Datenexport und Kontolöschung", "datenschutz", "Inhaber können unter Einstellungen alle Daten als JSON exportieren und den Betrieb löschen. Daten werden nach der eingestellten Aufbewahrungsfrist endgültig entfernt."),
-        ("was-die-ki-nicht-tut", "Was die KI bewusst nicht tut", "allgemein", "Keine Preise, keine technischen Diagnosen, keine rechtsverbindlichen Zusagen. Unsichere Fälle werden zur Prüfung markiert."),
+        (
+            "erste-schritte",
+            "Erste Schritte",
+            "einrichtung",
+            "1. E-Mail bestätigen. 2. Betriebsdaten und Geschäftszeiten eintragen. 3. Kontaktformular oder E-Mail-Weiterleitung verbinden. 4. Erste Anfrage anlegen oder eingehen lassen. 5. Entwurf prüfen und freigeben.",
+        ),
+        (
+            "anfragen-erfassen",
+            "Wie kommen Anfragen in WerkPilot?",
+            "anfragen",
+            "Per Kontaktformular Ihrer Website (Webhook mit Secret), per E-Mail-Weiterleitung an Ihre WerkPilot-Eingangsadresse oder manuell im Dashboard (z.B. nach einem Anruf).",
+        ),
+        (
+            "entwuerfe-freigeben",
+            "Antwortentwürfe prüfen und senden",
+            "anfragen",
+            "Jede KI-Antwort ist ein Entwurf. Unter „Entwürfe“ sehen Sie Text, Hinweise (z.B. geringe Sicherheit) und Terminvorschläge. Sie können bearbeiten, freigeben oder verwerfen. Automatisches Senden ist ab Tarif Business und nur ohne Warnhinweise möglich.",
+        ),
+        (
+            "terminvorschlaege",
+            "Woher kommen Terminvorschläge?",
+            "termine",
+            "Aus Ihren Geschäftszeiten abzüglich bereits vergebener Termine. Mit verbundenem Google Kalender werden auch dortige Belegungen berücksichtigt. Bestätigte Termine werden in den Kalender eingetragen.",
+        ),
+        (
+            "angebote-nachfassen",
+            "Erinnerung an offene Angebote",
+            "angebote",
+            "Tragen Sie ein gestelltes Angebot ein. Nach der eingestellten Frist (Standard 5 Tage) erinnert WerkPilot Sie und legt einen Nachfass-Entwurf an. Preise werden nie von der KI festgelegt.",
+        ),
+        (
+            "abo-und-rechnungen",
+            "Abonnement, Rechnungen, Kündigung",
+            "abrechnung",
+            "Unter Abonnement → „Abo verwalten“ gelangen Sie ins Stripe-Kundenportal: Tarif wechseln, Zahlungsmittel ändern, Rechnungen laden, kündigen. Die Kündigung gilt zum Ende des Abrechnungszeitraums.",
+        ),
+        (
+            "datenschutz-export-loeschung",
+            "Datenexport und Kontolöschung",
+            "datenschutz",
+            "Inhaber können unter Einstellungen alle Daten als JSON exportieren und den Betrieb löschen. Daten werden nach der eingestellten Aufbewahrungsfrist endgültig entfernt.",
+        ),
+        (
+            "was-die-ki-nicht-tut",
+            "Was die KI bewusst nicht tut",
+            "allgemein",
+            "Keine Preise, keine technischen Diagnosen, keine rechtsverbindlichen Zusagen. Unsichere Fälle werden zur Prüfung markiert.",
+        ),
     ]
     for slug, title, cat, body in articles:
         db.add(KnowledgeArticle(slug=slug, title=title, category=cat, body=body))
@@ -62,8 +102,14 @@ async def lifespan(app: FastAPI):
 
 def create_app() -> FastAPI:
     s = get_settings()
-    app = FastAPI(title="WerkPilot AI API", version="0.1.0", lifespan=lifespan,
-                  docs_url="/api/docs" if not s.is_production else None, redoc_url=None, openapi_url="/api/openapi.json" if not s.is_production else None)
+    app = FastAPI(
+        title="WerkPilot AI API",
+        version="0.1.0",
+        lifespan=lifespan,
+        docs_url="/api/docs" if not s.is_production else None,
+        redoc_url=None,
+        openapi_url="/api/openapi.json" if not s.is_production else None,
+    )
     app.add_middleware(CORSMiddleware, allow_origins=s.cors_origins, allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 
     @app.middleware("http")
@@ -99,7 +145,9 @@ def create_app() -> FastAPI:
         log.error("unhandled", error=str(exc)[:300], exc_info=True)
         try:
             async with get_sessionmaker()() as db:
-                await record_error(db, source="api", message=f"{type(exc).__name__}: {str(exc)[:300]}", stack=None, context={"path": request.url.path, "method": request.method})
+                await record_error(
+                    db, source="api", message=f"{type(exc).__name__}: {str(exc)[:300]}", stack=None, context={"path": request.url.path, "method": request.method}
+                )
                 await db.commit()
         except Exception:  # noqa: BLE001
             pass

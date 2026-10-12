@@ -13,9 +13,16 @@ from app.services.email import send_email
 from app.services.llm import LLMError, get_provider, run_structured, wrap_untrusted
 
 CONFIRMED_FEATURES = [
-    "Anfragen per E-Mail-Weiterleitung und Website-Formular erfassen", "KI-Klassifizierung und Priorisierung",
-    "Antwortentwürfe mit Freigabe", "Rückfragen nach fehlenden Angaben", "Terminvorschläge aus Geschäftszeiten (Google Kalender optional)",
-    "Erinnerung an offene Angebote", "Wochenbericht", "Kundenübersicht", "Datenexport und Kontolöschung", "Stripe-Abrechnung mit Kundenportal",
+    "Anfragen per E-Mail-Weiterleitung und Website-Formular erfassen",
+    "KI-Klassifizierung und Priorisierung",
+    "Antwortentwürfe mit Freigabe",
+    "Rückfragen nach fehlenden Angaben",
+    "Terminvorschläge aus Geschäftszeiten (Google Kalender optional)",
+    "Erinnerung an offene Angebote",
+    "Wochenbericht",
+    "Kundenübersicht",
+    "Datenexport und Kontolöschung",
+    "Stripe-Abrechnung mit Kundenportal",
 ]
 NOT_AVAILABLE = ["WhatsApp", "Telefon/Anrufannahme", "Microsoft 365 Kalender", "Rechnungsstellung an Endkunden", "Preisberechnung"]
 
@@ -30,12 +37,28 @@ async def answer_ticket(db, ticket_id: str) -> SupportTicket | None:
     user_text = "\n\n".join(m.body for m in msgs if m.author_type == "user")[-6000:]
     articles = (await db.execute(select(KnowledgeArticle).where(KnowledgeArticle.is_published.is_(True)).limit(30))).scalars().all()
     kb = "\n".join(f"- {a.title}: {a.body[:300]}" for a in articles)
-    data = ("Bestätigte Funktionen:\n- " + "\n- ".join(CONFIRMED_FEATURES) + "\n\nNICHT verfügbar:\n- " + "\n- ".join(NOT_AVAILABLE)
-            + "\n\nWissensbasis:\n" + kb + "\n\nBetreff: " + t.subject + "\nKundenanfrage:\n" + wrap_untrusted(user_text))
+    data = (
+        "Bestätigte Funktionen:\n- "
+        + "\n- ".join(CONFIRMED_FEATURES)
+        + "\n\nNICHT verfügbar:\n- "
+        + "\n- ".join(NOT_AVAILABLE)
+        + "\n\nWissensbasis:\n"
+        + kb
+        + "\n\nBetreff: "
+        + t.subject
+        + "\nKundenanfrage:\n"
+        + wrap_untrusted(user_text)
+    )
     try:
-        res = await run_structured(db, task="support_answer", schema=SupportAnswer, tenant_id=None,
-                                   instructions="Beantworte die Supportanfrage nur mit Wissen aus der Liste bestätigter Funktionen und der Wissensbasis. Wenn die Funktion nicht existiert, sage das klar und verspreche nichts. Bei Fehlern, Abrechnungsproblemen über das Portal hinaus oder Unsicherheit: escalate=true.",
-                                   data=data, max_output_tokens=500)
+        res = await run_structured(
+            db,
+            task="support_answer",
+            schema=SupportAnswer,
+            tenant_id=None,
+            instructions="Beantworte die Supportanfrage nur mit Wissen aus der Liste bestätigter Funktionen und der Wissensbasis. Wenn die Funktion nicht existiert, sage das klar und verspreche nichts. Bei Fehlern, Abrechnungsproblemen über das Portal hinaus oder Unsicherheit: escalate=true.",
+            data=data,
+            max_output_tokens=500,
+        )
     except LLMError as e:
         t.status = "escalated"
         t.escalated_at = utcnow()
@@ -47,7 +70,11 @@ async def answer_ticket(db, ticket_id: str) -> SupportTicket | None:
     body = res.answer.strip()
     if get_provider().name == "mock":
         body += "\n\n(Automatische Antwort – ein Mensch prüft den Vorgang zusätzlich.)"
-    db.add(SupportMessage(ticket_id=t.id, author_type="agent", body=body, meta={"confident": res.confident, "feature_exists": res.feature_exists, "provider": get_provider().name}))
+    db.add(
+        SupportMessage(
+            ticket_id=t.id, author_type="agent", body=body, meta={"confident": res.confident, "feature_exists": res.feature_exists, "provider": get_provider().name}
+        )
+    )
     if res.escalate or not res.confident:
         t.status = "escalated"
         t.escalated_at = utcnow()
@@ -55,7 +82,14 @@ async def answer_ticket(db, ticket_id: str) -> SupportTicket | None:
     else:
         t.status = "answered"
     if t.email:
-        await send_email(db, to=t.email, subject=f"Re: {t.subject}", text=body + ("\n\nIhr Fall wurde zusätzlich an unser Team weitergeleitet." if t.status == "escalated" else ""), kind="transactional", tenant_id=t.tenant_id)
+        await send_email(
+            db,
+            to=t.email,
+            subject=f"Re: {t.subject}",
+            text=body + ("\n\nIhr Fall wurde zusätzlich an unser Team weitergeleitet." if t.status == "escalated" else ""),
+            kind="transactional",
+            tenant_id=t.tenant_id,
+        )
     await db.flush()
     return t
 

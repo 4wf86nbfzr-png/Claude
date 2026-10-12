@@ -28,7 +28,9 @@ SEED_KEYWORDS = [
     ("KI für Handwerksbetriebe DSGVO", "alle", "informational"),
 ]
 
-FORBIDDEN_CLAIMS = re.compile(r"(garantiert|100 ?%|marktführer|testsieger|kunden berichten|erfahrungsberichte|bewertung(en)? von kunden|\d+ ?% mehr umsatz|spart ihnen \d+)", re.I)
+FORBIDDEN_CLAIMS = re.compile(
+    r"(garantiert|100 ?%|marktführer|testsieger|kunden berichten|erfahrungsberichte|bewertung(en)? von kunden|\d+ ?% mehr umsatz|spart ihnen \d+)", re.I
+)
 
 
 def run_checks(piece: ContentPiece) -> dict:
@@ -38,8 +40,15 @@ def run_checks(piece: ContentPiece) -> dict:
     facts = not bool(FORBIDDEN_CLAIMS.search(body))
     rights = "©" not in body and not re.search(r"!\[.*\]\(http", body)  # keine fremden Bilder
     safety = not re.search(r"(ignore .*instructions|<script|javascript:)", body, re.I)
-    return {"quality": quality, "facts": facts, "rights": rights, "safety": safety,
-            "words": words, "passed": quality and facts and rights and safety, "checked_at": utcnow().isoformat()}
+    return {
+        "quality": quality,
+        "facts": facts,
+        "rights": rights,
+        "safety": safety,
+        "words": words,
+        "passed": quality and facts and rights and safety,
+        "checked_at": utcnow().isoformat(),
+    }
 
 
 class MarketingAgent(BaseAgent):
@@ -68,19 +77,40 @@ class MarketingAgent(BaseAgent):
             kw = (await db.execute(select(Keyword).where(Keyword.term.not_in(used) if used else True).order_by(Keyword.score.desc()))).scalars().first()
             if kw:
                 try:
-                    outline = await run_structured(db, task="content_outline", schema=ContentOutline, tenant_id=None,
-                                                   instructions="Erstelle Titel, Slug, Meta-Description (max 155 Zeichen) und eine Gliederung (5-7 Abschnitte) für einen hilfreichen, sachlichen Ratgeberartikel für deutsche Handwerksbetriebe. Keine Erfolgsversprechen, keine erfundenen Zahlen oder Kundenstimmen.",
-                                                   data=f"Keyword: {kw.term}\nZielgruppe: {kw.audience}\n", max_output_tokens=500)
-                    body = await run_structured(db, task="content_body", schema=ContentBody, tenant_id=None,
-                                                instructions="Schreibe den Artikel in Markdown (600-900 Wörter, Sie-Form, konkret, mit Zwischenüberschriften ##). Nur allgemein bekannte, überprüfbare Aussagen; keine Statistiken ohne Quelle; keine Kundenreferenzen. Liste alle Aussagen, die ein Mensch prüfen sollte.",
-                                                data=f"Titel: {outline.title}\nKeyword: {outline.target_keyword}\nGliederung: {'; '.join(outline.outline)}\n", max_output_tokens=1800)
+                    outline = await run_structured(
+                        db,
+                        task="content_outline",
+                        schema=ContentOutline,
+                        tenant_id=None,
+                        instructions="Erstelle Titel, Slug, Meta-Description (max 155 Zeichen) und eine Gliederung (5-7 Abschnitte) für einen hilfreichen, sachlichen Ratgeberartikel für deutsche Handwerksbetriebe. Keine Erfolgsversprechen, keine erfundenen Zahlen oder Kundenstimmen.",
+                        data=f"Keyword: {kw.term}\nZielgruppe: {kw.audience}\n",
+                        max_output_tokens=500,
+                    )
+                    body = await run_structured(
+                        db,
+                        task="content_body",
+                        schema=ContentBody,
+                        tenant_id=None,
+                        instructions="Schreibe den Artikel in Markdown (600-900 Wörter, Sie-Form, konkret, mit Zwischenüberschriften ##). Nur allgemein bekannte, überprüfbare Aussagen; keine Statistiken ohne Quelle; keine Kundenreferenzen. Liste alle Aussagen, die ein Mensch prüfen sollte.",
+                        data=f"Titel: {outline.title}\nKeyword: {outline.target_keyword}\nGliederung: {'; '.join(outline.outline)}\n",
+                        max_output_tokens=1800,
+                    )
                     slug = re.sub(r"[^a-z0-9-]", "", outline.slug.lower())[:150] or f"artikel-{utcnow().strftime('%Y%m%d%H%M')}"
                     if (await db.execute(select(ContentPiece).where(ContentPiece.slug == slug))).scalar_one_or_none():
                         slug = f"{slug}-{utcnow().strftime('%m%d%H%M')}"
-                    created = ContentPiece(slug=slug, title=outline.title[:300], kind="article", target_keyword=kw.term, audience=kw.audience,
-                                           outline=outline.outline, body_markdown=body.body_markdown, meta_description=outline.meta_description[:300],
-                                           status="draft", generated_by=f"marketing:{get_provider().name}",
-                                           checks={"claims_to_verify": body.claims_to_verify})
+                    created = ContentPiece(
+                        slug=slug,
+                        title=outline.title[:300],
+                        kind="article",
+                        target_keyword=kw.term,
+                        audience=kw.audience,
+                        outline=outline.outline,
+                        body_markdown=body.body_markdown,
+                        meta_description=outline.meta_description[:300],
+                        status="draft",
+                        generated_by=f"marketing:{get_provider().name}",
+                        checks={"claims_to_verify": body.claims_to_verify},
+                    )
                     db.add(created)
                     await db.flush()
                     ctx.act(f"Entwurf erstellt: {outline.title}")
@@ -94,9 +124,15 @@ class MarketingAgent(BaseAgent):
             d.checks = {**(d.checks or {}), **checks}
             if checks["passed"]:
                 d.status = "review"
-                await ctx.request_approval(kind="publish_content", title=f"Artikel veröffentlichen: {d.title}",
-                                           description=(d.meta_description or "") + f"\n\nWörter: {checks['words']}\nZu prüfende Aussagen: " + "; ".join((d.checks or {}).get("claims_to_verify", []) or ["keine"]),
-                                           payload={"content_id": d.id}, risk_level="low")
+                await ctx.request_approval(
+                    kind="publish_content",
+                    title=f"Artikel veröffentlichen: {d.title}",
+                    description=(d.meta_description or "")
+                    + f"\n\nWörter: {checks['words']}\nZu prüfende Aussagen: "
+                    + "; ".join((d.checks or {}).get("claims_to_verify", []) or ["keine"]),
+                    payload={"content_id": d.id},
+                    risk_level="low",
+                )
             else:
                 ctx.find(f"Entwurf „{d.title}“ besteht Prüfung nicht: {', '.join(k for k in ('quality', 'facts', 'rights', 'safety') if not checks[k])}")
 
@@ -116,7 +152,9 @@ class MarketingAgent(BaseAgent):
                 ctx.act(f"Veröffentlicht: {a.title}")
 
         # 5. Leistung: einfache Messung über Analytics-Daten (metrics werden extern über /api/admin/content gepflegt)
-        stale = (await db.execute(select(ContentPiece).where(ContentPiece.status == "published", ContentPiece.published_at < utcnow() - timedelta(days=180)))).scalars().all()
+        stale = (
+            (await db.execute(select(ContentPiece).where(ContentPiece.status == "published", ContentPiece.published_at < utcnow() - timedelta(days=180)))).scalars().all()
+        )
         for s in stale[:3]:
             await ctx.propose_task(assigned_to="marketing", title=f"Inhalt aktualisieren: {s.title}", priority=6, dedupe_key=f"refresh:{s.id}")
 

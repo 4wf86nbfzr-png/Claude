@@ -20,13 +20,43 @@ from app.services.features import F_INTEGRATIONS_ADV, entitlements
 router = APIRouter(prefix="/api/integrations", tags=["integrations"])
 
 CATALOG = [
-    {"type": "contact_form", "name": "Kontaktformular / Website", "description": "Anfragen von Ihrer Website per Webhook entgegennehmen.", "available": True, "tier": "starter"},
-    {"type": "email_inbound", "name": "E-Mail-Eingang", "description": "Eingehende Kunden-E-Mails automatisch erfassen (Weiterleitung an Ihre WerkPilot-Adresse).", "available": True, "tier": "starter"},
+    {
+        "type": "contact_form",
+        "name": "Kontaktformular / Website",
+        "description": "Anfragen von Ihrer Website per Webhook entgegennehmen.",
+        "available": True,
+        "tier": "starter",
+    },
+    {
+        "type": "email_inbound",
+        "name": "E-Mail-Eingang",
+        "description": "Eingehende Kunden-E-Mails automatisch erfassen (Weiterleitung an Ihre WerkPilot-Adresse).",
+        "available": True,
+        "tier": "starter",
+    },
     {"type": "google_calendar", "name": "Google Kalender", "description": "Freie Zeiten lesen und bestätigte Termine eintragen.", "available": None, "tier": "business"},
-    {"type": "email_outbound", "name": "E-Mail-Versand", "description": "Antworten werden über den WerkPilot-Versand gesendet (Reply-To: Ihre Adresse).", "available": None, "tier": "starter"},
-    {"type": "crm_webhook", "name": "CRM / Drittsystem (Webhook)", "description": "Neue Anfragen und Statusänderungen an Ihr CRM senden.", "available": True, "tier": "pro"},
+    {
+        "type": "email_outbound",
+        "name": "E-Mail-Versand",
+        "description": "Antworten werden über den WerkPilot-Versand gesendet (Reply-To: Ihre Adresse).",
+        "available": None,
+        "tier": "starter",
+    },
+    {
+        "type": "crm_webhook",
+        "name": "CRM / Drittsystem (Webhook)",
+        "description": "Neue Anfragen und Statusänderungen an Ihr CRM senden.",
+        "available": True,
+        "tier": "pro",
+    },
     {"type": "microsoft_calendar", "name": "Microsoft 365 Kalender", "description": "Noch nicht verfügbar.", "available": False, "tier": "pro"},
-    {"type": "whatsapp", "name": "WhatsApp Business", "description": "Noch nicht verfügbar (rechtliche und technische Prüfung offen).", "available": False, "tier": "pro"},
+    {
+        "type": "whatsapp",
+        "name": "WhatsApp Business",
+        "description": "Noch nicht verfügbar (rechtliche und technische Prüfung offen).",
+        "available": False,
+        "tier": "pro",
+    },
 ]
 
 
@@ -60,8 +90,16 @@ async def list_integrations(ctx: AuthContext = Depends(require_tenant), db: Asyn
         if item["type"] == "email_inbound":
             cfg["inbound_address_hint"] = f"anfragen+{ctx.tenant.slug}@<ihre-werkpilot-domain>"
             cfg["webhook_url"] = f"{s.base_url}/api/public/inbound-email"
-        out.append({**item, "available": available, "status": status, "config": cfg,
-                    "last_error": r.last_error if r else None, "connected_at": r.connected_at.isoformat() if r and r.connected_at else None})
+        out.append(
+            {
+                **item,
+                "available": available,
+                "status": status,
+                "config": cfg,
+                "last_error": r.last_error if r else None,
+                "connected_at": r.connected_at.isoformat() if r and r.connected_at else None,
+            }
+        )
     return out
 
 
@@ -75,8 +113,11 @@ async def enable_contact_form(ctx: AuthContext = Depends(require_admin), db: Asy
     r.connected_at = utcnow()
     await audit(db, "integration.connected", actor_type="user", actor_id=ctx.user.id, tenant_id=ctx.tenant_id, details={"type": "contact_form"})
     await db.commit()
-    return {"webhook_url": f"{get_settings().base_url}/api/public/forms/{ctx.tenant_id}", "secret": secret,
-            "hint": "Senden Sie das Formular per POST (JSON oder Formulardaten) mit Header X-Form-Secret an diese Adresse. Das Secret wird nur einmal angezeigt."}
+    return {
+        "webhook_url": f"{get_settings().base_url}/api/public/forms/{ctx.tenant_id}",
+        "secret": secret,
+        "hint": "Senden Sie das Formular per POST (JSON oder Formulardaten) mit Header X-Form-Secret an diese Adresse. Das Secret wird nur einmal angezeigt.",
+    }
 
 
 @router.post("/email-inbound/enable")
@@ -87,7 +128,12 @@ async def enable_email_inbound(ctx: AuthContext = Depends(require_admin), db: As
     r.config = {**(r.config or {}), "slug": ctx.tenant.slug}
     await audit(db, "integration.connected", actor_type="user", actor_id=ctx.user.id, tenant_id=ctx.tenant_id, details={"type": "email_inbound"})
     await db.commit()
-    return {"status": r.status, "hint": "Richten Sie in Ihrem Mailprogramm eine Weiterleitung an die WerkPilot-Eingangsadresse ein. Der Betreiber muss den Inbound-Webhook des Mail-Anbieters konfiguriert haben." if r.status == "pending" else "Aktiv."}
+    return {
+        "status": r.status,
+        "hint": "Richten Sie in Ihrem Mailprogramm eine Weiterleitung an die WerkPilot-Eingangsadresse ein. Der Betreiber muss den Inbound-Webhook des Mail-Anbieters konfiguriert haben."
+        if r.status == "pending"
+        else "Aktiv.",
+    }
 
 
 @router.post("/crm-webhook")

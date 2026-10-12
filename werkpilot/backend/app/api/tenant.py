@@ -24,8 +24,12 @@ from app.services.followups import weekly_tenant_report
 router = APIRouter(prefix="/api/tenant", tags=["tenant"])
 
 ALLOWED_SETTINGS = {
-    "auto_reply_enabled": bool, "auto_reply_min_confidence": float, "signature": str,
-    "quote_followup_days": int, "appointment_lead_hours": int, "weekly_report_enabled": bool,
+    "auto_reply_enabled": bool,
+    "auto_reply_min_confidence": float,
+    "signature": str,
+    "quote_followup_days": int,
+    "appointment_lead_hours": int,
+    "weekly_report_enabled": bool,
     "appointment_duration_minutes": int,
 }
 
@@ -46,10 +50,22 @@ class TenantUpdate(BaseModel):
 async def get_tenant(ctx: AuthContext = Depends(require_tenant), db: AsyncSession = Depends(get_db)):
     t = ctx.tenant
     ent = await entitlements(db, t.id)
-    return {"id": t.id, "name": t.name, "slug": t.slug, "trade": t.trade, "contact_email": t.contact_email,
-            "phone": t.phone, "address": t.address, "timezone": t.timezone, "settings": t.settings,
-            "business_hours": t.business_hours, "data_retention_days": t.data_retention_days,
-            "role": ctx.role, "entitlements": ent, "is_demo": t.is_demo}
+    return {
+        "id": t.id,
+        "name": t.name,
+        "slug": t.slug,
+        "trade": t.trade,
+        "contact_email": t.contact_email,
+        "phone": t.phone,
+        "address": t.address,
+        "timezone": t.timezone,
+        "settings": t.settings,
+        "business_hours": t.business_hours,
+        "data_retention_days": t.data_retention_days,
+        "role": ctx.role,
+        "entitlements": ent,
+        "is_demo": t.is_demo,
+    }
 
 
 @router.patch("")
@@ -76,8 +92,9 @@ async def update_tenant(data: TenantUpdate, ctx: AuthContext = Depends(require_a
         t.settings = new
     if data.business_hours is not None:
         t.business_hours = data.business_hours
-    await audit(db, "tenant.updated", actor_type="user", actor_id=ctx.user.id, tenant_id=t.id,
-                details={"fields": [k for k, v in data.model_dump().items() if v is not None]})
+    await audit(
+        db, "tenant.updated", actor_type="user", actor_id=ctx.user.id, tenant_id=t.id, details={"fields": [k for k, v in data.model_dump().items() if v is not None]}
+    )
     await db.commit()
     return {"message": "Gespeichert."}
 
@@ -106,8 +123,14 @@ async def dashboard(ctx: AuthContext = Depends(require_tenant), db: AsyncSession
     failed_jobs = await count(select(func.count(Job.id)).where(Job.tenant_id == tid, Job.status == "dead"))
     tickets_open = await count(select(func.count(SupportTicket.id)).where(SupportTicket.tenant_id == tid, SupportTicket.status.in_(["open", "escalated"])))
     ai_calls = await count(select(func.count(AIUsage.id)).where(AIUsage.tenant_id == tid, AIUsage.created_at >= month))
-    ai_cost = int((await db.execute(select(func.coalesce(func.sum(AIUsage.cost_microcents), 0)).where(AIUsage.tenant_id == tid, AIUsage.created_at >= month))).scalar_one())
-    resp = (await db.execute(select(Inquiry.created_at, Inquiry.first_response_at).where(Inquiry.tenant_id == tid, Inquiry.first_response_at.is_not(None), Inquiry.created_at >= month))).all()
+    ai_cost = int(
+        (await db.execute(select(func.coalesce(func.sum(AIUsage.cost_microcents), 0)).where(AIUsage.tenant_id == tid, AIUsage.created_at >= month))).scalar_one()
+    )
+    resp = (
+        await db.execute(
+            select(Inquiry.created_at, Inquiry.first_response_at).where(Inquiry.tenant_id == tid, Inquiry.first_response_at.is_not(None), Inquiry.created_at >= month)
+        )
+    ).all()
     avg_resp = round(sum((b - a).total_seconds() for a, b in resp) / len(resp) / 3600, 1) if resp else None
     integrations = (await db.execute(select(Integration.type, Integration.status).where(Integration.tenant_id == tid))).all()
     recent = (await db.execute(select(AuditLog).where(AuditLog.tenant_id == tid).order_by(AuditLog.created_at.desc()).limit(15))).scalars().all()
@@ -117,16 +140,27 @@ async def dashboard(ctx: AuthContext = Depends(require_tenant), db: AsyncSession
 
     return {
         "inquiries": {"open": open_inq, "needs_review": needs_review, "urgent": urgent, "new_7d": new_week},
-        "replies_7d": replies_week, "quotes_open": quotes_open, "appointments_upcoming": appts, "customers": customers,
+        "replies_7d": replies_week,
+        "quotes_open": quotes_open,
+        "appointments_upcoming": appts,
+        "customers": customers,
         "avg_first_response_hours_30d": avg_resp,
-        "ai": {"calls_30d": ai_calls, "cost_cents_30d": round(ai_cost / 1_000_000, 2),
-               "budget_cents_month": ent["limits"].get("ai_budget_cents_month"), "calls_cap": ent["limits"].get("ai_calls_total"),
-               "provider_live": llm_is_live()},
+        "ai": {
+            "calls_30d": ai_calls,
+            "cost_cents_30d": round(ai_cost / 1_000_000, 2),
+            "budget_cents_month": ent["limits"].get("ai_budget_cents_month"),
+            "calls_cap": ent["limits"].get("ai_calls_total"),
+            "provider_live": llm_is_live(),
+        },
         "email_live": email_is_live(),
-        "failed_jobs": failed_jobs, "support_open": tickets_open,
+        "failed_jobs": failed_jobs,
+        "support_open": tickets_open,
         "integrations": [{"type": t, "status": s} for t, s in integrations],
         "entitlements": ent,
-        "automation": {"auto_reply_enabled": bool(ctx.tenant.settings.get("auto_reply_enabled")), "weekly_report": bool(ctx.tenant.settings.get("weekly_report_enabled", True))},
+        "automation": {
+            "auto_reply_enabled": bool(ctx.tenant.settings.get("auto_reply_enabled")),
+            "weekly_report": bool(ctx.tenant.settings.get("weekly_report_enabled", True)),
+        },
         "recent_events": [{"at": e.created_at.isoformat(), "action": e.action, "actor": e.actor_type, "details": e.details} for e in recent],
     }
 
@@ -150,8 +184,7 @@ async def invite(data: InviteIn, ctx: AuthContext = Depends(require_admin), db: 
     if data.role not in (ROLE_ADMIN, ROLE_MEMBER):
         raise HTTPException(422, "Rolle muss admin oder member sein.")
     ent = await entitlements(db, ctx.tenant_id)
-    inv = await auth_service.invite_member(db, ctx.tenant, email=data.email, role=data.role, invited_by=ctx.user.id,
-                                           max_users=ent["limits"].get("users"))
+    inv = await auth_service.invite_member(db, ctx.tenant, email=data.email, role=data.role, invited_by=ctx.user.id, max_users=ent["limits"].get("users"))
     await audit(db, "member.invited", actor_type="user", actor_id=ctx.user.id, tenant_id=ctx.tenant_id, details={"email": data.email, "role": data.role})
     await db.commit()
     return {"invitation_id": inv.id}
@@ -170,7 +203,9 @@ async def change_role(user_id: str, payload: dict, ctx: AuthContext = Depends(re
         if owners <= 1:
             raise HTTPException(400, "Der letzte Inhaber kann seine Rolle nicht abgeben.")
     m.role = role
-    await audit(db, "member.role_changed", actor_type="user", actor_id=ctx.user.id, tenant_id=ctx.tenant_id, target_id=user_id, details={"role": role}, severity="security")
+    await audit(
+        db, "member.role_changed", actor_type="user", actor_id=ctx.user.id, tenant_id=ctx.tenant_id, target_id=user_id, details={"role": role}, severity="security"
+    )
     await db.commit()
     return {"message": "Rolle geändert."}
 
@@ -209,7 +244,19 @@ async def list_reports(ctx: AuthContext = Depends(require_tenant), db: AsyncSess
 @router.get("/audit")
 async def audit_log(limit: int = 100, ctx: AuthContext = Depends(require_admin), db: AsyncSession = Depends(get_db)):
     rows = (await db.execute(select(AuditLog).where(AuditLog.tenant_id == ctx.tenant_id).order_by(AuditLog.created_at.desc()).limit(min(limit, 500)))).scalars().all()
-    return [{"at": e.created_at.isoformat(), "action": e.action, "actor_type": e.actor_type, "actor_id": e.actor_id, "target": e.target_type, "target_id": e.target_id, "details": e.details, "severity": e.severity} for e in rows]
+    return [
+        {
+            "at": e.created_at.isoformat(),
+            "action": e.action,
+            "actor_type": e.actor_type,
+            "actor_id": e.actor_id,
+            "target": e.target_type,
+            "target_id": e.target_id,
+            "details": e.details,
+            "severity": e.severity,
+        }
+        for e in rows
+    ]
 
 
 @router.get("/export")
@@ -226,9 +273,12 @@ async def export_data(ctx: AuthContext = Depends(require_owner), db: AsyncSessio
     appts = (await db.execute(select(Appointment).where(Appointment.tenant_id == tid))).scalars().all()
     quotes = (await db.execute(select(Quote).where(Quote.tenant_id == tid))).scalars().all()
     payload = {
-        "exported_at": utcnow().isoformat(), "tenant": {"id": tid, "name": ctx.tenant.name, "settings": ctx.tenant.settings},
+        "exported_at": utcnow().isoformat(),
+        "tenant": {"id": tid, "name": ctx.tenant.name, "settings": ctx.tenant.settings},
         "customers": rows(customers, ["id", "name", "email", "phone", "address", "notes", "created_at"]),
-        "inquiries": rows(inqs, ["id", "channel", "subject", "body", "sender_name", "sender_email", "sender_phone", "status", "category", "priority", "summary", "created_at"]),
+        "inquiries": rows(
+            inqs, ["id", "channel", "subject", "body", "sender_name", "sender_email", "sender_phone", "status", "category", "priority", "summary", "created_at"]
+        ),
         "messages": rows(msgs, ["id", "inquiry_id", "direction", "sender", "recipient", "subject", "body", "created_at"]),
         "appointments": rows(appts, ["id", "title", "starts_at", "ends_at", "status", "location"]),
         "quotes": rows(quotes, ["id", "title", "amount_cents", "status", "sent_at", "followup_count"]),
@@ -247,8 +297,7 @@ async def export_customers_csv(ctx: AuthContext = Depends(require_admin), db: As
     w.writerow(["Name", "E-Mail", "Telefon", "Adresse", "Notizen"])
     for c in customers:
         w.writerow([c.name, c.email or "", c.phone or "", c.address or "", c.notes or ""])
-    return StreamingResponse(io.BytesIO(out.getvalue().encode("utf-8-sig")), media_type="text/csv",
-                             headers={"Content-Disposition": 'attachment; filename="kunden.csv"'})
+    return StreamingResponse(io.BytesIO(out.getvalue().encode("utf-8-sig")), media_type="text/csv", headers={"Content-Disposition": 'attachment; filename="kunden.csv"'})
 
 
 @router.post("/delete")

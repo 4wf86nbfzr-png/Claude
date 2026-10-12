@@ -48,11 +48,7 @@ async def enqueue(
     max_attempts: int | None = None,
 ) -> Job:
     if dedupe_key:
-        existing = (
-            await db.execute(
-                select(Job).where(Job.dedupe_key == dedupe_key, Job.status.in_(["queued", "running"]))
-            )
-        ).scalar_one_or_none()
+        existing = (await db.execute(select(Job).where(Job.dedupe_key == dedupe_key, Job.status.in_(["queued", "running"])))).scalar_one_or_none()
         if existing:
             return existing
     job = Job(
@@ -84,8 +80,7 @@ def categorize_error(exc: BaseException) -> str:
     return "unknown"
 
 
-async def record_error(db: AsyncSession, *, source: str, message: str, stack: str | None, context: dict,
-                       tenant_id: str | None = None) -> ErrorReport:
+async def record_error(db: AsyncSession, *, source: str, message: str, stack: str | None, context: dict, tenant_id: str | None = None) -> ErrorReport:
     fp = hashlib.sha256(f"{source}:{message[:200]}".encode()).hexdigest()[:64]
     existing = (await db.execute(select(ErrorReport).where(ErrorReport.fingerprint == fp))).scalar_one_or_none()
     now = utcnow()
@@ -97,8 +92,7 @@ async def record_error(db: AsyncSession, *, source: str, message: str, stack: st
             existing.status = "open"  # Regression!
         await db.flush()
         return existing
-    rep = ErrorReport(fingerprint=fp, source=source, message=message[:4000], stacktrace=stack, context=context,
-                      tenant_id=tenant_id, last_seen_at=now)
+    rep = ErrorReport(fingerprint=fp, source=source, message=message[:4000], stacktrace=stack, context=context, tenant_id=tenant_id, last_seen_at=now)
     db.add(rep)
     await db.flush()
     return rep
@@ -115,11 +109,7 @@ async def claim_next(db: AsyncSession) -> Job | None:
     if job is None:
         return None
     # Optimistisches Claimen: nur wer das Update gewinnt, führt aus.
-    res = await db.execute(
-        update(Job)
-        .where(Job.id == job.id, Job.status == "queued")
-        .values(status="running", started_at=now, attempts=Job.attempts + 1)
-    )
+    res = await db.execute(update(Job).where(Job.id == job.id, Job.status == "queued").values(status="running", started_at=now, attempts=Job.attempts + 1))
     await db.commit()
     if res.rowcount != 1:
         return None
@@ -153,16 +143,16 @@ async def run_job(db: AsyncSession, job: Job) -> bool:
         job.error_category = category
         retry = job.attempts < job.max_attempts and category not in ("auth_or_config", "budget_or_killswitch")
         if retry:
-            backoff = min(2 ** job.attempts * 15, 3600)
+            backoff = min(2**job.attempts * 15, 3600)
             job.status = "queued"
             job.run_at = utcnow() + timedelta(seconds=backoff)
         else:
             job.status = "dead"
             job.finished_at = utcnow()
         db.add(job)
-        await record_error(db, source=f"job:{job.type}", message=str(e), stack=stack,
-                           context={"job_id": job.id, "attempt": job.attempts, "category": category},
-                           tenant_id=job.tenant_id)
+        await record_error(
+            db, source=f"job:{job.type}", message=str(e), stack=stack, context={"job_id": job.id, "attempt": job.attempts, "category": category}, tenant_id=job.tenant_id
+        )
         await db.commit()
         log.warning("job.failed", type=job.type, attempt=job.attempts, retry=retry, error=str(e)[:200])
         return False

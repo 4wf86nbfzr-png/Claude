@@ -14,8 +14,16 @@ router = APIRouter(prefix="/api/billing", tags=["billing"])
 
 
 def plan_dict(p: Plan) -> dict:
-    return {"code": p.code, "name": p.name, "description": p.description, "price_cents_monthly": p.price_cents_monthly,
-            "currency": p.currency, "features": p.features, "limits": p.limits, "checkout_available": bool(p.stripe_price_id and billing.stripe_configured())}
+    return {
+        "code": p.code,
+        "name": p.name,
+        "description": p.description,
+        "price_cents_monthly": p.price_cents_monthly,
+        "currency": p.currency,
+        "features": p.features,
+        "limits": p.limits,
+        "checkout_available": bool(p.stripe_price_id and billing.stripe_configured()),
+    }
 
 
 @router.get("/plans")
@@ -28,9 +36,22 @@ async def plans(db: AsyncSession = Depends(get_db)):
 async def status(ctx: AuthContext = Depends(require_tenant), db: AsyncSession = Depends(get_db)):
     ent = await entitlements(db, ctx.tenant_id)
     invoices = (await db.execute(select(Invoice).where(Invoice.tenant_id == ctx.tenant_id).order_by(Invoice.created_at.desc()).limit(24))).scalars().all()
-    return {"entitlements": ent, "stripe_configured": billing.stripe_configured(), "has_customer": bool(ctx.tenant.stripe_customer_id),
-            "invoices": [{"id": i.stripe_invoice_id, "amount_cents": i.amount_cents, "currency": i.currency, "status": i.status,
-                          "paid_at": i.paid_at.isoformat() if i.paid_at else None, "url": i.hosted_url} for i in invoices]}
+    return {
+        "entitlements": ent,
+        "stripe_configured": billing.stripe_configured(),
+        "has_customer": bool(ctx.tenant.stripe_customer_id),
+        "invoices": [
+            {
+                "id": i.stripe_invoice_id,
+                "amount_cents": i.amount_cents,
+                "currency": i.currency,
+                "status": i.status,
+                "paid_at": i.paid_at.isoformat() if i.paid_at else None,
+                "url": i.hosted_url,
+            }
+            for i in invoices
+        ],
+    }
 
 
 @router.post("/checkout")

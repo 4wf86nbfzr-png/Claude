@@ -45,7 +45,22 @@ class PlanIn(BaseModel):
 @router.get("/plans")
 async def plans(db: AsyncSession = Depends(get_db)):
     rows = (await db.execute(select(Plan).order_by(Plan.sort_order))).scalars().all()
-    return [{"id": p.id, "code": p.code, "name": p.name, "description": p.description, "price_cents_monthly": p.price_cents_monthly, "features": p.features, "limits": p.limits, "stripe_price_id": p.stripe_price_id, "sort_order": p.sort_order, "is_active": p.is_active, "is_public": p.is_public} for p in rows]
+    return [
+        {
+            "id": p.id,
+            "code": p.code,
+            "name": p.name,
+            "description": p.description,
+            "price_cents_monthly": p.price_cents_monthly,
+            "features": p.features,
+            "limits": p.limits,
+            "stripe_price_id": p.stripe_price_id,
+            "sort_order": p.sort_order,
+            "is_active": p.is_active,
+            "is_public": p.is_public,
+        }
+        for p in rows
+    ]
 
 
 @router.put("/plans/{code}")
@@ -57,7 +72,9 @@ async def upsert_plan(code: str, data: PlanIn, user: User = Depends(require_oper
     for k, v in data.model_dump().items():
         if k != "code":
             setattr(p, k, v)
-    await audit(db, "plan.updated", actor_type="user", actor_id=user.id, target_type="plan", target_id=code, details={"price": data.price_cents_monthly}, severity="security")
+    await audit(
+        db, "plan.updated", actor_type="user", actor_id=user.id, target_type="plan", target_id=code, details={"price": data.price_cents_monthly}, severity="security"
+    )
     await db.commit()
     return {"message": "Tarif gespeichert."}
 
@@ -71,8 +88,13 @@ async def system(db: AsyncSession = Depends(get_db)):
     from app.services.llm import get_provider
 
     s = get_settings()
-    return {"settings": await all_settings(db), "providers": {"llm": get_provider().name, "email_live": email_is_live(), "stripe": stripe_configured(), "google_calendar": google_calendar.configured()},
-            "env": s.env, "production_problems": s.validate_for_production(), "autonomy_enabled": s.autonomy_enabled}
+    return {
+        "settings": await all_settings(db),
+        "providers": {"llm": get_provider().name, "email_live": email_is_live(), "stripe": stripe_configured(), "google_calendar": google_calendar.configured()},
+        "env": s.env,
+        "production_problems": s.validate_for_production(),
+        "autonomy_enabled": s.autonomy_enabled,
+    }
 
 
 @router.post("/kill-switch")
@@ -115,18 +137,48 @@ async def overview(db: AsyncSession = Depends(get_db)):
     leads = (await db.execute(select(Lead.status, func.count(Lead.id)).group_by(Lead.status))).all()
     runs = (await db.execute(select(AgentRun).order_by(AgentRun.started_at.desc()).limit(20))).scalars().all()
     return {
-        "tenants": tenants, "subscriptions": dict(subs), "jobs": dict(jobs),
+        "tenants": tenants,
+        "subscriptions": dict(subs),
+        "jobs": dict(jobs),
         "dead_jobs": [{"id": j.id, "type": j.type, "error": (j.last_error or "")[:200], "category": j.error_category, "tenant_id": j.tenant_id} for j in dead],
-        "errors_open": errors_open, "ai_cost_cents_24h": round(int(ai_day) / 1_000_000, 2), "ai_failures_24h": ai_fail,
-        "approvals_pending": approvals, "tickets_escalated": tickets, "leads": dict(leads),
-        "agent_runs": [{"id": r.id, "agent": r.agent, "status": r.status, "started_at": r.started_at.isoformat(), "summary": r.summary[:300], "cost_cents": round(r.cost_microcents / 1_000_000, 3)} for r in runs],
+        "errors_open": errors_open,
+        "ai_cost_cents_24h": round(int(ai_day) / 1_000_000, 2),
+        "ai_failures_24h": ai_fail,
+        "approvals_pending": approvals,
+        "tickets_escalated": tickets,
+        "leads": dict(leads),
+        "agent_runs": [
+            {
+                "id": r.id,
+                "agent": r.agent,
+                "status": r.status,
+                "started_at": r.started_at.isoformat(),
+                "summary": r.summary[:300],
+                "cost_cents": round(r.cost_microcents / 1_000_000, 3),
+            }
+            for r in runs
+        ],
     }
 
 
 @router.get("/approvals")
 async def approvals(status: str = "pending", db: AsyncSession = Depends(get_db)):
     rows = (await db.execute(select(Approval).where(Approval.status == status).order_by(Approval.created_at.desc()).limit(100))).scalars().all()
-    return [{"id": a.id, "kind": a.kind, "title": a.title, "description": a.description, "payload": a.payload, "risk_level": a.risk_level, "requested_by": a.requested_by, "tenant_id": a.tenant_id, "created_at": a.created_at.isoformat(), "status": a.status} for a in rows]
+    return [
+        {
+            "id": a.id,
+            "kind": a.kind,
+            "title": a.title,
+            "description": a.description,
+            "payload": a.payload,
+            "risk_level": a.risk_level,
+            "requested_by": a.requested_by,
+            "tenant_id": a.tenant_id,
+            "created_at": a.created_at.isoformat(),
+            "status": a.status,
+        }
+        for a in rows
+    ]
 
 
 @router.post("/approvals/{approval_id}/decide")
@@ -154,7 +206,22 @@ async def tasks(status: str | None = None, db: AsyncSession = Depends(get_db)):
     if status:
         stmt = stmt.where(AgentTask.status == status)
     rows = (await db.execute(stmt.order_by(AgentTask.priority, AgentTask.created_at.desc()).limit(200))).scalars().all()
-    return [{"id": t.id, "title": t.title, "description": t.description, "assigned_to": t.assigned_to, "created_by": t.created_by, "priority": t.priority, "status": t.status, "requires_approval": t.requires_approval, "result": t.result, "lesson": t.lesson, "created_at": t.created_at.isoformat()} for t in rows]
+    return [
+        {
+            "id": t.id,
+            "title": t.title,
+            "description": t.description,
+            "assigned_to": t.assigned_to,
+            "created_by": t.created_by,
+            "priority": t.priority,
+            "status": t.status,
+            "requires_approval": t.requires_approval,
+            "result": t.result,
+            "lesson": t.lesson,
+            "created_at": t.created_at.isoformat(),
+        }
+        for t in rows
+    ]
 
 
 @router.get("/agent-runs")
@@ -163,7 +230,22 @@ async def agent_runs(agent: str | None = None, limit: int = 50, db: AsyncSession
     if agent:
         stmt = stmt.where(AgentRun.agent == agent)
     rows = (await db.execute(stmt.order_by(AgentRun.started_at.desc()).limit(min(limit, 200)))).scalars().all()
-    return [{"id": r.id, "agent": r.agent, "status": r.status, "trigger": r.trigger, "started_at": r.started_at.isoformat(), "finished_at": r.finished_at.isoformat() if r.finished_at else None, "summary": r.summary, "findings": r.findings, "actions": r.actions, "cost_cents": round(r.cost_microcents / 1_000_000, 3), "error": r.error} for r in rows]
+    return [
+        {
+            "id": r.id,
+            "agent": r.agent,
+            "status": r.status,
+            "trigger": r.trigger,
+            "started_at": r.started_at.isoformat(),
+            "finished_at": r.finished_at.isoformat() if r.finished_at else None,
+            "summary": r.summary,
+            "findings": r.findings,
+            "actions": r.actions,
+            "cost_cents": round(r.cost_microcents / 1_000_000, 3),
+            "error": r.error,
+        }
+        for r in rows
+    ]
 
 
 @router.post("/agents/{agent}/run")
@@ -180,7 +262,20 @@ async def run_agent(agent: str, user: User = Depends(require_operator), db: Asyn
 @router.get("/errors")
 async def errors(status: str = "open", db: AsyncSession = Depends(get_db)):
     rows = (await db.execute(select(ErrorReport).where(ErrorReport.status == status).order_by(ErrorReport.last_seen_at.desc()).limit(100))).scalars().all()
-    return [{"id": e.id, "source": e.source, "message": e.message[:500], "occurrences": e.occurrences, "last_seen_at": e.last_seen_at.isoformat(), "status": e.status, "reproducible": e.reproducible, "analysis": e.analysis, "context": e.context} for e in rows]
+    return [
+        {
+            "id": e.id,
+            "source": e.source,
+            "message": e.message[:500],
+            "occurrences": e.occurrences,
+            "last_seen_at": e.last_seen_at.isoformat(),
+            "status": e.status,
+            "reproducible": e.reproducible,
+            "analysis": e.analysis,
+            "context": e.context,
+        }
+        for e in rows
+    ]
 
 
 @router.patch("/errors/{error_id}")
@@ -197,7 +292,19 @@ async def update_error(error_id: str, payload: dict, db: AsyncSession = Depends(
 @router.get("/jobs")
 async def jobs(status: str = "dead", db: AsyncSession = Depends(get_db)):
     rows = (await db.execute(select(Job).where(Job.status == status).order_by(Job.updated_at.desc()).limit(100))).scalars().all()
-    return [{"id": j.id, "type": j.type, "tenant_id": j.tenant_id, "attempts": j.attempts, "error": j.last_error, "category": j.error_category, "run_at": j.run_at.isoformat(), "payload": j.payload} for j in rows]
+    return [
+        {
+            "id": j.id,
+            "type": j.type,
+            "tenant_id": j.tenant_id,
+            "attempts": j.attempts,
+            "error": j.last_error,
+            "category": j.error_category,
+            "run_at": j.run_at.isoformat(),
+            "payload": j.payload,
+        }
+        for j in rows
+    ]
 
 
 @router.post("/jobs/{job_id}/retry")
@@ -247,25 +354,59 @@ async def add_expense(data: ExpenseIn, db: AsyncSession = Depends(get_db)):
 @router.get("/leads")
 async def leads(db: AsyncSession = Depends(get_db)):
     rows = (await db.execute(select(Lead).order_by(Lead.created_at.desc()).limit(200))).scalars().all()
-    return [{"id": l.id, "company": l.company, "contact_name": l.contact_name, "email": l.email, "trade": l.trade, "size": l.size, "source": l.source, "consent_basis": l.consent_basis, "fit_score": l.fit_score, "fit_reasons": l.fit_reasons, "status": l.status, "next_action": l.next_action, "next_action_at": l.next_action_at.isoformat() if l.next_action_at else None, "notes": l.notes} for l in rows]
+    return [
+        {
+            "id": ld.id,
+            "company": ld.company,
+            "contact_name": ld.contact_name,
+            "email": ld.email,
+            "trade": ld.trade,
+            "size": ld.size,
+            "source": ld.source,
+            "consent_basis": ld.consent_basis,
+            "fit_score": ld.fit_score,
+            "fit_reasons": ld.fit_reasons,
+            "status": ld.status,
+            "next_action": ld.next_action,
+            "next_action_at": ld.next_action_at.isoformat() if ld.next_action_at else None,
+            "notes": ld.notes,
+        }
+        for ld in rows
+    ]
 
 
 @router.patch("/leads/{lead_id}")
 async def update_lead(lead_id: str, payload: dict, db: AsyncSession = Depends(get_db)):
-    l = await db.get(Lead, lead_id)
-    if not l:
+    ld = await db.get(Lead, lead_id)
+    if not ld:
         raise HTTPException(404, "Nicht gefunden.")
     for k in ("status", "notes", "next_action"):
         if k in payload:
-            setattr(l, k, payload[k])
+            setattr(ld, k, payload[k])
     await db.commit()
-    return {"status": l.status}
+    return {"status": ld.status}
 
 
 @router.get("/content")
 async def content(db: AsyncSession = Depends(get_db)):
     rows = (await db.execute(select(ContentPiece).order_by(ContentPiece.updated_at.desc()).limit(100))).scalars().all()
-    return [{"id": c.id, "slug": c.slug, "title": c.title, "kind": c.kind, "status": c.status, "target_keyword": c.target_keyword, "audience": c.audience, "checks": c.checks, "published_at": c.published_at.isoformat() if c.published_at else None, "metrics": c.metrics, "meta_description": c.meta_description, "body_markdown": c.body_markdown} for c in rows]
+    return [
+        {
+            "id": c.id,
+            "slug": c.slug,
+            "title": c.title,
+            "kind": c.kind,
+            "status": c.status,
+            "target_keyword": c.target_keyword,
+            "audience": c.audience,
+            "checks": c.checks,
+            "published_at": c.published_at.isoformat() if c.published_at else None,
+            "metrics": c.metrics,
+            "meta_description": c.meta_description,
+            "body_markdown": c.body_markdown,
+        }
+        for c in rows
+    ]
 
 
 @router.get("/tickets")
@@ -274,7 +415,19 @@ async def tickets(status: str | None = "escalated", db: AsyncSession = Depends(g
     if status:
         stmt = stmt.where(SupportTicket.status == status)
     rows = (await db.execute(stmt.order_by(SupportTicket.created_at.desc()).limit(100))).scalars().all()
-    return [{"id": t.id, "tenant_id": t.tenant_id, "subject": t.subject, "category": t.category, "priority": t.priority, "status": t.status, "escalation_reason": t.escalation_reason, "created_at": t.created_at.isoformat()} for t in rows]
+    return [
+        {
+            "id": t.id,
+            "tenant_id": t.tenant_id,
+            "subject": t.subject,
+            "category": t.category,
+            "priority": t.priority,
+            "status": t.status,
+            "escalation_reason": t.escalation_reason,
+            "created_at": t.created_at.isoformat(),
+        }
+        for t in rows
+    ]
 
 
 @router.post("/tickets/{ticket_id}/reply")

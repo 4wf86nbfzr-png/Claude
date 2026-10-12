@@ -64,11 +64,7 @@ async def get_auth_context(
     tenant_id = x_tenant_id or payload.get("tid")
     if not tenant_id:
         return AuthContext(user=user, tenant=None, membership=None)
-    membership = (
-        await db.execute(
-            select(Membership).where(Membership.user_id == user.id, Membership.tenant_id == tenant_id)
-        )
-    ).scalar_one_or_none()
+    membership = (await db.execute(select(Membership).where(Membership.user_id == user.id, Membership.tenant_id == tenant_id))).scalar_one_or_none()
     if membership is None:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Kein Zugriff auf diesen Betrieb.")
     tenant = await db.get(Tenant, tenant_id)

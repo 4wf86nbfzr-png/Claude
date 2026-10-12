@@ -9,10 +9,24 @@ from tests.test_billing import signed, sub_event
 
 async def test_full_customer_journey(client, db):
     # 1-3 Website + Demo
-    demo = await client.post("/api/public/demo/classify", json={"text": "Guten Tag, wir brauchen ein Angebot für eine neue Elektroinstallation im Anbau. Wann passt es Ihnen?", "trade": "elektro"})
+    demo = await client.post(
+        "/api/public/demo/classify",
+        json={"text": "Guten Tag, wir brauchen ein Angebot für eine neue Elektroinstallation im Anbau. Wann passt es Ihnen?", "trade": "elektro"},
+    )
     assert demo.status_code == 200 and demo.json()["classification"]["category"] in ("angebot", "neuinstallation", "terminfrage")
     # 4-6 Registrierung, Bestätigung, Konto
-    r = await client.post("/api/auth/register", json={"email": "inhaber@elektro-nord.test", "password": "Elbe-Kran-Moewe-33", "full_name": "Nina Nord", "company": "Elektro Nord", "trade": "elektro", "accept_terms": True, "accept_privacy": True})
+    r = await client.post(
+        "/api/auth/register",
+        json={
+            "email": "inhaber@elektro-nord.test",
+            "password": "Elbe-Kran-Moewe-33",
+            "full_name": "Nina Nord",
+            "company": "Elektro Nord",
+            "trade": "elektro",
+            "accept_terms": True,
+            "accept_privacy": True,
+        },
+    )
     assert r.status_code == 201
     tid = r.json()["tenant_id"]
     r = await client.post("/api/auth/verify-email", json={"token": last_mail_link("/bestaetigen")})
@@ -20,14 +34,40 @@ async def test_full_customer_journey(client, db):
     t = (await client.get("/api/tenant", headers=h)).json()
     assert t["entitlements"]["status"] == "trialing" and "ai_drafts" in t["entitlements"]["features"]
     # 10-13 Einrichtung
-    r = await client.patch("/api/tenant", headers=h, json={"contact_email": "buero@elektro-nord.test", "address": "Hafenstr. 1, 20457 Hamburg", "settings": {"signature": "Nina Nord, Elektro Nord", "quote_followup_days": 3}, "business_hours": {"mon": [["07:00", "15:00"]], "tue": [["07:00", "15:00"]], "wed": [["07:00", "15:00"]], "thu": [["07:00", "15:00"]], "fri": [["07:00", "12:00"]], "sat": [], "sun": []}})
+    r = await client.patch(
+        "/api/tenant",
+        headers=h,
+        json={
+            "contact_email": "buero@elektro-nord.test",
+            "address": "Hafenstr. 1, 20457 Hamburg",
+            "settings": {"signature": "Nina Nord, Elektro Nord", "quote_followup_days": 3},
+            "business_hours": {
+                "mon": [["07:00", "15:00"]],
+                "tue": [["07:00", "15:00"]],
+                "wed": [["07:00", "15:00"]],
+                "thu": [["07:00", "15:00"]],
+                "fri": [["07:00", "12:00"]],
+                "sat": [],
+                "sun": [],
+            },
+        },
+    )
     assert r.status_code == 200
     integ = (await client.get("/api/integrations", headers=h)).json()
     assert {i["type"] for i in integ} >= {"contact_form", "email_inbound", "google_calendar"}
     assert next(i for i in integ if i["type"] == "whatsapp")["available"] is False
     form = (await client.post("/api/integrations/contact-form/enable", headers=h)).json()
     # 14 Anfrage kommt über Website rein → Worker verarbeitet
-    r = await client.post(f"/api/public/forms/{tid}", json={"name": "Bernd Bauherr", "email": "bernd@bau.test", "telefon": "0170 5555", "nachricht": "Wir bauen an und brauchen eine komplette Elektroinstallation für 3 Räume. Wann könnten Sie sich das ansehen? Deichweg 4, 21029 Hamburg"}, headers={"X-Form-Secret": form["secret"]})
+    r = await client.post(
+        f"/api/public/forms/{tid}",
+        json={
+            "name": "Bernd Bauherr",
+            "email": "bernd@bau.test",
+            "telefon": "0170 5555",
+            "nachricht": "Wir bauen an und brauchen eine komplette Elektroinstallation für 3 Räume. Wann könnten Sie sich das ansehen? Deichweg 4, 21029 Hamburg",
+        },
+        headers={"X-Form-Secret": form["secret"]},
+    )
     assert r.status_code == 201
     from app.services.jobs import run_pending
 
@@ -45,7 +85,11 @@ async def test_full_customer_journey(client, db):
         hour = datetime.fromisoformat(s["starts_at"]).hour
         assert 7 <= hour < 15
     r = await client.post(f"/api/drafts/{draft['id']}/approve", headers=h, json={})
-    assert r.json()["delivery_status"] == "simulated" and ConsoleProvider.sent[-1]["to"] == "bernd@bau.test" and ConsoleProvider.sent[-1]["reply_to"] == "buero@elektro-nord.test"
+    assert (
+        r.json()["delivery_status"] == "simulated"
+        and ConsoleProvider.sent[-1]["to"] == "bernd@bau.test"
+        and ConsoleProvider.sent[-1]["reply_to"] == "buero@elektro-nord.test"
+    )
     # Kunde bestätigt Termin (telefonisch) → Betrieb bestätigt im Dashboard
     appt = detail["appointments"] or (await client.get(f"/api/inquiries/{inq['id']}", headers=h)).json()["appointments"]
     r = await client.patch(f"/api/appointments/{appt[0]['id']}", headers=h, json={"status": "confirmed"})
@@ -61,7 +105,9 @@ async def test_full_customer_journey(client, db):
     assert dash["inquiries"]["open"] == 1 and dash["quotes_open"] == 1 and dash["ai"]["calls_30d"] == 2
     # 7-9 Tarifwahl + Zahlung (Webhook im Testmodus)
     body, sig = signed(sub_event("evt_e2e_1", "customer.subscription.created", tid, "active"))
-    assert (await client.post("/api/billing/webhook", content=body, headers={"Content-Type": "application/json", "Stripe-Signature": sig})).json()["result"] == "processed"
+    assert (await client.post("/api/billing/webhook", content=body, headers={"Content-Type": "application/json", "Stripe-Signature": sig})).json()[
+        "result"
+    ] == "processed"
     ent = (await client.get("/api/billing/status", headers=h)).json()["entitlements"]
     assert ent["plan"] == "business" and "appointments" in ent["features"]
     # Automatisierung aktivieren (jetzt erlaubt)
@@ -86,6 +132,15 @@ async def test_full_customer_journey(client, db):
 
     actions = [a.action for a in (await db.execute(select(AuditLog).where(AuditLog.tenant_id == tid).order_by(AuditLog.created_at))).scalars().all()]
     assert (await db.execute(select(AuditLog).where(AuditLog.action == "user.email_verified"))).scalars().first()
-    for needed in ("user.registered", "tenant.updated", "integration.connected", "inquiry.created", "draft.sent", "billing.subscription_synced", "tenant.exported", "tenant.deletion_requested"):
+    for needed in (
+        "user.registered",
+        "tenant.updated",
+        "integration.connected",
+        "inquiry.created",
+        "draft.sent",
+        "billing.subscription_synced",
+        "tenant.exported",
+        "tenant.deletion_requested",
+    ):
         assert needed in actions, needed
     _ = json

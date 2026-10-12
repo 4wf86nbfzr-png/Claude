@@ -36,9 +36,14 @@ from app.services.llm import LLMError, get_provider, looks_like_injection, run_s
 log = get_logger("inquiries")
 
 TRADE_LABELS = {
-    "elektro": "Elektrobetrieb", "shk": "Sanitär- und Heizungsbetrieb", "maler": "Malerbetrieb",
-    "dach": "Dachdeckerbetrieb", "reinigung": "Gebäudereinigung", "galabau": "Garten- und Landschaftsbau",
-    "bau": "Bauunternehmen", "sonstiges": "Handwerksbetrieb",
+    "elektro": "Elektrobetrieb",
+    "shk": "Sanitär- und Heizungsbetrieb",
+    "maler": "Malerbetrieb",
+    "dach": "Dachdeckerbetrieb",
+    "reinigung": "Gebäudereinigung",
+    "galabau": "Garten- und Landschaftsbau",
+    "bau": "Bauunternehmen",
+    "sonstiges": "Handwerksbetrieb",
 }
 
 
@@ -75,9 +80,7 @@ async def create_inquiry(
     process: bool = True,
 ) -> Inquiry:
     if external_id:
-        dup = (
-            await db.execute(select(Inquiry).where(Inquiry.tenant_id == tenant.id, Inquiry.external_id == external_id))
-        ).scalar_one_or_none()
+        dup = (await db.execute(select(Inquiry).where(Inquiry.tenant_id == tenant.id, Inquiry.external_id == external_id))).scalar_one_or_none()
         if dup:
             return dup
     customer = await find_or_create_customer(db, tenant.id, name=sender_name, email=sender_email, phone=sender_phone)
@@ -96,28 +99,36 @@ async def create_inquiry(
     )
     db.add(inq)
     await db.flush()
-    db.add(Message(tenant_id=tenant.id, inquiry_id=inq.id, direction="in", channel=channel,
-                   sender=sender_email or sender_name or "unbekannt", subject=subject[:300], body=body, external_id=external_id))
-    await audit(db, "inquiry.created", actor_type="system", actor_id=actor, tenant_id=tenant.id,
-                target_type="inquiry", target_id=inq.id, details={"channel": channel})
+    db.add(
+        Message(
+            tenant_id=tenant.id,
+            inquiry_id=inq.id,
+            direction="in",
+            channel=channel,
+            sender=sender_email or sender_name or "unbekannt",
+            subject=subject[:300],
+            body=body,
+            external_id=external_id,
+        )
+    )
+    await audit(db, "inquiry.created", actor_type="system", actor_id=actor, tenant_id=tenant.id, target_type="inquiry", target_id=inq.id, details={"channel": channel})
     if process:
-        await enqueue(db, "process_inquiry", {"inquiry_id": inq.id}, tenant_id=tenant.id,
-                      dedupe_key=f"process_inquiry:{inq.id}", priority=2)
+        await enqueue(db, "process_inquiry", {"inquiry_id": inq.id}, tenant_id=tenant.id, dedupe_key=f"process_inquiry:{inq.id}", priority=2)
     return inq
 
 
 def _tenant_context(tenant: Tenant) -> str:
-    return (
-        f"Betrieb: {tenant.name}\n"
-        f"Gewerk: {TRADE_LABELS.get(tenant.trade, tenant.trade)}\n"
-        f"Ort: {tenant.address or '-'}\n"
-    )
+    return f"Betrieb: {tenant.name}\nGewerk: {TRADE_LABELS.get(tenant.trade, tenant.trade)}\nOrt: {tenant.address or '-'}\n"
 
 
 async def classify(db: AsyncSession, tenant: Tenant, inq: Inquiry, limits: dict) -> Classification:
     data = _tenant_context(tenant) + "\nAnfrage:\n" + wrap_untrusted(f"Betreff: {inq.subject[:200]}\n\n{inq.body}")
     return await run_structured(
-        db, task="classify_inquiry", schema=Classification, tenant_id=tenant.id, tenant_limits=limits,
+        db,
+        task="classify_inquiry",
+        schema=Classification,
+        tenant_id=tenant.id,
+        tenant_limits=limits,
         instructions=(
             "Klassifiziere die Kundenanfrage für den Betrieb. Bestimme Kategorie, Priorität (Notfälle wie "
             "Wasserschaden/Stromausfall/Gasgeruch = urgent), fasse sie in 1-2 Sätzen zusammen, extrahiere "
@@ -137,10 +148,15 @@ async def draft_reply(db: AsyncSession, tenant: Tenant, inq: Inquiry, limits: di
         + f"Fehlende Angaben: {'; '.join(inq.missing_info) if inq.missing_info else '-'}\n"
         + f"Terminvorschläge: {'; '.join(s['label'] for s in slots) if slots else '-'}\n"
         + f"Signatur: {sig}\n"
-        + "\nAnfrage:\n" + wrap_untrusted(inq.body)
+        + "\nAnfrage:\n"
+        + wrap_untrusted(inq.body)
     )
     return await run_structured(
-        db, task="draft_reply", schema=ReplyDraft, tenant_id=tenant.id, tenant_limits=limits,
+        db,
+        task="draft_reply",
+        schema=ReplyDraft,
+        tenant_id=tenant.id,
+        tenant_limits=limits,
         instructions=(
             "Schreibe eine kurze, freundliche, professionelle Antwort (Sie-Form, Deutsch) im Namen des Betriebs. "
             "Bestätige den Eingang, frage die fehlenden Angaben konkret nach, biete – falls vorhanden – die "
@@ -186,7 +202,7 @@ async def process_inquiry(db: AsyncSession, inquiry_id: str) -> Inquiry:
     inq.extracted = {"customer_name": cls.customer_name, "address": cls.address, "preferred_time": cls.preferred_time}
     inq.missing_info = cls.missing_info
     inq.needs_human = cls.needs_human or injection
-    inq.needs_human_reason = ("Mögliche Prompt-Injection im Text" if injection else cls.needs_human_reason)
+    inq.needs_human_reason = "Mögliche Prompt-Injection im Text" if injection else cls.needs_human_reason
     inq.ai_notes = {"provider": get_provider().name}
     if cls.customer_name and inq.customer_id:
         cust = await db.get(Customer, inq.customer_id)
@@ -222,31 +238,32 @@ async def process_inquiry(db: AsyncSession, inquiry_id: str) -> Inquiry:
         flags.append("Entwurf regelbasiert (kein KI-Anbieter konfiguriert)")
 
     draft = Draft(
-        tenant_id=tenant.id, inquiry_id=inq.id,
+        tenant_id=tenant.id,
+        inquiry_id=inq.id,
         kind="appointment" if slots else ("missing_info" if cls.missing_info else "reply"),
-        subject=reply.subject[:300], body=reply.body, status="pending",
-        generated_by=f"ai:{get_provider().name}", confidence=reply.confidence,
-        review_flags=flags, proposed_slots=slots,
+        subject=reply.subject[:300],
+        body=reply.body,
+        status="pending",
+        generated_by=f"ai:{get_provider().name}",
+        confidence=reply.confidence,
+        review_flags=flags,
+        proposed_slots=slots,
     )
     db.add(draft)
     await db.flush()
     inq.status = INQ_NEEDS_REVIEW
     inq.last_activity_at = utcnow()
 
-    auto_reply = (
-        F_AUTOMATIONS in ent["features"]
-        and tenant.settings.get("auto_reply_enabled", False)
-        and not flags
-        and inq.sender_email
-    )
+    auto_reply = F_AUTOMATIONS in ent["features"] and tenant.settings.get("auto_reply_enabled", False) and not flags and inq.sender_email
     if auto_reply:
         await send_draft(db, tenant, draft, approved_by="auto", auto=True)
     await db.flush()
     return inq
 
 
-async def send_draft(db: AsyncSession, tenant: Tenant, draft: Draft, *, approved_by: str, auto: bool = False,
-                     subject: str | None = None, body: str | None = None) -> Message:
+async def send_draft(
+    db: AsyncSession, tenant: Tenant, draft: Draft, *, approved_by: str, auto: bool = False, subject: str | None = None, body: str | None = None
+) -> Message:
     inq = await db.get(Inquiry, draft.inquiry_id)
     assert inq is not None
     if not inq.sender_email:
@@ -257,13 +274,24 @@ async def send_draft(db: AsyncSession, tenant: Tenant, draft: Draft, *, approved
         draft.body = body
     reply_to = tenant.contact_email or None
     result = await send_email(
-        db, to=inq.sender_email, subject=draft.subject, text=draft.body, reply_to=reply_to,
-        kind="inquiry_reply", tenant_id=tenant.id,
+        db,
+        to=inq.sender_email,
+        subject=draft.subject,
+        text=draft.body,
+        reply_to=reply_to,
+        kind="inquiry_reply",
+        tenant_id=tenant.id,
     )
     msg = Message(
-        tenant_id=tenant.id, inquiry_id=inq.id, direction="out", channel="email",
-        sender=tenant.contact_email or "werkpilot", recipient=inq.sender_email,
-        subject=draft.subject, body=draft.body, delivery_status=result.status,
+        tenant_id=tenant.id,
+        inquiry_id=inq.id,
+        direction="out",
+        channel="email",
+        sender=tenant.contact_email or "werkpilot",
+        recipient=inq.sender_email,
+        subject=draft.subject,
+        body=draft.body,
+        delivery_status=result.status,
         meta={"draft_id": draft.id, "auto": auto, "provider": result.provider, "error": result.error},
     )
     db.add(msg)
@@ -279,14 +307,28 @@ async def send_draft(db: AsyncSession, tenant: Tenant, draft: Draft, *, approved
     # Terminvorschläge als „proposed“ festhalten, damit sie nicht doppelt vergeben werden
     for s in draft.proposed_slots or []:
         token = secrets.token_urlsafe(24)
-        db.add(Appointment(
-            tenant_id=tenant.id, inquiry_id=inq.id, customer_id=inq.customer_id,
-            title=f"Vor-Ort-Termin: {inq.subject[:120] or inq.category or 'Anfrage'}",
-            starts_at=datetime.fromisoformat(s["starts_at"]), ends_at=datetime.fromisoformat(s["ends_at"]),
-            status="proposed", confirm_token_hash=hash_token(token),
-        ))
-    await audit(db, "draft.sent", actor_type="agent" if auto else "user", actor_id=approved_by, tenant_id=tenant.id,
-                target_type="draft", target_id=draft.id, details={"auto": auto, "delivery": result.status})
+        db.add(
+            Appointment(
+                tenant_id=tenant.id,
+                inquiry_id=inq.id,
+                customer_id=inq.customer_id,
+                title=f"Vor-Ort-Termin: {inq.subject[:120] or inq.category or 'Anfrage'}",
+                starts_at=datetime.fromisoformat(s["starts_at"]),
+                ends_at=datetime.fromisoformat(s["ends_at"]),
+                status="proposed",
+                confirm_token_hash=hash_token(token),
+            )
+        )
+    await audit(
+        db,
+        "draft.sent",
+        actor_type="agent" if auto else "user",
+        actor_id=approved_by,
+        tenant_id=tenant.id,
+        target_type="draft",
+        target_id=draft.id,
+        details={"auto": auto, "delivery": result.status},
+    )
     return msg
 
 

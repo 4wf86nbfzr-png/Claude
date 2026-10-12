@@ -44,8 +44,14 @@ DEFAULT_PLANS = [
         "description": "Alles aus Starter plus Automatisierungen, Terminorganisation, Angebotsnachverfolgung, individuelle Abläufe.",
         "price_cents_monthly": 14900,
         "features": [
-            F_INQUIRIES, F_AI_DRAFTS, F_CUSTOMERS, F_REPORTS_BASIC,
-            F_AUTOMATIONS, F_APPOINTMENTS, F_QUOTE_FOLLOWUP, F_WORKFLOWS,
+            F_INQUIRIES,
+            F_AI_DRAFTS,
+            F_CUSTOMERS,
+            F_REPORTS_BASIC,
+            F_AUTOMATIONS,
+            F_APPOINTMENTS,
+            F_QUOTE_FOLLOWUP,
+            F_WORKFLOWS,
         ],
         "limits": {"inquiries_per_month": 500, "ai_budget_cents_month": 1000, "users": 5},
         "sort_order": 2,
@@ -56,9 +62,18 @@ DEFAULT_PLANS = [
         "description": "Alles aus Business plus erweiterte Integrationen, eigene Automatisierungsregeln, umfangreiche Auswertungen, priorisierter Support.",
         "price_cents_monthly": 24900,
         "features": [
-            F_INQUIRIES, F_AI_DRAFTS, F_CUSTOMERS, F_REPORTS_BASIC,
-            F_AUTOMATIONS, F_APPOINTMENTS, F_QUOTE_FOLLOWUP, F_WORKFLOWS,
-            F_INTEGRATIONS_ADV, F_RULES_CUSTOM, F_REPORTS_ADV, F_PRIORITY_SUPPORT,
+            F_INQUIRIES,
+            F_AI_DRAFTS,
+            F_CUSTOMERS,
+            F_REPORTS_BASIC,
+            F_AUTOMATIONS,
+            F_APPOINTMENTS,
+            F_QUOTE_FOLLOWUP,
+            F_WORKFLOWS,
+            F_INTEGRATIONS_ADV,
+            F_RULES_CUSTOM,
+            F_REPORTS_ADV,
+            F_PRIORITY_SUPPORT,
         ],
         "limits": {"inquiries_per_month": 2000, "ai_budget_cents_month": 2500, "users": 15},
         "sort_order": 3,
@@ -75,14 +90,7 @@ async def ensure_default_plans(db: AsyncSession) -> None:
 
 
 async def get_subscription(db: AsyncSession, tenant_id: str) -> Subscription | None:
-    return (
-        await db.execute(
-            select(Subscription)
-            .where(Subscription.tenant_id == tenant_id)
-            .order_by(Subscription.created_at.desc())
-            .limit(1)
-        )
-    ).scalar_one_or_none()
+    return (await db.execute(select(Subscription).where(Subscription.tenant_id == tenant_id).order_by(Subscription.created_at.desc()).limit(1))).scalar_one_or_none()
 
 
 async def start_trial(db: AsyncSession, tenant_id: str) -> Subscription:

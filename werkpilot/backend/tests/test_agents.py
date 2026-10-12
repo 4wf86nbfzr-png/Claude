@@ -96,7 +96,7 @@ async def test_marketing_agent_drafts_checks_and_requests_approval(db):
     piece = (await db.execute(select(ContentPiece))).scalar_one()
     assert piece.status == "draft" and piece.body_markdown.startswith("#")
     # Mock-Artikel ist kurz → Qualitätsprüfung schlägt fehl, bleibt Entwurf, keine Freigabe angefragt
-    run2 = await AGENTS["marketing"]().run(db, trigger="test")
+    await AGENTS["marketing"]().run(db, trigger="test")
     await db.commit()
     await db.refresh(piece)
     assert piece.checks["passed"] is False and piece.status == "draft"
@@ -146,13 +146,26 @@ async def test_content_publish_requires_approval_and_autonomy_flag(db, client):
 
 
 async def test_sales_agent_only_consented_sources(db):
-    db.add(Lead(company="Elektro Nord", contact_name="Jan", email="jan@nord.test", trade="elektro", size="2-5", source="website_form", consent_basis="Anfrage", consent_at=utcnow(), status="new", next_action_at=utcnow()))
+    db.add(
+        Lead(
+            company="Elektro Nord",
+            contact_name="Jan",
+            email="jan@nord.test",
+            trade="elektro",
+            size="2-5",
+            source="website_form",
+            consent_basis="Anfrage",
+            consent_at=utcnow(),
+            status="new",
+            next_action_at=utcnow(),
+        )
+    )
     db.add(Lead(company="Gescrapt GmbH", email="x@scrape.test", trade="elektro", size="2-5", source="scraped", status="new"))
     await db.commit()
     run = await AGENTS["sales"]().run(db, trigger="test")
     await db.commit()
     assert run.status == "ok", run.error
-    leads = {l.company: l for l in (await db.execute(select(Lead))).scalars().all()}
+    leads = {ld.company: ld for ld in (await db.execute(select(Lead))).scalars().all()}
     assert leads["Elektro Nord"].fit_score >= 60 and leads["Elektro Nord"].status == "qualified"
     assert leads["Gescrapt GmbH"].fit_score is None and leads["Gescrapt GmbH"].status == "new"
     assert any(m["to"] == "jan@nord.test" for m in ConsoleProvider.sent)
@@ -177,7 +190,11 @@ async def test_finance_snapshot_and_agent(db, client):
 
 
 async def test_product_dev_triages_errors(db):
-    db.add(ErrorReport(fingerprint="a" * 64, source="job:process_inquiry", message="Schema ungültig", occurrences=4, last_seen_at=utcnow(), context={"category": "invalid_output"}))
+    db.add(
+        ErrorReport(
+            fingerprint="a" * 64, source="job:process_inquiry", message="Schema ungültig", occurrences=4, last_seen_at=utcnow(), context={"category": "invalid_output"}
+        )
+    )
     await db.commit()
     import app.agents.product_dev as pd
 

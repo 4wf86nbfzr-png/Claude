@@ -2,7 +2,18 @@ from tests.conftest import ConsoleProvider, last_mail_link, register_and_login
 
 
 async def test_register_verify_login_refresh_logout(client):
-    r = await client.post("/api/auth/register", json={"email": "a@b.test", "password": "Moin-Hafen-2026!", "full_name": "A", "company": "Müller Sanitär GmbH", "trade": "shk", "accept_terms": True, "accept_privacy": True})
+    r = await client.post(
+        "/api/auth/register",
+        json={
+            "email": "a@b.test",
+            "password": "Moin-Hafen-2026!",
+            "full_name": "A",
+            "company": "Müller Sanitär GmbH",
+            "trade": "shk",
+            "accept_terms": True,
+            "accept_privacy": True,
+        },
+    )
     assert r.status_code == 201
     assert any("bestaetigen" in m["text"] for m in ConsoleProvider.sent)
     # Login vor Bestätigung ist möglich, Tenant-Endpunkte aber gesperrt

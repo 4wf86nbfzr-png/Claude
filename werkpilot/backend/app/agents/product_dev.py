@@ -56,20 +56,30 @@ class ProductDevAgent(BaseAgent):
             e.analysis = {"category": cat, "suggestion": suggestion, "triaged_at": utcnow().isoformat()}
             ctx.find(f"Fehler {e.fingerprint[:8]} ({e.occurrences}x, {cat}): {suggestion}")
             if reproducible and cat in ("invalid_output", "unknown"):
-                await ctx.propose_task(assigned_to="product_dev", title=f"Reproduzierbaren Fehler beheben: {e.message[:80]}",
-                                       description=f"Fingerprint {e.fingerprint}\n{e.stacktrace or ''}"[:3000], priority=2,
-                                       requires_approval=bool(SENSITIVE.search(e.stacktrace or e.message)), dedupe_key=f"fix:{e.fingerprint}")
+                await ctx.propose_task(
+                    assigned_to="product_dev",
+                    title=f"Reproduzierbaren Fehler beheben: {e.message[:80]}",
+                    description=f"Fingerprint {e.fingerprint}\n{e.stacktrace or ''}"[:3000],
+                    priority=2,
+                    requires_approval=bool(SENSITIVE.search(e.stacktrace or e.message)),
+                    dedupe_key=f"fix:{e.fingerprint}",
+                )
 
         # 2. Offene Aufgaben für mich: Tests laufen lassen (Regression/Sicherheit)
-        my_tasks = (await db.execute(select(AgentTask).where(AgentTask.assigned_to == "product_dev", AgentTask.status == "open").order_by(AgentTask.priority).limit(3))).scalars().all()
+        my_tasks = (
+            (await db.execute(select(AgentTask).where(AgentTask.assigned_to == "product_dev", AgentTask.status == "open").order_by(AgentTask.priority).limit(3)))
+            .scalars()
+            .all()
+        )
         test_result = None
         if my_tasks or errors:
             test_result = await asyncio.get_running_loop().run_in_executor(None, run_tests)
             ctx.find("Testsuite: " + ("bestanden" if test_result["passed"] else f"FEHLGESCHLAGEN (Exit {test_result['exit_code']})"))
             if not test_result["passed"]:
                 ctx.find(test_result["output"][-800:])
-                await ctx.request_approval(kind="code_change", title="Testsuite schlägt fehl – manuelle Prüfung nötig",
-                                           description=test_result["output"][-2000:], risk_level="high")
+                await ctx.request_approval(
+                    kind="code_change", title="Testsuite schlägt fehl – manuelle Prüfung nötig", description=test_result["output"][-2000:], risk_level="high"
+                )
         for t in my_tasks:
             if t.requires_approval:
                 a = await ctx.request_approval(kind="code_change", title=t.title, description=t.description[:2000], payload={"task_id": t.id}, risk_level="high")
@@ -79,8 +89,10 @@ class ProductDevAgent(BaseAgent):
                 ctx.act(f"Aufgabe wartet auf Freigabe: {t.title}")
             else:
                 # Ohne Freigabe nur Analyse + Vorschlag; keine automatische Codeänderung in diesem Lauf.
-                t.result = {"summary": "Analysiert. Vorschlag: siehe Fehleranalyse. Änderung wird als Branch-Vorschlag vorbereitet.",
-                            "tests_passed": test_result["passed"] if test_result else None}
+                t.result = {
+                    "summary": "Analysiert. Vorschlag: siehe Fehleranalyse. Änderung wird als Branch-Vorschlag vorbereitet.",
+                    "tests_passed": test_result["passed"] if test_result else None,
+                }
                 t.status = "done"
                 ctx.act(f"Aufgabe analysiert: {t.title}")
         return f"{len(errors)} Fehler triagiert, {len(my_tasks)} Aufgaben bearbeitet" + (f", Tests {'ok' if test_result['passed'] else 'rot'}" if test_result else "")

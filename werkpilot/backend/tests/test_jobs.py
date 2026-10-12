@@ -74,7 +74,8 @@ async def test_kill_switch_blocks_non_critical_jobs(db):
     await db.commit()
     res = await run_pending(db)
     assert res["ran"] == 1
-    await db.refresh(a); await db.refresh(b)
+    await db.refresh(a)
+    await db.refresh(b)
     assert a.status == "queued" and b.status == "done"
     await deactivate_kill_switch(db, "test")
     await db.commit()

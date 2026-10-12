@@ -44,8 +44,7 @@ async def unique_slug(db: AsyncSession, base: str) -> str:
     return slug
 
 
-async def register(db: AsyncSession, *, email: str, password: str, full_name: str, company: str, trade: str,
-                   ip: str | None = None) -> tuple[User, Tenant]:
+async def register(db: AsyncSession, *, email: str, password: str, full_name: str, company: str, trade: str, ip: str | None = None) -> tuple[User, Tenant]:
     validate_password(password)
     email = email.lower().strip()
     exists = (await db.execute(select(User.id).where(User.email == email))).scalar_one_or_none()
@@ -55,22 +54,25 @@ async def register(db: AsyncSession, *, email: str, password: str, full_name: st
     user = User(email=email, password_hash=hash_password(password), full_name=full_name.strip()[:200])
     db.add(user)
     await db.flush()
-    tenant = Tenant(name=company.strip()[:200], slug=await unique_slug(db, slugify(company)), trade=trade,
-                    contact_email=email, settings={"auto_reply_enabled": False, "auto_reply_min_confidence": 0.8})
+    tenant = Tenant(
+        name=company.strip()[:200],
+        slug=await unique_slug(db, slugify(company)),
+        trade=trade,
+        contact_email=email,
+        settings={"auto_reply_enabled": False, "auto_reply_min_confidence": 0.8},
+    )
     db.add(tenant)
     await db.flush()
     db.add(Membership(user_id=user.id, tenant_id=tenant.id, role=ROLE_OWNER))
     await start_trial(db, tenant.id)
     await send_verification(db, user)
-    await audit(db, "user.registered", actor_type="user", actor_id=user.id, tenant_id=tenant.id,
-                details={"ip": ip, "trade": trade})
+    await audit(db, "user.registered", actor_type="user", actor_id=user.id, tenant_id=tenant.id, details={"ip": ip, "trade": trade})
     return user, tenant
 
 
 async def _issue_one_time(db: AsyncSession, user: User, purpose: str, hours: int) -> str:
     token = generate_token()
-    db.add(OneTimeToken(user_id=user.id, purpose=purpose, token_hash=hash_token(token),
-                        expires_at=utcnow() + timedelta(hours=hours)))
+    db.add(OneTimeToken(user_id=user.id, purpose=purpose, token_hash=hash_token(token), expires_at=utcnow() + timedelta(hours=hours)))
     await db.flush()
     return token
 
@@ -80,17 +82,20 @@ async def send_verification(db: AsyncSession, user: User) -> None:
     token = await _issue_one_time(db, user, "verify_email", 48)
     link = f"{s.frontend_url}/bestaetigen?token={token}"
     await send_email(
-        db, to=user.email, subject="Bitte bestätigen Sie Ihre E-Mail-Adresse – WerkPilot AI",
-        text=(f"Moin {user.full_name or ''},\n\nbitte bestätigen Sie Ihre E-Mail-Adresse über diesen Link "
-              f"(48 Stunden gültig):\n{link}\n\nFalls Sie sich nicht registriert haben, ignorieren Sie diese Mail.\n\n"
-              "WerkPilot AI"),
+        db,
+        to=user.email,
+        subject="Bitte bestätigen Sie Ihre E-Mail-Adresse – WerkPilot AI",
+        text=(
+            f"Moin {user.full_name or ''},\n\nbitte bestätigen Sie Ihre E-Mail-Adresse über diesen Link "
+            f"(48 Stunden gültig):\n{link}\n\nFalls Sie sich nicht registriert haben, ignorieren Sie diese Mail.\n\n"
+            "WerkPilot AI"
+        ),
         kind="transactional",
     )
 
 
 async def consume_one_time(db: AsyncSession, token: str, purpose: str) -> User:
-    row = (await db.execute(select(OneTimeToken).where(OneTimeToken.token_hash == hash_token(token),
-                                                       OneTimeToken.purpose == purpose))).scalar_one_or_none()
+    row = (await db.execute(select(OneTimeToken).where(OneTimeToken.token_hash == hash_token(token), OneTimeToken.purpose == purpose))).scalar_one_or_none()
     if not row or row.used_at or row.expires_at < utcnow():
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Link ungültig oder abgelaufen.")
     row.used_at = utcnow()
@@ -122,17 +127,22 @@ async def login(db: AsyncSession, *, email: str, password: str, ip: str | None, 
         user.failed_logins += 1
         if user.failed_logins >= 8:
             user.locked_until = utcnow() + timedelta(minutes=15)
-            await audit(db, "user.locked", actor_type="system", actor_id="auth", details={"user_id": user.id, "ip": ip},
-                        severity="security")
+            await audit(db, "user.locked", actor_type="system", actor_id="auth", details={"user_id": user.id, "ip": ip}, severity="security")
         await db.commit()  # Fehlversuch auch bei Abbruch festhalten
         raise generic
     user.failed_logins = 0
     user.locked_until = None
     user.last_login_at = utcnow()
     refresh = generate_token(48)
-    db.add(RefreshSession(user_id=user.id, token_hash=hash_token(refresh),
-                          expires_at=utcnow() + timedelta(days=get_settings().refresh_token_days),
-                          user_agent=(user_agent or "")[:300], ip=ip))
+    db.add(
+        RefreshSession(
+            user_id=user.id,
+            token_hash=hash_token(refresh),
+            expires_at=utcnow() + timedelta(days=get_settings().refresh_token_days),
+            user_agent=(user_agent or "")[:300],
+            ip=ip,
+        )
+    )
     await audit(db, "user.login", actor_type="user", actor_id=user.id, details={"ip": ip})
     await db.flush()
     return user, refresh
@@ -147,8 +157,7 @@ async def rotate_refresh(db: AsyncSession, refresh_token: str) -> tuple[User, st
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Konto nicht aktiv.")
     sess.revoked_at = utcnow()
     new_token = generate_token(48)
-    db.add(RefreshSession(user_id=user.id, token_hash=hash_token(new_token), expires_at=sess.expires_at,
-                          user_agent=sess.user_agent, ip=sess.ip))
+    db.add(RefreshSession(user_id=user.id, token_hash=hash_token(new_token), expires_at=sess.expires_at, user_agent=sess.user_agent, ip=sess.ip))
     await db.flush()
     return user, new_token
 
@@ -176,8 +185,12 @@ async def request_password_reset(db: AsyncSession, email: str) -> None:
         return  # keine Auskunft, ob Konto existiert
     token = await _issue_one_time(db, user, "reset_password", 2)
     link = f"{s.frontend_url}/passwort-neu?token={token}"
-    await send_email(db, to=user.email, subject="Passwort zurücksetzen – WerkPilot AI",
-                     text=f"Über diesen Link (2 Stunden gültig) setzen Sie ein neues Passwort:\n{link}\n\nFalls Sie das nicht angefordert haben, ignorieren Sie diese Mail.")
+    await send_email(
+        db,
+        to=user.email,
+        subject="Passwort zurücksetzen – WerkPilot AI",
+        text=f"Über diesen Link (2 Stunden gültig) setzen Sie ein neues Passwort:\n{link}\n\nFalls Sie das nicht angefordert haben, ignorieren Sie diese Mail.",
+    )
 
 
 async def reset_password(db: AsyncSession, token: str, new_password: str) -> User:
@@ -198,14 +211,17 @@ async def invite_member(db: AsyncSession, tenant: Tenant, *, email: str, role: s
         if count >= max_users:
             raise HTTPException(status.HTTP_403_FORBIDDEN, f"Der Tarif erlaubt maximal {max_users} Nutzer.")
     token = generate_token()
-    inv = Invitation(tenant_id=tenant.id, email=email, role=role, token_hash=hash_token(token),
-                     expires_at=utcnow() + timedelta(days=7), invited_by=invited_by)
+    inv = Invitation(tenant_id=tenant.id, email=email, role=role, token_hash=hash_token(token), expires_at=utcnow() + timedelta(days=7), invited_by=invited_by)
     db.add(inv)
     await db.flush()
     link = f"{get_settings().frontend_url}/einladung?token={token}"
-    await send_email(db, to=email, subject=f"Einladung zu {tenant.name} bei WerkPilot AI",
-                     text=f"Sie wurden zu „{tenant.name}“ bei WerkPilot AI eingeladen. Link (7 Tage gültig):\n{link}",
-                     tenant_id=tenant.id)
+    await send_email(
+        db,
+        to=email,
+        subject=f"Einladung zu {tenant.name} bei WerkPilot AI",
+        text=f"Sie wurden zu „{tenant.name}“ bei WerkPilot AI eingeladen. Link (7 Tage gültig):\n{link}",
+        tenant_id=tenant.id,
+    )
     return inv
 
 

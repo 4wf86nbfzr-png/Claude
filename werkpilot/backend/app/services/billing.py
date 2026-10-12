@@ -86,9 +86,7 @@ async def create_portal_session(tenant: Tenant) -> str:
     if not stripe_configured() or not tenant.stripe_customer_id:
         raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, "Kein Stripe-Kunde vorhanden.")
     stripe = _stripe()
-    session = stripe.billing_portal.Session.create(
-        customer=tenant.stripe_customer_id, return_url=f"{get_settings().frontend_url}/app/abonnement"
-    )
+    session = stripe.billing_portal.Session.create(customer=tenant.stripe_customer_id, return_url=f"{get_settings().frontend_url}/app/abonnement")
     return session.url
 
 
@@ -105,8 +103,14 @@ def verify_webhook(payload: bytes, signature: str | None) -> dict:
 
 
 STATUS_MAP = {
-    "trialing": SUB_TRIALING, "active": SUB_ACTIVE, "past_due": SUB_PAST_DUE, "canceled": SUB_CANCELED,
-    "unpaid": SUB_PAST_DUE, "incomplete": SUB_INCOMPLETE, "incomplete_expired": SUB_CANCELED, "paused": SUB_PAST_DUE,
+    "trialing": SUB_TRIALING,
+    "active": SUB_ACTIVE,
+    "past_due": SUB_PAST_DUE,
+    "canceled": SUB_CANCELED,
+    "unpaid": SUB_PAST_DUE,
+    "incomplete": SUB_INCOMPLETE,
+    "incomplete_expired": SUB_CANCELED,
+    "paused": SUB_PAST_DUE,
 }
 
 
@@ -171,9 +175,16 @@ async def apply_subscription(db: AsyncSession, sub_obj: dict) -> Subscription | 
     if not tenant.stripe_customer_id and sub_obj.get("customer"):
         tenant.stripe_customer_id = sub_obj["customer"]
     await db.flush()
-    await audit(db, "billing.subscription_synced", actor_type="webhook", actor_id="stripe", tenant_id=tenant.id,
-                target_type="subscription", target_id=sub.id,
-                details={"status": sub.status, "plan": plan.code if plan else None})
+    await audit(
+        db,
+        "billing.subscription_synced",
+        actor_type="webhook",
+        actor_id="stripe",
+        tenant_id=tenant.id,
+        target_type="subscription",
+        target_id=sub.id,
+        details={"status": sub.status, "plan": plan.code if plan else None},
+    )
     return sub
 
 
@@ -201,9 +212,15 @@ async def apply_invoice(db: AsyncSession, inv_obj: dict, paid: bool) -> None:
             sub.last_payment_failed_at = utcnow()
             sub.status = SUB_PAST_DUE
     await db.flush()
-    await audit(db, "billing.invoice_paid" if paid else "billing.payment_failed", actor_type="webhook",
-                actor_id="stripe", tenant_id=tenant.id, details={"amount_cents": inv.amount_cents},
-                severity="info" if paid else "warning")
+    await audit(
+        db,
+        "billing.invoice_paid" if paid else "billing.payment_failed",
+        actor_type="webhook",
+        actor_id="stripe",
+        tenant_id=tenant.id,
+        details={"amount_cents": inv.amount_cents},
+        severity="info" if paid else "warning",
+    )
 
 
 async def handle_event(db: AsyncSession, event: dict) -> str:
@@ -213,8 +230,7 @@ async def handle_event(db: AsyncSession, event: dict) -> str:
     existing = (await db.execute(select(WebhookEvent).where(WebhookEvent.event_id == event_id))).scalar_one_or_none()
     if existing and existing.status == "processed":
         return "duplicate"
-    rec = existing or WebhookEvent(provider="stripe", event_id=event_id, event_type=etype, received_at=utcnow(),
-                                   payload={"type": etype})
+    rec = existing or WebhookEvent(provider="stripe", event_id=event_id, event_type=etype, received_at=utcnow(), payload={"type": etype})
     db.add(rec)
     await db.flush()
     obj = (event.get("data") or {}).get("object") or {}

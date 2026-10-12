@@ -8,7 +8,10 @@ from tests.conftest import ConsoleProvider, register_and_login
 
 
 async def test_contact_lead_and_honeypot(client, db):
-    r = await client.post("/api/public/contact", json={"company": "Maler Nord", "name": "Ina", "email": "ina@nord.test", "trade": "maler", "size": "2-5", "message": "Interesse", "consent": True})
+    r = await client.post(
+        "/api/public/contact",
+        json={"company": "Maler Nord", "name": "Ina", "email": "ina@nord.test", "trade": "maler", "size": "2-5", "message": "Interesse", "consent": True},
+    )
     assert r.status_code == 201
     lead = (await db.execute(select(Lead))).scalar_one()
     assert lead.source == "website_form" and lead.consent_basis
@@ -30,12 +33,20 @@ async def test_website_form_webhook(client, db):
     r = await client.post("/api/integrations/contact-form/enable", headers=h)
     secret = r.json()["secret"]
     assert (await client.post(f"/api/public/forms/{tid}", json={"message": "Heizung kaputt"}, headers={"X-Form-Secret": "falsch"})).status_code == 401
-    r = await client.post(f"/api/public/forms/{tid}", json={"name": "Max", "email": "max@kunde.test", "message": "Heizung kaputt, Musterstr 1, 20095 Hamburg, 040 1234"}, headers={"X-Form-Secret": secret})
+    r = await client.post(
+        f"/api/public/forms/{tid}",
+        json={"name": "Max", "email": "max@kunde.test", "message": "Heizung kaputt, Musterstr 1, 20095 Hamburg, 040 1234"},
+        headers={"X-Form-Secret": secret},
+    )
     assert r.status_code == 201
     # Formulardaten (klassisches HTML-Formular) gehen auch
-    r = await client.post(f"/api/public/forms/{tid}", data={"name": "Eva", "email": "eva@kunde.test", "nachricht": "Angebot für Zaun", "website": ""}, headers={"X-Form-Secret": secret})
+    r = await client.post(
+        f"/api/public/forms/{tid}", data={"name": "Eva", "email": "eva@kunde.test", "nachricht": "Angebot für Zaun", "website": ""}, headers={"X-Form-Secret": secret}
+    )
     assert r.status_code == 201
-    assert (await client.post(f"/api/public/forms/{tid}", data={"nachricht": "spam", "website": "bot"}, headers={"X-Form-Secret": secret})).status_code == 201  # Honeypot: still, aber nichts gespeichert
+    assert (
+        await client.post(f"/api/public/forms/{tid}", data={"nachricht": "spam", "website": "bot"}, headers={"X-Form-Secret": secret})
+    ).status_code == 201  # Honeypot: still, aber nichts gespeichert
     from app.services.jobs import run_pending
 
     await run_pending(db)
@@ -46,7 +57,14 @@ async def test_website_form_webhook(client, db):
 
 async def test_inbound_email_signature_and_routing(client, db):
     h, tid = await register_and_login(client, company="Dach Hamburg GmbH")
-    payload = {"to": "anfragen+dach-hamburg-gmbh@mail.werkpilot.test", "from": "kunde@x.test", "from_name": "K. Kunde", "subject": "Sturmschaden", "text": "Nach dem Sturm fehlen Ziegel, es regnet rein. Musterweg 9, 22222 Hamburg, 0171 999", "message_id": "<abc@x>"}
+    payload = {
+        "to": "anfragen+dach-hamburg-gmbh@mail.werkpilot.test",
+        "from": "kunde@x.test",
+        "from_name": "K. Kunde",
+        "subject": "Sturmschaden",
+        "text": "Nach dem Sturm fehlen Ziegel, es regnet rein. Musterweg 9, 22222 Hamburg, 0171 999",
+        "message_id": "<abc@x>",
+    }
     raw = json.dumps(payload)
     assert (await client.post("/api/public/inbound-email", content=raw, headers={"Content-Type": "application/json"})).status_code == 401
     sig = sign_payload(raw, "inbound-secret")
@@ -56,7 +74,11 @@ async def test_inbound_email_signature_and_routing(client, db):
     r2 = await client.post("/api/public/inbound-email", content=raw, headers={"Content-Type": "application/json", "X-Inbound-Signature": sig})
     assert r2.json()["id"] == r.json()["id"]
     bad = raw.replace("dach-hamburg-gmbh", "unbekannt")
-    assert (await client.post("/api/public/inbound-email", content=bad, headers={"Content-Type": "application/json", "X-Inbound-Signature": sign_payload(bad, "inbound-secret")})).status_code == 404
+    assert (
+        await client.post(
+            "/api/public/inbound-email", content=bad, headers={"Content-Type": "application/json", "X-Inbound-Signature": sign_payload(bad, "inbound-secret")}
+        )
+    ).status_code == 404
     from app.services.jobs import run_pending
 
     await run_pending(db)

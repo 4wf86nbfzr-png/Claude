@@ -34,11 +34,24 @@ router = APIRouter(prefix="/api", tags=["inquiries"])
 
 def _inq(i: Inquiry) -> dict:
     return {
-        "id": i.id, "channel": i.channel, "subject": i.subject, "body": i.body, "sender_name": i.sender_name,
-        "sender_email": i.sender_email, "sender_phone": i.sender_phone, "status": i.status, "category": i.category,
-        "priority": i.priority, "confidence": i.confidence, "summary": i.summary, "extracted": i.extracted,
-        "missing_info": i.missing_info, "needs_human": i.needs_human, "needs_human_reason": i.needs_human_reason,
-        "customer_id": i.customer_id, "created_at": i.created_at.isoformat(),
+        "id": i.id,
+        "channel": i.channel,
+        "subject": i.subject,
+        "body": i.body,
+        "sender_name": i.sender_name,
+        "sender_email": i.sender_email,
+        "sender_phone": i.sender_phone,
+        "status": i.status,
+        "category": i.category,
+        "priority": i.priority,
+        "confidence": i.confidence,
+        "summary": i.summary,
+        "extracted": i.extracted,
+        "missing_info": i.missing_info,
+        "needs_human": i.needs_human,
+        "needs_human_reason": i.needs_human_reason,
+        "customer_id": i.customer_id,
+        "created_at": i.created_at.isoformat(),
         "first_response_at": i.first_response_at.isoformat() if i.first_response_at else None,
         "last_activity_at": i.last_activity_at.isoformat() if i.last_activity_at else None,
         "ai_provider": (i.ai_notes or {}).get("provider"),
@@ -46,10 +59,20 @@ def _inq(i: Inquiry) -> dict:
 
 
 def _draft(d: Draft) -> dict:
-    return {"id": d.id, "inquiry_id": d.inquiry_id, "kind": d.kind, "subject": d.subject, "body": d.body, "status": d.status,
-            "generated_by": d.generated_by, "confidence": d.confidence, "review_flags": d.review_flags,
-            "proposed_slots": d.proposed_slots, "created_at": d.created_at.isoformat(),
-            "approved_at": d.approved_at.isoformat() if d.approved_at else None}
+    return {
+        "id": d.id,
+        "inquiry_id": d.inquiry_id,
+        "kind": d.kind,
+        "subject": d.subject,
+        "body": d.body,
+        "status": d.status,
+        "generated_by": d.generated_by,
+        "confidence": d.confidence,
+        "review_flags": d.review_flags,
+        "proposed_slots": d.proposed_slots,
+        "created_at": d.created_at.isoformat(),
+        "approved_at": d.approved_at.isoformat() if d.approved_at else None,
+    }
 
 
 class InquiryCreate(BaseModel):
@@ -72,9 +95,15 @@ async def _monthly_limit_check(db: AsyncSession, tenant_id: str, ent: dict) -> N
 
 
 @router.get("/inquiries")
-async def list_inquiries(status: str | None = None, q: str | None = None, open_only: bool = False,
-                         limit: int = Query(50, le=200), offset: int = 0,
-                         ctx: AuthContext = Depends(require_tenant), db: AsyncSession = Depends(get_db)):
+async def list_inquiries(
+    status: str | None = None,
+    q: str | None = None,
+    open_only: bool = False,
+    limit: int = Query(50, le=200),
+    offset: int = 0,
+    ctx: AuthContext = Depends(require_tenant),
+    db: AsyncSession = Depends(get_db),
+):
     stmt = select(Inquiry).where(Inquiry.tenant_id == ctx.tenant_id)
     if status:
         stmt = stmt.where(Inquiry.status == status)
@@ -92,10 +121,18 @@ async def list_inquiries(status: str | None = None, q: str | None = None, open_o
 async def create(data: InquiryCreate, ctx: AuthContext = Depends(require_tenant), db: AsyncSession = Depends(get_db)):
     ent = await require_feature(db, ctx.tenant_id, F_INQUIRIES)
     await _monthly_limit_check(db, ctx.tenant_id, ent)
-    inq = await create_inquiry(db, ctx.tenant, channel="manual" if data.channel not in ("manual", "phone") else data.channel,
-                               subject=data.subject, body=data.body, sender_name=data.sender_name,
-                               sender_email=data.sender_email, sender_phone=data.sender_phone, actor=f"user:{ctx.user.id}",
-                               process=False)
+    inq = await create_inquiry(
+        db,
+        ctx.tenant,
+        channel="manual" if data.channel not in ("manual", "phone") else data.channel,
+        subject=data.subject,
+        body=data.body,
+        sender_name=data.sender_name,
+        sender_email=data.sender_email,
+        sender_phone=data.sender_phone,
+        actor=f"user:{ctx.user.id}",
+        process=False,
+    )
     await db.commit()
     # synchron verarbeiten, damit der Nutzer sofort einen Entwurf sieht; bei Fehlern bleibt sie 'needs_review'
     try:
@@ -124,7 +161,20 @@ async def get_inquiry(inquiry_id: str, ctx: AuthContext = Depends(require_tenant
     return {
         **_inq(inq),
         "customer": {"id": customer.id, "name": customer.name, "email": customer.email, "phone": customer.phone, "address": customer.address} if customer else None,
-        "messages": [{"id": m.id, "direction": m.direction, "channel": m.channel, "sender": m.sender, "recipient": m.recipient, "subject": m.subject, "body": m.body, "delivery_status": m.delivery_status, "created_at": m.created_at.isoformat()} for m in msgs],
+        "messages": [
+            {
+                "id": m.id,
+                "direction": m.direction,
+                "channel": m.channel,
+                "sender": m.sender,
+                "recipient": m.recipient,
+                "subject": m.subject,
+                "body": m.body,
+                "delivery_status": m.delivery_status,
+                "created_at": m.created_at.isoformat(),
+            }
+            for m in msgs
+        ],
         "drafts": [_draft(d) for d in drafts],
         "appointments": [{"id": a.id, "title": a.title, "starts_at": a.starts_at.isoformat(), "ends_at": a.ends_at.isoformat(), "status": a.status} for a in appts],
         "quotes": [{"id": q.id, "title": q.title, "status": q.status, "amount_cents": q.amount_cents, "followup_count": q.followup_count} for q in quotes],
@@ -146,7 +196,16 @@ async def set_status(inquiry_id: str, data: StatusIn, ctx: AuthContext = Depends
     inq.last_activity_at = utcnow()
     if data.status in (INQ_WON, INQ_LOST, INQ_CLOSED, INQ_SPAM):
         inq.closed_at = utcnow()
-    await audit(db, "inquiry.status_changed", actor_type="user", actor_id=ctx.user.id, tenant_id=ctx.tenant_id, target_type="inquiry", target_id=inq.id, details={"status": data.status})
+    await audit(
+        db,
+        "inquiry.status_changed",
+        actor_type="user",
+        actor_id=ctx.user.id,
+        tenant_id=ctx.tenant_id,
+        target_type="inquiry",
+        target_id=inq.id,
+        details={"status": data.status},
+    )
     await db.commit()
     return _inq(inq)
 
@@ -229,8 +288,9 @@ async def reject_draft(draft_id: str, ctx: AuthContext = Depends(require_tenant)
 
 
 @router.get("/customers")
-async def list_customers(q: str | None = None, limit: int = Query(50, le=200), offset: int = 0,
-                         ctx: AuthContext = Depends(require_tenant), db: AsyncSession = Depends(get_db)):
+async def list_customers(
+    q: str | None = None, limit: int = Query(50, le=200), offset: int = 0, ctx: AuthContext = Depends(require_tenant), db: AsyncSession = Depends(get_db)
+):
     stmt = select(Customer).where(Customer.tenant_id == ctx.tenant_id)
     if q:
         like = f"%{q[:100]}%"
@@ -239,7 +299,19 @@ async def list_customers(q: str | None = None, limit: int = Query(50, le=200), o
     out = []
     for c in rows:
         n = (await db.execute(select(func.count(Inquiry.id)).where(Inquiry.customer_id == c.id))).scalar_one()
-        out.append({"id": c.id, "name": c.name, "email": c.email, "phone": c.phone, "address": c.address, "notes": c.notes, "tags": c.tags, "inquiries": n, "created_at": c.created_at.isoformat()})
+        out.append(
+            {
+                "id": c.id,
+                "name": c.name,
+                "email": c.email,
+                "phone": c.phone,
+                "address": c.address,
+                "notes": c.notes,
+                "tags": c.tags,
+                "inquiries": n,
+                "created_at": c.created_at.isoformat(),
+            }
+        )
     return out
 
 
@@ -279,7 +351,9 @@ async def delete_customer(customer_id: str, ctx: AuthContext = Depends(require_t
     if not c or c.tenant_id != ctx.tenant_id:
         raise HTTPException(404, "Kunde nicht gefunden.")
     await db.delete(c)
-    await audit(db, "customer.deleted", actor_type="user", actor_id=ctx.user.id, tenant_id=ctx.tenant_id, target_type="customer", target_id=customer_id, severity="security")
+    await audit(
+        db, "customer.deleted", actor_type="user", actor_id=ctx.user.id, tenant_id=ctx.tenant_id, target_type="customer", target_id=customer_id, severity="security"
+    )
     await db.commit()
     return {"message": "Gelöscht."}
 
@@ -293,7 +367,20 @@ async def list_appointments(upcoming: bool = True, ctx: AuthContext = Depends(re
     if upcoming:
         stmt = stmt.where(Appointment.ends_at >= utcnow())
     rows = (await db.execute(stmt.order_by(Appointment.starts_at).limit(200))).scalars().all()
-    return [{"id": a.id, "inquiry_id": a.inquiry_id, "title": a.title, "starts_at": a.starts_at.isoformat(), "ends_at": a.ends_at.isoformat(), "status": a.status, "location": a.location, "notes": a.notes, "external_calendar_id": a.external_calendar_id} for a in rows]
+    return [
+        {
+            "id": a.id,
+            "inquiry_id": a.inquiry_id,
+            "title": a.title,
+            "starts_at": a.starts_at.isoformat(),
+            "ends_at": a.ends_at.isoformat(),
+            "status": a.status,
+            "location": a.location,
+            "notes": a.notes,
+            "external_calendar_id": a.external_calendar_id,
+        }
+        for a in rows
+    ]
 
 
 class AppointmentIn(BaseModel):
@@ -341,7 +428,11 @@ async def update_appointment(appointment_id: str, payload: dict, ctx: AuthContex
             if inq:
                 inq.status = INQ_SCHEDULED
             # andere Vorschläge derselben Anfrage freigeben
-            others = (await db.execute(select(Appointment).where(Appointment.inquiry_id == a.inquiry_id, Appointment.id != a.id, Appointment.status == "proposed"))).scalars().all()
+            others = (
+                (await db.execute(select(Appointment).where(Appointment.inquiry_id == a.inquiry_id, Appointment.id != a.id, Appointment.status == "proposed")))
+                .scalars()
+                .all()
+            )
             for o in others:
                 o.status = "canceled"
             if not a.external_calendar_id:
@@ -374,9 +465,21 @@ async def list_quotes(status: str | None = "open", ctx: AuthContext = Depends(re
     if status:
         stmt = stmt.where(Quote.status == status)
     rows = (await db.execute(stmt.order_by(Quote.created_at.desc()).limit(200))).scalars().all()
-    return [{"id": q.id, "inquiry_id": q.inquiry_id, "title": q.title, "amount_cents": q.amount_cents, "status": q.status,
-             "sent_at": q.sent_at.isoformat() if q.sent_at else None, "valid_until": q.valid_until.isoformat() if q.valid_until else None,
-             "followup_count": q.followup_count, "next_followup_at": q.next_followup_at.isoformat() if q.next_followup_at else None, "notes": q.notes} for q in rows]
+    return [
+        {
+            "id": q.id,
+            "inquiry_id": q.inquiry_id,
+            "title": q.title,
+            "amount_cents": q.amount_cents,
+            "status": q.status,
+            "sent_at": q.sent_at.isoformat() if q.sent_at else None,
+            "valid_until": q.valid_until.isoformat() if q.valid_until else None,
+            "followup_count": q.followup_count,
+            "next_followup_at": q.next_followup_at.isoformat() if q.next_followup_at else None,
+            "notes": q.notes,
+        }
+        for q in rows
+    ]
 
 
 class QuoteIn(BaseModel):

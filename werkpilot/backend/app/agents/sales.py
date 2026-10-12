@@ -26,9 +26,15 @@ async def qualify_lead(db, lead_id: str) -> Lead | None:
     if not lead or lead.source not in ALLOWED_SOURCES or not lead.consent_basis:
         return lead
     try:
-        res = await run_structured(db, task="lead_fit", schema=LeadFit, tenant_id=None,
-                                   instructions="Bewerte die Eignung dieses Interessenten für eine KI-Anfrageautomatisierung (Zielgruppe: kleine deutsche Handwerksbetriebe mit 2-15 Mitarbeitenden). Sachlich, ohne Annahmen über nicht genannte Daten.",
-                                   data=f"Firma: {lead.company}\nGewerk: {lead.trade}\nGröße: {lead.size}\nRegion: {lead.region}\nQuelle: {lead.source}\nNachricht: {(lead.notes or '')[:1000]}", max_output_tokens=300)
+        res = await run_structured(
+            db,
+            task="lead_fit",
+            schema=LeadFit,
+            tenant_id=None,
+            instructions="Bewerte die Eignung dieses Interessenten für eine KI-Anfrageautomatisierung (Zielgruppe: kleine deutsche Handwerksbetriebe mit 2-15 Mitarbeitenden). Sachlich, ohne Annahmen über nicht genannte Daten.",
+            data=f"Firma: {lead.company}\nGewerk: {lead.trade}\nGröße: {lead.size}\nRegion: {lead.region}\nQuelle: {lead.source}\nNachricht: {(lead.notes or '')[:1000]}",
+            max_output_tokens=300,
+        )
         lead.fit_score = res.fit_score
         lead.fit_reasons = res.reasons
         lead.status = "qualified" if res.fit_score >= 50 else lead.status
@@ -56,13 +62,15 @@ class SalesAgent(BaseAgent):
         # 2. Qualifizierte Leads: sachliche Info-Mail mit Demo-Angebot (Antwort auf deren eigene Anfrage = zulässig)
         qualified = (await db.execute(select(Lead).where(Lead.status == "qualified", Lead.email.is_not(None), Lead.next_action_at <= now))).scalars().all()
         for lead in qualified:
-            text = (f"Moin {lead.contact_name or ''},\n\ndanke für Ihre Anfrage zu WerkPilot AI für {lead.company}.\n\n"
-                    "Kurz, was WerkPilot macht: Kundenanfragen aus E-Mail und Website landen an einem Ort, werden nach Dringlichkeit sortiert, "
-                    "und Sie bekommen fertige Antwortentwürfe – inklusive Rückfragen nach fehlenden Angaben und Terminvorschlägen. "
-                    "Offene Angebote werden nicht vergessen.\n\n"
-                    f"Sie können es 14 Tage kostenlos testen: {s.frontend_url}/registrieren\n"
-                    f"Oder wir zeigen es Ihnen in 20 Minuten: Antworten Sie einfach mit zwei Terminvorschlägen.\n\n"
-                    "Preise und Umfang stehen transparent unter " + f"{s.frontend_url}/preise.\n\nFreundliche Grüße\nWerkPilot AI")
+            text = (
+                f"Moin {lead.contact_name or ''},\n\ndanke für Ihre Anfrage zu WerkPilot AI für {lead.company}.\n\n"
+                "Kurz, was WerkPilot macht: Kundenanfragen aus E-Mail und Website landen an einem Ort, werden nach Dringlichkeit sortiert, "
+                "und Sie bekommen fertige Antwortentwürfe – inklusive Rückfragen nach fehlenden Angaben und Terminvorschlägen. "
+                "Offene Angebote werden nicht vergessen.\n\n"
+                f"Sie können es 14 Tage kostenlos testen: {s.frontend_url}/registrieren\n"
+                f"Oder wir zeigen es Ihnen in 20 Minuten: Antworten Sie einfach mit zwei Terminvorschlägen.\n\n"
+                "Preise und Umfang stehen transparent unter " + f"{s.frontend_url}/preise.\n\nFreundliche Grüße\nWerkPilot AI"
+            )
             await send_email(db, to=lead.email, subject=f"WerkPilot AI für {lead.company}: Demo oder Test?", text=text, kind="transactional")
             lead.status = "demo_scheduled" if False else "qualified"
             lead.next_action = "Auf Antwort warten (Demo/Testphase)"
@@ -70,18 +78,32 @@ class SalesAgent(BaseAgent):
             lead.notes = (lead.notes or "") + f"\n[{now.date()}] Info-Mail mit Demo-Angebot gesendet (Antwort auf Anfrage)."
             ctx.act(f"Info-Mail an {lead.company}")
         # 3. Testphasen, die bald ablaufen: Erinnerung (bestehende Nutzerbeziehung)
-        expiring = (await db.execute(select(Subscription).where(Subscription.status == "trialing", Subscription.trial_ends_at.between(now, now + timedelta(days=3))))).scalars().all()
+        expiring = (
+            (await db.execute(select(Subscription).where(Subscription.status == "trialing", Subscription.trial_ends_at.between(now, now + timedelta(days=3)))))
+            .scalars()
+            .all()
+        )
         reminded = 0
         for sub in expiring:
             tenant = await db.get(Tenant, sub.tenant_id)
             if not tenant or tenant.settings.get("trial_reminder_sent"):
                 continue
-            owner = (await db.execute(select(User).join(Membership, Membership.user_id == User.id).where(Membership.tenant_id == tenant.id, Membership.role == "owner"))).scalars().first()
+            owner = (
+                (await db.execute(select(User).join(Membership, Membership.user_id == User.id).where(Membership.tenant_id == tenant.id, Membership.role == "owner")))
+                .scalars()
+                .first()
+            )
             if owner:
-                await send_email(db, to=owner.email, subject="Ihre WerkPilot-Testphase endet bald",
-                                 text=f"Moin {owner.full_name},\n\nIhre Testphase für {tenant.name} endet am {sub.trial_ends_at.strftime('%d.%m.%Y')}. "
-                                      f"Wenn WerkPilot Ihnen Arbeit abnimmt, wählen Sie hier einen Tarif: {s.frontend_url}/app/abonnement\n\n"
-                                      "Fragen? Antworten Sie einfach auf diese Mail.\n\nWerkPilot AI", kind="transactional", tenant_id=tenant.id)
+                await send_email(
+                    db,
+                    to=owner.email,
+                    subject="Ihre WerkPilot-Testphase endet bald",
+                    text=f"Moin {owner.full_name},\n\nIhre Testphase für {tenant.name} endet am {sub.trial_ends_at.strftime('%d.%m.%Y')}. "
+                    f"Wenn WerkPilot Ihnen Arbeit abnimmt, wählen Sie hier einen Tarif: {s.frontend_url}/app/abonnement\n\n"
+                    "Fragen? Antworten Sie einfach auf diese Mail.\n\nWerkPilot AI",
+                    kind="transactional",
+                    tenant_id=tenant.id,
+                )
                 tenant.settings = {**tenant.settings, "trial_reminder_sent": True}
                 reminded += 1
         # 4. Abschlüsse/Kündigungen auswerten

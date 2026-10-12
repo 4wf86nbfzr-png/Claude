@@ -13,8 +13,13 @@ from app.models.core import Tenant
 from app.models.crm import Appointment
 
 DEFAULT_HOURS = {
-    "mon": [["08:00", "16:00"]], "tue": [["08:00", "16:00"]], "wed": [["08:00", "16:00"]],
-    "thu": [["08:00", "16:00"]], "fri": [["08:00", "14:00"]], "sat": [], "sun": [],
+    "mon": [["08:00", "16:00"]],
+    "tue": [["08:00", "16:00"]],
+    "wed": [["08:00", "16:00"]],
+    "thu": [["08:00", "16:00"]],
+    "fri": [["08:00", "14:00"]],
+    "sat": [],
+    "sun": [],
 }
 DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
 
@@ -26,15 +31,19 @@ def _parse(t: str) -> time:
 
 async def busy_intervals(db: AsyncSession, tenant_id: str, start: datetime, end: datetime) -> list[tuple[datetime, datetime]]:
     rows = (
-        await db.execute(
-            select(Appointment).where(
-                Appointment.tenant_id == tenant_id,
-                Appointment.status.in_(["proposed", "confirmed"]),
-                Appointment.ends_at > start,
-                Appointment.starts_at < end,
+        (
+            await db.execute(
+                select(Appointment).where(
+                    Appointment.tenant_id == tenant_id,
+                    Appointment.status.in_(["proposed", "confirmed"]),
+                    Appointment.ends_at > start,
+                    Appointment.starts_at < end,
+                )
             )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     return [(a.starts_at, a.ends_at) for a in rows]
 
 
@@ -68,11 +77,13 @@ async def propose_slots(
             while cursor + dur <= w_end:
                 if cursor >= start_search and not any(b0 < cursor + dur and b1 > cursor for b0, b1 in busy):
                     # Max. ein Slot pro Tag, damit Vorschläge über mehrere Tage streuen
-                    slots.append({
-                        "starts_at": cursor.isoformat(),
-                        "ends_at": (cursor + dur).isoformat(),
-                        "label": cursor.strftime("%a, %d.%m.%Y um %H:%M Uhr"),
-                    })
+                    slots.append(
+                        {
+                            "starts_at": cursor.isoformat(),
+                            "ends_at": (cursor + dur).isoformat(),
+                            "label": cursor.strftime("%a, %d.%m.%Y um %H:%M Uhr"),
+                        }
+                    )
                     break
                 cursor += step
             if len(slots) >= count:

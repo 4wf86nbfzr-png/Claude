@@ -183,8 +183,7 @@ class MockProvider(Provider):
         if handler is None:
             raise LLMError(f"Mock-Anbieter kennt Aufgabe '{task}' nicht.")
         payload = handler(user)
-        return LLMResponse(text=json.dumps(payload, ensure_ascii=False), input_tokens=len(user) // 4,
-                           output_tokens=50, model="mock", provider="mock")
+        return LLMResponse(text=json.dumps(payload, ensure_ascii=False), input_tokens=len(user) // 4, output_tokens=50, model="mock", provider="mock")
 
 
 _provider_cache: dict[str, Provider] = {}

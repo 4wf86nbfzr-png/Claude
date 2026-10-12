@@ -66,7 +66,11 @@ class OpsAgent(BaseAgent):
             critical.append(f"{queued_old} Jobs seit >15 Min. nicht abgearbeitet – läuft der Worker?")
 
         # 3. Fehlerhäufungen
-        err_rows = (await db.execute(select(ErrorReport).where(ErrorReport.status == "open", ErrorReport.last_seen_at >= day).order_by(ErrorReport.occurrences.desc()).limit(5))).scalars().all()
+        err_rows = (
+            (await db.execute(select(ErrorReport).where(ErrorReport.status == "open", ErrorReport.last_seen_at >= day).order_by(ErrorReport.occurrences.desc()).limit(5)))
+            .scalars()
+            .all()
+        )
         for e in err_rows:
             ctx.find(f"Fehler ({e.occurrences}x): {e.source}: {e.message[:120]}")
             if e.occurrences >= 20:
@@ -135,12 +139,31 @@ class OpsAgent(BaseAgent):
             await notify_ops(db, "Kritische Betriebsmeldung", "\n".join(f"- {c}" for c in critical))
             ctx.act("Betreiber benachrichtigt.")
         # Tagesbericht speichern (einmal pro Tag)
-        last = (await db.execute(select(Report).where(Report.tenant_id.is_(None), Report.kind == "daily_ops").order_by(Report.created_at.desc()).limit(1))).scalar_one_or_none()
+        last = (
+            await db.execute(select(Report).where(Report.tenant_id.is_(None), Report.kind == "daily_ops").order_by(Report.created_at.desc()).limit(1))
+        ).scalar_one_or_none()
         if last is None or last.created_at < now - timedelta(hours=23):
             text_report = "\n".join([summary, "", "Befunde:"] + [f"- {f}" for f in ctx.findings] + ["", "Kritisch:"] + [f"- {c}" for c in critical] or ["- keine"])
-            db.add(Report(created_at=now, tenant_id=None, kind="daily_ops", period_start=day, period_end=now,
-                          data={"tenants": tenants, "ai_calls": calls, "ai_cost_cents": round(spent, 2), "ai_failures": failures, "dead_jobs": dead,
-                                "mail_failed": mail_failed, "past_due": past_due, "critical": critical}, summary_text=text_report))
+            db.add(
+                Report(
+                    created_at=now,
+                    tenant_id=None,
+                    kind="daily_ops",
+                    period_start=day,
+                    period_end=now,
+                    data={
+                        "tenants": tenants,
+                        "ai_calls": calls,
+                        "ai_cost_cents": round(spent, 2),
+                        "ai_failures": failures,
+                        "dead_jobs": dead,
+                        "mail_failed": mail_failed,
+                        "past_due": past_due,
+                        "critical": critical,
+                    },
+                    summary_text=text_report,
+                )
+            )
             if s.ops_alert_email:
                 await send_email(db, to=s.ops_alert_email, subject="Täglicher Betriebsbericht WerkPilot", text=text_report, kind="report")
             ctx.act("Tagesbericht erstellt.")

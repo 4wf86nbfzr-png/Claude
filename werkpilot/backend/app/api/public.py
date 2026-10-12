@@ -49,7 +49,9 @@ async def website_form(tenant_id: str, request: Request, x_form_secret: str | No
     tenant = await db.get(Tenant, tenant_id)
     if not tenant or not tenant.is_active:
         raise HTTPException(404, "Unbekannt.")
-    integ = (await db.execute(select(Integration).where(Integration.tenant_id == tenant_id, Integration.type == "contact_form", Integration.status == "connected"))).scalar_one_or_none()
+    integ = (
+        await db.execute(select(Integration).where(Integration.tenant_id == tenant_id, Integration.type == "contact_form", Integration.status == "connected"))
+    ).scalar_one_or_none()
     if not integ:
         raise HTTPException(404, "Formular-Integration nicht aktiv.")
     secret_hash = (integ.config or {}).get("secret_hash", "")
@@ -67,16 +69,33 @@ async def website_form(tenant_id: str, request: Request, x_form_secret: str | No
         email = None
     if not await _check_monthly_cap(db, tenant):
         # Anfrage trotzdem speichern, aber nicht per KI verarbeiten – nichts geht verloren
-        inq = await create_inquiry(db, tenant, channel="form", subject=str(data.get("subject") or data.get("betreff") or "Website-Anfrage")[:300], body=body,
-                                   sender_name=str(data.get("name") or "")[:200], sender_email=email, sender_phone=str(data.get("phone") or data.get("telefon") or "")[:60] or None,
-                                   actor="form", process=False)
+        inq = await create_inquiry(
+            db,
+            tenant,
+            channel="form",
+            subject=str(data.get("subject") or data.get("betreff") or "Website-Anfrage")[:300],
+            body=body,
+            sender_name=str(data.get("name") or "")[:200],
+            sender_email=email,
+            sender_phone=str(data.get("phone") or data.get("telefon") or "")[:60] or None,
+            actor="form",
+            process=False,
+        )
         inq.needs_human = True
         inq.needs_human_reason = "Kontingent erschöpft oder kein aktives Abo – manuell bearbeiten."
         await db.commit()
         return {"message": "Danke, wir melden uns.", "id": inq.id}
-    inq = await create_inquiry(db, tenant, channel="form", subject=str(data.get("subject") or data.get("betreff") or "Website-Anfrage")[:300], body=body,
-                               sender_name=str(data.get("name") or "")[:200], sender_email=email, sender_phone=str(data.get("phone") or data.get("telefon") or "")[:60] or None,
-                               actor="form")
+    inq = await create_inquiry(
+        db,
+        tenant,
+        channel="form",
+        subject=str(data.get("subject") or data.get("betreff") or "Website-Anfrage")[:300],
+        body=body,
+        sender_name=str(data.get("name") or "")[:200],
+        sender_email=email,
+        sender_phone=str(data.get("phone") or data.get("telefon") or "")[:60] or None,
+        actor="form",
+    )
     await db.commit()
     return {"message": "Danke, wir melden uns.", "id": inq.id}
 
@@ -114,8 +133,18 @@ async def inbound_email(data: InboundEmail, request: Request, x_inbound_signatur
     if not body:
         raise HTTPException(422, "Leere Nachricht.")
     process = await _check_monthly_cap(db, tenant)
-    inq = await create_inquiry(db, tenant, channel="email", subject=data.subject[:300], body=body[:20000], sender_name=data.from_name[:200],
-                               sender_email=str(data.from_email), external_id=data.message_id, actor="inbound_email", process=process)
+    inq = await create_inquiry(
+        db,
+        tenant,
+        channel="email",
+        subject=data.subject[:300],
+        body=body[:20000],
+        sender_name=data.from_name[:200],
+        sender_email=str(data.from_email),
+        external_id=data.message_id,
+        actor="inbound_email",
+        process=process,
+    )
     if not process:
         inq.needs_human = True
         inq.needs_human_reason = "Kontingent erschöpft oder kein aktives Abo."
@@ -144,9 +173,21 @@ async def contact(data: ContactIn, request: Request, db: AsyncSession = Depends(
         return {"message": "Danke."}
     if not data.consent:
         raise HTTPException(422, "Bitte der Kontaktaufnahme zustimmen.")
-    lead = Lead(company=data.company, contact_name=data.name, email=str(data.email).lower(), phone=data.phone, trade=data.trade,
-                size=data.size, source="website_form", consent_basis="Kontaktanfrage über Website (Art. 6 Abs. 1 lit. b DSGVO)",
-                consent_at=utcnow(), notes=data.message, status="new", next_action="Erstkontakt per E-Mail", next_action_at=utcnow())
+    lead = Lead(
+        company=data.company,
+        contact_name=data.name,
+        email=str(data.email).lower(),
+        phone=data.phone,
+        trade=data.trade,
+        size=data.size,
+        source="website_form",
+        consent_basis="Kontaktanfrage über Website (Art. 6 Abs. 1 lit. b DSGVO)",
+        consent_at=utcnow(),
+        notes=data.message,
+        status="new",
+        next_action="Erstkontakt per E-Mail",
+        next_action_at=utcnow(),
+    )
     db.add(lead)
     await db.flush()
     from app.services.jobs import enqueue
@@ -154,9 +195,19 @@ async def contact(data: ContactIn, request: Request, db: AsyncSession = Depends(
     await enqueue(db, "qualify_lead", {"lead_id": lead.id}, dedupe_key=f"qualify_lead:{lead.id}")
     s = get_settings()
     if s.ops_alert_email:
-        await send_email(db, to=s.ops_alert_email, subject=f"Neuer Interessent: {data.company}", text=f"{data.name} <{data.email}>\nGewerk: {data.trade}\nGröße: {data.size}\n\n{data.message}", kind="alert")
-    await send_email(db, to=str(data.email), subject="Danke für Ihre Anfrage – WerkPilot AI",
-                     text=f"Moin {data.name},\n\ndanke für Ihr Interesse an WerkPilot AI. Wir melden uns innerhalb eines Werktags.\n\nBis dahin können Sie die Demo ausprobieren: {s.frontend_url}/demo\n\nWerkPilot AI")
+        await send_email(
+            db,
+            to=s.ops_alert_email,
+            subject=f"Neuer Interessent: {data.company}",
+            text=f"{data.name} <{data.email}>\nGewerk: {data.trade}\nGröße: {data.size}\n\n{data.message}",
+            kind="alert",
+        )
+    await send_email(
+        db,
+        to=str(data.email),
+        subject="Danke für Ihre Anfrage – WerkPilot AI",
+        text=f"Moin {data.name},\n\ndanke für Ihr Interesse an WerkPilot AI. Wir melden uns innerhalb eines Werktags.\n\nBis dahin können Sie die Demo ausprobieren: {s.frontend_url}/demo\n\nWerkPilot AI",
+    )
     await audit(db, "lead.created", actor_type="system", actor_id="website", target_type="lead", target_id=lead.id)
     await db.commit()
     return {"message": "Danke! Wir melden uns innerhalb eines Werktags."}
@@ -185,11 +236,29 @@ async def demo_classify(data: DemoIn, request: Request, db: AsyncSession = Depen
     original = llm_mod.get_provider
     llm_mod.get_provider = lambda: provider  # type: ignore[assignment]
     try:
-        trade_label = {"shk": "Sanitär- und Heizungsbetrieb", "elektro": "Elektrobetrieb", "maler": "Malerbetrieb", "dach": "Dachdeckerbetrieb"}.get(data.trade, "Handwerksbetrieb")
+        trade_label = {"shk": "Sanitär- und Heizungsbetrieb", "elektro": "Elektrobetrieb", "maler": "Malerbetrieb", "dach": "Dachdeckerbetrieb"}.get(
+            data.trade, "Handwerksbetrieb"
+        )
         ctx = f"Betrieb: Muster {trade_label}\nGewerk: {trade_label}\nOrt: -\n"
-        cls = await run_structured(db, task="classify_inquiry", schema=Classification, instructions="Klassifiziere.", data=ctx + "Anfrage:\n" + wrap_untrusted(data.text), tenant_id=None)
-        reply = await run_structured(db, task="draft_reply", schema=ReplyDraft, instructions="Antwort.",
-                                     data=ctx + "Absender: \nKategorie: " + cls.category + "\nFehlende Angaben: " + "; ".join(cls.missing_info) + "\nTerminvorschläge: Di, 09:00 Uhr; Do, 14:00 Uhr\nSignatur: Muster " + trade_label + "\n\nAnfrage:\n" + wrap_untrusted(data.text), tenant_id=None)
+        cls = await run_structured(
+            db, task="classify_inquiry", schema=Classification, instructions="Klassifiziere.", data=ctx + "Anfrage:\n" + wrap_untrusted(data.text), tenant_id=None
+        )
+        reply = await run_structured(
+            db,
+            task="draft_reply",
+            schema=ReplyDraft,
+            instructions="Antwort.",
+            data=ctx
+            + "Absender: \nKategorie: "
+            + cls.category
+            + "\nFehlende Angaben: "
+            + "; ".join(cls.missing_info)
+            + "\nTerminvorschläge: Di, 09:00 Uhr; Do, 14:00 Uhr\nSignatur: Muster "
+            + trade_label
+            + "\n\nAnfrage:\n"
+            + wrap_untrusted(data.text),
+            tenant_id=None,
+        )
     except LLMError as e:
         raise HTTPException(503, str(e)) from e
     finally:

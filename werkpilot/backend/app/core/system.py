@@ -52,9 +52,7 @@ async def kill_switch_active(db: AsyncSession) -> bool:
 
 
 async def activate_kill_switch(db: AsyncSession, reason: str, by: str) -> dict:
-    return await set_setting(
-        db, KEY_KILL_SWITCH, {"active": True, "reason": reason, "activated_at": utcnow().isoformat()}, by
-    )
+    return await set_setting(db, KEY_KILL_SWITCH, {"active": True, "reason": reason, "activated_at": utcnow().isoformat()}, by)
 
 
 async def deactivate_kill_switch(db: AsyncSession, by: str) -> dict:

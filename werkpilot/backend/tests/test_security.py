@@ -35,7 +35,9 @@ def test_untrusted_wrapping_and_injection_detection():
 
 async def test_export_delete_and_audit(client, db):
     h, tid = await register_and_login(client)
-    await client.post("/api/inquiries", headers=h, json={"body": "Steckdose defekt, Musterstr 1 20095 Hamburg 040123", "sender_email": "k@x.test", "sender_name": "Kunde"})
+    await client.post(
+        "/api/inquiries", headers=h, json={"body": "Steckdose defekt, Musterstr 1 20095 Hamburg 040123", "sender_email": "k@x.test", "sender_name": "Kunde"}
+    )
     r = await client.get("/api/tenant/export", headers=h)
     assert r.status_code == 200 and "attachment" in r.headers["content-disposition"]
     data = r.json()
@@ -48,7 +50,7 @@ async def test_export_delete_and_audit(client, db):
     assert (await client.get("/api/tenant", headers=h)).status_code == 403
     actions = {a.action for a in (await db.execute(select(AuditLog).where(AuditLog.tenant_id == tid))).scalars().all()}
     assert {"user.registered", "inquiry.created", "tenant.exported", "tenant.deletion_requested"} <= actions
-    audit = (await client.get("/api/tenant/audit", headers=h))
+    audit = await client.get("/api/tenant/audit", headers=h)
     assert audit.status_code == 403  # Betrieb deaktiviert
 
 

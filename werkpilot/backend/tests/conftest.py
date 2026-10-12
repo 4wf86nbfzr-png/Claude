@@ -87,7 +87,10 @@ def last_mail_link(prefix: str) -> str:
 
 
 async def register_and_login(client: AsyncClient, email="chef@beispiel-elektro.test", company="Beispiel Elektro", trade="elektro", password="Moin-Hafen-2026!"):
-    r = await client.post("/api/auth/register", json={"email": email, "password": password, "full_name": "Kai Beispiel", "company": company, "trade": trade, "accept_terms": True, "accept_privacy": True})
+    r = await client.post(
+        "/api/auth/register",
+        json={"email": email, "password": password, "full_name": "Kai Beispiel", "company": company, "trade": trade, "accept_terms": True, "accept_privacy": True},
+    )
     assert r.status_code == 201, r.text
     token = last_mail_link("/bestaetigen")
     r = await client.post("/api/auth/verify-email", json={"token": token})

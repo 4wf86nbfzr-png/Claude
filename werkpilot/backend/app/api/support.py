@@ -15,7 +15,11 @@ router = APIRouter(prefix="/api/support", tags=["support"])
 
 @router.get("/articles")
 async def articles(db: AsyncSession = Depends(get_db)):
-    rows = (await db.execute(select(KnowledgeArticle).where(KnowledgeArticle.is_published.is_(True)).order_by(KnowledgeArticle.category, KnowledgeArticle.title))).scalars().all()
+    rows = (
+        (await db.execute(select(KnowledgeArticle).where(KnowledgeArticle.is_published.is_(True)).order_by(KnowledgeArticle.category, KnowledgeArticle.title)))
+        .scalars()
+        .all()
+    )
     return [{"slug": a.slug, "title": a.title, "category": a.category, "body": a.body} for a in rows]
 
 
@@ -27,7 +31,10 @@ class TicketIn(BaseModel):
 @router.get("/tickets")
 async def tickets(ctx: AuthContext = Depends(require_tenant), db: AsyncSession = Depends(get_db)):
     rows = (await db.execute(select(SupportTicket).where(SupportTicket.tenant_id == ctx.tenant_id).order_by(SupportTicket.created_at.desc()).limit(100))).scalars().all()
-    return [{"id": t.id, "subject": t.subject, "category": t.category, "priority": t.priority, "status": t.status, "created_at": t.created_at.isoformat(), "source": t.source} for t in rows]
+    return [
+        {"id": t.id, "subject": t.subject, "category": t.category, "priority": t.priority, "status": t.status, "created_at": t.created_at.isoformat(), "source": t.source}
+        for t in rows
+    ]
 
 
 @router.post("/tickets", status_code=201)
@@ -47,8 +54,15 @@ async def get_ticket(ticket_id: str, ctx: AuthContext = Depends(require_tenant),
     if not t or t.tenant_id != ctx.tenant_id:
         raise HTTPException(404, "Ticket nicht gefunden.")
     msgs = (await db.execute(select(SupportMessage).where(SupportMessage.ticket_id == t.id).order_by(SupportMessage.created_at))).scalars().all()
-    return {"id": t.id, "subject": t.subject, "category": t.category, "priority": t.priority, "status": t.status, "resolution": t.resolution,
-            "messages": [{"id": m.id, "author_type": m.author_type, "body": m.body, "created_at": m.created_at.isoformat(), "meta": m.meta} for m in msgs]}
+    return {
+        "id": t.id,
+        "subject": t.subject,
+        "category": t.category,
+        "priority": t.priority,
+        "status": t.status,
+        "resolution": t.resolution,
+        "messages": [{"id": m.id, "author_type": m.author_type, "body": m.body, "created_at": m.created_at.isoformat(), "meta": m.meta} for m in msgs],
+    }
 
 
 @router.post("/tickets/{ticket_id}/reply")
