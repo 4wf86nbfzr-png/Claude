@@ -72,13 +72,11 @@ async def register(data: RegisterIn, request: Request, db: AsyncSession = Depend
 
 
 @router.post("/verify-email")
-async def verify_email(payload: dict, response: Response, db: AsyncSession = Depends(get_db)):
+async def verify_email(payload: dict, db: AsyncSession = Depends(get_db)):
+    """Bestätigt die Adresse, erzeugt aber bewusst KEINE Sitzung: Wer das Konto nutzen will, muss das Passwort kennen."""
     user = await auth_service.verify_email(db, str(payload.get("token", "")))
-    tenant_id = await _first_tenant(db, user)
     await db.commit()
-    access = create_access_token(user.id, tenant_id)
-    _set_cookies(response, access, None)
-    return TokenOut(access_token=access, tenant_id=tenant_id, user=_user_dict(user))
+    return {"message": "E-Mail-Adresse bestätigt. Bitte anmelden.", "email": user.email}
 
 
 @router.post("/resend-verification", dependencies=[Depends(auth_rate_limit)])

@@ -5,7 +5,7 @@ SaaS mit Testphase und drei Tarifen (Starter 79 €, Business 149 €, Pro 249 �
 weitgehend autonomen Betrieb: Agenten für Betrieb, Geschäftsleitung, Produkt, Support,
 Marketing, Vertrieb und Finanzen laufen im Hintergrund und legen alles Kritische zur Freigabe vor.
 
-> Stand: funktionsfähiges Kernprodukt, lokal getestet (61 Backend-Tests, Frontend-Build,
+> Stand: funktionsfähiges Kernprodukt, lokal getestet (69 Backend-Tests, Frontend-Build, `./test-all.sh` mit 35 Prüfungen inkl. Smoke- und
 > Browser-Durchlauf). **Noch nicht produktiv.** Was vor dem Start fehlt, steht in
 > [docs/09-produktivstart-checkliste.md](docs/09-produktivstart-checkliste.md) und
 > [docs/08-offene-punkte.md](docs/08-offene-punkte.md).
@@ -88,6 +88,23 @@ docker compose exec api python scripts/make_operator.py ihre@adresse.de
 Web: http://localhost:3000 · API: http://localhost:8000 · Backups: Volume `backups`.
 
 ## Tests
+
+**Alles auf einmal** (empfohlen vor jedem Commit und vor dem Deploy):
+
+```bash
+./test-all.sh                 # Backend: Lint, 69 Tests, Migration gegen leere DB, pip-audit
+                              # Frontend: ESLint, Build, npm audit
+                              # Smoke: API + Web starten, 21 Seiten/Endpunkte, API-Kundenreise, Worker-Lauf
+                              # Browser: Playwright-Durchlauf Demo → Registrierung → Bestätigung → Login → Anfrage → Versand
+./test-all.sh --quick         # nur Lint, Tests, Build (ca. 2 Minuten)
+./test-all.sh --no-browser    # alles außer Playwright
+```
+
+Voraussetzungen: laufendes Postgres (`TEST_DATABASE_URL`, Standard `werkpilot_test`), Node 22, Python ≥ 3.12.
+Für den Browser-Teil installiert das Skript Playwright in `.pw/`; ein vorhandenes Chromium kann
+über `PLAYWRIGHT_CHROMIUM=/pfad/zu/chromium` genutzt werden. Details landen in `.test-all.log`.
+
+Einzeln:
 
 ```bash
 cd backend && pytest -q                 # nutzt werkpilot_test (TEST_DATABASE_URL überschreibbar)

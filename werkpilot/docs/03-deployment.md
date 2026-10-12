@@ -17,7 +17,7 @@ Geeignet bis einige hundert Kunden. Kosten ca. 10–25 €/Monat.
    }
    ```
 
-   Alternativ nur eine Domain: Das Frontend proxyt `/api/*` zum Backend (`BACKEND_URL`),
+   Alternativ nur eine Domain: Das Frontend proxyt `/api/*` zur Laufzeit zum Backend (`BACKEND_URL`, Route-Handler in `src/app/api/[...path]/route.ts`),
    dann reicht `werkpilot.de → 127.0.0.1:3000`. Stripe- und Inbound-Webhooks zeigen in dem Fall
    ebenfalls auf `https://werkpilot.de/api/...`. Für OAuth-Redirects `BASE_URL` entsprechend setzen.
 

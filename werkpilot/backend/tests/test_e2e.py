@@ -29,7 +29,8 @@ async def test_full_customer_journey(client, db):
     )
     assert r.status_code == 201
     tid = r.json()["tenant_id"]
-    r = await client.post("/api/auth/verify-email", json={"token": last_mail_link("/bestaetigen")})
+    assert (await client.post("/api/auth/verify-email", json={"token": last_mail_link("/bestaetigen")})).status_code == 200
+    r = await client.post("/api/auth/login", json={"email": "inhaber@elektro-nord.test", "password": "Elbe-Kran-Moewe-33"})
     h = {"Authorization": f"Bearer {r.json()['access_token']}"}
     t = (await client.get("/api/tenant", headers=h)).json()
     assert t["entitlements"]["status"] == "trialing" and "ai_drafts" in t["entitlements"]["features"]

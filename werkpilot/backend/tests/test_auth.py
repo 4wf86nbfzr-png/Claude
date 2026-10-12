@@ -22,7 +22,7 @@ async def test_register_verify_login_refresh_logout(client):
     h = {"Authorization": f"Bearer {r.json()['access_token']}"}
     assert (await client.get("/api/tenant", headers=h)).status_code == 403
     r = await client.post("/api/auth/verify-email", json={"token": last_mail_link("/bestaetigen")})
-    assert r.status_code == 200 and r.json()["user"]["email_verified"] is True
+    assert r.status_code == 200 and r.json()["email"] == "a@b.test" and "access_token" not in r.json()
     # Token zweimal benutzen schlägt fehl
     assert (await client.post("/api/auth/verify-email", json={"token": last_mail_link("/bestaetigen")})).status_code == 400
     r = await client.post("/api/auth/login", json={"email": "a@b.test", "password": "Moin-Hafen-2026!"})

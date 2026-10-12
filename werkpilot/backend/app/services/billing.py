@@ -115,11 +115,8 @@ STATUS_MAP = {
 
 
 async def _plan_from_subscription_obj(db: AsyncSession, sub_obj: dict) -> Plan | None:
-    code = (sub_obj.get("metadata") or {}).get("plan_code")
-    if code:
-        plan = (await db.execute(select(Plan).where(Plan.code == code))).scalar_one_or_none()
-        if plan:
-            return plan
+    """Die Preis-ID auf den Positionen ist die Wahrheit (Portal-Wechsel ändern Metadaten nicht);
+    plan_code aus den Metadaten dient nur als Rückfall, wenn keine Preis-ID zugeordnet werden kann."""
     items = (sub_obj.get("items") or {}).get("data") or []
     for it in items:
         price_id = (it.get("price") or {}).get("id")
@@ -127,6 +124,9 @@ async def _plan_from_subscription_obj(db: AsyncSession, sub_obj: dict) -> Plan |
             plan = (await db.execute(select(Plan).where(Plan.stripe_price_id == price_id))).scalar_one_or_none()
             if plan:
                 return plan
+    code = (sub_obj.get("metadata") or {}).get("plan_code")
+    if code:
+        return (await db.execute(select(Plan).where(Plan.code == code))).scalar_one_or_none()
     return None
 
 

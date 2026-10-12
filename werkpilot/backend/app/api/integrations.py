@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import secrets
 
-from fastapi import APIRouter, Depends, HTTPException
-from fastapi.responses import RedirectResponse
+from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import JSONResponse, RedirectResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -141,9 +141,12 @@ async def set_crm_webhook(payload: dict, ctx: AuthContext = Depends(require_admi
     ent = await entitlements(db, ctx.tenant_id)
     if F_INTEGRATIONS_ADV not in ent["features"]:
         raise HTTPException(403, "CRM-Webhooks sind im Tarif Pro enthalten.")
-    url = str(payload.get("url", ""))
-    if not url.startswith("https://"):
-        raise HTTPException(422, "Nur https-URLs erlaubt.")
+    from app.core.netsafety import UnsafeUrl, validate_outbound_url
+
+    try:
+        url = validate_outbound_url(str(payload.get("url", "")))
+    except UnsafeUrl as e:
+        raise HTTPException(422, str(e)) from e
     r = await _get(db, ctx.tenant_id, "crm_webhook")
     r.config = {"url": url, "events": payload.get("events") or ["inquiry.created", "inquiry.status_changed"]}
     secret = secrets.token_urlsafe(24)
@@ -158,24 +161,39 @@ async def set_crm_webhook(payload: dict, ctx: AuthContext = Depends(require_admi
 async def google_start(ctx: AuthContext = Depends(require_admin), db: AsyncSession = Depends(get_db)):
     if not google_calendar.configured():
         raise HTTPException(503, "Google-Kalender ist noch nicht eingerichtet: Der Betreiber muss GOOGLE_CLIENT_ID/SECRET hinterlegen.")
-    url = await google_calendar.start_auth(db, ctx.tenant_id)
+    url, browser_nonce = await google_calendar.start_auth(db, ctx.tenant_id)
     await db.commit()
-    return {"url": url}
+    s = get_settings()
+    resp = JSONResponse({"url": url})
+    resp.set_cookie(
+        "wp_oauth", browser_nonce, max_age=600, httponly=True, secure=s.cookie_secure, samesite="lax", path="/api/integrations/google-calendar", domain=s.cookie_domain
+    )
+    return resp
 
 
 @router.get("/google-calendar/callback", include_in_schema=False)
-async def google_callback(state: str = "", code: str = "", error: str = "", db: AsyncSession = Depends(get_db)):
-    fe = get_settings().frontend_url
-    if error or not code:
-        return RedirectResponse(f"{fe}/app/integrationen?fehler=google")
+async def google_callback(request: Request, state: str = "", code: str = "", error: str = "", db: AsyncSession = Depends(get_db)):
+    s = get_settings()
+    fe = s.frontend_url
+    fail = RedirectResponse(f"{fe}/app/integrationen?fehler=google")
+    fail.delete_cookie("wp_oauth", path="/api/integrations/google-calendar", domain=s.cookie_domain)
+    if error or not code or ":" not in state:
+        return fail
     try:
-        integ = await google_calendar.finish_auth(db, state, code)
+        integ = await google_calendar.finish_auth(db, state, code, request.cookies.get("wp_oauth"))
         await audit(db, "integration.connected", actor_type="user", tenant_id=integ.tenant_id, details={"type": "google_calendar"})
         await db.commit()
-    except ValueError:
+    except ValueError as e:
         await db.commit()
-        return RedirectResponse(f"{fe}/app/integrationen?fehler=google")
-    return RedirectResponse(f"{fe}/app/integrationen?verbunden=google")
+        await audit(db, "integration.oauth_rejected", actor_type="system", actor_id="google_callback", details={"reason": str(e)[:200]}, severity="security")
+        await db.commit()
+        return fail
+    except Exception:  # noqa: BLE001
+        await db.rollback()
+        return fail
+    ok = RedirectResponse(f"{fe}/app/integrationen?verbunden=google")
+    ok.delete_cookie("wp_oauth", path="/api/integrations/google-calendar", domain=s.cookie_domain)
+    return ok
 
 
 @router.delete("/{integration_type}")

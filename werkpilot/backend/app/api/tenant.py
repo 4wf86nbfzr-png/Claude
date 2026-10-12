@@ -289,6 +289,14 @@ async def export_data(ctx: AuthContext = Depends(require_owner), db: AsyncSessio
     return StreamingResponse(buf, media_type="application/json", headers={"Content-Disposition": f'attachment; filename="werkpilot-export-{ctx.tenant.slug}.json"'})
 
 
+def _csv_safe(value: str | None) -> str:
+    """Verhindert Formel-Ausführung in Tabellenkalkulationen (CWE-1236)."""
+    v = value or ""
+    if v[:1] in ("=", "+", "-", "@", "\t", "\r"):
+        return "'" + v
+    return v
+
+
 @router.get("/export/customers.csv")
 async def export_customers_csv(ctx: AuthContext = Depends(require_admin), db: AsyncSession = Depends(get_db)):
     customers = (await db.execute(select(Customer).where(Customer.tenant_id == ctx.tenant_id))).scalars().all()
@@ -296,7 +304,7 @@ async def export_customers_csv(ctx: AuthContext = Depends(require_admin), db: As
     w = csv.writer(out, delimiter=";")
     w.writerow(["Name", "E-Mail", "Telefon", "Adresse", "Notizen"])
     for c in customers:
-        w.writerow([c.name, c.email or "", c.phone or "", c.address or "", c.notes or ""])
+        w.writerow([_csv_safe(c.name), _csv_safe(c.email), _csv_safe(c.phone), _csv_safe(c.address), _csv_safe(c.notes)])
     return StreamingResponse(io.BytesIO(out.getvalue().encode("utf-8-sig")), media_type="text/csv", headers={"Content-Disposition": 'attachment; filename="kunden.csv"'})
 
 

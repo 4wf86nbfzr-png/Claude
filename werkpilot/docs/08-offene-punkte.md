@@ -44,10 +44,26 @@ Stand nach Abschluss des Kernprodukts. Sortiert nach Dringlichkeit für den Prod
 - Datenschutzbedenken bei KI-Verarbeitung von Kundenmails; EU-Hosting des KI-Anbieters kann entscheidend sein.
 - Markenname „WerkPilot“ ist nicht geprüft.
 
+## Sicherheitsreview (durchgeführt, behoben)
+
+Ein Review des gesamten Codes fand sechs Kandidaten; fünf wurden als real bestätigt und behoben, einer war ein Fehlalarm:
+
+| Befund | Behebung |
+|---|---|
+| Google-OAuth-Callback nicht an den startenden Browser gebunden (fremde Kalender-Tokens könnten im eigenen Mandanten landen) | Browser-Nonce als httpOnly-Cookie, State läuft nach 10 Minuten ab und ist einmalig, Ablehnung wird im Audit-Log als Sicherheitsereignis protokolliert |
+| Blinder SSRF über die CRM-Webhook-URL (interne Hosts, Status-Oracle) | `core/netsafety.py`: nur https/443, kein IP-Literal, DNS-Auflösung gegen private/lokale Netze beim Speichern und bei jedem Versand; nur generische Fehlermeldung für den Mandanten |
+| Tarif aus Stripe-Metadaten statt Preis-ID (Portal-Downgrade behielt Pro-Funktionen) | Preis-ID auf den Abo-Positionen ist die Wahrheit, Metadaten nur Rückfall |
+| CSV-Formel-Injection im Kundenexport | Zellen mit führendem `= + - @ Tab CR` werden neutralisiert |
+| Bestätigungslink erzeugte eine Sitzung (Pre-Hijacking-Muster) | Bestätigung ohne Login; Nutzer meldet sich danach mit Passwort an |
+| Checkout akzeptiert nicht-öffentliche Tarifcodes | Fehlalarm: Stripe berechnet den hinterlegten Preis, keine Vorteile; Standardtarife sind alle öffentlich |
+
+Regressionstests dazu in `backend/tests/test_security_fixes.py`.
+
 ## Qualitätsstand
 
 - Abhängigkeitsscan: Backend ohne bekannte Schwachstellen (`pip-audit`). Frontend: Produktionsabhängigkeiten sauber; `npm audit` meldet 5 „high“ ausschließlich in Entwicklungswerkzeugen (ESLint-Plugin → `braces`, Stack-Erschöpfung bei bösartigen Glob-Mustern), nicht im ausgelieferten Code. Wird mit dem nächsten `eslint-config-next`-Release behoben.
 
-- 61 Backend-Tests grün (Postgres), Lint sauber.
+- 69 Backend-Tests grün (Postgres), Lint sauber. `./test-all.sh` (35 Prüfungen inkl. Smoke- und Browser-Test) bestanden.
+- Behoben beim Smoke-Test: Die Weiterleitung `/api/*` → Backend war in `next.config.ts` beim Build eingefroren (hätte im Docker-Image auf `localhost:8000` gezeigt). Jetzt liest ein Route-Handler `BACKEND_URL` zur Laufzeit.
 - Frontend-Build und ESLint sauber; Browser-Durchlauf (Registrierung → Entwurf → Versand → Abo-Seite → Integrationen) erfolgreich. Terminbestätigung per Kundenlink (`/termin?token=…`) ist umgesetzt und getestet.
 - Nicht getestet: echte Anthropic/OpenAI-Aufrufe (kein Schlüssel in der Entwicklungsumgebung), echter Stripe-Checkout (nur Webhook-Verarbeitung mit signierten Test-Events), echte Google-OAuth-Runde, Docker-Build (Docker-Daemon in der Entwicklungsumgebung nicht verfügbar; Dockerfiles ungetestet).

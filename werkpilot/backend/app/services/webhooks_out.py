@@ -31,19 +31,29 @@ async def _send(db: AsyncSession, job: Job) -> dict:
     ).scalar_one_or_none()
     if not integ:
         return {"skipped": "integration disconnected"}
+    from app.core.netsafety import UnsafeUrl, validate_outbound_url
+
+    try:
+        target = validate_outbound_url(integ.config["url"])  # erneut prüfen (DNS-Rebinding)
+    except UnsafeUrl as e:
+        integ.status = "error"
+        integ.last_error = "Ziel-URL nicht zulässig."
+        await db.flush()
+        return {"skipped": f"unsafe url: {e}"}
     secret = decrypt_secret(integ.encrypted_credentials or "") or ""
     body = json.dumps({"event": job.payload["event"], "data": job.payload["data"], "sent_at": utcnow().isoformat()}, ensure_ascii=False)
     async with httpx.AsyncClient(timeout=15) as client:
         r = await client.post(
-            integ.config["url"],
+            target,
             content=body,
             headers={"Content-Type": "application/json", "X-WerkPilot-Signature": sign_payload(body, secret), "X-WerkPilot-Event": job.payload["event"]},
         )
     integ.last_checked_at = utcnow()
     if r.status_code >= 300:
-        integ.last_error = f"HTTP {r.status_code}"
-        await db.flush()
-        raise RuntimeError(f"CRM-Webhook antwortete mit HTTP {r.status_code}")
+        # Kein Status-Oracle für den Mandanten: nur generische Meldung speichern
+        integ.last_error = "Zielsystem hat die Zustellung nicht bestätigt."
+        await db.commit()  # Meldung bleibt trotz Rollback des fehlgeschlagenen Jobs erhalten
+        raise RuntimeError("CRM-Webhook: Zielsystem antwortete nicht mit 2xx (connection retry)")
     integ.last_error = None
     await db.flush()
     return {"status": r.status_code}

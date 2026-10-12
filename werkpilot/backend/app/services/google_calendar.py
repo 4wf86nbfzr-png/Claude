@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import get_settings
 from app.core.db import utcnow
-from app.core.security import decrypt_secret, encrypt_secret
+from app.core.security import decrypt_secret, encrypt_secret, hash_token
 from app.models.ops import Integration
 
 SCOPES = "https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.readonly"
@@ -39,11 +39,18 @@ async def get_integration(db: AsyncSession, tenant_id: str) -> Integration:
     return row
 
 
-async def start_auth(db: AsyncSession, tenant_id: str) -> str:
+OAUTH_STATE_MAX_AGE = timedelta(minutes=10)
+
+
+async def start_auth(db: AsyncSession, tenant_id: str) -> tuple[str, str]:
+    """Gibt (Consent-URL, Browser-Nonce) zurück. Die Browser-Nonce wird als httpOnly-Cookie gesetzt und im
+    Callback verglichen, damit nur der Browser, der den Vorgang gestartet hat, ihn abschließen kann."""
     integ = await get_integration(db, tenant_id)
     state = secrets.token_urlsafe(24)
-    integ.config = {**(integ.config or {}), "oauth_state": state, "oauth_state_at": utcnow().isoformat()}
-    integ.status = "pending"
+    browser_nonce = secrets.token_urlsafe(24)
+    integ.config = {**(integ.config or {}), "oauth_state": state, "oauth_state_at": utcnow().isoformat(), "oauth_browser_hash": hash_token(browser_nonce)}
+    if integ.status != "connected":
+        integ.status = "pending"
     await db.flush()
     params = {
         "client_id": get_settings().google_client_id,
@@ -54,14 +61,26 @@ async def start_auth(db: AsyncSession, tenant_id: str) -> str:
         "prompt": "consent",
         "state": f"{tenant_id}:{state}",
     }
-    return f"{AUTH_URL}?{urlencode(params)}"
+    return f"{AUTH_URL}?{urlencode(params)}", browser_nonce
 
 
-async def finish_auth(db: AsyncSession, state: str, code: str) -> Integration:
+async def finish_auth(db: AsyncSession, state: str, code: str, browser_nonce: str | None) -> Integration:
     tenant_id, _, nonce = state.partition(":")
-    integ = await get_integration(db, tenant_id)
-    if (integ.config or {}).get("oauth_state") != nonce:
+    integ = (await db.execute(select(Integration).where(Integration.tenant_id == tenant_id, Integration.type == "google_calendar"))).scalar_one_or_none()
+    if integ is None:
+        raise ValueError("Unbekannter Vorgang.")
+    cfg = dict(integ.config or {})
+    expected = cfg.get("oauth_state")
+    started = cfg.get("oauth_state_at")
+    # State ist einmalig: bei jedem Callback-Versuch verwerfen
+    integ.config = {k: v for k, v in cfg.items() if not k.startswith("oauth_")}
+    await db.flush()
+    if not expected or not secrets.compare_digest(str(expected), nonce):
         raise ValueError("OAuth-State stimmt nicht überein.")
+    if not started or datetime.fromisoformat(started) + OAUTH_STATE_MAX_AGE < utcnow():
+        raise ValueError("OAuth-Vorgang abgelaufen. Bitte erneut starten.")
+    if not browser_nonce or not secrets.compare_digest(str(cfg.get("oauth_browser_hash", "")), hash_token(browser_nonce)):
+        raise ValueError("OAuth-Vorgang wurde nicht von diesem Browser gestartet.")
     s = get_settings()
     async with httpx.AsyncClient(timeout=20) as client:
         r = await client.post(
@@ -88,8 +107,7 @@ async def finish_auth(db: AsyncSession, state: str, code: str) -> Integration:
     integ.connected_at = utcnow()
     integ.disconnected_at = None
     integ.last_error = None
-    integ.config = {k: v for k, v in (integ.config or {}).items() if not k.startswith("oauth_state")}
-    integ.config["calendar_id"] = integ.config.get("calendar_id", "primary")
+    integ.config = {**(integ.config or {}), "calendar_id": (integ.config or {}).get("calendar_id", "primary")}
     await db.flush()
     return integ
 

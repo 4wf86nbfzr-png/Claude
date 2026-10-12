@@ -1,18 +1,10 @@
 import type { NextConfig } from "next";
 
-// Backend-URL für den serverseitigen Proxy (/api/* → FastAPI). Browser spricht nur mit dem Frontend-Origin,
-// damit httpOnly-Cookies ohne Cross-Site-Konfiguration funktionieren.
-const BACKEND_URL = process.env.BACKEND_URL ?? "http://localhost:8000";
+// Die Weiterleitung von /api/* zum Backend liegt in src/app/api/[...path]/route.ts (BACKEND_URL zur Laufzeit).
 
 const nextConfig: NextConfig = {
   cacheComponents: false,
   poweredByHeader: false,
-  async rewrites() {
-    return [
-      { source: "/api/:path*", destination: `${BACKEND_URL}/api/:path*` },
-      { source: "/health", destination: `${BACKEND_URL}/health` },
-    ];
-  },
   async headers() {
     return [
       {

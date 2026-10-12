@@ -44,6 +44,12 @@ async def _schema():
 
 
 @pytest.fixture(autouse=True)
+def _fake_dns(monkeypatch):
+    """Keine echte DNS-Auflösung in Tests: *.example.org → öffentliche Adresse, *.intern → privat."""
+    monkeypatch.setattr("app.core.netsafety._resolve", lambda host: ["10.0.0.12" if host.endswith(".intern") else "93.184.216.34"])
+
+
+@pytest.fixture(autouse=True)
 async def _clean():
     engine = get_engine()
     async with engine.begin() as conn:

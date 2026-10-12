@@ -18,3 +18,7 @@ backend/.env
 frontend/.env.local
 # Backups
 backups/
+.test-all.log
+.smoke-*.log
+.pw/
+.req-freeze.txt
