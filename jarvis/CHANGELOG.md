@@ -4,7 +4,9 @@
 
 * **`./start.sh stimme`** — ElevenLabs in einem Durchgang: Schlüssel eintragen,
   Stimmen des Kontos auflisten, aussuchen, Probe abspielen (`afplay`).
-  `--zeigen` listet nur.
+  `--zeigen` listet nur, `--id <Kennung>` übernimmt eine Stimme direkt aus der
+  Bibliothek. Scheitert die Probe, nennt er die wahrscheinliche Ursache —
+  meist fehlt das *Add to my voices* im ElevenLabs-Konto.
 * **`./start.sh token`** — erzeugt das API-Token und trägt es in die `.env`
   ein; der Start reicht es an den Browser durch.
 * **Tempo** — drei Bremsen gelöst:

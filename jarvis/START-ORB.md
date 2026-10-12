@@ -56,6 +56,17 @@ oben rechts aufs Profil → *API Keys* → erzeugen), trägt ihn in die `.env` e
 zeigt deine Stimmen nummeriert an und spielt nach der Wahl „Moin, Master. Ich
 bin bereit." ab. Danach `./start.sh orb` neu starten.
 
+Du hast schon eine Stimme im Blick? Dann direkt mit ihrer Kennung — die
+steht in der Adresse der Stimmenseite hinter `/voices/`:
+
+```bash
+./start.sh stimme --id r1KmysJdVYZjJCm4mL3b
+```
+
+Wichtig: Eine Stimme aus der **Bibliothek** muss einmal mit *Add to my
+voices* ins eigene Konto übernommen werden, sonst lehnt ElevenLabs sie ab.
+Der Befehl sagt dir das, falls es daran liegt.
+
 Nur ansehen, was es gibt: `./start.sh stimme --zeigen`.
 
 Ändern geht auch später im Dashboard unter **Stimme** — die Auswahl liegt in

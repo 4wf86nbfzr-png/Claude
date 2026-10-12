@@ -428,10 +428,8 @@ def _token(settings: Settings) -> int:
     return 0
 
 
-async def _stimme(settings: Settings, nur_zeigen: bool) -> int:
+async def _stimme(settings: Settings, nur_zeigen: bool, kennung: str = "") -> int:
     """ElevenLabs einrichten: Schluessel, Stimme aussuchen, Probe hoeren."""
-    import subprocess
-
     from .adapters.voice.elevenlabs import ElevenLabsStimme
     from .core.memory import SettingsStore
     from .db.database import Database
@@ -453,13 +451,26 @@ async def _stimme(settings: Settings, nur_zeigen: bool) -> int:
         print("Kein ELEVENLABS_API_KEY gesetzt.")
         return 1
 
+    # Die Stimmwahl liegt in der Datenbank. Wer diesen Befehl als Erstes
+    # aufruft, hat noch keine -- also hier anlegen statt abstuerzen.
+    settings.ensure_dirs()
     datenbank = Database(settings.db_path)
+    migrate(datenbank, settings.backup_dir, settings.backup_keep)
     speicher = SettingsStore(datenbank)
     gewaehlt = speicher.get("orb_stimme") or settings.elevenlabs_voice_id or ""
     stimme = ElevenLabsStimme(
         schluessel, gewaehlt, modell=settings.elevenlabs_model,
         api_base=settings.elevenlabs_api_base, audio_dir=settings.data_dir / "audio",
     )
+    # Eine Kennung aus der Stimmenbibliothek direkt uebernehmen -- ohne Liste.
+    if kennung:
+        speicher.set("orb_stimme", kennung)
+        stimme.voice_id = kennung
+        print(f"Stimme {kennung} eingetragen. Ich probiere sie aus …")
+        erfolg = await _probe(stimme)
+        datenbank.close()
+        return 0 if erfolg else 1
+
     try:
         stimmen = await stimme.stimmen()
     except JarvisError as fehler:
@@ -489,25 +500,32 @@ async def _stimme(settings: Settings, nur_zeigen: bool) -> int:
         datenbank.close()
         return 1
 
-    probe = "Moin, Master. Ich bin bereit."
-    print(f"\nProbe: „{probe}“ …")
-    datei = await stimme.datei(probe)
-    await stimme_schliessen(stimme)
+    erfolg = await _probe(stimme)
     datenbank.close()
+    return 0 if erfolg else 1
+
+
+async def _probe(stimme) -> bool:
+    """Spielt einen Satz mit der gewaehlten Stimme ab."""
+    import subprocess
+
+    satz = "Moin, Master. Ich bin bereit."
+    print(f"\nProbe: „{satz}“ …")
+    datei = await stimme.datei(satz)
     if datei is None:
-        print("Die Probe hat nicht geklappt -- Schluessel und Guthaben pruefen.")
-        return 1
+        print("\nDie Probe hat nicht geklappt. Haeufigste Ursachen:")
+        print("  - Die Stimme liegt nur in der Bibliothek, nicht in deinem Konto.")
+        print("    Auf elevenlabs.io die Stimme oeffnen und 'Add to my voices' klicken.")
+        print("  - Schluessel falsch oder Freikontingent aufgebraucht.")
+        print("  - Kein Netz.")
+        return False
     print(f"Datei: {datei}")
     if shutil.which("afplay"):
         subprocess.run(["afplay", str(datei)], check=False)
+    else:
+        print("('afplay' fehlt -- die Datei laesst sich von Hand abspielen.)")
     print("\nFertig. Jarvis neu starten:  ./start.sh orb")
-    return 0
-
-
-async def stimme_schliessen(stimme) -> None:
-    schliessen = getattr(stimme, "close", None)
-    if schliessen is not None:
-        await schliessen()
+    return True
 
 
 def _setup(settings: Settings) -> int:
@@ -558,6 +576,8 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("token", help="API-Token fuers Dashboard erzeugen und eintragen")
     stimme = sub.add_parser("stimme", help="ElevenLabs einrichten und Stimme aussuchen")
     stimme.add_argument("--zeigen", action="store_true", help="nur die Stimmen auflisten")
+    stimme.add_argument("--id", dest="kennung", default="",
+                        help="Stimme direkt uebernehmen (Kennung aus elevenlabs.io)")
     sub.add_parser("selftest", help="Ganze Kette pruefen (eigene Datenbank, keine Anrufe)")
     sub.add_parser("setup", help=".env anlegen und Telegram-Daten abfragen")
     sub.add_parser("migrate", help="Datenbank auf den neuesten Stand bringen")
@@ -644,7 +664,7 @@ def main(argv: list[str] | None = None) -> int:
         if command == "token":
             return _token(settings)
         if command == "stimme":
-            return asyncio.run(_stimme(settings, args.zeigen))
+            return asyncio.run(_stimme(settings, args.zeigen, args.kennung))
         if command == "doctor":
             return asyncio.run(_doctor(settings))
         if command == "selftest":

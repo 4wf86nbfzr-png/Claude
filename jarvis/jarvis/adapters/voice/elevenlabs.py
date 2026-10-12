@@ -136,6 +136,12 @@ class ElevenLabsStimme:
             raise ExternalServiceError(
                 "ElevenLabs lehnt den Schluessel ab -- ELEVENLABS_API_KEY pruefen."
             )
+        if antwort.status_code in {400, 404} and stimme in antwort.text:
+            raise ExternalServiceError(
+                f"ElevenLabs kennt die Stimme '{stimme}' in deinem Konto nicht. "
+                "Aus der Stimmenbibliothek muss sie einmal mit 'Add to my voices' "
+                "uebernommen werden."
+            )
         if antwort.status_code == 422:
             raise ExternalServiceError(
                 f"ElevenLabs mag die Anfrage nicht: {antwort.text[:200]}"

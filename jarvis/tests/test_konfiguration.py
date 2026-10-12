@@ -232,3 +232,60 @@ def test_env_wird_aus_der_vorlage_angelegt(tmp_path, monkeypatch):
     (tmp_path / ".env.example").write_text("HTTP_API_TOKEN=\n", encoding="utf-8")
     cli.env_setzen({"HTTP_API_TOKEN": "x"})
     assert "HTTP_API_TOKEN=x" in (tmp_path / ".env").read_text(encoding="utf-8")
+
+
+# ----------------------------------------------------- Stimme per Kennung
+def test_stimme_per_kennung_wird_gespeichert(settings, monkeypatch, tmp_path):
+    """'jarvis stimme --id ...' uebernimmt eine Stimme aus der Bibliothek."""
+    import asyncio
+
+    import jarvis.cli as cli
+    from jarvis.adapters.voice import elevenlabs
+
+    gespielt: list[str] = []
+
+    class Attrappe:
+        def __init__(self, *args, **kwargs):
+            self.voice_id = args[1] if len(args) > 1 else ""
+
+        async def datei(self, text, *, voice_id=""):
+            gespielt.append(text)
+            ziel = tmp_path / "probe.mp3"
+            ziel.write_bytes(b"ID3")
+            return ziel
+
+    monkeypatch.setattr(elevenlabs, "ElevenLabsStimme", Attrappe)
+    monkeypatch.setattr(cli.shutil, "which", lambda name: None)
+    settings.elevenlabs_api_key = "sk-test"
+
+    ergebnis = asyncio.run(cli._stimme(settings, False, "r1KmysJdVYZjJCm4mL3b"))
+    assert ergebnis == 0
+    assert gespielt == ["Moin, Master. Ich bin bereit."]
+
+    from jarvis.core.memory import SettingsStore
+    from jarvis.db.database import Database
+    datenbank = Database(settings.db_path)
+    try:
+        assert SettingsStore(datenbank).get("orb_stimme") == "r1KmysJdVYZjJCm4mL3b"
+    finally:
+        datenbank.close()
+
+
+def test_fehlgeschlagene_probe_erklaert_warum(settings, monkeypatch, capsys):
+    import asyncio
+
+    import jarvis.cli as cli
+    from jarvis.adapters.voice import elevenlabs
+
+    class Attrappe:
+        def __init__(self, *args, **kwargs):
+            self.voice_id = ""
+
+        async def datei(self, text, *, voice_id=""):
+            return None
+
+    monkeypatch.setattr(elevenlabs, "ElevenLabsStimme", Attrappe)
+    settings.elevenlabs_api_key = "sk-test"
+    assert asyncio.run(cli._stimme(settings, False, "unbekannt")) == 1
+    ausgabe = capsys.readouterr().out
+    assert "Add to my voices" in ausgabe
