@@ -42,12 +42,16 @@ def register_all(services: "Services") -> None:
     register_memory(services)
     register_status(services)
 
-    from . import tools_calendar, tools_email, tools_messages, tools_phone, tools_research
+    from . import (
+        tools_calendar, tools_email, tools_messages, tools_phone, tools_research,
+        tools_system,
+    )
     tools_calendar.register(services)
     tools_email.register(services)
     tools_phone.register(services)
     tools_research.register(services)
     tools_messages.register(services)
+    tools_system.register(services)
 
     services.confirmed_actions = CONFIRMED_ACTIONS
 

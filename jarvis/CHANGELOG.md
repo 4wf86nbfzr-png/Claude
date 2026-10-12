@@ -1,5 +1,33 @@
 # Änderungen
 
+## 1.2.0 — Jarvis zum Sprechen (Orb)
+
+Die Sprachoberfläche aus dem Video, auf denselben Kern gesetzt statt daneben
+gestellt: ein Gedächtnis, eine Aufgabenliste, dieselben Werkzeuge wie Telegram.
+
+* **Orb** (`core/orb.py`, `server/orb/index.html`, `GET /orb`) — Oberfläche im
+  Browser: Spracheingabe über die Web Speech API, animierter Orb, Verlauf,
+  Tippfeld als Rückfallweg. `./start.sh orb` startet alles und öffnet Chrome.
+* **Begrüßung** auf das Weckwort: Tageszeit, Uhrzeit, Wetter (Open-Meteo, ohne
+  Schlüssel) und offene Aufgaben — und offene dringende Nachrichten.
+* **Doppelklatschen** fährt das Setup hoch (`ORB_PROGRAMME`, `ORB_WEBSEITE`).
+  Erkannt wird im Browser über zwei scharfe Pegelspitzen mit Ruhe davor; es
+  verlässt kein Audio den Rechner und es braucht keine Audiobibliothek.
+* **Stimme** (`adapters/voice/elevenlabs.py`) — ElevenLabs mit Zwischenspeicher
+  je Satz. Ohne Schlüssel spricht der Browser; der Orb bleibt benutzbar.
+* **Bildschirm ansehen** (`adapters/vision.py`) — `screencapture` plus Claude
+  Vision. Das Bild wird beschrieben und sofort verworfen.
+* **Rechner-Werkzeuge** (`core/tools_system.py`) — Programm starten (nur aus
+  der freigegebenen Liste), Webseite öffnen (nur http/https), Bildschirm
+  ansehen, Wetter. Zusammen abschaltbar mit `ORB_AKTIONEN=false`.
+* **Aktionsmarken** — schreibt ein kleines Modell `[AKTION:OEFFNE] …` als Text,
+  statt das Werkzeug aufzurufen, wird es trotzdem ausgeführt und nicht
+  vorgelesen.
+* **Antworten für die Stimme**: eigener Kanal im Systemtext (kurz, keine
+  Listen, keine Sternchen) und eine Aufbereitung, die Nummern ausschreibt und
+  Links ersetzt.
+* `START-ORB.md` — Einrichtung in zehn Minuten, mit Fehlertabelle.
+
 ## 1.1.0 — Nachrichten mitlesen, einstufen, melden
 
 * **Eingehende Nachrichten** (`core/triage.py`, `core/messages.py`,

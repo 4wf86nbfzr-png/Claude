@@ -188,6 +188,32 @@ class Settings:
     #: 0 = aus.
     bericht_intervall_stunden: int = 3
 
+    # --- Orb: Sprachoberflaeche im Browser --------------------------------
+    orb_enabled: bool = True
+    #: Wie Jarvis dich anspricht ("Sir", "Chef", "Noah").
+    orb_anrede: str = "Sir"
+    #: Weckwort, das die Begruessung ausloest.
+    orb_weckwort: str = "jarvis aktivieren"
+    #: Programme, die beim Doppelklatschen starten (macOS-App-Namen).
+    orb_programme: list[str] = field(default_factory=list)
+    #: Seite, die beim Start im Browser aufgeht.
+    orb_webseite: str = ""
+    #: Darf Jarvis Programme starten, Seiten oeffnen und den Bildschirm ansehen?
+    orb_aktionen: bool = True
+    #: Doppelklatschen im Browser erkennen.
+    orb_klatschen: bool = True
+    #: Stadt fuer die Wetterzeile in der Begruessung (leer = kein Wetter).
+    orb_stadt: str = "Hamburg"
+
+    #: Modell, das Bildschirmfotos beschreibt (braucht ANTHROPIC_API_KEY).
+    vision_modell: str = "claude-haiku-5-5"
+
+    # --- ElevenLabs (Stimme) ----------------------------------------------
+    elevenlabs_api_key: str = ""
+    elevenlabs_voice_id: str = ""
+    elevenlabs_model: str = "eleven_multilingual_v2"
+    elevenlabs_api_base: str = "https://api.elevenlabs.io/v1"
+
     # --- Telefonie --------------------------------------------------------
     phone_enabled: bool = False
     twilio_account_sid: str = ""
@@ -304,6 +330,22 @@ class Settings:
             messenger_anruf_bei_dringend=_bool("MESSENGER_ANRUF_BEI_DRINGEND", True),
             messenger_mac_db=_str("MESSENGER_MAC_DB"),
             bericht_intervall_stunden=_int("BERICHT_INTERVALL_STUNDEN", 3),
+            orb_enabled=_bool("ORB_ENABLED", True),
+            orb_anrede=_str("ORB_ANREDE", "Sir"),
+            orb_weckwort=_str("ORB_WECKWORT", "jarvis aktivieren").lower(),
+            orb_programme=[
+                s.strip() for s in _str("ORB_PROGRAMME").split(",") if s.strip()
+            ],
+            orb_webseite=_str("ORB_WEBSEITE"),
+            orb_aktionen=_bool("ORB_AKTIONEN", True),
+            orb_klatschen=_bool("ORB_KLATSCHEN", True),
+            orb_stadt=_str("ORB_STADT", "Hamburg", allow_empty=True),
+            vision_modell=_str("VISION_MODELL", "claude-haiku-5-5"),
+            elevenlabs_api_key=_str("ELEVENLABS_API_KEY"),
+            elevenlabs_voice_id=_str("ELEVENLABS_VOICE_ID"),
+            elevenlabs_model=_str("ELEVENLABS_MODEL", "eleven_multilingual_v2"),
+            elevenlabs_api_base=_str(
+                "ELEVENLABS_API_BASE", "https://api.elevenlabs.io/v1").rstrip("/"),
             phone_enabled=_bool("PHONE_ENABLED", False),
             twilio_account_sid=_str("TWILIO_ACCOUNT_SID"),
             twilio_auth_token=_str("TWILIO_AUTH_TOKEN"),

@@ -87,6 +87,12 @@ def build_system_prompt(
             "Saetzen, ohne Listen, ohne Formatierung, ohne Aufzaehlungszeichen -- alles wird "
             "vorgelesen. Stelle hoechstens eine Frage."
         )
+    elif channel == "orb":
+        parts.append(
+            "Diese Antwort wird laut vorgelesen. Schreibe, wie man spricht: hoechstens "
+            "drei Saetze, keine Listen, keine Sternchen, keine Links, keine Nummern "
+            "mit Raute. Namen und Uhrzeiten ausschreiben. Hoechstens eine Rueckfrage."
+        )
     else:
         parts.append(
             "Antworten erscheinen in Telegram. Du darfst *fett* und _kursiv_ verwenden "

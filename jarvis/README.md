@@ -16,7 +16,8 @@ außer dem Telegram-Bot.
 | Datei | Wofür |
 |---|---|
 | **`START-HEUTE.md`** | Schritt-für-Schritt vom leeren Rechner bis „Jarvis antwortet". Fang damit an. |
-| **`mein-gehirn.vorlage.md`** | Vorlage für sein Gedächtnis. `./start.sh lernen` macht daraus deine persönliche `mein-gehirn.md` (bleibt bei Aktualisierungen unangetastet). |
+| **`START-ORB.md`** | Die Sprachoberfläche im Browser: reden statt tippen, Doppelklatschen, Stimme. |
+| **`mein-gehirn.start.md`** | Ausgefüllte Startfassung seines Gedächtnisses. `./start.sh lernen` macht daraus deine persönliche `mein-gehirn.md` (bleibt bei Aktualisierungen unangetastet). `mein-gehirn.vorlage.md` ist die leere Variante. |
 | **`TESTPLAN.md`** | 68 konkrete Nachrichten zum Abschicken samt erwartetem Ergebnis. Zum Abhaken. |
 
 ## In fünf Minuten startklar
@@ -317,6 +318,42 @@ Antwortentwürfe.
 Knopfdruck löst den Versand aus — und nur einmal: ein bereits versendeter Entwurf
 geht nicht erneut raus.
 
+## Nachrichten (WhatsApp & Co.)
+
+Jarvis liest eingehende Nachrichten mit, stuft jede ein — *ignorieren*,
+*melden*, *dringend* — und meldet nur, was dich angeht. Absage,
+Krankmeldung, „schaffe es nicht", deutliche Verspätung: das gilt als
+dringend und löst zusätzlich einen Anruf aus, sobald Telefonie steht.
+
+Die Einstufung läuft nach Regeln, ohne KI, in Millisekunden. Ein Modell darf
+danach eine Zweitmeinung abgeben, aber eine erkannte Absage nie herabstufen.
+Im Zweifel wird gemeldet: der teure Fehler ist nicht die Meldung zu viel,
+sondern die Absage, die untergeht.
+
+Zwei Quellen, beide hinter derselben Schnittstelle (`MESSENGER_QUELLE`):
+
+| Quelle | Wie | Haken |
+|---|---|---|
+| `mac` | liest die Mitteilungen mit, die **WhatsApp Desktop** auf dem Mac anzeigt | nur macOS; WhatsApp Desktop muss laufen und Mitteilungen zeigen; Terminal braucht **Festplattenvollzugriff**; sichtbar ist nur die Vorschau, keine Bilder, keine alten Chats |
+| `bruecke` | nimmt Nachrichten per HTTP an (`POST /api/nachricht/eingang`) | du brauchst etwas, das postet — die offizielle WhatsApp-Business-API, ein eigener Dienst, ein anderer Messenger |
+
+**Was nicht geht und warum:** WhatsApp hat keine offene Schnittstelle für
+private Konten. Die Business-API spricht nur über eine eigene
+Geschäftsnummer, nicht über dein Handy. Inoffizielle Bibliotheken
+(whatsapp-web.js, Baileys) melden sich als Zweitgerät an — das verstößt
+gegen die Nutzungsbedingungen und kann die **Nummer sperren**. Für eine
+Firmennummer ist das ein echtes Risiko, deshalb ist so etwas hier nicht
+eingebaut. Der Mitlese-Weg über die Mitteilungen umgeht das: er liest nur,
+was dein Mac ohnehin anzeigt.
+
+Antworten schreibt Jarvis auf Wunsch (Knopf „Antwort entwerfen") —
+abgeschickt wird in WhatsApp, von dir.
+
+Dazu kommt der **Zwischenstand**: alle `BERICHT_INTERVALL_STUNDEN` Stunden
+eine kurze Nachricht, was im Hintergrund lief — Mails durchgesehen,
+Nachrichten gelesen und gefiltert, Erinnerungen, Anrufe. War nichts, bleibt
+es still. Auf Zuruf: `/bericht`.
+
 ## Telefonie
 
 `PHONE_ENABLED=true`, Twilio-Konto, gekaufte Nummer, eigene Nummer.
@@ -337,6 +374,45 @@ geringste Verzögerung). Wer alles lokal will: `TTS_ENGINE=piper` mit
 
 ---
 
+## Orb — mit Jarvis sprechen
+
+`http://127.0.0.1:8765/orb`, oder gleich `./start.sh orb` (öffnet Chrome und
+reicht das Token durch). Chrome ist Pflicht: nur er hat die Spracherkennung
+eingebaut.
+
+```
+Chrome                     dein Mac                      draußen
+Sprache → Text   ───────>  Jarvis-Kern        ───────>   Modell
+Orb-Anzeige                 Gedächtnis                   (Ollama oder Claude)
+Audio-Ausgabe    <───────   Aufgaben          ───────>   ElevenLabs (Stimme)
+Doppelklatschen  ───────>   Aktionen: Programme, Browser, Bildschirm
+```
+
+Es ist derselbe Kern wie in Telegram: ein Gedächtnis, eine Aufgabenliste,
+dieselben Werkzeuge. Was du sprichst, weiß der Bot.
+
+* **Weckwort** (`ORB_WECKWORT`, Standard „jarvis aktivieren") → Begrüßung mit
+  Uhrzeit, Wetter (Open-Meteo, ohne Schlüssel) und offenen Aufgaben.
+* **Doppelklatschen** startet, was in `ORB_PROGRAMME` steht, und öffnet
+  `ORB_WEBSEITE`. Erkannt wird im Browser (zwei scharfe Pegelspitzen mit Ruhe
+  davor) — kein Audio verlässt den Rechner, keine zusätzliche Bibliothek.
+* **Stimme**: ElevenLabs, wenn `ELEVENLABS_API_KEY` und `ELEVENLABS_VOICE_ID`
+  gesetzt sind, sonst spricht der Browser selbst. Jeder Satz wird einmal
+  erzeugt und in `data/audio/` zwischengespeichert.
+* **Bildschirm ansehen** braucht `ANTHROPIC_API_KEY` (lokale Modelle lesen
+  keine Bilder) und die macOS-Erlaubnis „Bildschirmaufnahme". Das Bild wird
+  beschrieben und sofort verworfen.
+* **Aktionsmarken**: Schreibt ein kleines Modell `[AKTION:OEFFNE] tagesschau.de`
+  als Text, statt das Werkzeug aufzurufen, wird es trotzdem ausgeführt und
+  nicht vorgelesen.
+
+Grenzen mit Absicht: Programme nur aus `ORB_PROGRAMME`, Adressen nur http(s),
+alles zusammen abschaltbar mit `ORB_AKTIONEN=false`. Ein frei wählbarer
+Programmname wäre eine Hintertür — ein Satz in einer fremden E-Mail könnte
+sonst eine Anwendung starten.
+
+Alles dazu in **`START-ORB.md`**.
+
 ## Dashboard
 
 `http://127.0.0.1:8765` zeigt Zustand, Aufgaben, Erinnerungen, Termine,
@@ -356,7 +432,14 @@ Die API, falls du eigene Oberflächen anbinden willst
 | POST | `/api/werkzeug` `{"name": "...", "argumente": {}}` | Werkzeug direkt |
 | POST | `/api/bestaetigen` `{"token": "..."}` | Bestätigung einlösen |
 | POST | `/api/aufgabe`, `/api/aufgabe/erledigt`, `/api/sicherung` | Aktionen |
+| POST | `/api/orb/sprich` `{"text": "..."}` | Satz an den Orb, Antwort mit Audioadresse |
+| POST | `/api/orb/begruessung`, `/api/orb/start` | Begrüßung, Startaufstellung |
+| GET | `/api/orb/einstellungen` | was die Oberfläche wissen muss |
+| POST | `/api/nachricht/eingang` | Messenger-Brücke: `{"absender","text","id","gruppe"}` |
+| GET | `/api/nachrichten`, `/api/bericht` | eingegangene Nachrichten, Zwischenstand |
+| POST | `/api/nachricht/erledigt` `{"id": 1}` | Nachricht abhaken |
 | GET | `/gesundheit` | Lebenszeichen (ohne Token) |
+| GET | `/orb` | Sprachoberfläche (nur lokal erreichbar) |
 
 Ein bereits vorhandenes eigenes Dashboard lässt sich gegen diese API betreiben —
 Gestaltung bleibt, die Daten kommen aus demselben Kern wie in Telegram.

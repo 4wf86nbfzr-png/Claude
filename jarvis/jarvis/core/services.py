@@ -116,6 +116,7 @@ class Services:
         )
 
         self.agent = None          # wird in ``build_agent`` gesetzt
+        self._orb = None           # wird in ``orb`` gesetzt
         self.started_at = utcnow()
         self.last_errors: list[str] = []
         self._register_jobs()
@@ -226,6 +227,14 @@ class Services:
             f"MESSENGER_QUELLE='{quelle}' kenne ich nicht (mac, bruecke oder aus)"
         )
         log.warning(self.messenger_error)
+
+    @property
+    def orb(self) -> Any:
+        """Die Sprachoberflaeche -- spaet gebaut, damit Werkzeuge stehen."""
+        if self._orb is None:
+            from .orb import Orb
+            self._orb = Orb(self)
+        return self._orb
 
     def build_agent(self) -> Any:
         """Erzeugt den Gespraechsfuehrer (spaet, damit Werkzeuge registriert sind)."""
@@ -849,6 +858,20 @@ class Services:
         states.append(ComponentState(
             "Sprache", True, f"{self.speech_out.describe()}; {self.speech_in.describe()}"
         ))
+
+        if self.settings.orb_enabled:
+            if self.settings.elevenlabs_api_key:
+                stimme_ok, stimme_detail = await self.orb.stimme.health()
+            else:
+                stimme_ok, stimme_detail = True, (
+                    "Browserstimme (kein ELEVENLABS_API_KEY -- funktioniert, "
+                    "klingt nur nicht nach Jarvis)"
+                )
+            states.append(ComponentState("Orb", stimme_ok, stimme_detail))
+        else:
+            states.append(ComponentState(
+                "Orb", False, "abgeschaltet (ORB_ENABLED=false)", configured=False
+            ))
 
         last_backup = self.store.get("letzte_sicherung")
         states.append(ComponentState(

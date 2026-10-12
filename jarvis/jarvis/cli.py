@@ -32,7 +32,7 @@ BANNER = r"""
 
 
 # --------------------------------------------------------------------- Betrieb
-async def _run(settings: Settings) -> int:
+async def _run(settings: Settings, *, orb_oeffnen: bool = False) -> int:
     from .core.services import Services
 
     services = Services(settings)
@@ -59,6 +59,14 @@ async def _run(settings: Settings) -> int:
             try:
                 address = http_server.start()
                 print(f"Dashboard und API: {address}")
+                if settings.orb_enabled:
+                    orb_adresse = address.rstrip("/") + "/orb"
+                    if settings.http_api_token:
+                        orb_adresse += "#token=" + settings.http_api_token
+                    print(f"Jarvis zum Sprechen: {orb_adresse}")
+                    print("  (Chrome oeffnen, Mikrofon erlauben, Orb anklicken)")
+                    if orb_oeffnen:
+                        _im_browser(orb_adresse)
             except JarvisError as exc:
                 log.error("%s", exc.user_text())
                 http_server = None
@@ -411,6 +419,7 @@ def build_parser() -> argparse.ArgumentParser:
     sub = parser.add_subparsers(dest="befehl")
 
     sub.add_parser("run", help="Assistenten starten (Standard)")
+    sub.add_parser("orb", help="Assistent starten und die Sprachoberflaeche oeffnen")
     sub.add_parser("doctor", help="Zustand aller Bausteine pruefen")
     sub.add_parser("selftest", help="Ganze Kette pruefen (eigene Datenbank, keine Anrufe)")
     sub.add_parser("setup", help=".env anlegen und Telegram-Daten abfragen")
@@ -438,6 +447,18 @@ def build_parser() -> argparse.ArgumentParser:
     export.add_argument("datei", nargs="?")
 
     return parser
+
+
+def _im_browser(adresse: str) -> None:
+    """Oeffnet die Oberflaeche -- in Chrome, weil nur der die Spracheingabe kann."""
+    import subprocess
+    if sys.platform == "darwin":
+        for versuch in (["open", "-a", "Google Chrome", adresse], ["open", adresse]):
+            if subprocess.run(versuch, capture_output=True).returncode == 0:
+                return
+        return
+    import webbrowser
+    webbrowser.open(adresse)
 
 
 MIN_PYTHON = (3, 11)
@@ -480,6 +501,9 @@ def main(argv: list[str] | None = None) -> int:
         if command == "run":
             print(BANNER)
             return asyncio.run(_run(settings))
+        if command == "orb":
+            print(BANNER)
+            return asyncio.run(_run(settings, orb_oeffnen=True))
         if command == "doctor":
             return asyncio.run(_doctor(settings))
         if command == "selftest":

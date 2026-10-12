@@ -38,6 +38,7 @@ from ..errors import JarvisError
 log = logging.getLogger(__name__)
 
 DASHBOARD_DIR = Path(__file__).resolve().parent / "dashboard"
+ORB_DIR = Path(__file__).resolve().parent / "orb"
 MAX_BODY = 256 * 1024
 MAX_VOICE_TURNS = 24
 
@@ -191,6 +192,9 @@ def _make_handler(service: JarvisHTTPServer):
             if path == "/" or path == "/index.html":
                 self._serve_dashboard()
                 return
+            if path == "/orb":
+                self._serve_orb()
+                return
             if path == "/gesundheit":
                 self.json({"status": "ok", "zeit": iso(utcnow())})
                 return
@@ -242,15 +246,26 @@ def _make_handler(service: JarvisHTTPServer):
                 return
             self._send(200, page.read_bytes(), "text/html; charset=utf-8")
 
+        def _serve_orb(self) -> None:
+            if not settings.orb_enabled:
+                self.text("Der Orb ist abgeschaltet (ORB_ENABLED=false).", status=404)
+                return
+            seite = ORB_DIR / "index.html"
+            if not seite.exists():
+                self.text("Keine Orb-Oberflaeche hinterlegt.", status=404)
+                return
+            self._send(200, seite.read_bytes(), "text/html; charset=utf-8")
+
         def _serve_audio(self, name: str) -> None:
-            if not name.endswith(".wav") or "/" in name or ".." in name:
+            if "/" in name or ".." in name or not name.endswith((".wav", ".mp3")):
                 self.text("ungueltig", status=400)
                 return
             target = settings.data_dir / "audio" / name
             if not target.exists():
                 self.text("nicht gefunden", status=404)
                 return
-            self._send(200, target.read_bytes(), "audio/wav")
+            art = "audio/mpeg" if name.endswith(".mp3") else "audio/wav"
+            self._send(200, target.read_bytes(), art)
 
         # --- API ----------------------------------------------------------
         def _api_get(self, path: str, query: dict[str, list[str]]) -> None:
@@ -326,6 +341,16 @@ def _make_handler(service: JarvisHTTPServer):
                     "aufrufe": services.toolkit.recent_calls(limit=limit),
                     "verfuegbar": services.toolkit.descriptions(),
                 })
+            elif path == "/api/orb/einstellungen":
+                self.json({
+                    "anrede": settings.orb_anrede,
+                    "weckwort": settings.orb_weckwort,
+                    "klatschen": settings.orb_klatschen,
+                    "aktionen": settings.orb_aktionen,
+                    "eigene_stimme": bool(settings.elevenlabs_api_key
+                                          and settings.elevenlabs_voice_id),
+                    "programme": settings.orb_programme,
+                })
             elif path == "/api/nachrichten":
                 eintraege = services.messages.liste(limit=limit)
                 self.json([
@@ -371,6 +396,8 @@ def _make_handler(service: JarvisHTTPServer):
                     self.json({"status": "bekannt"})
                     return
                 self.json({"status": "angenommen", "id": nachricht_id}, status=201)
+            elif path.startswith("/api/orb/"):
+                self._orb(path, payload)
             elif path == "/api/nachricht/erledigt":
                 nachricht_id = int(payload.get("id", 0))
                 if not services.messages.holen(nachricht_id):
@@ -444,6 +471,33 @@ def _make_handler(service: JarvisHTTPServer):
                 self.json({"datei": target.name})
             else:
                 self.json({"fehler": "unbekannter Pfad"}, status=404)
+
+        # --- Orb ----------------------------------------------------------
+        def _orb(self, path: str, payload: dict[str, Any]) -> None:
+            services = service.services
+            if not settings.orb_enabled:
+                self.json({"fehler": "Der Orb ist abgeschaltet (ORB_ENABLED=false)."},
+                          status=404)
+                return
+            try:
+                if path == "/api/orb/sprich":
+                    text = str(payload.get("text", "")).strip()
+                    if not text:
+                        self.json({"fehler": "kein Text"}, status=400)
+                        return
+                    antwort = service.run_async(services.orb.sprich(text), timeout=300)
+                elif path == "/api/orb/begruessung":
+                    antwort = service.run_async(services.orb.begruessung(), timeout=120)
+                elif path == "/api/orb/start":
+                    antwort = service.run_async(services.orb.startaufstellung(), timeout=180)
+                else:
+                    self.json({"fehler": "unbekannter Pfad"}, status=404)
+                    return
+            except Exception as exc:
+                log.exception("Orb-Anfrage fehlgeschlagen")
+                self.json({"fehler": str(exc)}, status=500)
+                return
+            self.json(antwort.als_json())
 
         # --- Telefonie ----------------------------------------------------
         def _telephony(self, path: str, payload: dict[str, Any],

@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Jarvis</title>
+<style>
+  :root {
+    --grund: #05060a;
+    --grund-2: #0b0d14;
+    --linie: rgba(255,255,255,.10);
+    --schrift: #e9ecf5;
+    --leise: #8b93a7;
+    --puls: #4da3ff;
+    --puls-2: #7a5cff;
+    --warn: #ff6b5e;
+    --ok: #43d6a0;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0; background: var(--grund); color: var(--schrift);
+    font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 24px 16px 32px;
+  }
+  header { width: 100%; max-width: 760px; display: flex; justify-content: space-between;
+           align-items: center; gap: 12px; }
+  h1 { font-size: 15px; letter-spacing: .22em; text-transform: uppercase;
+       font-weight: 600; margin: 0; color: var(--leise); }
+  .werkzeugleiste { display: flex; gap: 8px; align-items: center; }
+  input[type=password] {
+    background: var(--grund-2); border: 1px solid var(--linie); color: var(--schrift);
+    border-radius: 8px; padding: 7px 10px; width: 150px; font-size: 13px;
+  }
+  button {
+    background: var(--grund-2); border: 1px solid var(--linie); color: var(--schrift);
+    border-radius: 999px; padding: 9px 18px; font-size: 14px; cursor: pointer;
+    transition: border-color .15s ease, background .15s ease;
+  }
+  button:hover { border-color: rgba(255,255,255,.3); }
+  button:focus-visible { outline: 2px solid var(--puls); outline-offset: 2px; }
+  button[aria-pressed="true"] { background: rgba(77,163,255,.16); border-color: var(--puls); }
+
+  /* --- Der Orb ---------------------------------------------------------- */
+  .buehne { flex: 1; display: grid; place-items: center; width: 100%; padding: 28px 0; }
+  .orb {
+    position: relative; width: 230px; height: 230px; border-radius: 50%;
+    background: radial-gradient(circle at 34% 30%, #22304a 0%, #0d1322 55%, #070a12 100%);
+    box-shadow: 0 0 0 1px rgba(255,255,255,.07), 0 0 70px rgba(77,163,255,.18) inset;
+    display: grid; place-items: center; cursor: pointer;
+    transition: box-shadow .4s ease, transform .4s ease;
+  }
+  .orb::after {
+    content: ""; position: absolute; inset: -14px; border-radius: 50%;
+    border: 1px solid rgba(77,163,255,.26); opacity: 0;
+    transition: opacity .3s ease;
+  }
+  .orb .kern {
+    width: 96px; height: 96px; border-radius: 50%;
+    background: radial-gradient(circle at 40% 35%, var(--puls), var(--puls-2) 70%, #1a1f3a);
+    filter: blur(.4px); opacity: .85;
+  }
+  body[data-zustand="hoert"] .orb { box-shadow: 0 0 0 1px rgba(77,163,255,.5), 0 0 90px rgba(77,163,255,.4); }
+  body[data-zustand="hoert"] .orb::after { opacity: 1; animation: ring 1.7s ease-out infinite; }
+  body[data-zustand="denkt"] .orb .kern { animation: atmen 1.1s ease-in-out infinite; }
+  body[data-zustand="spricht"] .orb .kern { animation: atmen .55s ease-in-out infinite; }
+  body[data-zustand="fehler"] .orb .kern { background: radial-gradient(circle at 40% 35%, var(--warn), #601f1c); }
+  @keyframes atmen { 0%,100% { transform: scale(1); } 50% { transform: scale(1.22); } }
+  @keyframes ring { 0% { transform: scale(1); opacity: .8; } 100% { transform: scale(1.3); opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    .orb, .orb::after, .orb .kern { animation: none !important; transition: none; }
+  }
+
+  .zustand { margin-top: 18px; text-align: center; color: var(--leise);
+             font-size: 13px; letter-spacing: .12em; text-transform: uppercase; }
+  .hoerprobe { margin-top: 10px; min-height: 22px; text-align: center;
+               color: var(--schrift); font-size: 15px; }
+
+  /* --- Verlauf ---------------------------------------------------------- */
+  .verlauf { width: 100%; max-width: 760px; display: flex; flex-direction: column;
+             gap: 10px; margin-top: 8px; }
+  .zeile { border: 1px solid var(--linie); border-radius: 12px; padding: 11px 14px;
+           background: var(--grund-2); white-space: pre-wrap; }
+  .zeile.ich { border-color: rgba(77,163,255,.3); }
+  .zeile .wer { display: block; font-size: 11px; letter-spacing: .16em;
+                text-transform: uppercase; color: var(--leise); margin-bottom: 4px; }
+  .zeile .getan { margin-top: 6px; font-size: 12px; color: var(--ok); }
+  .hinweis { max-width: 760px; width: 100%; margin-top: 14px; color: var(--leise);
+             font-size: 13px; border-top: 1px solid var(--linie); padding-top: 12px; }
+  .hinweis b { color: var(--schrift); font-weight: 600; }
+  .fehler { color: var(--warn); }
+  form.tippen { width: 100%; max-width: 760px; display: flex; gap: 8px; margin-top: 12px; }
+  form.tippen input {
+    flex: 1; background: var(--grund-2); border: 1px solid var(--linie);
+    color: var(--schrift); border-radius: 999px; padding: 10px 16px; font-size: 15px;
+  }
+</style>
+</head>
+<body data-zustand="ruht">
+
+<header>
+  <h1>Jarvis</h1>
+  <div class="werkzeugleiste">
+    <input id="token" type="password" placeholder="API-Token" autocomplete="off"
+           aria-label="API-Token">
+    <button id="klatschen" aria-pressed="false" title="Zweimal klatschen startet dein Setup">
+      Klatschen aus
+    </button>
+    <button id="freihand" aria-pressed="false">Freihand aus</button>
+  </div>
+</header>
+
+<div class="buehne">
+  <div>
+    <div class="orb" id="orb" role="button" tabindex="0"
+         aria-label="Sprechen – halten oder klicken"><div class="kern"></div></div>
+    <p class="zustand" id="zustand">Bereit – klick den Orb und sprich</p>
+    <p class="hoerprobe" id="hoerprobe"></p>
+  </div>
+</div>
+
+<form class="tippen" id="tippen">
+  <input id="eingabe" placeholder="… oder tipp es einfach" autocomplete="off">
+  <button type="submit">Senden</button>
+</form>
+
+<div class="verlauf" id="verlauf"></div>
+
+<p class="hinweis" id="hinweis">
+  <b>Chrome</b> nötig für die Spracherkennung. Der Orb hört erst, wenn du ihn anklickst –
+  mit <b>Freihand</b> hört er durchgehend zu. <b>Klatschen</b> fährt dein Setup hoch.
+</p>
+
+<script>
+const zustandsfeld = document.getElementById("zustand");
+const hoerprobe = document.getElementById("hoerprobe");
+const verlauf = document.getElementById("verlauf");
+const orb = document.getElementById("orb");
+const tokenfeld = document.getElementById("token");
+const hinweis = document.getElementById("hinweis");
+let einstellungen = { klatschen: false, eigene_stimme: false, anrede: "Sir" };
+let spricht = false;
+
+// Beim Start aus dem Terminal steht das Token in der Adresse (#token=...).
+// Es wird einmal uebernommen und sofort aus der Adressleiste entfernt.
+(function uebernimmToken() {
+  const treffer = /[#&]token=([^&]+)/.exec(location.hash || "");
+  if (treffer) {
+    try { localStorage.setItem("jarvis-token", decodeURIComponent(treffer[1])); } catch (e) {}
+    history.replaceState(null, "", location.pathname);
+  }
+})();
+try { tokenfeld.value = localStorage.getItem("jarvis-token") || ""; } catch (e) {}
+tokenfeld.addEventListener("change", () => {
+  try { localStorage.setItem("jarvis-token", tokenfeld.value.trim()); } catch (e) {}
+});
+
+function setzeZustand(name, text) {
+  document.body.dataset.zustand = name;
+  if (text) zustandsfeld.textContent = text;
+}
+
+function kopf() {
+  const token = tokenfeld.value.trim();
+  const basis = { "Content-Type": "application/json" };
+  if (token) basis["Authorization"] = "Bearer " + token;
+  return basis;
+}
+
+function zeile(wer, text, getan) {
+  const el = document.createElement("div");
+  el.className = "zeile" + (wer === "Du" ? " ich" : "");
+  const kopfzeile = document.createElement("span");
+  kopfzeile.className = "wer";
+  kopfzeile.textContent = wer;
+  el.appendChild(kopfzeile);
+  el.appendChild(document.createTextNode(text));
+  if (getan && getan.length) {
+    const fuss = document.createElement("div");
+    fuss.className = "getan";
+    fuss.textContent = "ausgeführt: " + getan.join(", ");
+    el.appendChild(fuss);
+  }
+  verlauf.prepend(el);
+  while (verlauf.children.length > 20) verlauf.lastChild.remove();
+}
+
+async function hole(pfad, nutzlast) {
+  const antwort = await fetch(pfad, {
+    method: nutzlast ? "POST" : "GET",
+    headers: kopf(),
+    body: nutzlast ? JSON.stringify(nutzlast) : undefined,
+  });
+  if (antwort.status === 401) throw new Error("Token fehlt oder stimmt nicht.");
+  const daten = await antwort.json().catch(() => ({}));
+  if (!antwort.ok) throw new Error(daten.fehler || ("Fehler " + antwort.status));
+  return daten;
+}
+
+// --- Sprechen ---------------------------------------------------------------
+function browserSpricht(text) {
+  if (!("speechSynthesis" in window) || !text) return;
+  const satz = new SpeechSynthesisUtterance(text);
+  satz.lang = "de-DE";
+  satz.rate = 1.03;
+  spricht = true;
+  setzeZustand("spricht", "Spricht");
+  satz.onend = () => { spricht = false; nachDemSprechen(); };
+  satz.onerror = () => { spricht = false; nachDemSprechen(); };
+  speechSynthesis.cancel();
+  speechSynthesis.speak(satz);
+}
+
+function nachDemSprechen() {
+  setzeZustand(freihandAn ? "hoert" : "ruht",
+               freihandAn ? "Hört zu" : "Bereit – klick den Orb und sprich");
+}
+
+async function abspielen(antwort) {
+  if (antwort.audio) {
+    const klang = new Audio(antwort.audio);
+    spricht = true;
+    setzeZustand("spricht", "Spricht");
+    klang.onended = () => { spricht = false; nachDemSprechen(); };
+    klang.onerror = () => { spricht = false; browserSpricht(antwort.gesprochen); };
+    try { await klang.play(); return; } catch (e) { spricht = false; }
+  }
+  browserSpricht(antwort.gesprochen || antwort.text);
+}
+
+async function sende(text) {
+  if (!text.trim()) return;
+  zeile("Du", text);
+  hoerprobe.textContent = "";
+  setzeZustand("denkt", "Denkt nach");
+  try {
+    const antwort = await hole("/api/orb/sprich", { text });
+    zeile("Jarvis", antwort.text, antwort.aktionen);
+    await abspielen(antwort);
+  } catch (fehler) {
+    setzeZustand("fehler", "Fehler");
+    zeile("Jarvis", fehler.message);
+    setTimeout(nachDemSprechen, 2500);
+  }
+}
+
+// --- Zuhören ----------------------------------------------------------------
+const Erkennung = window.SpeechRecognition || window.webkitSpeechRecognition;
+let erkennung = null;
+let freihandAn = false;
+let hoertGerade = false;
+
+if (!Erkennung) {
+  hinweis.innerHTML = "<b class='fehler'>Dieser Browser kann keine Spracheingabe.</b> " +
+    "Nimm Google Chrome – oder tipp unten einfach.";
+} else {
+  erkennung = new Erkennung();
+  erkennung.lang = "de-DE";
+  erkennung.interimResults = true;
+  erkennung.continuous = false;
+
+  erkennung.onstart = () => { hoertGerade = true; setzeZustand("hoert", "Hört zu"); };
+  erkennung.onresult = (ereignis) => {
+    let fertig = "", vorlaeufig = "";
+    for (let i = ereignis.resultIndex; i < ereignis.results.length; i++) {
+      const stueck = ereignis.results[i];
+      if (stueck.isFinal) fertig += stueck[0].transcript;
+      else vorlaeufig += stueck[0].transcript;
+    }
+    hoerprobe.textContent = vorlaeufig || fertig;
+    if (fertig.trim()) sende(fertig.trim());
+  };
+  erkennung.onerror = (ereignis) => {
+    hoertGerade = false;
+    if (ereignis.error === "not-allowed") {
+      setzeZustand("fehler", "Kein Zugriff aufs Mikrofon");
+      hinweis.innerHTML = "<b class='fehler'>Mikrofon nicht erlaubt.</b> " +
+        "In Chrome auf das Schloss in der Adressleiste → Mikrofon → zulassen.";
+    } else if (ereignis.error !== "no-speech" && ereignis.error !== "aborted") {
+      setzeZustand("fehler", "Spracherkennung: " + ereignis.error);
+    }
+  };
+  erkennung.onend = () => {
+    hoertGerade = false;
+    if (freihandAn && !spricht) { try { erkennung.start(); } catch (e) {} }
+    else if (!spricht) nachDemSprechen();
+  };
+}
+
+function hoerZu() {
+  if (!erkennung || hoertGerade || spricht) return;
+  try { erkennung.start(); } catch (e) {}
+}
+
+orb.addEventListener("click", hoerZu);
+orb.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" || e.key === " ") { e.preventDefault(); hoerZu(); }
+});
+
+const freihandKnopf = document.getElementById("freihand");
+freihandKnopf.addEventListener("click", () => {
+  freihandAn = !freihandAn;
+  freihandKnopf.setAttribute("aria-pressed", String(freihandAn));
+  freihandKnopf.textContent = freihandAn ? "Freihand an" : "Freihand aus";
+  if (freihandAn) hoerZu(); else if (erkennung) { try { erkennung.stop(); } catch (e) {} }
+});
+
+document.getElementById("tippen").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const feld = document.getElementById("eingabe");
+  const text = feld.value;
+  feld.value = "";
+  sende(text);
+});
+
+// --- Doppelklatschen --------------------------------------------------------
+// Zwei scharfe Pegelspitzen kurz hintereinander, davor Ruhe. Sprache und Musik
+// haben keine solchen Flanken -- deshalb loest Reden den Start nicht aus.
+const SCHWELLE = 0.34;
+const RUHE = 0.07;
+const MIN_ABSTAND = 120;
+const MAX_ABSTAND = 700;
+let klatschenAn = false;
+let klatschStrom = null;
+let letzterKlatscher = 0;
+let warRuhig = true;
+let startetGerade = false;
+
+async function klatschenStarten() {
+  if (klatschStrom) return true;
+  try {
+    const strom = await navigator.mediaDevices.getUserMedia({ audio: {
+      echoCancellation: false, noiseSuppression: false, autoGainControl: false,
+    }});
+    const kontext = new (window.AudioContext || window.webkitAudioContext)();
+    const quelle = kontext.createMediaStreamSource(strom);
+    const messer = kontext.createAnalyser();
+    messer.fftSize = 1024;
+    quelle.connect(messer);
+    const puffer = new Float32Array(messer.fftSize);
+    klatschStrom = { strom, kontext };
+
+    const pruefen = () => {
+      if (!klatschenAn) return;
+      messer.getFloatTimeDomainData(puffer);
+      let spitze = 0;
+      for (let i = 0; i < puffer.length; i++) {
+        const wert = Math.abs(puffer[i]);
+        if (wert > spitze) spitze = wert;
+      }
+      const jetzt = performance.now();
+      if (spitze < RUHE) warRuhig = true;
+      else if (spitze > SCHWELLE && warRuhig && !spricht) {
+        warRuhig = false;
+        const abstand = jetzt - letzterKlatscher;
+        if (abstand > MIN_ABSTAND && abstand < MAX_ABSTAND) {
+          letzterKlatscher = 0;
+          startaufstellung();
+        } else {
+          letzterKlatscher = jetzt;
+        }
+      }
+      requestAnimationFrame(pruefen);
+    };
+    requestAnimationFrame(pruefen);
+    return true;
+  } catch (fehler) {
+    setzeZustand("fehler", "Mikrofon fürs Klatschen nicht erlaubt");
+    return false;
+  }
+}
+
+async function startaufstellung() {
+  if (startetGerade) return;
+  startetGerade = true;
+  setzeZustand("denkt", "Fährt dein Setup hoch");
+  try {
+    const antwort = await hole("/api/orb/start", {});
+    zeile("Jarvis", antwort.text, antwort.aktionen);
+    await abspielen(antwort);
+  } catch (fehler) {
+    setzeZustand("fehler", "Fehler");
+    zeile("Jarvis", fehler.message);
+    setTimeout(nachDemSprechen, 2500);
+  } finally {
+    setTimeout(() => { startetGerade = false; }, 3000);
+  }
+}
+
+const klatschKnopf = document.getElementById("klatschen");
+klatschKnopf.addEventListener("click", async () => {
+  if (!klatschenAn) {
+    if (!(await klatschenStarten())) return;
+  }
+  klatschenAn = !klatschenAn;
+  klatschKnopf.setAttribute("aria-pressed", String(klatschenAn));
+  klatschKnopf.textContent = klatschenAn ? "Klatschen an" : "Klatschen aus";
+});
+
+// --- Start ------------------------------------------------------------------
+(async () => {
+  try {
+    einstellungen = await hole("/api/orb/einstellungen");
+    if (einstellungen.klatschen) klatschKnopf.click();
+  } catch (fehler) {
+    if (tokenfeld.value.trim()) setzeZustand("fehler", fehler.message);
+  }
+})();
+</script>
+</body>
+</html>
