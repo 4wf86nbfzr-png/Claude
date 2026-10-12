@@ -155,3 +155,8 @@ unter „Vor dem Live-Gang". Kurzfassung:
 - Lokale Vorschau: `npx serve` oder `python3 -m http.server` im Projektordner starten.
 - Alternativ index.html direkt im Browser öffnen (Assets laden per file:// mit).
 - Deploy: Netlify/Vercel — statisches Verzeichnis, kein Build-Step nötig.
+
+## Zweites Projekt im Repo: `werkpilot/`
+Unabhängig von der HERM-Website liegt unter `werkpilot/` das SaaS-Produkt **WerkPilot AI**
+(FastAPI-Backend, Next.js-Frontend, eigene Dokumentation). Die Regeln oben gelten nur für die
+HERM-Seite; für WerkPilot gilt `werkpilot/README.md` und `werkpilot/docs/`.
