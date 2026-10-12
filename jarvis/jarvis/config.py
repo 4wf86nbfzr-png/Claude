@@ -125,6 +125,10 @@ class Settings:
     openai_base_url: str = "https://api.openai.com/v1"
     openai_api_key: str = ""
     anthropic_base_url: str = "https://api.anthropic.com/v1"
+    #: Denktiefe bei den aktuellen Claude-Modellen: low, medium, high.
+    #: Leer = Vorgabe des Anbieters (noetig fuer aeltere Modelle, die das
+    #: Feld nicht kennen).
+    anthropic_effort: str = ""
     anthropic_api_key: str = ""
     ai_timeout: float = 120.0
     ai_max_retries: int = 2
@@ -220,6 +224,7 @@ class Settings:
             openai_base_url=_str("OPENAI_BASE_URL", "https://api.openai.com/v1").rstrip("/"),
             openai_api_key=_str("OPENAI_API_KEY"),
             anthropic_base_url=_str("ANTHROPIC_BASE_URL", "https://api.anthropic.com/v1").rstrip("/"),
+            anthropic_effort=_str("ANTHROPIC_EFFORT", "", allow_empty=True),
             anthropic_api_key=_str("ANTHROPIC_API_KEY"),
             ai_timeout=_float("AI_TIMEOUT", 120.0),
             ai_max_retries=_int("AI_MAX_RETRIES", 2),

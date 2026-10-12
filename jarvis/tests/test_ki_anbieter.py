@@ -364,3 +364,54 @@ def test_zustandsbericht_der_verwaltung(stub, monkeypatch):
 async def _sofort(dauer: float) -> None:
     """Wartezeiten zwischen den Versuchen ueberspringen."""
     return None
+
+
+def test_anthropic_schickt_keine_temperatur(stub):
+    """Die aktuellen Claude-Modelle lehnen `temperature` mit Fehler 400 ab."""
+    anbieter = AnthropicProvider("claude-haiku-5-5", "sk-ant-test",
+                                 f"{stub.base_url}/v1", timeout=10)
+    stub.queue(stub.anthropic_text("Gut."))
+    try:
+        run(anbieter.chat(VERLAUF, temperature=0.6))
+    finally:
+        run(anbieter.close())
+    assert "temperature" not in stub.last_request
+    assert "top_p" not in stub.last_request and "top_k" not in stub.last_request
+
+
+def test_anthropic_denktiefe_nur_wenn_gesetzt(stub):
+    ohne = AnthropicProvider("claude-haiku-5-5", "sk-ant-test",
+                             f"{stub.base_url}/v1", timeout=10)
+    stub.queue(stub.anthropic_text("a"))
+    try:
+        run(ohne.chat(VERLAUF))
+    finally:
+        run(ohne.close())
+    assert "output_config" not in stub.last_request
+
+    mit = AnthropicProvider("claude-haiku-5-5", "sk-ant-test",
+                            f"{stub.base_url}/v1", timeout=10, effort="low")
+    stub.queue(stub.anthropic_text("b"))
+    try:
+        run(mit.chat(VERLAUF))
+    finally:
+        run(mit.close())
+    assert stub.last_request["output_config"] == {"effort": "low"}
+
+
+def test_anthropic_einstellung_kommt_aus_der_konfiguration(stub, monkeypatch):
+    monkeypatch.setenv("AI_PROVIDER", "anthropic")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-test")
+    monkeypatch.setenv("ANTHROPIC_BASE_URL", f"{stub.base_url}/v1")
+    monkeypatch.setenv("ANTHROPIC_EFFORT", "low")
+    monkeypatch.setenv("AI_MODEL", "claude-haiku-5-5")
+    verwaltung = ModelManager(Settings.load())
+    stub.queue(stub.anthropic_text("Fertig."))
+    try:
+        antwort = run(verwaltung.chat(VERLAUF))
+    finally:
+        run(verwaltung.close())
+    assert antwort.text == "Fertig."
+    assert stub.last_request["model"] == "claude-haiku-5-5"
+    assert stub.last_request["output_config"] == {"effort": "low"}
+    assert "temperature" not in stub.last_request

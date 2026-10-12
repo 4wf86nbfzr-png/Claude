@@ -97,27 +97,56 @@ Speichern, Editor schließen.
 
 ---
 
-## Schritt 5 — Sprachmodell installieren (5 Min + 20 Min Download)
+## Schritt 5 — Sprachmodell (5 Min + Download)
 
-Damit Jarvis frei reden kann, läuft ein Modell **lokal** auf deinem Rechner.
-Nichts geht an einen Anbieter, nichts kostet Geld.
+Zuerst prüfen, was für ein Mac es ist:
 
 ```bash
-brew install ollama                       # Linux: curl -fsSL https://ollama.com/install.sh | sh
-ollama serve &                            # läuft im Hintergrund weiter
-ollama pull llama3.1:8b                   # ~5 GB, das dauert
+uname -m
 ```
 
-**Geklappt, wenn** `ollama list` dir `llama3.1:8b` zeigt.
+### `arm64` (Apple Silicon) — lokales Modell, kostenlos
 
-Der Download kann laufen, während du mit Schritt 6 weitermachst.
+```bash
+brew install ollama                       # oder ollama.com/download/mac
+ollama serve &
+ollama pull llama3.1:8b                   # ~5 GB
+```
+In der `.env` bleibt `AI_MODEL=llama3.1:8b`. Antworten kommen in 2–5 Sekunden.
 
-> Weniger als 16 GB Arbeitsspeicher? Dann `ollama pull qwen2.5:7b` und in
-> der `.env` `AI_MODEL=qwen2.5:7b` setzen.
->
-> Kein Ollama möglich? Jarvis läuft trotzdem — Befehle, Knöpfe, Aufgaben,
-> Erinnerungen und Anrufe funktionieren. Nur das freie Gespräch fehlt, und
-> er sagt dir das offen.
+### `x86_64` (Intel) — kleines lokales Modell …
+
+Intel-Macs rechnen nur auf der CPU, die Grafik hilft nicht mit. Ein 8B-Modell
+bräuchte dort pro Antwort eine halbe Minute. Deshalb das kleine:
+
+```bash
+ollama pull llama3.2:3b
+```
+und in der `.env`: `AI_MODEL=llama3.2:3b`. Antworten in 5–15 Sekunden,
+alles bleibt auf dem Rechner, kostet nichts.
+
+### … oder ein Cloud-Modell, wenn dir das zu langsam ist
+
+```
+AI_PROVIDER=anthropic
+ANTHROPIC_API_KEY=sk-ant-...        # console.anthropic.com → API Keys
+AI_MODEL=claude-haiku-5-5
+ANTHROPIC_EFFORT=low
+```
+Antworten in 1–2 Sekunden, deutlich klüger. Preis: 0,10 $ je Million Token
+hinein, 0,50 $ hinaus — im Alltag Cent-Beträge pro Tag. Dafür verlassen
+Aufgaben, Termine und E-Mail-Auszüge deinen Rechner. Für einen Betrieb mit
+Personaldaten ist das eine bewusste Entscheidung; die Zugangsdaten zu
+Postfach, Kalender und Telefonie bleiben in jedem Fall lokal.
+
+Du kannst später jederzeit wechseln: `.env` ändern, Dienst neu starten.
+
+**Geklappt, wenn** `ollama list` das Modell zeigt (lokal) bzw. der Schlüssel
+in der `.env` steht (Cloud).
+
+> Kein Modell? Jarvis läuft trotzdem — Befehle, Knöpfe, Aufgaben,
+> Erinnerungen, Kalender und Anrufe funktionieren alle. Nur das freie
+> Gespräch fehlt, und er sagt dir das offen.
 
 ---
 

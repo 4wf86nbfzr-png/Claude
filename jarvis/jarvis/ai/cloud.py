@@ -108,13 +108,18 @@ class AnthropicProvider(AIProvider):
     supports_native_tools = True
 
     def __init__(self, model: str, api_key: str, base_url: str = "https://api.anthropic.com/v1",
-                 timeout: float = 120.0) -> None:
+                 timeout: float = 120.0, effort: str = "") -> None:
         super().__init__(model)
         if not api_key:
             raise CredentialsMissing("Fuer den Anthropic-Weg fehlt ANTHROPIC_API_KEY.")
         self.api_key = api_key
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
+        #: Denktiefe der aktuellen Claude-Modelle: low ist fuer einen
+        #: Assistenten meist richtig (schneller und guenstiger). Leer lassen
+        #: heisst: Vorgabe des Anbieters, und aeltere Modelle vertragen das
+        #: Feld ohnehin nicht.
+        self.effort = effort.strip().lower()
         self._client: httpx.AsyncClient | None = None
 
     def _http(self) -> httpx.AsyncClient:
@@ -163,12 +168,16 @@ class AnthropicProvider(AIProvider):
             if message.content:
                 converted.append({"role": message.role, "content": message.content})
 
+        # Kein "temperature": die aktuellen Claude-Modelle (Opus 5.5, Sonnet 5.5,
+        # Haiku 5.5, Fable 5.x) weisen den Parameter mit Fehler 400 ab. Ohne ihn
+        # gilt die Vorgabe des Anbieters, und aeltere Modelle laufen ebenso.
         payload: dict[str, Any] = {
             "model": self.model,
             "messages": converted,
             "max_tokens": max_tokens or 2048,
-            "temperature": temperature,
         }
+        if self.effort:
+            payload["output_config"] = {"effort": self.effort}
         if system_parts:
             payload["system"] = "\n\n".join(system_parts)
         if tools:

@@ -33,6 +33,7 @@ def build_provider(kind: str, model: str, settings: Settings) -> AIProvider:
         return AnthropicProvider(
             model or settings.ai_model, settings.anthropic_api_key,
             settings.anthropic_base_url, settings.ai_timeout,
+            effort=settings.anthropic_effort,
         )
     if kind in {"echo", "none", ""}:
         return EchoProvider(model or "echo")

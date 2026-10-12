@@ -57,6 +57,14 @@ ollama pull llama3.1:8b    # ein Modell mit Werkzeugunterstützung
 Ohne Modell bleibt Jarvis bedienbar: Befehle, Knöpfe, Erinnerungen und Anrufe
 funktionieren, nur das freie Gespräch fällt weg. Er sagt das dann auch.
 
+**Auf einem Intel-Mac** rechnet Ollama nur auf der CPU — ein 8B-Modell braucht
+dort schnell eine halbe Minute pro Antwort. Dann besser ein kleines Modell
+(`AI_MODEL=llama3.2:3b`) oder ein Cloud-Modell: `AI_PROVIDER=anthropic`,
+`ANTHROPIC_API_KEY=…`, `AI_MODEL=claude-haiku-5-5` (0,10 $ / 0,50 $ je Million
+Token ein/aus — im Alltag Cent-Beträge). Das ist schnell und klug, aber dabei
+verlassen Aufgaben, Termine und E-Mail-Auszüge den Rechner; für ein deutsches
+Unternehmen ist das eine bewusste Entscheidung, keine Nebensache.
+
 ---
 
 ## Was er kann
