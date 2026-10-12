@@ -276,6 +276,32 @@ MIGRATIONS: list[tuple[int, str, str]] = [
         CREATE INDEX idx_tool_call_created ON tool_call (id DESC);
         """,
     ),
+    (
+        3,
+        "Nachrichten aus WhatsApp und anderen Kanaelen",
+        """
+        -- Eingehende Nachrichten aus Messengern. Eine Zeile je Nachricht,
+        -- unabhaengig davon, woher sie kommt (Mac-Mitteilung, Bruecke, API).
+        CREATE TABLE nachricht (
+            id            INTEGER PRIMARY KEY AUTOINCREMENT,
+            kanal         TEXT NOT NULL DEFAULT 'whatsapp',
+            quelle        TEXT NOT NULL DEFAULT '',      -- mac | bruecke | api
+            extern_id     TEXT NOT NULL,                 -- Kennung beim Absender
+            absender      TEXT NOT NULL DEFAULT '',
+            gruppe        TEXT NOT NULL DEFAULT '',      -- Gruppenname, falls vorhanden
+            text          TEXT NOT NULL DEFAULT '',
+            empfangen_am  TEXT NOT NULL,
+            stufe         TEXT NOT NULL DEFAULT 'offen', -- offen | ignoriert | gemeldet | dringend
+            gruende       TEXT NOT NULL DEFAULT '[]',
+            gemeldet_am   TEXT,
+            erledigt_am   TEXT,
+            created_at    TEXT NOT NULL,
+            UNIQUE (kanal, extern_id)
+        );
+        CREATE INDEX idx_nachricht_offen ON nachricht (stufe, empfangen_am);
+        CREATE INDEX idx_nachricht_zeit ON nachricht (empfangen_am DESC);
+        """,
+    ),
 ]
 
 

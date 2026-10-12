@@ -1,5 +1,31 @@
 # Änderungen
 
+## 1.1.0 — Nachrichten mitlesen, einstufen, melden
+
+* **Eingehende Nachrichten** (`core/triage.py`, `core/messages.py`,
+  `adapters/messenger/`) — Jarvis liest mit, was auf WhatsApp hereinkommt,
+  stuft jede Nachricht ein (ignorieren / melden / dringend) und meldet nur,
+  was dich angeht. Zwei Quellen: die Mitteilungen von WhatsApp Desktop auf
+  dem Mac (rein lokal) oder eine HTTP-Brücke (`POST /api/nachricht/eingang`).
+* **Anruf bei Ausfall** — Absage, Krankmeldung, „schaffe es nicht",
+  deutliche Verspätung: das löst einen Anruf aus, sobald Telefonie
+  eingerichtet ist, und zusätzlich eine Meldung in Telegram.
+  Die Regeln entscheiden ohne KI; ein Modell darf nur zweitmeinen und eine
+  erkannte Absage nie herabstufen.
+* **Zwischenstand** — alle paar Stunden eine kurze Nachricht, was im
+  Hintergrund lief (Mails durchgesehen, Nachrichten gelesen und gefiltert,
+  Erinnerungen, Anrufe). Wenn nichts war, bleibt es still.
+  Auf Zuruf mit `/bericht`.
+* **Bedienung** — `/nachrichten`, `/erledigt <Nr>`, `/bericht`, ein eigenes
+  Menü, Knöpfe „Erledigt" und „Antwort entwerfen"; die Werkzeuge
+  `nachrichten_liste`, `nachricht_lesen`, `nachricht_erledigt`,
+  `nachrichten_suchen`, `hintergrundbericht` stehen auch dem Modell,
+  dem Telefon und dem Dashboard zur Verfügung.
+* **Ohne Modell** — „Hat mir jemand geschrieben?" und „Was hast du gemacht?"
+  werden auch im Ersatzbetrieb erkannt und beantwortet.
+* **Gehirn** — `mein-gehirn.start.md`, eine ausgefüllte Startfassung;
+  `./start.sh lernen` legt die persönliche Fassung daraus an.
+
 ## 1.0.0 — erste betriebsfähige Fassung
 
 Neu aufgebaut, weil im Projekt kein Jarvis-Bestand vorhanden war (das

@@ -159,3 +159,77 @@ def test_twilio_signatur_wird_richtig_geprueft():
     assert not validate_twilio_signature(token, url, felder, "falsch")
     assert not validate_twilio_signature(token, url, {"CallSid": "CA2"}, richtig)
     assert not validate_twilio_signature("", url, felder, richtig)
+
+
+# --- Messenger-Bruecke --------------------------------------------------------
+@pytest.fixture
+def dienst_mit_bruecke(monkeypatch):
+    """Derselbe Dienst, aber mit der Bruecke als Nachrichtenquelle."""
+    monkeypatch.setenv("MESSENGER_ENABLED", "true")
+    monkeypatch.setenv("MESSENGER_QUELLE", "bruecke")
+    from jarvis.config import Settings
+    from jarvis.core.services import Services
+    dienste = Services(Settings.load())
+    dienste.settings.http_api_token = "geheim-fuer-den-test"
+    dienste.settings.http_port = 8791
+    dienste.settings.http_host = "127.0.0.1"
+
+    loop = asyncio.new_event_loop()
+    thread = threading.Thread(target=loop.run_forever, daemon=True)
+    thread.start()
+    server = JarvisHTTPServer(dienste, loop)
+    server.start()
+    yield server, dienste
+    server.stop()
+    loop.call_soon_threadsafe(loop.stop)
+    thread.join(timeout=3)
+    asyncio.new_event_loop().run_until_complete(dienste.stop())
+
+
+def test_bruecke_nimmt_nachricht_an(dienst_mit_bruecke):
+    _, dienste = dienst_mit_bruecke
+    status, daten = sende("/api/nachricht/eingang", {
+        "absender": "Alex Krapp", "text": "Ich kann morgen leider nicht", "id": "w:1",
+    })
+    assert status == 201 and daten["status"] == "angenommen"
+    # Zweites Mal: bekannt, kein Duplikat.
+    status, daten = sende("/api/nachricht/eingang", {
+        "absender": "Alex Krapp", "text": "Ich kann morgen leider nicht", "id": "w:1",
+    })
+    assert daten["status"] == "bekannt"
+    assert len(dienste.messages.liste(limit=10)) == 1
+
+
+def test_bruecke_ohne_text_wird_abgewiesen(dienst_mit_bruecke):
+    with pytest.raises(urllib.error.HTTPError) as fehler:
+        sende("/api/nachricht/eingang", {"absender": "Alex", "text": "  "})
+    assert fehler.value.code == 400
+
+
+def test_bruecke_braucht_ein_token(dienst_mit_bruecke):
+    with pytest.raises(urllib.error.HTTPError) as fehler:
+        sende("/api/nachricht/eingang", {"absender": "A", "text": "B"}, token=None)
+    assert fehler.value.code == 401
+
+
+def test_eingang_ohne_bruecke_sagt_das(dienst):
+    with pytest.raises(urllib.error.HTTPError) as fehler:
+        sende("/api/nachricht/eingang", {"absender": "A", "text": "B"})
+    assert fehler.value.code == 409
+
+
+def test_nachrichtenliste_und_bericht_ueber_die_api(dienst_mit_bruecke):
+    _, dienste = dienst_mit_bruecke
+    sende("/api/nachricht/eingang", {"absender": "Tim", "text": "Angebot für Samstag?"})
+    status, liste = hole("/api/nachrichten")
+    assert status == 200 and liste[0]["absender"] == "Tim"
+    nachricht_id = liste[0]["id"]
+
+    status, daten = sende("/api/nachricht/erledigt", {"id": nachricht_id})
+    assert daten["erledigt"] is True
+    with pytest.raises(urllib.error.HTTPError) as fehler:
+        sende("/api/nachricht/erledigt", {"id": 9999})
+    assert fehler.value.code == 404
+
+    status, bericht = hole("/api/bericht")
+    assert status == 200 and "text" in bericht

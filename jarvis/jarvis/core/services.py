@@ -31,7 +31,8 @@ from ..errors import CredentialsMissing, JarvisError
 from ..logging_setup import attach_database_handler
 from .jobs import Job, JobQueue, Scheduler
 from .memory import Memory, SettingsStore
-from .notifier import Notifier, PRIORITY_NORMAL, PRIORITY_URGENT
+from .messages import NachrichtenSpeicher
+from .notifier import Notifier, PRIORITY_LOW, PRIORITY_NORMAL, PRIORITY_URGENT
 from .permissions import PermissionManager
 from .tasks import ReminderStore, TaskStore
 from .timeutil import format_local, in_quiet_hours, to_local, to_utc
@@ -100,6 +101,10 @@ class Services:
         self.phone = None
         self.phone_error: str = ""
         self._build_phone()
+        self.messages = NachrichtenSpeicher(self.db)
+        self.messenger = None
+        self.messenger_error: str = ""
+        self._build_messenger()
 
         self.speech_out = SpeechSynthesis(
             settings.tts_engine, piper_binary=settings.piper_binary,
@@ -185,6 +190,43 @@ class Services:
             self.phone_error = exc.message
             log.warning("Telefonie nicht einsatzbereit: %s", exc.message)
 
+    def _build_messenger(self) -> None:
+        """Baut die Nachrichtenquelle (WhatsApp & Co.).
+
+        Es gibt zwei Wege, und beide haben Grenzen -- deshalb steht hier
+        nichts fest verdrahtet, sondern eine Quelle hinter einer
+        Schnittstelle. ``mac`` liest die Mitteilungen von WhatsApp Desktop
+        mit (lokal, ungefaehrlich fuer die Nummer, sieht aber nur die
+        Vorschau). ``bruecke`` nimmt Nachrichten per HTTP an.
+        """
+        quelle = self.settings.messenger_quelle
+        if not self.settings.messenger_enabled or quelle == "aus":
+            self.messenger_error = "Messenger ist abgeschaltet (MESSENGER_ENABLED=false)"
+            return
+        if quelle == "mac":
+            from ..adapters.messenger.mac import MacMitteilungen
+            mac = MacMitteilungen(self.settings.messenger_mac_db or None)
+            ok, hinweis = mac.verfuegbar()
+            if not ok:
+                self.messenger_error = hinweis
+                log.warning("Messenger nicht einsatzbereit: %s", hinweis)
+                return
+            stand = self.store.get("messenger_stand")
+            # Beim ersten Start nicht den gesamten Mitteilungsverlauf
+            # nachmelden -- das waeren hunderte Meldungen auf einmal.
+            mac.letzte_id = int(stand) if stand and stand.isdigit() else mac.hoechste_id()
+            self.store.set("messenger_stand", str(mac.letzte_id))
+            self.messenger = mac
+            return
+        if quelle == "bruecke":
+            from ..adapters.messenger.bruecke import Bruecke
+            self.messenger = Bruecke(self.db)
+            return
+        self.messenger_error = (
+            f"MESSENGER_QUELLE='{quelle}' kenne ich nicht (mac, bruecke oder aus)"
+        )
+        log.warning(self.messenger_error)
+
     def build_agent(self) -> Any:
         """Erzeugt den Gespraechsfuehrer (spaet, damit Werkzeuge registriert sind)."""
         from .agent import Agent
@@ -212,6 +254,8 @@ class Services:
         self.scheduler.register("sicherung", self._job_backup)
         self.scheduler.register("tagesueberblick", self._job_morning)
         self.scheduler.register("aufraeumen", self._job_cleanup)
+        self.scheduler.register("nachrichten_pruefen", self._job_messages)
+        self.scheduler.register("hintergrundbericht", self._job_report)
 
     async def start(self) -> None:
         self.queue.recover_stuck()
@@ -226,6 +270,18 @@ class Services:
             self.queue.ensure_recurring(
                 "email_pruefen", run_at=now + timedelta(seconds=30),
                 recurrence=f"alle:{max(1, interval // 60)}:min",
+            )
+        if self.messenger is not None:
+            takt = max(60, self.settings.messenger_poll_seconds)
+            self.queue.ensure_recurring(
+                "nachrichten_pruefen", run_at=now + timedelta(seconds=20),
+                recurrence=f"alle:{max(1, takt // 60)}:min",
+            )
+        if self.settings.bericht_intervall_stunden > 0:
+            stunden = max(1, self.settings.bericht_intervall_stunden)
+            self.queue.ensure_recurring(
+                "hintergrundbericht", run_at=now + timedelta(minutes=stunden * 60),
+                recurrence=f"alle:{stunden}:stu",
             )
         self.queue.ensure_recurring(
             "sicherung", run_at=self._next_local_time(3, 30), recurrence="taeglich"
@@ -252,7 +308,7 @@ class Services:
     async def stop(self) -> None:
         await self.scheduler.stop()
         self.memory.remember_event("system_stop", "Jarvis beendet")
-        for component in (self.models, self.calendar, self.phone):
+        for component in (self.models, self.calendar, self.phone, self.messenger):
             if component is not None:
                 try:
                     await component.close()
@@ -490,8 +546,189 @@ class Services:
         for row in chats:
             pruned += self.memory.prune_conversation(row["chat_id"], keep=400)
         self.db.execute("DELETE FROM log WHERE created_at < ?", (iso(utcnow() - timedelta(days=30)),))
+        removed_messages = self.messages.aufraeumen(30)
         return (f"Auftraege {removed_jobs}, Meldungen {removed_notifications}, "
-                f"Bestaetigungen {removed_confirmations}, Nachrichten {pruned}")
+                f"Bestaetigungen {removed_confirmations}, Verlauf {pruned}, "
+                f"Nachrichten {removed_messages}")
+
+    async def _job_messages(self, job: Job) -> str:
+        """Neue Messenger-Nachrichten holen, einstufen, melden -- notfalls anrufen."""
+        if self.messenger is None:
+            return "keine Nachrichtenquelle verbunden"
+        from . import triage
+
+        eingang = await self.messenger.neue(limit=40)
+        # Der Lesestand wandert in die Datenbank, sonst beginnt die Quelle
+        # nach einem Neustart wieder von vorn.
+        stand = getattr(self.messenger, "letzte_id", None)
+        if stand:
+            self.store.set("messenger_stand", str(stand))
+
+        neu = gemeldet = angerufen = 0
+        for nachricht in eingang:
+            nachricht_id = self.messages.ablegen(nachricht) or self.messages.offene_id(
+                nachricht.kanal, nachricht.extern_id
+            )
+            if not nachricht_id:
+                continue
+            neu += 1
+            einstufung = triage.nach_regeln(
+                nachricht,
+                wichtige_absender=self.settings.messenger_wichtige_absender,
+                dringend_woerter=self.settings.messenger_dringend_woerter,
+                wichtig_woerter=self.settings.messenger_wichtig_woerter,
+                stumme_gruppen=self.settings.messenger_stumme_gruppen,
+            )
+            # Das Modell wird nur gefragt, wenn es etwas beitragen kann: bei
+            # einer erkannten Absage zaehlt die Regel, und im Ersatzbetrieb
+            # antwortet ohnehin nur das Echo.
+            if einstufung.stufe != triage.DRINGEND and not self.models.degraded:
+                einstufung = await triage.mit_modell(nachricht, self.models, vorab=einstufung)
+            self.messages.einstufen(nachricht_id, einstufung)
+            self.memory.remember_event(
+                "nachricht_eingestuft", nachricht.zeile(),
+                {"id": nachricht_id, "stufe": einstufung.stufe,
+                 "gruende": einstufung.gruende, "kanal": nachricht.kanal},
+            )
+            if einstufung.stufe == triage.IGNORIEREN:
+                continue
+
+            dringend = einstufung.stufe == triage.DRINGEND
+            kopf = "🔴 *Das sollte dich sofort erreichen*" if dringend else "*Neue Nachricht*"
+            text = (
+                f"{kopf}\n"
+                f"{nachricht.absender}"
+                + (f" (Gruppe {nachricht.gruppe})" if nachricht.gruppe else "")
+                + f" auf {nachricht.kanal.capitalize()}:\n"
+                f"„{' '.join(nachricht.text.split())[:600]}“\n\n"
+                f"_Einstufung: {einstufung.begruendung()}_"
+            )
+            if await self.notifier.notify(
+                f"nachricht:{nachricht_id}", text, kind="nachricht",
+                priority=PRIORITY_URGENT if dringend else PRIORITY_NORMAL,
+                force=dringend,
+                keyboard={"buttons": [
+                    ("✓ Erledigt", f"nachricht_fertig:{nachricht_id}"),
+                    ("Antwort entwerfen", f"nachricht_antwort:{nachricht_id}"),
+                ]},
+            ):
+                self.messages.gemeldet(nachricht_id)
+                gemeldet += 1
+
+            if dringend and self.settings.messenger_anruf_bei_dringend and self.phone_active:
+                ansage = (
+                    f"{nachricht.absender} hat geschrieben: "
+                    f"{' '.join(nachricht.text.split())[:300]}. "
+                    "Das sieht nach einem Ausfall aus. Bitte kuemmere dich darum."
+                )
+                created = self.queue.enqueue(
+                    "anruf", payload={"text": ansage},
+                    idempotency_key=f"nachricht-anruf:{nachricht_id}", max_attempts=2,
+                )
+                if created is not None:
+                    angerufen += 1
+
+        return f"{len(eingang)} geholt, {neu} neu, {gemeldet} gemeldet, {angerufen} Anruf(e)"
+
+    async def _job_report(self, job: Job) -> str:
+        """Zwischenbericht: was im Hintergrund gelaufen ist.
+
+        Nur wenn es etwas zu berichten gibt -- ein "nichts passiert" alle
+        drei Stunden ist kein Bericht, sondern Laerm.
+        """
+        text, punkte = self.background_report(merken=True)
+        if not punkte:
+            return "nichts zu berichten"
+        sent = await self.notifier.notify(
+            f"bericht:{iso(utcnow())[:16]}", text, kind="bericht", priority=PRIORITY_LOW,
+        )
+        return ("gesendet" if sent else "zurueckgehalten") + f", {punkte} Punkt(e)"
+
+    def background_report(
+        self, *, seit: datetime | None = None, merken: bool = False
+    ) -> tuple[str, int]:
+        """Baut den Zwischenstand. Zweiter Rueckgabewert: Zahl der Punkte.
+
+        Der Zeitraum ist links offen (``> seit``), damit derselbe Vorgang
+        nicht in zwei Berichten auftaucht.
+
+        ``merken=True`` schiebt den Zeitstempel weiter -- das macht nur der
+        geplante Auftrag, damit eine Nachfrage im Chat den naechsten
+        Bericht nicht leer werden laesst.
+        """
+        stunden = max(1, self.settings.bericht_intervall_stunden)
+        if seit is None:
+            seit = parse_iso(self.store.get("letzter_bericht")) or (
+                utcnow() - timedelta(hours=stunden)
+            )
+        jetzt = utcnow()
+        tz = self.settings.tz
+        zeilen: list[str] = []
+
+        if self.messenger is not None:
+            zahlen = self.messages.zaehlen(seit)
+            gesamt = sum(zahlen.values())
+            if gesamt:
+                teile = [f"{gesamt} Nachricht(en) gelesen"]
+                if zahlen.get("dringend"):
+                    teile.append(f"{zahlen['dringend']} dringend")
+                if zahlen.get("gemeldet"):
+                    teile.append(f"{zahlen['gemeldet']} weitergegeben")
+                if zahlen.get("ignoriert"):
+                    teile.append(f"{zahlen['ignoriert']} als Geplauder abgehakt")
+                zeilen.append("• " + ", ".join(teile))
+
+        if self.email is not None:
+            gesehen = int(self.db.scalar(
+                "SELECT COUNT(*) FROM email_seen WHERE created_at > ?", (iso(seit),)
+            ) or 0)
+            wichtig = int(self.db.scalar(
+                "SELECT COUNT(*) FROM email_seen WHERE created_at > ? AND important = 1",
+                (iso(seit),)
+            ) or 0)
+            if gesehen:
+                zeilen.append(f"• {gesehen} E-Mail(s) durchgesehen, {wichtig} davon wichtig")
+
+        erinnerungen = int(self.db.scalar(
+            "SELECT COUNT(*) FROM notification WHERE kind = 'erinnerung' AND sent_at > ?",
+            (iso(seit),)
+        ) or 0)
+        if erinnerungen:
+            zeilen.append(f"• {erinnerungen} Erinnerung(en) zugestellt")
+
+        angelegt = int(self.db.scalar(
+            "SELECT COUNT(*) FROM task WHERE created_at > ?", (iso(seit),)
+        ) or 0)
+        fertig = int(self.db.scalar(
+            "SELECT COUNT(*) FROM task WHERE completed_at > ?", (iso(seit),)
+        ) or 0)
+        if angelegt or fertig:
+            zeilen.append(f"• Aufgaben: {angelegt} neu, {fertig} erledigt")
+
+        anrufe = int(self.db.scalar(
+            "SELECT COUNT(*) FROM call_log WHERE created_at > ?", (iso(seit),)
+        ) or 0)
+        if anrufe:
+            zeilen.append(f"• {anrufe} Anruf(e) gefuehrt")
+
+        if merken:
+            self.store.set("letzter_bericht", iso(jetzt))
+        if not zeilen:
+            return ("Im Hintergrund war es ruhig -- nichts zu berichten.", 0)
+
+        nachsatz = ""
+        offen = self.messages.offene_dringende() if self.messenger is not None else []
+        if offen:
+            nachsatz = "\n\n*Noch offen:*\n" + "\n".join(n.zeile(tz) for n in offen[:5])
+        ueberfaellig = self.tasks.overdue()
+        if ueberfaellig:
+            nachsatz += f"\n\n_{len(ueberfaellig)} Aufgabe(n) ueberfaellig._"
+
+        text = (
+            f"*Kurzer Zwischenstand* (seit {format_local(seit, tz)})\n"
+            + "\n".join(zeilen) + nachsatz
+        )
+        return (text, len(zeilen))
 
     # ----------------------------------------------------------- Auswertungen
     async def daily_overview(self, day: datetime | None = None) -> str:
@@ -596,6 +833,19 @@ class Services:
         else:
             states.append(ComponentState("Telefonie", False, self.phone_error, configured=False))
 
+        if self.messenger is not None:
+            try:
+                messenger_ok, messenger_detail = await self.messenger.health()
+            except JarvisError as exc:
+                messenger_ok, messenger_detail = False, exc.message
+            states.append(ComponentState(
+                f"Nachrichten ({self.messenger.name})", messenger_ok, messenger_detail
+            ))
+        else:
+            states.append(ComponentState(
+                "Nachrichten", False, self.messenger_error, configured=False
+            ))
+
         states.append(ComponentState(
             "Sprache", True, f"{self.speech_out.describe()}; {self.speech_in.describe()}"
         ))
@@ -636,6 +886,10 @@ class Services:
             "gedaechtnis": int(self.db.scalar("SELECT COUNT(*) FROM memory") or 0),
             "kalender": self.calendar.name,
             "email_verbunden": self.email is not None,
+            "nachrichtenquelle": self.messenger.name if self.messenger else "",
+            "nachrichten_offen_dringend": int(self.db.scalar(
+                "SELECT COUNT(*) FROM nachricht WHERE stufe = 'dringend' "
+                "AND erledigt_am IS NULL") or 0),
             "telefonie_aktiv": self.phone_active,
             "stumm": self.notifier.muted,
             "ruhezeit": in_quiet_hours(

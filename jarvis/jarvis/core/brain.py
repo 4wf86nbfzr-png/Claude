@@ -35,7 +35,7 @@ HEADING_KINDS: list[tuple[tuple[str, ...], str]] = [
     (("wer ich bin", "ueber mich", "uber mich", "person", "grunddaten"), "fakt"),
     (("vorlieb", "gewohnheit", "wie ich", "kommunikation", "tonfall"), "vorliebe"),
     (("ablauf", "ablaufe", "ablaeufe", "routine", "arbeitsweise", "regel", "woche",
-      "tagesablauf"), "ablauf"),
+      "tagesablauf", "nachricht", "whatsapp", "messenger", "tun soll"), "ablauf"),
     (("projekt", "vorhaben", "kunde", "auftrag", "baustelle"), "projekt"),
     (("mensch", "kontakt", "team", "familie", "wer ist wer"), "fakt"),
 ]

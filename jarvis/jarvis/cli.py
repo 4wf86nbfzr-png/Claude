@@ -199,13 +199,16 @@ async def _lernen(settings: Settings, datei: str | None, probe: bool) -> int:
     from .core.services import Services
 
     pfad = Path(datei).expanduser() if datei else (PROJECT_ROOT / "mein-gehirn.md")
-    vorlage = PROJECT_ROOT / "mein-gehirn.vorlage.md"
+    startfassung = PROJECT_ROOT / "mein-gehirn.start.md"
+    # Die Startfassung ist schon ausgefuellt; die leere Vorlage ist der
+    # Rueckfall, wenn es keine gibt.
+    vorlage = startfassung if startfassung.exists() else (PROJECT_ROOT / "mein-gehirn.vorlage.md")
     if not pfad.exists() and datei is None and vorlage.exists():
         # Die persoenliche Fassung liegt ausserhalb der Versionsverwaltung,
         # damit eigene Eintraege keine Aktualisierung behindern.
         pfad.write_text(vorlage.read_text(encoding="utf-8"), encoding="utf-8")
-        print(f"\n{pfad.name} aus der Vorlage angelegt.")
-        print("Jetzt ausfuellen:  open -e mein-gehirn.md")
+        print(f"\n{pfad.name} aus {vorlage.name} angelegt.")
+        print("Durchlesen und ergaenzen:  open -e mein-gehirn.md")
         print("Danach erneut:     ./start.sh lernen\n")
         return 0
     if not pfad.exists():
@@ -228,6 +231,9 @@ async def _lernen(settings: Settings, datei: str | None, probe: bool) -> int:
 
     if not gelesen.entries:
         print("\nNichts zu lernen.")
+        if datei is None and startfassung.exists():
+            print("Es gibt eine ausgefuellte Startfassung. Einlesen mit:")
+            print("  ./start.sh lernen mein-gehirn.start.md")
         return 1
     if probe:
         print(f"\nProbe: {gelesen.count} Punkte waeren gelernt worden. "

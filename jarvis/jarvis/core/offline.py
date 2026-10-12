@@ -37,6 +37,22 @@ AUFGABE = re.compile(
 ANRUF = re.compile(r"\b(ruf(?:e)?\s+mich\b|telefonisch|per\s+anruf|anruf\s+erinner)",
                    re.IGNORECASE)
 
+#: "hat mir jemand geschrieben", "neue Nachrichten", "was ist auf WhatsApp"
+NACHRICHTEN = re.compile(
+    r"(hat\s+(?:mir\s+)?(?:jemand|wer|einer)\s+geschrieben|"
+    r"\bneue\s+nachrichten\b|\boffene\s+nachrichten\b|"
+    r"\bnachrichten\s+(?:da|offen|gekommen)\b|"
+    r"\bwas\s+(?:ist|war|gibt'?s)\s+(?:auf\s+)?whatsapp\b)",
+    re.IGNORECASE,
+)
+#: "was hast du bisher gemacht", "Zwischenstand"
+BERICHT = re.compile(
+    r"(\bzwischenstand\b|\bhintergrundbericht\b|"
+    r"was\s+hast\s+du\s+(?:\w+\s+){0,3}?(?:gemacht|getan|erledigt)|"
+    r"was\s+lief\s+(?:im\s+)?hintergrund)",
+    re.IGNORECASE,
+)
+
 #: Einleitungen, die vor dem eigentlichen Inhalt stehen.
 VORSPANN = re.compile(
     r"^\s*(?:jarvis[,:]?\s+)?(?:bitte\s+)?"
@@ -85,6 +101,13 @@ def erkenne(text: str, tz: ZoneInfo, *, telefonie: bool = False) -> Notfallauftr
     satz = (text or "").strip()
     if not satz or satz.startswith("/"):
         return None
+
+    # Nur-lesende Fragen zuerst: sie koennen nichts kaputt machen und sind
+    # genau die, die ohne Modell sonst ins Leere laufen.
+    if NACHRICHTEN.search(satz):
+        return Notfallauftrag("nachrichten_liste", {})
+    if BERICHT.search(satz):
+        return Notfallauftrag("hintergrundbericht", {})
 
     # "Ruf mich morgen um 9 an" ist genauso eindeutig wie "erinnere mich".
     will_anruf = bool(ANRUF.search(satz))

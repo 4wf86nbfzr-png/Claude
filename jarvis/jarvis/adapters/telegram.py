@@ -46,7 +46,8 @@ MAX_DOCUMENT_BYTES = 512 * 1024
 MAIN_MENU = [
     [("📋 Übersicht", "tool:tagesueberblick"), ("✅ Aufgaben", "menu:aufgaben")],
     [("📅 Kalender", "menu:kalender"), ("⏰ Erinnerungen", "menu:erinnerungen")],
-    [("📬 E-Mail", "menu:email"), ("🧠 Gedächtnis", "menu:gedaechtnis")],
+    [("📬 E-Mail", "menu:email"), ("💬 Nachrichten", "menu:nachrichten")],
+    [("🧠 Gedächtnis", "menu:gedaechtnis"), ("📊 Zwischenstand", "tool:hintergrundbericht")],
     [("📞 Telefonie", "menu:telefonie"), ("⚙️ System", "menu:system")],
     [("❓ Hilfe", "menu:hilfe")],
 ]
@@ -75,6 +76,12 @@ SUBMENUS: dict[str, tuple[str, list[list[tuple[str, str]]]]] = {
         [("Ungelesene", "tool:email_ungelesen")],
         [("Nur wichtige", "tool:email_ungelesen:nur_wichtige=true")],
         [("Offene Entwürfe", "tool:entwuerfe_liste")],
+        [("‹ Zurück", "menu:haupt")],
+    ]),
+    "nachrichten": ("*Nachrichten*\nWhatsApp & Co. -- was hereingekommen ist.", [
+        [("Offene zeigen", "tool:nachrichten_liste")],
+        [("Nur Dringendes", "tool:nachrichten_liste:stufe=dringend")],
+        [("Zwischenstand", "tool:hintergrundbericht")],
         [("‹ Zurück", "menu:haupt")],
     ]),
     "gedaechtnis": ("*Gedächtnis*", [
@@ -135,6 +142,9 @@ Du kannst einfach schreiben, wie du sprichst:
 /erinnere <Text> <Zeit> — Erinnerung anlegen
 /termine [tage] — Kalender
 /mail — ungelesene E-Mails
+/nachrichten — eingegangene WhatsApp-Nachrichten
+/erledigt <Nr> — eine gemeldete Nachricht abhaken
+/bericht — was ich im Hintergrund gemacht habe
 /merken <Text> — ins Gedächtnis
 /gehirn — alles anzeigen, was ich über dich weiß
 /vergiss <Nr|Begriff> — einen Punkt löschen
@@ -152,6 +162,11 @@ Schick mir die ausgefüllte Datei `mein-gehirn.md` einfach hier als Anhang —
 dann übernehme ich alles daraus (nach deiner Bestätigung). Einzelne Punkte
 gehen mit `/merken`, ansehen mit `/gehirn`.
 
+*Was im Hintergrund läuft*
+Ich lese eingehende Nachrichten mit, stufe sie ein und melde nur, was dich
+angeht. Klingt es nach Absage, Krankmeldung oder Ausfall, rufe ich an.
+Alle paar Stunden schicke ich einen kurzen Zwischenstand, wenn etwas war.
+
 *Was Bestätigung braucht*
 E-Mails senden, Termine löschen oder verschieben, Aufgaben löschen und
 Anrufe starten. Dafür erscheinen Knöpfe; ohne Tastendruck passiert nichts.
@@ -168,6 +183,9 @@ BOT_COMMANDS = [
     ("erinnere", "Erinnerung anlegen"),
     ("termine", "Kalender ansehen"),
     ("mail", "Ungelesene E-Mails"),
+    ("nachrichten", "Eingegangene Nachrichten"),
+    ("erledigt", "Nachricht abhaken"),
+    ("bericht", "Was im Hintergrund lief"),
     ("merken", "Etwas ins Gedächtnis legen"),
     ("gehirn", "Was ich über dich weiß"),
     ("vergiss", "Einen Punkt löschen"),
@@ -767,6 +785,16 @@ class TelegramBot:
             await tool("termine_anzeigen", zeitraum="heute", tage=days)
         elif command in {"mail", "email"}:
             await tool("email_ungelesen")
+        elif command in {"nachrichten", "whatsapp"}:
+            await tool("nachrichten_liste", stufe=argument.strip().lower())
+        elif command == "erledigt":
+            nummer = argument.strip().lstrip("#")
+            if not nummer.isdigit():
+                await self.send(chat_id, "Welche Nachricht? `/erledigt 12`")
+            else:
+                await tool("nachricht_erledigt", id=int(nummer))
+        elif command in {"bericht", "zwischenstand"}:
+            await tool("hintergrundbericht")
         elif command == "merken":
             if not argument:
                 self._awaiting[chat_id] = "merken"
@@ -954,6 +982,36 @@ class TelegramBot:
                     f"{format_local(updated.due_at, self.settings.tz)}."
                     if updated else "Die Erinnerung ist weg."
                 ))
+            return
+
+        if kind == "nachricht_fertig":
+            reply = await self.agent.run_tool_directly(
+                "nachricht_erledigt", {"id": rest}, chat_id=chat_id
+            )
+            await self._deliver(chat_id, reply)
+            return
+
+        if kind == "nachricht_antwort":
+            # WhatsApp kann Jarvis nicht senden -- er entwirft den Text,
+            # kopieren und abschicken bleibt bei dir.
+            eintrag = (self.services.messages.holen(int(rest))
+                       if rest.isdigit() else None)
+            if eintrag is None:
+                await self.send(chat_id, "Die Nachricht finde ich nicht mehr.")
+                return
+            await self.typing(chat_id)
+            from ..core.permissions import sanitize_external_text
+            reply = await self.agent.handle(chat_id, (
+                f"Entwirf eine kurze, freundliche Antwort auf diese Nachricht von "
+                f"{eintrag.absender}. Gib nur den Antworttext aus.\n\n"
+                + sanitize_external_text(
+                    eintrag.text, limit=1500,
+                    source=f"Nachricht von {eintrag.absender}",
+                )
+            ), channel="telegram")
+            await self.send(chat_id, reply.text or "Dazu fällt mir nichts ein.", rows=[
+                [("✓ Erledigt", f"nachricht_fertig:{rest}")], [("‹ Menü", "menu:haupt")]
+            ])
             return
 
         if kind == "email_fassen":

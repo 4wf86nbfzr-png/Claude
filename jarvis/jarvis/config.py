@@ -165,6 +165,29 @@ class Settings:
     email_important_senders: list[str] = field(default_factory=list)
     email_important_keywords: list[str] = field(default_factory=list)
 
+    # --- Nachrichten (WhatsApp und andere Messenger) ----------------------
+    messenger_enabled: bool = False
+    #: mac (Mitteilungen von macOS mitlesen) | bruecke (HTTP-Eingang) | aus
+    messenger_quelle: str = "mac"
+    messenger_poll_seconds: int = 60
+    #: Absender, die immer gemeldet werden (Teile des Namens reichen).
+    messenger_wichtige_absender: list[str] = field(default_factory=list)
+    #: Woerter, die eine Nachricht dringend machen -> Anruf.
+    messenger_dringend_woerter: list[str] = field(default_factory=list)
+    #: Woerter, die eine Nachricht melden (aber nicht anrufen).
+    messenger_wichtig_woerter: list[str] = field(default_factory=list)
+    #: Gruppen, die ignoriert werden sollen.
+    messenger_stumme_gruppen: list[str] = field(default_factory=list)
+    #: Bei dringenden Nachrichten anrufen (wenn Telefonie laeuft).
+    messenger_anruf_bei_dringend: bool = True
+    #: Eigener Pfad zur Mitteilungsdatenbank (normalerweise nicht noetig).
+    messenger_mac_db: str = ""
+
+    # --- Hintergrundbericht ------------------------------------------------
+    #: Wie oft Jarvis von selbst zusammenfasst, was er getan hat (Stunden).
+    #: 0 = aus.
+    bericht_intervall_stunden: int = 3
+
     # --- Telefonie --------------------------------------------------------
     phone_enabled: bool = False
     twilio_account_sid: str = ""
@@ -259,6 +282,28 @@ class Settings:
             email_important_keywords=[
                 s.strip().lower() for s in _str("EMAIL_IMPORTANT_KEYWORDS").split(",") if s.strip()
             ],
+            messenger_enabled=_bool("MESSENGER_ENABLED", False),
+            messenger_quelle=_str("MESSENGER_QUELLE", "mac").lower(),
+            messenger_poll_seconds=_int("MESSENGER_POLL_SECONDS", 60),
+            messenger_wichtige_absender=[
+                s.strip().lower() for s in _str("MESSENGER_WICHTIGE_ABSENDER").split(",")
+                if s.strip()
+            ],
+            messenger_dringend_woerter=[
+                s.strip().lower() for s in _str("MESSENGER_DRINGEND_WOERTER").split(",")
+                if s.strip()
+            ],
+            messenger_wichtig_woerter=[
+                s.strip().lower() for s in _str("MESSENGER_WICHTIG_WOERTER").split(",")
+                if s.strip()
+            ],
+            messenger_stumme_gruppen=[
+                s.strip().lower() for s in _str("MESSENGER_STUMME_GRUPPEN").split(",")
+                if s.strip()
+            ],
+            messenger_anruf_bei_dringend=_bool("MESSENGER_ANRUF_BEI_DRINGEND", True),
+            messenger_mac_db=_str("MESSENGER_MAC_DB"),
+            bericht_intervall_stunden=_int("BERICHT_INTERVALL_STUNDEN", 3),
             phone_enabled=_bool("PHONE_ENABLED", False),
             twilio_account_sid=_str("TWILIO_ACCOUNT_SID"),
             twilio_auth_token=_str("TWILIO_AUTH_TOKEN"),

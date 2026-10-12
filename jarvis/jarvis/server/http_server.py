@@ -326,6 +326,19 @@ def _make_handler(service: JarvisHTTPServer):
                     "aufrufe": services.toolkit.recent_calls(limit=limit),
                     "verfuegbar": services.toolkit.descriptions(),
                 })
+            elif path == "/api/nachrichten":
+                eintraege = services.messages.liste(limit=limit)
+                self.json([
+                    {"id": n.id, "kanal": n.kanal, "absender": n.absender,
+                     "gruppe": n.gruppe, "text": n.text, "stufe": n.stufe,
+                     "gruende": n.gruende,
+                     "empfangen": format_local(n.empfangen_am, tz),
+                     "erledigt": bool(n.erledigt_am)}
+                    for n in eintraege
+                ])
+            elif path == "/api/bericht":
+                text, punkte = services.background_report()
+                self.json({"text": text, "punkte": punkte})
             elif path == "/api/anrufe":
                 self.json(services.phone.recent_calls(limit=limit) if services.phone else [])
             else:
@@ -333,7 +346,39 @@ def _make_handler(service: JarvisHTTPServer):
 
         def _api_post(self, path: str, payload: dict[str, Any]) -> None:
             services = service.services
-            if path == "/api/nachricht":
+            if path == "/api/nachricht/eingang":
+                # Eingang fuer Messenger-Bruecken. Der Text ist fremdes
+                # Material und wird nie als Anweisung behandelt -- er wird
+                # eingestuft, gemeldet, nicht ausgefuehrt.
+                from ..adapters.messenger.bruecke import Bruecke
+                if not isinstance(services.messenger, Bruecke):
+                    self.json({
+                        "fehler": "Bruecke nicht aktiv (MESSENGER_QUELLE=bruecke setzen)",
+                    }, status=409)
+                    return
+                text = str(payload.get("text", "")).strip()
+                absender = str(payload.get("absender", "")).strip()
+                if not text:
+                    self.json({"fehler": "kein Text"}, status=400)
+                    return
+                nachricht_id = services.messenger.annehmen(
+                    absender=absender or "Unbekannt", text=text,
+                    extern_id=str(payload.get("id", "")),
+                    gruppe=str(payload.get("gruppe", "")),
+                    kanal=str(payload.get("kanal", "whatsapp")) or "whatsapp",
+                )
+                if nachricht_id is None:
+                    self.json({"status": "bekannt"})
+                    return
+                self.json({"status": "angenommen", "id": nachricht_id}, status=201)
+            elif path == "/api/nachricht/erledigt":
+                nachricht_id = int(payload.get("id", 0))
+                if not services.messages.holen(nachricht_id):
+                    self.json({"fehler": "unbekannte Nachricht"}, status=404)
+                    return
+                self.json({"id": nachricht_id,
+                           "erledigt": services.messages.erledigt(nachricht_id)})
+            elif path == "/api/nachricht":
                 text = str(payload.get("text", "")).strip()
                 if not text:
                     self.json({"fehler": "kein Text"}, status=400)
