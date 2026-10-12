@@ -114,6 +114,11 @@ async def create_inquiry(
     await audit(db, "inquiry.created", actor_type="system", actor_id=actor, tenant_id=tenant.id, target_type="inquiry", target_id=inq.id, details={"channel": channel})
     if process:
         await enqueue(db, "process_inquiry", {"inquiry_id": inq.id}, tenant_id=tenant.id, dedupe_key=f"process_inquiry:{inq.id}", priority=2)
+    from app.services.webhooks_out import emit
+
+    await emit(
+        db, tenant.id, "inquiry.created", {"id": inq.id, "channel": channel, "subject": inq.subject, "sender_name": inq.sender_name, "sender_email": inq.sender_email}
+    )
     return inq
 
 

@@ -1,0 +1,87 @@
+# Lokale Entwicklung & kleiner Produktionsbetrieb (ein Host). Secrets kommen aus .env (siehe .env.example).
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-werkpilot}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-werkpilot}
+      POSTGRES_DB: ${POSTGRES_DB:-werkpilot}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-werkpilot}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no", "--maxmemory", "64mb", "--maxmemory-policy", "allkeys-lru"]
+    restart: unless-stopped
+
+  api:
+    build: ./backend
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-werkpilot}:${POSTGRES_PASSWORD:-werkpilot}@db:5432/${POSTGRES_DB:-werkpilot}
+      REDIS_URL: redis://redis:6379/0
+      BACKUP_DIR: /srv/backups
+      TRUST_PROXY_HEADERS: "true"
+    depends_on:
+      db: { condition: service_healthy }
+    ports: ["127.0.0.1:8000:8000"]
+    volumes:
+      - backups:/srv/backups
+    restart: unless-stopped
+
+  worker:
+    build: ./backend
+    command: ["python", "-m", "app.workers.runner"]
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-werkpilot}:${POSTGRES_PASSWORD:-werkpilot}@db:5432/${POSTGRES_DB:-werkpilot}
+      REDIS_URL: redis://redis:6379/0
+      BACKUP_DIR: /srv/backups
+    depends_on:
+      db: { condition: service_healthy }
+      api: { condition: service_started }
+    volumes:
+      - backups:/srv/backups
+    restart: unless-stopped
+
+  backup:
+    image: postgres:16-alpine
+    entrypoint: ["sh", "-c"]
+    # Tägliches Backup um 03:15 (UTC), 14 Tage Aufbewahrung
+    command:
+      - |
+        while true; do
+          now=$$(date -u +%H%M); if [ "$$now" = "0315" ]; then
+            f=/backups/werkpilot-$$(date -u +%Y%m%dT%H%M%SZ).sql.gz
+            pg_dump --no-owner --no-privileges "postgresql://${POSTGRES_USER:-werkpilot}:${POSTGRES_PASSWORD:-werkpilot}@db:5432/${POSTGRES_DB:-werkpilot}" | gzip -9 > $$f && echo "backup $$f"
+            ls -1t /backups/werkpilot-*.sql.gz | tail -n +15 | xargs -r rm -f
+            sleep 61
+          fi; sleep 30; done
+    depends_on:
+      db: { condition: service_healthy }
+    volumes:
+      - backups:/backups
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_SITE_URL: ${FRONTEND_URL:-http://localhost:3000}
+    environment:
+      BACKEND_URL: http://api:8000
+      NEXT_PUBLIC_SITE_URL: ${FRONTEND_URL:-http://localhost:3000}
+      NEXT_PUBLIC_NOINDEX: ${NOINDEX:-0}
+    depends_on: [api]
+    ports: ["127.0.0.1:3000:3000"]
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  backups:

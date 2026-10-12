@@ -108,6 +108,7 @@ _SPAM = ("seo-agentur", "backlinks", "crypto", "bitcoin", "gewinnspiel", "viagra
 def _mock_classify(user: str) -> dict:
     text = _untrusted(user)
     low = text.lower()
+    body_text = re.sub(r"^Betreff:.*?\n\n", "", text, count=1, flags=re.S).strip() or text
     if any(k in low for k in _SPAM):
         return {"category": "spam", "priority": "low", "confidence": 0.8, "summary": "Vermutlich unerwünschte Werbung.", "missing_info": [], "needs_human": False}
     if any(k in low for k in _URGENT):
@@ -138,7 +139,7 @@ def _mock_classify(user: str) -> dict:
         "category": cat,
         "priority": prio,
         "confidence": conf,
-        "summary": (text[:140] + ("…" if len(text) > 140 else "")).replace("\n", " "),
+        "summary": (body_text[:140] + ("…" if len(body_text) > 140 else "")).replace("\n", " "),
         "customer_name": None,
         "address": None,
         "preferred_time": None,

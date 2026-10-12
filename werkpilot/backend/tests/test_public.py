@@ -102,3 +102,17 @@ async def test_public_config_and_health(client):
     assert (await client.get("/health")).json()["db"] is True
     cfg = (await client.get("/api/public/config")).json()
     assert cfg["stripe_ready"] is True and cfg["llm_live"] is False and cfg["trial_days"] == 14
+
+
+async def test_public_content_only_published(client, db):
+    from app.core.db import utcnow
+    from app.models.ops import ContentPiece
+
+    db.add(ContentPiece(slug="geheim", title="Entwurf", body_markdown="# x", status="draft"))
+    db.add(ContentPiece(slug="live", title="Live", body_markdown="# Live\n\n## A\n\nText", status="published", published_at=utcnow()))
+    await db.commit()
+    items = (await client.get("/api/public/content")).json()
+    assert [i["slug"] for i in items] == ["live"]
+    assert (await client.get("/api/public/content/geheim")).status_code == 404
+    assert (await client.get("/api/public/content/live")).json()["body_markdown"].startswith("# Live")
+    await db.refresh((await db.execute(__import__("sqlalchemy").select(ContentPiece).where(ContentPiece.slug == "live"))).scalar_one())

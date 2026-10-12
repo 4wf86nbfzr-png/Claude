@@ -266,3 +266,34 @@ async def demo_classify(data: DemoIn, request: Request, db: AsyncSession = Depen
         _ = get_provider
     await db.commit()
     return {"classification": cls.model_dump(), "draft": reply.model_dump(), "note": "Demo-Ergebnis regelbasiert. Mit aktivem KI-Anbieter sind Entwürfe individueller."}
+
+
+# --- Veröffentlichte Ratgeber-Inhalte ----------------------------------------------------
+
+
+@router.get("/content")
+async def public_content(db: AsyncSession = Depends(get_db)):
+    from app.models.ops import ContentPiece
+
+    rows = (await db.execute(select(ContentPiece).where(ContentPiece.status == "published").order_by(ContentPiece.published_at.desc()).limit(100))).scalars().all()
+    return [
+        {"slug": c.slug, "title": c.title, "meta_description": c.meta_description, "published_at": c.published_at.isoformat() if c.published_at else None} for c in rows
+    ]
+
+
+@router.get("/content/{slug}")
+async def public_content_item(slug: str, db: AsyncSession = Depends(get_db)):
+    from app.models.ops import ContentPiece
+
+    c = (await db.execute(select(ContentPiece).where(ContentPiece.slug == slug, ContentPiece.status == "published"))).scalar_one_or_none()
+    if not c:
+        raise HTTPException(404, "Artikel nicht gefunden.")
+    c.metrics = {**(c.metrics or {}), "views": int((c.metrics or {}).get("views", 0)) + 1}
+    await db.commit()
+    return {
+        "slug": c.slug,
+        "title": c.title,
+        "meta_description": c.meta_description,
+        "body_markdown": c.body_markdown,
+        "published_at": c.published_at.isoformat() if c.published_at else None,
+    }

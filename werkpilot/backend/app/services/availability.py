@@ -22,6 +22,7 @@ DEFAULT_HOURS = {
     "sun": [],
 }
 DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
+DAY_LABELS = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"]
 
 
 def _parse(t: str) -> time:
@@ -81,7 +82,7 @@ async def propose_slots(
                         {
                             "starts_at": cursor.isoformat(),
                             "ends_at": (cursor + dur).isoformat(),
-                            "label": cursor.strftime("%a, %d.%m.%Y um %H:%M Uhr"),
+                            "label": f"{DAY_LABELS[cursor.weekday()]}, {cursor.strftime('%d.%m.%Y um %H:%M')} Uhr",
                         }
                     )
                     break

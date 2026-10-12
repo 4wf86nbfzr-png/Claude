@@ -41,7 +41,8 @@ class ConsoleProvider(EmailProvider):
     sent: list[dict] = []  # für Tests einsehbar
 
     async def send(self, to, subject, text, html, reply_to) -> EmailResult:
-        log.info("email.simulated", to=to, subject=subject)
+        # In Entwicklung den Text mitloggen, damit Bestätigungslinks lokal nutzbar sind.
+        log.info("email.simulated", to=to, subject=subject, text=text if not get_settings().is_production else None)
         ConsoleProvider.sent.append({"to": to, "subject": subject, "text": text, "reply_to": reply_to})
         return EmailResult("simulated", self.name)
 

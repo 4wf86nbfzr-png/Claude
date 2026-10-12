@@ -206,6 +206,9 @@ async def set_status(inquiry_id: str, data: StatusIn, ctx: AuthContext = Depends
         target_id=inq.id,
         details={"status": data.status},
     )
+    from app.services.webhooks_out import emit
+
+    await emit(db, ctx.tenant_id, "inquiry.status_changed", {"id": inq.id, "status": data.status})
     await db.commit()
     return _inq(inq)
 

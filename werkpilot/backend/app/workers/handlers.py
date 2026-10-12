@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.audit import audit
 from app.core.db import utcnow
 from app.models.ops import Approval, ContentPiece, Job
-from app.services import followups, inquiries  # noqa: F401 – registriert Handler
+from app.services import followups, inquiries, webhooks_out  # noqa: F401 – registriert Handler
 from app.services.jobs import job_handler
 
 
