@@ -11,6 +11,14 @@ außer dem Telegram-Bot.
 
 ---
 
+## Zuerst lesen
+
+| Datei | Wofür |
+|---|---|
+| **`START-HEUTE.md`** | Schritt-für-Schritt vom leeren Rechner bis „Jarvis antwortet". Fang damit an. |
+| **`mein-gehirn.md`** | Hier trägst du ein, wer du bist und wie du arbeitest. Schick die Datei dem Bot — dann kennt er dich. |
+| **`TESTPLAN.md`** | 68 konkrete Nachrichten zum Abschicken samt erwartetem Ergebnis. Zum Abhaken. |
+
 ## In fünf Minuten startklar
 
 ```bash
@@ -89,11 +97,38 @@ nie, etwas getan zu haben, bevor das Werkzeug es bestätigt hat.
 | `/termine [Tage]` | Kalender |
 | `/mail` | ungelesene E-Mails |
 | `/merken <Text>`, `/weisst <Frage>` | Langzeitgedächtnis |
+| `/gehirn`, `/vergiss <Nr>` | Alles ansehen, einen Punkt löschen |
 | `/status` | Zustand aller Dienste |
 | `/stumm`, `/telefonie an\|aus` | Benachrichtigungen, Anrufe |
 | `/vergessen`, `/export`, `/abbrechen`, `/hilfe` | Daten und Hilfe |
 
 Sprachnachrichten gehen auch (siehe unten).
+
+### Sein Gedächtnis füllen
+
+Jarvis weiß zunächst nichts über dich. Du füllst `mein-gehirn.md` aus — eine
+Zeile pro Punkt — und **schickst die Datei in Telegram als Anhang**:
+
+```
+Name: Maik Herm
+!! Telefonate: lieber vormittags, ab 9 Uhr
+! Wochenplanung: montags 9 Uhr, bitte telefonisch erinnern
+```
+
+`!!` heißt *in jeder Antwort mitdenken* (Tonfall, Name, Firma), `!` heißt
+*wichtig*, ohne Marke heißt *nachschlagbar, wenn es passt*. Nur die mit `!`
+und `!!` markierten Punkte gehen in jede KI-Anfrage — der Rest wird geholt,
+wenn er gebraucht wird, damit der Kontext klein bleibt.
+
+Jarvis zeigt dir erst, was er in der Datei gefunden hat, und lernt es nach
+deiner Bestätigung. Unausgefüllte Platzhalter (`<dein Name>`) überspringt er,
+statt Vorlagentext als Tatsache zu merken. Dieselbe Datei erneut geschickt
+ändert nur, was sich geändert hat — sie bleibt die Fassung, die du behältst.
+
+Ohne Datei geht es auch: `/merken Ich bin donnerstags meist auf Objekten`.
+Ansehen mit `/gehirn`, löschen mit `/vergiss #12`. Im Terminal:
+`./start.sh lernen` (`--probe` zeigt nur, was gelernt würde) und
+`./start.sh gehirn`.
 
 ### Sprachnachrichten
 
@@ -147,6 +182,7 @@ jarvis/
   db/                        Verbindung, versionierte Migrationen
   core/
     services.py              das zentrale System (alles hängt hier zusammen)
+    brain.py                 mein-gehirn.md einlesen und übernehmen
     agent.py                 Gespräch: Kontext → Modell → Werkzeuge → Antwort
     toolkit.py               Werkzeugregister (Schema, Zeitgrenzen, Protokoll)
     tools_*.py               die Werkzeuge selbst
@@ -356,7 +392,7 @@ launchctl kickstart -k gui/$(id -u)/com.jarvis.assistent   # neu starten
 
 ```bash
 .venv/bin/pip install -r requirements-dev.txt
-.venv/bin/python -m pytest -q        # 255 Tests, rund 57 Sekunden
+.venv/bin/python -m pytest -q        # 297 Tests, rund 65 Sekunden
 ```
 
 Keine echten Anrufe, kein echter Mailversand, keine Zugriffe nach draußen.
@@ -386,12 +422,15 @@ Werkzeugschleife, Schutz vor Doppelausführung, Fortbestehen der Erinnerungen
 über einen Neustart, Migrationen, Bestätigungspflicht bei E-Mail und Anruf,
 Verhalten bei Modellausfall, Ruhezeiten, Dateischranke und Prompt-Injection-Schutz.
 
-Diese Durchläufe haben sechs echte Fehler gefunden, die vorher niemandem
+Diese Durchläufe haben sieben echte Fehler gefunden, die vorher niemandem
 aufgefallen wären — darunter eine falsch berechnete Twilio-Signatur bei URLs
 mit Parametern (telefonische Bestätigungen hätten **nie** funktioniert) und
 ungültiges SQL in der Anrufzählung. Auch dass ein leerer Wert in der `.env`
 still auf den Standard zurückfiel — `MORNING_BRIEFING=` hätte trotzdem
-gefeuert — fiel erst hier auf.
+gefeuert — fiel erst hier auf. Und dass `/merken` und `/erinnere` vom
+Sprachmodell abhingen: bei abgeschaltetem Ollama antwortete Jarvis
+„Gemerkt." und merkte nichts. Beide Befehle legen jetzt selbst ab, ohne
+Modell — eine Zusage ohne Eintrag ist schlimmer als eine Fehlermeldung.
 
 ## Wenn etwas nicht läuft
 
@@ -404,6 +443,7 @@ gefeuert — fiel erst hier auf.
 | Keine Meldungen nachts | Ruhezeit (`QUIET_HOURS_*`); Dringendes kommt trotzdem |
 | Telefongespräch endet sofort | `PUBLIC_BASE_URL` fehlt oder der Tunnel ist zu |
 | Dashboard sagt „nicht autorisiert" | `HTTP_API_TOKEN` setzen und oben im Dashboard eintragen |
+| Er kennt mich nicht | `mein-gehirn.md` ausfüllen und dem Bot als Datei schicken; `/gehirn` zeigt den Stand |
 | Irgendetwas hakt, und du weißt nicht wo | `./start.sh selftest` — er sagt, welcher Schritt bricht |
 | Protokoll ansehen | `data/logs/jarvis.log`, oder Menü → System → Letzte Fehler |
 

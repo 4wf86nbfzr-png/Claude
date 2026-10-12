@@ -13,6 +13,7 @@ import asyncio
 import pytest
 
 from jarvis.adapters.telegram import TelegramBot
+from jarvis.db.database import utcnow
 from tests.stub_telegram import TelegramStub
 
 TOKEN = "123456:stub-token-fuer-die-tests-xxxxxxxx"
@@ -228,3 +229,203 @@ def test_zu_lange_sprachnachricht_wird_abgelehnt(bot, stub, services, monkeypatc
         bot, stub, bis=lambda: any("zu lange" in t for t in stub.texts())))
     assert any("zu lange" in text for text in stub.texts())
     assert stub.calls("getFile") == []
+
+
+# --- Gehirn-Datei ueber Telegram ----------------------------------------------
+GEHIRN = """\
+# Wer ich bin
+!! Name: Maik Herm
+Firma: HERM Service Team e.K.
+Rolle: <ausfüllen>
+
+# Vorlieben
+!! Ansprache: Du-Form, kurz und direkt
+Telefonate: lieber vormittags
+"""
+
+
+def test_gehirn_datei_wird_eingelesen_und_nach_bestaetigung_gelernt(bot, stub, services):
+    """Der Weg ohne Terminal: Datei anhaengen, Knopf druecken, fertig."""
+    stub.file_bytes = GEHIRN.encode("utf-8")
+    stub.push_message("", document={
+        "file_id": "BQACgehirn", "file_name": "mein-gehirn.md", "file_size": len(GEHIRN),
+        "mime_type": "text/markdown",
+    })
+
+    asyncio.run(laufen_lassen(
+        bot, stub, bis=lambda: any("Punkte" in t for t in stub.texts())))
+
+    # Vorschau mit Zahlen, Platzhinweis und Bestaetigungsknopf.
+    vorschau = next(t for t in stub.texts() if "Punkte" in t)
+    assert "4 Punkte" in vorschau
+    assert "Maik Herm" in vorschau
+    assert "übersprungen" in vorschau            # die <ausfüllen>-Zeile
+    assert services.memory.list_memory() == []   # noch nichts gelernt
+
+    mit_knopf = [p for p in stub.calls("sendMessage") if "reply_markup" in p]
+    knopf = mit_knopf[-1]["reply_markup"]["inline_keyboard"][0][0]
+    assert knopf["callback_data"].startswith("bestaetigen:")
+
+    stub.sent.clear()
+    stub.push_callback(knopf["callback_data"])
+    asyncio.run(laufen_lassen(
+        bot, stub, bis=lambda: any("Gelernt" in t for t in stub.texts())))
+
+    gelernt = {e.key: e.value for e in services.memory.list_memory()}
+    assert gelernt["Name"] == "Maik Herm"
+    assert gelernt["Ansprache"] == "Du-Form, kurz und direkt"
+    assert "Rolle" not in gelernt
+    assert any("4 neu" in t for t in stub.texts())
+
+
+def test_abgelehnte_gehirn_datei_wird_nicht_gelernt(bot, stub, services):
+    stub.file_bytes = GEHIRN.encode("utf-8")
+    stub.push_message("", document={
+        "file_id": "BQACgehirn2", "file_name": "gehirn.txt", "file_size": len(GEHIRN)})
+    asyncio.run(laufen_lassen(
+        bot, stub, bis=lambda: any("Punkte" in t for t in stub.texts())))
+    knopf = [p for p in stub.calls("sendMessage") if "reply_markup" in p][-1]
+    token = knopf["reply_markup"]["inline_keyboard"][1][0]["callback_data"]
+    assert token.startswith("ablehnen:")
+
+    stub.push_callback(token)
+    asyncio.run(laufen_lassen(bot, stub, bis=lambda: any(
+        "lasse" in t for t in stub.texts())))
+    assert services.memory.list_memory() == []
+
+
+def test_falsches_dateiformat_wird_erklaert(bot, stub, services):
+    stub.push_message("", document={
+        "file_id": "BQACpdf", "file_name": "unterlagen.pdf", "file_size": 2048})
+    asyncio.run(laufen_lassen(
+        bot, stub, bis=lambda: any("kann ich nicht lesen" in t for t in stub.texts())))
+    assert any("mein-gehirn.md" in t for t in stub.texts())
+    assert stub.calls("getFile") == []
+
+
+def test_zu_grosse_datei_wird_abgelehnt(bot, stub):
+    stub.push_message("", document={
+        "file_id": "BQACgross", "file_name": "riesig.md", "file_size": 2 * 1024 * 1024})
+    asyncio.run(laufen_lassen(
+        bot, stub, bis=lambda: any("kB" in t for t in stub.texts())))
+    assert stub.calls("getFile") == []
+
+
+def test_datei_ohne_lernbaren_inhalt(bot, stub, services):
+    stub.file_bytes = b"> nur ein Kommentar\n\n"
+    stub.push_message("", document={
+        "file_id": "BQACleer", "file_name": "leer.md", "file_size": 20})
+    asyncio.run(laufen_lassen(
+        bot, stub, bis=lambda: any("nichts Lernbares" in t for t in stub.texts())))
+    assert services.memory.list_memory() == []
+
+
+def test_gehirn_befehl_zeigt_das_gelernte(bot, stub, services):
+    services.memory.remember("Name", "Maik Herm", importance=5)
+    services.memory.remember("Telefonate", "lieber vormittags", kind="vorliebe", importance=4)
+    services.memory.remember("Zahlen", "als Liste", kind="vorliebe")
+
+    stub.push_message("/gehirn")
+    asyncio.run(laufen_lassen(bot, stub, bis=lambda: any("Punkte" in t for t in stub.texts())))
+
+    ausgabe = next(t for t in stub.texts() if "Punkte" in t)
+    assert "Maik Herm" in ausgabe and "lieber vormittags" in ausgabe
+    assert "3 Punkte, davon 2 als wichtig" in ausgabe
+    assert "/vergiss" in ausgabe
+
+
+def test_gehirn_befehl_bei_leerem_gedaechtnis_erklaert_den_weg(bot, stub):
+    stub.push_message("/gehirn")
+    asyncio.run(laufen_lassen(bot, stub, bis=lambda: any("leer" in t for t in stub.texts())))
+    assert any("mein-gehirn.md" in t for t in stub.texts())
+
+
+def test_vergiss_befehl_loescht_einen_punkt(bot, stub, services):
+    eintrag = services.memory.remember("Lieblingscafe", "Elbgold")
+    stub.push_message(f"/vergiss #{eintrag.id}")
+    asyncio.run(laufen_lassen(bot, stub, bis=lambda: any(
+        "Gelöscht" in t or "geloescht" in t.lower() for t in stub.texts())))
+    assert services.memory.get_memory_by_key("Lieblingscafe") is None
+
+
+# --- Ohne Sprachmodell: die wichtigen Befehle muessen trotzdem wirken ---------
+def ohne_modell(services):
+    """Modell, das jede Anfrage verweigert -- wie bei abgeschaltetem Ollama."""
+    from jarvis.ai.cloud import EchoProvider
+    from jarvis.errors import ModelUnavailable
+
+    class Stumm(EchoProvider):
+        async def chat(self, messages, **kwargs):
+            raise ModelUnavailable("Ollama laeuft nicht")
+
+    services.models.primary = Stumm()
+    services.models.fallback = None
+    services.settings.ai_max_retries = 0
+
+
+def test_merken_funktioniert_ohne_modell(bot, stub, services):
+    """Eine Zusage ohne Eintrag waere schlimmer als eine Fehlermeldung."""
+    ohne_modell(services)
+    stub.push_message("/merken Telefonate: lieber vormittags ab 9")
+    asyncio.run(laufen_lassen(bot, stub, bis=lambda: any(
+        "Gemerkt" in t for t in stub.texts())))
+
+    eintrag = services.memory.get_memory_by_key("Telefonate")
+    assert eintrag is not None, "Nichts gemerkt, obwohl bestaetigt"
+    assert eintrag.value == "lieber vormittags ab 9"
+
+
+def test_merken_ohne_doppelpunkt_leitet_den_schluessel_ab(bot, stub, services):
+    ohne_modell(services)
+    stub.push_message("/merken Ich bin donnerstags meist auf Objekten")
+    asyncio.run(laufen_lassen(bot, stub, bis=lambda: any(
+        "Gemerkt" in t for t in stub.texts())))
+
+    treffer = services.memory.search_memory("donnerstags")
+    assert treffer, "Der Punkt ist nicht auffindbar"
+    assert "auf Objekten" in treffer[0].value
+
+
+def test_merken_mit_wichtigkeitsmarke(bot, stub, services):
+    ohne_modell(services)
+    stub.push_message("/merken !! Ansprache: Du-Form, kurz")
+    asyncio.run(laufen_lassen(bot, stub, bis=lambda: any(
+        "Gemerkt" in t for t in stub.texts())))
+    eintrag = services.memory.get_memory_by_key("Ansprache")
+    assert eintrag.importance == 5
+    assert eintrag.value == "Du-Form, kurz"
+
+
+def test_erinnere_funktioniert_ohne_modell(bot, stub, services):
+    ohne_modell(services)
+    stub.push_message("/erinnere Alex anrufen morgen 9:00")
+    asyncio.run(laufen_lassen(bot, stub, bis=lambda: any(
+        "Erinnerung" in t for t in stub.texts())))
+
+    erinnerungen = services.reminders.upcoming()
+    assert len(erinnerungen) == 1, "Keine Erinnerung angelegt"
+    assert erinnerungen[0].text == "Alex anrufen"
+    assert erinnerungen[0].due_at > utcnow()
+    assert erinnerungen[0].due_at.strftime("%H:%M") in {"07:00", "08:00"}  # 9:00 Ortszeit
+
+
+def test_erinnere_erkennt_wiederholung_und_anruf(bot, stub, services):
+    ohne_modell(services)
+    stub.push_message("/erinnere jeden Montag um 9 Uhr an die Wochenplanung")
+    asyncio.run(laufen_lassen(bot, stub, bis=lambda: any(
+        "Erinnerung" in t for t in stub.texts())))
+
+    erinnerung = services.reminders.upcoming()[0]
+    assert erinnerung.recurrence == "woechentlich:mo"
+    assert erinnerung.due_at > utcnow(), "Erster Termin liegt in der Vergangenheit"
+    assert "Wochenplanung" in erinnerung.text
+
+
+def test_erinnere_ohne_zeit_fragt_nach(bot, stub, services):
+    """Ohne Zeitangabe uebernimmt der Agent -- der kann nachfragen."""
+    from jarvis.ai.provider import ModelReply
+    script(services, ModelReply(text="Wann genau soll ich erinnern?"))
+    stub.push_message("/erinnere Rückruf Krankenkasse")
+    asyncio.run(laufen_lassen(bot, stub, bis=lambda: any(
+        "Wann genau" in t for t in stub.texts())))
+    assert services.reminders.upcoming() == []

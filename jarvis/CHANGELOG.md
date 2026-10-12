@@ -37,12 +37,27 @@ System unter `jarvis/`, das die Website nicht berührt.
   danach geloeschten Datenbank echt durchlaufen: Aufgabe, Gedaechtnis, Termin,
   faellige Erinnerung samt Zustellung, Doppelausfuehrungsschutz, Bestaetigung,
   Agentendurchlauf, Sicherung, Neustart.
-* **Tests** — 255 Tests ohne Zugriffe nach draussen, darunter eine
+* **Tests** — 297 Tests ohne Zugriffe nach draussen, darunter eine
   Gesamtprobe mit allen vier Schnittstellen gleichzeitig und Stellvertreter
   fuer Ollama, OpenAI und Anthropic. Telegram, IMAP/SMTP,
   CalDAV und Twilio laufen gegen Stellvertreter-Server, die das jeweilige
   Protokoll wirklich sprechen; die Telefonie-Rueckrufe gehen signiert durch den
   echten HTTP-Dienst.
+
+### Inbetriebnahme
+
+* **`mein-gehirn.md`** — eine Datei, in die der Nutzer eintraegt, wer er ist,
+  wie er arbeitet und was dauerhaft gelten soll. Einlesen per
+  `jarvis lernen` oder indem die Datei in Telegram an den Bot geschickt
+  wird; Vorschau, Bestaetigung, dann uebernommen. Unausgefuellte
+  Platzhalter werden uebersprungen, gleicher Schluessel ueberschreibt --
+  die Datei bleibt die Quelle der Wahrheit und ist beliebig oft einlesbar.
+* **`START-HEUTE.md`** — Schritt fuer Schritt vom leeren Rechner bis zum
+  laufenden Dienst, mit Pruefpunkt je Schritt.
+* **`TESTPLAN.md`** — 68 konkrete Nachrichten samt erwartetem Ergebnis.
+* **`/gehirn`** und **`/vergiss`** in Telegram, `jarvis gehirn` im Terminal.
+* Python-Version wird in `start.sh` und beim Start geprueft (macOS liefert
+  ab Werk ein zu altes Python; der Fehler waere sonst unverstaendlich).
 
 ### Dabei gefundene und behobene Fehler
 
@@ -58,6 +73,13 @@ System unter `jarvis/`, das die Website nicht berührt.
   wachsendem Abstand wiederholt, und ein Ausfall von Telegram laesst
   Erinnerungen, Telefonie und Dashboard weiterlaufen.
 * Ein zweites Loeschen desselben Termins meldete faelschlich Erfolg.
+* `/merken` und `/erinnere` hingen am Sprachmodell: war Ollama aus,
+  antwortete Jarvis "Gemerkt." und merkte nichts. Beide legen jetzt selbst
+  ab -- die Zeitangabe wird mit `split_text_and_time` aus dem Satz
+  herausgetrennt, das Modell ist nur noch Rueckfallebene fuer Faelle ohne
+  erkennbare Zeit.
+* "jeden Montag um 9" an einem Montagnachmittag wurde als Termin in der
+  Vergangenheit abgelehnt statt auf den naechsten Montag gelegt.
 * Ein leerer Wert in der `.env` fiel still auf den Standard zurueck:
   `MORNING_BRIEFING=` haette trotzdem um 07:30 gefeuert, und die Ruhezeit liess
   sich nicht abschalten.

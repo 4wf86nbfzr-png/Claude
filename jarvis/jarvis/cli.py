@@ -16,7 +16,7 @@ import signal
 import sys
 from pathlib import Path
 
-from .config import Settings, load_env_file
+from .config import PROJECT_ROOT, Settings, load_env_file
 from .db.database import Database, utcnow
 from .db.migrations import current_version, migrate
 from .errors import JarvisError
@@ -193,6 +193,81 @@ async def _confirm(settings: Settings, token: str) -> int:
         await services.stop()
 
 
+async def _lernen(settings: Settings, datei: str | None, probe: bool) -> int:
+    """Gehirn-Datei einlesen."""
+    from .core.brain import import_entries, parse_brain_file
+    from .core.services import Services
+
+    pfad = Path(datei).expanduser() if datei else (PROJECT_ROOT / "mein-gehirn.md")
+    if not pfad.exists():
+        print(f"'{pfad}' gibt es nicht.")
+        print("Vorlage liegt unter mein-gehirn.md -- ausfuellen und erneut versuchen.")
+        return 1
+
+    gelesen = parse_brain_file(pfad.read_text(encoding="utf-8"))
+    print(f"\n{pfad}\n")
+    for eintrag in gelesen.entries:
+        print(f"  {eintrag.line_text()[:110]}")
+    if gelesen.skipped:
+        print(f"\n{len(gelesen.skipped)} Zeile(n) uebersprungen (noch nicht ausgefuellt):")
+        for hinweis in gelesen.skipped[:10]:
+            print(f"  - {hinweis}")
+        if len(gelesen.skipped) > 10:
+            print(f"  ... und {len(gelesen.skipped) - 10} weitere")
+    for warnung in gelesen.warnings:
+        print(f"\n  Hinweis: {warnung}")
+
+    if not gelesen.entries:
+        print("\nNichts zu lernen.")
+        return 1
+    if probe:
+        print(f"\nProbe: {gelesen.count} Punkte waeren gelernt worden. "
+              "Ohne --probe wird es uebernommen.")
+        return 0
+
+    services = Services(settings)
+    try:
+        ergebnis = import_entries(services.memory, gelesen.entries, source=pfad.name)
+        print(f"\nGelernt: {ergebnis.summary()}.")
+        for fehler in ergebnis.fehler:
+            print(f"  Fehler: {fehler}")
+        gesamt = len(services.memory.list_memory(limit=1000))
+        print(f"Im Gedaechtnis stehen jetzt {gesamt} Punkte. "
+              "Ansehen mit 'jarvis gehirn' oder in Telegram mit /gehirn.")
+        return 0
+    finally:
+        await services.stop()
+
+
+async def _gehirn(settings: Settings) -> int:
+    """Zeigt, was im Langzeitgedaechtnis steht."""
+    from .core.services import Services
+
+    services = Services(settings)
+    try:
+        eintraege = services.memory.list_memory(limit=500)
+        if not eintraege:
+            print("Das Gedaechtnis ist leer. Fuelle mein-gehirn.md aus und "
+                  "fuehre 'jarvis lernen' aus.")
+            return 0
+        namen = {"fakt": "WER ICH BIN / FAKTEN", "vorliebe": "VORLIEBEN",
+                 "ablauf": "ABLAEUFE", "projekt": "PROJEKTE"}
+        gruppen: dict[str, list] = {}
+        for eintrag in eintraege:
+            gruppen.setdefault(eintrag.kind, []).append(eintrag)
+        for art, liste in gruppen.items():
+            print(f"\n{namen.get(art, art.upper())}")
+            for eintrag in sorted(liste, key=lambda e: -e.importance):
+                marke = {5: "!!", 4: "! "}.get(eintrag.importance, "  ")
+                print(f"  {marke} #{eintrag.id} {eintrag.key}: {eintrag.value[:90]}")
+        print(f"\n{len(eintraege)} Punkte. Wichtig markiert (! oder !!): "
+              f"{sum(1 for e in eintraege if e.importance >= 4)} -- "
+              "die denkt Jarvis bei jeder Antwort mit.")
+        return 0
+    finally:
+        await services.stop()
+
+
 async def _tools(settings: Settings) -> int:
     from .core.services import Services
 
@@ -327,6 +402,12 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("migrate", help="Datenbank auf den neuesten Stand bringen")
     sub.add_parser("backup", help="Sicherung schreiben")
     sub.add_parser("tools", help="Werkzeuge auflisten")
+    sub.add_parser("gehirn", help="Zeigen, was Jarvis dauerhaft ueber dich weiss")
+
+    lernen = sub.add_parser("lernen", help="Gehirn-Datei einlesen (Standard: mein-gehirn.md)")
+    lernen.add_argument("datei", nargs="?")
+    lernen.add_argument("--probe", action="store_true",
+                        help="nur zeigen, was gelernt wuerde")
     sub.add_parser("google-login", help="Google-Kalender autorisieren")
 
     restore = sub.add_parser("restore", help="Sicherung wiederherstellen")
@@ -344,7 +425,32 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+MIN_PYTHON = (3, 11)
+
+
+def check_python() -> str:
+    """Zu altes Python freundlich abfangen.
+
+    macOS bringt ab Werk ein aelteres Python mit; der Fehler waere sonst ein
+    Syntaxfehler mitten im Programm, was niemandem weiterhilft.
+    """
+    if sys.version_info[:2] >= MIN_PYTHON:
+        return ""
+    ist = ".".join(str(teil) for teil in sys.version_info[:3])
+    soll = ".".join(str(teil) for teil in MIN_PYTHON)
+    return (
+        f"Jarvis braucht Python {soll} oder neuer, hier laeuft {ist}.\n"
+        f"  macOS:  brew install python@3.12  (danach ./start.sh erneut)\n"
+        f"  Ubuntu: sudo apt install python3.12 python3.12-venv\n"
+        f"  Pfad pruefen: which -a python3"
+    )
+
+
 def main(argv: list[str] | None = None) -> int:
+    hinweis = check_python()
+    if hinweis:
+        print(hinweis)
+        return 1
     parser = build_parser()
     args = parser.parse_args(argv)
 
@@ -370,6 +476,10 @@ def main(argv: list[str] | None = None) -> int:
             return asyncio.run(_confirm(settings, args.token))
         if command == "tools":
             return asyncio.run(_tools(settings))
+        if command == "lernen":
+            return asyncio.run(_lernen(settings, args.datei, args.probe))
+        if command == "gehirn":
+            return asyncio.run(_gehirn(settings))
         if command == "setup":
             return _setup(settings)
         if command == "migrate":

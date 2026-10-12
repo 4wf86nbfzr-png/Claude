@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import re
 from dataclasses import dataclass
 from datetime import timedelta
 from pathlib import Path
@@ -39,6 +40,8 @@ MAX_LENGTH = 3800
 DEFAULT_API = "https://api.telegram.org"
 #: Laengste Sprachnachricht, die noch erkannt wird (Sekunden).
 MAX_VOICE_SECONDS = 300
+#: Groesste Datei, die eingelesen wird.
+MAX_DOCUMENT_BYTES = 512 * 1024
 
 MAIN_MENU = [
     [("📋 Übersicht", "tool:tagesueberblick"), ("✅ Aufgaben", "menu:aufgaben")],
@@ -75,7 +78,7 @@ SUBMENUS: dict[str, tuple[str, list[list[tuple[str, str]]]]] = {
         [("‹ Zurück", "menu:haupt")],
     ]),
     "gedaechtnis": ("*Gedächtnis*", [
-        [("Alles anzeigen", "tool:gedaechtnis_liste")],
+        [("Was weißt du über mich?", "aktion:gehirn")],
         [("Etwas merken", "eingabe:merken")],
         [("Gespräch vergessen", "aktion:verlauf_loeschen")],
         [("Daten exportieren", "aktion:export")],
@@ -133,6 +136,8 @@ Du kannst einfach schreiben, wie du sprichst:
 /termine [tage] — Kalender
 /mail — ungelesene E-Mails
 /merken <Text> — ins Gedächtnis
+/gehirn — alles anzeigen, was ich über dich weiß
+/vergiss <Nr|Begriff> — einen Punkt löschen
 /weisst <Frage> — im Gedächtnis suchen
 /status — Zustand aller Dienste
 /stumm — Benachrichtigungen an/aus
@@ -141,6 +146,11 @@ Du kannst einfach schreiben, wie du sprichst:
 /export — persönliche Daten als Datei
 /abbrechen — offene Rückfrage verwerfen
 /hilfe — dieser Text
+
+*Mich kennenlernen*
+Schick mir die ausgefüllte Datei `mein-gehirn.md` einfach hier als Anhang —
+dann übernehme ich alles daraus (nach deiner Bestätigung). Einzelne Punkte
+gehen mit `/merken`, ansehen mit `/gehirn`.
 
 *Was Bestätigung braucht*
 E-Mails senden, Termine löschen oder verschieben, Aufgaben löschen und
@@ -159,6 +169,8 @@ BOT_COMMANDS = [
     ("termine", "Kalender ansehen"),
     ("mail", "Ungelesene E-Mails"),
     ("merken", "Etwas ins Gedächtnis legen"),
+    ("gehirn", "Was ich über dich weiß"),
+    ("vergiss", "Einen Punkt löschen"),
     ("weisst", "Im Gedächtnis suchen"),
     ("status", "Zustand der Dienste"),
     ("stumm", "Benachrichtigungen an/aus"),
@@ -181,6 +193,9 @@ class Incoming:
     name: str = ""
     voice_file_id: str = ""
     voice_seconds: int = 0
+    document_file_id: str = ""
+    document_name: str = ""
+    document_size: int = 0
 
 
 class TelegramBot:
@@ -456,6 +471,7 @@ class TelegramBot:
         user = message.get("from") or {}
         text = message.get("text") or message.get("caption") or ""
         stimme = message.get("voice") or message.get("audio") or {}
+        anhang = message.get("document") or {}
         return Incoming(
             chat_id=str((message.get("chat") or {}).get("id", "")),
             user_id=int(user.get("id", 0)), text=text,
@@ -463,6 +479,9 @@ class TelegramBot:
             name=user.get("first_name", ""),
             voice_file_id=str(stimme.get("file_id", "")),
             voice_seconds=int(stimme.get("duration", 0) or 0),
+            document_file_id=str(anhang.get("file_id", "")),
+            document_name=str(anhang.get("file_name", "")),
+            document_size=int(anhang.get("file_size", 0) or 0),
         )
 
     async def _answer_callback(self, callback_id: str, text: str = "") -> None:
@@ -473,6 +492,10 @@ class TelegramBot:
 
     # ------------------------------------------------------------- Nachrichten
     async def _handle_message(self, incoming: Incoming) -> None:
+        if incoming.document_file_id:
+            await self._handle_document(incoming)
+            return
+
         text = incoming.text.strip()
         if not text and incoming.voice_file_id:
             text = await self._transcribe_voice(incoming)
@@ -486,6 +509,12 @@ class TelegramBot:
             return
 
         expected = self._awaiting.pop(incoming.chat_id, "")
+        if expected == "merken":
+            await self._merken(incoming.chat_id, text)
+            return
+        if expected == "erinnerung":
+            await self._erinnere(incoming.chat_id, text)
+            return
         if expected:
             prompt, tool, argument = INPUT_PROMPTS.get(expected, ("", "", ""))
             if tool and argument:
@@ -500,6 +529,69 @@ class TelegramBot:
         await self.typing(incoming.chat_id)
         reply = await self.agent.handle(incoming.chat_id, text)
         await self._deliver(incoming.chat_id, reply)
+
+    async def _handle_document(self, incoming: Incoming) -> None:
+        """Eine geschickte Datei einlesen -- gedacht fuer ``mein-gehirn.md``."""
+        from ..core.brain import format_preview, parse_brain_file
+
+        name = incoming.document_name or "datei"
+        if not name.lower().endswith((".md", ".markdown", ".txt", ".text")):
+            await self.send(
+                incoming.chat_id,
+                f"`{name}` kann ich nicht lesen. Schick mir eine Textdatei "
+                "(`.md` oder `.txt`) -- zum Beispiel deine ausgefüllte "
+                "`mein-gehirn.md`.",
+            )
+            return
+        if incoming.document_size > MAX_DOCUMENT_BYTES:
+            await self.send(
+                incoming.chat_id,
+                f"Die Datei ist {incoming.document_size // 1024} kB gross. "
+                f"Mehr als {MAX_DOCUMENT_BYTES // 1024} kB lese ich nicht ein.",
+            )
+            return
+
+        await self.typing(incoming.chat_id)
+        try:
+            datei = await self._download_file(incoming.document_file_id)
+        except JarvisError as exc:
+            await self.send(incoming.chat_id, f"Die Datei kam nicht an: {exc}")
+            return
+        if datei is None:
+            await self.send(incoming.chat_id, "Die Datei liess sich nicht laden.")
+            return
+
+        try:
+            inhalt = datei.read_text(encoding="utf-8", errors="replace")
+        except OSError as exc:
+            datei.unlink(missing_ok=True)
+            await self.send(incoming.chat_id, f"Die Datei liess sich nicht lesen: {exc}")
+            return
+
+        gelesen = parse_brain_file(inhalt)
+        if not gelesen.entries:
+            datei.unlink(missing_ok=True)
+            hinweise = "\n".join(f"• {w}" for w in gelesen.warnings[:3])
+            await self.send(
+                incoming.chat_id,
+                f"In `{name}` habe ich nichts Lernbares gefunden.\n{hinweise}\n\n"
+                "Format: eine Zeile je Punkt, `Schlüssel: Wert`.",
+            )
+            return
+
+        # Der Sammelimport ist bestaetigungspflichtig: er veraendert auf einmal
+        # viel von dem, was Jarvis ueber den Nutzer annimmt.
+        anfrage = self.services.permissions.request(
+            "gedaechtnis_lernen", {"pfad": str(datei), "name": name},
+            summary=f"{gelesen.count} Punkte aus {name} ins Gedaechtnis uebernehmen",
+            chat_id=incoming.chat_id,
+        )
+        await self.send(
+            incoming.chat_id,
+            format_preview(gelesen) + "\n\nSoll ich das so lernen?",
+            rows=[[("Ja, lernen", f"bestaetigen:{anfrage.token}")],
+                  [("Abbrechen", f"ablehnen:{anfrage.token}")]],
+        )
 
     async def _transcribe_voice(self, incoming: Incoming) -> str:
         """Sprachnachricht herunterladen und erkennen.
@@ -571,6 +663,55 @@ class TelegramBot:
         ziel.write_bytes(antwort.content)
         return ziel
 
+    async def _merken(self, chat_id: str, argument: str) -> None:
+        """Einen Punkt ins Gedaechtnis legen -- ohne Sprachmodell.
+
+        ``/merken`` darf nicht davon abhaengen, dass ein Modell erreichbar ist
+        und sich fuer das richtige Werkzeug entscheidet: eine Zusage ohne
+        Eintrag waere schlimmer als eine Fehlermeldung. Die Schreibweise ist
+        dieselbe wie in ``mein-gehirn.md``.
+        """
+        from ..core.brain import parse_brain_file
+
+        gelesen = parse_brain_file(argument)
+        if not gelesen.entries:
+            await self.send(
+                chat_id,
+                "Das konnte ich nicht einordnen. Schreib es als `Stichwort: Inhalt`, "
+                "zum Beispiel:\n`/merken Telefonate: lieber vormittags`",
+            )
+            return
+        eintrag = gelesen.entries[0]
+        reply = await self.agent.run_tool_directly("gedaechtnis_merken", {
+            "schluessel": eintrag.key, "wert": eintrag.value,
+            "art": eintrag.kind, "wichtigkeit": eintrag.importance,
+        }, chat_id=chat_id)
+        await self.send(chat_id, reply.text, rows=[[("Alles ansehen", "aktion:gehirn")]])
+
+    async def _erinnere(self, chat_id: str, argument: str) -> None:
+        """Erinnerung aus einem Satz anlegen -- ohne Sprachmodell.
+
+        Die Zeitangabe wird selbst herausgetrennt. Nur wenn keine erkennbar
+        ist, uebernimmt der Agent (der nachfragen kann).
+        """
+        from ..core.timeutil import parse_recurrence, split_text_and_time
+
+        text, zeit = split_text_and_time(argument)
+        if not zeit:
+            await self.typing(chat_id)
+            reply = await self.agent.handle(chat_id, f"Erinnere mich: {argument}")
+            await self._deliver(chat_id, reply)
+            return
+        wiederholung = parse_recurrence(argument)
+        kanal = "telefon" if re.search(
+            r"\b(anruf|anrufen|telefonisch|ruf mich)\b", argument.lower()
+        ) and self.services.phone_active else "telegram"
+        reply = await self.agent.run_tool_directly("erinnerung_anlegen", {
+            "text": text or argument, "wann": zeit,
+            "wiederholung": wiederholung, "kanal": kanal,
+        }, chat_id=chat_id)
+        await self._deliver(chat_id, reply)
+
     async def _deliver(self, chat_id: str, reply: AgentReply) -> None:
         rows = [[button] for button in reply.buttons] if reply.buttons else None
         if not rows and not reply.needs_confirmation:
@@ -620,10 +761,7 @@ class TelegramBot:
                 self._awaiting[chat_id] = "erinnerung"
                 await self.send(chat_id, INPUT_PROMPTS["erinnerung"][0])
             else:
-                # Der Agent trennt Text und Zeit zuverlaessiger als eine Regel.
-                await self.typing(chat_id)
-                reply = await agent.handle(chat_id, f"Erinnere mich: {argument}")
-                await self._deliver(chat_id, reply)
+                await self._erinnere(chat_id, argument)
         elif command == "termine":
             days = int(argument) if argument.isdigit() else 1
             await tool("termine_anzeigen", zeitraum="heute", tage=days)
@@ -634,11 +772,21 @@ class TelegramBot:
                 self._awaiting[chat_id] = "merken"
                 await self.send(chat_id, INPUT_PROMPTS["merken"][0])
             else:
-                await self.typing(chat_id)
-                reply = await agent.handle(chat_id, f"Merk dir bitte: {argument}")
-                await self._deliver(chat_id, reply)
-        elif command in {"weisst", "wusstest", "gedaechtnis"}:
+                await self._merken(chat_id, argument)
+        elif command in {"weisst", "wusstest"}:
             await tool("gedaechtnis_suchen", frage=argument or "alles")
+        elif command in {"gehirn", "gedaechtnis"}:
+            await self._zeige_gehirn(chat_id)
+        elif command in {"vergiss", "loeschen"}:
+            if not argument:
+                await self.send(chat_id, "Was soll ich vergessen? "
+                                         "`/vergiss Lieblingscafe` oder `/vergiss #12`")
+            else:
+                schluessel = argument.strip()
+                if schluessel.lstrip("#").isdigit():
+                    await tool("gedaechtnis_loeschen", id=int(schluessel.lstrip("#")))
+                else:
+                    await tool("gedaechtnis_loeschen", schluessel=schluessel)
         elif command == "status":
             await tool("systemstatus")
         elif command == "stumm":
@@ -677,6 +825,39 @@ class TelegramBot:
                 f"Den Befehl /{command} kenne ich nicht. /hilfe zeigt alle.",
                 rows=[[("‹ Menü", "menu:haupt")]],
             )
+
+    async def _zeige_gehirn(self, chat_id: str) -> None:
+        """Was Jarvis dauerhaft weiss -- nach Art gruppiert."""
+        eintraege = self.services.memory.list_memory(limit=200)
+        if not eintraege:
+            await self.send(
+                chat_id,
+                "Mein Gedächtnis ist noch leer.\n\n"
+                "Füll die Datei `mein-gehirn.md` aus und schick sie mir hier als "
+                "Datei — dann weiß ich, wer du bist. Einzelne Punkte gehen auch: "
+                "`/merken Ich telefoniere lieber vormittags`",
+            )
+            return
+        namen = {"fakt": "*Fakten*", "vorliebe": "*Vorlieben*",
+                 "ablauf": "*Abläufe*", "projekt": "*Projekte*"}
+        gruppen: dict[str, list] = {}
+        for eintrag in eintraege:
+            gruppen.setdefault(eintrag.kind, []).append(eintrag)
+        zeilen: list[str] = []
+        for art, liste in gruppen.items():
+            zeilen.append(f"\n{namen.get(art, art)}")
+            for eintrag in sorted(liste, key=lambda e: -e.importance):
+                marke = "‼️" if eintrag.importance >= 5 else (
+                    "❗" if eintrag.importance == 4 else "•")
+                zeilen.append(f"{marke} #{eintrag.id} {eintrag.key}: {eintrag.value[:120]}")
+        wichtig = sum(1 for e in eintraege if e.importance >= 4)
+        zeilen.append(
+            f"\n_{len(eintraege)} Punkte, davon {wichtig} als wichtig markiert "
+            "(die denke ich bei jeder Antwort mit)._\n"
+            "Löschen: `/vergiss #12` · Ändern: `/merken ...`"
+        )
+        await self.send(chat_id, "\n".join(zeilen),
+                        rows=[[("‹ Menü", "menu:haupt")]])
 
     async def _export(self, chat_id: str) -> None:
         import json
@@ -801,7 +982,9 @@ class TelegramBot:
 
     async def _handle_action(self, chat_id: str, action: str) -> None:
         services = self.services
-        if action == "fehler":
+        if action == "gehirn":
+            await self._zeige_gehirn(chat_id)
+        elif action == "fehler":
             entries = services.recent_log(limit=12)
             if not entries:
                 await self.send(chat_id, "Keine Fehler protokolliert. Gut so.")

@@ -79,3 +79,43 @@ def test_formatierung_relativ():
     assert format_local(jetzt + timedelta(days=1), TZ).startswith("morgen")
     assert format_local(jetzt - timedelta(days=1), TZ).startswith("gestern")
     assert format_local(None, TZ) == "ohne Termin"
+
+
+# --- Text und Zeit trennen (fuer /erinnere ohne Sprachmodell) -----------------
+@pytest.mark.parametrize("eingabe,erwarteter_text,erwartete_zeit", [
+    ("Alex anrufen morgen 9:00", "Alex anrufen", "morgen 9:00"),
+    ("in 10 Minuten Wasser trinken", "Wasser trinken", "in 10 Minuten"),
+    ("morgen früh an den Rückruf bei Alex erinnern", "Rückruf bei Alex", "morgen früh"),
+    ("erinnere mich in 10 minuten an das Wasser", "Wasser", "in 10 minuten"),
+    ("Dienstplan machen bis 5.11.", "Dienstplan machen", "5.11."),
+    ("Zahnarzt 17.12.2026 8 uhr", "Zahnarzt", "17.12.2026 8 uhr"),
+    ("bitte um 14:30 an die Dispo erinnern", "Dispo", "um 14:30"),
+    ("heute abend Objektbegehung vorbereiten", "Objektbegehung vorbereiten", "heute abend"),
+])
+def test_split_text_and_time(eingabe, erwarteter_text, erwartete_zeit):
+    from jarvis.core.timeutil import split_text_and_time
+    text, zeit = split_text_and_time(eingabe)
+    assert text == erwarteter_text
+    assert zeit == erwartete_zeit
+    # Die herausgetrennte Zeit muss auch wirklich eine Zeit ergeben.
+    assert parse_when(zeit, TZ, reference=REFERENCE) is not None
+
+
+def test_split_ohne_zeitangabe_laesst_den_text_in_ruhe():
+    from jarvis.core.timeutil import split_text_and_time
+    text, zeit = split_text_and_time("Rückruf Krankenkasse")
+    assert text == "Rückruf Krankenkasse"
+    assert zeit == ""
+
+
+def test_split_bei_leerer_eingabe():
+    from jarvis.core.timeutil import split_text_and_time
+    assert split_text_and_time("") == ("", "")
+    assert split_text_and_time("   ") == ("", "")
+
+
+def test_split_nimmt_keine_scheinzeit():
+    """'15 Leute' ist keine Uhrzeit -- der Text darf nicht zerschnitten werden."""
+    from jarvis.core.timeutil import split_text_and_time
+    text, zeit = split_text_and_time("15 Leute für Objekt Nord einplanen")
+    assert "Leute" in text

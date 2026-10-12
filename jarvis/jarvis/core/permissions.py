@@ -44,6 +44,7 @@ ACTION_TIERS: dict[str, int] = {
     "datei_loeschen": TIER_CONFIRM,
     "anruf_starten": TIER_CONFIRM,
     "gedaechtnis_komplett_loeschen": TIER_CONFIRM,
+    "gedaechtnis_lernen": TIER_CONFIRM,
     "berechtigung_erweitern": TIER_CONFIRM,
     "dienst_autorisieren": TIER_CONFIRM,
     "daten_export": TIER_CONFIRM,

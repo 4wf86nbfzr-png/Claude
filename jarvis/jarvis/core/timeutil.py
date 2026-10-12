@@ -369,3 +369,66 @@ def in_quiet_hours(moment: datetime, tz: ZoneInfo, start: str, end: str) -> bool
     if start_t <= end_t:
         return start_t <= local_time < end_t
     return local_time >= start_t or local_time < end_t
+
+#: Muster, mit denen eine Zeitangabe in einem Satz gefunden wird. Reihenfolge
+#: zaehlt: Laengeres zuerst, damit "morgen 8:30" nicht als "morgen" endet.
+_TIME_SPANS = [
+    re.compile(r"\b(?:in|innerhalb von)\s+(?:einer|einem|eine|ner)?\s*\d*\s*"
+               r"(?:minute|minuten|min|stunde|stunden|std|tag|tagen|woche|wochen|"
+               r"monat|monaten)\b"),
+    re.compile(r"\b(?:am\s+|naechsten\s+|nächsten\s+|kommenden\s+|jeden\s+|diesen\s+)?"
+               r"(?:montag|dienstag|mittwoch|donnerstag|freitag|samstag|sonnabend|sonntag)"
+               r"(?:\s+(?:um\s+)?\d{1,2}(?:[:.]\d{2})?(?:\s*uhr)?)?\b"),
+    re.compile(r"\b(?:heute|morgen|uebermorgen|übermorgen|gestern)"
+               r"(?:\s+(?:frueh|früh|morgens|vormittags?|mittags?|nachmittags?|"
+               r"abends?|nachts?))?"
+               r"(?:\s+(?:um\s+)?\d{1,2}(?:[:.]\d{2})?(?:\s*uhr)?)?\b"),
+    re.compile(r"\b\d{1,2}\.\s*\d{1,2}\.(?:\s*\d{2,4})?"
+               r"(?:\s+(?:um\s+)?\d{1,2}(?:[:.]\d{2})?(?:\s*uhr)?)?"),
+    re.compile(r"\b\d{1,2}\.?\s+(?:" + "|".join(MONTHS) + r")(?:\s+\d{4})?"
+               r"(?:\s+(?:um\s+)?\d{1,2}(?:[:.]\d{2})?(?:\s*uhr)?)?\b"),
+    re.compile(r"\b(?:um\s+)?\d{1,2}[:.]\d{2}\s*(?:uhr)?\b"),
+    re.compile(r"\b(?:um\s+)?\d{1,2}\s*uhr\b"),
+    re.compile(r"\b(?:frueh|früh|morgens|vormittags|mittags|nachmittags|abends|nachts)\b"),
+    re.compile(r"\b(?:sofort|jetzt|gleich)\b"),
+]
+
+#: Fuellwoerter und Rahmensaetze, die nach dem Herausloesen der Zeit
+#: allein stehen bleiben ("erinnere mich ... an den ... erinnern").
+_LEFTOVERS = re.compile(
+    r"^\s*(?:erinner(?:e|n|ung)?|bitte|dann|noch|und|um|am|an|im|mich|me|daran|dass|"
+    r"den|die|das|dem|der)\s+|"
+    r"\s+(?:erinnern|erinnere|denken|bitte|dann|noch|und|um|am|an|im|daran|bis)\s*$",
+    re.IGNORECASE,
+)
+
+
+def split_text_and_time(raw: str) -> tuple[str, str]:
+    """Trennt "Alex anrufen morgen 9:00" in ("Alex anrufen", "morgen 9:00").
+
+    Damit funktionieren ``/erinnere`` und die Knopf-Eingaben auch dann, wenn
+    kein Sprachmodell erreichbar ist -- entscheidend, weil eine Erinnerung,
+    die nur zugesagt und nicht angelegt wird, schlimmer ist als keine.
+    Ohne erkennbare Zeitangabe kommt ("", "") nicht vor: dann bleibt der Text
+    unveraendert und die Zeit leer.
+    """
+    text = (raw or "").strip()
+    if not text:
+        return "", ""
+    lower = text.lower()
+    for muster in _TIME_SPANS:
+        treffer = muster.search(lower)
+        if not treffer:
+            continue
+        zeit = text[treffer.start():treffer.end()].strip()
+        if parse_when(zeit, ZoneInfo("UTC")) is None:
+            continue       # sieht nach Zeit aus, ergibt aber keine -- weitersuchen
+        rest = (text[:treffer.start()] + " " + text[treffer.end():])
+        rest = re.sub(r"\s{2,}", " ", rest).strip(" ,;:-")
+        vorher = None
+        while vorher != rest:          # Fuellwoerter koennen sich haeufen
+            vorher = rest
+            rest = _LEFTOVERS.sub(" ", rest).strip(" ,;:-")
+            rest = re.sub(r"\s{2,}", " ", rest)
+        return rest, zeit
+    return text, ""

@@ -39,7 +39,8 @@ class TelegramStub:
         return f"http://127.0.0.1:{self.port}"
 
     def push_message(self, text: str, *, user_id: int = 4711, chat_id: int | None = None,
-                     voice: dict[str, Any] | None = None) -> int:
+                     voice: dict[str, Any] | None = None,
+                     document: dict[str, Any] | None = None) -> int:
         self.next_update_id += 1
         nachricht: dict[str, Any] = {
             "message_id": self.next_update_id,
@@ -48,6 +49,10 @@ class TelegramStub:
         }
         if voice is not None:
             nachricht["voice"] = voice
+        elif document is not None:
+            nachricht["document"] = document
+            if text:
+                nachricht["caption"] = text
         else:
             nachricht["text"] = text
         self.updates.append({"update_id": self.next_update_id, "message": nachricht})

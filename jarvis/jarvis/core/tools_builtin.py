@@ -14,7 +14,8 @@ from typing import TYPE_CHECKING, Any
 from ..db.database import iso, utcnow
 from .tasks import OPEN_STATES, STATUS_CANCELLED, STATUS_DONE, STATUS_RUNNING, priority_label
 from .timeutil import (
-    describe_recurrence, format_local, is_vague_time, parse_recurrence, parse_when,
+    describe_recurrence, format_local, is_vague_time, next_occurrence,
+    parse_recurrence, parse_when,
 )
 from .toolkit import ToolResult, bool_field, int_field, schema, text_field
 
@@ -283,6 +284,36 @@ def register_tasks(services: "Services") -> None:
     )
 
 
+@confirmed("gedaechtnis_lernen")
+async def _execute_learn(services: "Services", payload: dict[str, Any]) -> ToolResult:
+    """Uebernimmt eine zuvor eingelesene Gehirn-Datei."""
+    from pathlib import Path
+
+    from .brain import import_entries, parse_brain_file
+
+    pfad = Path(str(payload.get("pfad", "")))
+    if not pfad.exists():
+        return ToolResult.failure(
+            "Die Datei ist nicht mehr da. Schick sie bitte noch einmal."
+        )
+    gelesen = parse_brain_file(pfad.read_text(encoding="utf-8"))
+    if not gelesen.entries:
+        return ToolResult.failure("In der Datei stand nichts Lernbares.")
+    ergebnis = import_entries(
+        services.memory, gelesen.entries, source=str(payload.get("name", pfad.name))
+    )
+    pfad.unlink(missing_ok=True)
+    gesamt = len(services.memory.list_memory(limit=1000))
+    text = (
+        f"Gelernt: {ergebnis.summary()}.\n"
+        f"Ich weiss jetzt {gesamt} Dinge ueber dich. "
+        "Ansehen mit /gehirn, aendern mit /merken, loeschen mit /vergiss."
+    )
+    for fehler in ergebnis.fehler[:3]:
+        text += f"\nNicht uebernommen: {fehler}"
+    return ToolResult.success(text, neu=ergebnis.neu, geaendert=ergebnis.geaendert)
+
+
 # ------------------------------------------------------------ Erinnerungen
 def register_reminders(services: "Services") -> None:
     tz = services.settings.tz
@@ -298,6 +329,17 @@ def register_reminders(services: "Services") -> None:
                 f"Die Zeitangabe '{wann}' verstehe ich nicht. Bitte eine Uhrzeit nennen, "
                 "z. B. 'morgen 8:30' oder 'in 20 Minuten'."
             )
+        recurrence = parse_recurrence(wiederholung)
+        if recurrence and when <= utcnow():
+            # "jeden Montag um 9" an einem Montagnachmittag meint den naechsten
+            # Montag, nicht einen Termin in der Vergangenheit.
+            weiter = next_occurrence(recurrence, when, tz)
+            schutz = 0
+            while weiter is not None and weiter <= utcnow() and schutz < 500:
+                weiter = next_occurrence(recurrence, weiter, tz)
+                schutz += 1
+            if weiter is not None:
+                when = weiter
         if when <= utcnow() - timedelta(minutes=1):
             return ToolResult.failure(
                 f"{format_local(when, tz)} liegt in der Vergangenheit. Wann genau denn?"
@@ -309,7 +351,6 @@ def register_reminders(services: "Services") -> None:
         else:
             hint = ""
 
-        recurrence = parse_recurrence(wiederholung)
         kanal = kanal if kanal in {"telegram", "telefon", "beides"} else "telegram"
         if kanal in {"telefon", "beides"} and not services.phone_active:
             return ToolResult.failure(
