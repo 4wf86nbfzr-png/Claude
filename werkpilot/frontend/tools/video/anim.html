@@ -1,0 +1,42 @@
+<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:#07080c;overflow:hidden}canvas{display:block}</style></head><body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script>
+// Deterministische, nahtlos loopende Motion-Graphic: technisches Raster, Anfragen als Lichtpunkte,
+// die links hereinkommen, in der Mitte sortiert werden und rechts als geordnete Bahnen weiterlaufen.
+const c=document.getElementById("c"),x=c.getContext("2d"),W=c.width,H=c.height,PERIOD=14; // Sekunden
+let seed=7;const rnd=()=>{seed=(seed*16807)%2147483647;return (seed-1)/2147483646};
+const LANES=[{y:0.34,color:"#ff7a59",n:14},{y:0.50,color:"#5b8cff",n:24},{y:0.66,color:"#8fa3ff",n:18},{y:0.80,color:"#6b7280",n:10}];
+const dots=[];LANES.forEach((l,li)=>{for(let i=0;i<l.n;i++)dots.push({lane:li,phase:rnd(),yoff:(rnd()-0.5)*0.26,speed:0.85+rnd()*0.3,size:2+rnd()*3});});
+const bokeh=[];for(let i=0;i<26;i++)bokeh.push({x:rnd(),y:rnd(),r:40+rnd()*140,phase:rnd(),col:i%3?"#5b8cff":"#ff7a59"});
+function ease(t){return t<0.5?2*t*t:-1+(4-2*t)*t}
+function frame(t){ // t in [0,1)
+  x.fillStyle="#07080c";x.fillRect(0,0,W,H);
+  // Bokeh
+  for(const b of bokeh){const a=0.035+0.03*Math.sin((t+b.phase)*2*Math.PI);const g=x.createRadialGradient(b.x*W,b.y*H,0,b.x*W,b.y*H,b.r);g.addColorStop(0,b.col);g.addColorStop(1,"rgba(0,0,0,0)");x.globalAlpha=a;x.fillStyle=g;x.fillRect(b.x*W-b.r,b.y*H-b.r,2*b.r,2*b.r);}
+  x.globalAlpha=1;
+  // Technisches Raster mit langsamer Drift
+  const drift=(t*80)%80;x.strokeStyle="rgba(255,255,255,0.045)";x.lineWidth=1;x.beginPath();
+  for(let gx=-80+drift;gx<W+80;gx+=80){x.moveTo(gx,0);x.lineTo(gx,H);}for(let gy=0;gy<H;gy+=80){x.moveTo(0,gy);x.lineTo(W,gy);}x.stroke();
+  // Sortierer in der Mitte: rotierender Ring
+  const cx=W*0.5,cy=H*0.5;x.save();x.translate(cx,cy);
+  for(let r=0;r<3;r++){x.rotate((r%2?-1:1)*t*2*Math.PI/ (r+1)*0.5);x.strokeStyle=`rgba(91,140,255,${0.25-r*0.06})`;x.lineWidth=2-r*0.4;x.beginPath();x.arc(0,0,120+r*38,0,Math.PI*1.5);x.stroke();}
+  x.restore();
+  x.strokeStyle="rgba(255,255,255,0.08)";x.beginPath();x.arc(cx,cy,100,0,2*Math.PI);x.stroke();
+  // Lichtpunkte: links chaotisch, rechts sortiert
+  for(const d of dots){const l=LANES[d.lane];let p=(t*d.speed+d.phase)%1;const px=p*W;let py;
+    if(px<cx){const chaos=Math.sin((p*9+d.phase*7)*2*Math.PI)*H*0.22+d.yoff*H;py=H*0.5+chaos*(1-ease(px/cx));}
+    else{const k=ease(Math.min(1,(px-cx)/(W*0.18)));py=H*0.5+(l.y-0.5)*H*k;}
+    x.globalAlpha=0.9;x.fillStyle=l.color;x.beginPath();x.arc(px,py,d.size,0,2*Math.PI);x.fill();
+    x.globalAlpha=0.18;x.beginPath();x.arc(px,py,d.size*4,0,2*Math.PI);x.fill();
+    x.globalAlpha=0.35;x.strokeStyle=l.color;x.lineWidth=d.size*0.6;x.beginPath();x.moveTo(px-28*d.speed,py);x.lineTo(px,py);x.stroke();}
+  x.globalAlpha=1;
+  // Rechts: Bahnlinien
+  for(const l of LANES){x.strokeStyle=l.color;x.globalAlpha=0.12;x.lineWidth=1;x.beginPath();x.moveTo(cx+W*0.18,l.y*H);x.lineTo(W,l.y*H);x.stroke();}
+  x.globalAlpha=1;
+  // Vignette
+  const v=x.createRadialGradient(cx,cy,H*0.3,cx,cy,W*0.7);v.addColorStop(0,"rgba(7,8,12,0)");v.addColorStop(1,"rgba(7,8,12,0.85)");x.fillStyle=v;x.fillRect(0,0,W,H);
+}
+window.renderAt=(sec)=>frame((sec%PERIOD)/PERIOD);
+let start=null;function loop(ts){if(start===null)start=ts;frame((((ts-start)/1000)%PERIOD)/PERIOD);requestAnimationFrame(loop);}
+if(!location.hash.includes("still"))requestAnimationFrame(loop);else renderAt(3.2);
+</script></body></html>

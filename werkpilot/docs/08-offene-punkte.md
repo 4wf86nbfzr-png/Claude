@@ -25,6 +25,12 @@ Stand nach Abschluss des Kernprodukts. Sortiert nach Dringlichkeit für den Prod
 - **Code-Änderungen durch den Produkt-Agenten**: Der Agent triagiert, führt Tests aus und erstellt Vorschläge/Freigaben; er schreibt keinen Code in Branches. Das wäre der nächste Ausbauschritt (mit Sandbox und PR-Workflow) und sollte erst nach stabiler Produktion kommen.
 - **Keyword-Recherche** nutzt eine Seed-Liste statt echter Suchvolumendaten (dafür wäre eine kostenpflichtige API nötig).
 
+## Landingpage
+
+- Hintergrundvideo liegt nur als WebM (VP8) vor; für Safari < 14.1 greift das Poster. Für ein H.264-MP4 das WebM mit einem ffmpeg mit libx264 umwandeln (`ffmpeg -i werkpilot-loop.webm -c:v libx264 -crf 23 -an werkpilot-loop.mp4`) und als zweite `<source>` eintragen.
+- Die 3D-Szene braucht WebGL; ohne WebGL bleibt der Rahmen leer (kein Absturz). Ein statisches Ersatzbild wäre der nächste Schritt.
+- Lighthouse/Performance auf schwachen Mobilgeräten noch nicht gemessen; GSAP und three.js laden nur auf der Startseite.
+
 ## Technische Risiken
 
 | Risiko | Auswirkung | Minderung |

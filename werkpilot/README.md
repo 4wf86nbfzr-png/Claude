@@ -38,6 +38,10 @@ werkpilot/
     scripts/          backup.sh, restore.sh, make_operator.py
     tests/            pytest-Suite (Auth, Rechte, Pipeline, Billing, Jobs, Agenten, Sicherheit, E2E, Recovery)
   frontend/           Next.js 16, TypeScript, Tailwind 4 – Website, Dashboard (/app), Betreiber (/admin)
+    src/components/landing/   Filmische Startseite: Hintergrundvideo, Scrollytelling (GSAP ScrollTrigger),
+                              3D-Szene (three.js / React Three Fiber, WebXR-Knopf bei VR/AR-Geräten),
+                              horizontale Scroll-Sektion, Fade-ins, eingebettete Demo
+    public/video/             werkpilot-loop.webm + poster.jpg (selbst gerendert, keine Fremdlizenz)
   docs/               Marktvalidierung, Architektur, Deployment, Betrieb, Kosten, Recht, Integrationen, offene Punkte
   docker-compose.yml  db, redis, api, worker, backup, web
   .env.example        alle Konfigurationswerte mit Erklärung

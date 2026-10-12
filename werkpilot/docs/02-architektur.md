@@ -79,6 +79,18 @@ in `agent_runs`, Aufgaben in `agent_tasks`, Freigaben in `approvals`. Nur `ops` 
 - Not-Aus stoppt KI, Agenten und nichtkritische Jobs; Überwachung läuft weiter.
 - Abhängigkeitsscans in CI (`pip-audit`, `npm audit`).
 
+## Landingpage (Marketing)
+
+Die Startseite `/` ist eine eigene, dunkle Bühne (`frontend/src/components/landing/`), die übrigen
+Marketing-Seiten bleiben hell. Technik: GSAP 3.13 mit ScrollTrigger (gepinntes Scrollytelling,
+horizontale Feature-Sektion, Parallaxe), three.js über React Three Fiber (Szene „Posteingang sortiert
+sich", Maus- und Neigungsparallaxe, WebXR-Knopf nur wenn das Gerät `immersive-vr`/`immersive-ar`
+meldet), IntersectionObserver-Fade-ins, eingebettetes Demo-Formular gegen die echte API.
+`prefers-reduced-motion` schaltet Video, Pins und Scrub ab. Das Hintergrundvideo ist eine selbst
+gerenderte Canvas-Animation (`werkpilot-loop.webm`, VP8, 14 s, 2 MB) mit JPEG-Poster; Safari älter als
+14.1 zeigt das Poster. Neu rendern: `node tools/video/render.mjs` im Frontend-Ordner (Quelle `tools/video/anim.html`,
+braucht Playwright und ffmpeg mit libvpx).
+
 ## Bewusste Vereinfachungen
 
 - Kein Multi-Region, kein Read-Replica: ein Postgres mit täglichem Dump reicht für die ersten hundert Kunden.
