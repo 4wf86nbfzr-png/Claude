@@ -168,7 +168,6 @@ def test_mit_modell_bleibt_alles_beim_alten(services):
 # --- Sicherheitsnetz bei laufendem, aber schwachem Modell --------------------
 def schwaches_modell(services, *antworten):
     """Ein Modell, das antwortet, aber die Werkzeuge verfehlt."""
-    from jarvis.ai.provider import ModelReply
     anbieter = EchoProvider(scripted=list(antworten))
     services.models.primary = anbieter
     services.models.active = anbieter
