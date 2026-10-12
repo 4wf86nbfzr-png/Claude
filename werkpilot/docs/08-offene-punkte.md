@@ -46,6 +46,8 @@ Stand nach Abschluss des Kernprodukts. Sortiert nach Dringlichkeit für den Prod
 
 ## Qualitätsstand
 
+- Abhängigkeitsscan: Backend ohne bekannte Schwachstellen (`pip-audit`). Frontend: Produktionsabhängigkeiten sauber; `npm audit` meldet 5 „high“ ausschließlich in Entwicklungswerkzeugen (ESLint-Plugin → `braces`, Stack-Erschöpfung bei bösartigen Glob-Mustern), nicht im ausgelieferten Code. Wird mit dem nächsten `eslint-config-next`-Release behoben.
+
 - 61 Backend-Tests grün (Postgres), Lint sauber.
 - Frontend-Build und ESLint sauber; Browser-Durchlauf (Registrierung → Entwurf → Versand → Abo-Seite → Integrationen) erfolgreich. Terminbestätigung per Kundenlink (`/termin?token=…`) ist umgesetzt und getestet.
 - Nicht getestet: echte Anthropic/OpenAI-Aufrufe (kein Schlüssel in der Entwicklungsumgebung), echter Stripe-Checkout (nur Webhook-Verarbeitung mit signierten Test-Events), echte Google-OAuth-Runde, Docker-Build (Docker-Daemon in der Entwicklungsumgebung nicht verfügbar; Dockerfiles ungetestet).
