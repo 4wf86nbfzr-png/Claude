@@ -5,7 +5,7 @@ SaaS mit Testphase und drei Tarifen (Starter 79 €, Business 149 €, Pro 249 �
 weitgehend autonomen Betrieb: Agenten für Betrieb, Geschäftsleitung, Produkt, Support,
 Marketing, Vertrieb und Finanzen laufen im Hintergrund und legen alles Kritische zur Freigabe vor.
 
-> Stand: funktionsfähiges Kernprodukt, lokal getestet (59 Backend-Tests, Frontend-Build,
+> Stand: funktionsfähiges Kernprodukt, lokal getestet (61 Backend-Tests, Frontend-Build,
 > Browser-Durchlauf). **Noch nicht produktiv.** Was vor dem Start fehlt, steht in
 > [docs/09-produktivstart-checkliste.md](docs/09-produktivstart-checkliste.md) und
 > [docs/08-offene-punkte.md](docs/08-offene-punkte.md).
@@ -17,7 +17,7 @@ Marketing, Vertrieb und Finanzen laufen im Hintergrund und legen alles Kritische
 | Anfragen aus E-Mail-Weiterleitung, Website-Formular und manueller Erfassung an einem Ort | Betreiberansicht `/admin`: Systemzustand, Not-Aus, Budgets, Freigaben |
 | KI-Klassifizierung (Kategorie, Dringlichkeit, Zusammenfassung, fehlende Angaben) | Sieben Agenten mit Protokoll, Kostenlimit und Laufzeitgrenze |
 | Antwortentwürfe mit Freigabe; optional automatische Eingangsbestätigung (ab Business) | Stripe-Abrechnung über Webhooks, Tarife in der Datenbank änderbar |
-| Terminvorschläge aus Geschäftszeiten (+ Google Kalender), Angebotsnachverfolgung | Täglicher Betriebsbericht, Finanzübersicht, Fehler- und Jobwarteschlange |
+| Terminvorschläge aus Geschäftszeiten (+ Google Kalender), Bestätigung per Kundenlink, Angebotsnachverfolgung | Täglicher Betriebsbericht, Finanzübersicht, Fehler- und Jobwarteschlange |
 | Wochenbericht, Kundenübersicht, Nutzer/Rollen, Export, Löschung | Audit-Protokoll aller automatischen Aktionen |
 
 Was die KI **nicht** tut: Preise nennen, Diagnosen stellen, verbindliche Zusagen machen.

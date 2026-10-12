@@ -277,11 +277,12 @@ async def run_structured(
     tenant_id: str | None = None,
     tenant_limits: dict | None = None,
     max_output_tokens: int | None = None,
+    provider: Provider | None = None,
 ) -> T:
     """Führt eine KI-Aufgabe aus und gibt ein validiertes Pydantic-Objekt zurück."""
     s = get_settings()
     await check_budgets(db, tenant_id, tenant_limits)
-    provider = get_provider()
+    provider = provider or get_provider()
     schema_json = json.dumps(schema.model_json_schema(), ensure_ascii=False)
     system = SAFETY_RULES + "\n\nJSON-Schema der Antwort:\n" + schema_json
     user = f"[TASK:{task}]\n{instructions}\n\n{data}"

@@ -32,7 +32,7 @@ Platzhalter. Diese Liste ist eine Arbeitsgrundlage für das Gespräch mit einer 
 
 ## 4. KI-spezifisch
 
-- [ ] EU AI Act: WerkPilot ist voraussichtlich kein Hochrisiko-System; Transparenzpflichten (Art. 50) prüfen, z. B. Hinweis, dass Entwürfe KI-generiert sind, wenn automatisch versendet wird. Automatische Antworten enthalten derzeit keinen expliziten KI-Hinweis → prüfen und ggf. Satz ergänzen.
+- [ ] EU AI Act: WerkPilot ist voraussichtlich kein Hochrisiko-System; Transparenzpflichten (Art. 50) prüfen, z. B. Hinweis, dass Entwürfe KI-generiert sind, wenn automatisch versendet wird. Automatisch versendete Eingangsbestätigungen enthalten einen KI-Hinweis (Satz am Ende); Formulierung anwaltlich prüfen.
 - [ ] Keine automatisierten Entscheidungen mit Rechtswirkung (Art. 22 DSGVO) — Design hält das ein (Mensch gibt frei, keine Preise/Zusagen).
 - [ ] Urheberrecht bei Marketing-Inhalten: Inhalte KI-generiert, Prüfung auf fremde Inhalte; keine fremden Bilder (Prüfung im Marketing-Agenten).
 

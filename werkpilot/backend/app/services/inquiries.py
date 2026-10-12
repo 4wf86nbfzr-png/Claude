@@ -9,6 +9,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.audit import audit
+from app.core.config import get_settings
 from app.core.db import utcnow
 from app.core.logging import get_logger
 from app.core.security import hash_token
@@ -17,6 +18,7 @@ from app.models.crm import (
     INQ_NEEDS_REVIEW,
     INQ_NEW,
     INQ_PROCESSING,
+    INQ_SCHEDULED,
     INQ_SPAM,
     INQ_WAITING_CUSTOMER,
     Appointment,
@@ -278,38 +280,9 @@ async def send_draft(
     if body is not None:
         draft.body = body
     reply_to = tenant.contact_email or None
-    result = await send_email(
-        db,
-        to=inq.sender_email,
-        subject=draft.subject,
-        text=draft.body,
-        reply_to=reply_to,
-        kind="inquiry_reply",
-        tenant_id=tenant.id,
-    )
-    msg = Message(
-        tenant_id=tenant.id,
-        inquiry_id=inq.id,
-        direction="out",
-        channel="email",
-        sender=tenant.contact_email or "werkpilot",
-        recipient=inq.sender_email,
-        subject=draft.subject,
-        body=draft.body,
-        delivery_status=result.status,
-        meta={"draft_id": draft.id, "auto": auto, "provider": result.provider, "error": result.error},
-    )
-    db.add(msg)
-    await db.flush()
-    draft.status = "sent" if result.status != "failed" else "approved"
-    draft.approved_by = approved_by
-    draft.approved_at = utcnow()
-    draft.sent_message_id = msg.id
-    if inq.first_response_at is None:
-        inq.first_response_at = utcnow()
-    inq.last_activity_at = utcnow()
-    inq.status = INQ_WAITING_CUSTOMER
-    # Terminvorschläge als „proposed“ festhalten, damit sie nicht doppelt vergeben werden
+    # Terminvorschläge zuerst als „proposed“ anlegen (blockieren die Zeit) und Bestätigungslinks in den Text aufnehmen.
+    # Der Kunde bestätigt selbst über einen Einmal-Link – vom Kunden initiiert, ohne Konto.
+    links: list[str] = []
     for s in draft.proposed_slots or []:
         token = secrets.token_urlsafe(24)
         db.add(
@@ -324,6 +297,43 @@ async def send_draft(
                 confirm_token_hash=hash_token(token),
             )
         )
+        links.append(f"{s['label']}: {get_settings().frontend_url}/termin?token={token}")
+    text = draft.body
+    if links:
+        text += "\n\nTermin direkt bestätigen (ein Klick genügt):\n" + "\n".join(f"- {line}" for line in links)
+    if auto:
+        text += "\n\nDiese Eingangsbestätigung wurde automatisch mit Unterstützung eines KI-Assistenten erstellt. Ein Mensch aus dem Betrieb meldet sich persönlich."
+    result = await send_email(
+        db,
+        to=inq.sender_email,
+        subject=draft.subject,
+        text=text,
+        reply_to=reply_to,
+        kind="inquiry_reply",
+        tenant_id=tenant.id,
+    )
+    msg = Message(
+        tenant_id=tenant.id,
+        inquiry_id=inq.id,
+        direction="out",
+        channel="email",
+        sender=tenant.contact_email or "werkpilot",
+        recipient=inq.sender_email,
+        subject=draft.subject,
+        body=text,
+        delivery_status=result.status,
+        meta={"draft_id": draft.id, "auto": auto, "provider": result.provider, "error": result.error},
+    )
+    db.add(msg)
+    await db.flush()
+    draft.status = "sent" if result.status != "failed" else "approved"
+    draft.approved_by = approved_by
+    draft.approved_at = utcnow()
+    draft.sent_message_id = msg.id
+    if inq.first_response_at is None:
+        inq.first_response_at = utcnow()
+    inq.last_activity_at = utcnow()
+    inq.status = INQ_WAITING_CUSTOMER
     await audit(
         db,
         "draft.sent",
@@ -341,3 +351,60 @@ async def send_draft(
 async def _job_process_inquiry(db: AsyncSession, job) -> dict:
     inq = await process_inquiry(db, job.payload["inquiry_id"])
     return {"status": inq.status, "category": inq.category}
+
+
+async def confirm_appointment_by_token(db: AsyncSession, token: str) -> Appointment:
+    """Vom Endkunden ausgelöste Terminbestätigung über Einmal-Link."""
+    appt = (await db.execute(select(Appointment).where(Appointment.confirm_token_hash == hash_token(token)))).scalar_one_or_none()
+    if appt is None:
+        raise ValueError("Link ungültig.")
+    if appt.status == "confirmed":
+        return appt
+    if appt.status != "proposed" or appt.starts_at < utcnow():
+        raise ValueError("Dieser Terminvorschlag ist nicht mehr verfügbar. Bitte antworten Sie auf die E-Mail des Betriebs.")
+    appt.status = "confirmed"
+    appt.confirm_token_hash = None
+    others = (
+        (await db.execute(select(Appointment).where(Appointment.inquiry_id == appt.inquiry_id, Appointment.id != appt.id, Appointment.status == "proposed")))
+        .scalars()
+        .all()
+    )
+    for o in others:
+        o.status = "canceled"
+        o.confirm_token_hash = None
+    tenant = await db.get(Tenant, appt.tenant_id)
+    inq = await db.get(Inquiry, appt.inquiry_id) if appt.inquiry_id else None
+    if inq:
+        inq.status = INQ_SCHEDULED
+        inq.last_activity_at = utcnow()
+        db.add(
+            Message(
+                tenant_id=appt.tenant_id,
+                inquiry_id=inq.id,
+                direction="in",
+                channel="link",
+                sender=inq.sender_email or "kunde",
+                subject="Termin bestätigt",
+                body=f"Kunde hat den Termin am {appt.starts_at.strftime('%d.%m.%Y %H:%M')} per Link bestätigt.",
+            )
+        )
+    from app.services.google_calendar import create_event
+
+    if tenant:
+        appt.external_calendar_id = await create_event(
+            db, tenant.id, title=appt.title, start=appt.starts_at, end=appt.ends_at, description=(inq.summary if inq else "") or ""
+        )
+        if tenant.contact_email:
+            await send_email(
+                db,
+                to=tenant.contact_email,
+                subject=f"Termin bestätigt: {appt.starts_at.strftime('%d.%m.%Y %H:%M')}",
+                text=f"{inq.sender_name if inq else 'Ein Kunde'} hat den Termin „{appt.title}“ am {appt.starts_at.strftime('%d.%m.%Y um %H:%M')} Uhr bestätigt.",
+                kind="transactional",
+                tenant_id=tenant.id,
+            )
+    await audit(
+        db, "appointment.confirmed_by_customer", actor_type="system", actor_id="customer_link", tenant_id=appt.tenant_id, target_type="appointment", target_id=appt.id
+    )
+    await db.flush()
+    return appt

@@ -116,3 +116,35 @@ async def test_public_content_only_published(client, db):
     assert (await client.get("/api/public/content/geheim")).status_code == 404
     assert (await client.get("/api/public/content/live")).json()["body_markdown"].startswith("# Live")
     await db.refresh((await db.execute(__import__("sqlalchemy").select(ContentPiece).where(ContentPiece.slug == "live"))).scalar_one())
+
+
+async def test_customer_confirms_appointment_via_link(client, db):
+    import re
+
+    from app.models.crm import Appointment, Inquiry
+
+    h, tid = await register_and_login(client)
+    r = await client.post(
+        "/api/inquiries", headers=h, json={"body": "Heizung ausgefallen, Musterstr 1 20095 Hamburg 040123", "sender_email": "k@x.test", "sender_name": "Kai"}
+    )
+    inq_id = r.json()["id"]
+    drafts = (await client.get("/api/drafts", headers=h)).json()
+    d = next(x for x in drafts if x["inquiry_id"] == inq_id)
+    assert len(d["proposed_slots"]) >= 1
+    await client.post(f"/api/drafts/{d['id']}/approve", headers=h, json={})
+    mail = next(m for m in ConsoleProvider.sent if m["to"] == "k@x.test")
+    tokens = re.findall(r"/termin\?token=([A-Za-z0-9_\-]+)", mail["text"])
+    assert len(tokens) == len(d["proposed_slots"])
+    assert "KI-Assistenten" not in mail["text"]  # manuell freigegeben → kein Auto-Hinweis
+    assert (await client.get(f"/api/public/appointments/confirm?token={tokens[0]}")).json()["status"] == "proposed"
+    assert (await client.post("/api/public/appointments/confirm", json={"token": "falsch"})).status_code == 400
+    r = await client.post("/api/public/appointments/confirm", json={"token": tokens[0]})
+    assert r.status_code == 200 and r.json()["status"] == "confirmed"
+    inq = await db.get(Inquiry, inq_id)
+    await db.refresh(inq)
+    assert inq.status == "scheduled"
+    appts = (await db.execute(select(Appointment).where(Appointment.inquiry_id == inq_id))).scalars().all()
+    assert sum(1 for a in appts if a.status == "confirmed") == 1 and all(a.status != "proposed" for a in appts)
+    assert any(m["to"] == "chef@beispiel-elektro.test" and "Termin bestätigt" in m["subject"] for m in ConsoleProvider.sent)
+    # Link ist einmalig
+    assert (await client.post("/api/public/appointments/confirm", json={"token": tokens[0]})).status_code == 400

@@ -21,7 +21,6 @@ Stand nach Abschluss des Kernprodukts. Sortiert nach Dringlichkeit für den Prod
 - **Datenschutzfreundliches Analytics**: nicht eingebunden. Empfehlung: selbst gehostetes Plausible/Umami ohne Cookies; dann Datenschutzerklärung ergänzen. Konversionsdaten liegen bisher nur in der eigenen DB (Registrierungen, Abos, Leads je Quelle).
 - **Content-Metriken**: `content_pieces.metrics.views` wird beim Aufruf gezählt; keine Suchmaschinen-Rankingdaten (Search-Console-Anbindung wäre der nächste Schritt).
 - **Mehrsprachigkeit**: nur Deutsch.
-- **Terminbestätigung durch den Endkunden per Link** (Token ist angelegt, Endpunkt/Seite fehlen). Aktuell bestätigt der Betrieb im Dashboard.
 - **Nachfass-Entwürfe an Endkunden** werden angelegt, aber nicht automatisch versendet (Freigabe nötig) — gewollt.
 - **Code-Änderungen durch den Produkt-Agenten**: Der Agent triagiert, führt Tests aus und erstellt Vorschläge/Freigaben; er schreibt keinen Code in Branches. Das wäre der nächste Ausbauschritt (mit Sandbox und PR-Workflow) und sollte erst nach stabiler Produktion kommen.
 - **Keyword-Recherche** nutzt eine Seed-Liste statt echter Suchvolumendaten (dafür wäre eine kostenpflichtige API nötig).
@@ -47,6 +46,6 @@ Stand nach Abschluss des Kernprodukts. Sortiert nach Dringlichkeit für den Prod
 
 ## Qualitätsstand
 
-- 59 Backend-Tests grün (Postgres), Lint sauber.
-- Frontend-Build und ESLint sauber; Browser-Durchlauf (Registrierung → Entwurf → Versand → Abo-Seite → Integrationen) erfolgreich.
+- 61 Backend-Tests grün (Postgres), Lint sauber.
+- Frontend-Build und ESLint sauber; Browser-Durchlauf (Registrierung → Entwurf → Versand → Abo-Seite → Integrationen) erfolgreich. Terminbestätigung per Kundenlink (`/termin?token=…`) ist umgesetzt und getestet.
 - Nicht getestet: echte Anthropic/OpenAI-Aufrufe (kein Schlüssel in der Entwicklungsumgebung), echter Stripe-Checkout (nur Webhook-Verarbeitung mit signierten Test-Events), echte Google-OAuth-Runde, Docker-Build (Docker-Daemon in der Entwicklungsumgebung nicht verfügbar; Dockerfiles ungetestet).

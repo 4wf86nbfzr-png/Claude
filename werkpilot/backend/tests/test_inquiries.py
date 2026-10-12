@@ -131,3 +131,32 @@ async def test_auto_reply_requires_business_and_clean_flags(client, db):
     # Mock-Anbieter setzt immer ein Warn-Flag → kein Auto-Versand, Entwurf bleibt pending
     r = await client.post("/api/inquiries", headers=h, json={"body": "Heizung ausgefallen, Musterstr 1 20095 Hamburg 040123", "sender_email": "a@x.test"})
     assert r.json()["status"] == "needs_review"
+
+
+async def test_auto_reply_contains_ai_notice(client, db):
+    from app.services import llm as llm_mod
+    from app.services.llm import MockProvider
+
+    h, tid = await register_and_login(client)
+    await activate_plan(db, tid, "business")
+    await client.patch("/api/tenant", headers=h, json={"settings": {"auto_reply_enabled": True, "auto_reply_min_confidence": 0.5}})
+
+    class CleanMock(MockProvider):  # wie ein echter Anbieter benannt → kein Mock-Flag
+        name = "anthropic"
+        model = "mock"
+
+    from app.services import inquiries as inq_mod
+
+    original = llm_mod.get_provider
+    llm_mod.get_provider = lambda: CleanMock()  # type: ignore[assignment]
+    inq_mod.get_provider = llm_mod.get_provider  # type: ignore[assignment]
+    try:
+        r = await client.post(
+            "/api/inquiries", headers=h, json={"body": "Wartung der Heizung gewünscht, Musterstr 1 20095 Hamburg 040123, Foto anbei", "sender_email": "auto@x.test"}
+        )
+    finally:
+        llm_mod.get_provider = original  # type: ignore[assignment]
+        inq_mod.get_provider = original  # type: ignore[assignment]
+    assert r.json()["status"] == "waiting_customer", r.json()
+    mail = next(m for m in ConsoleProvider.sent if m["to"] == "auto@x.test")
+    assert "KI-Assistenten" in mail["text"]

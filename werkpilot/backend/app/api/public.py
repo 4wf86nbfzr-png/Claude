@@ -58,7 +58,10 @@ async def website_form(tenant_id: str, request: Request, x_form_secret: str | No
     if not x_form_secret or not constant_time_equals(hash_token(x_form_secret), secret_hash):
         raise HTTPException(401, "Ungültiges Formular-Secret.")
     ctype = request.headers.get("content-type", "")
-    data = await request.json() if "json" in ctype else dict(await request.form())
+    try:
+        data = await request.json() if "json" in ctype else dict(await request.form())
+    except Exception:  # noqa: BLE001
+        raise HTTPException(422, "Ungültiger Anfrageinhalt.") from None
     if data.get("website"):  # Honeypot
         return {"message": "Danke."}
     body = str(data.get("message") or data.get("nachricht") or "").strip()
@@ -226,22 +229,25 @@ async def demo_classify(data: DemoIn, request: Request, db: AsyncSession = Depen
     """Zeigt, wie eine Anfrage klassifiziert und beantwortet würde. Hartes Limit pro IP, keine Speicherung."""
     await _limit(request, "demo", 5)
     from app.services import ai_tasks  # noqa: F401
+    from app.services.ai_tasks import Classification, ReplyDraft
+    from app.services.llm import LLMError, MockProvider, run_structured, wrap_untrusted
 
     # Demo nutzt bewusst den Mock-Anbieter (regelbasiert), damit keine API-Kosten durch Besucher entstehen.
-    from app.services import llm as llm_mod
-    from app.services.ai_tasks import Classification, ReplyDraft
-    from app.services.llm import LLMError, get_provider, run_structured, wrap_untrusted
 
-    provider = llm_mod.MockProvider()
-    original = llm_mod.get_provider
-    llm_mod.get_provider = lambda: provider  # type: ignore[assignment]
+    provider = MockProvider()
+    trade_label = {"shk": "Sanitär- und Heizungsbetrieb", "elektro": "Elektrobetrieb", "maler": "Malerbetrieb", "dach": "Dachdeckerbetrieb"}.get(
+        data.trade, "Handwerksbetrieb"
+    )
+    ctx = f"Betrieb: Muster {trade_label}\nGewerk: {trade_label}\nOrt: -\n"
     try:
-        trade_label = {"shk": "Sanitär- und Heizungsbetrieb", "elektro": "Elektrobetrieb", "maler": "Malerbetrieb", "dach": "Dachdeckerbetrieb"}.get(
-            data.trade, "Handwerksbetrieb"
-        )
-        ctx = f"Betrieb: Muster {trade_label}\nGewerk: {trade_label}\nOrt: -\n"
         cls = await run_structured(
-            db, task="classify_inquiry", schema=Classification, instructions="Klassifiziere.", data=ctx + "Anfrage:\n" + wrap_untrusted(data.text), tenant_id=None
+            db,
+            task="classify_inquiry",
+            schema=Classification,
+            instructions="Klassifiziere.",
+            data=ctx + "Anfrage:\n" + wrap_untrusted(data.text),
+            tenant_id=None,
+            provider=provider,
         )
         reply = await run_structured(
             db,
@@ -258,14 +264,41 @@ async def demo_classify(data: DemoIn, request: Request, db: AsyncSession = Depen
             + "\n\nAnfrage:\n"
             + wrap_untrusted(data.text),
             tenant_id=None,
+            provider=provider,
         )
     except LLMError as e:
         raise HTTPException(503, str(e)) from e
-    finally:
-        llm_mod.get_provider = original  # type: ignore[assignment]
-        _ = get_provider
     await db.commit()
     return {"classification": cls.model_dump(), "draft": reply.model_dump(), "note": "Demo-Ergebnis regelbasiert. Mit aktivem KI-Anbieter sind Entwürfe individueller."}
+
+
+# --- Terminbestätigung durch den Endkunden (Einmal-Link aus der Antwort-Mail) -----------------
+
+
+@router.get("/appointments/confirm")
+async def appointment_preview(token: str, request: Request, db: AsyncSession = Depends(get_db)):
+    await _limit(request, "confirm", 20)
+    from app.core.security import hash_token as _hash
+    from app.models.crm import Appointment
+
+    appt = (await db.execute(select(Appointment).where(Appointment.confirm_token_hash == _hash(token)))).scalar_one_or_none()
+    if not appt:
+        raise HTTPException(404, "Link ungültig oder bereits verwendet.")
+    tenant = await db.get(Tenant, appt.tenant_id)
+    return {"starts_at": appt.starts_at.isoformat(), "ends_at": appt.ends_at.isoformat(), "status": appt.status, "business": tenant.name if tenant else ""}
+
+
+@router.post("/appointments/confirm")
+async def appointment_confirm(payload: dict, request: Request, db: AsyncSession = Depends(get_db)):
+    await _limit(request, "confirm", 20)
+    from app.services.inquiries import confirm_appointment_by_token
+
+    try:
+        appt = await confirm_appointment_by_token(db, str(payload.get("token", "")))
+    except ValueError as e:
+        raise HTTPException(400, str(e)) from e
+    await db.commit()
+    return {"status": appt.status, "starts_at": appt.starts_at.isoformat()}
 
 
 # --- Veröffentlichte Ratgeber-Inhalte ----------------------------------------------------

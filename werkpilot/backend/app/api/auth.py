@@ -103,15 +103,14 @@ async def login(data: LoginIn, request: Request, response: Response, db: AsyncSe
 
 @router.post("/refresh", response_model=TokenOut)
 async def refresh(request: Request, response: Response, db: AsyncSession = Depends(get_db)):
-    token = request.cookies.get("wp_refresh") or (await request.body()).decode() or ""
-    body = {}
+    body: dict = {}
     try:
         body = await request.json()
     except Exception:  # noqa: BLE001
-        pass
-    token = request.cookies.get("wp_refresh") or body.get("refresh_token", "")
+        body = {}
+    token = request.cookies.get("wp_refresh") or str(body.get("refresh_token") or "")
     user, new_refresh = await auth_service.rotate_refresh(db, token)
-    tenant_id = (body.get("tenant_id") if isinstance(body, dict) else None) or await _first_tenant(db, user)
+    tenant_id = str(body.get("tenant_id") or "") or await _first_tenant(db, user)
     if tenant_id:
         m = (await db.execute(select(Membership).where(Membership.user_id == user.id, Membership.tenant_id == tenant_id))).scalar_one_or_none()
         if not m:
