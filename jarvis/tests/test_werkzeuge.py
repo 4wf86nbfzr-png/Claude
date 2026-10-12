@@ -127,3 +127,47 @@ def test_alle_echten_werkzeuge_haben_beschreibung_und_schema(services):
         for feld, spezifikation in tool.parameters.get("properties", {}).items():
             assert "description" in spezifikation, f"{name}.{feld}"
             assert "pflicht" not in spezifikation, f"{name}.{feld}"
+
+
+# ------------------------------------------------- Vorauswahl fuer kleine Modelle
+def test_ohne_grenze_kommen_alle_werkzeuge(services):
+    alle = services.toolkit.specs()
+    assert services.toolkit.specs_passend("irgendwas", 0) == alle
+
+
+def test_vorauswahl_haelt_die_grenze_ein(services):
+    gewaehlt = services.toolkit.specs_passend("Erinnere mich morgen an Alex", 12)
+    assert len(gewaehlt) == 12
+
+
+def test_vorauswahl_nimmt_das_passende_werkzeug_mit(services):
+    namen = [s.name for s in services.toolkit.specs_passend(
+        "Was war heute in den Nachrichten?", 12)]
+    assert "nachrichtenlage" in namen
+
+
+def test_vorauswahl_behaelt_die_grundausstattung(services):
+    namen = [s.name for s in services.toolkit.specs_passend("blablubb", 8)]
+    for grund in ("aufgabe_anlegen", "erinnerung_anlegen", "gedaechtnis_merken"):
+        assert grund in namen
+
+
+def test_bevorzugte_werkzeuge_bleiben_drin(services):
+    namen = [s.name for s in services.toolkit.specs_passend(
+        "blablubb", 8, bevorzugt=["systemstatus"])]
+    assert "systemstatus" in namen
+
+
+def test_werkzeuggrenze_haengt_am_modell(settings):
+    settings.ai_model = "llama3.2:3b"
+    assert settings.werkzeuggrenze == 12
+    settings.ai_model = "claude-haiku-5-5"
+    assert settings.werkzeuggrenze == 0
+    settings.ai_max_tools = 5          # ausdrueckliche Einstellung schlaegt alles
+    assert settings.werkzeuggrenze == 5
+
+
+def test_ollama_laesst_das_modell_geladen():
+    from jarvis.ai.ollama import OllamaProvider
+    anbieter = OllamaProvider("llama3.2:3b", keep_alive="30m", context=2048)
+    assert anbieter.keep_alive == "30m" and anbieter.context == 2048

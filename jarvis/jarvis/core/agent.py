@@ -72,7 +72,7 @@ class Agent:
             services.memory.add_message(chat_id, "user", text, channel=channel)
 
         messages = self._build_context(chat_id, text, channel=channel)
-        tools = services.toolkit.specs()
+        tools = services.toolkit.specs_passend(text, services.settings.werkzeuggrenze)
         used_tools: list[str] = []
         erfolgreiche: set[str] = set()
         pending_confirmation = ""
@@ -81,7 +81,11 @@ class Agent:
 
         for round_number in range(1, self.settings.ai_max_tool_rounds + 1):
             try:
-                reply = await services.models.chat(messages, tools=tools)
+                # Gesprochene Antworten duerfen kurz sein -- das spart Zeit,
+                # und drei Saetze sind am Telefon ohnehin das Maximum.
+                grenze = (services.settings.ai_max_tokens_stimme
+                          if channel in {"orb", "telefon"} else None)
+                reply = await services.models.chat(messages, tools=tools, max_tokens=grenze)
             except ModelUnavailable as exc:
                 log.error("Kein Modell erreichbar: %s", exc.message)
                 if last_tool_text:
@@ -331,7 +335,10 @@ class Agent:
         system = build_system_prompt(
             tz=self.settings.tz,
             owner=services.store.get("besitzer_name", "dir") or "dir",
-            tool_lines=services.toolkit.descriptions(),
+            # Bei nativen Werkzeugaufrufen stehen die Beschreibungen schon im
+            # Aufruf selbst -- ein zweites Mal im Systemtext kostet nur Zeit.
+            tool_lines=(None if services.models.active.supports_native_tools
+                        else services.toolkit.descriptions()),
             memory_lines=[entry.line() for entry in services.memory.important_memory(10)],
             state_lines=state_lines, channel=channel,
             native_tools=services.models.active.supports_native_tools,

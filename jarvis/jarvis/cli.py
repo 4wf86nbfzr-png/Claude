@@ -13,6 +13,7 @@ import contextlib
 import json
 import logging
 import signal
+import shutil
 import sys
 from pathlib import Path
 
@@ -376,6 +377,139 @@ def _export(settings: Settings, target: str | None) -> int:
     return 0
 
 
+def env_pfad() -> Path:
+    return PROJECT_ROOT / ".env"
+
+
+def env_setzen(aenderungen: dict[str, str]) -> Path:
+    """Traegt Werte in die .env ein -- vorhandene Zeilen werden ersetzt.
+
+    Die Datei bleibt sonst, wie sie ist: Kommentare, Reihenfolge und alles
+    andere ueberlebt. Geschrieben wird mit Rechten 600, damit Schluessel
+    nicht fuer andere Nutzer lesbar sind.
+    """
+    pfad = env_pfad()
+    if not pfad.exists():
+        vorlage = PROJECT_ROOT / ".env.example"
+        pfad.write_text(vorlage.read_text(encoding="utf-8") if vorlage.exists() else "",
+                        encoding="utf-8")
+    zeilen = pfad.read_text(encoding="utf-8").splitlines()
+    offen = dict(aenderungen)
+    heraus: list[str] = []
+    for zeile in zeilen:
+        name = zeile.split("=", 1)[0].strip() if "=" in zeile else ""
+        if name in offen:
+            heraus.append(f"{name}={offen.pop(name)}")
+        else:
+            heraus.append(zeile)
+    for name, wert in offen.items():
+        heraus.append(f"{name}={wert}")
+    pfad.write_text("\n".join(heraus) + "\n", encoding="utf-8")
+    pfad.chmod(0o600)
+    return pfad
+
+
+def _token(settings: Settings) -> int:
+    """Erzeugt ein API-Token und traegt es in die .env ein."""
+    import secrets
+
+    vorhanden = settings.http_api_token
+    if vorhanden:
+        print(f"Es gibt schon ein Token ({vorhanden[:6]}…{vorhanden[-4:]}).")
+        if input("Neues erzeugen? Das alte wird ungueltig. [j/N] ").strip().lower() not in {"j", "ja"}:
+            print("\nUnveraendert. Im Dashboard eintragen oder ueber './start.sh orb' starten.")
+            return 0
+    neu = secrets.token_urlsafe(32)
+    pfad = env_setzen({"HTTP_API_TOKEN": neu})
+    print(f"\nNeues Token in {pfad} eingetragen.")
+    print("Es steht absichtlich nur in der Datei -- './start.sh orb' reicht es an")
+    print("den Browser weiter, du musst es nirgends abtippen.")
+    print("\nJarvis neu starten, damit es gilt:  ./start.sh orb")
+    return 0
+
+
+async def _stimme(settings: Settings, nur_zeigen: bool) -> int:
+    """ElevenLabs einrichten: Schluessel, Stimme aussuchen, Probe hoeren."""
+    import subprocess
+
+    from .adapters.voice.elevenlabs import ElevenLabsStimme
+    from .core.memory import SettingsStore
+    from .db.database import Database
+    from .errors import JarvisError
+
+    schluessel = settings.elevenlabs_api_key
+    if not schluessel and not nur_zeigen:
+        print("Fuer eine echte Stimme braucht Jarvis einen ElevenLabs-Schluessel.")
+        print("  1. Konto auf https://elevenlabs.io")
+        print("  2. Oben rechts aufs Profil -> API Keys -> Schluessel erzeugen")
+        print("  3. Hier einfuegen (er landet nur in der .env, nirgends sonst)\n")
+        schluessel = input("ELEVENLABS_API_KEY: ").strip()
+        if not schluessel:
+            print("\nNichts eingetragen. Jarvis spricht weiter mit der Systemstimme.")
+            return 1
+        env_setzen({"ELEVENLABS_API_KEY": schluessel})
+        print("In die .env eingetragen.\n")
+    if not schluessel:
+        print("Kein ELEVENLABS_API_KEY gesetzt.")
+        return 1
+
+    datenbank = Database(settings.db_path)
+    speicher = SettingsStore(datenbank)
+    gewaehlt = speicher.get("orb_stimme") or settings.elevenlabs_voice_id or ""
+    stimme = ElevenLabsStimme(
+        schluessel, gewaehlt, modell=settings.elevenlabs_model,
+        api_base=settings.elevenlabs_api_base, audio_dir=settings.data_dir / "audio",
+    )
+    try:
+        stimmen = await stimme.stimmen()
+    except JarvisError as fehler:
+        print(f"\nElevenLabs antwortet nicht: {fehler.message}")
+        datenbank.close()
+        return 1
+
+    print(f"\n{len(stimmen)} Stimmen in deinem Konto:\n")
+    for nummer, eintrag in enumerate(stimmen, start=1):
+        marke = " (aktuell)" if eintrag["id"] == gewaehlt else ""
+        beschreibung = f" -- {eintrag['beschreibung']}" if eintrag["beschreibung"] else ""
+        print(f"  {nummer:2}. {eintrag['name']}{beschreibung}{marke}")
+
+    if nur_zeigen:
+        datenbank.close()
+        return 0
+
+    print("\nFuer Jarvis passt eine ruhige, tiefe maennliche Stimme.")
+    wahl = input("Nummer (leer = unveraendert): ").strip()
+    if wahl.isdigit() and 1 <= int(wahl) <= len(stimmen):
+        ausgesucht = stimmen[int(wahl) - 1]
+        speicher.set("orb_stimme", ausgesucht["id"])
+        stimme.voice_id = ausgesucht["id"]
+        print(f"Gewaehlt: {ausgesucht['name']}")
+    elif not gewaehlt:
+        print("Keine Stimme gewaehlt -- dann bleibt es bei der Systemstimme.")
+        datenbank.close()
+        return 1
+
+    probe = "Moin, Master. Ich bin bereit."
+    print(f"\nProbe: „{probe}“ …")
+    datei = await stimme.datei(probe)
+    await stimme_schliessen(stimme)
+    datenbank.close()
+    if datei is None:
+        print("Die Probe hat nicht geklappt -- Schluessel und Guthaben pruefen.")
+        return 1
+    print(f"Datei: {datei}")
+    if shutil.which("afplay"):
+        subprocess.run(["afplay", str(datei)], check=False)
+    print("\nFertig. Jarvis neu starten:  ./start.sh orb")
+    return 0
+
+
+async def stimme_schliessen(stimme) -> None:
+    schliessen = getattr(stimme, "close", None)
+    if schliessen is not None:
+        await schliessen()
+
+
 def _setup(settings: Settings) -> int:
     """Legt eine ``.env`` aus der Vorlage an und fragt das Noetigste ab."""
     env_path = Path(__file__).resolve().parent.parent / ".env"
@@ -421,6 +555,9 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("run", help="Assistenten starten (Standard)")
     sub.add_parser("orb", help="Assistent starten und die Sprachoberflaeche oeffnen")
     sub.add_parser("doctor", help="Zustand aller Bausteine pruefen")
+    sub.add_parser("token", help="API-Token fuers Dashboard erzeugen und eintragen")
+    stimme = sub.add_parser("stimme", help="ElevenLabs einrichten und Stimme aussuchen")
+    stimme.add_argument("--zeigen", action="store_true", help="nur die Stimmen auflisten")
     sub.add_parser("selftest", help="Ganze Kette pruefen (eigene Datenbank, keine Anrufe)")
     sub.add_parser("setup", help=".env anlegen und Telegram-Daten abfragen")
     sub.add_parser("migrate", help="Datenbank auf den neuesten Stand bringen")
@@ -504,6 +641,10 @@ def main(argv: list[str] | None = None) -> int:
         if command == "orb":
             print(BANNER)
             return asyncio.run(_run(settings, orb_oeffnen=True))
+        if command == "token":
+            return _token(settings)
+        if command == "stimme":
+            return asyncio.run(_stimme(settings, args.zeigen))
         if command == "doctor":
             return asyncio.run(_doctor(settings))
         if command == "selftest":

@@ -196,3 +196,39 @@ def test_tagesueberblick_wird_ohne_zeitangabe_nicht_eingeplant(monkeypatch):
         assert "wachdienst" in arten
     finally:
         asyncio.run(dienste.stop())
+
+
+# ------------------------------------------------------- .env schreiben
+def test_env_setzen_ersetzt_und_ergaenzt(tmp_path, monkeypatch):
+    """Vorhandene Zeilen werden ersetzt, Kommentare bleiben stehen."""
+    import jarvis.cli as cli
+
+    monkeypatch.setattr(cli, "PROJECT_ROOT", tmp_path)
+    (tmp_path / ".env").write_text(
+        "# Kommentar\nHTTP_API_TOKEN=\nTELEGRAM_BOT_TOKEN=abc\n", encoding="utf-8"
+    )
+    cli.env_setzen({"HTTP_API_TOKEN": "geheim", "ELEVENLABS_API_KEY": "sk_test"})
+    inhalt = (tmp_path / ".env").read_text(encoding="utf-8")
+    assert "# Kommentar" in inhalt
+    assert "HTTP_API_TOKEN=geheim" in inhalt
+    assert "TELEGRAM_BOT_TOKEN=abc" in inhalt
+    assert "ELEVENLABS_API_KEY=sk_test" in inhalt
+
+
+def test_env_bekommt_enge_rechte(tmp_path, monkeypatch):
+    """Schluessel duerfen nicht fuer andere Nutzer lesbar sein."""
+    import jarvis.cli as cli
+
+    monkeypatch.setattr(cli, "PROJECT_ROOT", tmp_path)
+    (tmp_path / ".env").write_text("", encoding="utf-8")
+    pfad = cli.env_setzen({"ELEVENLABS_API_KEY": "sk_test"})
+    assert oct(pfad.stat().st_mode & 0o777) == "0o600"
+
+
+def test_env_wird_aus_der_vorlage_angelegt(tmp_path, monkeypatch):
+    import jarvis.cli as cli
+
+    monkeypatch.setattr(cli, "PROJECT_ROOT", tmp_path)
+    (tmp_path / ".env.example").write_text("HTTP_API_TOKEN=\n", encoding="utf-8")
+    cli.env_setzen({"HTTP_API_TOKEN": "x"})
+    assert "HTTP_API_TOKEN=x" in (tmp_path / ".env").read_text(encoding="utf-8")

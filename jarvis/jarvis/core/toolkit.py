@@ -17,8 +17,9 @@ import asyncio
 import inspect
 import json
 import logging
+import re
 import time
-from collections.abc import Awaitable, Callable
+from collections.abc import Awaitable, Callable, Iterable
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -141,6 +142,43 @@ class Toolkit:
             tool.spec() for tool in self._tools.values()
             if (include_internal or not tool.internal) and tool.kann_gerade()
         ]
+
+    #: Diese sind immer dabei -- ohne sie fehlt dem Modell das Handwerkszeug
+    #: fuer die haeufigsten Saetze ("leg an", "erinnere mich", "was steht an").
+    GRUNDWERKZEUGE = (
+        "aufgabe_anlegen", "aufgaben_liste", "erinnerung_anlegen",
+        "termine_anzeigen", "gedaechtnis_merken", "gedaechtnis_suchen",
+    )
+
+    def specs_passend(
+        self, text: str, grenze: int, *, bevorzugt: Iterable[str] = (),
+    ) -> list[ToolSpec]:
+        """Vorauswahl fuer kleine Modelle.
+
+        Statt aller Werkzeuge nur die, die zum Satz passen -- plus die
+        Grundausstattung und das, was in dieser Runde schon benutzt wurde.
+        Eine lange Liste macht kleine Modelle nicht nur langsam, sondern
+        auch unentschlossen.
+        """
+        alle = [t for t in self._tools.values() if not t.internal and t.kann_gerade()]
+        if grenze <= 0 or len(alle) <= grenze:
+            return [t.spec() for t in alle]
+
+        woerter = {w for w in re.findall(r"\w{4,}", (text or "").lower())}
+        gesetzt = set(self.GRUNDWERKZEUGE) | set(bevorzugt)
+
+        def punkte(tool: "Tool") -> int:
+            if tool.name in gesetzt:
+                return 1000
+            stoff = f"{tool.name} {tool.description}".lower()
+            treffer = sum(1 for wort in woerter if wort in stoff)
+            # Der Werkzeugname zaehlt doppelt: "erinnere" trifft
+            # "erinnerung_anlegen" genauer als eine Beschreibung.
+            treffer += sum(2 for wort in woerter if wort[:5] in tool.name.lower())
+            return treffer
+
+        sortiert = sorted(alle, key=lambda t: (-punkte(t), t.name))
+        return [t.spec() for t in sortiert[:grenze]]
 
     def descriptions(self, *, include_internal: bool = False) -> list[str]:
         return [

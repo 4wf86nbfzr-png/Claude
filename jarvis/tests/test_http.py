@@ -233,3 +233,16 @@ def test_nachrichtenliste_und_bericht_ueber_die_api(dienst_mit_bruecke):
 
     status, bericht = hole("/api/bericht")
     assert status == 200 and "text" in bericht
+
+
+def test_kurzer_status_fragt_keine_dienste(dienst, monkeypatch):
+    """Die laufende Anzeige darf nicht jede Minute alle Dienste anpingen."""
+    _, services = dienst
+
+    async def darf_nicht_laufen():
+        raise AssertionError("health() wurde aufgerufen")
+
+    monkeypatch.setattr(services, "health", darf_nicht_laufen)
+    status, daten = hole("/api/status?kurz=1")
+    assert status == 200
+    assert "modell" in daten and "komponenten" not in daten

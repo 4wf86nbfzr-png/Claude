@@ -42,18 +42,38 @@ Nachhaken geht jederzeit: „Erklär mir die erste Meldung genauer."
 
 ---
 
-## Die Stimme
+## Die Stimme einrichten
+
+Ein Befehl macht alles: Schlüssel eintragen, Stimmen auflisten, aussuchen,
+Probe vorspielen.
+
+```bash
+./start.sh stimme
+```
+
+Er fragt nach dem **ElevenLabs-Schlüssel** (Konto auf <https://elevenlabs.io>,
+oben rechts aufs Profil → *API Keys* → erzeugen), trägt ihn in die `.env` ein,
+zeigt deine Stimmen nummeriert an und spielt nach der Wahl „Moin, Master. Ich
+bin bereit." ab. Danach `./start.sh orb` neu starten.
+
+Nur ansehen, was es gibt: `./start.sh stimme --zeigen`.
+
+Ändern geht auch später im Dashboard unter **Stimme** — die Auswahl liegt in
+der Datenbank, nicht in der `.env`.
 
 Ohne Schlüssel spricht die Mac-Stimme. Das läuft, klingt aber nach Navi.
-Für die richtige Stimme:
 
-1. Konto bei <https://elevenlabs.io>.
-2. Oben rechts aufs Profil → **API Keys** → Schlüssel erzeugen.
-3. In die `.env`: `ELEVENLABS_API_KEY=sk_...`
-4. `./start.sh orb` neu starten, oben rechts auf **Stimme**.
-5. Im Dialog die Stimme aussuchen, **Probe hören**, **Übernehmen**.
+## Das API-Token
 
-Die Auswahl liegt in der Datenbank — du musst dafür nie wieder in die `.env`.
+Ohne Token nimmt die Schnittstelle nur Zugriffe vom eigenen Rechner an — das
+reicht, solange nur du am Mac sitzt. Sauberer ist ein Token:
+
+```bash
+./start.sh token
+```
+
+Es wird erzeugt, in die `.env` geschrieben und beim Start an den Browser
+durchgereicht. Abtippen musst du nichts.
 
 **Was menschlich klingen lässt:**
 
@@ -79,6 +99,30 @@ Modell `eleven_multilingual_v2` klingt am besten, `eleven_turbo_v2_5`
 antwortet schneller. Umstellbar über `ELEVENLABS_MODEL`.
 
 ---
+
+## Wenn er langsam ist
+
+Das Denken kostet die Zeit, nicht die Oberfläche. Oben im HUD steht, welches
+Modell gerade arbeitet.
+
+* **`llama3.2:3b` auf einem Intel-Mac** rechnet auf der CPU. Zehn bis dreißig
+  Sekunden pro Antwort sind da normal. Jarvis hält das Modell jetzt geladen
+  (`OLLAMA_KEEP_ALIVE=30m`) und zeigt kleinen Modellen nur die zwölf
+  Werkzeuge, die zum Satz passen — das spart spürbar.
+* **Deutlich schneller und besser** wird es mit einem Cloud-Modell. In die
+  `.env`:
+
+  ```
+  AI_PROVIDER=anthropic
+  ANTHROPIC_API_KEY=sk-ant-...
+  AI_MODEL=claude-haiku-5-5
+  ```
+
+  Antwortzeit dann ein bis drei Sekunden statt zwanzig. Kostet nach
+  Verbrauch; für ein Gespräch am Tag sind das Cent-Beträge.
+* **Dazwischen:** `AI_PROVIDER=ollama` behalten, aber ein größeres Modell
+  (`ollama pull llama3.1:8b`) — besser in der Qualität, auf einem Intel-Mac
+  aber langsamer, nicht schneller.
 
 ## Das Schnipsen
 
@@ -139,7 +183,7 @@ Das Bild geht einmal hin, wird beschrieben und sofort verworfen.
 
 | Was du siehst | Was los ist |
 |---|---|
-| „Dieser Browser kann keine Spracheingabe" | Safari oder Firefox. Nimm Chrome. |
+| „Dieser Browser kann keine Spracheingabe" | Safari oder Firefox. **Nimm Chrome** — Safari zeigt das HUD zwar, hört aber unzuverlässig zu. |
 | „Mikrofon nicht erlaubt" | Schloss links in der Adressleiste → Mikrofon → Zulassen. |
 | „Kein Mikrofon gefunden" | Falsches Eingabegerät in den Systemeinstellungen → Ton. |
 | Ring reagiert, aber nichts zu hören | Lautstärke; oder einmal irgendwo auf die Seite klicken (Chrome blockt Ton vor der ersten Interaktion). |

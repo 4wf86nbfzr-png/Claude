@@ -23,7 +23,10 @@ log = logging.getLogger(__name__)
 def build_provider(kind: str, model: str, settings: Settings) -> AIProvider:
     kind = (kind or "").lower()
     if kind == "ollama":
-        return OllamaProvider(model or settings.ai_model, settings.ollama_url, settings.ai_timeout)
+        return OllamaProvider(
+            model or settings.ai_model, settings.ollama_url, settings.ai_timeout,
+            keep_alive=settings.ollama_keep_alive, context=settings.ollama_context,
+        )
     if kind in {"openai", "openai-compat", "groq", "lmstudio", "vllm"}:
         return OpenAICompatProvider(
             model or settings.ai_model, settings.openai_api_key,

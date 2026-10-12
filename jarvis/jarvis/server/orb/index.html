@@ -949,7 +949,7 @@ async function alleDatenLaden() {
   const diode = document.getElementById("diode");
   const modellfeld = document.getElementById("modell");
   try {
-    const stand = await api("/api/status");
+    const stand = await api("/api/status?kurz=1");
     const modell = stand.modell || {};
     diode.className = "diode " + (modell.ersatzbetrieb ? "weg" : "an");
     modellfeld.textContent = "";

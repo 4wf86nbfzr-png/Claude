@@ -131,6 +131,17 @@ class Settings:
     anthropic_effort: str = ""
     anthropic_api_key: str = ""
     ai_timeout: float = 120.0
+    #: Wie viele Werkzeuge das Modell hoechstens zu sehen bekommt.
+    #: 0 = alle. Kleine Modelle werden von 35 Beschreibungen langsam und wirr;
+    #: fuer sie wird unten automatisch begrenzt.
+    ai_max_tools: int = 0
+    #: Wie lange Ollama das Modell geladen laesst. Ohne das wird es zwischen
+    #: zwei Saetzen aus dem Speicher geworfen und jedes Mal neu geladen.
+    ollama_keep_alive: str = "30m"
+    #: Kontextfenster fuer Ollama. Kleiner = schnellere Verarbeitung.
+    ollama_context: int = 4096
+    #: Laenge gesprochener Antworten (Orb, Telefon). Kurz ist hier besser.
+    ai_max_tokens_stimme: int = 300
     ai_max_retries: int = 2
     ai_temperature: float = 0.6
     ai_context_messages: int = 16
@@ -282,6 +293,10 @@ class Settings:
             anthropic_effort=_str("ANTHROPIC_EFFORT", "", allow_empty=True),
             anthropic_api_key=_str("ANTHROPIC_API_KEY"),
             ai_timeout=_float("AI_TIMEOUT", 120.0),
+            ai_max_tools=_int("AI_MAX_TOOLS", 0),
+            ollama_keep_alive=_str("OLLAMA_KEEP_ALIVE", "30m"),
+            ollama_context=_int("OLLAMA_CONTEXT", 4096),
+            ai_max_tokens_stimme=_int("AI_MAX_TOKENS_STIMME", 300),
             ai_max_retries=_int("AI_MAX_RETRIES", 2),
             ai_temperature=_float("AI_TEMPERATURE", 0.6),
             ai_context_messages=_int("AI_CONTEXT_MESSAGES", 16),
@@ -405,6 +420,23 @@ class Settings:
     @property
     def secrets_dir(self) -> Path:
         return self.data_dir / "secrets"
+
+    #: Modelle, die an langen Werkzeuglisten ersticken.
+    KLEINE_MODELLE = (":1b", ":2b", ":3b", "-1b", "-3b", "mini", "small", "tiny")
+
+    @property
+    def werkzeuggrenze(self) -> int:
+        """Wie viele Werkzeuge das Modell sehen soll.
+
+        Ein 3-B-Modell auf einem Intel-Mac braucht fuer 35 Werkzeug-
+        beschreibungen mehr Zeit als fuer die eigentliche Antwort -- und
+        waehlt dann oft das falsche. Darum fuer kleine Modelle eine
+        Vorauswahl, sofern nichts anderes eingestellt ist.
+        """
+        if self.ai_max_tools:
+            return self.ai_max_tools
+        name = self.ai_model.lower()
+        return 12 if any(marke in name for marke in self.KLEINE_MODELLE) else 0
 
     def ensure_dirs(self) -> None:
         for path in (self.data_dir, self.backup_dir, self.secrets_dir, self.data_dir / "logs"):

@@ -1,5 +1,27 @@
 # Änderungen
 
+## 1.3.1 — Einrichtung per Befehl, spürbar schneller
+
+* **`./start.sh stimme`** — ElevenLabs in einem Durchgang: Schlüssel eintragen,
+  Stimmen des Kontos auflisten, aussuchen, Probe abspielen (`afplay`).
+  `--zeigen` listet nur.
+* **`./start.sh token`** — erzeugt das API-Token und trägt es in die `.env`
+  ein; der Start reicht es an den Browser durch.
+* **Tempo** — drei Bremsen gelöst:
+  * Werkzeugbeschreibungen gingen bei nativen Werkzeugaufrufen doppelt ans
+    Modell (einmal als `tools`, einmal im Systemtext). Jetzt nur noch einmal.
+  * Kleine Modelle (3B und darunter) bekommen nur die zwölf Werkzeuge, die
+    zum Satz passen, statt aller fünfunddreißig — einstellbar über
+    `AI_MAX_TOOLS`. Lange Listen machen sie langsam *und* unentschlossen.
+  * Ollama lässt das Modell geladen (`OLLAMA_KEEP_ALIVE=30m`) statt es
+    zwischen zwei Sätzen aus dem Speicher zu werfen.
+  * Gesprochene Antworten sind auf `AI_MAX_TOKENS_STIMME` begrenzt, und die
+    laufende Anzeige im HUD fragt mit `/api/status?kurz=1` nur noch die
+    Datenbank statt jede Minute alle Dienste zu prüfen.
+* **Ruhigeres Protokoll** — bricht der Browser eine Anfrage ab (Tab zu, neu
+  geladen), stand bisher ein kompletter Traceback im Log. Das sah nach
+  Absturz aus und war keiner.
+
 ## 1.3.0 — JARVIS-HUD, Schnipsen, echte Stimme, echte Nachrichtenlage
 
 * **HUD statt Dashboard** (`server/orb/index.html`) — dunkles Command-Center

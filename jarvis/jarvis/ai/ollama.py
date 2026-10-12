@@ -27,10 +27,16 @@ class OllamaProvider(AIProvider):
     supports_native_tools = True
 
     def __init__(self, model: str, base_url: str = "http://localhost:11434",
-                 timeout: float = 120.0) -> None:
+                 timeout: float = 120.0, *, keep_alive: str = "30m",
+                 context: int = 4096) -> None:
         super().__init__(model)
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
+        #: Ohne das wirft Ollama das Modell nach fuenf Minuten aus dem
+        #: Speicher und laedt es beim naechsten Satz neu -- auf einem
+        #: Intel-Mac sind das jedes Mal etliche Sekunden.
+        self.keep_alive = keep_alive
+        self.context = context
         self._client: httpx.AsyncClient | None = None
 
     def _http(self) -> httpx.AsyncClient:
@@ -52,7 +58,8 @@ class OllamaProvider(AIProvider):
             "model": self.model,
             "messages": self._convert(messages),
             "stream": False,
-            "options": {"temperature": temperature},
+            "keep_alive": self.keep_alive,
+            "options": {"temperature": temperature, "num_ctx": self.context},
         }
         if max_tokens:
             payload["options"]["num_predict"] = max_tokens

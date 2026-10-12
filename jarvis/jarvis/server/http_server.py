@@ -23,6 +23,7 @@ import hashlib
 import hmac
 import json
 import logging
+import sys
 import threading
 import urllib.parse
 from datetime import timedelta
@@ -53,19 +54,36 @@ def validate_twilio_signature(auth_token: str, url: str, params: dict[str, str],
     return hmac.compare_digest(base64.b64encode(digest).decode("utf-8"), signature)
 
 
+class RuhigerServer(ThreadingHTTPServer):
+    """Wie ThreadingHTTPServer, nur ohne Geschrei bei Abbruechen.
+
+    Wenn der Browser eine Anfrage abbricht -- Seite neu geladen, Tab zu,
+    ein Abruf dauert ihm zu lange -- wirft das Standardverhalten einen
+    kompletten Traceback ins Protokoll. Das sieht aus wie ein Absturz, ist
+    aber keiner. Echte Fehler stehen weiterhin da.
+    """
+
+    def handle_error(self, request, client_address) -> None:  # noqa: D102
+        fehler = sys.exc_info()[1]
+        if isinstance(fehler, (ConnectionResetError, BrokenPipeError, ConnectionAbortedError)):
+            log.debug("Verbindung von %s abgebrochen: %s", client_address[0], fehler)
+            return
+        log.exception("Fehler bei einer Anfrage von %s", client_address[0])
+
+
 class JarvisHTTPServer:
     def __init__(self, services: Any, loop: asyncio.AbstractEventLoop) -> None:
         self.services = services
         self.settings = services.settings
         self.loop = loop
-        self._server: ThreadingHTTPServer | None = None
+        self._server: RuhigerServer | None = None
         self._thread: threading.Thread | None = None
 
     # ---------------------------------------------------------------- Betrieb
     def start(self) -> str:
         handler = _make_handler(self)
         try:
-            self._server = ThreadingHTTPServer(
+            self._server = RuhigerServer(
                 (self.settings.http_host, self.settings.http_port), handler
             )
         except OSError as exc:
@@ -275,6 +293,12 @@ def _make_handler(service: JarvisHTTPServer):
 
             if path == "/api/status":
                 data = services.status_snapshot()
+                if query.get("kurz", [""])[0] in {"1", "true", "ja"}:
+                    # Fuer die laufende Anzeige im Dashboard: nur der Stand aus
+                    # der Datenbank. Die Pruefung aller Dienste fragt Ollama,
+                    # Kalender und Mailserver -- das will man nicht jede Minute.
+                    self.json(data)
+                    return
                 try:
                     states = service.run_async(services.health(), timeout=45)
                     data["komponenten"] = [
