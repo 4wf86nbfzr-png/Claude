@@ -87,16 +87,34 @@ class Agent:
                     # Das Werkzeug hat gearbeitet -- das Ergebnis darf nicht verloren gehen.
                     return self._finish(chat_id, last_tool_text, buttons, pending_confirmation,
                                         used_tools, channel, degraded=True)
+                # Ohne Modell trotzdem versuchen: eindeutige Auftraege ("erinnere
+                # mich morgen um 9 an X") werden erkannt und ausgefuehrt. Eine
+                # Erinnerung, die nur zugesagt und nicht angelegt wird, ist das
+                # Schlimmste, was hier passieren kann.
+                notfall = await self._notfallweg(chat_id, text, channel=channel)
+                if notfall is not None:
+                    return notfall
                 return AgentReply(
                     text=(
                         "Das Sprachmodell antwortet gerade nicht. "
                         f"({exc.hint or exc.message})\n\n"
-                        "Befehle wie /uebersicht, /aufgaben und /erinnerungen laufen weiter."
+                        "Aufträge wie \u201eerinnere mich morgen um 8 an …\u201c, "
+                        "\u201emerk dir …\u201c oder \u201eich muss …\u201c verstehe ich "
+                        "trotzdem. Dazu die Befehle /uebersicht, /aufgaben und /erinnerungen."
                     ),
                     degraded=True,
                 )
 
             if not reply.wants_tools:
+                # Ersatzbetrieb: der Manager hat auf das Notmodell gewechselt,
+                # statt eine Ausnahme zu werfen. Eindeutige Auftraege werden
+                # hier trotzdem ausgefuehrt, bevor eine Verlegenheitsantwort
+                # herausgeht.
+                if services.models.degraded and not used_tools:
+                    notfall = await self._notfallweg(chat_id, text, channel=channel)
+                    if notfall is not None:
+                        return notfall
+
                 answer = reply.text.strip()
                 if services.models.degraded and last_tool_text:
                     # Das Ersatzmodell kann den Werkzeugbefund nicht formulieren.
@@ -136,6 +154,35 @@ class Agent:
             chat_id,
             last_tool_text or "Ich bin da gerade nicht weitergekommen -- bitte noch einmal anders.",
             buttons, pending_confirmation, used_tools, channel,
+        )
+
+    async def _notfallweg(
+        self, chat_id: str, text: str, *, channel: str
+    ) -> AgentReply | None:
+        """Ohne Modell: eindeutigen Auftrag erkennen und ausfuehren."""
+        from .offline import erkenne
+
+        auftrag = erkenne(text, self.settings.tz, telefonie=self.services.phone_active)
+        if auftrag is None:
+            return None
+        if not auftrag.werkzeug:
+            # Erkannt, aber eine Angabe fehlt -- gezielt nachfragen.
+            return self._finish(chat_id, auftrag.rueckfrage, [], "", [], channel,
+                                degraded=True)
+
+        ergebnis = await self.services.toolkit.execute(
+            auftrag.werkzeug, auftrag.argumente, chat_id=chat_id, channel=channel
+        )
+        zusatz = f"\n{auftrag.hinweis}" if auftrag.hinweis else ""
+        hinweis = (
+            zusatz
+            + "\n\n_(Das Sprachmodell ist gerade nicht erreichbar — "
+            "ausgeführt habe ich es trotzdem.)_"
+        )
+        return self._finish(
+            chat_id, ergebnis.text + (hinweis if ergebnis.ok else ""),
+            ergebnis.buttons, ergebnis.confirmation_token,
+            [auftrag.werkzeug], channel, degraded=True,
         )
 
     async def confirm(self, token: str, *, chat_id: str = "") -> AgentReply:

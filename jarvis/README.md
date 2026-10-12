@@ -55,7 +55,10 @@ ollama pull llama3.1:8b    # ein Modell mit Werkzeugunterstützung
 ```
 
 Ohne Modell bleibt Jarvis bedienbar: Befehle, Knöpfe, Erinnerungen und Anrufe
-funktionieren, nur das freie Gespräch fällt weg. Er sagt das dann auch.
+funktionieren, nur das freie Gespräch fällt weg. Er sagt das dann auch. Und er
+versteht weiterhin die eindeutigen Aufträge — „erinnere mich morgen um 8 an …",
+„merk dir …", „ich muss …", „ruf mich um 9 an" — und führt sie wirklich aus
+(`core/offline.py`), statt sie nur höflich zu quittieren.
 
 **Auf einem Intel-Mac** rechnet Ollama nur auf der CPU — ein 8B-Modell braucht
 dort schnell eine halbe Minute pro Antwort. Dann besser ein kleines Modell

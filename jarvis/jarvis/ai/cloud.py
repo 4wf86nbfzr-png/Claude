@@ -250,12 +250,13 @@ class EchoProvider(AIProvider):
         self.calls.append(list(messages))
         if self.scripted:
             return self.scripted.pop(0)
-        last = next((m.content for m in reversed(messages) if m.role == "user"), "")
         return ModelReply(
             text=(
-                "Das Sprachmodell ist gerade nicht erreichbar, deshalb antworte ich knapp. "
-                f"Verstanden habe ich: „{last[:200]}“. "
-                "Befehle wie /uebersicht, /aufgaben und /erinnerungen funktionieren weiterhin."
+                "Das Sprachmodell antwortet gerade nicht \u2014 frei reden kann ich "
+                "deshalb nicht.\n\nAuftr\u00e4ge verstehe ich trotzdem: "
+                "\u201eerinnere mich morgen um 8 an \u2026\u201c, "
+                "\u201emerk dir \u2026\u201c, \u201eich muss \u2026\u201c. "
+                "Dazu /uebersicht, /aufgaben, /erinnerungen und /menu."
             ),
             model=self.model, provider=self.name,
         )
