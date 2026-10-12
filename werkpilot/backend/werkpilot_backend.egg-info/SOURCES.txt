@@ -1,0 +1,6 @@
+pyproject.toml
+werkpilot_backend.egg-info/PKG-INFO
+werkpilot_backend.egg-info/SOURCES.txt
+werkpilot_backend.egg-info/dependency_links.txt
+werkpilot_backend.egg-info/requires.txt
+werkpilot_backend.egg-info/top_level.txt

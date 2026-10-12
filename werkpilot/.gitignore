@@ -1,0 +1,20 @@
+# Python
+backend/.venv/
+backend/**/__pycache__/
+backend/.pytest_cache/
+backend/*.db
+backend/.agent-tests.db
+backend/backups/
+# Node
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/next-env.d.ts
+# Secrets & lokale Konfiguration
+.env
+.env.*
+!.env.example
+backend/.env
+frontend/.env.local
+# Backups
+backups/
