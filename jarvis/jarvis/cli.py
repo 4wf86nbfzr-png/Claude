@@ -199,9 +199,18 @@ async def _lernen(settings: Settings, datei: str | None, probe: bool) -> int:
     from .core.services import Services
 
     pfad = Path(datei).expanduser() if datei else (PROJECT_ROOT / "mein-gehirn.md")
+    vorlage = PROJECT_ROOT / "mein-gehirn.vorlage.md"
+    if not pfad.exists() and datei is None and vorlage.exists():
+        # Die persoenliche Fassung liegt ausserhalb der Versionsverwaltung,
+        # damit eigene Eintraege keine Aktualisierung behindern.
+        pfad.write_text(vorlage.read_text(encoding="utf-8"), encoding="utf-8")
+        print(f"\n{pfad.name} aus der Vorlage angelegt.")
+        print("Jetzt ausfuellen:  open -e mein-gehirn.md")
+        print("Danach erneut:     ./start.sh lernen\n")
+        return 0
     if not pfad.exists():
         print(f"'{pfad}' gibt es nicht.")
-        print("Vorlage liegt unter mein-gehirn.md -- ausfuellen und erneut versuchen.")
+        print("Die Vorlage liegt unter mein-gehirn.vorlage.md.")
         return 1
 
     gelesen = parse_brain_file(pfad.read_text(encoding="utf-8"))

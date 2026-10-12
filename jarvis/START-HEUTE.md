@@ -204,6 +204,7 @@ du: der Hintergrunddienst arbeitet wirklich.
 Jetzt bringst du ihm bei, wer du bist. Öffne:
 
 ```bash
+./start.sh lernen        # legt deine persönliche mein-gehirn.md an
 open -e mein-gehirn.md
 ```
 
@@ -249,6 +250,9 @@ Wie soll ich dich ansprechen?
 
 Er sollte deinen Namen und deinen gewünschten Tonfall kennen.
 
+> Deine `mein-gehirn.md` liegt bewusst ausserhalb der Versionsverwaltung —
+> ein späteres `git pull` fasst sie nicht an.
+>
 > Nachschärfen geht jederzeit, ohne Datei: `/merken Ich bin donnerstags
 > meist auf Objekten` — er legt es selbst ab. Löschen: `/vergiss #12`.
 > Und wenn du die Datei änderst: einfach erneut schicken, gleicher

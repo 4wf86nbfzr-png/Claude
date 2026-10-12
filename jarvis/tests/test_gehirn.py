@@ -189,8 +189,8 @@ def test_gelerntes_steht_dem_modell_zur_verfuegung(services):
 
 # --- Die mitgelieferte Vorlage ------------------------------------------------
 def test_vorlage_ist_einlesbar_und_lernt_keine_platzhalter():
-    vorlage = Path(__file__).resolve().parent.parent / "mein-gehirn.md"
-    assert vorlage.exists(), "mein-gehirn.md fehlt im Projekt"
+    vorlage = Path(__file__).resolve().parent.parent / "mein-gehirn.vorlage.md"
+    assert vorlage.exists(), "mein-gehirn.vorlage.md fehlt im Projekt"
     gelesen = parse_brain_file(vorlage.read_text(encoding="utf-8"))
 
     assert gelesen.count >= 10, "Die Vorlage sollte schon brauchbare Punkte enthalten"
@@ -202,3 +202,11 @@ def test_vorlage_ist_einlesbar_und_lernt_keine_platzhalter():
     # Die Tonvorgaben sind als wichtig markiert, sonst wirken sie nicht.
     wichtig = {e.key for e in gelesen.entries if e.importance >= 4}
     assert "Ansprache" in wichtig and "Firma" in wichtig
+
+
+def test_persoenliche_fassung_liegt_ausserhalb_der_versionsverwaltung():
+    """Eigene Eintraege duerfen bei einer Aktualisierung nicht im Weg stehen."""
+    wurzel = Path(__file__).resolve().parent.parent
+    assert (wurzel / "mein-gehirn.vorlage.md").exists()
+    ignoriert = (wurzel / ".gitignore").read_text(encoding="utf-8").splitlines()
+    assert "mein-gehirn.md" in ignoriert

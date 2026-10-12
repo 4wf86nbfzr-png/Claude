@@ -8,8 +8,13 @@
 >    > davor                  Kommentar, wird nicht gelernt
 >    <ausfüllen>              lässt Jarvis stehen, bis du etwas einträgst
 >
+>  WICHTIG: Das hier ist die Vorlage. Deine eigene Fassung heisst
+>  mein-gehirn.md und entsteht beim ersten  ./start.sh lernen  von selbst.
+>  Sie bleibt von Aktualisierungen unberuehrt -- deine Eintraege gehen also
+>  bei keinem  git pull  verloren.
+>
 >  Danach EINE von zwei Möglichkeiten:
->    a) Diese Datei in Telegram an deinen Bot schicken (als Datei, nicht als Text)
+>    a) mein-gehirn.md in Telegram an deinen Bot schicken (als Datei, nicht als Text)
 >    b) Im Terminal:  ./start.sh lernen
 >
 >  Du kannst die Datei jederzeit ändern und erneut einlesen -- gleicher

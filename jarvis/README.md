@@ -16,7 +16,7 @@ außer dem Telegram-Bot.
 | Datei | Wofür |
 |---|---|
 | **`START-HEUTE.md`** | Schritt-für-Schritt vom leeren Rechner bis „Jarvis antwortet". Fang damit an. |
-| **`mein-gehirn.md`** | Hier trägst du ein, wer du bist und wie du arbeitest. Schick die Datei dem Bot — dann kennt er dich. |
+| **`mein-gehirn.vorlage.md`** | Vorlage für sein Gedächtnis. `./start.sh lernen` macht daraus deine persönliche `mein-gehirn.md` (bleibt bei Aktualisierungen unangetastet). |
 | **`TESTPLAN.md`** | 68 konkrete Nachrichten zum Abschicken samt erwartetem Ergebnis. Zum Abhaken. |
 
 ## In fünf Minuten startklar
