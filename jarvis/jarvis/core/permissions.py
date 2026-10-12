@@ -42,6 +42,7 @@ ACTION_TIERS: dict[str, int] = {
     "termin_aendern": TIER_CONFIRM,
     "aufgabe_loeschen": TIER_CONFIRM,
     "datei_loeschen": TIER_CONFIRM,
+    "datei_ueberschreiben": TIER_CONFIRM,
     "anruf_starten": TIER_CONFIRM,
     "gedaechtnis_komplett_loeschen": TIER_CONFIRM,
     "gedaechtnis_lernen": TIER_CONFIRM,

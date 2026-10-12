@@ -26,6 +26,9 @@ ENVIRONMENT_KEYS = [
     "MESSENGER_WICHTIGE_ABSENDER", "MESSENGER_DRINGEND_WOERTER",
     "MESSENGER_WICHTIG_WOERTER", "MESSENGER_STUMME_GRUPPEN",
     "MESSENGER_ANRUF_BEI_DRINGEND", "MESSENGER_MAC_DB", "BERICHT_INTERVALL_STUNDEN",
+    "ORB_ENABLED", "ORB_ANREDE", "ORB_GRUSS", "ORB_NACHRICHTEN", "ORB_PROGRAMME",
+    "ORB_WEBSEITE", "ORB_AKTIONEN", "ORB_KLATSCHEN", "ORB_START_BEI_SCHNIPSEN",
+    "ELEVENLABS_API_KEY", "ELEVENLABS_VOICE_ID", "JARVIS_FILE_ROOTS",
 ]
 
 
@@ -38,6 +41,9 @@ def clean_environment(tmp_path, monkeypatch):
     monkeypatch.setenv("AI_PROVIDER", "echo")
     monkeypatch.setenv("HTTP_ENABLED", "false")
     monkeypatch.setenv("MORNING_BRIEFING", "")
+    # Kein Test geht ins Netz: die Nachrichtenlage bleibt aus, wenn ein Test
+    # sie nicht ausdruecklich (mit einer Attrappe) einschaltet.
+    monkeypatch.setenv("ORB_NACHRICHTEN", "false")
     monkeypatch.setenv("TELEGRAM_BOT_TOKEN", "123456:testtoken-nur-fuer-tests-xxxxxxxxxxxx")
     monkeypatch.setenv("TELEGRAM_ALLOWED_IDS", "4711")
     yield

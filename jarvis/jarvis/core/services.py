@@ -117,6 +117,8 @@ class Services:
 
         self.agent = None          # wird in ``build_agent`` gesetzt
         self._orb = None           # wird in ``orb`` gesetzt
+        #: Zuletzt geholte Schlagzeilen -- damit "erklaer mir das" weiss, was gemeint ist.
+        self.nachrichtenlage: list[Any] = []
         self.started_at = utcnow()
         self.last_errors: list[str] = []
         self._register_jobs()

@@ -16,7 +16,8 @@ außer dem Telegram-Bot.
 | Datei | Wofür |
 |---|---|
 | **`START-HEUTE.md`** | Schritt-für-Schritt vom leeren Rechner bis „Jarvis antwortet". Fang damit an. |
-| **`START-ORB.md`** | Die Sprachoberfläche im Browser: reden statt tippen, Doppelklatschen, Stimme. |
+| **`START-ORB.md`** | Das Dashboard zum Sprechen: schnipsen, reden, Stimme einstellen. |
+| **`FORTSCHRITT.md`** | Was läuft, was nur gebaut und noch nicht live geprüft ist, was fehlt. |
 | **`mein-gehirn.start.md`** | Ausgefüllte Startfassung seines Gedächtnisses. `./start.sh lernen` macht daraus deine persönliche `mein-gehirn.md` (bleibt bei Aktualisierungen unangetastet). `mein-gehirn.vorlage.md` ist die leere Variante. |
 | **`TESTPLAN.md`** | 68 konkrete Nachrichten zum Abschicken samt erwartetem Ergebnis. Zum Abhaken. |
 
@@ -374,44 +375,60 @@ geringste Verzögerung). Wer alles lokal will: `TTS_ENGINE=piper` mit
 
 ---
 
-## Orb — mit Jarvis sprechen
+## Orb — das Dashboard zum Sprechen
 
-`http://127.0.0.1:8765/orb`, oder gleich `./start.sh orb` (öffnet Chrome und
-reicht das Token durch). Chrome ist Pflicht: nur er hat die Spracherkennung
-eingebaut.
+`./start.sh orb` startet den Dienst und öffnet `http://127.0.0.1:8765/orb`
+in Chrome (nur Chrome hat die Spracherkennung eingebaut).
 
 ```
-Chrome                     dein Mac                      draußen
-Sprache → Text   ───────>  Jarvis-Kern        ───────>   Modell
-Orb-Anzeige                 Gedächtnis                   (Ollama oder Claude)
-Audio-Ausgabe    <───────   Aufgaben          ───────>   ElevenLabs (Stimme)
-Doppelklatschen  ───────>   Aktionen: Programme, Browser, Bildschirm
+Chrome                        dein Mac                        draußen
+Schnipserkennung  ─────────>  Jarvis-Kern        ─────────>   Modell
+Sprache → Text                 Gedächtnis                     (Ollama oder Claude)
+HUD-Anzeige                    Aufgaben                       ElevenLabs (Stimme)
+Audio-Ausgabe     <─────────   Werkzeuge          ─────────>  tagesschau, heise, NDR
 ```
 
-Es ist derselbe Kern wie in Telegram: ein Gedächtnis, eine Aufgabenliste,
-dieselben Werkzeuge. Was du sprichst, weiß der Bot.
+Derselbe Kern wie in Telegram: ein Gedächtnis, eine Aufgabenliste, dieselben
+Werkzeuge. Was du sprichst, weiß der Bot.
 
-* **Weckwort** (`ORB_WECKWORT`, Standard „jarvis aktivieren") → Begrüßung mit
-  Uhrzeit, Wetter (Open-Meteo, ohne Schlüssel) und offenen Aufgaben.
-* **Doppelklatschen** startet, was in `ORB_PROGRAMME` steht, und öffnet
-  `ORB_WEBSEITE`. Erkannt wird im Browser (zwei scharfe Pegelspitzen mit Ruhe
-  davor) — kein Audio verlässt den Rechner, keine zusätzliche Bibliothek.
-* **Stimme**: ElevenLabs, wenn `ELEVENLABS_API_KEY` und `ELEVENLABS_VOICE_ID`
-  gesetzt sind, sonst spricht der Browser selbst. Jeder Satz wird einmal
-  erzeugt und in `data/audio/` zwischengespeichert.
-* **Bildschirm ansehen** braucht `ANTHROPIC_API_KEY` (lokale Modelle lesen
-  keine Bilder) und die macOS-Erlaubnis „Bildschirmaufnahme". Das Bild wird
-  beschrieben und sofort verworfen.
-* **Aktionsmarken**: Schreibt ein kleines Modell `[AKTION:OEFFNE] tagesschau.de`
-  als Text, statt das Werkzeug aufzurufen, wird es trotzdem ausgeführt und
-  nicht vorgelesen.
+**Zweimal schnipsen** (oder klatschen) aktiviert ihn: das HUD fährt hoch, die
+Stimme sagt „Moin, Master" und nennt, was jetzt zählt — aktuelle
+Schlagzeilen, dringende Nachrichten, der nächste Termin, offene Aufgaben —
+und fragt, womit ihr anfangt. Kommt er an keine Nachrichtenquelle heran,
+sagt er das; erfunden wird nichts.
 
-Grenzen mit Absicht: Programme nur aus `ORB_PROGRAMME`, Adressen nur http(s),
-alles zusammen abschaltbar mit `ORB_AKTIONEN=false`. Ein frei wählbarer
-Programmname wäre eine Hintertür — ein Satz in einer fremden E-Mail könnte
-sonst eine Anwendung starten.
+Erkannt wird nicht die Lautstärke allein — sonst löst jede zugeschlagene Tür
+aus. Ein Schnipser ist ein *kurzer, heller* Impuls: Ruhe davor, Spitze über
+der Schwelle, viel Energie über 2 kHz, im nächsten Messfenster schon wieder
+weg. Zwei davon im Abstand von 120–900 ms aktivieren, dann vier Sekunden
+Ruhe. Die Schwelle ist im Dashboard einstellbar und zeigt dort live, was
+erkannt wurde. Alles läuft im Browser — es geht kein Audio hinaus.
 
-Alles dazu in **`START-ORB.md`**.
+**Im Betrieb:** Ring anklicken oder Leertaste zum Sprechen, *Dauerbetrieb*
+für durchgehendes Zuhören, einfach reinreden oder Esc unterbricht ihn
+mitten im Satz. Tippen geht immer.
+
+**Die Stimme** kommt von ElevenLabs, wenn `ELEVENLABS_API_KEY` gesetzt ist —
+Stimme, Stabilität, Ausdruck und Tempo stellst du im Dashboard ein, nicht in
+der `.env`. Ohne Schlüssel spricht der Browser; oben rechts steht, welche
+gerade spricht. Damit es nicht vorgelesen klingt, schreibt Jarvis vorher aus,
+was man spricht („13:13 Uhr" → „dreizehn Uhr dreizehn", „am 5.11." → „am
+fünften November"), und spricht satzweise: das erste Stück läuft schon,
+während der Rest erzeugt wird.
+
+**Das HUD zeigt** Zustand (Bereitschaft, Zuhören, Verarbeiten, Recherchieren,
+Aufgabe läuft, Sprechen, Fehler), eine Wellenform nach dem echten Pegel, die
+aktuelle Nachrichtenlage, das Protokoll der letzten Aktionen sowie Aufgaben,
+Nachrichten und Termine.
+
+**Aktionen auf dem Rechner** sind mit Absicht eng gefasst: Programme nur aus
+`ORB_PROGRAMME`, Adressen nur http(s), Dateien nur in `JARVIS_FILE_ROOTS`
+(überschreiben erst nach Bestätigung), Bildschirmfotos werden beschrieben und
+sofort verworfen. Alles zusammen abschaltbar mit `ORB_AKTIONEN=false`. Ein
+frei wählbarer Programmname wäre eine Hintertür — ein Satz in einer fremden
+E-Mail könnte sonst eine Anwendung starten.
+
+Alles dazu in **`START-ORB.md`**, der ehrliche Stand in **`FORTSCHRITT.md`**.
 
 ## Dashboard
 
@@ -434,7 +451,8 @@ Die API, falls du eigene Oberflächen anbinden willst
 | POST | `/api/aufgabe`, `/api/aufgabe/erledigt`, `/api/sicherung` | Aktionen |
 | POST | `/api/orb/sprich` `{"text": "..."}` | Satz an den Orb, Antwort mit Audioadresse |
 | POST | `/api/orb/begruessung`, `/api/orb/start` | Begrüßung, Startaufstellung |
-| GET | `/api/orb/einstellungen` | was die Oberfläche wissen muss |
+| GET | `/api/orb/einstellungen`, `/api/orb/stimmen`, `/api/orb/lage` | Zustand, Stimmenliste, Nachrichtenlage |
+| POST | `/api/orb/stimme`, `/api/orb/vertonen` | Stimme einstellen, Text vertonen |
 | POST | `/api/nachricht/eingang` | Messenger-Brücke: `{"absender","text","id","gruppe"}` |
 | GET | `/api/nachrichten`, `/api/bericht` | eingegangene Nachrichten, Zwischenstand |
 | POST | `/api/nachricht/erledigt` `{"id": 1}` | Nachricht abhaken |

@@ -1,5 +1,38 @@
 # Änderungen
 
+## 1.3.0 — JARVIS-HUD, Schnipsen, echte Stimme, echte Nachrichtenlage
+
+* **HUD statt Dashboard** (`server/orb/index.html`) — dunkles Command-Center
+  mit konzentrischen Ringen, Wellenform nach dem echten Pegel, neun
+  Zuständen (Bereitschaft bis Fehler), Lage, Protokoll, Aufgaben,
+  Nachrichten und Terminen. Im echten Chromium durchgespielt.
+* **Schnipsen und Klatschen** — Impulserkennung im Browser statt bloßer
+  Lautstärkeschwelle: Ruhe davor, Spitze über der Schwelle, Energie über
+  2 kHz, sofortiger Abfall. Zwei Impulse in 120–900 ms aktivieren, danach
+  vier Sekunden Abkühlung. Schwelle einstellbar mit Live-Rückmeldung.
+* **„Moin, Master."** (`core/orb.py`) — keine Standardansage, sondern Gruß,
+  dann das Wenige, das zählt, dann eine Frage. Das Modell formuliert daraus
+  gesprochene Sätze, darf aber ausschließlich das Gelieferte nennen.
+* **Nachrichtenlage aus echten Quellen** (`core/news.py`, `core/tools_news.py`)
+  — tagesschau, Deutschlandfunk, heise, Golem, NDR Hamburg über RSS, ohne
+  Schlüssel. Mit Quelle, Zeitpunkt und Adresse; doppelte Meldungen werden
+  zusammengefasst, alte verworfen. Ist nichts erreichbar, wird das gesagt —
+  erfunden wird keine Schlagzeile. Werkzeuge `nachrichtenlage` und
+  `meldung_erklaeren`.
+* **Stimme, die nach Mensch klingt** (`adapters/voice/elevenlabs.py`) —
+  Streaming, Stimmenauswahl aus dem Konto, Regler für Stabilität, Ausdruck
+  und Tempo, alles im Dashboard und in der Datenbank statt in der `.env`.
+* **Sprechtext** (`core/sprechtext.py`) — „13:13 Uhr" wird zu „dreizehn Uhr
+  dreizehn", „am 5.11." zu „am fünften November", „ca. 2 Std." zu „ungefähr
+  zwei Stunden"; Formatierung, Links und Emoji fliegen raus. Dazu
+  satzweises Sprechen: das erste Stück läuft, während der Rest erzeugt wird.
+* **Unterbrechen** — Zwischenruf oder Esc stoppt Ton und Warteschlange
+  sofort; danach hört er weiter zu.
+* **Dateien schreiben** (`datei_schreiben`) — neue Datei sofort, vorhandene
+  nur nach Bestätigung, ausschließlich in `JARVIS_FILE_ROOTS`.
+* **`FORTSCHRITT.md`** — ehrlicher Stand: was geprüft ist, was gebaut, aber
+  noch nicht live verifiziert, was fehlt.
+
 ## 1.2.0 — Jarvis zum Sprechen (Orb)
 
 Die Sprachoberfläche aus dem Video, auf denselben Kern gesetzt statt daneben

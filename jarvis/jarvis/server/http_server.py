@@ -342,15 +342,31 @@ def _make_handler(service: JarvisHTTPServer):
                     "verfuegbar": services.toolkit.descriptions(),
                 })
             elif path == "/api/orb/einstellungen":
-                self.json({
+                daten = {
                     "anrede": settings.orb_anrede,
                     "weckwort": settings.orb_weckwort,
                     "klatschen": settings.orb_klatschen,
+                    "start_bei_schnipsen": settings.orb_start_bei_schnipsen,
                     "aktionen": settings.orb_aktionen,
-                    "eigene_stimme": bool(settings.elevenlabs_api_key
-                                          and settings.elevenlabs_voice_id),
                     "programme": settings.orb_programme,
-                })
+                    "stadt": settings.orb_stadt,
+                }
+                daten.update(services.orb.stimmlage())
+                self.json(daten)
+            elif path == "/api/orb/lage":
+                # Erst die gemerkte Lage; nur wenn nichts da ist, wird geholt.
+                meldungen = services.nachrichtenlage
+                if not meldungen:
+                    meldungen = service.run_async(services.orb.lage(), timeout=30)
+                self.json({"meldungen": [m.als_json() for m in meldungen]})
+            elif path == "/api/orb/stimmen":
+                from ..errors import JarvisError as _Fehler
+                try:
+                    self.json(service.run_async(services.orb.stimmen(), timeout=40))
+                except _Fehler as exc:
+                    self.json({"fehler": exc.message}, status=502)
+                except Exception as exc:  # pragma: no cover
+                    self.json({"fehler": str(exc)}, status=502)
             elif path == "/api/nachrichten":
                 eintraege = services.messages.liste(limit=limit)
                 self.json([
@@ -490,6 +506,19 @@ def _make_handler(service: JarvisHTTPServer):
                     antwort = service.run_async(services.orb.begruessung(), timeout=120)
                 elif path == "/api/orb/start":
                     antwort = service.run_async(services.orb.startaufstellung(), timeout=180)
+                elif path == "/api/orb/vertonen":
+                    # Die Oberflaeche holt die restlichen Stuecke nach, waehrend
+                    # das erste schon laeuft.
+                    text = str(payload.get("text", "")).strip()
+                    stimme = str(payload.get("stimme", "")).strip()
+                    adresse = service.run_async(
+                        services.orb.vertonen(text, voice_id=stimme), timeout=120
+                    )
+                    self.json({"audio": adresse})
+                    return
+                elif path == "/api/orb/stimme":
+                    self.json(services.orb.stimme_einstellen(payload))
+                    return
                 else:
                     self.json({"fehler": "unbekannter Pfad"}, status=404)
                     return

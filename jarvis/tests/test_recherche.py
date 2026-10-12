@@ -188,3 +188,69 @@ def test_webabruf_meldet_fehler_statt_zu_erfinden(services, monkeypatch):
     monkeypatch.setattr(httpx, "AsyncClient", Client)
     ergebnis = run(services.toolkit.execute("web_abrufen", {"adresse": "example.org"}))
     assert not ergebnis.ok and "nicht erreichbar" in ergebnis.text
+
+
+# --------------------------------------------------------- Dateien schreiben
+def _schreibe(services, **argumente):
+    import asyncio
+    return asyncio.run(services.toolkit.execute("datei_schreiben", argumente, chat_id="4711"))
+
+
+def test_neue_datei_wird_sofort_geschrieben(services, tmp_path, monkeypatch):
+    monkeypatch.setenv("JARVIS_FILE_ROOTS", str(tmp_path))
+    ergebnis = _schreibe(services, pfad=str(tmp_path / "bericht.md"),
+                         inhalt="# Bericht\nAlles ruhig.")
+    assert ergebnis.ok
+    assert (tmp_path / "bericht.md").read_text(encoding="utf-8").startswith("# Bericht")
+
+
+def test_relativer_name_landet_im_ersten_freigegebenen_ordner(services, tmp_path, monkeypatch):
+    monkeypatch.setenv("JARVIS_FILE_ROOTS", str(tmp_path))
+    ergebnis = _schreibe(services, pfad="notiz.txt", inhalt="Moin")
+    assert ergebnis.ok and (tmp_path / "notiz.txt").exists()
+
+
+def test_schreiben_ausserhalb_der_freigabe_wird_abgelehnt(services, tmp_path, monkeypatch):
+    monkeypatch.setenv("JARVIS_FILE_ROOTS", str(tmp_path))
+    ergebnis = _schreibe(services, pfad="/etc/jarvis-test.txt", inhalt="nein")
+    assert not ergebnis.ok and "darf ich nicht schreiben" in ergebnis.text
+
+
+def test_programmdateien_werden_abgelehnt(services, tmp_path, monkeypatch):
+    monkeypatch.setenv("JARVIS_FILE_ROOTS", str(tmp_path))
+    ergebnis = _schreibe(services, pfad=str(tmp_path / "start.sh"), inhalt="rm -rf /")
+    assert not ergebnis.ok
+    assert not (tmp_path / "start.sh").exists()
+
+
+def test_ueberschreiben_braucht_eine_bestaetigung(services, tmp_path, monkeypatch):
+    import asyncio
+    monkeypatch.setenv("JARVIS_FILE_ROOTS", str(tmp_path))
+    ziel = tmp_path / "wichtig.md"
+    ziel.write_text("Das soll nicht einfach verschwinden.", encoding="utf-8")
+
+    ergebnis = _schreibe(services, pfad=str(ziel), inhalt="neu")
+    assert ergebnis.confirmation_token
+    # Bis zum Tastendruck bleibt die Datei, wie sie war.
+    assert "nicht einfach verschwinden" in ziel.read_text(encoding="utf-8")
+
+    bestaetigt = asyncio.run(
+        services.build_agent().confirm(ergebnis.confirmation_token, chat_id="4711")
+    )
+    assert bestaetigt.text
+    assert ziel.read_text(encoding="utf-8").strip() == "neu"
+
+
+def test_anhaengen_braucht_keine_bestaetigung(services, tmp_path, monkeypatch):
+    monkeypatch.setenv("JARVIS_FILE_ROOTS", str(tmp_path))
+    ziel = tmp_path / "protokoll.txt"
+    ziel.write_text("erste Zeile\n", encoding="utf-8")
+    ergebnis = _schreibe(services, pfad=str(ziel), inhalt="zweite Zeile", anhaengen=True)
+    assert ergebnis.ok and not ergebnis.confirmation_token
+    assert ziel.read_text(encoding="utf-8") == "erste Zeile\nzweite Zeile\n"
+
+
+def test_leerer_inhalt_legt_nichts_an(services, tmp_path, monkeypatch):
+    monkeypatch.setenv("JARVIS_FILE_ROOTS", str(tmp_path))
+    ergebnis = _schreibe(services, pfad=str(tmp_path / "leer.txt"), inhalt="   ")
+    assert not ergebnis.ok and not (tmp_path / "leer.txt").exists()

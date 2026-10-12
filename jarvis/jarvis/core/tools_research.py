@@ -15,14 +15,15 @@ import logging
 import os
 import re
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import httpx
 
 from ..ai.provider import ChatMessage
 from ..errors import JarvisError
 from .permissions import sanitize_external_text
-from .toolkit import ToolResult, int_field, schema, text_field
+from .toolkit import ToolResult, bool_field, int_field, schema, text_field
+from .tools_builtin import confirmed
 
 if TYPE_CHECKING:
     from .services import Services
@@ -51,6 +52,25 @@ def _is_allowed(path: Path, roots: list[Path]) -> bool:
     if resolved.name.lower() in BLOCKED_NAMES:
         return False
     return any(resolved == root or root in resolved.parents for root in roots)
+
+
+def _schreiben(services: "Services", path: Path, inhalt: str, *,
+               anhaengen: bool) -> ToolResult:
+    """Legt die Datei wirklich an. Gemeinsamer Weg fuer beide Stufen."""
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("a" if anhaengen else "w", encoding="utf-8") as datei:
+            datei.write(inhalt if inhalt.endswith("\n") else inhalt + "\n")
+    except OSError as exc:
+        return ToolResult.failure(f"Die Datei liess sich nicht schreiben: {exc}")
+    services.memory.remember_event(
+        "datei_geschrieben", str(path), {"zeichen": len(inhalt), "angehaengt": anhaengen}
+    )
+    groesse = path.stat().st_size
+    return ToolResult.success(
+        f"{'Angehaengt an' if anhaengen else 'Geschrieben:'} {path} ({groesse} Byte).",
+        pfad=str(path), zeichen=len(inhalt),
+    )
 
 
 def register(services: "Services") -> None:
@@ -115,6 +135,66 @@ def register(services: "Services") -> None:
                zeichen=int_field("Wie viele Zeichen hoechstens (Standard 6000)")),
         datei_lesen, category="recherche",
     )
+
+    async def datei_schreiben(
+        pfad: str, inhalt: str, anhaengen: bool = False, chat_id: str = "",
+    ) -> ToolResult:
+        """Schreibt eine Textdatei in die freigegebenen Ordner.
+
+        Eine neue Datei anzulegen ist Stufe 1 -- es geht nichts verloren.
+        Eine vorhandene zu ueberschreiben ist Stufe 2 und braucht einen
+        Tastendruck: genau da verschwindet sonst Arbeit.
+        """
+        roots = allowed_roots(services)
+        path = Path(pfad).expanduser()
+        if not path.is_absolute():
+            path = (roots[0] / path) if roots else path
+        if not _is_allowed(path, roots):
+            return ToolResult.failure(
+                f"In '{pfad}' darf ich nicht schreiben. Freigegeben sind: "
+                + ", ".join(str(r) for r in roots)
+                + ". Mehr ueber JARVIS_FILE_ROOTS in der .env."
+            )
+        if path.suffix.lower() not in TEXT_SUFFIXES:
+            return ToolResult.failure(
+                f"'{path.suffix or 'ohne Endung'}' schreibe ich nicht. "
+                "Text, Markdown, CSV, JSON und aehnliches gehen."
+            )
+        if not inhalt.strip():
+            return ToolResult.failure("Ohne Inhalt lege ich keine Datei an.")
+
+        if path.exists() and not anhaengen:
+            vorher = path.stat().st_size
+            request = services.permissions.request(
+                "datei_ueberschreiben",
+                {"pfad": str(path), "inhalt": inhalt},
+                summary=f"{path.name} ueberschreiben ({vorher // 1024 or 1} kB werden ersetzt)",
+                chat_id=chat_id,
+            )
+            return ToolResult(
+                ok=True,
+                text=(f"„{path.name}“ gibt es schon ({vorher} Zeichen). "
+                      "Soll ich die Datei ersetzen?"),
+                confirmation_token=request.token,
+                buttons=[("Ersetzen", f"bestaetigen:{request.token}"),
+                         ("Abbrechen", f"ablehnen:{request.token}")],
+            )
+        return _schreiben(services, path, inhalt, anhaengen=anhaengen)
+
+    services.toolkit.register(
+        "datei_schreiben",
+        "Schreibt eine Textdatei (Notiz, Bericht, Tabelle als CSV) in die "
+        "freigegebenen Ordner. Vorhandene Dateien erst nach Bestaetigung.",
+        schema(pfad=text_field("Dateiname oder vollstaendiger Pfad", pflicht=True),
+               inhalt=text_field("Was hineinsoll", pflicht=True),
+               anhaengen=bool_field("An eine vorhandene Datei anhaengen")),
+        datei_schreiben, action="datei_schreiben", category="recherche",
+    )
+
+    @confirmed("datei_ueberschreiben")
+    async def _execute_overwrite(services: "Services", payload: dict[str, Any]) -> ToolResult:
+        return _schreiben(services, Path(str(payload["pfad"])), str(payload["inhalt"]),
+                          anhaengen=False)
 
     async def web_abrufen(adresse: str, zeichen: int = 6000) -> ToolResult:
         if not adresse.startswith(("http://", "https://")):
