@@ -22,3 +22,4 @@ backups/
 .smoke-*.log
 .pw/
 .req-freeze.txt
+test-report.html

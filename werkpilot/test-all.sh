@@ -21,9 +21,10 @@ for a in "$@"; do case "$a" in --quick) QUICK=1; BROWSER=0;; --no-browser) BROWS
 
 RED='\033[0;31m'; GRN='\033[0;32m'; YEL='\033[0;33m'; NC='\033[0m'
 FAILS=(); PASSES=()
-step() { printf "\n${YEL}== %s ==${NC}\n" "$1"; }
-ok()   { PASSES+=("$1"); printf "${GRN}OK${NC}  %s\n" "$1"; }
-bad()  { FAILS+=("$1"); printf "${RED}FEHLER${NC}  %s\n" "$1"; }
+RESULTS="$(mktemp)"; SECTION=""; T0=$(date +%s); STARTED_AT="$(date '+%d.%m.%Y %H:%M')"
+step() { SECTION="$1"; printf "\n${YEL}== %s ==${NC}\n" "$1"; }
+ok()   { PASSES+=("$1"); printf "${GRN}OK${NC}  %s\n" "$1"; printf 'OK\t%s\t%s\t%s\n' "$SECTION" "$1" "$(( $(date +%s) - T0 ))" >>"$RESULTS"; }
+bad()  { FAILS+=("$1"); printf "${RED}FEHLER${NC}  %s\n" "$1"; printf 'FEHLER\t%s\t%s\t%s\n' "$SECTION" "$1" "$(( $(date +%s) - T0 ))" >>"$RESULTS"; }
 run()  { local name="$1"; shift; if "$@"; then ok "$name"; else bad "$name"; fi; }
 
 export TEST_DATABASE_URL="${TEST_DATABASE_URL:-postgresql+asyncpg://werkpilot:werkpilot@localhost:5432/werkpilot_test}"
@@ -161,7 +162,7 @@ const browser = await chromium.launch(EXE ? { executablePath: EXE } : {});
 const page = await (await browser.newContext({ viewport: { width: 1280, height: 900 }, locale: "de-DE" })).newPage();
 const errors = []; page.on("pageerror", (e) => errors.push(e.message));
 const email = `pw-${Date.now()}@beispiel-elektro.de`, pw = "Elbe-Kran-Moewe-33";
-await page.goto(`${WEB}/demo`); await page.getByRole("button", { name: "Anfrage verarbeiten" }).click(); await page.getByText("Antwortentwurf").waitFor();
+await page.goto(`${WEB}/demo`); await page.getByRole("button", { name: "Anfrage verarbeiten" }).click(); await page.getByRole("heading", { name: "Antwortentwurf" }).waitFor();
 await page.goto(`${WEB}/registrieren`);
 await page.fill('input[name="company"]', "PW Elektro"); await page.fill('input[name="full_name"]', "Kai"); await page.fill('input[name="email"]', email); await page.fill('input[name="password"]', pw);
 await page.check('input[name="terms"]'); await page.check('input[name="privacy"]'); await page.getByRole("button", { name: "Konto anlegen" }).click(); await page.getByText("Fast geschafft").waitFor();
@@ -189,6 +190,11 @@ fi
 cleanup; trap - EXIT
 psql -q "$ADMIN_URL" -c "DROP DATABASE IF EXISTS werkpilot_smoke" >>"$LOG" 2>&1
 fi
+
+# ------------------------------------------------------------------ HTML-Bericht
+REPORT="$ROOT/test-report.html"
+python3 "$ROOT/scripts/test_report.py" "$RESULTS" "$LOG" "$REPORT" "$STARTED_AT" "$(( $(date +%s) - T0 ))" "$(git -C "$ROOT" rev-parse --short HEAD 2>/dev/null || echo '-')" "$*" && printf "Bericht: %s\n" "$REPORT"
+rm -f "$RESULTS"
 
 # ------------------------------------------------------------------ Ergebnis
 printf "\n${YEL}== Ergebnis ==${NC}\n"
