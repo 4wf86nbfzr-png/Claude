@@ -69,17 +69,20 @@ def build_system_prompt(
     memory_lines: list[str] | None = None, state_lines: list[str] | None = None,
     channel: str = "telegram", native_tools: bool = True,
 ) -> str:
+    """Setzt den Systemtext zusammen.
+
+    Die Reihenfolge ist kein Zufall: **vorn steht, was sich nie aendert**
+    (Rolle, Kanal, Werkzeuge), hinten das Fluechtige (Uhrzeit, Gedaechtnis,
+    Gespraechsstand). Ollama kann einen gleichbleibenden Anfang
+    wiederverwenden, statt ihn jedes Mal neu durchzurechnen. Stuende die
+    Uhrzeit oben, waere dieser Vorteil mit jeder Minute weg -- auf einem
+    Rechner ohne Grafikbeschleunigung kostet das spuerbar Zeit.
+    """
     now = datetime.now(tz)
     weekdays = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"]
-    parts = [PERSONA.format(owner=owner)]
 
-    parts.append(
-        "Jetzt ist {}, {} ({}). Zeitzone {}. Relative Angaben wie „morgen“ "
-        "rechnest du davon aus.".format(
-            weekdays[now.weekday()], now.strftime("%d.%m.%Y %H:%M"), now.strftime("KW %V"),
-            str(tz),
-        )
-    )
+    # --- Unveraenderlicher Teil ------------------------------------------
+    parts = [PERSONA.format(owner=owner)]
 
     if channel == "telefon":
         parts.append(
@@ -109,6 +112,7 @@ def build_system_prompt(
                 "Das Ergebnis bekommst du anschliessend und formulierst dann die Antwort."
             )
 
+    # --- Ab hier aendert es sich von Anfrage zu Anfrage -------------------
     if memory_lines:
         parts.append(
             "Das solltest du ueber {} wissen (aus dem Langzeitgedaechtnis):\n".format(owner)
@@ -118,6 +122,13 @@ def build_system_prompt(
     if state_lines:
         parts.append("Stand des Gespraechs:\n" + "\n".join(f"- {line}" for line in state_lines))
 
+    parts.append(
+        "Jetzt ist {}, {} ({}). Zeitzone {}. Relative Angaben wie „morgen“ "
+        "rechnest du davon aus.".format(
+            weekdays[now.weekday()], now.strftime("%d.%m.%Y %H:%M"), now.strftime("KW %V"),
+            str(tz),
+        )
+    )
     return "\n\n".join(parts)
 
 

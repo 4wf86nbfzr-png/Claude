@@ -339,13 +339,25 @@ class Agent:
             # Aufruf selbst -- ein zweites Mal im Systemtext kostet nur Zeit.
             tool_lines=(None if services.models.active.supports_native_tools
                         else services.toolkit.descriptions()),
-            memory_lines=[entry.line() for entry in services.memory.important_memory(10)],
+            memory_lines=[
+                entry.line() for entry in services.memory.important_memory(
+                    5 if services.settings.werkzeuggrenze else 10
+                )
+            ],
             state_lines=state_lines, channel=channel,
             native_tools=services.models.active.supports_native_tools,
         )
 
         messages = [ChatMessage(role="system", content=system)]
-        history = services.memory.recent_messages(chat_id, limit=self.settings.ai_context_messages)
+        # Gesprochene Kanaele brauchen weniger Verlauf: dort wird kurz geredet,
+        # und jede Zeile im Kontext kostet auf einem Rechner ohne
+        # Grafikbeschleunigung messbar Zeit.
+        grenze = self.settings.ai_context_messages
+        if channel in {"orb", "telefon"}:
+            grenze = min(grenze, 8)
+        if services.settings.werkzeuggrenze:
+            grenze = min(grenze, 10)
+        history = services.memory.recent_messages(chat_id, limit=grenze)
         # Die gerade gespeicherte Nachricht steht schon im Verlauf -- nicht doppeln.
         if history and history[-1]["role"] == "user" and history[-1]["content"] == text:
             history = history[:-1]

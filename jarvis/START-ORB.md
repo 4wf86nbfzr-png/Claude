@@ -163,6 +163,41 @@ Soll das Schnipsen auch Spotify, VS Code und Co. starten:
 
 ---
 
+## Zwei Ansichten
+
+Oben links schaltest du um.
+
+**HUD** — die Mitte reagiert auf das, was gerade klingt: beim Zuhören auf dein
+Mikrofon, beim Antworten auf seine Stimme. Frequenzbalken im Ring, treibende
+Teilchen, Zustandsfarbe. Drumherum Lage, Protokoll, Aufgaben, Nachrichten,
+Termine.
+
+**Gehirn** — alles, was Jarvis dauerhaft über dich weiß. Nach Art gruppiert
+(Fakten, Vorlieben, Abläufe, Projekte), durchsuchbar, filterbar. Oben ein Feld
+zum Nachtragen, hinter jedem Eintrag ein Knopf zum Vergessen. Die Punkte hinter
+einem Eintrag zeigen, wie wichtig er ist — fünf heißt: hat er in jeder Antwort
+im Kopf.
+
+## Ihm etwas beibringen
+
+Drei Wege, alle gleichwertig:
+
+* **Im Gespräch, in einem Satz:** „Jarvis, füge deinem Gehirn hinzu: Rechnungen
+  kommen zum Monatsende." Oder „merk dir …", „lerne …", „pack ins Gehirn …".
+* **Diktiert, in zwei Schritten:** „Jarvis, merk dir Folgendes." → *„Ich höre.
+  Was soll ich mir merken?"* → und dann sprichst du. Das ist der Weg, wenn es
+  länger wird. „Vergiss es" bricht ab.
+* **Getippt:** Ansicht **Gehirn**, oben ins Feld, *Merken*.
+
+Steht ein Doppelpunkt drin, nimmt er den Teil davor als Schlüssel
+(„Dienstplan: donnerstags"). Sonst macht er sich selbst einen. Gleicher
+Schlüssel überschreibt den alten Wert — korrigieren geht also durch Neusagen.
+
+**Grundausstattung:** `./start.sh lernen grundlagen` legt 39 Arbeitsregeln an —
+wie knapp er antwortet, wann er nachfragt, dass er Quellen nennt, wann er
+sicherheitshalber fragt. Das sind Regeln, keine Behauptungen über dich; alles
+lässt sich einzeln vergessen oder überschreiben.
+
 ## Was das HUD zeigt
 
 * **Mitte**: Ring und Wellenform bewegen sich nach dem echten Pegel — deinem

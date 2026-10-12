@@ -486,6 +486,37 @@ def register_memory(services: "Services") -> None:
             return ToolResult.failure(str(exc))
         return ToolResult.success(f"Gemerkt: {entry.key} = {entry.value}", id=entry.id)
 
+    async def gedaechtnis_merken_frei(text: str) -> ToolResult:
+        """Einen frei gesprochenen Satz ablegen -- Schluessel und Art selbst finden.
+
+        Beim Sprechen sagt niemand "Schluessel: Wert". Hier wird derselbe
+        Leser benutzt wie fuer die Gehirn-Datei: er erkennt "Dienstplan:
+        donnerstags" ebenso wie einen ganzen Satz.
+        """
+        from .brain import parse_brain_file
+
+        satz = " ".join((text or "").split())
+        if len(satz) < 3:
+            return ToolResult.failure("Dazu war zu wenig dabei.")
+        gelesen = parse_brain_file(satz)
+        if not gelesen.entries:
+            return ToolResult.failure("Daraus werde ich nicht schlau. Sag es noch einmal anders.")
+        eintrag = gelesen.entries[0]
+        services.memory.remember(
+            eintrag.key, eintrag.value, kind=eintrag.kind, importance=eintrag.importance
+        )
+        return ToolResult.success(
+            f"Gemerkt: {eintrag.value}", schluessel=eintrag.key, art=eintrag.kind
+        )
+
+    services.toolkit.register(
+        "gedaechtnis_merken_frei",
+        "Merkt sich einen frei formulierten Satz (Schluessel und Art werden erkannt). "
+        "Fuer gesprochene Saetze wie 'ich telefoniere lieber vormittags'.",
+        schema(text=text_field("Was gemerkt werden soll", pflicht=True)),
+        gedaechtnis_merken_frei, category="gedaechtnis",
+    )
+
     services.toolkit.register(
         "gedaechtnis_merken",
         "Merkt sich eine Information dauerhaft (Vorliebe, Ablauf, Fakt, Projekt). "

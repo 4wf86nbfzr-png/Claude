@@ -207,6 +207,8 @@ async def _lernen(settings: Settings, datei: str | None, probe: bool) -> int:
     from .core.brain import import_entries, parse_brain_file
     from .core.services import Services
 
+    if datei in {"grundlagen", "--grundlagen"}:
+        datei = str(PROJECT_ROOT / "gehirn-grundlagen.md")
     pfad = Path(datei).expanduser() if datei else (PROJECT_ROOT / "mein-gehirn.md")
     startfassung = PROJECT_ROOT / "mein-gehirn.start.md"
     # Die Startfassung ist schon ausgefuellt; die leere Vorlage ist der
@@ -257,7 +259,14 @@ async def _lernen(settings: Settings, datei: str | None, probe: bool) -> int:
             print(f"  Fehler: {fehler}")
         gesamt = len(services.memory.list_memory(limit=1000))
         print(f"Im Gedaechtnis stehen jetzt {gesamt} Punkte. "
-              "Ansehen mit 'jarvis gehirn' oder in Telegram mit /gehirn.")
+              "Ansehen im Dashboard unter 'Gehirn', mit 'jarvis gehirn' "
+              "oder in Telegram mit /gehirn.")
+        grundlagen = PROJECT_ROOT / "gehirn-grundlagen.md"
+        if grundlagen.exists() and pfad != grundlagen:
+            schon = services.memory.list_memory(kind="ablauf", limit=5)
+            if len(schon) < 3:
+                print("\nTipp: './start.sh lernen grundlagen' legt die Arbeitsregeln dazu "
+                      "(wie knapp er antwortet, wann er nachfragt, was er von selbst tut).")
         return 0
     finally:
         await services.stop()
@@ -528,6 +537,61 @@ async def _probe(stimme) -> bool:
     return True
 
 
+MODELLE = {
+    "1": ("anthropic", "claude-haiku-5-5", "ANTHROPIC_API_KEY",
+          "schnell und guenstig, Antwort in ein bis drei Sekunden",
+          "https://console.anthropic.com"),
+    "2": ("anthropic", "claude-sonnet-5-5", "ANTHROPIC_API_KEY",
+          "deutlich klueger, etwas langsamer und teurer",
+          "https://console.anthropic.com"),
+    "3": ("openai", "gpt-4o-mini", "OPENAI_API_KEY",
+          "schnell, guenstig, gute Werkzeugnutzung",
+          "https://platform.openai.com/api-keys"),
+    "4": ("ollama", "llama3.2:3b", "",
+          "laeuft lokal, nichts verlaesst den Rechner, auf Intel-Macs langsam", ""),
+    "5": ("ollama", "llama3.1:8b", "",
+          "lokal, klueger als 3b, auf Intel-Macs deutlich langsamer", ""),
+}
+
+
+def _modell(settings: Settings) -> int:
+    """Stellt das Sprachmodell um -- das ist der groesste Hebel beim Tempo."""
+    print(f"Aktuell: {settings.ai_provider} / {settings.ai_model}\n")
+    print("Was soll denken?\n")
+    for nummer, (anbieter, modell, _, beschreibung, _quelle) in MODELLE.items():
+        print(f"  {nummer}. {anbieter}/{modell}")
+        print(f"     {beschreibung}")
+    print("\n  0. nichts aendern")
+
+    wahl = input("\nNummer: ").strip()
+    if wahl not in MODELLE:
+        print("Unveraendert.")
+        return 0
+    anbieter, modell, schluesselname, _, quelle = MODELLE[wahl]
+
+    aenderungen = {"AI_PROVIDER": anbieter, "AI_MODEL": modell}
+    if schluesselname:
+        vorhanden = getattr(settings, schluesselname.lower(), "")
+        if vorhanden:
+            print(f"\n{schluesselname} ist schon hinterlegt.")
+        else:
+            print(f"\n{anbieter} braucht einen Schluessel. Holen: {quelle}")
+            print("Er landet nur in der .env, nirgends sonst.\n")
+            schluessel = input(f"{schluesselname}: ").strip()
+            if not schluessel:
+                print("\nOhne Schluessel waere das Modell nicht erreichbar -- nichts geaendert.")
+                return 1
+            aenderungen[schluesselname] = schluessel
+
+    pfad = env_setzen(aenderungen)
+    print(f"\n{anbieter}/{modell} in {pfad} eingetragen.")
+    if anbieter == "ollama":
+        print(f"Falls noch nicht geschehen:  ollama pull {modell}")
+    print("\nNeu starten, dann gilt es:  ./start.sh orb")
+    print("Pruefen:                      ./start.sh doctor")
+    return 0
+
+
 def _setup(settings: Settings) -> int:
     """Legt eine ``.env`` aus der Vorlage an und fragt das Noetigste ab."""
     env_path = Path(__file__).resolve().parent.parent / ".env"
@@ -574,6 +638,7 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("orb", help="Assistent starten und die Sprachoberflaeche oeffnen")
     sub.add_parser("doctor", help="Zustand aller Bausteine pruefen")
     sub.add_parser("token", help="API-Token fuers Dashboard erzeugen und eintragen")
+    sub.add_parser("modell", help="Sprachmodell umstellen (groesster Hebel beim Tempo)")
     stimme = sub.add_parser("stimme", help="ElevenLabs einrichten und Stimme aussuchen")
     stimme.add_argument("--zeigen", action="store_true", help="nur die Stimmen auflisten")
     stimme.add_argument("--id", dest="kennung", default="",
@@ -663,6 +728,8 @@ def main(argv: list[str] | None = None) -> int:
             return asyncio.run(_run(settings, orb_oeffnen=True))
         if command == "token":
             return _token(settings)
+        if command == "modell":
+            return _modell(settings)
         if command == "stimme":
             return asyncio.run(_stimme(settings, args.zeigen, args.kennung))
         if command == "doctor":

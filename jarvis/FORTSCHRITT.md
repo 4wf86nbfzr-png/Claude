@@ -3,7 +3,7 @@
 Diese Datei ist der ehrliche Kassensturz: was läuft, was nur gebaut, aber
 nicht live geprüft ist, und was fehlt. Sie wird mit jeder Änderung nachgezogen.
 
-**Stand:** 12.10.2026 · 480 automatisierte Tests grün · pyflakes sauber
+**Stand:** 12.10.2026 · 506 automatisierte Tests grün · pyflakes sauber · Oberfläche im echten Chromium durchgespielt
 
 ---
 
@@ -41,7 +41,18 @@ jeweils dabei.
 | Fehler erkennen und erklären | ✅ | Durchgehend; im HUD ein eigener Zustand mit Klartext. |
 | Nach Neustart verfügbar | 🟡 | LaunchAgent liegt bei (`launchagent/`), auf deinem Mac einzurichten. |
 | Kritische Aktionen abgesichert | ✅ | Drei Stufen, Einmal-Token mit Fingerabdruck und Ablauf. |
-| Dokumentiert und getestet | ✅ | 480 Tests; `README.md`, `START-HEUTE.md`, `START-ORB.md`, `TESTPLAN.md`. |
+| Dokumentiert und getestet | ✅ | 506 Tests; `README.md`, `START-HEUTE.md`, `START-ORB.md`, `TESTPLAN.md`. |
+
+### Zusätzlich geprüft (Browser, echter Durchlauf)
+
+| Was | Stand | Nachweis |
+|---|---|---|
+| Zwei Ansichten, Umschalten | ✅ | HUD und Gehirn, im Chromium durchgeklickt |
+| Gehirn: anzeigen, suchen, filtern | ✅ | 40 Einträge, Suche „quelle" → 4 Treffer |
+| Gehirn: merken und vergessen | ✅ | Eintrag angelegt, gelistet, gelöscht |
+| Diktat in zwei Schritten | ✅ | „merk dir Folgendes" → „Ich höre." → gemerkt |
+| Mitte reagiert auf Klang | ✅ | Frequenzbalken und Teilchen gezeichnet (175 000 Bildpunkte) |
+| Grundausstattung einlesen | ✅ | 39 Arbeitsregeln aus `gehirn-grundlagen.md` |
 
 ---
 

@@ -26,8 +26,14 @@ ERINNERUNG = re.compile(
     r"\b(erinner\w*|denk\s+(?:dran|daran)|weck\s+mich|sag\s+mir\s+bescheid)\b",
     re.IGNORECASE,
 )
-#: "merk dir", "merke dir", "behalte"
-GEDAECHTNIS = re.compile(r"\b(merk(?:e)?\s+dir|behalte?\s+(?:dir|im\s+kopf))\b", re.IGNORECASE)
+#: "merk dir", "behalte", "fueg deinem Gehirn hinzu", "lerne", "nimm auf"
+GEDAECHTNIS = re.compile(
+    r"(\bmerk(?:e)?\s+dir\b|\bbehalte?\s+(?:dir|im\s+kopf)\b|"
+    r"\b(?:nimm|fueg\w*|füg\w*|pack)\s+(?:bitte\s+)?(?:das\s+)?"
+    r"(?:(?:in|zu)\s+)?(?:dein\w*|sein\w*|ins)\s*gehirn\b|"
+    r"\bgehirn\s+(?:hinzu|auf)\b|\blern(?:e|st)?\b)",
+    re.IGNORECASE,
+)
 #: "aufgabe", "to-do", "setz auf die liste", "ich muss ..."
 AUFGABE = re.compile(
     r"\b(aufgabe|to-?do|auf\s+die\s+liste|ich\s+muss\s|wir\s+muessen\s|wir\s+müssen\s)",
@@ -61,6 +67,9 @@ VORSPANN = re.compile(
     r"daran|dran|"
     r"denk\s+(?:bitte\s+)?dran|weck\s+mich|sag\s+mir\s+bescheid|"
     r"merk(?:e)?\s+dir(?:\s+bitte)?|behalte?\s+(?:dir|im\s+kopf)|"
+    r"(?:nimm|fueg\w*|füg\w*|pack)\s+(?:bitte\s+)?(?:das\s+)?(?:(?:in|zu)\s+)?"
+    r"(?:dein\w*|ins)\s*gehirn(?:\s+(?:auf|hinzu|mit\s+auf))?(?:\s+bitte)?|"
+    r"lern(?:e)?(?:\s+bitte)?(?:\s+(?:dazu|folgendes))?|"
     r"leg(?:e)?\s+(?:bitte\s+)?(?:eine\s+)?aufgabe\s+an|"
     r"neue\s+aufgabe|setz(?:e)?\s+auf\s+die\s+liste|"
     r"ich\s+muss|wir\s+muessen|wir\s+müssen)"

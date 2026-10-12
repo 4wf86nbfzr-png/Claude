@@ -20,6 +20,8 @@
     --ok: #4bf0b0;
   }
   * { box-sizing: border-box; }
+  /* 'display: grid' auf <main> wuerde das hidden-Attribut sonst aushebeln. */
+  [hidden] { display: none !important; }
   html, body { height: 100%; margin: 0; }
   body {
     background: #03060b;
@@ -153,6 +155,44 @@
   }
   form.tippen input:focus { outline: none; border-color: var(--eis); }
 
+  .ansichten { display: flex; gap: 6px; margin-left: 10px; }
+  .ansichten button { padding: 6px 14px; }
+  .ansichten button[aria-selected="true"] {
+    border-color: var(--eis); color: var(--eis); background: rgba(92,214,255,.1);
+  }
+
+  .gehirn { padding: 18px 22px 22px; overflow-y: auto; min-height: 0;
+            display: flex; flex-direction: column; gap: 14px; }
+  .gehirnkopf { display: flex; gap: 14px; align-items: flex-end; flex-wrap: wrap; }
+  .gehirnkopf h2 { margin: 0; font-size: 12px; letter-spacing: .3em;
+                   text-transform: uppercase; color: var(--eis); }
+  .gehirnkopf input, .gehirnkopf select {
+    border: 1px solid var(--linie); background: rgba(10,20,32,.5); color: var(--schrift);
+    padding: 8px 12px; border-radius: 2px; min-width: 180px;
+  }
+  .gehirnkopf input { margin-left: auto; }
+  .gehirnform { display: flex; gap: 8px; }
+  .gehirnform input {
+    flex: 1; border: 1px solid var(--linie); background: rgba(10,20,32,.5);
+    color: var(--schrift); padding: 10px 14px; border-radius: 2px;
+  }
+  .gehirnform input:focus, .gehirnkopf input:focus { outline: none; border-color: var(--eis); }
+
+  .gehirnliste { display: flex; flex-direction: column; gap: 18px; }
+  .gehirngruppe h3 {
+    margin: 0 0 8px; font-size: 10px; letter-spacing: .24em; text-transform: uppercase;
+    color: var(--leise); border-bottom: 1px solid var(--linie); padding-bottom: 6px;
+  }
+  .eintrag {
+    display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: start;
+    padding: 9px 0; border-bottom: 1px solid rgba(120,220,255,.07);
+  }
+  .eintrag .schluessel { color: var(--eis); font-size: 12px; letter-spacing: .06em; }
+  .eintrag .wert { font-size: 14px; }
+  .eintrag .grade { font-size: 11px; color: var(--leise); letter-spacing: .2em; }
+  .eintrag button { padding: 4px 10px; font-size: 10px; }
+  .eintrag button:hover { border-color: var(--warn); color: var(--warn); }
+
   dialog {
     border: 1px solid var(--linie-hell); background: #060e18; color: var(--schrift);
     width: min(540px, 94vw); padding: 0; border-radius: 2px;
@@ -188,6 +228,10 @@
   <span class="kopfklein" id="datum"></span>
   <span class="kopfklein" id="modell"><span class="diode" id="diode"></span>verbinde</span>
   <span class="kopfklein" id="stimmlage"></span>
+  <nav class="ansichten" role="tablist">
+    <button id="tab-hud" role="tab" aria-selected="true" aria-controls="ansicht-hud">HUD</button>
+    <button id="tab-gehirn" role="tab" aria-selected="false" aria-controls="ansicht-gehirn">Gehirn</button>
+  </nav>
   <div class="rechts">
     <button id="horchen" aria-pressed="false" title="Schnipsen oder klatschen aktiviert Jarvis">
       Schnipsen
@@ -197,7 +241,7 @@
   </div>
 </header>
 
-<main class="schicht">
+<main class="schicht" id="ansicht-hud" role="tabpanel">
   <section class="spalte links">
     <div class="block">
       <h2>Lage <span id="lage-quelle"></span></h2>
@@ -239,6 +283,32 @@
     </div>
   </section>
 </main>
+
+<section class="schicht gehirn" id="ansicht-gehirn" role="tabpanel" hidden>
+  <div class="gehirnkopf">
+    <div>
+      <h2>Gedächtnis</h2>
+      <p class="notiz" id="gehirn-zahl">lädt …</p>
+    </div>
+    <input id="gehirn-suche" type="text" placeholder="Suchen …" aria-label="Im Gedächtnis suchen">
+    <select id="gehirn-art" aria-label="Nach Art filtern">
+      <option value="">alle Arten</option>
+      <option value="fakt">Fakten</option>
+      <option value="vorliebe">Vorlieben</option>
+      <option value="ablauf">Abläufe</option>
+      <option value="projekt">Projekte</option>
+    </select>
+  </div>
+
+  <form class="gehirnform" id="gehirn-neu">
+    <input id="gehirn-text" type="text" autocomplete="off"
+           placeholder="Neu merken — z. B. „Dienstplan: donnerstags für die Folgewoche“"
+           aria-label="Neuen Eintrag merken">
+    <button type="submit">Merken</button>
+  </form>
+
+  <div class="gehirnliste" id="gehirnliste"><p class="notiz">lädt …</p></div>
+</section>
 
 <footer class="schicht">
   <form class="tippen" id="tippen">
@@ -384,6 +454,15 @@ let ruhiger = false;
 try { ruhiger = window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
 let hochgefahren = 0;          // 0..1 Einblendung beim Start
 
+//: Treibende Teilchen -- einmal gewuerfelt, danach nur noch gedreht.
+const teilchenfeld = Array.from({ length: 26 }, () => ({
+  winkel: Math.random() * Math.PI * 2,
+  bahn: 1.3 + Math.random() * 1.1,
+  tempo: (Math.random() > 0.5 ? 1 : -1) * (0.0015 + Math.random() * 0.004),
+  groesse: 0.8 + Math.random() * 1.8,
+  helligkeit: 0.12 + Math.random() * 0.3,
+}));
+
 function bogen(x, y, radius, von, bis, breite, farbe) {
   stift.beginPath();
   stift.arc(x, y, radius, von, bis);
@@ -445,6 +524,43 @@ function zeichne(zeit) {
     stift.stroke();
   }
 
+  // Frequenzbalken im Ring -- das ist die Bewegung, die man "lebendig" nennt.
+  let aktiv = 0;
+  for (let i = 0; i < spektrum.length; i++) aktiv += spektrum[i];
+  if (aktiv > 0.02) {
+    const innen = grund * 1.94;
+    stift.lineCap = "round";
+    for (let i = 0; i < spektrum.length; i++) {
+      const winkel = (i / spektrum.length) * Math.PI * 2 - Math.PI / 2 + dreh * 0.04;
+      const hoehe = grund * (0.04 + spektrum[i] * 0.42);
+      const x1 = mitte + Math.cos(winkel) * innen;
+      const y1 = mitte + Math.sin(winkel) * innen;
+      const x2 = mitte + Math.cos(winkel) * (innen + hoehe);
+      const y2 = mitte + Math.sin(winkel) * (innen + hoehe);
+      stift.beginPath();
+      stift.moveTo(x1, y1);
+      stift.lineTo(x2, y2);
+      stift.strokeStyle = `rgba(${farbe},${(0.25 + spektrum[i] * 0.75) * auf})`;
+      stift.lineWidth = 2.5;
+      stift.stroke();
+    }
+    stift.lineCap = "butt";
+  }
+
+  // Staubteilchen, die langsam um die Mitte treiben.
+  if (!ruhiger) {
+    for (const teilchen of teilchenfeld) {
+      teilchen.winkel += teilchen.tempo * (1 + pegel * 2);
+      const r = grund * teilchen.bahn;
+      const x = mitte + Math.cos(teilchen.winkel) * r;
+      const y = mitte + Math.sin(teilchen.winkel) * r * 0.42;   // flache Ellipse
+      stift.beginPath();
+      stift.arc(x, y, teilchen.groesse, 0, Math.PI * 2);
+      stift.fillStyle = `rgba(${farbe},${teilchen.helligkeit * auf})`;
+      stift.fill();
+    }
+  }
+
   // Wellenform aus dem gemessenen Pegel
   if (wellen.length) {
     stift.beginPath();
@@ -470,6 +586,27 @@ const wellen = new Array(96).fill(0);
 function wellenSchieben(wert) {
   wellen.push(wert);
   wellen.shift();
+}
+
+// Frequenzbild: 56 Balken, die im Ring stehen. Gefuellt wird es von dem,
+// was gerade klingt -- beim Zuhoeren vom Mikrofon, beim Antworten von der
+// Tonspur. Dadurch bewegt sich die Mitte immer zum tatsaechlichen Klang.
+const spektrum = new Float32Array(56);
+function spektrumSetzen(messer, roh) {
+  messer.getByteFrequencyData(roh);
+  // Die obersten Baender sind fast immer leer -- nur das untere Drittel zeigen.
+  const nutzbar = Math.floor(roh.length * 0.38);
+  const breite = Math.max(1, Math.floor(nutzbar / spektrum.length));
+  for (let i = 0; i < spektrum.length; i++) {
+    let summe = 0;
+    for (let k = 0; k < breite; k++) summe += roh[i * breite + k] || 0;
+    const wert = summe / breite / 255;
+    // Traegheit nach unten: es soll fallen, nicht flackern.
+    spektrum[i] = Math.max(wert, spektrum[i] * 0.82);
+  }
+}
+function spektrumAbklingen() {
+  for (let i = 0; i < spektrum.length; i++) spektrum[i] *= 0.9;
 }
 requestAnimationFrame(zeichne);
 
@@ -545,14 +682,16 @@ function spieleDatei(adresse) {
       quelle.connect(messer);
       messer.connect(kontext.destination);
       const puffer = new Float32Array(messer.fftSize);
+      const baender = new Uint8Array(messer.frequencyBinCount);
       const ablesen = () => {
-        if (laufendesAudio !== klang) return;
+        if (laufendesAudio !== klang) { spektrumAbklingen(); return; }
         messer.getFloatTimeDomainData(puffer);
         let summe = 0;
         for (let i = 0; i < puffer.length; i++) summe += puffer[i] * puffer[i];
         const wert = Math.min(1, Math.sqrt(summe / puffer.length) * 5);
         pegel = Math.max(pegel, wert);
         wellenSchieben(wert);
+        spektrumSetzen(messer, baender);
         requestAnimationFrame(ablesen);
       };
       requestAnimationFrame(ablesen);
@@ -801,6 +940,7 @@ async function mikrofonAn() {
         const sichtbar = Math.min(1, rms * 6);
         pegel = Math.max(pegel, sichtbar);
         wellenSchieben(sichtbar);
+        spektrumSetzen(messer, frequenzen);
       }
       if (horchenAn && !spricht) pruefeImpuls(spitze, rms);
       requestAnimationFrame(messen);
@@ -1114,6 +1254,166 @@ function kopfStimme(lage) {
 }
 
 /* ======================================================================
+   Ansichten
+   ================================================================== */
+const ANSICHTEN = {
+  "tab-hud": "ansicht-hud",
+  "tab-gehirn": "ansicht-gehirn",
+};
+
+function zeigeAnsicht(tabId) {
+  for (const [tab, feld] of Object.entries(ANSICHTEN)) {
+    const gewaehlt = tab === tabId;
+    document.getElementById(tab).setAttribute("aria-selected", String(gewaehlt));
+    document.getElementById(feld).hidden = !gewaehlt;
+  }
+  merke("jarvis-ansicht", tabId);
+  if (tabId === "tab-gehirn") gehirnLaden();
+}
+
+for (const tab of Object.keys(ANSICHTEN)) {
+  document.getElementById(tab).addEventListener("click", () => zeigeAnsicht(tab));
+}
+
+/* ======================================================================
+   Gehirn
+   ================================================================== */
+const ARTEN = {
+  fakt: "Fakten", vorliebe: "Vorlieben", ablauf: "Abläufe", projekt: "Projekte",
+};
+let gehirnEintraege = [];
+
+async function gehirnLaden() {
+  const liste = document.getElementById("gehirnliste");
+  try {
+    gehirnEintraege = await api("/api/gedaechtnis?limit=300");
+  } catch (fehler) {
+    liste.textContent = "";
+    const p = document.createElement("p");
+    p.className = "notiz fehler";
+    p.textContent = fehler.message;
+    liste.appendChild(p);
+    return;
+  }
+  gehirnZeichnen();
+}
+
+function gehirnZeichnen() {
+  const liste = document.getElementById("gehirnliste");
+  const suche = document.getElementById("gehirn-suche").value.trim().toLowerCase();
+  const art = document.getElementById("gehirn-art").value;
+
+  const gefiltert = gehirnEintraege.filter((e) => {
+    if (art && e.art !== art) return false;
+    if (!suche) return true;
+    return (e.schluessel + " " + e.wert).toLowerCase().includes(suche);
+  });
+
+  document.getElementById("gehirn-zahl").textContent =
+    gehirnEintraege.length + " Einträge" +
+    (gefiltert.length !== gehirnEintraege.length ? ` · ${gefiltert.length} angezeigt` : "");
+
+  liste.textContent = "";
+  if (!gefiltert.length) {
+    const p = document.createElement("p");
+    p.className = "notiz";
+    p.textContent = gehirnEintraege.length
+      ? "Nichts gefunden."
+      : "Noch nichts gemerkt. Sag „Jarvis, merk dir Folgendes“ oder tipp es unten ein.";
+    liste.appendChild(p);
+    return;
+  }
+
+  const nachArt = {};
+  for (const eintrag of gefiltert) (nachArt[eintrag.art] ||= []).push(eintrag);
+
+  for (const [schluessel, bezeichnung] of Object.entries(ARTEN)) {
+    const gruppe = nachArt[schluessel];
+    if (!gruppe) continue;
+    const kasten = document.createElement("div");
+    kasten.className = "gehirngruppe";
+    const kopf = document.createElement("h3");
+    kopf.textContent = `${bezeichnung} (${gruppe.length})`;
+    kasten.appendChild(kopf);
+    gruppe.sort((a, b) => b.wichtigkeit - a.wichtigkeit);
+    for (const eintrag of gruppe) kasten.appendChild(gehirnZeile(eintrag));
+    liste.appendChild(kasten);
+  }
+  // Arten, die nicht in der Liste oben stehen, trotzdem zeigen.
+  for (const [schluessel, gruppe] of Object.entries(nachArt)) {
+    if (ARTEN[schluessel]) continue;
+    const kasten = document.createElement("div");
+    kasten.className = "gehirngruppe";
+    const kopf = document.createElement("h3");
+    kopf.textContent = `${schluessel} (${gruppe.length})`;
+    kasten.appendChild(kopf);
+    for (const eintrag of gruppe) kasten.appendChild(gehirnZeile(eintrag));
+    liste.appendChild(kasten);
+  }
+}
+
+function gehirnZeile(eintrag) {
+  const zeile = document.createElement("div");
+  zeile.className = "eintrag";
+
+  const links = document.createElement("div");
+  const schluessel = document.createElement("div");
+  schluessel.className = "schluessel";
+  schluessel.textContent = eintrag.schluessel;
+  const wert = document.createElement("div");
+  wert.className = "wert";
+  wert.textContent = eintrag.wert;
+  const grade = document.createElement("div");
+  grade.className = "grade";
+  grade.textContent = "·".repeat(Math.max(1, eintrag.wichtigkeit))
+    + (eintrag.wichtigkeit >= 5 ? "  immer im Kopf" : "");
+  links.append(schluessel, wert, grade);
+
+  const weg = document.createElement("button");
+  weg.type = "button";
+  weg.textContent = "Vergessen";
+  weg.addEventListener("click", () => gehirnVergessen(eintrag));
+
+  zeile.append(links, weg);
+  return zeile;
+}
+
+async function gehirnVergessen(eintrag) {
+  try {
+    await api("/api/werkzeug", {
+      name: "gedaechtnis_loeschen", argumente: { id: eintrag.id },
+    });
+    gehirnEintraege = gehirnEintraege.filter((e) => e.id !== eintrag.id);
+    gehirnZeichnen();
+  } catch (fehler) {
+    document.getElementById("gehirn-zahl").textContent = fehler.message;
+  }
+}
+
+document.getElementById("gehirn-neu").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const feld = document.getElementById("gehirn-text");
+  const text = feld.value.trim();
+  if (!text) return;
+  const zahl = document.getElementById("gehirn-zahl");
+  zahl.textContent = "merke …";
+  try {
+    const ergebnis = await api("/api/werkzeug", {
+      name: "gedaechtnis_merken_frei", argumente: { text },
+    });
+    feld.value = "";
+    zahl.textContent = ergebnis.ergebnis || "Gemerkt.";
+    await gehirnLaden();
+  } catch (fehler) {
+    zahl.textContent = fehler.message;
+  }
+});
+
+for (const id of ["gehirn-suche", "gehirn-art"]) {
+  document.getElementById(id).addEventListener("input", gehirnZeichnen);
+}
+
+/* ======================================================================
    Start
    ================================================================== */
 (async () => {
@@ -1129,6 +1429,7 @@ function kopfStimme(lage) {
     if (gemerkt("jarvis-horchen", lage.klatschen ? "1" : "0") === "1") horchKnopf.click();
     if (gemerkt("jarvis-dauerbetrieb", "0") === "1") dauerKnopf.click();
   } catch (fehler) { /* die Karten zeigen den Fehler bereits */ }
+  zeigeAnsicht(gemerkt("jarvis-ansicht", "tab-hud"));
   zurueckInRuhe();
 })();
 </script>

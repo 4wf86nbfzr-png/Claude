@@ -494,3 +494,63 @@ def test_lage_ueber_die_api(dienst, monkeypatch):
     services.nachrichtenlage = [Meldung("Testmeldung", "Quelle", "welt")]
     status, daten = anfrage("/api/orb/lage")
     assert status == 200 and daten["meldungen"][0]["titel"] == "Testmeldung"
+
+
+# --------------------------------------------------------- Gehirn diktieren
+def test_merken_in_zwei_schritten(orb, services):
+    """„Merk dir Folgendes“ -> Rueckfrage -> der naechste Satz wird gemerkt."""
+    erste = run(orb.sprich("Jarvis, merk dir Folgendes"))
+    assert "Ich höre" in erste.text
+    zweite = run(orb.sprich("Ich telefoniere lieber vormittags"))
+    assert "Gemerkt" in zweite.text
+    gemerkt = [e.value for e in services.memory.list_memory(limit=20)]
+    assert any("vormittags" in wert for wert in gemerkt)
+
+
+def test_diktat_laesst_sich_abbrechen(orb, services):
+    run(orb.sprich("merk dir was"))
+    antwort = run(orb.sprich("vergiss es"))
+    assert "nichts gemerkt" in antwort.text
+    assert not services.memory.list_memory(limit=5)
+
+
+def test_diktat_gilt_nur_fuer_den_naechsten_satz(orb, services):
+    run(orb.sprich("merk dir folgendes"))
+    run(orb.sprich("Dienstplan mache ich donnerstags"))
+    # Jetzt ist der Modus vorbei -- der naechste Satz geht normal ans Modell.
+    antwort = run(orb.sprich("Und was ist mit Freitag?"))
+    assert "Gemerkt" not in antwort.text
+
+
+def test_vollstaendiger_satz_wird_sofort_gemerkt(orb, services):
+    antwort = run(orb.sprich("Füge deinem Gehirn hinzu: Rechnungen kommen zum Monatsende"))
+    assert "Monatsende" in antwort.text
+    gemerkt = [e.value for e in services.memory.list_memory(limit=20)]
+    assert any("Monatsende" in wert for wert in gemerkt)
+
+
+@pytest.mark.parametrize("satz", [
+    "merk dir folgendes", "Jarvis, merke dir etwas", "lerne bitte",
+    "nimm das in dein Gehirn auf", "pack ins Gehirn",
+])
+def test_diktat_startsaetze(orb, satz):
+    assert orb.DIKTAT_START.match(satz)
+
+
+@pytest.mark.parametrize("satz", [
+    "merk dir, dass Alex morgen frei hat",
+    "was steht heute an",
+])
+def test_kein_diktat_bei_vollstaendigem_satz(orb, satz):
+    assert not orb.DIKTAT_START.match(satz)
+
+
+def test_freies_merken_erkennt_schluessel(services):
+    ergebnis = run(services.toolkit.execute(
+        "gedaechtnis_merken_frei", {"text": "Dienstplan: donnerstags für die Folgewoche"}
+    ))
+    assert ergebnis.ok and ergebnis.data["schluessel"] == "Dienstplan"
+
+
+def test_freies_merken_lehnt_leeres_ab(services):
+    assert not run(services.toolkit.execute("gedaechtnis_merken_frei", {"text": "ja"})).ok

@@ -96,6 +96,8 @@ class Orb:
         self.einstellungen = services.settings
         self._stimme = None
         self._stimm_kennung: tuple[str, str, str] | None = None
+        #: Chats, die gerade etwas ins Gedaechtnis diktieren.
+        self._merkmodus: set[str] = set()
 
     # ------------------------------------------------------------- Stimme
     #: Welche Einstellungen im Dashboard verstellt werden koennen.
@@ -429,12 +431,48 @@ class Orb:
         if self._ist_weckwort(satz):
             return await self.begruessung()
 
+        gemerkt = await self._gedaechtnis_diktat(satz, chat_id=chat_id)
+        if gemerkt is not None:
+            return gemerkt
+
         antwort = await self.services.build_agent().handle(chat_id, satz, channel="orb")
         ergebnistext = antwort.text or "Dazu habe ich nichts."
         aktionen, ergebnistext = await self._marken_ausfuehren(ergebnistext, chat_id=chat_id)
         return await self._antwort(
             ergebnistext, aktionen=aktionen, werkzeuge=list(antwort.tool_names)
         )
+
+    #: "Merk dir Folgendes" ohne Inhalt -- der kommt im naechsten Satz.
+    DIKTAT_START = re.compile(
+        r"^\s*(?:jarvis[,:]?\s*)?(?:bitte\s+)?"
+        r"(?:merk(?:e)?\s+dir|behalte?|lern(?:e)?|"
+        r"(?:nimm|fueg\w*|füg\w*|pack)\s+(?:das\s+)?(?:(?:in|zu)\s+)?(?:dein\w*|ins)\s*gehirn"
+        r"(?:\s+(?:auf|hinzu))?)"
+        r"[\s,:]*(?:bitte\s*)?(?:folgendes|das\s+folgende|etwas|was)?\s*[.!]?\s*$",
+        re.IGNORECASE,
+    )
+
+    async def _gedaechtnis_diktat(self, satz: str, *, chat_id: str) -> OrbAntwort | None:
+        """Zweischrittiges Merken: erst ansagen, dann diktieren.
+
+        Gesprochen sagt man selten alles in einem Satz. "Jarvis, merk dir
+        Folgendes" soll deshalb nicht in einem leeren Eintrag enden,
+        sondern in einer Rueckfrage -- und was danach kommt, wird gemerkt.
+        """
+        if chat_id in self._merkmodus:
+            self._merkmodus.discard(chat_id)
+            if re.fullmatch(r"\s*(abbrechen|vergiss es|nichts|doch nicht)\s*[.!]?", satz,
+                            re.IGNORECASE):
+                return await self._antwort("Gut, nichts gemerkt.")
+            ergebnis = await self.services.toolkit.execute(
+                "gedaechtnis_merken_frei", {"text": satz}, chat_id=chat_id, channel="orb"
+            )
+            return await self._antwort(ergebnis.text)
+
+        if self.DIKTAT_START.match(satz):
+            self._merkmodus.add(chat_id)
+            return await self._antwort("Ich höre. Was soll ich mir merken?")
+        return None
 
     def _ist_weckwort(self, satz: str) -> bool:
         weckwort = (self.einstellungen.orb_weckwort or "").strip().lower()

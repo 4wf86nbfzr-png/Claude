@@ -1,5 +1,30 @@
 # Änderungen
 
+## 1.4.0 — Gehirn zum Anfassen, lebendige Mitte, weniger Wartezeit
+
+* **Zwei Ansichten** im Dashboard: **HUD** und **Gehirn**. Das Gedächtnis ist
+  jetzt bedienbar — nach Art gruppiert, durchsuchbar, filterbar, mit Feld zum
+  Nachtragen und Knopf zum Vergessen.
+* **Lebendige Mitte** — Frequenzbalken im Ring, die sich nach dem bewegen, was
+  gerade klingt (Mikrofon beim Zuhören, Tonspur beim Antworten), dazu treibende
+  Teilchen und Zustandsfarben.
+* **Diktat ins Gedächtnis** — „Jarvis, merk dir Folgendes" → „Ich höre." → der
+  nächste Satz wird gemerkt. „Vergiss es" bricht ab. Dazu versteht er jetzt
+  „füge deinem Gehirn hinzu", „lerne", „nimm auf", „pack ins Gehirn".
+* **`gedaechtnis_merken_frei`** — ein frei gesprochener Satz reicht; Schlüssel,
+  Art und Wichtigkeit erkennt derselbe Leser wie bei der Gehirn-Datei.
+* **`gehirn-grundlagen.md`** — 39 Arbeitsregeln als Grundausstattung
+  (`./start.sh lernen grundlagen`): wie knapp er antwortet, wann er nachfragt,
+  dass er Quellen nennt, wo er stehen bleibt. Regeln, keine erfundenen Fakten.
+* **`./start.sh modell`** — Sprachmodell samt Schlüssel in einem Durchgang
+  umstellen. Der größte Hebel beim Tempo.
+* **Tempo** — der Systemtext ist jetzt so gebaut, dass vorn steht, was sich nie
+  ändert: Ollama kann den Anfang wiederverwenden, statt ihn bei jeder Minute
+  neu durchzurechnen. Gesprochene Kanäle bekommen weniger Verlauf, kleine
+  Modelle weniger Gedächtniszeilen.
+* **Behoben:** Die Gehirn-Ansicht erschien unter dem HUD statt an seiner Stelle
+  — `display: grid` hatte das `hidden`-Attribut ausgehebelt.
+
 ## 1.3.1 — Einrichtung per Befehl, spürbar schneller
 
 * **`./start.sh stimme`** — ElevenLabs in einem Durchgang: Schlüssel eintragen,

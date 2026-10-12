@@ -18,6 +18,7 @@ außer dem Telegram-Bot.
 | **`START-HEUTE.md`** | Schritt-für-Schritt vom leeren Rechner bis „Jarvis antwortet". Fang damit an. |
 | **`START-ORB.md`** | Das Dashboard zum Sprechen: schnipsen, reden, Stimme einstellen. |
 | **`FORTSCHRITT.md`** | Was läuft, was nur gebaut und noch nicht live geprüft ist, was fehlt. |
+| **`gehirn-grundlagen.md`** | 39 Arbeitsregeln als Grundausstattung. `./start.sh lernen grundlagen`. |
 | **`mein-gehirn.start.md`** | Ausgefüllte Startfassung seines Gedächtnisses. `./start.sh lernen` macht daraus deine persönliche `mein-gehirn.md` (bleibt bei Aktualisierungen unangetastet). `mein-gehirn.vorlage.md` ist die leere Variante. |
 | **`TESTPLAN.md`** | 68 konkrete Nachrichten zum Abschicken samt erwartetem Ergebnis. Zum Abhaken. |
 
@@ -415,6 +416,11 @@ gerade spricht. Damit es nicht vorgelesen klingt, schreibt Jarvis vorher aus,
 was man spricht („13:13 Uhr" → „dreizehn Uhr dreizehn", „am 5.11." → „am
 fünften November"), und spricht satzweise: das erste Stück läuft schon,
 während der Rest erzeugt wird.
+
+**Zwei Ansichten:** *HUD* und *Gehirn*. Im Gehirn stehen alle dauerhaften
+Einträge, gruppiert und durchsuchbar, mit Feld zum Nachtragen und Knopf zum
+Vergessen. Beibringen geht auch im Gespräch — „füge deinem Gehirn hinzu: …",
+oder diktiert über „merk dir Folgendes" und dann sprechen.
 
 **Das HUD zeigt** Zustand (Bereitschaft, Zuhören, Verarbeiten, Recherchieren,
 Aufgabe läuft, Sprechen, Fehler), eine Wellenform nach dem echten Pegel, die
