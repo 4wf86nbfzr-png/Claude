@@ -75,6 +75,19 @@ class Tool:
     timeout: float = DEFAULT_TIMEOUT
     #: Werkzeuge, die das Modell nicht sehen soll (nur Knoepfe/Dashboard).
     internal: bool = False
+    #: Pruefung, ob das Werkzeug gerade ueberhaupt etwas ausrichten kann.
+    #: Ein abgeschaltetes Telefon im Werkzeugkasten verleitet kleine Modelle
+    #: dazu, es trotzdem zu waehlen -- und dann steht eine Entschuldigung
+    #: statt einer Erinnerung in der Antwort.
+    verfuegbar: Callable[[], bool] | None = None
+
+    def kann_gerade(self) -> bool:
+        if self.verfuegbar is None:
+            return True
+        try:
+            return bool(self.verfuegbar())
+        except Exception:  # pragma: no cover - Pruefung darf nie stoeren
+            return True
 
     def spec(self) -> ToolSpec:
         return ToolSpec(self.name, self.description, self.parameters)
@@ -92,13 +105,14 @@ class Toolkit:
     def register(
         self, name: str, description: str, parameters: dict[str, Any], handler: ToolHandler,
         *, action: str = "", category: str = "allgemein", timeout: float = DEFAULT_TIMEOUT,
-        internal: bool = False,
+        internal: bool = False, verfuegbar: Callable[[], bool] | None = None,
     ) -> Tool:
         if name in self._tools:
             raise ValueError(f"Werkzeug '{name}' ist schon registriert.")
         tool = Tool(
             name=name, description=description, parameters=parameters, handler=handler,
             action=action or name, category=category, timeout=timeout, internal=internal,
+            verfuegbar=verfuegbar,
         )
         self._tools[name] = tool
         return tool
@@ -125,13 +139,13 @@ class Toolkit:
     def specs(self, *, include_internal: bool = False) -> list[ToolSpec]:
         return [
             tool.spec() for tool in self._tools.values()
-            if include_internal or not tool.internal
+            if (include_internal or not tool.internal) and tool.kann_gerade()
         ]
 
     def descriptions(self, *, include_internal: bool = False) -> list[str]:
         return [
             tool.short() for tool in sorted(self._tools.values(), key=lambda t: t.name)
-            if include_internal or not tool.internal
+            if (include_internal or not tool.internal) and tool.kann_gerade()
         ]
 
     def by_category(self) -> dict[str, list[Tool]]:

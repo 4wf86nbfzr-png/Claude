@@ -55,6 +55,7 @@ def register(services: "Services") -> None:
         schema(limit=int_field("Wie viele hoechstens"),
                nur_wichtige=bool_field("Nur die als wichtig eingestuften")),
         email_ungelesen, category="email",
+        verfuegbar=lambda: services.email is not None,
     )
 
     async def email_suchen(stichwort: str, limit: int = 10) -> ToolResult:
@@ -75,6 +76,7 @@ def register(services: "Services") -> None:
         "email_suchen", "Sucht E-Mails nach Absender oder Betreff.",
         schema(stichwort=text_field("Suchbegriff", pflicht=True), limit=int_field("Wie viele")),
         email_suchen, category="email",
+        verfuegbar=lambda: services.email is not None,
     )
 
     async def email_lesen(uid: str, zusammenfassen: bool = True) -> ToolResult:
@@ -123,6 +125,7 @@ def register(services: "Services") -> None:
         schema(uid=text_field("Kennung der Nachricht", pflicht=True),
                zusammenfassen=bool_field("Zusammenfassen statt Volltext (Standard ja)")),
         email_lesen, category="email", timeout=120.0,
+        verfuegbar=lambda: services.email is not None,
     )
 
     async def email_antwort_entwerfen(
@@ -198,6 +201,7 @@ def register(services: "Services") -> None:
                            enum=["freundlich", "knapp", "formell"]),
         ),
         email_antwort_entwerfen, category="email", timeout=150.0,
+        verfuegbar=lambda: services.email is not None,
     )
 
     async def entwuerfe_liste(limit: int = 10) -> ToolResult:
@@ -214,6 +218,7 @@ def register(services: "Services") -> None:
     services.toolkit.register(
         "entwuerfe_liste", "Zeigt die noch nicht versendeten Entwuerfe.",
         schema(limit=int_field("Wie viele")), entwuerfe_liste, category="email",
+        verfuegbar=lambda: services.email is not None,
     )
 
     async def email_entwurf_aendern(entwurf: int, neuer_text: str) -> ToolResult:
@@ -235,6 +240,7 @@ def register(services: "Services") -> None:
         schema(entwurf=int_field("Nummer des Entwurfs", pflicht=True),
                neuer_text=text_field("Der neue Nachrichtentext", pflicht=True)),
         email_entwurf_aendern, category="email",
+        verfuegbar=lambda: services.email is not None,
     )
 
     async def email_senden(entwurf: int = 0, an: str = "", betreff: str = "", text: str = "",
@@ -284,6 +290,7 @@ def register(services: "Services") -> None:
         schema(entwurf=int_field("Nummer des Entwurfs"), an=text_field("Empfaenger"),
                betreff=text_field("Betreff"), text=text_field("Nachrichtentext")),
         email_senden, action="email_senden", category="email",
+        verfuegbar=lambda: services.email is not None,
     )
 
     @confirmed("email_senden")

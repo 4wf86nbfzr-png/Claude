@@ -74,6 +74,7 @@ class Agent:
         messages = self._build_context(chat_id, text, channel=channel)
         tools = services.toolkit.specs()
         used_tools: list[str] = []
+        erfolgreiche: set[str] = set()
         pending_confirmation = ""
         buttons: list[tuple[str, str]] = []
         last_tool_text = ""
@@ -125,6 +126,10 @@ class Agent:
                         "das ist das unformatierte Ergebnis.)_"
                     )
                 answer = answer or last_tool_text or "Dazu habe ich gerade keine Antwort."
+                answer, nachgeholt = await self._sicherheitsnetz(
+                    text, answer, erfolgreiche, chat_id=chat_id, channel=channel
+                )
+                used_tools.extend(nachgeholt)
                 return self._finish(chat_id, answer, buttons, pending_confirmation,
                                     used_tools, channel, degraded=services.models.degraded)
 
@@ -134,6 +139,8 @@ class Agent:
             for call in reply.tool_calls:
                 result = await self._run_tool(call, chat_id=chat_id, channel=channel)
                 used_tools.append(call.name)
+                if result.ok:
+                    erfolgreiche.add(call.name)
                 last_tool_text = result.text
                 if result.confirmation_token:
                     pending_confirmation = result.confirmation_token
@@ -150,11 +157,54 @@ class Agent:
 
         # Zu viele Runden: das Ergebnis des letzten Werkzeugs ist immer noch brauchbar.
         log.warning("Werkzeuggrenze (%s Runden) erreicht", self.settings.ai_max_tool_rounds)
-        return self._finish(
-            chat_id,
-            last_tool_text or "Ich bin da gerade nicht weitergekommen -- bitte noch einmal anders.",
-            buttons, pending_confirmation, used_tools, channel,
+        antwort = (
+            last_tool_text
+            or "Ich bin da gerade nicht weitergekommen -- bitte noch einmal anders."
         )
+        antwort, nachgeholt = await self._sicherheitsnetz(
+            text, antwort, erfolgreiche, chat_id=chat_id, channel=channel
+        )
+        used_tools.extend(nachgeholt)
+        return self._finish(
+            chat_id, antwort, buttons, pending_confirmation, used_tools, channel,
+        )
+
+    #: Welche Werkzeuge einen erkannten Auftrag bereits erledigt haetten.
+    ERFUELLT_DURCH = {
+        "erinnerung_anlegen": {"erinnerung_anlegen", "anruf_planen", "erinnerung_verschieben"},
+        "aufgabe_anlegen": {"aufgabe_anlegen", "aufgaben_planen", "aufgabe_aendern"},
+        "gedaechtnis_merken": {"gedaechtnis_merken", "gedaechtnis_korrigieren"},
+    }
+
+    async def _sicherheitsnetz(
+        self, text: str, antwort: str, erfolgreiche: set[str], *,
+        chat_id: str, channel: str,
+    ) -> tuple[str, list[str]]:
+        """Eindeutigen Auftrag nachholen, den das Modell nicht ausgefuehrt hat.
+
+        Kleine Modelle schreiben einen Werkzeugaufruf schon mal als Fliesstext
+        ("Erinnerung anlegen: Wasser trinken") oder greifen zum falschen
+        Werkzeug. Der Satz des Nutzers war aber eindeutig -- dann wird er hier
+        ausgefuehrt, statt verloren zu gehen. Hat das Modell das Richtige
+        getan, passiert nichts.
+        """
+        from .offline import erkenne
+
+        auftrag = erkenne(text, self.settings.tz,
+                          telefonie=self.services.phone_active)
+        if auftrag is None or not auftrag.werkzeug:
+            return antwort, []
+        if erfolgreiche & self.ERFUELLT_DURCH.get(auftrag.werkzeug, {auftrag.werkzeug}):
+            return antwort, []
+
+        log.info("Sicherheitsnetz: hole %s nach", auftrag.werkzeug)
+        ergebnis = await self.services.toolkit.execute(
+            auftrag.werkzeug, auftrag.argumente, chat_id=chat_id, channel=channel
+        )
+        if not ergebnis.ok:
+            return antwort, [auftrag.werkzeug]
+        zusatz = f"\n{auftrag.hinweis}" if auftrag.hinweis else ""
+        return f"{ergebnis.text}{zusatz}", [auftrag.werkzeug]
 
     async def _notfallweg(
         self, chat_id: str, text: str, *, channel: str

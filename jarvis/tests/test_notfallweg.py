@@ -163,3 +163,95 @@ def test_mit_modell_bleibt_alles_beim_alten(services):
     assert antwort.text == "Steht."
     assert not antwort.degraded
     assert len(services.reminders.upcoming()) == 1
+
+
+# --- Sicherheitsnetz bei laufendem, aber schwachem Modell --------------------
+def schwaches_modell(services, *antworten):
+    """Ein Modell, das antwortet, aber die Werkzeuge verfehlt."""
+    from jarvis.ai.provider import ModelReply
+    anbieter = EchoProvider(scripted=list(antworten))
+    services.models.primary = anbieter
+    services.models.active = anbieter
+    services.models.fallback = None
+    return anbieter
+
+
+def test_als_text_geschriebener_werkzeugaufruf_wird_nachgeholt(services):
+    """Genau der Fall aus dem Betrieb: das Modell schreibt statt zu handeln."""
+    from jarvis.ai.provider import ModelReply
+    schwaches_modell(services, ModelReply(
+        text="Entschuldigung, ich habe mich geirrt.\nErinnerung anlegen: Wasser zu trinken"))
+
+    antwort = run(services.build_agent().handle(
+        "42", "Erinnere mich in 2 Minuten daran, Wasser zu trinken"))
+
+    erinnerungen = services.reminders.upcoming()
+    assert len(erinnerungen) == 1, "Der eindeutige Auftrag ging verloren"
+    assert erinnerungen[0].text == "Wasser zu trinken"
+    # Die Entschuldigung des Modells wird durch die Tatsache ersetzt.
+    assert "Erinnerung #1" in antwort.text
+    assert "Entschuldigung" not in antwort.text
+
+
+def test_falsches_werkzeug_fuehrt_trotzdem_zum_ergebnis(services):
+    """Das Modell greift zum Telefon, obwohl Telefonie aus ist."""
+    from jarvis.ai.provider import ModelReply, ToolInvocation
+    schwaches_modell(
+        services,
+        ModelReply(text="", tool_calls=[ToolInvocation(
+            name="anruf_planen", arguments={"text": "Wasser", "wann": "in 2 minuten"})]),
+        ModelReply(text="Das kann ich leider nicht."),
+    )
+    antwort = run(services.build_agent().handle(
+        "42", "Erinnere mich in 2 Minuten daran, Wasser zu trinken"))
+
+    assert len(services.reminders.upcoming()) == 1
+    assert "Erinnerung #1" in antwort.text
+
+
+def test_richtig_ausgefuehrtes_wird_nicht_doppelt_angelegt(services):
+    from jarvis.ai.provider import ModelReply, ToolInvocation
+    schwaches_modell(
+        services,
+        ModelReply(text="", tool_calls=[ToolInvocation(
+            name="erinnerung_anlegen",
+            arguments={"text": "Wasser zu trinken", "wann": "in 2 minuten"})]),
+        ModelReply(text="Steht, ich melde mich."),
+    )
+    antwort = run(services.build_agent().handle(
+        "42", "Erinnere mich in 2 Minuten daran, Wasser zu trinken"))
+
+    assert len(services.reminders.upcoming()) == 1, "doppelt angelegt"
+    assert antwort.text == "Steht, ich melde mich."
+
+
+def test_plauderei_loest_kein_netz_aus(services):
+    from jarvis.ai.provider import ModelReply
+    schwaches_modell(services, ModelReply(text="Moin! Ich kann Aufgaben und Termine."))
+    antwort = run(services.build_agent().handle("42", "Moin was kannst du"))
+    assert antwort.text.startswith("Moin!")
+    assert services.reminders.upcoming() == [] and services.tasks.list() == []
+
+
+def test_abgeschaltete_werkzeuge_sieht_das_modell_nicht(services):
+    """Weniger Auswahl heisst weniger Fehlgriffe bei kleinen Modellen."""
+    sichtbar = {spec.name for spec in services.toolkit.specs()}
+    assert "anruf_planen" not in sichtbar          # Telefonie aus
+    assert "email_ungelesen" not in sichtbar       # kein Postfach
+    assert "erinnerung_anlegen" in sichtbar
+    assert "aufgabe_anlegen" in sichtbar
+
+    # Aufrufbar bleiben sie trotzdem -- mit ehrlicher Fehlermeldung.
+    ergebnis = run(services.toolkit.execute("email_ungelesen", {}))
+    assert not ergebnis.ok and "nicht verbunden" in ergebnis.text
+
+
+def test_telefonie_eingeschaltet_macht_die_werkzeuge_wieder_sichtbar(services):
+    class TelefonDoppel:
+        async def close(self):
+            return None
+
+    services.phone = TelefonDoppel()
+    services.store.set("telefonie", "true")
+    sichtbar = {spec.name for spec in services.toolkit.specs()}
+    assert "anruf_planen" in sichtbar and "anruf_jetzt" in sichtbar

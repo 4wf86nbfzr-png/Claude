@@ -60,6 +60,13 @@ versteht weiterhin die eindeutigen Aufträge — „erinnere mich morgen um 8 an
 „merk dir …", „ich muss …", „ruf mich um 9 an" — und führt sie wirklich aus
 (`core/offline.py`), statt sie nur höflich zu quittieren.
 
+**Kleine Modelle** (3B auf einem Intel-Mac) greifen beim Werkzeugwählen oft
+daneben und schreiben den Aufruf als Fließtext. Dagegen zwei Vorkehrungen:
+Werkzeuge, die gerade nichts ausrichten können, bekommt das Modell gar nicht
+erst zu sehen (ohne Telefonie und Postfach sind es 31 statt 41) — und war der
+Satz eindeutig, holt ein Sicherheitsnetz die Ausführung nach, wenn das Modell
+sie verfehlt hat. Hat es richtig gehandelt, passiert nichts doppelt.
+
 **Auf einem Intel-Mac** rechnet Ollama nur auf der CPU — ein 8B-Modell braucht
 dort schnell eine halbe Minute pro Antwort. Dann besser ein kleines Modell
 (`AI_MODEL=llama3.2:3b`) oder ein Cloud-Modell: `AI_PROVIDER=anthropic`,

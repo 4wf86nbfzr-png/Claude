@@ -64,6 +64,7 @@ def register(services: "Services") -> None:
                wann=text_field("Wann angerufen wird", pflicht=True),
                wiederholung=text_field("z. B. 'jeden Montag'")),
         anruf_planen, category="telefonie",
+        verfuegbar=lambda: services.phone_active,
     )
 
     async def anruf_jetzt(text: str = "", gespraech: bool = False, chat_id: str = "") -> ToolResult:
@@ -96,6 +97,7 @@ def register(services: "Services") -> None:
         schema(text=text_field("Die Ansage (bei einem Gespraech der Einstiegssatz)"),
                gespraech=bool_field("true fuer ein echtes Gespraech statt einer Ansage")),
         anruf_jetzt, action="anruf_starten", category="telefonie",
+        verfuegbar=lambda: services.phone_active,
     )
 
     @confirmed("anruf_starten")
@@ -153,4 +155,5 @@ def register(services: "Services") -> None:
     services.toolkit.register(
         "anrufe_liste", "Zeigt die letzten Anrufe mit Ergebnis.",
         schema(), anrufe_liste, category="telefonie",
+        verfuegbar=lambda: services.phone is not None,
     )
