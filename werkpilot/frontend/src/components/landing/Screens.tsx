@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Reveal } from "./Reveal";
 
 /* Echte Bildschirme aus dem Dashboard (frontend/tools/screens/capture.mjs), kein Mockup. */
-const SCREENS = [
+export const SCREENS = [
   { key: "anfragen", file: "anfragen", label: "Anfragen", title: "Alle Anfragen an einem Ort, Dringendes oben", text: "Jede Anfrage bekommt Kategorie, Priorität und Status. Ein Stromausfall steht über einer Wartungsanfrage, eine Beschwerde geht zur Prüfung an einen Menschen." },
   { key: "detail", file: "anfrage-detail", label: "Entwurf prüfen", title: "Der Entwurf liegt bereit, Sie geben frei", text: "Einordnung mit Sicherheitswert, fehlende Angaben, der Antwortentwurf im Ton des Betriebs. Freigeben, bearbeiten oder verwerfen, mit einem Klick." },
   { key: "termine", file: "termine", label: "Termine", title: "Vorschläge aus den Geschäftszeiten", text: "Bestätigte und vorgeschlagene Termine, dazu die nächsten freien Zeiten. Der Kunde bestätigt per Link, der Termin landet im Kalender." },

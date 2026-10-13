@@ -108,6 +108,16 @@ App Store und Google Play mit selbst gezeichneten Symbolen. Die Ziele kommen aus
 verlinkt nichts. Sobald die Store-Einträge existieren, sollten die offiziellen Badges von Apple
 und Google nach deren Markenrichtlinien eingesetzt werden.
 
+**Scroll-Effekte der Startseite** (alle nur ohne `prefers-reduced-motion`, GSAP ScrollTrigger):
+Hero-Parallaxe, gepinntes Scrollytelling mit 3D-Szene, horizontale Funktionssektion, Fade-ins, dazu
+seit Oktober 2026: `ScrollFilm.tsx` (der Film wird gepinnt mit dem Scrollen abgespielt, Satz je Szene;
+Quelle `clairify-scrub-720.webm/.mp4` mit Keyframe alle 8 Bilder, auf Mobil und bei reduzierter Bewegung
+Standbild plus Liste), `IsoJourney.tsx` (isometrische Reise über die echten Bildschirme, Kamera fährt
+beim Scrollen von Station zu Station, Reiter springen direkt an die Scrollposition; unter 1024 px und
+bei reduzierter Bewegung die Reiteransicht aus `Screens.tsx`) und `ScrollMotion.tsx` (Fly-through:
+Abschnitte mit `data-fly` kommen aus der Tiefe nach vorn, große Bilder laufen als Parallaxe). Nach dem
+Mounten `ScrollTrigger.sort()` und `refresh()`, damit später angelegte Pins die Abstände kennen.
+
 **Einblick ins System** (`Screens.tsx`): sechs echte Bildschirme des Dashboards als Reiter mit
 Vergrößerung, keine Mockups. Aufnahme reproduzierbar: API und Web starten wie im Smoke-Test,
 `python3 scripts/demo_seed.py <api-url> <api-log>` legt einen Beispielbetrieb mit sieben Anfragen,

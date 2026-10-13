@@ -137,3 +137,41 @@ html:has(.landing) { scroll-behavior: auto; }
 .landing .lightbox { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; padding: 24px; background: rgba(10, 8, 6, 0.9); cursor: zoom-out; }
 .landing .lightbox img { max-width: min(1600px, 100%); max-height: 100%; width: auto; height: auto; border-radius: 10px; cursor: default; }
 .landing .lightbox-close { position: absolute; top: 14px; right: 18px; border: 0; background: none; color: #fff; font-size: 2rem; line-height: 1; cursor: pointer; }
+
+/* Scroll-Video: der Film läuft mit dem Scrollen, Sätze je Szene */
+.landing .film-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.landing .film-shade { position: absolute; inset: 0; background:
+  linear-gradient(90deg, color-mix(in srgb, var(--c-bg) 80%, transparent) 0%, color-mix(in srgb, var(--c-bg) 45%, transparent) 45%, transparent 78%),
+  linear-gradient(180deg, var(--c-bg) 0%, transparent 22%, transparent 70%, var(--c-bg) 100%); }
+.landing .film h2, .landing .film .eyebrow { text-shadow: 0 2px 24px rgba(0, 0, 0, 0.45); }
+.landing .film-lines { position: relative; min-height: 5.5rem; max-width: 40rem; }
+.landing .film-line { position: absolute; left: 0; top: 0; margin: 0; opacity: 0; transform: translateY(14px); transition: opacity 0.45s ease, transform 0.45s ease; text-shadow: 0 1px 14px rgba(0, 0, 0, 0.55); }
+.landing .film-line.is-on { opacity: 1; transform: none; }
+.landing .film-k { display: block; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.02em; color: var(--c-accent2); }
+.landing .film-t { display: block; margin-top: 6px; font-size: 1.25rem; line-height: 1.4; color: var(--c-ink); }
+@media (min-width: 768px) { .landing .film-t { font-size: 1.5rem; } }
+.landing .film.is-static .film-pin { min-height: 0; }
+.landing .film.is-static .film-lines { min-height: 0; display: grid; gap: 18px; }
+.landing .film.is-static .film-line { position: static; opacity: 1; transform: none; }
+.landing .film.is-static .film-video { position: absolute; }
+
+/* Isometrische Reise über die Bildschirme */
+.landing .iso-stage { position: absolute; inset: 0; perspective: 2000px; perspective-origin: 62% 40%; pointer-events: none; }
+.landing .iso-rot { position: absolute; left: 62%; top: 58%; width: 0; height: 0; transform-style: preserve-3d; transform: rotateX(56deg) rotateZ(-36deg); }
+.landing .iso-board { position: absolute; left: 0; top: 0; transform-style: preserve-3d; will-change: transform; }
+.landing .iso-tile { position: absolute; display: block; padding: 0; border: 0; border-radius: 12px; overflow: hidden; background: var(--c-bg2); opacity: 0.5; filter: saturate(0.6) brightness(0.8); transform: translateZ(0); transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1), opacity 0.6s ease, filter 0.6s ease; box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.8), 0 2px 0 rgba(255, 255, 255, 0.06) inset; pointer-events: auto; cursor: zoom-in; }
+.landing .iso-tile img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top left; }
+.landing .iso-tile.is-on { opacity: 1; filter: none; transform: translateZ(90px); box-shadow: 0 70px 110px -30px rgba(0, 0, 0, 0.85); }
+.landing .iso-label { position: absolute; left: 16px; bottom: 12px; padding: 4px 10px; border-radius: 999px; background: rgba(0, 0, 0, 0.55); color: #fff; font-size: 0.78rem; font-weight: 600; }
+.landing .iso-captions { position: absolute; left: 0; right: 0; bottom: 0; z-index: 10; padding: 0 20px 56px; max-width: 34rem; margin-left: max(20px, calc((100vw - 80rem) / 2 + 20px)); }
+.landing .iso-caption { position: absolute; left: 20px; bottom: 56px; width: min(32rem, calc(100vw - 40px)); opacity: 0; transform: translateY(16px); transition: opacity 0.5s ease, transform 0.5s ease; pointer-events: none; }
+.landing .iso-caption.is-on { opacity: 1; transform: none; pointer-events: auto; }
+.landing .iso-note { position: absolute; left: 20px; bottom: 20px; margin: 0; font-size: 0.72rem; color: var(--c-muted); width: min(32rem, calc(100vw - 40px)); }
+.landing .iso-captions { height: 320px; }
+@media (prefers-reduced-motion: reduce) {
+  .landing .film-line { transition: none; }
+  .landing .iso-tile, .landing .iso-caption { transition: none; }
+}
+.landing .iso-pin::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 260px; z-index: 5; pointer-events: none; background: linear-gradient(180deg, var(--c-bg) 0%, color-mix(in srgb, var(--c-bg) 85%, transparent) 55%, transparent 100%); }
+.landing .iso-caption { bottom: 110px; }
+.landing .iso-note { bottom: 72px; }

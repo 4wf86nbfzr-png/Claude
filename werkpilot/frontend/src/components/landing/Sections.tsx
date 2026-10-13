@@ -15,7 +15,7 @@ const TRADES = [
 
 export function Industries() {
   return (
-    <section className="mx-auto max-w-7xl px-5 py-28" aria-label="Branchen">
+    <section data-fly className="mx-auto max-w-7xl px-5 py-28" aria-label="Branchen">
       <div className="grid gap-12 md:grid-cols-[1.1fr_1fr] md:items-end md:gap-16">
         <Reveal>
           <p className="eyebrow mb-4">Für wen</p>
@@ -40,7 +40,7 @@ const DOES_NOT = ["Preise nennen oder Angebote abgeben", "Technische Diagnosen s
 
 export function Honesty() {
   return (
-    <section className="relative" aria-label="Was die KI macht und was nicht">
+    <section data-fly className="relative" aria-label="Was die KI macht und was nicht">
       <div className="mx-auto grid max-w-7xl gap-12 px-5 py-28 md:grid-cols-2 md:gap-16">
         <Reveal className="still-wrap aspect-[4/5] md:aspect-auto md:min-h-[560px]">
           <img className="still" src="/video/stills/still-2.jpg" alt="Standbild aus dem Film: Ankunft mit dem Auto auf der Baustelle" loading="lazy" decoding="async" />
@@ -65,7 +65,7 @@ export function Honesty() {
 
 export function DemoSection() {
   return (
-    <section id="demo" className="mx-auto max-w-7xl px-5 py-28" aria-label="Interaktive Demo">
+    <section data-fly id="demo" className="mx-auto max-w-7xl px-5 py-28" aria-label="Interaktive Demo">
       <div className="grid gap-12 lg:grid-cols-[1fr_1.3fr] lg:items-start lg:gap-16">
         <Reveal>
           <p className="eyebrow mb-4">Interaktive Demo</p>
@@ -87,7 +87,7 @@ const PLANS = [
 
 export function Pricing() {
   return (
-    <section id="preise" className="mx-auto max-w-7xl px-5 py-28" aria-label="Preise">
+    <section data-fly id="preise" className="mx-auto max-w-7xl px-5 py-28" aria-label="Preise">
       <Reveal><p className="eyebrow mb-4">Preise</p><h2 className="display max-w-3xl text-4xl md:text-5xl">Weniger als eine Monteurstunde pro Woche.</h2><p className="mt-4 max-w-2xl text-lg text-ink-2">Alle Preise zuzüglich Umsatzsteuer, monatlich kündbar, 14 Tage kostenlos ohne Zahlungsdaten. Einführungspreise: Was Sie heute buchen, bleibt für Ihre Laufzeit so.</p></Reveal>
       <div className="mt-16 grid gap-14 md:grid-cols-3 md:gap-10">
         {PLANS.map((p, i) => (
@@ -115,7 +115,7 @@ const FAQ_ITEMS = [
 
 export function FAQ() {
   return (
-    <section id="faq" aria-label="Häufige Fragen">
+    <section data-fly id="faq" aria-label="Häufige Fragen">
       <div className="mx-auto grid max-w-7xl gap-12 px-5 py-28 md:grid-cols-[1fr_1.6fr] md:gap-16">
         <Reveal><p className="eyebrow mb-4">Fragen</p><h2 className="display text-4xl md:text-5xl">Kurz beantwortet.</h2><p className="mt-5 text-lg text-ink-2">Mehr im <Link href="/hilfe" className="text-accent-2 hover:text-accent">Hilfezentrum</Link> oder per <Link href="/kontakt" className="text-accent-2 hover:text-accent">Kontakt</Link>.</p></Reveal>
         <div className="space-y-2">

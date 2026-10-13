@@ -7,7 +7,9 @@ import { Assistant } from "./Assistant";
 import { LandingHeader } from "./LandingHeader";
 import { Story } from "./Story";
 import { HorizontalFeatures } from "./HorizontalFeatures";
-import { Screens } from "./Screens";
+import { IsoJourney } from "./IsoJourney";
+import { ScrollFilm } from "./ScrollFilm";
+import { ScrollMotion } from "./ScrollMotion";
 import { DemoSection, FAQ, FinalCTA, Honesty, Industries, LandingFooter, Pricing } from "./Sections";
 
 export function Landing() {
@@ -17,9 +19,10 @@ export function Landing() {
       <main id="inhalt">
         <Hero />
         <Downloads />
+        <ScrollFilm />
         <Story />
         <HorizontalFeatures />
-        <Screens />
+        <IsoJourney />
         <Industries />
         <Honesty />
         <DemoSection />
@@ -29,6 +32,7 @@ export function Landing() {
       </main>
       <LandingFooter />
       <Assistant />
+      <ScrollMotion />
     </div>
   );
 }
