@@ -139,21 +139,29 @@ html:has(.landing) { scroll-behavior: auto; }
 .landing .lightbox-close { position: absolute; top: 14px; right: 18px; border: 0; background: none; color: #fff; font-size: 2rem; line-height: 1; cursor: pointer; }
 
 /* Scroll-Video: der Film läuft mit dem Scrollen, Sätze je Szene */
-.landing .film-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.landing .film-layers { position: absolute; inset: 0; }
+.landing .film-layer { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; will-change: transform, opacity; transform-origin: 50% 45%; }
+.landing .film-chapters { display: flex; flex-wrap: wrap; gap: 6px 18px; list-style: none; margin: 0; padding: 0; }
+.landing .film-chapter { display: inline-flex; align-items: center; gap: 8px; border: 0; background: none; padding: 6px 0; font: inherit; font-size: 0.9rem; color: var(--c-ink2); cursor: pointer; text-shadow: 0 1px 10px rgba(0, 0, 0, 0.5); transition: color 0.3s ease; }
+.landing .film-chapter:hover { color: var(--c-ink); }
+.landing .film-chapter.is-on { color: var(--c-ink); font-weight: 600; }
+.landing .film-dot { width: 8px; height: 8px; border-radius: 50%; background: color-mix(in srgb, var(--c-ink) 40%, transparent); transition: background 0.3s ease, transform 0.3s ease; }
+.landing .film-chapter.is-on .film-dot { background: var(--c-accent); transform: scale(1.3); }
 .landing .film-shade { position: absolute; inset: 0; background:
   linear-gradient(90deg, color-mix(in srgb, var(--c-bg) 80%, transparent) 0%, color-mix(in srgb, var(--c-bg) 45%, transparent) 45%, transparent 78%),
   linear-gradient(180deg, var(--c-bg) 0%, transparent 22%, transparent 70%, var(--c-bg) 100%); }
 .landing .film h2, .landing .film .eyebrow { text-shadow: 0 2px 24px rgba(0, 0, 0, 0.45); }
 .landing .film-lines { position: relative; min-height: 5.5rem; max-width: 40rem; }
-.landing .film-line { position: absolute; left: 0; top: 0; margin: 0; opacity: 0; transform: translateY(14px); transition: opacity 0.45s ease, transform 0.45s ease; text-shadow: 0 1px 14px rgba(0, 0, 0, 0.55); }
+.landing .film-line { position: absolute; left: 0; top: 0; margin: 0; opacity: 0; transform: translateY(10px); transition: opacity 0.35s ease, transform 0.35s ease; text-shadow: 0 1px 14px rgba(0, 0, 0, 0.55); }
 .landing .film-line.is-on { opacity: 1; transform: none; }
-.landing .film-k { display: block; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.02em; color: var(--c-accent2); }
+.landing .film-k { display: none; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.02em; color: var(--c-accent2); }
 .landing .film-t { display: block; margin-top: 6px; font-size: 1.25rem; line-height: 1.4; color: var(--c-ink); }
 @media (min-width: 768px) { .landing .film-t { font-size: 1.5rem; } }
 .landing .film.is-static .film-pin { min-height: 0; }
 .landing .film.is-static .film-lines { min-height: 0; display: grid; gap: 18px; }
 .landing .film.is-static .film-line { position: static; opacity: 1; transform: none; }
-.landing .film.is-static .film-video { position: absolute; }
+.landing .film.is-static .film-layer:not(:first-child) { display: none; }
+.landing .film.is-static .film-chapters { display: none; }
 
 /* Isometrische Reise über die Bildschirme */
 .landing .iso-stage { position: absolute; inset: 0; perspective: 2000px; perspective-origin: 62% 40%; pointer-events: none; }

@@ -130,12 +130,14 @@ a.dl:hover{background:#36302a;transform:translateY(-1px)}.dl.is-soon{opacity:.6;
 .screen-text h3{font-size:1.6rem}.screen-text p{margin-top:12px;color:var(--ink2)}.screen-text .btns{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px}.screen-text .note{margin-top:24px;font-size:.75rem;color:var(--muted)}
 .lightbox{position:fixed;inset:0;z-index:80;display:none;place-items:center;padding:24px;background:rgba(10,8,6,.9);cursor:zoom-out}.lightbox.open{display:grid}.lightbox img{max-width:min(1600px,100%);max-height:100%;width:auto;height:auto;border-radius:10px;cursor:default}.lightbox-close{position:absolute;top:14px;right:18px;border:0;background:none;color:#fff;font-size:2rem;line-height:1;cursor:pointer}
 /* Scroll-Video, isometrische Reise, Fly-through */
-.film{position:relative}.film-pin{position:relative;min-height:100svh;overflow:hidden}.film-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.film{position:relative}.film-pin{position:relative;min-height:100svh;overflow:hidden}.film-layers{position:absolute;inset:0}.film-layer{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;will-change:transform,opacity;transform-origin:50% 45%}
+.film-chapters{display:flex;flex-wrap:wrap;gap:6px 18px;margin:24px 0 0;padding:0;list-style:none}.film-chapter{display:inline-flex;align-items:center;gap:8px;border:0;background:none;padding:6px 0;font:inherit;font-size:.9rem;color:var(--ink2);cursor:pointer;text-shadow:0 1px 10px rgba(0,0,0,.5);transition:color .3s}.film-chapter:hover,.film-chapter.is-on{color:var(--ink)}.film-chapter.is-on{font-weight:600}
+.film-dot{width:8px;height:8px;border-radius:50%;background:rgba(243,243,241,.4);transition:background .3s,transform .3s}.film-chapter.is-on .film-dot{background:var(--accent);transform:scale(1.3)}
 .film-shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(26,23,20,.8) 0%,rgba(26,23,20,.45) 45%,transparent 78%),linear-gradient(180deg,var(--bg) 0%,transparent 22%,transparent 70%,var(--bg) 100%)}
 .film-copy{position:relative;display:flex;min-height:100svh;flex-direction:column;justify-content:flex-end;padding:128px 20px 80px}.film h2,.film .eyebrow{text-shadow:0 2px 24px rgba(0,0,0,.45)}
-.film-lines{position:relative;min-height:5.5rem;max-width:40rem;margin-top:32px}.film-line{position:absolute;left:0;top:0;margin:0;opacity:0;transform:translateY(14px);transition:opacity .45s,transform .45s;text-shadow:0 1px 14px rgba(0,0,0,.55)}.film-line.is-on{opacity:1;transform:none}
-.film-k{display:block;font-size:.78rem;font-weight:600;letter-spacing:.02em;color:var(--accent2)}.film-t{display:block;margin-top:6px;font-size:1.25rem;line-height:1.4;color:var(--ink)}@media(min-width:768px){.film-t{font-size:1.5rem}}
-.film.is-static .film-pin{min-height:0}.film.is-static .film-copy{min-height:0}.film.is-static .film-lines{min-height:0;display:grid;gap:18px}.film.is-static .film-line{position:static;opacity:1;transform:none}
+.film-lines{position:relative;min-height:5.5rem;max-width:40rem;margin-top:20px}.film-line{position:absolute;left:0;top:0;margin:0;opacity:0;transform:translateY(14px);transition:opacity .45s,transform .45s;text-shadow:0 1px 14px rgba(0,0,0,.55)}.film-line.is-on{opacity:1;transform:none}
+.film-k{display:none;font-size:.78rem;font-weight:600;letter-spacing:.02em;color:var(--accent2)}.film-t{display:block;margin-top:6px;font-size:1.25rem;line-height:1.4;color:var(--ink)}@media(min-width:768px){.film-t{font-size:1.5rem}}
+.film.is-static .film-pin{min-height:0}.film.is-static .film-copy{min-height:0}.film.is-static .film-lines{min-height:0;display:grid;gap:18px}.film.is-static .film-line{position:static;opacity:1;transform:none}.film.is-static .film-layer:not(:first-child){display:none}.film.is-static .film-chapters{display:none}.film.is-static .film-k{display:block}
 .iso{display:none;position:relative}.iso.on{display:block}.iso-pin{position:relative;min-height:100svh;overflow:hidden}.iso-head{position:relative;z-index:10;padding-top:96px}
 .iso-stage{position:absolute;inset:0;perspective:2000px;perspective-origin:62% 40%;pointer-events:none}.iso-rot{position:absolute;left:62%;top:58%;width:0;height:0;transform-style:preserve-3d;transform:rotateX(56deg) rotateZ(-36deg)}.iso-board{position:absolute;left:0;top:0;transform-style:preserve-3d;will-change:transform}
 .iso-tile{position:absolute;display:block;padding:0;border:0;border-radius:12px;overflow:hidden;background:var(--bg2);opacity:.5;filter:saturate(.6) brightness(.8);transform:translateZ(0);transition:transform .6s cubic-bezier(.2,.7,.2,1),opacity .6s,filter .6s;box-shadow:0 40px 80px -30px rgba(0,0,0,.8);pointer-events:auto;cursor:zoom-in}.iso-tile img{display:block;width:100%;height:100%;object-fit:cover;object-position:top left}
@@ -185,11 +187,12 @@ a.dl:hover{background:#36302a;transform:translateY(-1px)}.dl.is-soon{opacity:.6;
 
 <section class="film" id="tag" aria-label="Ein Arbeitstag mit Clairify">
   <div class="film-pin">
-    <video class="film-video" id="filmVideo" muted playsinline preload="none" poster="{{POSTER}}" aria-hidden="true"><source src="{{SCRUB}}" type="video/webm"></video>
+    <div class="film-layers" id="filmLayers" aria-hidden="true"><img class="film-layer" src="{{SCENE1}}" alt=""><img class="film-layer" src="{{SCENE2}}" alt=""><img class="film-layer" src="{{SCENE3}}" alt=""><img class="film-layer" src="{{SCENE4}}" alt=""><img class="film-layer" src="{{SCENE5}}" alt=""></div>
     <div class="film-shade" aria-hidden="true"></div>
     <div class="wrap film-copy">
       <p class="eyebrow" style="margin-bottom:16px">Ein Arbeitstag, Schritt für Schritt</p>
       <h2 style="max-width:48rem">Scrollen Sie durch den Tag.</h2>
+      <ul class="film-chapters" id="filmChapters" aria-label="Kapitel"></ul>
       <div class="film-lines" id="filmLines" aria-live="polite">
         <p class="film-line is-on"><span class="film-k">Morgens</span><span class="film-t">Die Anfragen der Nacht sind sortiert. Dringendes steht oben.</span></p>
         <p class="film-line"><span class="film-k">Haustür</span><span class="film-t">Der Laptop bleibt zu Hause. Der Posteingang passt aufs Handy.</span></p>
@@ -399,15 +402,17 @@ a.dl:hover{background:#36302a;transform:translateY(-1px)}.dl.is-soon{opacity:.6;
       var track = document.getElementById("track"); var dist = function () { return track.scrollWidth - window.innerWidth + 80; };
       gsap.to(track, { x: function () { return -dist(); }, ease: "none", scrollTrigger: { trigger: "#funktionen", start: "top top", end: function () { return "+=" + dist(); }, pin: true, scrub: 0.6, invalidateOnRefresh: true, anticipatePin: 1 } });
     }
-    // Scroll-Video: Film mit dem Scrollen abspielen, Satz je Szene
-    var FILM = [[0, 2.9], [2.9, 5.6], [5.6, 8.5], [8.5, 11.6], [11.6, 15.8]], filmV = document.getElementById("filmVideo"), filmL = document.getElementById("filmLines"), lastT = -1;
+    // Der Tag in Kapiteln: Szenenbilder blenden mit leichter Kamerafahrt ineinander, kurzer Scrollweg, Nachlauf, Einrasten
+    var filmLayers = Array.prototype.slice.call(document.getElementById("filmLayers").children), filmL = document.getElementById("filmLines"), filmC = document.getElementById("filmChapters"), filmN = filmLayers.length, filmActive = 0, filmST;
+    var filmNames = ["Morgens", "Haustür", "Kurz überlegt", "Baustelle", "Mittagspause"];
+    filmNames.forEach(function (name, i) { var b = document.createElement("button"); b.type = "button"; b.className = "film-chapter" + (i === 0 ? " is-on" : ""); b.innerHTML = '<span class="film-dot" aria-hidden="true"></span>'; b.appendChild(document.createTextNode(name)); b.onclick = function () { if (filmST) window.scrollTo({ top: filmST.start + (i / (filmN - 1)) * (filmST.end - filmST.start), behavior: "smooth" }); }; var li = document.createElement("li"); li.appendChild(b); filmC.appendChild(li); });
     if (!mobile) {
-      filmV.load();
-      ScrollTrigger.create({ trigger: "#tag", start: "top top", end: "+=320%", pin: ".film-pin", scrub: true, anticipatePin: 1, onUpdate: function (self) {
-        var t = self.progress * 15.8;
-        if (filmV.readyState >= 1 && Math.abs(t - lastT) > 1 / 30) { filmV.currentTime = Math.min(t, 15.75); lastT = t; }
-        FILM.forEach(function (w, i) { filmL.children[i].classList.toggle("is-on", t >= w[0] && t < w[1]); });
-      } });
+      gsap.set(filmLayers, { opacity: function (i) { return i === 0 ? 1 : 0; }, scale: 1 });
+      var filmTl = gsap.timeline({ defaults: { ease: "none" } });
+      filmLayers.forEach(function (img, i) { filmTl.to(img, { scale: 1.08, duration: 1 }, i); if (i > 0) filmTl.to(img, { opacity: 1, duration: 0.45, ease: "power1.inOut" }, i - 0.45); });
+      filmST = ScrollTrigger.create({ trigger: "#tag", start: "top top", end: "+=" + (filmN * 55) + "%", pin: ".film-pin", scrub: 0.8, anticipatePin: 1, animation: filmTl,
+        snap: { snapTo: function (v) { return Math.round(v * (filmN - 1)) / (filmN - 1); }, duration: { min: 0.15, max: 0.45 }, ease: "power1.inOut", delay: 0.05 },
+        onUpdate: function (self) { var i = Math.min(filmN - 1, Math.round(self.progress * (filmN - 1))); if (i === filmActive) return; filmActive = i; Array.prototype.forEach.call(filmL.children, function (c, j) { c.classList.toggle("is-on", j === i); }); Array.prototype.forEach.call(filmC.querySelectorAll("button"), function (c, j) { c.classList.toggle("is-on", j === i); }); } });
     } else { document.getElementById("tag").classList.add("is-static"); }
     // Isometrische Reise über die Bildschirme (ab 1024 px)
     if (window.matchMedia("(min-width: 1024px)").matches) {
