@@ -1,19 +1,20 @@
 {
-  "_hinweis": "Manifest für das Hintergrundvideo der Startseite. Jede Datei unter tools/video/footage/ eintragen, Quelle und Lizenz dokumentieren. Dann: node tools/video/prepare-footage.mjs",
-  "clips": [
-    {
-      "file": "placeholder-4k.webm",
-      "title": "Platzhalter: abstrakte Animation (selbst gerendert)",
-      "source": "eigene Canvas-Animation, tools/video/anim.html",
-      "author": "Clairify",
-      "license": "eigenes Werk",
-      "url": "",
-      "in": 0,
-      "out": 14
-    }
+  "scenes": [
+    { "photo": "01-tasche-packen.jpg", "file": "scene-01.mkv", "seconds": 3.8, "z0": 1.0, "z1": 1.1, "x0": 0.5, "y0": 0.56, "x1": 0.48, "y1": 0.6, "title": "Morgens: die Tasche wird gepackt" },
+    { "photo": "02-haustuer.jpg", "file": "scene-02.mkv", "seconds": 3.6, "z0": 1.04, "z1": 1.14, "x0": 0.42, "y0": 0.5, "x1": 0.36, "y1": 0.55, "title": "An der Haustür" },
+    { "photo": "03-laptop-zurueck.jpg", "file": "scene-03.mkv", "seconds": 3.8, "z0": 1.14, "z1": 1.03, "x0": 0.52, "y0": 0.62, "x1": 0.5, "y1": 0.55, "title": "Kurz überlegt: der Laptop bleibt zu Hause" },
+    { "photo": "04-baustelle-auto.jpg", "file": "scene-04.mkv", "seconds": 4.0, "z0": 1.0, "z1": 1.1, "x0": 0.38, "y0": 0.55, "x1": 0.56, "y1": 0.5, "title": "Mit dem Auto zur Baustelle" },
+    { "photo": "05-mittagspause.jpg", "file": "scene-05.mkv", "seconds": 4.2, "z0": 1.0, "z1": 1.13, "x0": 0.5, "y0": 0.55, "x1": 0.44, "y1": 0.6, "title": "Mittagspause: ein Blick in die Mails genügt" }
   ],
-  "crossfade_seconds": 0.8,
-  "poster_second": 3.2,
-  "stills_seconds": [1.0, 6.0, 11.0],
-  "target_loop_seconds": 14
+  "clips": [
+    { "file": "scene-01.mkv", "title": "Morgens: die Tasche wird gepackt", "source": "Foto vom Auftraggeber bereitgestellt (tools/video/photos/01-tasche-packen.jpg), Kamerafahrt aus dem Standbild", "author": "Auftraggeber", "license": "Nutzungsrecht liegt beim Auftraggeber (Herkunft des Fotos nicht geprüft)", "url": "", "in": 0, "out": 3.8 },
+    { "file": "scene-02.mkv", "title": "An der Haustür", "source": "Foto vom Auftraggeber bereitgestellt (tools/video/photos/02-haustuer.jpg), Kamerafahrt aus dem Standbild", "author": "Auftraggeber", "license": "Nutzungsrecht liegt beim Auftraggeber (Herkunft des Fotos nicht geprüft)", "url": "", "in": 0, "out": 3.6 },
+    { "file": "scene-03.mkv", "title": "Kurz überlegt: der Laptop bleibt zu Hause", "source": "Foto vom Auftraggeber bereitgestellt (tools/video/photos/03-laptop-zurueck.jpg), Kamerafahrt aus dem Standbild", "author": "Auftraggeber", "license": "Nutzungsrecht liegt beim Auftraggeber (Herkunft des Fotos nicht geprüft)", "url": "", "in": 0, "out": 3.8 },
+    { "file": "scene-04.mkv", "title": "Mit dem Auto zur Baustelle", "source": "Foto vom Auftraggeber bereitgestellt (tools/video/photos/04-baustelle-auto.jpg), Kamerafahrt aus dem Standbild", "author": "Auftraggeber", "license": "Nutzungsrecht liegt beim Auftraggeber (Herkunft des Fotos nicht geprüft)", "url": "", "in": 0, "out": 4.0 },
+    { "file": "scene-05.mkv", "title": "Mittagspause: ein Blick in die Mails genügt", "source": "Foto vom Auftraggeber bereitgestellt (tools/video/photos/05-mittagspause.jpg), Kamerafahrt aus dem Standbild", "author": "Auftraggeber", "license": "Nutzungsrecht liegt beim Auftraggeber (Herkunft des Fotos nicht geprüft)", "url": "", "in": 0, "out": 4.2 }
+  ],
+  "crossfade_seconds": 0.9,
+  "poster_second": 14.2,
+  "stills_seconds": [1.2, 11.0, 15.0],
+  "target_loop_seconds": 16
 }

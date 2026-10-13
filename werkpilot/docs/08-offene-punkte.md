@@ -27,7 +27,7 @@ Stand nach Abschluss des Kernprodukts. Sortiert nach Dringlichkeit für den Prod
 
 ## Landingpage
 
-- **Echtes Baustellenmaterial fehlt.** Das Hintergrundvideo ist ein selbst gerenderter Platzhalter (abstrakte Animation), weil aus der Build-Umgebung keine Stock-Video-Anbieter erreichbar waren (pexels.com, pixabay.com, mixkit.co, commons.wikimedia.org wurden von der Netzwerkrichtlinie abgewiesen). Vorgehen: Clips eines Baustellentags (Kaffee am Morgen, kurze Besprechung mit dem Bauleiter, Arbeit) mit freier Lizenz (z. B. Pexels- oder Pixabay-Lizenz, CC0) oder eigenes Material nach `frontend/tools/video/footage/` legen, `footage.json` mit Titel, Quelle, URL, Urheber, Lizenz und Schnittzeiten pflegen, dann `node tools/video/prepare-footage.mjs`. Farben, Poster, Standbilder und `SOURCES.md` werden daraus neu erzeugt; die Bildbeschreibungen (`alt`) in `Sections.tsx` prüfen.
+- **Hintergrundfilm aus Fotos, nicht aus Bewegtbild.** Der Film besteht aus fünf vom Auftraggeber bereitgestellten Fotos (1408×768) mit langsamen Kamerafahrten (`tools/video/stills-to-clips.mjs`), auf 4K hochgerechnet. Echtes 4K-Bewegtbild wäre schärfer und lebendiger. Die Herkunft und Rechte der Fotos sind nicht geprüft; vor dem Livegang bestätigen (Quelle, Lizenz, Personen im Bild). Echte Clips: nach `frontend/tools/video/footage/` legen, `footage.json` pflegen, `node tools/video/prepare-footage.mjs`.
 - Die 3D-Szene braucht WebGL; ohne WebGL bleibt der Rahmen leer (kein Absturz). Ein statisches Ersatzbild wäre der nächste Schritt.
 - Lighthouse/Performance auf schwachen Mobilgeräten noch nicht gemessen; GSAP und three.js laden nur auf der Startseite.
 

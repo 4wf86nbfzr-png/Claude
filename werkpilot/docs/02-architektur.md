@@ -96,9 +96,11 @@ dazu ein JPEG-Poster in derselben Größe als Lade- und Bewegungsfallback. Erzeu
 und libx264, Python mit Pillow): Clips schneiden und überblenden, 4K-Master, Varianten, Poster,
 drei Standbilder für die Bild-Text-Abschnitte, Farbpalette (`palette.css`, aus dem Material mit
 Median-Cut abgeleitet) und `public/video/SOURCES.md` mit Quellen und Lizenzen aus dem Manifest.
-Die Clips selbst liegen nicht im Repository (`tools/video/footage/` ist ignoriert). Solange kein
-echtes Baustellenmaterial vorliegt, rendert `node tools/video/render.mjs` einen klar als Platzhalter
-gekennzeichneten 4K-Clip aus `tools/video/anim.html` (eigenes Werk, keine Fremdlizenz).
+Die Clips selbst liegen nicht im Repository (`tools/video/footage/` ist ignoriert). Derzeit entstehen
+sie aus fünf Fotos in `tools/video/photos/` (Tasche packen, Haustür, Laptop zurück, Baustelle, Mittagspause):
+`node tools/video/stills-to-clips.mjs` legt je Foto einen 4K-Clip mit Kamerafahrt an (Zoom und Schwenk aus
+`scenes` in `footage.json`), danach schneidet `prepare-footage.mjs` wie gewohnt. `render.mjs` erzeugt bei
+Bedarf weiterhin den abstrakten Platzhalter aus `tools/video/anim.html`.
 
 **Download-Bereich** direkt unter dem Film (`Downloads.tsx`): vier Knöpfe für Windows, macOS,
 App Store und Google Play mit selbst gezeichneten Symbolen. Die Ziele kommen aus
