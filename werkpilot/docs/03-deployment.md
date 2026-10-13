@@ -100,3 +100,17 @@ docker compose logs -f api worker
 
 Rollback: vorheriges Image starten, bei Schemaänderung `alembic downgrade -1` (Migrationen sind
 reversibel geschrieben). Vor jedem Update Backup ziehen (`scripts/backup.sh`).
+
+## Überwachung, Logs, Rollback (Kurzfassung)
+
+- **Gesundheit**: `GET /health` (API lebt, DB erreichbar) für den externen Uptime-Check (z. B. alle 5 Minuten);
+  `GET /api/public/config` zeigt, ob Stripe, KI-Anbieter und E-Mail aktiv sind.
+- **Logs**: strukturiert (JSON) auf stdout, `docker compose logs -f api worker`; jede Zeile trägt `request_id`.
+  Fehler mit Stacktrace landen zusätzlich unter `/admin/fehler`. Log-Rotation über den Docker-Daemon
+  (`max-size`, `max-file`) einstellen.
+- **Kosten**: `/admin/finanzen` zeigt KI-Kosten je Tag und Betrieb; Budgets und Not-Aus in docs/04.
+- **Rollback**: vor dem Update die laufenden Images sichern (`docker tag werkpilot-api:latest werkpilot-api:vorher`, ebenso web/worker);
+  bei Problemen `git checkout <alter Stand>` und `docker compose up -d`, Schemaänderungen `alembic downgrade -1`. Vorher Backup (`scripts/backup.sh`),
+  Wiederherstellung in docs/04.
+- **Startreihenfolge nach Ausfall**: db → redis → api (führt Migrationen aus) → worker → web. `docker compose up -d`
+  hält sie über `depends_on` ein.

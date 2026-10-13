@@ -4,7 +4,7 @@
 @theme {
   --color-ink: #16181d;
   --color-ink-2: #3a3f4b;
-  --color-muted: #6b7280;
+  --color-muted: #5b6270; /* 5,4:1 auf Sand, 6,6:1 auf Weiß */
   --color-line: #e5e7eb;
   --color-paper: #ffffff;
   --color-sand: #f6f5f2;

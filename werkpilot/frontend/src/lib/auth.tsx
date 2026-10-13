@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
-import { api, getSession, setSession } from "./api";
+import { api, getSession, maySignedIn, setSession } from "./api";
 
 export type User = { id: string; email: string; full_name: string; email_verified: boolean; is_operator: boolean };
 export type TenantInfo = { id: string; name: string; slug: string; role: string; trade: string };
@@ -26,6 +26,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [tenantId, setTenantId] = useState<string | null>(null);
 
   const reload = useCallback(async () => {
+    // Öffentliche Seiten ohne Hinweis auf eine Sitzung: keine Anfrage an /api/auth/me (spart zwei 401-Antworten pro Seitenaufruf).
+    const inApp = /^\/(app|admin)(\/|$)/.test(window.location.pathname);
+    if (!inApp && !maySignedIn()) { setLoading(false); return; }
     try {
       const me = await api<{ user: User; tenants: TenantInfo[] }>("/api/auth/me");
       setUser(me.user);

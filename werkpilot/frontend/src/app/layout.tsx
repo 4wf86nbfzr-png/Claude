@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE),
   title: { default: "Clairify: Kundenanfragen für Handwerksbetriebe automatisieren", template: "%s · Clairify" },
   description: "Anfragen aus Mail und Website an einem Ort, Antwortentwürfe der KI, Terminvorschläge und Erinnerungen an offene Angebote, für Elektriker, SHK, Maler, Dachdecker, Gebäudereiniger und GaLaBau.",
+  alternates: { canonical: "./" },
   robots: process.env.NEXT_PUBLIC_NOINDEX === "1" ? { index: false, follow: false } : { index: true, follow: true },
   openGraph: { type: "website", locale: "de_DE", siteName: "Clairify" },
 };

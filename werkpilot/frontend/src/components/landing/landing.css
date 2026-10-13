@@ -49,9 +49,9 @@ html:has(.landing) { scroll-behavior: auto; }
 .landing .on-image { position: absolute; left: 0; right: 0; bottom: 0; padding: 28px; z-index: 1; text-shadow: 0 1px 14px rgba(0, 0, 0, 0.55); }
 
 /* Scrollytelling */
-.landing .step { transition: opacity 0.4s ease, transform 0.4s ease; opacity: 0.45; }
+.landing .step { transition: opacity 0.4s ease, transform 0.4s ease; opacity: 0.64; } /* ≥ 4.5:1 Kontrast auch im Ruhezustand */
 .landing .step.is-active { opacity: 1; transform: translateX(6px); }
-.landing .step .num { color: var(--c-muted); transition: color 0.4s ease; }
+.landing .step .num { color: var(--c-ink2); transition: color 0.4s ease; }
 .landing .step.is-active .num { color: var(--c-accent); }
 .landing .stage-frame { position: absolute; inset: 0; border-radius: 10px; overflow: hidden; background: radial-gradient(circle at 50% 45%, color-mix(in srgb, var(--c-steel) 22%, transparent), transparent 62%); }
 
@@ -158,3 +158,11 @@ html:has(.landing) { scroll-behavior: auto; }
 .landing .iso-caption { bottom: 110px; }
 .landing .iso-note { bottom: 72px; }
 .landing .iso-pin::after { content: ""; position: absolute; left: 0; bottom: 0; width: 60%; height: 440px; z-index: 6; pointer-events: none; background: linear-gradient(90deg, color-mix(in srgb, var(--c-bg) 92%, transparent) 0%, color-mix(in srgb, var(--c-bg) 70%, transparent) 45%, transparent 100%); mask-image: linear-gradient(180deg, transparent 0%, #000 35%); -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 35%); }
+
+/* Tarifvergleich: Linien statt Kästen */
+.compare th, .compare td { padding: .65rem .5rem; border-bottom: 1px solid color-mix(in srgb, var(--c-ink) 14%, transparent); vertical-align: top; }
+.compare thead th { border-bottom-color: color-mix(in srgb, var(--c-ink) 40%, transparent); }
+.compare td { white-space: nowrap; }
+
+/* <picture> soll kein eigenes Kästchen erzeugen; das Bild übernimmt Größe und Parallaxe */
+.landing picture { display: contents; }

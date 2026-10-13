@@ -4,8 +4,9 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { usePublicConfig } from "@/lib/public-config";
 
-const HEADLINE = "Ein Arbeitstag auf der Baustelle. Die Anfragen beantwortet Clairify.";
+const HEADLINE = "Draußen arbeiten. Im Büro nichts mehr verpassen.";
 
 /** Wählt die Videogröße nach Bildschirm und Verbindung: 4K nur für große Bildschirme ohne Datensparmodus. */
 function pickVariant(): 2160 | 1080 | 720 {
@@ -22,6 +23,7 @@ export function Hero() {
   const video = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(true);
   const [variant, setVariant] = useState<2160 | 1080 | 720 | null>(null);
+  const cfg = usePublicConfig();
   useEffect(() => {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduced) { queueMicrotask(() => setPlaying(false)); return; }
@@ -40,12 +42,11 @@ export function Hero() {
   /** Fehlt eine Fassung (z. B. 4K im Testpaket), eine Stufe kleiner laden; am Ende bleibt das Poster. */
   const onVideoError = () => setVariant((v) => (v === 2160 ? 1080 : v === 1080 ? 720 : v));
   const toggle = () => { const v = video.current; if (!v) return; if (v.paused) { v.play(); setPlaying(true); } else { v.pause(); setPlaying(false); } };
-  const posterSize = variant === 720 ? 720 : variant === 2160 ? 2160 : 1080;
   return (
     <section ref={root} className="relative flex min-h-[100svh] items-end overflow-hidden" aria-label="Einstieg">
       <div className="hero-media absolute inset-0" aria-hidden>
         {/* Das Video läuft stumm in Endlosschleife. Bei reduzierter Bewegung bleibt nur das Standbild. */}
-        <video ref={video} className="hero-video" autoPlay muted loop playsInline preload="metadata" poster={`/video/poster-${posterSize}.jpg`} onError={onVideoError}>
+        <video ref={video} className="hero-video" autoPlay muted loop playsInline preload="metadata" poster="/video/poster-1080.webp" onError={onVideoError}>
           {variant && <source src={`/video/clairify-${variant}.webm`} type="video/webm" />}
           {variant && <source src={`/video/clairify-${variant}.mp4`} type="video/mp4" onError={onVideoError} />}
         </video>
@@ -56,11 +57,12 @@ export function Hero() {
         <h1 className="display max-w-4xl text-[2.5rem] sm:text-6xl md:text-7xl lg:text-[5rem]" style={{ perspective: "800px" }}>
           {HEADLINE.split(" ").map((w, i) => <span key={i} className="word mr-[0.26em]">{w}</span>)}
         </h1>
-        <p className="hero-sub mt-7 max-w-2xl text-lg text-ink-2 md:text-xl">Clairify sammelt die Anfragen aus Mail und Website, sortiert sie nach Dringlichkeit und legt fertige Antwortentwürfe mit Terminvorschlägen vor. Sie prüfen und geben frei. Offene Angebote werden nachgefasst, während Sie draußen sind.</p>
+        <p className="hero-sub mt-7 max-w-2xl text-lg text-ink-2 md:text-xl">Clairify bündelt Kundenanfragen aus Mail und Website an einem Ort, erkennt Dringendes und legt fertige Antwortentwürfe vor. Sie prüfen auf dem Handy und geben frei. Nichts geht ohne Ihre Freigabe raus.</p>
         <div className="mt-9 flex flex-wrap items-center gap-3">
-          <Link href="/registrieren" className="hero-cta btn-primary rounded-full px-6 py-3 text-sm font-semibold">14 Tage kostenlos testen</Link>
-          <a href="#demo" className="hero-cta btn-secondary rounded-full px-6 py-3 text-sm font-medium">Demo ausprobieren</a>
-          <span className="hero-cta text-sm text-ink-2">Ohne Kreditkarte, Daten in der EU, monatlich kündbar</span>
+          <Link href="/registrieren" className="hero-cta btn-primary rounded-full px-6 py-3 text-sm font-semibold">Kostenlos testen</Link>
+          <a href="#demo" className="hero-cta btn-secondary rounded-full px-6 py-3 text-sm font-medium">Produktdemo ansehen</a>
+          {/* Nur belegbare Zusagen: Testphase ohne Zahlungsdaten ist immer so; „monatlich kündbar" erst, wenn die Abrechnung aktiv ist. */}
+          <span className="hero-cta text-sm text-ink-2">{cfg ? `${cfg.trial_days} Tage kostenlos` : "Kostenlos testen"}, keine Zahlungsdaten nötig{cfg?.stripe_ready ? ", monatlich kündbar" : ""}</span>
         </div>
       </div>
       <button onClick={toggle} aria-pressed={!playing} className="absolute bottom-6 right-5 rounded-full bg-black/35 px-3 py-1.5 text-xs text-white backdrop-blur hover:bg-black/60">{playing ? "Video anhalten" : "Video abspielen"}</button>

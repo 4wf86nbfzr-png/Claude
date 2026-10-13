@@ -21,6 +21,15 @@ export function Story() {
   const progress = useRef(0);
   const [active, setActive] = useState(0);
   const [reduced, setReduced] = useState(false);
+  // Die 3D-Szene (three.js, groß) wird erst geladen, wenn der Abschnitt in die Nähe des Viewports kommt.
+  const [near, setNear] = useState(false);
+  useEffect(() => {
+    const el = root.current;
+    if (!el || !("IntersectionObserver" in window)) { queueMicrotask(() => setNear(true)); return; }
+    const io = new IntersectionObserver((entries) => { if (entries.some((e) => e.isIntersecting)) { setNear(true); io.disconnect(); } }, { rootMargin: "120% 0px" });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
   useEffect(() => {
     const r = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     queueMicrotask(() => setReduced(r));
@@ -52,7 +61,7 @@ export function Story() {
           </div>
           <div className="relative h-[46vh] md:h-[78vh]">
             <div className="stage-frame">
-              <Scene3D progress={progress} />
+              {near ? <Scene3D progress={progress} /> : <div className="h-full w-full" />}
             </div>
             <p className="absolute -bottom-7 right-1 text-xs text-muted">Bewegen Sie die Maus oder neigen Sie das Gerät, die Szene folgt. Mit einem Gerät für VR oder AR erscheint ein Knopf zum Eintauchen.</p>
           </div>

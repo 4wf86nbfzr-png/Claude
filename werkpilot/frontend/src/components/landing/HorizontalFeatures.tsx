@@ -11,7 +11,7 @@ const FEATURES = [
   { k: "Termine", t: "Vorschläge aus Ihrem Kalender", d: "Geschäftszeiten minus belegte Zeiten, Google Kalender optional. Der Kunde bestätigt mit einem Klick, der Termin landet im Kalender." },
   { k: "Angebote", t: "Nachfassen ohne Erinnerungszettel", d: "Angebot eintragen, nach fünf Tagen erinnert Clairify und legt einen Entwurf zum Nachfassen an. Preise bleiben Ihre Sache." },
   { k: "Berichte", t: "Freitags wissen, wo Sie stehen", d: "Neue Anfragen, Reaktionszeit, offene Angebote, Termine. Echte Zahlen aus Ihrem Betrieb, keine Hochrechnung." },
-  { k: "Sicherheit", t: "Gebaut für deutsche Betriebe", d: "Daten in der EU, Rollen und Rechte serverseitig, Export und Löschung per Klick, Protokoll jeder automatischen Aktion." },
+  { k: "Sicherheit", t: "Gebaut für deutsche Betriebe", d: "Rollen und Rechte serverseitig, Mandanten strikt getrennt, Export und Löschung per Klick, Protokoll jeder automatischen Aktion." },
 ];
 
 export function HorizontalFeatures() {

@@ -13,7 +13,16 @@ export function setSession(token: string | null, tenant: string | null) {
     else sessionStorage.removeItem("wp_token");
     if (tenant) sessionStorage.setItem("wp_tenant", tenant);
     else sessionStorage.removeItem("wp_tenant");
+    // Merker ohne Geheimnis: Nur wenn er gesetzt ist, fragt die App beim Laden öffentlicher Seiten nach der Sitzung.
+    if (token) localStorage.setItem("wp_signed_in", "1");
+    else localStorage.removeItem("wp_signed_in");
   } catch {}
+}
+
+/** Gibt es Hinweise auf eine Sitzung (Token im Speicher oder Merker vom letzten Login)? */
+export function maySignedIn(): boolean {
+  if (getSession().accessToken) return true;
+  try { return localStorage.getItem("wp_signed_in") === "1"; } catch { return false; }
 }
 
 export function getSession() {

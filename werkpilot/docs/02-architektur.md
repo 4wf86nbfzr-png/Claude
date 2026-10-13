@@ -136,3 +136,21 @@ Regel statt ans Modell. Dieselbe JSON-Liste speist die Einzeldatei-Vorschau.
 - Kein Multi-Region, kein Read-Replica: ein Postgres mit täglichem Dump reicht für die ersten hundert Kunden.
 - Rate-Limit im Prozessspeicher, wenn kein Redis gesetzt ist (bei mehreren API-Instanzen Redis setzen).
 - Markdown-Rendering der Ratgeber-Artikel ist minimal und escaped alles (kein HTML aus Inhalten).
+
+## Ergänzungen Oktober 2026
+
+- **Tarifdaten** liegen im Frontend genau einmal in `src/lib/plans.ts` (Preise, Grenzen, Feature-Schlüssel,
+  Vergleichszeilen, Bedingungen) und speisen Startseite, `/preise`, JSON-LD und den Hinweis in der
+  Registrierung. `scripts/check_plans.py` vergleicht sie mit `GET /api/billing/plans`; test-all bricht
+  bei Abweichung ab. Preise ändern = Backend-Seed **und** `plans.ts` anpassen.
+- **Öffentliche Konfiguration** (`GET /api/public/config`: `stripe_ready`, `llm_live`, `email_live`,
+  `trial_days`, `downloads`) wird über `src/lib/public-config.ts` einmal je Seite geladen und steuert
+  alle Zusagen auf der Website (Testtage, „monatlich kündbar", Abrechnungshinweis, Download-Links).
+- **Sitzungsabfrage**: `AuthProvider` ruft `/api/auth/me` auf öffentlichen Seiten nur, wenn ein Merker
+  `localStorage.wp_signed_in` (ohne Geheimnis) vom letzten Login existiert; unter `/app` und `/admin` immer.
+- **Bilder**: `tools/img/make-webp.py` erzeugt WebP in zwei Breiten; die Komponenten nutzen `<picture>` mit
+  `srcset`, PNG/JPG bleiben als Rückfall. Das Hero-Poster ist fest `poster-1080.webp`.
+- **three.js** (Story-Szene) wird erst geladen, wenn der Abschnitt bis 120 % Viewport-Abstand heranrückt.
+- **Browserprüfungen** in `scripts/browser/` (werden von test-all nach `.pw/` kopiert, weil Playwright dort
+  installiert ist): `flows.mjs` (acht Kernabläufe), `linkcheck.mjs` (interne Links + Anker + Konsolenfehler),
+  `axe.mjs` (WCAG 2.1 AA, bricht bei schweren Verstößen ab; mit `DASH_EMAIL`/`DASH_PASSWORD` auch Dashboard).

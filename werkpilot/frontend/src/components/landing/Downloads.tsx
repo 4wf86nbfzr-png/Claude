@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Reveal } from "./Reveal";
+import { fetchPublicConfig } from "@/lib/public-config";
 
 type Links = { windows?: string | null; macos?: string | null; ios?: string | null; android?: string | null };
 
@@ -29,7 +30,7 @@ export function Downloads() {
   const [links, setLinks] = useState<Links>({});
   useEffect(() => {
     let alive = true;
-    fetch("/api/public/config").then((r) => (r.ok ? r.json() : null)).then((j) => { if (alive && j?.downloads) setLinks(j.downloads); }).catch(() => undefined);
+    fetchPublicConfig().then((j) => { if (alive && j?.downloads) setLinks(j.downloads); });
     return () => { alive = false; };
   }, []);
   return (

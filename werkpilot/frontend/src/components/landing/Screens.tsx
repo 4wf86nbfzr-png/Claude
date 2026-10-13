@@ -46,7 +46,7 @@ export function Screens() {
         </div>
         <div id="screen-panel" role="tabpanel" aria-labelledby={`tab-${s.key}`} className="mt-8 grid gap-8 lg:grid-cols-[1.6fr_1fr] lg:items-start lg:gap-12">
           <button type="button" className="screen" onClick={() => setZoom(true)} aria-label={`${s.label} vergrößern`}>
-            <img src={`/screens/${s.file}.png`} alt={`Dashboard, Bereich ${s.label}: ${s.title}`} width={2160} height={1350} loading="lazy" decoding="async" />
+            <picture><source type="image/webp" srcSet={`/screens/${s.file}-1080.webp 1080w, /screens/${s.file}-2160.webp 2160w`} sizes="(min-width: 1024px) 560px, 100vw" /><img src={`/screens/${s.file}.png`} alt={`Dashboard, Bereich ${s.label}: ${s.title}`} width={2160} height={1350} loading="lazy" decoding="async" /></picture>
             <span className="screen-hint" aria-hidden>Vergrößern</span>
           </button>
           <div>
@@ -63,7 +63,7 @@ export function Screens() {
       {zoom && (
         <div className="lightbox" role="dialog" aria-modal="true" aria-label={`${s.label}, vergrößert`} onClick={() => setZoom(false)}>
           <button ref={closeBtn} type="button" className="lightbox-close" onClick={() => setZoom(false)} aria-label="Schließen">×</button>
-          <img src={`/screens/${s.file}.png`} alt={`Dashboard, Bereich ${s.label}: ${s.title}`} onClick={(e) => e.stopPropagation()} />
+          <picture onClick={(e) => e.stopPropagation()}><source type="image/webp" srcSet={`/screens/${s.file}-2160.webp`} /><img src={`/screens/${s.file}.png`} alt={`Dashboard, Bereich ${s.label}: ${s.title}`} /></picture>
         </div>
       )}
     </section>

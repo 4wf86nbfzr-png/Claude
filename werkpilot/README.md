@@ -107,12 +107,13 @@ Web: http://localhost:3000 · API: http://localhost:8000 · Backups: Volume `bac
 **Alles auf einmal** (empfohlen vor jedem Commit und vor dem Deploy):
 
 ```bash
-./test-all.sh                 # Backend: Lint, 69 Tests, Migration gegen leere DB, pip-audit
+./test-all.sh                 # Backend: Lint, 70 Tests, Migration gegen leere DB, pip-audit
                               # Frontend: ESLint, Build, npm audit
                               # Smoke: API + Web starten, 21 Seiten/Endpunkte, API-Kundenreise, Worker-Lauf
-                              # Browser: Playwright-Durchlauf Demo → Registrierung → Bestätigung → Login → Anfrage → Versand
+                              # Browser: Playwright-Durchlauf Demo → Registrierung → Bestätigung → Login → Anfrage → Versand,
+                              #          acht Kernabläufe, Linkprüfung, axe (WCAG 2.1 AA), Tarifdaten-Abgleich
 ./test-all.sh --quick         # nur Lint, Tests, Build (ca. 2 Minuten)
-./test-all.sh --no-browser    # alles außer Playwright
+./test-all.sh --no-browser    # alles außer Playwright (Kernabläufe, Linkprüfung, axe, siehe scripts/browser/)
 ```
 
 Voraussetzungen: laufendes Postgres (`TEST_DATABASE_URL`, Standard `werkpilot_test`), Node 22, Python ≥ 3.12.

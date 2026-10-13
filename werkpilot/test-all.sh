@@ -90,7 +90,7 @@ API_PORT=18000; WEB_PORT=13000
 # Reste früherer Läufe beenden (sonst EADDRINUSE und ein veralteter Server beantwortet die Prüfungen)
 python3 "$ROOT/scripts/killport.py" $API_PORT $WEB_PORT >>"$LOG" 2>&1; sleep 1
 cd "$ROOT/backend"
-( export PYTHONUNBUFFERED=1 ENV=test DATABASE_URL="$SMOKE_DB" SECRET_KEY=test-secret-key-that-is-long-enough-123456 LLM_PROVIDER=mock EMAIL_PROVIDER=console \
+( export PYTHONUNBUFFERED=1 ENV=test DATABASE_URL="$SMOKE_DB" SECRET_KEY=test-secret-key-that-is-long-enough-123456 LLM_PROVIDER=mock EMAIL_PROVIDER=console AUTH_RATE_LIMIT_PER_MINUTE=100 \
          STRIPE_SECRET_KEY=sk_test_dummy STRIPE_WEBHOOK_SECRET=whsec_testsecret INBOUND_EMAIL_WEBHOOK_SECRET=inbound-secret \
          FRONTEND_URL="http://localhost:$WEB_PORT" BASE_URL="http://localhost:$API_PORT" CORS_ORIGINS="http://localhost:$WEB_PORT" RATE_LIMIT_PER_MINUTE=1000 AUTH_RATE_LIMIT_PER_MINUTE=100
   .venv/bin/alembic -q upgrade head >>"$LOG" 2>&1
@@ -186,6 +186,14 @@ await page.goto(`${WEB}/admin`); await page.waitForURL(/\/app$/, { timeout: 1000
 await browser.close(); if (errors.length) throw new Error("Seitenfehler: " + errors.join(" | ")); console.log("Browser-Durchlauf ok");
 JSEOF
 if (cd "$PW_DIR" && WEB="http://127.0.0.1:$WEB_PORT" API_LOG="$ROOT/.smoke-api.log" PLAYWRIGHT_CHROMIUM="${PLAYWRIGHT_CHROMIUM:-}" timeout 180 node flow.mjs >>"$LOG" 2>&1); then ok "Playwright: Demo → Registrierung → Bestätigung → Login → Anfrage → Versand"; else bad "Playwright-Durchlauf (siehe .test-all.log)"; fi
+# Tarifdaten: Frontend (src/lib/plans.ts) muss mit der API übereinstimmen
+if $PY "$ROOT/scripts/check_plans.py" "http://127.0.0.1:$API_PORT" >>"$LOG" 2>&1; then ok "Tarifdaten Frontend = API"; else bad "Tarifdaten weichen ab (scripts/check_plans.py)"; fi
+# Weitere Browserprüfungen: acht Kernabläufe, Linkprüfung, Barrierefreiheit (axe)
+cp "$ROOT/scripts/browser/"*.mjs "$PW_DIR/"
+if [ ! -d "$PW_DIR/node_modules/@axe-core/playwright" ]; then (cd "$PW_DIR" && npm i --no-audit --no-fund @axe-core/playwright@4.10.2 >>"$LOG" 2>&1) || bad "axe installieren"; fi
+if (cd "$PW_DIR" && WEB="http://127.0.0.1:$WEB_PORT" API="http://127.0.0.1:$API_PORT" API_LOG="$ROOT/.smoke-api.log" PLAYWRIGHT_CHROMIUM="${PLAYWRIGHT_CHROMIUM:-}" timeout 600 node flows.mjs >>"$LOG" 2>&1); then ok "Playwright: acht Kernabläufe (Start, Demo, Konto, Passwort, Schutz, Mandanten, Export/Löschung, Mobil/Tastatur)"; else bad "Kernabläufe (siehe .test-all.log)"; fi
+if (cd "$PW_DIR" && WEB="http://127.0.0.1:$WEB_PORT" PLAYWRIGHT_CHROMIUM="${PLAYWRIGHT_CHROMIUM:-}" timeout 300 node linkcheck.mjs >>"$LOG" 2>&1); then ok "Linkprüfung öffentliche Seiten"; else bad "Linkprüfung (siehe .test-all.log)"; fi
+if (cd "$PW_DIR" && WEB="http://127.0.0.1:$WEB_PORT" PLAYWRIGHT_CHROMIUM="${PLAYWRIGHT_CHROMIUM:-}" timeout 600 node axe.mjs >>"$LOG" 2>&1); then ok "Barrierefreiheit (axe, WCAG 2.1 AA): keine schweren Verstöße"; else bad "Barrierefreiheit (siehe .test-all.log)"; fi
 fi
 cleanup; trap - EXIT
 psql -q "$ADMIN_URL" -c "DROP DATABASE IF EXISTS werkpilot_smoke" >>"$LOG" 2>&1

@@ -235,9 +235,14 @@ async def demo_classify(data: DemoIn, request: Request, db: AsyncSession = Depen
     # Demo nutzt bewusst den Mock-Anbieter (regelbasiert), damit keine API-Kosten durch Besucher entstehen.
 
     provider = MockProvider()
-    trade_label = {"shk": "Sanitär- und Heizungsbetrieb", "elektro": "Elektrobetrieb", "maler": "Malerbetrieb", "dach": "Dachdeckerbetrieb"}.get(
-        data.trade, "Handwerksbetrieb"
-    )
+    trade_label = {
+        "shk": "Sanitär- und Heizungsbetrieb",
+        "elektro": "Elektrobetrieb",
+        "maler": "Malerbetrieb",
+        "dach": "Dachdeckerbetrieb",
+        "reinigung": "Gebäudereinigung",
+        "galabau": "Garten- und Landschaftsbau",
+    }.get(data.trade, "Handwerksbetrieb")
     ctx = f"Betrieb: Muster {trade_label}\nGewerk: {trade_label}\nOrt: -\n"
     try:
         cls = await run_structured(
@@ -269,7 +274,14 @@ async def demo_classify(data: DemoIn, request: Request, db: AsyncSession = Depen
     except LLMError as e:
         raise HTTPException(503, str(e)) from e
     await db.commit()
-    return {"classification": cls.model_dump(), "draft": reply.model_dump(), "note": "Demo-Ergebnis regelbasiert. Mit aktivem KI-Anbieter sind Entwürfe individueller."}
+    # Gespeichert wird nur der Nutzungseintrag (Aufgabe, Anbieter, Tokens), nie der Text.
+    return {
+        "classification": cls.model_dump(),
+        "draft": reply.model_dump(),
+        "engine": "regeln",
+        "stored": False,
+        "note": "Dieses Demo-Ergebnis stammt aus festen Regeln, nicht aus einem Sprachmodell. Im Produkt arbeitet ein Sprachmodell; die Entwürfe sind dann individueller, die Freigabe bleibt bei Ihnen.",
+    }
 
 
 # --- Website-Assistent (Fragen zur Website und zum Unternehmen, keine Speicherung) -------------

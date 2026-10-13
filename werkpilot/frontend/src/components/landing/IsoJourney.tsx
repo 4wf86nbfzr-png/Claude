@@ -85,7 +85,7 @@ export function IsoJourney() {
             <div ref={board} className="iso-board">
               {SCREENS.map((s, i) => { const p = pos(i); return (
                 <button key={s.key} type="button" className="iso-tile" style={{ left: p.x, top: p.y, width: TILE_W, height: TILE_H }} onClick={() => setZoom(i)} tabIndex={-1}>
-                  <img src={`/screens/${s.file}.png`} alt="" width={2160} height={1350} loading="lazy" decoding="async" />
+                  <picture><source type="image/webp" srcSet={`/screens/${s.file}-1080.webp 1080w, /screens/${s.file}-2160.webp 2160w`} sizes="(min-width: 1024px) 560px, 100vw" /><img src={`/screens/${s.file}.png`} alt="" width={2160} height={1350} loading="lazy" decoding="async" /></picture>
                   <span className="iso-label">{s.label}</span>
                 </button>
               ); })}
@@ -109,7 +109,7 @@ export function IsoJourney() {
       {z && (
         <div className="lightbox" role="dialog" aria-modal="true" aria-label={`${z.label}, vergrößert`} onClick={() => setZoom(null)}>
           <button type="button" className="lightbox-close" onClick={() => setZoom(null)} aria-label="Schließen" autoFocus>×</button>
-          <img src={`/screens/${z.file}.png`} alt={`Dashboard, Bereich ${z.label}: ${z.title}`} onClick={(e) => e.stopPropagation()} />
+          <picture onClick={(e) => e.stopPropagation()}><source type="image/webp" srcSet={`/screens/${z.file}-2160.webp`} /><img src={`/screens/${z.file}.png`} alt={`Dashboard, Bereich ${z.label}: ${z.title}`} /></picture>
         </div>
       )}
     </section>

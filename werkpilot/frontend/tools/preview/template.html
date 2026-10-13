@@ -138,6 +138,10 @@ a.dl:hover{background:#36302a;transform:translateY(-1px)}.dl.is-soon{opacity:.6;
 .iso-caption h3{font-size:1.6rem}.iso-caption p{margin-top:12px;color:var(--ink2)}.iso-caption .btns{display:flex;flex-wrap:wrap;gap:12px;margin-top:20px}.iso-note{position:absolute;left:20px;bottom:72px;margin:0;font-size:.72rem;color:var(--muted);width:min(32rem,calc(100vw - 40px))}
 .preview-tag{position:fixed;right:12px;bottom:12px;z-index:60;font-size:.65rem;letter-spacing:.06em;color:var(--ink2);background:rgba(0,0,0,.55);border-radius:999px;padding:4px 10px}
 @media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none}.cue{animation:none}.word{opacity:1!important;transform:none!important}}
+
+.compare-wrap{margin-top:72px}.compare-wrap h3{font-size:1.25rem;font-weight:600;margin-bottom:8px}
+.compare{width:100%;border-collapse:collapse;font-size:.9rem;margin-top:20px}.compare th,.compare td{padding:.65rem .5rem;border-bottom:1px solid color-mix(in srgb,var(--ink) 14%,transparent);vertical-align:top}
+.compare thead th{border-bottom-color:color-mix(in srgb,var(--ink) 40%,transparent);font-weight:600}.compare th[scope=row]{text-align:left;font-weight:400;color:var(--ink2)}.compare td{text-align:center;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -159,9 +163,9 @@ a.dl:hover{background:#36302a;transform:translateY(-1px)}.dl.is-soon{opacity:.6;
   </div>
   <div class="wrap hero-copy" id="heroCopy">
     <p class="eyebrow" style="margin-bottom:20px">Für Elektro, Sanitär und Heizung, Maler, Dach, Reinigung und Gartenbau</p>
-    <h1 id="headline">Ein Arbeitstag auf der Baustelle. Die Anfragen beantwortet Clairify.</h1>
-    <p class="hero-sub" id="heroSub">Clairify sammelt die Anfragen aus Mail und Website, sortiert sie nach Dringlichkeit und legt fertige Antwortentwürfe mit Terminvorschlägen vor. Sie prüfen und geben frei. Offene Angebote werden nachgefasst, während Sie draußen sind.</p>
-    <div class="hero-ctas"><a class="btn btn-primary hero-cta" href="#preise">14 Tage kostenlos testen</a><a class="btn btn-secondary hero-cta" href="#demo">Demo ausprobieren</a><span class="note hero-cta">Ohne Kreditkarte, Daten in der EU, monatlich kündbar</span></div>
+    <h1 id="headline">Draußen arbeiten. Im Büro nichts mehr verpassen.</h1>
+    <p class="hero-sub" id="heroSub">Clairify bündelt Kundenanfragen aus Mail und Website an einem Ort, erkennt Dringendes und legt fertige Antwortentwürfe vor. Sie prüfen auf dem Handy und geben frei. Nichts geht ohne Ihre Freigabe raus.</p>
+    <div class="hero-ctas"><a class="btn btn-primary hero-cta" href="#preise">Kostenlos testen</a><a class="btn btn-secondary hero-cta" href="#demo">Produktdemo ansehen</a><span class="note hero-cta">14 Tage kostenlos, keine Zahlungsdaten nötig</span></div>
   </div>
   <button class="vid-btn" id="vidBtn" aria-pressed="false">Video anhalten</button>
   <a href="#ablauf" class="cue" aria-label="Weiter scrollen">↓ scrollen</a>
@@ -225,7 +229,7 @@ a.dl:hover{background:#36302a;transform:translateY(-1px)}.dl.is-soon{opacity:.6;
       <article class="feature"><div class="idx" aria-hidden="true">04</div><span class="eyebrow">Termine</span><h3>Vorschläge aus Ihrem Kalender</h3><p>Geschäftszeiten minus belegte Zeiten, Google Kalender optional. Der Kunde bestätigt mit einem Klick, der Termin landet im Kalender.</p></article>
       <article class="feature"><div class="idx" aria-hidden="true">05</div><span class="eyebrow">Angebote</span><h3>Nachfassen ohne Erinnerungszettel</h3><p>Angebot eintragen, nach fünf Tagen erinnert Clairify und legt einen Entwurf zum Nachfassen an. Preise bleiben Ihre Sache.</p></article>
       <article class="feature"><div class="idx" aria-hidden="true">06</div><span class="eyebrow">Berichte</span><h3>Freitags wissen, wo Sie stehen</h3><p>Neue Anfragen, Reaktionszeit, offene Angebote, Termine. Echte Zahlen aus Ihrem Betrieb, keine Hochrechnung.</p></article>
-      <article class="feature"><div class="idx" aria-hidden="true">07</div><span class="eyebrow">Sicherheit</span><h3>Gebaut für deutsche Betriebe</h3><p>Daten in der EU, Rollen und Rechte serverseitig, Export und Löschung per Klick, Protokoll jeder automatischen Aktion.</p></article>
+      <article class="feature"><div class="idx" aria-hidden="true">07</div><span class="eyebrow">Sicherheit</span><h3>Gebaut für deutsche Betriebe</h3><p>Rollen und Rechte serverseitig, Mandanten strikt getrennt, Export und Löschung per Klick, Protokoll jeder automatischen Aktion.</p></article>
       <article class="feature" style="display:flex;flex-direction:column;justify-content:flex-end"><span class="eyebrow" style="margin-top:0">Und Sie?</span><h3>14 Tage testen, ohne Zahlungsdaten.</h3><a class="btn btn-primary" style="margin-top:24px;align-self:flex-start" href="#preise">Jetzt starten</a></article>
     </div></div>
   </div>
@@ -252,7 +256,7 @@ a.dl:hover{background:#36302a;transform:translateY(-1px)}.dl.is-soon{opacity:.6;
     <p class="lead reveal" style="margin-top:0">Ein Handwerksbetrieb lebt von Vertrauen. Deshalb nennt Clairify keine Preise, stellt keine Diagnosen aus der Ferne und macht keine Zusagen. Jede Nachricht, die rausgeht, haben Sie gesehen oder bewusst für saubere Fälle freigegeben.</p>
     <div class="lists">
       <div class="reveal"><h3 style="color:var(--accent2)">Macht die KI</h3><ul><li>Erfassen, zusammenfassen, priorisieren</li><li>Entwürfe in Ihrem Ton</li><li>Nach fehlenden Angaben fragen</li><li>Terminvorschläge aus dem Kalender</li><li>An offene Angebote erinnern</li><li>Wochenbericht schreiben</li></ul></div>
-      <div class="reveal"><h3 style="color:var(--steel)">Macht sie nicht</h3><ul><li>Preise nennen oder Angebote abgeben</li><li>Technische Diagnosen stellen</li><li>Termine verbindlich zusagen</li><li>Beschwerden allein beantworten</li><li>Nachrichten senden, die Sie nicht freigegeben haben</li><li>Daten außerhalb der EU speichern</li></ul></div>
+      <div class="reveal"><h3 style="color:var(--steel)">Macht sie nicht</h3><ul><li>Preise nennen oder Angebote abgeben</li><li>Technische Diagnosen stellen</li><li>Termine verbindlich zusagen</li><li>Beschwerden allein beantworten</li><li>Nachrichten senden, die Sie nicht freigegeben haben</li><li>Im Verborgenen arbeiten: jede automatische Aktion steht im Protokoll</li></ul></div>
     </div>
   </div>
 </div></section>
@@ -262,25 +266,29 @@ a.dl:hover{background:#36302a;transform:translateY(-1px)}.dl.is-soon{opacity:.6;
   <div class="demo-panel reveal">
     <form id="demoForm">
       <label class="field"><span>Gewerk</span><select class="input" id="trade"><option value="shk">Sanitär und Heizung</option><option value="elektro">Elektro</option><option value="maler">Maler</option><option value="dach">Dachdecker</option></select></label>
-      <label class="field"><span>Kundenanfrage</span><textarea class="input" id="text" maxlength="2000" required>Guten Tag, seit heute früh ist bei uns die Heizung komplett aus und es kommt kein Warmwasser mehr. Wir haben zwei kleine Kinder. Können Sie heute noch kommen? Familie Schulz, Tel. 0170 1234567</textarea></label>
+      <label class="field"><span>Kundenanfrage</span><textarea class="input" id="text" maxlength="2000" required>Guten Tag, seit heute früh ist bei uns die Heizung komplett aus und es kommt kein Warmwasser mehr. Wir haben zwei kleine Kinder. Können Sie heute noch kommen? Familie Beispiel, Musterweg 4, 20144 Hamburg, Tel. 040 0000000</textarea></label>
       <div class="chips" id="chips"></div>
+      <p class="small" style="margin-top:10px">Beispieldaten: Namen, Adressen und Telefonnummern sind frei erfunden. Die Demo arbeitet regelbasiert und speichert Ihren Text nicht.</p>
       <button class="btn btn-primary" type="submit" style="margin-top:16px">Anfrage verarbeiten</button>
     </form>
     <div class="result" id="result">
       <div class="rcard"><h4>Einordnung</h4><div id="rBadges"></div><p id="rSummary" style="margin-top:12px;font-size:.92rem;color:var(--ink2)"></p><div id="rMissing"></div></div>
       <div class="rcard"><h4>Antwortentwurf</h4><div id="rSubject" style="font-weight:500;margin-bottom:8px"></div><pre id="rBody"></pre></div>
-      <div class="note">Ergebnis der Demo ist regelbasiert. Mit aktivem KI Anbieter sind Entwürfe individueller.</div>
+      <div class="note"><strong>Regelbasiert, keine KI:</strong> Dieses Demo-Ergebnis stammt aus festen Regeln, nicht aus einem Sprachmodell. Im Produkt arbeitet ein Sprachmodell; die Entwürfe sind dann individueller, die Freigabe bleibt bei Ihnen.</div>
     </div>
   </div>
 </div></section>
 
 <section data-fly class="sec" id="preise" aria-label="Preise"><div class="wrap">
-  <div class="reveal"><p class="eyebrow" style="margin-bottom:16px">Preise</p><h2 style="max-width:48rem">Weniger als eine Monteurstunde pro Woche.</h2><p class="lead" style="max-width:42rem">Alle Preise zuzüglich Umsatzsteuer, monatlich kündbar, 14 Tage kostenlos ohne Zahlungsdaten. Einführungspreise: Was Sie heute buchen, bleibt für Ihre Laufzeit so.</p></div>
+  <div class="reveal"><p class="eyebrow" style="margin-bottom:16px">Preise</p><h2 style="max-width:48rem">Weniger als eine Monteurstunde pro Woche.</h2><p class="lead" style="max-width:42rem">Alle Preise zuzüglich Umsatzsteuer. Monatlich kündbar zum Ende des Abrechnungsmonats. 14 Tage kostenlos, ohne Zahlungsdaten. Einführungspreise: Was Sie heute buchen, bleibt für Ihre Laufzeit so.</p></div>
   <div class="plans">
     <div class="plan reveal"><h3>Starter</h3><div class="price">79 €<small> im Monat</small></div><p class="for">Einzelbetriebe und kleine Teams</p><ul><li>150 Anfragen im Monat</li><li>Antwortentwürfe der KI mit Freigabe</li><li>Kundenübersicht</li><li>Standardberichte</li><li>2 Nutzer</li></ul><a class="btn btn-secondary" href="#">Testphase starten</a></div>
-    <div class="plan hot reveal"><h3>Business<small>Meist gewählt</small></h3><div class="price">149 €<small> im Monat</small></div><p class="for">Betriebe mit Büro und Monteuren</p><ul><li>500 Anfragen im Monat</li><li>Automatische Eingangsbestätigung</li><li>Terminvorschläge und Kalender</li><li>Angebote nachverfolgen</li><li>Individuelle Abläufe</li><li>5 Nutzer</li></ul><a class="btn btn-primary" href="#">Testphase starten</a></div>
+    <div class="plan hot reveal"><h3>Business<small>Empfehlung für Betriebe mit Büro</small></h3><div class="price">149 €<small> im Monat</small></div><p class="for">Betriebe mit Büro und Monteuren</p><ul><li>500 Anfragen im Monat</li><li>Automatische Eingangsbestätigung</li><li>Terminvorschläge und Kalender</li><li>Angebote nachverfolgen</li><li>Individuelle Abläufe</li><li>5 Nutzer</li></ul><a class="btn btn-primary" href="#">Testphase starten</a></div>
     <div class="plan reveal"><h3>Pro</h3><div class="price">249 €<small> im Monat</small></div><p class="for">Wachsende Betriebe mit eigenen Systemen</p><ul><li>2.000 Anfragen im Monat</li><li>Webhooks für Ihr CRM und erweiterte Integrationen</li><li>Eigene Automatisierungsregeln</li><li>Umfangreiche Auswertungen</li><li>Priorisierter Support</li><li>15 Nutzer</li></ul><a class="btn btn-secondary" href="#">Testphase starten</a></div>
   </div>
+
+  <div class="reveal compare-wrap"><h3>Was ist drin, was kostet extra?</h3><p class="small" style="max-width:42rem">Keine Einrichtungsgebühr, keine Zusatzkosten für die KI. Nach der Testphase läuft kein Tarif automatisch weiter und es wird nichts abgebucht. Ohne Buchung pausiert der Zugriff auf Anfragen und KI; Anmeldung, Einstellungen, Export und Löschung bleiben möglich.</p>
+  <div style="overflow-x:auto"><table class="compare"><thead><tr><th scope="col">Leistung</th><th scope="col">Starter</th><th scope="col">Business</th><th scope="col">Pro</th></tr></thead><tbody><tr><th scope="row">Anfragen im Monat</th><td>150</td><td>500</td><td>2.000</td></tr><tr><th scope="row">Nutzerkonten</th><td>2</td><td>5</td><td>15</td></tr><tr><th scope="row">KI-Kontingent inklusive</th><td>Ja</td><td>Ja</td><td>Ja</td></tr><tr><th scope="row">Anfragen erfassen, sortieren, priorisieren</th><td>✓</td><td>✓</td><td>✓</td></tr><tr><th scope="row">Antwortentwürfe der KI mit Freigabe</th><td>✓</td><td>✓</td><td>✓</td></tr><tr><th scope="row">Kundenübersicht</th><td>✓</td><td>✓</td><td>✓</td></tr><tr><th scope="row">Standardberichte (Wochenbericht)</th><td>✓</td><td>✓</td><td>✓</td></tr><tr><th scope="row">Automatische Eingangsbestätigung für saubere Fälle</th><td>–</td><td>✓</td><td>✓</td></tr><tr><th scope="row">Terminvorschläge, Kalender, Google Kalender</th><td>–</td><td>✓</td><td>✓</td></tr><tr><th scope="row">Offene Angebote nachfassen</th><td>–</td><td>✓</td><td>✓</td></tr><tr><th scope="row">Individuelle Abläufe</th><td>–</td><td>✓</td><td>✓</td></tr><tr><th scope="row">Webhooks und erweiterte Integrationen</th><td>–</td><td>–</td><td>✓</td></tr><tr><th scope="row">Eigene Automatisierungsregeln</th><td>–</td><td>–</td><td>✓</td></tr><tr><th scope="row">Umfangreiche Auswertungen</th><td>–</td><td>–</td><td>✓</td></tr><tr><th scope="row">Priorisierter Support</th><td>–</td><td>–</td><td>✓</td></tr><tr><th scope="row">Kündigung</th><td colspan="3" style="text-align:center">Monatlich, zum Ende des Abrechnungsmonats</td></tr><tr><th scope="row">Testphase</th><td colspan="3" style="text-align:center">14 Tage, ohne Zahlungsdaten: 30 Anfragen, 1 Nutzer, begrenztes KI-Kontingent</td></tr><tr><th scope="row">Umsatzsteuer</th><td colspan="3" style="text-align:center">Preise zuzüglich gesetzlicher Umsatzsteuer</td></tr></tbody></table></div></div>
 </div></section>
 
 <section data-fly class="sec" id="faq" aria-label="Häufige Fragen"><div class="wrap faq-grid">
@@ -288,10 +296,10 @@ a.dl:hover{background:#36302a;transform:translateY(-1px)}.dl.is-soon{opacity:.6;
   <div>
     <details class="reveal"><summary><span>Wie kommen die Anfragen in Clairify?</span><span class="chev" aria-hidden="true">+</span></summary><p>Per Weiterleitung aus Ihrem Postfach an Ihre Adresse bei Clairify, über das Kontaktformular Ihrer Website (ein kleines Snippet) oder manuell nach einem Anruf. Dubletten werden erkannt.</p></details>
     <details class="reveal"><summary><span>Sendet die KI ohne mein Wissen Nachrichten?</span><span class="chev" aria-hidden="true">+</span></summary><p>Nein. Standard ist: Entwurf, Sie geben frei. Ab Tarif Business können Sie für saubere Fälle eine automatische Eingangsbestätigung aktivieren. Sobald ein Warnhinweis vorliegt (geringe Sicherheit, Preisaussage, Beschwerde), geht nichts automatisch raus.</p></details>
-    <details class="reveal"><summary><span>Was kostet die KI zusätzlich?</span><span class="chev" aria-hidden="true">+</span></summary><p>Nichts. Jeder Tarif enthält ein Kontingent für die KI, das für den angegebenen Anfrageumfang reicht. Ist es erreicht, werden Anfragen weiter erfasst, aber ohne Entwurf, und Sie werden informiert.</p></details>
-    <details class="reveal"><summary><span>Wo liegen meine Daten?</span><span class="chev" aria-hidden="true">+</span></summary><p>Auf Servern in der EU. Sie können jederzeit alle Daten exportieren und Ihren Betrieb löschen. Die Aufbewahrungsfrist für abgeschlossene Vorgänge stellen Sie selbst ein.</p></details>
+    <details class="reveal"><summary><span>Was kostet die KI zusätzlich?</span><span class="chev" aria-hidden="true">+</span></summary><p>Nichts. Jeder Tarif enthält ein Kontingent für die KI, das für den angegebenen Anfrageumfang reicht. Ist es erreicht, werden Anfragen weiter erfasst und sortiert, aber ohne Entwurf; das Dashboard zeigt den Stand an.</p></details>
+    <details class="reveal"><summary><span>Wo liegen meine Daten?</span><span class="chev" aria-hidden="true">+</span></summary><p>Der Hosting-Anbieter und der KI-Anbieter werden in der Datenschutzerklärung benannt, sobald sie für den Betrieb festgelegt sind; vorgesehen sind Server in der EU. Sie können jederzeit alle Daten als JSON exportieren und Ihren Betrieb samt Daten löschen. Die Aufbewahrungsfrist für abgeschlossene Vorgänge stellen Sie selbst ein, mindestens 30 Tage.</p></details>
     <details class="reveal"><summary><span>Brauche ich einen Google Kalender?</span><span class="chev" aria-hidden="true">+</span></summary><p>Nein. Terminvorschläge kommen aus Ihren Geschäftszeiten abzüglich der in Clairify eingetragenen Termine. Wenn Sie Google Kalender verbinden, werden dortige Belegungen berücksichtigt und bestätigte Termine eingetragen.</p></details>
-    <details class="reveal"><summary><span>Wie kündige ich?</span><span class="chev" aria-hidden="true">+</span></summary><p>Jederzeit im Kundenportal zum Ende des Abrechnungsmonats. Danach haben Sie 30 Tage Zeit für den Export, dann werden die Daten gelöscht.</p></details>
+    <details class="reveal"><summary><span>Wie kündige ich?</span><span class="chev" aria-hidden="true">+</span></summary><p>Jederzeit im Kundenportal zum Ende des Abrechnungsmonats. Danach bleibt der Zugang zum Export bestehen; gelöscht wird, wenn Sie den Betrieb in den Einstellungen löschen oder die eingestellte Aufbewahrungsfrist abläuft.</p></details>
   </div>
 </div></section>
 
@@ -300,12 +308,12 @@ a.dl:hover{background:#36302a;transform:translateY(-1px)}.dl.is-soon{opacity:.6;
   <div class="wrap">
   <h2 class="reveal">Der nächste Kunde schreibt heute Abend. Wer antwortet?</h2>
   <p class="reveal">In zehn Minuten eingerichtet: Konto anlegen, Weiterleitung setzen, erste Anfrage prüfen.</p>
-  <div class="btns reveal"><a class="btn btn-primary" href="#">14 Tage kostenlos testen</a><a class="btn btn-secondary" href="#">Rückruf anfragen</a></div>
+  <div class="btns reveal"><a class="btn btn-primary" href="#">Kostenlos testen</a><a class="btn btn-secondary" href="#">Rückruf anfragen</a></div>
 </div></section>
 </main>
 
 <footer><div class="wrap fgrid">
-  <div><a class="logo" href="#top">Clairify</a><p class="fnote">Anfragen und Termine für kleine Handwerksbetriebe, organisiert mit KI. Entwickelt und betrieben in Deutschland.</p></div>
+  <div><a class="logo" href="#top">Clairify</a><p class="fnote">Anfragen und Termine für kleine Handwerksbetriebe, organisiert mit KI. Entwickelt in Deutschland, auf Deutsch, für deutsche Betriebe.</p></div>
   <div><h3>Produkt</h3><ul><li><a href="#funktionen">Funktionen</a></li><li><a href="#preise">Preise</a></li><li><a href="#demo">Demo</a></li></ul></div>
   <div><h3>Hilfe</h3><ul><li><a href="#faq">Fragen</a></li><li><a href="#">Kontakt</a></li><li><a href="#">Anmelden</a></li></ul></div>
   <div><h3>Rechtliches</h3><ul><li><a href="#">Impressum</a></li><li><a href="#">Datenschutzerklärung</a></li><li><a href="#">AGB</a></li><li><a href="#">Widerrufsbelehrung</a></li></ul></div>
@@ -410,12 +418,20 @@ a.dl:hover{background:#36302a;transform:translateY(-1px)}.dl.is-soon{opacity:.6;
     ScrollTrigger.sort(); requestAnimationFrame(function () { ScrollTrigger.refresh(); });
   }
   // Demo (regelbasiert, gleiche Regeln wie der Mock-Anbieter des Backends)
-  var examples = [
-    "Guten Tag, seit heute früh ist bei uns die Heizung komplett aus und es kommt kein Warmwasser mehr. Wir haben zwei kleine Kinder. Können Sie heute noch kommen? Familie Schulz, Tel. 0170 1234567",
-    "Hallo, wir möchten unser Wohnzimmer (ca. 28 qm) und den Flur streichen lassen. Können Sie uns ein Angebot machen? Gerne mit Besichtigungstermin.",
-    "Nach dem Sturm gestern fehlen mehrere Ziegel und im Dachboden ist es feucht. Birkenweg 12, 22089 Hamburg."
-  ];
-  var chips = document.getElementById("chips"); examples.forEach(function (ex, i) { var b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.textContent = "Beispiel " + (i + 1); b.onclick = function () { document.getElementById("text").value = ex; }; chips.appendChild(b); });
+  var EXAMPLES = {
+    shk: [["Heizung aus", "Guten Tag, seit heute früh ist bei uns die Heizung komplett aus und es kommt kein Warmwasser mehr. Wir haben zwei kleine Kinder. Können Sie heute noch kommen? Familie Beispiel, Musterweg 4, 20144 Hamburg, Tel. 040 0000000"], ["Bad-Angebot", "Hallo, wir möchten unser Bad (ca. 7 qm) komplett sanieren lassen: neue Dusche statt Wanne, Waschtisch, Fliesen. Können Sie uns ein Angebot machen? Gerne mit Besichtigung."], ["Unklar", "Hallo, mein Nachbar meinte, Sie hätten damals bei ihm was gemacht. Ich hätte da auch mal eine Frage zu meiner Anlage, rufen Sie mich doch einfach zurück."]],
+    elektro: [["Stromausfall", "Bei uns fliegt seit gestern Abend ständig die Sicherung raus, jetzt ist die halbe Wohnung ohne Strom und es riecht leicht verschmort am Sicherungskasten. Bitte dringend melden! Musterstraße 12, 22089 Hamburg, 0170 0000000"], ["Wallbox-Angebot", "Wir hätten gern ein Angebot für eine Wallbox (11 kW) in der Garage, Zählerschrank ist im Keller, ca. 15 m Leitungsweg. Was würde das kosten und wann hätten Sie Zeit?"], ["Unklar", "Moin, wegen der Sache von letzter Woche: Passt es bei Ihnen eher vormittags? Gruß Meier"]],
+    maler: [["Wasserschaden", "Nach einem Rohrbruch ist die Wand im Flur durchnässt, Farbe blättert ab und es riecht muffig. Die Versicherung braucht schnell einen Kostenvoranschlag. Tel. 0151 0000000"], ["Wohnung streichen", "Hallo, wir möchten unser Wohnzimmer (ca. 28 qm) und den Flur streichen lassen. Können Sie uns ein Angebot machen? Gerne mit Besichtigungstermin."], ["Beschwerde", "Die Decke, die Sie letzte Woche gestrichen haben, hat jetzt Streifen und an zwei Stellen Tropfen. So kann das nicht bleiben, ich bin wirklich unzufrieden."]],
+    dach: [["Sturmschaden", "Nach dem Sturm gestern fehlen mehrere Ziegel und im Dachboden ist es feucht. Es regnet weiter rein. Birkenweg 12, 22089 Hamburg, Tel. 040 0000000"], ["Dachfenster", "Wir überlegen, zwei Dachfenster einbauen zu lassen (Dachgeschoss, Satteldach, Baujahr 1968). Können Sie uns ein Angebot machen und sagen, ob dafür eine Genehmigung nötig ist?"], ["Wartung", "Guten Tag, wir hätten gern die jährliche Inspektion vom Flachdach unserer Lagerhalle. Wann passt es Ihnen?"]]
+  };
+  var CAT = { notfall: "Notfall", reparatur: "Reparatur", angebot: "Angebotsanfrage", wartung: "Wartung", terminfrage: "Terminfrage", neuinstallation: "Neuinstallation", beschwerde: "Beschwerde", spam: "Spam", sonstiges: "Sonstiges" };
+  var chips = document.getElementById("chips"), tradeSel = document.getElementById("trade");
+  function renderChips() {
+    chips.innerHTML = '<span class="small" style="align-self:center">Beispiele:</span>';
+    EXAMPLES[tradeSel.value].forEach(function (ex) { var b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.textContent = ex[0]; b.onclick = function () { document.getElementById("text").value = ex[1]; document.getElementById("result").classList.remove("show"); }; chips.appendChild(b); });
+  }
+  tradeSel.addEventListener("change", function () { document.getElementById("text").value = EXAMPLES[tradeSel.value][0][1]; document.getElementById("result").classList.remove("show"); renderChips(); });
+  renderChips();
   var URGENT = ["notfall","wasserschaden","rohrbruch","stromausfall","kein strom","strom weg","gasgeruch","dringend","sofort","ausgefallen","kein warmwasser","brennt","sturmschaden","sturm","regnet rein","wasser läuft","läuft aus","überschwemmt","kurzschluss"];
   var SPAM = ["seo-agentur","backlinks","crypto","bitcoin","gewinnspiel","viagra","casino"];
   var LABEL = { shk: "Sanitär- und Heizungsbetrieb", elektro: "Elektrobetrieb", maler: "Malerbetrieb", dach: "Dachdeckerbetrieb" };
@@ -450,7 +466,7 @@ a.dl:hover{background:#36302a;transform:translateY(-1px)}.dl.is-soon{opacity:.6;
     e.preventDefault();
     var text = document.getElementById("text").value.trim(); if (text.length < 10) return;
     var trade = document.getElementById("trade").value, cls = classify(text), d = draft(cls, trade);
-    document.getElementById("rBadges").innerHTML = '<span class="badge accent">' + cls.category + '</span><span class="badge ' + PRIO[cls.priority] + '">Priorität: ' + PL[cls.priority] + '</span><span class="badge">Sicherheit ' + Math.round(cls.confidence * 100) + ' %</span>' + (cls.needsHuman ? '<span class="badge warn">Mensch prüfen</span>' : "");
+    document.getElementById("rBadges").innerHTML = '<span class="badge accent">' + (CAT[cls.category] || cls.category) + '</span><span class="badge ' + PRIO[cls.priority] + '">Dringlichkeit: ' + PL[cls.priority] + '</span><span class="badge">Sicherheit ' + Math.round(cls.confidence * 100) + ' %</span>' + (cls.needsHuman ? '<span class="badge warn">Mensch prüfen</span>' : "");
     document.getElementById("rSummary").textContent = cls.summary;
     document.getElementById("rMissing").innerHTML = cls.missing.length ? '<h4 style="margin:16px 0 4px;font-size:.9rem">Fehlt noch</h4><ul style="margin:0;padding-left:20px;font-size:.9rem;color:var(--ink2)">' + cls.missing.map(function (m) { return "<li>" + m + "</li>"; }).join("") + "</ul>" : "";
     document.getElementById("rSubject").textContent = d.subject; document.getElementById("rBody").textContent = d.body;

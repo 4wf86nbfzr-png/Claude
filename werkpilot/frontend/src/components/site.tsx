@@ -44,10 +44,10 @@ export function SiteFooter() {
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 text-sm sm:grid-cols-2 md:grid-cols-4">
         <div>
           <Logo />
-          <p className="mt-3 text-muted">Anfragen und Termine für kleine Handwerksbetriebe, organisiert mit KI. Entwickelt und betrieben in Deutschland.</p>
+          <p className="mt-3 text-muted">Anfragen und Termine für kleine Handwerksbetriebe, organisiert mit KI. Entwickelt in Deutschland, auf Deutsch, für deutsche Betriebe.</p>
         </div>
         <div>
-          <h3 className="mb-2 font-semibold">Produkt</h3>
+          <h2 className="mb-2 text-base font-semibold">Produkt</h2>
           <ul className="space-y-1 text-ink-2">
             <li><Link href="/funktionen">Funktionen</Link></li>
             <li><Link href="/branchen">Branchen</Link></li>
@@ -56,7 +56,7 @@ export function SiteFooter() {
           </ul>
         </div>
         <div>
-          <h3 className="mb-2 font-semibold">Hilfe</h3>
+          <h2 className="mb-2 text-base font-semibold">Hilfe</h2>
           <ul className="space-y-1 text-ink-2">
             <li><Link href="/hilfe">Hilfezentrum</Link></li>
             <li><Link href="/kontakt">Kontakt</Link></li>
@@ -64,7 +64,7 @@ export function SiteFooter() {
           </ul>
         </div>
         <div>
-          <h3 className="mb-2 font-semibold">Rechtliches</h3>
+          <h2 className="mb-2 text-base font-semibold">Rechtliches</h2>
           <ul className="space-y-1 text-ink-2">
             <li><Link href="/impressum">Impressum</Link></li>
             <li><Link href="/datenschutz">Datenschutzerklärung</Link></li>

@@ -91,6 +91,7 @@ async def test_demo_endpoint_no_tenant_cost(client, db):
     assert r.status_code == 200
     j = r.json()
     assert j["classification"]["category"] == "notfall" and "Guten Tag" in j["draft"]["body"]
+    assert j["engine"] == "regeln" and j["stored"] is False and "Regeln" in j["note"]
     from app.models.billing import AIUsage
 
     rows = (await db.execute(select(AIUsage))).scalars().all()
