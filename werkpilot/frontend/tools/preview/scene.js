@@ -6,6 +6,21 @@ const LANES = [
   { x: -2.55, color: "#e1a347" }, { x: -0.85, color: "#708ca9" }, { x: 0.85, color: "#ab967c" }, { x: 2.55, color: "#5d6269" },
 ];
 const COUNT = 32;
+// Schriftzug CLAIRIFY als Textur je Spur; Rückseite gespiegelt, damit er beim Drehen lesbar bleibt
+function makeLabels() {
+  return LANES.map((lane, i) => {
+    const c = document.createElement("canvas"); c.width = 512; c.height = 168;
+    const ctx = c.getContext("2d");
+    ctx.fillStyle = lane.color; ctx.fillRect(0, 0, c.width, c.height);
+    ctx.fillStyle = i === 0 ? "#1b1408" : "#f3f2f1";
+    ctx.font = "600 78px ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif";
+    ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.letterSpacing = "10px";
+    ctx.fillText("CLAIRIFY", c.width / 2 + 5, c.height / 2 + 4);
+    const front = new THREE.CanvasTexture(c); front.colorSpace = THREE.SRGBColorSpace; front.anisotropy = 4;
+    const back = front.clone(); back.repeat.x = -1; back.offset.x = 1; back.needsUpdate = true;
+    return { front, back };
+  });
+}
 const easeInOut = (t) => (t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t);
 const clamp01 = (v) => Math.min(1, Math.max(0, v));
 
@@ -31,6 +46,12 @@ export function mountScene(container, state) {
   let seed = 11; const rnd = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
   const group = new THREE.Group(); scene.add(group);
   const geo = new THREE.BoxGeometry(1.35, 0.44, 0.06);
+  const labels = makeLabels();
+  const cardMaterials = (lane) => {
+    const side = () => new THREE.MeshStandardMaterial({ color: LANES[lane].color, emissive: LANES[lane].color, emissiveIntensity: 0.15, roughness: 0.35, metalness: 0.2 });
+    const face = (tex) => new THREE.MeshStandardMaterial({ color: 0xffffff, map: tex, emissive: LANES[lane].color, emissiveMap: tex, emissiveIntensity: 0.15, roughness: 0.35, metalness: 0.2 });
+    return [side(), side(), side(), side(), face(labels[lane].front), face(labels[lane].back)];
+  };
   const items = Array.from({ length: COUNT }, (_, i) => {
     const lane = i % 4, idx = Math.floor(i / 4);
     const it = {
@@ -39,7 +60,7 @@ export function mountScene(container, state) {
       chaosRot: new THREE.Euler((rnd() - 0.5) * 1.6, (rnd() - 0.5) * 2.2, (rnd() - 0.5) * 0.8),
       sorted: new THREE.Vector3(LANES[lane].x, 2.1 - idx * 0.6, 0),
       drift: rnd() * Math.PI * 2,
-      mesh: new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: LANES[lane].color, emissive: LANES[lane].color, emissiveIntensity: 0.15, roughness: 0.35, metalness: 0.2 })),
+      mesh: new THREE.Mesh(geo, cardMaterials(lane)),
     };
     it.mesh.position.copy(it.chaos); it.mesh.rotation.copy(it.chaosRot); group.add(it.mesh);
     return it;
@@ -64,7 +85,8 @@ export function mountScene(container, state) {
       m.rotation.y += (it.chaosRot.y * (1 - sortK) - m.rotation.y) * 0.08;
       m.rotation.z += (it.chaosRot.z * (1 - sortK) - m.rotation.z) * 0.08;
       m.scale.setScalar(THREE.MathUtils.lerp(m.scale.x, scale, 0.1));
-      m.material.emissiveIntensity = it.lane === 0 ? 0.35 + sortK * 0.5 : 0.12 + sortK * 0.15;
+      const k = it.lane === 0 ? 0.35 + sortK * 0.5 : 0.12 + sortK * 0.15;
+      m.material.forEach((mat) => { mat.emissiveIntensity = k; });
     });
     group.rotation.y += (state.px * 0.35 - group.rotation.y) * 0.05;
     group.rotation.x += (-state.py * 0.2 - group.rotation.x) * 0.05;

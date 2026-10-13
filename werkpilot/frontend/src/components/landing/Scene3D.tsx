@@ -16,6 +16,23 @@ const LANES = [
 ];
 const COUNT = 32;
 
+/** Schriftzug CLAIRIFY als Textur je Spur (Canvas, einmal erzeugt). Dunkle Schrift auf der warmen Akzentfarbe,
+ *  helle auf den übrigen Farben. Rückseite gespiegelt, damit die Schrift beim Drehen lesbar bleibt. */
+function makeLabelTextures(): { front: THREE.CanvasTexture; back: THREE.CanvasTexture }[] {
+  return LANES.map((lane) => {
+    const c = document.createElement("canvas"); c.width = 512; c.height = 168;
+    const ctx = c.getContext("2d")!;
+    ctx.fillStyle = lane.color; ctx.fillRect(0, 0, c.width, c.height);
+    ctx.fillStyle = lane.label === "dringend" ? "#1b1408" : "#f3f2f1";
+    ctx.font = "600 78px ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif";
+    ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.letterSpacing = "10px";
+    ctx.fillText("CLAIRIFY", c.width / 2 + 5, c.height / 2 + 4);
+    const front = new THREE.CanvasTexture(c); front.colorSpace = THREE.SRGBColorSpace; front.anisotropy = 4;
+    const back = front.clone(); back.repeat.x = -1; back.offset.x = 1; back.needsUpdate = true;
+    return { front, back };
+  });
+}
+
 type Item = { lane: number; idx: number; chaos: THREE.Vector3; chaosRot: THREE.Euler; sorted: THREE.Vector3; drift: number };
 
 /** Deterministische Startpositionen (außerhalb der Komponente, damit nichts während des Renderns mutiert). */
@@ -43,6 +60,8 @@ function Cards({ progress, pointer }: { progress: ProgressRef; pointer: PointerR
   const group = useRef<THREE.Group>(null);
   const items = useMemo(() => buildItems(), []);
   const tmpV = useMemo(() => new THREE.Vector3(), []);
+  const labels = useMemo(() => makeLabelTextures(), []);
+  useEffect(() => () => labels.forEach((l) => { l.front.dispose(); l.back.dispose(); }), [labels]);
   useFrame((state) => {
     const g = group.current; if (!g) return;
     const p = progress.current; const t = state.clock.elapsedTime;
@@ -62,8 +81,8 @@ function Cards({ progress, pointer }: { progress: ProgressRef; pointer: PointerR
       m.rotation.y += ((it.chaosRot.y * (1 - sortK)) - m.rotation.y) * 0.08;
       m.rotation.z += ((it.chaosRot.z * (1 - sortK)) - m.rotation.z) * 0.08;
       m.scale.setScalar(THREE.MathUtils.lerp(m.scale.x, scale, 0.1));
-      const mat = m.material as THREE.MeshStandardMaterial;
-      mat.emissiveIntensity = it.lane === 0 ? 0.35 + sortK * 0.5 : 0.12 + sortK * 0.15;
+      const k = it.lane === 0 ? 0.35 + sortK * 0.5 : 0.12 + sortK * 0.15;
+      for (const mat of m.material as THREE.MeshStandardMaterial[]) mat.emissiveIntensity = k;
     });
     // Parallaxe zur Maus / Geräteneigung
     g.rotation.y += ((pointer.current.x * 0.35) - g.rotation.y) * 0.05;
@@ -74,7 +93,10 @@ function Cards({ progress, pointer }: { progress: ProgressRef; pointer: PointerR
       {items.map((it, i) => (
         <mesh key={i} position={it.chaos} rotation={it.chaosRot}>
           <boxGeometry args={[1.35, 0.44, 0.06]} />
-          <meshStandardMaterial color={LANES[it.lane].color} emissive={LANES[it.lane].color} emissiveIntensity={0.15} roughness={0.35} metalness={0.2} />
+          {/* Seiten einfarbig, Vorder- und Rückseite mit dem Schriftzug (Reihenfolge der Box-Flächen: +x, -x, +y, -y, +z, -z) */}
+          {[0, 1, 2, 3].map((f) => <meshStandardMaterial key={f} attach={`material-${f}`} color={LANES[it.lane].color} emissive={LANES[it.lane].color} emissiveIntensity={0.15} roughness={0.35} metalness={0.2} />)}
+          <meshStandardMaterial attach="material-4" color="#ffffff" map={labels[it.lane].front} emissive={LANES[it.lane].color} emissiveMap={labels[it.lane].front} emissiveIntensity={0.15} roughness={0.35} metalness={0.2} />
+          <meshStandardMaterial attach="material-5" color="#ffffff" map={labels[it.lane].back} emissive={LANES[it.lane].color} emissiveMap={labels[it.lane].back} emissiveIntensity={0.15} roughness={0.35} metalness={0.2} />
         </mesh>
       ))}
     </group>
