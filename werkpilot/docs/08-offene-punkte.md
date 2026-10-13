@@ -27,7 +27,7 @@ Stand nach Abschluss des Kernprodukts. Sortiert nach Dringlichkeit für den Prod
 
 ## Landingpage
 
-- Hintergrundvideo liegt nur als WebM (VP8) vor; für Safari < 14.1 greift das Poster. Für ein H.264-MP4 das WebM mit einem ffmpeg mit libx264 umwandeln (`ffmpeg -i werkpilot-loop.webm -c:v libx264 -crf 23 -an werkpilot-loop.mp4`) und als zweite `<source>` eintragen.
+- **Echtes Baustellenmaterial fehlt.** Das Hintergrundvideo ist ein selbst gerenderter Platzhalter (abstrakte Animation), weil aus der Build-Umgebung keine Stock-Video-Anbieter erreichbar waren (pexels.com, pixabay.com, mixkit.co, commons.wikimedia.org wurden von der Netzwerkrichtlinie abgewiesen). Vorgehen: Clips eines Baustellentags (Kaffee am Morgen, kurze Besprechung mit dem Bauleiter, Arbeit) mit freier Lizenz (z. B. Pexels- oder Pixabay-Lizenz, CC0) oder eigenes Material nach `frontend/tools/video/footage/` legen, `footage.json` mit Titel, Quelle, URL, Urheber, Lizenz und Schnittzeiten pflegen, dann `node tools/video/prepare-footage.mjs`. Farben, Poster, Standbilder und `SOURCES.md` werden daraus neu erzeugt; die Bildbeschreibungen (`alt`) in `Sections.tsx` prüfen.
 - Die 3D-Szene braucht WebGL; ohne WebGL bleibt der Rahmen leer (kein Absturz). Ein statisches Ersatzbild wäre der nächste Schritt.
 - Lighthouse/Performance auf schwachen Mobilgeräten noch nicht gemessen; GSAP und three.js laden nur auf der Startseite.
 

@@ -20,7 +20,7 @@ export default function Impressum() {
       <h2>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h2>
       <p>{PH("Name, Anschrift")}</p>
       <h2>Streitbeilegung</h2>
-      <p>Wir sind nicht bereit und nicht verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen. {PH("Prüfen: WerkPilot richtet sich an Unternehmer (B2B); Verbraucherhinweise ggf. entbehrlich.")}</p>
+      <p>Wir sind nicht bereit und nicht verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen. {PH("Prüfen: Clairify richtet sich an Unternehmer (B2B); Verbraucherhinweise ggf. entbehrlich.")}</p>
     </div>
   );
 }

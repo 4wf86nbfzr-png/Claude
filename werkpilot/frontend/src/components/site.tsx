@@ -12,7 +12,7 @@ export function Logo() {
   return (
     <Link href="/" className="flex items-center gap-2 font-semibold tracking-tight">
       <span aria-hidden className="grid h-7 w-7 place-items-center rounded-lg bg-accent text-white text-sm">W</span>
-      WerkPilot <span className="text-accent">AI</span>
+      Clairify <span className="text-accent">AI</span>
     </Link>
   );
 }
@@ -74,7 +74,7 @@ export function SiteFooter() {
           </ul>
         </div>
       </div>
-      <div className="border-t border-line px-4 py-4 text-center text-xs text-muted">© {new Date().getFullYear()} WerkPilot AI · Keine Tracking-Cookies, keine Weitergabe von Besucherdaten.</div>
+      <div className="border-t border-line px-4 py-4 text-center text-xs text-muted">© {new Date().getFullYear()} Clairify · Keine Tracking-Cookies, keine Weitergabe von Besucherdaten.</div>
     </footer>
   );
 }

@@ -86,10 +86,19 @@ Marketing-Seiten bleiben hell. Technik: GSAP 3.13 mit ScrollTrigger (gepinntes S
 horizontale Feature-Sektion, Parallaxe), three.js über React Three Fiber (Szene „Posteingang sortiert
 sich", Maus- und Neigungsparallaxe, WebXR-Knopf nur wenn das Gerät `immersive-vr`/`immersive-ar`
 meldet), IntersectionObserver-Fade-ins, eingebettetes Demo-Formular gegen die echte API.
-`prefers-reduced-motion` schaltet Video, Pins und Scrub ab. Das Hintergrundvideo ist eine selbst
-gerenderte Canvas-Animation (`werkpilot-loop.webm`, VP8, 14 s, 2 MB) mit JPEG-Poster; Safari älter als
-14.1 zeigt das Poster. Neu rendern: `node tools/video/render.mjs` im Frontend-Ordner (Quelle `tools/video/anim.html`,
-braucht Playwright und ffmpeg mit libvpx).
+`prefers-reduced-motion` schaltet Video, Pins und Scrub ab; dann bleibt das Poster stehen.
+
+**Hintergrundvideo.** Die Startseite wählt beim Laden die Variante nach Bildschirm und Verbindung
+(`Hero.tsx`, `pickVariant`): 2160p ab etwa 2200 CSS-Pixeln Breite mal Pixeldichte, sonst 1080p, auf
+kleinen Bildschirmen oder bei Datensparmodus 720p. Je Variante gibt es WebM (VP9) und MP4 (H.264),
+dazu ein JPEG-Poster in derselben Größe als Lade- und Bewegungsfallback. Erzeugt wird alles aus
+`frontend/tools/video/footage.json` mit `node tools/video/prepare-footage.mjs` (ffmpeg mit libvpx-vp9
+und libx264, Python mit Pillow): Clips schneiden und überblenden, 4K-Master, Varianten, Poster,
+drei Standbilder für die Bild-Text-Abschnitte, Farbpalette (`palette.css`, aus dem Material mit
+Median-Cut abgeleitet) und `public/video/SOURCES.md` mit Quellen und Lizenzen aus dem Manifest.
+Die Clips selbst liegen nicht im Repository (`tools/video/footage/` ist ignoriert). Solange kein
+echtes Baustellenmaterial vorliegt, rendert `node tools/video/render.mjs` einen klar als Platzhalter
+gekennzeichneten 4K-Clip aus `tools/video/anim.html` (eigenes Werk, keine Fremdlizenz).
 
 ## Bewusste Vereinfachungen
 

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Button } from "@/components/ui";
 
-export const metadata: Metadata = { title: "Branchenlösungen", description: "WerkPilot AI für Elektriker, Sanitär- und Heizungsbetriebe, Maler, Dachdecker, Gebäudereiniger, Garten- und Landschaftsbau und kleine Bauunternehmen." };
+export const metadata: Metadata = { title: "Branchenlösungen", description: "Clairify für Elektriker, Sanitär- und Heizungsbetriebe, Maler, Dachdecker, Gebäudereiniger, Garten- und Landschaftsbau und kleine Bauunternehmen." };
 
 const trades = [
   { n: "Elektrobetriebe", s: "Stromausfall und Sicherungsprobleme werden als Notfall erkannt. Rückfrage nach Gerät, Zählerschrank-Foto und Adresse ist vorbereitet." },

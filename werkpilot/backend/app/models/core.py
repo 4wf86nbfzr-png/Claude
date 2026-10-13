@@ -16,7 +16,7 @@ ROLES = (ROLE_OWNER, ROLE_ADMIN, ROLE_MEMBER)
 
 
 class Tenant(IdMixin, TimestampMixin, Base):
-    """Ein Handwerksbetrieb (Kunde von WerkPilot)."""
+    """Ein Handwerksbetrieb (Kunde von Clairify)."""
 
     __tablename__ = "tenants"
 
@@ -46,7 +46,7 @@ class User(IdMixin, TimestampMixin, Base):
     password_hash: Mapped[str] = mapped_column(String(300), nullable=False)
     full_name: Mapped[str] = mapped_column(String(200), default="")
     email_verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    is_operator: Mapped[bool] = mapped_column(Boolean, default=False)  # Betreiber von WerkPilot
+    is_operator: Mapped[bool] = mapped_column(Boolean, default=False)  # Betreiber von Clairify
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     failed_logins: Mapped[int] = mapped_column(Integer, default=0)
     locked_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

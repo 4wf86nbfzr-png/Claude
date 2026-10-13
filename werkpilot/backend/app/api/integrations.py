@@ -30,7 +30,7 @@ CATALOG = [
     {
         "type": "email_inbound",
         "name": "E-Mail-Eingang",
-        "description": "Eingehende Kunden-E-Mails automatisch erfassen (Weiterleitung an Ihre WerkPilot-Adresse).",
+        "description": "Eingehende Kunden-E-Mails automatisch erfassen (Weiterleitung an Ihre Clairify-Adresse).",
         "available": True,
         "tier": "starter",
     },
@@ -38,7 +38,7 @@ CATALOG = [
     {
         "type": "email_outbound",
         "name": "E-Mail-Versand",
-        "description": "Antworten werden über den WerkPilot-Versand gesendet (Reply-To: Ihre Adresse).",
+        "description": "Antworten werden über den Clairify-Versand gesendet (Reply-To: Ihre Adresse).",
         "available": None,
         "tier": "starter",
     },
@@ -130,7 +130,7 @@ async def enable_email_inbound(ctx: AuthContext = Depends(require_admin), db: As
     await db.commit()
     return {
         "status": r.status,
-        "hint": "Richten Sie in Ihrem Mailprogramm eine Weiterleitung an die WerkPilot-Eingangsadresse ein. Der Betreiber muss den Inbound-Webhook des Mail-Anbieters konfiguriert haben."
+        "hint": "Richten Sie in Ihrem Mailprogramm eine Weiterleitung an die Clairify-Eingangsadresse ein. Der Betreiber muss den Inbound-Webhook des Mail-Anbieters konfiguriert haben."
         if r.status == "pending"
         else "Aktiv.",
     }

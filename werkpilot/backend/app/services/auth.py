@@ -84,11 +84,11 @@ async def send_verification(db: AsyncSession, user: User) -> None:
     await send_email(
         db,
         to=user.email,
-        subject="Bitte bestätigen Sie Ihre E-Mail-Adresse – WerkPilot AI",
+        subject="Bitte bestätigen Sie Ihre E-Mail-Adresse – Clairify",
         text=(
             f"Moin {user.full_name or ''},\n\nbitte bestätigen Sie Ihre E-Mail-Adresse über diesen Link "
             f"(48 Stunden gültig):\n{link}\n\nFalls Sie sich nicht registriert haben, ignorieren Sie diese Mail.\n\n"
-            "WerkPilot AI"
+            "Clairify"
         ),
         kind="transactional",
     )
@@ -188,7 +188,7 @@ async def request_password_reset(db: AsyncSession, email: str) -> None:
     await send_email(
         db,
         to=user.email,
-        subject="Passwort zurücksetzen – WerkPilot AI",
+        subject="Passwort zurücksetzen – Clairify",
         text=f"Über diesen Link (2 Stunden gültig) setzen Sie ein neues Passwort:\n{link}\n\nFalls Sie das nicht angefordert haben, ignorieren Sie diese Mail.",
     )
 
@@ -218,8 +218,8 @@ async def invite_member(db: AsyncSession, tenant: Tenant, *, email: str, role: s
     await send_email(
         db,
         to=email,
-        subject=f"Einladung zu {tenant.name} bei WerkPilot AI",
-        text=f"Sie wurden zu „{tenant.name}“ bei WerkPilot AI eingeladen. Link (7 Tage gültig):\n{link}",
+        subject=f"Einladung zu {tenant.name} bei Clairify",
+        text=f"Sie wurden zu „{tenant.name}“ bei Clairify eingeladen. Link (7 Tage gültig):\n{link}",
         tenant_id=tenant.id,
     )
     return inv

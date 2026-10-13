@@ -7,11 +7,12 @@ import * as THREE from "three";
 /** Fortschritt (0..1) des Scrollytellings, von außen über ein Ref gesetzt – ohne React-Rerender pro Frame. */
 export type ProgressRef = { current: number };
 
+// Farben aus der Palette des Videomaterials (palette.css): Dringendes in der warmen Akzentfarbe, der Rest in Stahl- und Sandtönen.
 const LANES = [
-  { x: -2.55, color: "#ff7a59", label: "dringend" },
-  { x: -0.85, color: "#5b8cff", label: "normal" },
-  { x: 0.85, color: "#8fa3ff", label: "angebot" },
-  { x: 2.55, color: "#6b7280", label: "niedrig" },
+  { x: -2.55, color: "#e1a347", label: "dringend" },
+  { x: -0.85, color: "#708ca9", label: "normal" },
+  { x: 0.85, color: "#ab967c", label: "angebot" },
+  { x: 2.55, color: "#5d6269", label: "niedrig" },
 ];
 const COUNT = 32;
 
@@ -92,7 +93,7 @@ function Ring({ progress }: { progress: ProgressRef }) {
   return (
     <mesh ref={ref} position={[0, 0, -1.5]}>
       <torusGeometry args={[3.2, 0.03, 12, 120]} />
-      <meshStandardMaterial color="#5b8cff" emissive="#5b8cff" emissiveIntensity={0.8} transparent opacity={0.3} />
+      <meshStandardMaterial color="#708ca9" emissive="#708ca9" emissiveIntensity={0.8} transparent opacity={0.3} />
     </mesh>
   );
 }
@@ -130,7 +131,7 @@ export function Scene3D({ progress }: { progress: ProgressRef }) {
       <Canvas dpr={[1, 1.75]} camera={{ position: [0, 0, 10.5], fov: 40 }} gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }} onCreated={({ gl }) => { glRef.current = gl; gl.xr.enabled = true; }} aria-hidden>
         <ambientLight intensity={0.6} />
         <pointLight position={[4, 5, 6]} intensity={40} color="#ffffff" />
-        <pointLight position={[-6, -3, 4]} intensity={25} color="#5b8cff" />
+        <pointLight position={[-6, -3, 4]} intensity={25} color="#708ca9" />
         <Ring progress={progress} />
         <Cards progress={progress} pointer={pointer} />
         <Rig pointer={pointer} />

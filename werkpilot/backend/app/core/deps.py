@@ -95,7 +95,7 @@ require_owner = require_role(ROLE_OWNER)
 
 
 async def require_operator(user: User = Depends(get_current_user)) -> User:
-    """Betreiber von WerkPilot (nicht Kunde). Steuert Tarife, Not-Aus, Freigaben, Agenten."""
+    """Betreiber von Clairify (nicht Kunde). Steuert Tarife, Not-Aus, Freigaben, Agenten."""
     if not user.is_operator:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Nur für Betreiber.")
     return user

@@ -130,7 +130,7 @@ class DirectorAgent(BaseAgent):
             except LLMError as e:
                 ctx.find(f"LLM-Analyse übersprungen: {e}")
 
-        report_lines = ["Wochenlage WerkPilot", ""] + [f"- {k}: {v}" for k, v in metrics.items()] + ["", "Aufgaben:"] + [f"- {a}" for a in ctx.actions]
+        report_lines = ["Wochenlage Clairify", ""] + [f"- {k}: {v}" for k, v in metrics.items()] + ["", "Aufgaben:"] + [f"- {a}" for a in ctx.actions]
         if analysis_text:
             report_lines += ["", "Einschätzung:", analysis_text]
         db.add(Report(created_at=now, tenant_id=None, kind="director_weekly", period_start=week, period_end=now, data=metrics, summary_text="\n".join(report_lines)))

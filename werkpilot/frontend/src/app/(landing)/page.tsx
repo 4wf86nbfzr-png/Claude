@@ -2,16 +2,16 @@ import type { Metadata } from "next";
 import { Landing } from "@/components/landing/Landing";
 
 export const metadata: Metadata = {
-  title: "WerkPilot AI – Der KI-Posteingang für Handwerksbetriebe",
-  description: "Kundenanfragen aus E-Mail und Website an einem Ort, nach Dringlichkeit sortiert, mit fertigen Antwortentwürfen, Terminvorschlägen und Angebotsnachfass. 14 Tage kostenlos testen.",
-  openGraph: { title: "WerkPilot AI – Der KI-Posteingang für Handwerksbetriebe", description: "Anfragen sortieren, beantworten, nachfassen – während Sie auf der Baustelle stehen.", images: ["/video/poster.jpg"] },
+  title: "Clairify: Der Posteingang mit KI für Handwerksbetriebe",
+  description: "Kundenanfragen aus Mail und Website an einem Ort, nach Dringlichkeit sortiert, mit fertigen Antwortentwürfen, Terminvorschlägen und Nachfassen offener Angebote. 14 Tage kostenlos testen.",
+  openGraph: { title: "Clairify: Der Posteingang mit KI für Handwerksbetriebe", description: "Anfragen sortieren, beantworten, nachfassen, während Sie auf der Baustelle stehen.", images: ["/video/poster-1080.jpg"] },
 };
 
 export default function Home() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    name: "WerkPilot AI",
+    name: "Clairify",
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
     inLanguage: "de",
@@ -20,7 +20,7 @@ export default function Home() {
       { "@type": "Offer", name: "Business", price: "149", priceCurrency: "EUR", billingIncrement: "P1M" },
       { "@type": "Offer", name: "Pro", price: "249", priceCurrency: "EUR", billingIncrement: "P1M" },
     ],
-    description: "KI-gestützte Anfrage- und Terminorganisation für kleine Handwerksbetriebe in Deutschland.",
+    description: "Anfragen und Termine für kleine Handwerksbetriebe in Deutschland, organisiert mit KI.",
   };
   return (
     <>

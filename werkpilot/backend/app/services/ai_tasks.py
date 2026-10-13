@@ -201,7 +201,7 @@ def _mock_support(user: str) -> dict:
             "confident": True,
             "feature_exists": False,
             "escalate": False,
-            "answer": "Aktuell verarbeitet WerkPilot Anfragen per E-Mail und Kontaktformular. WhatsApp- oder Telefonanbindungen sind noch nicht verfügbar; wir nehmen den Wunsch auf.",
+            "answer": "Aktuell verarbeitet Clairify Anfragen per E-Mail und Kontaktformular. WhatsApp- oder Telefonanbindungen sind noch nicht verfügbar; wir nehmen den Wunsch auf.",
         }
     return {
         "category": "howto",

@@ -22,7 +22,7 @@ from app.services.email import send_email
 async def notify_ops(db, subject: str, text_body: str) -> None:
     s = get_settings()
     if s.ops_alert_email:
-        await send_email(db, to=s.ops_alert_email, subject=f"[WerkPilot] {subject}", text=text_body, kind="alert")
+        await send_email(db, to=s.ops_alert_email, subject=f"[Clairify] {subject}", text=text_body, kind="alert")
     if s.ops_alert_webhook_url:
         import httpx
 
@@ -165,6 +165,6 @@ class OpsAgent(BaseAgent):
                 )
             )
             if s.ops_alert_email:
-                await send_email(db, to=s.ops_alert_email, subject="Täglicher Betriebsbericht WerkPilot", text=text_report, kind="report")
+                await send_email(db, to=s.ops_alert_email, subject="Täglicher Betriebsbericht Clairify", text=text_report, kind="report")
             ctx.act("Tagesbericht erstellt.")
         return summary

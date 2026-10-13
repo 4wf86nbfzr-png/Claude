@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     # --- Allgemein ---
-    app_name: str = "WerkPilot AI"
+    app_name: str = "Clairify"
     env: Literal["development", "test", "production"] = "development"
     debug: bool = False
     base_url: str = "http://localhost:8000"  # Backend-URL (für OAuth-Redirects, Webhooks)
@@ -38,7 +38,7 @@ class Settings(BaseSettings):
 
     # --- E-Mail-Versand ---
     email_provider: Literal["console", "resend", "smtp"] = "console"
-    email_from: str = "WerkPilot AI <noreply@example.com>"
+    email_from: str = "Clairify <noreply@example.com>"
     resend_api_key: str | None = None
     smtp_host: str | None = None
     smtp_port: int = 587

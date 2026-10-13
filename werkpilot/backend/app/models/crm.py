@@ -136,7 +136,7 @@ class Appointment(IdMixin, TimestampMixin, Base):
 
 
 class Quote(IdMixin, TimestampMixin, Base):
-    """Angebot, das der Betrieb gestellt hat — WerkPilot erinnert an offene Angebote, setzt keine Preise."""
+    """Angebot, das der Betrieb gestellt hat — Clairify erinnert an offene Angebote, setzt keine Preise."""
 
     __tablename__ = "quotes"
     __table_args__ = (Index("ix_quotes_tenant_status", "tenant_id", "status"),)

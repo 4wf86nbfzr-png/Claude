@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { ContactForm } from "./contact-form";
 
-export const metadata: Metadata = { title: "Kontakt", description: "Fragen zu WerkPilot AI? Rückruf oder Demo anfragen." };
+export const metadata: Metadata = { title: "Kontakt", description: "Fragen zu Clairify? Rückruf oder Demo anfragen." };
 
 export default function Kontakt() {
   return (

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Button } from "@/components/ui";
 
-export const metadata: Metadata = { title: "Funktionen", description: "Anfrageverwaltung, KI-Antwortentwürfe, Terminvorschläge, Angebotsnachverfolgung, Wochenberichte – alle Funktionen von WerkPilot AI." };
+export const metadata: Metadata = { title: "Funktionen", description: "Anfrageverwaltung, KI-Antwortentwürfe, Terminvorschläge, Angebotsnachverfolgung, Wochenberichte – alle Funktionen von Clairify." };
 
 const groups = [
   { h: "Anfragen", items: [
@@ -19,7 +19,7 @@ const groups = [
   { h: "Termine & Angebote", items: [
     ["Terminvorschläge", "Aus Ihren Geschäftszeiten abzüglich belegter Zeiten. Google Kalender optional angebunden."],
     ["Terminbestätigung", "Bestätigte Termine landen im Kalender, andere Vorschläge werden freigegeben."],
-    ["Angebotsnachverfolgung", "Sie tragen ein gestelltes Angebot ein, WerkPilot erinnert nach 5 Tagen und legt einen Nachfass-Entwurf an."],
+    ["Angebotsnachverfolgung", "Sie tragen ein gestelltes Angebot ein, Clairify erinnert nach 5 Tagen und legt einen Nachfass-Entwurf an."],
     ["Status je Vorgang", "Neu, in Prüfung, wartet auf Kunde, Termin, Angebot, gewonnen, verloren."],
   ]},
   { h: "Übersicht & Betrieb", items: [

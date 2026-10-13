@@ -1,0 +1,19 @@
+{
+  "_hinweis": "Manifest für das Hintergrundvideo der Startseite. Jede Datei unter tools/video/footage/ eintragen, Quelle und Lizenz dokumentieren. Dann: node tools/video/prepare-footage.mjs",
+  "clips": [
+    {
+      "file": "placeholder-4k.webm",
+      "title": "Platzhalter: abstrakte Animation (selbst gerendert)",
+      "source": "eigene Canvas-Animation, tools/video/anim.html",
+      "author": "Clairify",
+      "license": "eigenes Werk",
+      "url": "",
+      "in": 0,
+      "out": 14
+    }
+  ],
+  "crossfade_seconds": 0.8,
+  "poster_second": 3.2,
+  "stills_seconds": [1.0, 6.0, 11.0],
+  "target_loop_seconds": 14
+}

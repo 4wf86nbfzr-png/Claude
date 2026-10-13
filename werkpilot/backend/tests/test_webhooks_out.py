@@ -36,7 +36,7 @@ async def test_crm_webhook_is_sent_and_signed(client, db, monkeypatch):
     body = req.content.decode()
     assert json.loads(body)["event"] == "inquiry.created" and json.loads(body)["data"]["id"] == inq_id
     expected = hmac.new(secret.encode(), body.encode(), hashlib.sha256).hexdigest()
-    assert req.headers["X-WerkPilot-Signature"] == expected and str(req.url) == "https://crm.example.org/hook"
+    assert req.headers["X-Clairify-Signature"] == expected and str(req.url) == "https://crm.example.org/hook"
 
 
 async def test_crm_webhook_failure_is_retried(client, db, monkeypatch):

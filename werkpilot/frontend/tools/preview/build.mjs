@@ -13,8 +13,11 @@ const parts = {
   GSAP: readFileSync(path.join(root, "node_modules/gsap/dist/gsap.min.js"), "utf8"),
   SCROLLTRIGGER: readFileSync(path.join(root, "node_modules/gsap/dist/ScrollTrigger.min.js"), "utf8"),
   SCENE: readFileSync(path.join(here, "scene.bundle.js"), "utf8"),
-  VIDEO: b64(path.join(root, "public/video/werkpilot-loop.webm"), "video/webm"),
-  POSTER: b64(path.join(root, "public/video/poster.jpg"), "image/jpeg"),
+  VIDEO: b64(path.join(root, "public/video/clairify-1080.webm"), "video/webm"),
+  POSTER: b64(path.join(root, "public/video/poster-1080.jpg"), "image/jpeg"),
+  STILL1: b64(path.join(root, "public/video/stills/still-1.jpg"), "image/jpeg"),
+  STILL2: b64(path.join(root, "public/video/stills/still-2.jpg"), "image/jpeg"),
+  STILL3: b64(path.join(root, "public/video/stills/still-3.jpg"), "image/jpeg"),
 };
 for (const [k, v] of Object.entries(parts)) html = html.split(`/*__${k}__*/`).join(v).split(`{{${k}}}`).join(v);
 const out = path.resolve(root, "../landing-preview.html");

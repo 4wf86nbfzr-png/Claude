@@ -46,7 +46,7 @@ async def _send(db: AsyncSession, job: Job) -> dict:
         r = await client.post(
             target,
             content=body,
-            headers={"Content-Type": "application/json", "X-WerkPilot-Signature": sign_payload(body, secret), "X-WerkPilot-Event": job.payload["event"]},
+            headers={"Content-Type": "application/json", "X-Clairify-Signature": sign_payload(body, secret), "X-Clairify-Event": job.payload["event"]},
         )
     integ.last_checked_at = utcnow()
     if r.status_code >= 300:

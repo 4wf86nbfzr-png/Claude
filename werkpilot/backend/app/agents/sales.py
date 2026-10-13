@@ -63,15 +63,15 @@ class SalesAgent(BaseAgent):
         qualified = (await db.execute(select(Lead).where(Lead.status == "qualified", Lead.email.is_not(None), Lead.next_action_at <= now))).scalars().all()
         for lead in qualified:
             text = (
-                f"Moin {lead.contact_name or ''},\n\ndanke für Ihre Anfrage zu WerkPilot AI für {lead.company}.\n\n"
-                "Kurz, was WerkPilot macht: Kundenanfragen aus E-Mail und Website landen an einem Ort, werden nach Dringlichkeit sortiert, "
+                f"Moin {lead.contact_name or ''},\n\ndanke für Ihre Anfrage zu Clairify für {lead.company}.\n\n"
+                "Kurz, was Clairify macht: Kundenanfragen aus E-Mail und Website landen an einem Ort, werden nach Dringlichkeit sortiert, "
                 "und Sie bekommen fertige Antwortentwürfe – inklusive Rückfragen nach fehlenden Angaben und Terminvorschlägen. "
                 "Offene Angebote werden nicht vergessen.\n\n"
                 f"Sie können es 14 Tage kostenlos testen: {s.frontend_url}/registrieren\n"
                 f"Oder wir zeigen es Ihnen in 20 Minuten: Antworten Sie einfach mit zwei Terminvorschlägen.\n\n"
-                "Preise und Umfang stehen transparent unter " + f"{s.frontend_url}/preise.\n\nFreundliche Grüße\nWerkPilot AI"
+                "Preise und Umfang stehen transparent unter " + f"{s.frontend_url}/preise.\n\nFreundliche Grüße\nClairify"
             )
-            await send_email(db, to=lead.email, subject=f"WerkPilot AI für {lead.company}: Demo oder Test?", text=text, kind="transactional")
+            await send_email(db, to=lead.email, subject=f"Clairify für {lead.company}: Demo oder Test?", text=text, kind="transactional")
             lead.status = "demo_scheduled" if False else "qualified"
             lead.next_action = "Auf Antwort warten (Demo/Testphase)"
             lead.next_action_at = now + timedelta(days=7)
@@ -97,10 +97,10 @@ class SalesAgent(BaseAgent):
                 await send_email(
                     db,
                     to=owner.email,
-                    subject="Ihre WerkPilot-Testphase endet bald",
+                    subject="Ihre Clairify-Testphase endet bald",
                     text=f"Moin {owner.full_name},\n\nIhre Testphase für {tenant.name} endet am {sub.trial_ends_at.strftime('%d.%m.%Y')}. "
-                    f"Wenn WerkPilot Ihnen Arbeit abnimmt, wählen Sie hier einen Tarif: {s.frontend_url}/app/abonnement\n\n"
-                    "Fragen? Antworten Sie einfach auf diese Mail.\n\nWerkPilot AI",
+                    f"Wenn Clairify Ihnen Arbeit abnimmt, wählen Sie hier einen Tarif: {s.frontend_url}/app/abonnement\n\n"
+                    "Fragen? Antworten Sie einfach auf diese Mail.\n\nClairify",
                     kind="transactional",
                     tenant_id=tenant.id,
                 )

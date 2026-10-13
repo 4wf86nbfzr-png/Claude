@@ -1,4 +1,4 @@
-"""WerkPilot AI – FastAPI-Anwendung."""
+"""Clairify – FastAPI-Anwendung."""
 
 from __future__ import annotations
 
@@ -41,9 +41,9 @@ async def seed_knowledge(db) -> None:
         ),
         (
             "anfragen-erfassen",
-            "Wie kommen Anfragen in WerkPilot?",
+            "Wie kommen Anfragen in Clairify?",
             "anfragen",
-            "Per Kontaktformular Ihrer Website (Webhook mit Secret), per E-Mail-Weiterleitung an Ihre WerkPilot-Eingangsadresse oder manuell im Dashboard (z.B. nach einem Anruf).",
+            "Per Kontaktformular Ihrer Website (Webhook mit Secret), per E-Mail-Weiterleitung an Ihre Clairify-Eingangsadresse oder manuell im Dashboard (z.B. nach einem Anruf).",
         ),
         (
             "entwuerfe-freigeben",
@@ -61,7 +61,7 @@ async def seed_knowledge(db) -> None:
             "angebote-nachfassen",
             "Erinnerung an offene Angebote",
             "angebote",
-            "Tragen Sie ein gestelltes Angebot ein. Nach der eingestellten Frist (Standard 5 Tage) erinnert WerkPilot Sie und legt einen Nachfass-Entwurf an. Preise werden nie von der KI festgelegt.",
+            "Tragen Sie ein gestelltes Angebot ein. Nach der eingestellten Frist (Standard 5 Tage) erinnert Clairify Sie und legt einen Nachfass-Entwurf an. Preise werden nie von der KI festgelegt.",
         ),
         (
             "abo-und-rechnungen",
@@ -103,7 +103,7 @@ async def lifespan(app: FastAPI):
 def create_app() -> FastAPI:
     s = get_settings()
     app = FastAPI(
-        title="WerkPilot AI API",
+        title="Clairify API",
         version="0.1.0",
         lifespan=lifespan,
         docs_url="/api/docs" if not s.is_production else None,

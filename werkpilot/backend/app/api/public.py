@@ -156,7 +156,7 @@ async def inbound_email(data: InboundEmail, request: Request, x_inbound_signatur
 
 
 class ContactIn(BaseModel):
-    """Interessenten-Kontakt für WerkPilot selbst (Inbound-Lead)."""
+    """Interessenten-Kontakt für Clairify selbst (Inbound-Lead)."""
 
     company: str = Field(min_length=2, max_length=200)
     name: str = Field(min_length=2, max_length=200)
@@ -208,8 +208,8 @@ async def contact(data: ContactIn, request: Request, db: AsyncSession = Depends(
     await send_email(
         db,
         to=str(data.email),
-        subject="Danke für Ihre Anfrage – WerkPilot AI",
-        text=f"Moin {data.name},\n\ndanke für Ihr Interesse an WerkPilot AI. Wir melden uns innerhalb eines Werktags.\n\nBis dahin können Sie die Demo ausprobieren: {s.frontend_url}/demo\n\nWerkPilot AI",
+        subject="Danke für Ihre Anfrage – Clairify",
+        text=f"Moin {data.name},\n\ndanke für Ihr Interesse an Clairify. Wir melden uns innerhalb eines Werktags.\n\nBis dahin können Sie die Demo ausprobieren: {s.frontend_url}/demo\n\nClairify",
     )
     await audit(db, "lead.created", actor_type="system", actor_id="website", target_type="lead", target_id=lead.id)
     await db.commit()

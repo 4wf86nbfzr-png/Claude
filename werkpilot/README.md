@@ -41,7 +41,10 @@ werkpilot/
     src/components/landing/   Filmische Startseite: Hintergrundvideo, Scrollytelling (GSAP ScrollTrigger),
                               3D-Szene (three.js / React Three Fiber, WebXR-Knopf bei VR/AR-Geräten),
                               horizontale Scroll-Sektion, Fade-ins, eingebettete Demo
-    public/video/             werkpilot-loop.webm + poster.jpg (selbst gerendert, keine Fremdlizenz)
+    public/video/             Hintergrundvideo clairify-{2160,1080,720}.{webm,mp4}, Poster, Standbilder,
+                              palette.json und SOURCES.md (Quellen und Lizenzen); erzeugt aus tools/video/
+    tools/video/              footage.json (Clipliste mit Quellen), prepare-footage.mjs (Schnitt, Varianten,
+                              Poster, Standbilder, Farbpalette), palette.py, anim.html + render.mjs (Platzhalter)
     tools/preview/            Erzeugt landing-preview.html: die Startseite als Einzeldatei zum Testen ohne Server
                               (node tools/preview/build.mjs im Frontend-Ordner)
   docs/               Marktvalidierung, Architektur, Deployment, Betrieb, Kosten, Recht, Integrationen, offene Punkte
