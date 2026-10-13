@@ -79,6 +79,11 @@ CORS_ORIGINS=https://werkpilot.de
 EMAIL_PROVIDER=resend
 LLM_PROVIDER=anthropic
 NOINDEX=0
+# Download-Knöpfe der Startseite: nur eintragen, was veröffentlicht ist; leer zeigt "in Vorbereitung"
+DOWNLOAD_WINDOWS_URL=
+DOWNLOAD_MACOS_URL=
+DOWNLOAD_IOS_URL=
+DOWNLOAD_ANDROID_URL=
 ```
 
 Beim Start prüft `validate_for_production()` diese Werte und loggt Probleme; `/admin` zeigt sie

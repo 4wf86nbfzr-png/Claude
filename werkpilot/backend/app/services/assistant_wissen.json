@@ -1,0 +1,223 @@
+{
+ "themen": [
+  {
+   "thema": "Was Clairify ist",
+   "stichworte": [
+    "was ist",
+    "was macht",
+    "wofür",
+    "worum",
+    "clairify",
+    "produkt",
+    "software",
+    "funktioniert",
+    "wie geht"
+   ],
+   "fakt": "Clairify ist eine Software für kleine Handwerksbetriebe mit 2 bis 15 Leuten. Sie sammelt Kundenanfragen aus Mail und Website an einem Ort, sortiert sie nach Dringlichkeit und legt Antwortentwürfe mit Terminvorschlägen vor. Der Betrieb prüft und gibt frei."
+  },
+  {
+   "thema": "Branchen",
+   "stichworte": [
+    "branche",
+    "gewerk",
+    "elektro",
+    "sanitär",
+    "heizung",
+    "shk",
+    "maler",
+    "dach",
+    "reinigung",
+    "garten",
+    "landschaftsbau",
+    "für wen",
+    "handwerk"
+   ],
+   "fakt": "Clairify ist für Elektro, Sanitär und Heizung, Maler, Dachdecker, Gebäudereinigung sowie Garten und Landschaftsbau gebaut. Das Gewerk wird bei der Registrierung gewählt, die Einordnung der Anfragen passt sich daran an."
+  },
+  {
+   "thema": "Preise",
+   "stichworte": [
+    "preis",
+    "kosten",
+    "kostet",
+    "tarif",
+    "euro",
+    "€",
+    "monat",
+    "abo",
+    "starter",
+    "business",
+    "pro ",
+    "teuer",
+    "günstig"
+   ],
+   "fakt": "Starter 79 €, Business 149 € und Pro 249 € im Monat, jeweils zuzüglich Umsatzsteuer und monatlich kündbar. Die Tarife unterscheiden sich vor allem bei der Zahl der Anfragen, Nutzer und Automatiken; Details stehen im Abschnitt Preise. Es sind Einführungspreise, bestehende Verträge behalten ihren Preis."
+  },
+  {
+   "thema": "Testphase",
+   "stichworte": [
+    "test",
+    "kostenlos",
+    "probe",
+    "ausprobieren",
+    "14 tage",
+    "kreditkarte",
+    "zahlungsdaten",
+    "demo"
+   ],
+   "fakt": "14 Tage kostenlos testen, ohne Zahlungsdaten. Die Testphase enthält Anfragen, Entwürfe, Termine und Angebotsnachverfolgung mit begrenztem Kontingent. Auf der Startseite gibt es außerdem eine Demo ohne Konto."
+  },
+  {
+   "thema": "KI und Freigabe",
+   "stichworte": [
+    "ki",
+    "künstlich",
+    "automatisch",
+    "ohne mein wissen",
+    "freigabe",
+    "freigeben",
+    "entwurf",
+    "sendet",
+    "verschickt",
+    "selbst",
+    "entscheid"
+   ],
+   "fakt": "Die KI arbeitet vor, entscheiden tut der Betrieb. Standard ist: Entwurf, Sie geben frei. Ab Tarif Business kann für saubere Fälle eine automatische Eingangsbestätigung aktiviert werden. Die KI nennt keine Preise, stellt keine Diagnosen, sagt keine Termine verbindlich zu und beantwortet Beschwerden nie allein."
+  },
+  {
+   "thema": "Anfragen erfassen",
+   "stichworte": [
+    "anfrage",
+    "posteingang",
+    "weiterleitung",
+    "mail",
+    "formular",
+    "telefon",
+    "anruf",
+    "kanal",
+    "whatsapp",
+    "dublette"
+   ],
+   "fakt": "Anfragen kommen per Weiterleitung aus dem Postfach, über das Kontaktformular der Website (ein kleines Snippet) oder manuell nach einem Anruf herein. Dubletten werden erkannt, Spam verschwindet. WhatsApp, Telefonannahme und der Microsoft Kalender sind in Arbeit und nicht versprochen."
+  },
+  {
+   "thema": "Termine und Kalender",
+   "stichworte": [
+    "termin",
+    "kalender",
+    "google",
+    "microsoft",
+    "outlook",
+    "geschäftszeit",
+    "bestätig"
+   ],
+   "fakt": "Terminvorschläge kommen aus den Geschäftszeiten abzüglich belegter Zeiten. Google Kalender kann optional verbunden werden, dann werden Belegungen berücksichtigt und bestätigte Termine eingetragen. Der Kunde bestätigt mit einem Klick per Link."
+  },
+  {
+   "thema": "Angebote nachfassen",
+   "stichworte": [
+    "angebot",
+    "nachfass",
+    "erinner",
+    "fünf tage",
+    "offen"
+   ],
+   "fakt": "Offene Angebote werden nach fünf Tagen nachgefasst: Clairify erinnert und legt einen Entwurf zum Nachfassen an. Preise bleiben Sache des Betriebs."
+  },
+  {
+   "thema": "Berichte",
+   "stichworte": [
+    "bericht",
+    "wochen",
+    "freitag",
+    "auswertung",
+    "zahlen",
+    "statistik"
+   ],
+   "fakt": "Freitags kommt der Wochenbericht: neue Anfragen, Reaktionszeit, offene Angebote, Termine. Echte Zahlen aus dem Betrieb, keine Hochrechnung."
+  },
+  {
+   "thema": "Daten und Datenschutz",
+   "stichworte": [
+    "daten",
+    "datenschutz",
+    "dsgvo",
+    "server",
+    "eu",
+    "sicher",
+    "löschen",
+    "export",
+    "cookie",
+    "tracking",
+    "speicher"
+   ],
+   "fakt": "Die Daten liegen auf Servern in der EU. Alle Daten lassen sich jederzeit exportieren, der Betrieb kann gelöscht werden, die Aufbewahrungsfrist stellt der Betrieb selbst ein. Jede automatische Aktion wird protokolliert. Die Website setzt keine Cookies zur Nachverfolgung. Fragen an diesen Assistenten werden nicht gespeichert."
+  },
+  {
+   "thema": "Kündigung",
+   "stichworte": [
+    "kündig",
+    "beenden",
+    "vertrag",
+    "laufzeit"
+   ],
+   "fakt": "Kündigung jederzeit im Kundenportal zum Ende des Abrechnungsmonats. Danach bleiben 30 Tage für den Export, dann werden die Daten gelöscht."
+  },
+  {
+   "thema": "Apps und Download",
+   "stichworte": [
+    "app",
+    "download",
+    "herunterladen",
+    "windows",
+    "mac",
+    "macos",
+    "iphone",
+    "ios",
+    "android",
+    "play store",
+    "app store",
+    "handy",
+    "mobil",
+    "installieren"
+   ],
+   "fakt": "Clairify läuft im Browser. Versionen für Windows, macOS, iPhone und Android sind auf der Startseite verlinkt, sobald sie veröffentlicht sind; solange steht dort 'in Vorbereitung'."
+  },
+  {
+   "thema": "Unternehmen und Kontakt",
+   "stichworte": [
+    "unternehmen",
+    "firma",
+    "wer steckt",
+    "wer seid",
+    "wer sind",
+    "hinter",
+    "sitz",
+    "standort",
+    "deutschland",
+    "kontakt",
+    "erreichen",
+    "telefonnummer",
+    "adresse",
+    "impressum",
+    "team",
+    "gründ"
+   ],
+   "fakt": "Clairify wird in Deutschland entwickelt und betrieben; die vollständigen Angaben zum Unternehmen stehen im Impressum. Am einfachsten erreichen Sie uns über das Kontaktformular, wir melden uns innerhalb eines Werktags per Mail, ohne Verkaufsanrufe."
+  },
+  {
+   "thema": "Einrichtung",
+   "stichworte": [
+    "einricht",
+    "start",
+    "loslegen",
+    "registrier",
+    "konto",
+    "anfang",
+    "wie lange",
+    "dauert"
+   ],
+   "fakt": "In etwa zehn Minuten eingerichtet: Konto anlegen, Weiterleitung aus dem Postfach setzen, erste Anfrage prüfen."
+  }
+ ]
+}

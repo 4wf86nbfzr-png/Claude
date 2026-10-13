@@ -272,6 +272,43 @@ async def demo_classify(data: DemoIn, request: Request, db: AsyncSession = Depen
     return {"classification": cls.model_dump(), "draft": reply.model_dump(), "note": "Demo-Ergebnis regelbasiert. Mit aktivem KI-Anbieter sind Entwürfe individueller."}
 
 
+# --- Website-Assistent (Fragen zur Website und zum Unternehmen, keine Speicherung) -------------
+
+
+class AssistantIn(BaseModel):
+    question: str = Field(min_length=2, max_length=500)
+
+
+@router.post("/assistant")
+async def website_assistant(data: AssistantIn, request: Request, db: AsyncSession = Depends(get_db)):
+    """Kurze, menschliche Antwort auf Basis der Wissensliste in app/services/assistant.py.
+    Ohne KI-Anbieter regelbasiert; mit Anbieter über das Sprachmodell, aber mit demselben Wissen.
+    Hartes Limit pro IP; die Frage wird nicht gespeichert."""
+    await _limit(request, "assistant", 8)
+    from app.services.assistant import INSTRUCTIONS, AssistantAnswer, rule_based_answer
+    from app.services.llm import LLMError, llm_is_live, looks_like_injection, run_structured, wrap_untrusted
+
+    question = data.question.strip()
+    if not llm_is_live() or looks_like_injection(question):
+        ans = rule_based_answer(question)
+        return {"answer": ans.answer, "unsure": ans.unsure, "source": "regeln"}
+    try:
+        ans = await run_structured(
+            db,
+            task="website_assistant",
+            schema=AssistantAnswer,
+            instructions=INSTRUCTIONS,
+            data="Frage des Besuchers:\n" + wrap_untrusted(question),
+            tenant_id=None,
+            max_output_tokens=300,
+        )
+        await db.commit()
+    except LLMError:
+        ans = rule_based_answer(question)
+        return {"answer": ans.answer, "unsure": ans.unsure, "source": "regeln"}
+    return {"answer": ans.answer, "unsure": ans.unsure, "source": "ki"}
+
+
 # --- Terminbestätigung durch den Endkunden (Einmal-Link aus der Antwort-Mail) -----------------
 
 

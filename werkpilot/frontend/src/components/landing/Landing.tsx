@@ -2,6 +2,8 @@
 
 import "./landing.css";
 import { Hero } from "./Hero";
+import { Downloads } from "./Downloads";
+import { Assistant } from "./Assistant";
 import { LandingHeader } from "./LandingHeader";
 import { Story } from "./Story";
 import { HorizontalFeatures } from "./HorizontalFeatures";
@@ -13,6 +15,7 @@ export function Landing() {
       <LandingHeader />
       <main id="inhalt">
         <Hero />
+        <Downloads />
         <Story />
         <HorizontalFeatures />
         <Industries />
@@ -23,6 +26,7 @@ export function Landing() {
         <FinalCTA />
       </main>
       <LandingFooter />
+      <Assistant />
     </div>
   );
 }

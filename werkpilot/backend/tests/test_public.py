@@ -98,10 +98,25 @@ async def test_demo_endpoint_no_tenant_cost(client, db):
     assert (await client.post("/api/public/demo/classify", json={"text": "kurz"})).status_code == 422
 
 
+async def test_website_assistant_rule_based(client, db):
+    r = await client.post("/api/public/assistant", json={"question": "Was kostet Clairify im Monat?"})
+    assert r.status_code == 200
+    j = r.json()
+    assert "79 €" in j["answer"] and j["source"] == "regeln" and j["unsure"] is False
+    r = await client.post("/api/public/assistant", json={"question": "Wie wird das Wetter morgen?"})
+    assert r.json()["unsure"] is True and "Kontaktformular" in r.json()["answer"]
+    # Fragen werden nicht gespeichert und ohne KI-Anbieter entsteht keine Nutzungszeile
+    from app.models.billing import AIUsage
+
+    assert (await db.execute(select(AIUsage).where(AIUsage.task == "website_assistant"))).scalars().all() == []
+    assert (await client.post("/api/public/assistant", json={"question": "x"})).status_code == 422
+
+
 async def test_public_config_and_health(client):
     assert (await client.get("/health")).json()["db"] is True
     cfg = (await client.get("/api/public/config")).json()
     assert cfg["stripe_ready"] is True and cfg["llm_live"] is False and cfg["trial_days"] == 14
+    assert cfg["downloads"] == {"windows": None, "macos": None, "ios": None, "android": None}
 
 
 async def test_public_content_only_published(client, db):

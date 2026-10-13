@@ -28,4 +28,12 @@ async def public_config():
     from app.services.email import email_is_live
     from app.services.llm import llm_is_live
 
-    return {"app": s.app_name, "env": s.env, "stripe_ready": stripe_configured(), "llm_live": llm_is_live(), "email_live": email_is_live(), "trial_days": s.trial_days}
+    return {
+        "app": s.app_name,
+        "env": s.env,
+        "stripe_ready": stripe_configured(),
+        "llm_live": llm_is_live(),
+        "email_live": email_is_live(),
+        "trial_days": s.trial_days,
+        "downloads": {"windows": s.download_windows_url, "macos": s.download_macos_url, "ios": s.download_ios_url, "android": s.download_android_url},
+    }

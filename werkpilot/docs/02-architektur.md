@@ -100,6 +100,20 @@ Die Clips selbst liegen nicht im Repository (`tools/video/footage/` ist ignorier
 echtes Baustellenmaterial vorliegt, rendert `node tools/video/render.mjs` einen klar als Platzhalter
 gekennzeichneten 4K-Clip aus `tools/video/anim.html` (eigenes Werk, keine Fremdlizenz).
 
+**Download-Bereich** direkt unter dem Film (`Downloads.tsx`): vier Knöpfe für Windows, macOS,
+App Store und Google Play mit selbst gezeichneten Symbolen. Die Ziele kommen aus
+`/api/public/config` (`DOWNLOAD_*_URL`); ohne Eintrag zeigt der Knopf „in Vorbereitung“ und
+verlinkt nichts. Sobald die Store-Einträge existieren, sollten die offiziellen Badges von Apple
+und Google nach deren Markenrichtlinien eingesetzt werden.
+
+**Website-Assistent** unten links (`Assistant.tsx`, `POST /api/public/assistant`): beantwortet
+Fragen zur Website und zum Unternehmen kurz und in der Sie-Form. Grundlage ist ausschließlich die
+Wissensliste `backend/app/services/assistant_wissen.json`; ohne KI-Anbieter antwortet eine
+Stichwortregel mit dem passenden Fakt, mit Anbieter formuliert das Sprachmodell auf Basis
+derselben Liste (Antwortschema `AssistantAnswer`, `unsure=true` verweist auf das Kontaktformular).
+Limit 8 Fragen pro Minute und IP, Fragen werden nicht gespeichert, Injection-Muster gehen an die
+Regel statt ans Modell. Dieselbe JSON-Liste speist die Einzeldatei-Vorschau.
+
 ## Bewusste Vereinfachungen
 
 - Kein Multi-Region, kein Read-Replica: ein Postgres mit täglichem Dump reicht für die ersten hundert Kunden.

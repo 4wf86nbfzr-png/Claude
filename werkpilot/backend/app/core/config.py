@@ -77,6 +77,11 @@ class Settings(BaseSettings):
     backup_dir: str = "./backups"
     data_retention_days_default: int = 365
     trial_days: int = 14
+    # Download-Links der Startseite. Leer = Knopf zeigt "in Vorbereitung" (nichts wird vorgetäuscht).
+    download_windows_url: str | None = None
+    download_macos_url: str | None = None
+    download_ios_url: str | None = None  # App Store
+    download_android_url: str | None = None  # Google Play
     trial_ai_calls_max: int = 40
     autonomy_enabled: bool = True  # Agenten dürfen geplante Läufe ausführen
 

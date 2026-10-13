@@ -13,6 +13,7 @@ const parts = {
   GSAP: readFileSync(path.join(root, "node_modules/gsap/dist/gsap.min.js"), "utf8"),
   SCROLLTRIGGER: readFileSync(path.join(root, "node_modules/gsap/dist/ScrollTrigger.min.js"), "utf8"),
   SCENE: readFileSync(path.join(here, "scene.bundle.js"), "utf8"),
+  WISSEN: JSON.stringify(JSON.parse(readFileSync(path.join(root, "../backend/app/services/assistant_wissen.json"), "utf8")).themen),
   VIDEO: b64(path.join(root, "public/video/clairify-1080.webm"), "video/webm"),
   POSTER: b64(path.join(root, "public/video/poster-1080.jpg"), "image/jpeg"),
   STILL1: b64(path.join(root, "public/video/stills/still-1.jpg"), "image/jpeg"),

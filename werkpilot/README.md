@@ -38,7 +38,8 @@ werkpilot/
     scripts/          backup.sh, restore.sh, make_operator.py
     tests/            pytest-Suite (Auth, Rechte, Pipeline, Billing, Jobs, Agenten, Sicherheit, E2E, Recovery)
   frontend/           Next.js 16, TypeScript, Tailwind 4 – Website, Dashboard (/app), Betreiber (/admin)
-    src/components/landing/   Filmische Startseite: Hintergrundvideo, Scrollytelling (GSAP ScrollTrigger),
+    src/components/landing/   Filmische Startseite: Hintergrundvideo, Download-Bereich, Scrollytelling (GSAP ScrollTrigger),
+                              Website-Assistent unten links (Wissensliste in backend/app/services/assistant_wissen.json),
                               3D-Szene (three.js / React Three Fiber, WebXR-Knopf bei VR/AR-Geräten),
                               horizontale Scroll-Sektion, Fade-ins, eingebettete Demo
     public/video/             Hintergrundvideo clairify-{2160,1080,720}.{webm,mp4}, Poster, Standbilder,
