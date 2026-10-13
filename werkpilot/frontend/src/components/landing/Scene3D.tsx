@@ -9,10 +9,10 @@ export type ProgressRef = { current: number };
 
 // Farben aus der Palette des Videomaterials (palette.css): Dringendes in der warmen Akzentfarbe, der Rest in Stahl- und Sandtönen.
 const LANES = [
-  { x: -2.55, color: "#e1a347", label: "dringend" },
-  { x: -0.85, color: "#708ca9", label: "normal" },
-  { x: 0.85, color: "#ab967c", label: "angebot" },
-  { x: 2.55, color: "#5d6269", label: "niedrig" },
+  { x: -2.55, color: "#e18147", label: "dringend" },
+  { x: -0.85, color: "#708da9", label: "normal" },
+  { x: 0.85, color: "#a1ab7c", label: "angebot" },
+  { x: 2.55, color: "#5a5955", label: "niedrig" },
 ];
 const COUNT = 32;
 
@@ -115,7 +115,7 @@ function Ring({ progress }: { progress: ProgressRef }) {
   return (
     <mesh ref={ref} position={[0, 0, -1.5]}>
       <torusGeometry args={[3.2, 0.03, 12, 120]} />
-      <meshStandardMaterial color="#708ca9" emissive="#708ca9" emissiveIntensity={0.8} transparent opacity={0.3} />
+      <meshStandardMaterial color="#708da9" emissive="#708da9" emissiveIntensity={0.8} transparent opacity={0.3} />
     </mesh>
   );
 }
@@ -153,7 +153,7 @@ export function Scene3D({ progress }: { progress: ProgressRef }) {
       <Canvas dpr={[1, 1.75]} camera={{ position: [0, 0, 10.5], fov: 40 }} gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }} onCreated={({ gl }) => { glRef.current = gl; gl.xr.enabled = true; }} aria-hidden>
         <ambientLight intensity={0.6} />
         <pointLight position={[4, 5, 6]} intensity={40} color="#ffffff" />
-        <pointLight position={[-6, -3, 4]} intensity={25} color="#708ca9" />
+        <pointLight position={[-6, -3, 4]} intensity={25} color="#708da9" />
         <Ring progress={progress} />
         <Cards progress={progress} pointer={pointer} />
         <Rig pointer={pointer} />

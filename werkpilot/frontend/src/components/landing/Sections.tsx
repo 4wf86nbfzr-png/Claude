@@ -22,8 +22,8 @@ export function Industries() {
           <h2 className="display max-w-3xl text-4xl md:text-5xl">Gebaut für Betriebe mit 2 bis 15 Leuten, die abends nicht ins Büro wollen.</h2>
         </Reveal>
         <Reveal delay={120} className="still-wrap aspect-[4/3] md:aspect-[5/4]">
-          <img className="still" src="/video/stills/still-1.jpg" alt="Standbild aus dem Hintergrundvideo: Blick auf die Baustelle am Morgen" loading="lazy" decoding="async" />
-          <p className="on-image text-sm text-ink-2">Während draußen gearbeitet wird, sortiert Clairify den Posteingang.</p>
+          <img className="still" src="/video/stills/still-1.jpg" alt="Standbild aus dem Film: morgens zu Hause wird die Tasche gepackt" loading="lazy" decoding="async" />
+          <p className="on-image text-sm text-ink-2">Während der Tag draußen läuft, sortiert Clairify den Posteingang.</p>
         </Reveal>
       </div>
       <dl className="mt-16 grid gap-x-14 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
@@ -43,7 +43,7 @@ export function Honesty() {
     <section className="relative" aria-label="Was die KI macht und was nicht">
       <div className="mx-auto grid max-w-7xl gap-12 px-5 py-28 md:grid-cols-2 md:gap-16">
         <Reveal className="still-wrap aspect-[4/5] md:aspect-auto md:min-h-[560px]">
-          <img className="still" src="/video/stills/still-2.jpg" alt="Standbild aus dem Hintergrundvideo: kurze Besprechung vor Arbeitsbeginn" loading="lazy" decoding="async" />
+          <img className="still" src="/video/stills/still-2.jpg" alt="Standbild aus dem Film: Ankunft mit dem Auto auf der Baustelle" loading="lazy" decoding="async" />
           <div className="on-image">
             <p className="eyebrow mb-3">Klare Grenzen</p>
             <h2 className="display text-3xl md:text-4xl">Die KI arbeitet vor. Entscheiden tun Sie.</h2>

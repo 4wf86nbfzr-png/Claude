@@ -33,7 +33,7 @@ html:has(.landing) { scroll-behavior: auto; }
 /* Hero: Video sichtbar lassen; Lesbarkeit über einen weichen Verlauf nur am Textrand und leichten Textschatten */
 .landing .hero-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .landing .hero-shade { position: absolute; inset: 0; background:
-  linear-gradient(90deg, color-mix(in srgb, var(--c-bg) 72%, transparent) 0%, color-mix(in srgb, var(--c-bg) 35%, transparent) 45%, transparent 75%),
+  linear-gradient(90deg, color-mix(in srgb, var(--c-bg) 80%, transparent) 0%, color-mix(in srgb, var(--c-bg) 48%, transparent) 45%, transparent 78%),
   linear-gradient(180deg, color-mix(in srgb, var(--c-bg) 30%, transparent) 0%, transparent 30%, color-mix(in srgb, var(--c-bg) 25%, transparent) 70%, var(--c-bg) 100%); }
 .landing .hero-copy { text-shadow: 0 2px 24px rgba(0, 0, 0, 0.45); }
 .landing .hero-copy p, .landing .hero-copy span { text-shadow: 0 1px 12px rgba(0, 0, 0, 0.5); }

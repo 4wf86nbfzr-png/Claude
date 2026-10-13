@@ -1,12 +1,12 @@
 /* Automatisch aus dem Videomaterial abgeleitet (tools/video/palette.py). Nicht von Hand bearbeiten. */
 .landing {
-  --c-bg: #14171a;
-  --c-bg2: #162431;
-  --c-ink: #f3f2f1;
-  --c-ink2: #d5d1cd;
-  --c-muted: #9f9a93;
-  --c-accent: #e1a347;
-  --c-accent2: #ebb970;
-  --c-steel: #708ca9;
-  --c-sand: #ab967c;
+  --c-bg: #1a1714;
+  --c-bg2: #29231e;
+  --c-ink: #f3f3f1;
+  --c-ink2: #d3d5cd;
+  --c-muted: #9c9f93;
+  --c-accent: #e18147;
+  --c-accent2: #eb9f70;
+  --c-steel: #708da9;
+  --c-sand: #a1ab7c;
 }

@@ -3,7 +3,7 @@
 import * as THREE from "three";
 
 const LANES = [
-  { x: -2.55, color: "#e1a347" }, { x: -0.85, color: "#708ca9" }, { x: 0.85, color: "#ab967c" }, { x: 2.55, color: "#5d6269" },
+  { x: -2.55, color: "#e18147" }, { x: -0.85, color: "#708da9" }, { x: 0.85, color: "#a1ab7c" }, { x: 2.55, color: "#5a5955" },
 ];
 const COUNT = 32;
 // Schriftzug CLAIRIFY als Textur je Spur; Rückseite gespiegelt, damit er beim Drehen lesbar bleibt
@@ -38,9 +38,9 @@ export function mountScene(container, state) {
 
   scene.add(new THREE.AmbientLight(0xffffff, 0.6));
   const l1 = new THREE.PointLight(0xffffff, 40); l1.position.set(4, 5, 6); scene.add(l1);
-  const l2 = new THREE.PointLight(0x708ca9, 25); l2.position.set(-6, -3, 4); scene.add(l2);
+  const l2 = new THREE.PointLight(0x708da9, 25); l2.position.set(-6, -3, 4); scene.add(l2);
 
-  const ring = new THREE.Mesh(new THREE.TorusGeometry(3.2, 0.03, 12, 120), new THREE.MeshStandardMaterial({ color: 0x708ca9, emissive: 0x708ca9, emissiveIntensity: 0.8, transparent: true, opacity: 0.3 }));
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(3.2, 0.03, 12, 120), new THREE.MeshStandardMaterial({ color: 0x708da9, emissive: 0x708da9, emissiveIntensity: 0.8, transparent: true, opacity: 0.3 }));
   ring.position.z = -1.5; scene.add(ring);
 
   let seed = 11; const rnd = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
