@@ -18,6 +18,6 @@ export function Verify() {
       .catch((e) => { setState("err"); setMsg(e instanceof ApiError ? String(e.detail) : "Fehler"); });
   }, [params, router]);
   if (state === "busy") return <p className="mt-6 text-sm text-muted">Prüfe Link …</p>;
-  if (state === "ok") return <div className="mt-6 space-y-3"><Alert tone="ok">E-Mail-Adresse bestätigt. Bitte melden Sie sich jetzt mit Ihrem Passwort an.</Alert><Button href="/anmelden?bestaetigt=1">Zur Anmeldung</Button></div>;
+  if (state === "ok") return <div className="mt-6 space-y-3"><Alert tone="ok">Mailadresse bestätigt. Bitte melden Sie sich jetzt mit Ihrem Passwort an.</Alert><Button href="/anmelden?bestaetigt=1">Zur Anmeldung</Button></div>;
   return <div className="mt-6 space-y-3"><Alert tone="bad">{msg}</Alert><p className="text-sm text-ink-2">Link abgelaufen? <a className="text-accent underline" href="/anmelden">Anmelden</a> und eine neue Bestätigung anfordern.</p></div>;
 }

@@ -21,8 +21,8 @@ export function LoginForm() {
   }
   return (
     <form onSubmit={submit} className="mt-8 space-y-4">
-      {confirmed && <Alert tone="ok">E-Mail-Adresse bestätigt. Jetzt anmelden.</Alert>}
-      <Field label="E-Mail"><input name="email" type="email" className={inputCls} required autoComplete="email" /></Field>
+      {confirmed && <Alert tone="ok">Mailadresse bestätigt. Jetzt anmelden.</Alert>}
+      <Field label="Mailadresse"><input name="email" type="email" className={inputCls} required autoComplete="email" /></Field>
       <Field label="Passwort"><input name="password" type="password" className={inputCls} required autoComplete="current-password" /></Field>
       {err && <Alert tone="bad">{err}</Alert>}
       <Button type="submit" disabled={busy} className="w-full">{busy ? "Melde an …" : "Anmelden"}</Button>

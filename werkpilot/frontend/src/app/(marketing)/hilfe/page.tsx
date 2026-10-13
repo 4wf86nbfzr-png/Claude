@@ -11,7 +11,7 @@ export default function Hilfe() {
       <HelpList />
       <section className="prose mt-12">
         <h2>Noch nicht verfügbar</h2>
-        <ul><li>WhatsApp-Anbindung (rechtliche und technische Prüfung offen)</li><li>Telefonannahme / Anrufbeantworter-Transkription</li><li>Microsoft 365 Kalender</li><li>Rechnungsstellung an Ihre Endkunden</li></ul>
+        <ul><li>Anbindung von WhatsApp (rechtliche und technische Prüfung offen)</li><li>Telefonannahme / Transkription vom Anrufbeantworter</li><li>Microsoft 365 Kalender</li><li>Rechnungsstellung an Ihre Endkunden</li></ul>
         <p>Wir versprechen keine Termine für diese Punkte. Wenn eine Funktion fertig ist, steht sie hier.</p>
       </section>
     </div>

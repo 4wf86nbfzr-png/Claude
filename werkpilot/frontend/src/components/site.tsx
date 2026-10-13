@@ -44,7 +44,7 @@ export function SiteFooter() {
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 text-sm sm:grid-cols-2 md:grid-cols-4">
         <div>
           <Logo />
-          <p className="mt-3 text-muted">KI-gestützte Anfrage- und Terminorganisation für kleine Handwerksbetriebe. Entwickelt und betrieben in Deutschland.</p>
+          <p className="mt-3 text-muted">Anfragen und Termine für kleine Handwerksbetriebe, organisiert mit KI. Entwickelt und betrieben in Deutschland.</p>
         </div>
         <div>
           <h3 className="mb-2 font-semibold">Produkt</h3>
@@ -73,7 +73,7 @@ export function SiteFooter() {
           </ul>
         </div>
       </div>
-      <div className="border-t border-line px-4 py-4 text-center text-xs text-muted">© {new Date().getFullYear()} Clairify · Keine Tracking-Cookies, keine Weitergabe von Besucherdaten.</div>
+      <div className="border-t border-line px-4 py-4 text-center text-xs text-muted">© {new Date().getFullYear()} Clairify · Keine Cookies zur Nachverfolgung, keine Weitergabe von Besucherdaten.</div>
     </footer>
   );
 }

@@ -28,9 +28,9 @@ export function ConfirmAppointment() {
   return (
     <div className="mt-6 space-y-4">
       <p className="text-ink-2">{preview.business} schlägt Ihnen folgenden Termin vor:</p>
-      <div className="rounded-xl border border-line bg-paper p-4 text-lg font-medium">{fmtDate(preview.starts_at)} – {new Date(preview.ends_at).toLocaleTimeString("de-DE", { timeStyle: "short" })} Uhr</div>
+      <div className="rounded-xl border border-line bg-paper p-4 text-lg font-medium">{fmtDate(preview.starts_at)}, {new Date(preview.ends_at).toLocaleTimeString("de-DE", { timeStyle: "short" })} Uhr</div>
       <Button onClick={confirm} className="w-full">Diesen Termin bestätigen</Button>
-      <p className="text-xs text-muted">Passt der Termin nicht? Antworten Sie einfach auf die E-Mail des Betriebs.</p>
+      <p className="text-xs text-muted">Passt der Termin nicht? Antworten Sie einfach auf die Mail des Betriebs.</p>
     </div>
   );
 }

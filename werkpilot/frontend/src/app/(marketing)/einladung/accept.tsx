@@ -17,7 +17,7 @@ export function Accept() {
     } catch (ex) { setMsg(ex instanceof ApiError ? String(ex.detail) : "Fehler"); }
   }
   if (loading) return <p className="mt-6 text-sm text-muted">Lade …</p>;
-  if (!user) return <div className="mt-6 space-y-3"><Alert>Bitte zuerst anmelden oder registrieren – mit der E-Mail-Adresse, an die die Einladung ging. Danach diesen Link erneut öffnen.</Alert><div className="flex gap-2"><Button href="/anmelden">Anmelden</Button><Button href="/registrieren" variant="secondary">Registrieren</Button></div></div>;
+  if (!user) return <div className="mt-6 space-y-3"><Alert>Bitte zuerst anmelden oder registrieren, mit der Mailadresse, an die die Einladung ging. Danach diesen Link erneut öffnen.</Alert><div className="flex gap-2"><Button href="/anmelden">Anmelden</Button><Button href="/registrieren" variant="secondary">Registrieren</Button></div></div>;
   void getSession;
   return <div className="mt-6 space-y-3">{msg && <Alert tone="bad">{msg}</Alert>}<Button onClick={accept}>Einladung als {user.email} annehmen</Button></div>;
 }

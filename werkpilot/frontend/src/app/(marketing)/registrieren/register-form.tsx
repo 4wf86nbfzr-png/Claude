@@ -20,13 +20,13 @@ export function RegisterForm() {
       setDone(true);
     } catch (ex) { setErr(ex instanceof ApiError ? String(ex.detail) : "Registrierung fehlgeschlagen."); } finally { setBusy(false); }
   }
-  if (done) return <div className="mt-8"><Alert tone="ok">Fast geschafft: Wir haben Ihnen eine E-Mail geschickt. Bitte klicken Sie auf den Bestätigungslink, dann geht es direkt ins Dashboard.</Alert></div>;
+  if (done) return <div className="mt-8"><Alert tone="ok">Fast geschafft: Wir haben Ihnen eine Mail geschickt. Bitte klicken Sie auf den Bestätigungslink, dann geht es direkt ins Dashboard.</Alert></div>;
   return (
     <form onSubmit={submit} className="mt-8 space-y-4">
       <Field label="Betrieb"><input name="company" className={inputCls} required minLength={2} autoComplete="organization" /></Field>
       <Field label="Gewerk"><select name="trade" className={inputCls} defaultValue="shk"><option value="elektro">Elektro</option><option value="shk">Sanitär / Heizung / Klima</option><option value="maler">Maler</option><option value="dach">Dachdecker</option><option value="reinigung">Gebäudereinigung</option><option value="galabau">Garten- und Landschaftsbau</option><option value="bau">Bauunternehmen</option><option value="sonstiges">Sonstiges</option></select></Field>
       <Field label="Ihr Name"><input name="full_name" className={inputCls} required autoComplete="name" /></Field>
-      <Field label="E-Mail"><input name="email" type="email" className={inputCls} required autoComplete="email" /></Field>
+      <Field label="Mailadresse"><input name="email" type="email" className={inputCls} required autoComplete="email" /></Field>
       <Field label="Passwort" hint="Mindestens 10 Zeichen, kein Wörterbuchwort."><input name="password" type="password" className={inputCls} required minLength={10} autoComplete="new-password" /></Field>
       <label className="flex items-start gap-2 text-sm text-ink-2"><input type="checkbox" name="terms" required className="mt-1" /> Ich akzeptiere die <a href="/agb" className="text-accent underline">AGB</a>.</label>
       <label className="flex items-start gap-2 text-sm text-ink-2"><input type="checkbox" name="privacy" required className="mt-1" /> Ich habe die <a href="/datenschutz" className="text-accent underline">Datenschutzerklärung</a> gelesen.</label>

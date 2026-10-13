@@ -4,9 +4,9 @@ import { Button } from "@/components/ui";
 export const metadata: Metadata = { title: "Preise", description: "Starter 79 €, Business 149 €, Pro 249 € pro Monat. 14 Tage kostenlos testen, monatlich kündbar." };
 
 const plans = [
-  { code: "starter", name: "Starter", price: "79 €", for: "Für Einzelbetriebe und kleine Teams", items: ["Anfrageverwaltung (150 Anfragen/Monat)", "KI-Antwortentwürfe mit Freigabe", "Kundenübersicht", "Standardberichte", "2 Nutzer"] },
+  { code: "starter", name: "Starter", price: "79 €", for: "Für Einzelbetriebe und kleine Teams", items: ["Anfrageverwaltung (150 Anfragen/Monat)", "Antwortentwürfe der KI mit Freigabe", "Kundenübersicht", "Standardberichte", "2 Nutzer"] },
   { code: "business", name: "Business", price: "149 €", for: "Für Betriebe mit Büro und mehreren Monteuren", hot: true, items: ["Alles aus Starter (500 Anfragen/Monat)", "Automatische Eingangsbestätigung", "Terminvorschläge & Kalender", "Angebotsnachverfolgung", "Individuelle Arbeitsabläufe", "5 Nutzer"] },
-  { code: "pro", name: "Pro", price: "249 €", for: "Für wachsende Betriebe mit eigenen Systemen", items: ["Alles aus Business (2.000 Anfragen/Monat)", "CRM-Webhooks & erweiterte Integrationen", "Eigene Automatisierungsregeln", "Umfangreiche Auswertungen", "Priorisierter Support", "15 Nutzer"] },
+  { code: "pro", name: "Pro", price: "249 €", for: "Für wachsende Betriebe mit eigenen Systemen", items: ["Alles aus Business (2.000 Anfragen/Monat)", "Webhooks für Ihr CRM & erweiterte Integrationen", "Eigene Automatisierungsregeln", "Umfangreiche Auswertungen", "Priorisierter Support", "15 Nutzer"] },
 ];
 
 export default function Preise() {
@@ -29,7 +29,7 @@ export default function Preise() {
       <div className="prose mt-12 max-w-2xl">
         <h2>Häufige Fragen</h2>
         <h3>Was kostet die KI zusätzlich?</h3>
-        <p>Nichts. Jeder Tarif enthält ein KI-Kontingent, das für den angegebenen Anfrageumfang reicht. Wird es erreicht, werden Anfragen weiter erfasst, aber ohne Entwurf, und Sie werden informiert.</p>
+        <p>Nichts. Jeder Tarif enthält ein Kontingent für die KI, das für den angegebenen Anfrageumfang reicht. Wird es erreicht, werden Anfragen weiter erfasst, aber ohne Entwurf, und Sie werden informiert.</p>
         <h3>Sind die Preise endgültig?</h3>
         <p>Es sind Einführungspreise. Wir prüfen sie mit den ersten Kunden. Bestehende Verträge behalten ihren Preis.</p>
         <h3>Wie kündige ich?</h3>
