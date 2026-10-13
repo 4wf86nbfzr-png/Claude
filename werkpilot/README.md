@@ -42,6 +42,8 @@ werkpilot/
                               3D-Szene (three.js / React Three Fiber, WebXR-Knopf bei VR/AR-Geräten),
                               horizontale Scroll-Sektion, Fade-ins, eingebettete Demo
     public/video/             werkpilot-loop.webm + poster.jpg (selbst gerendert, keine Fremdlizenz)
+    tools/preview/            Erzeugt landing-preview.html: die Startseite als Einzeldatei zum Testen ohne Server
+                              (node tools/preview/build.mjs im Frontend-Ordner)
   docs/               Marktvalidierung, Architektur, Deployment, Betrieb, Kosten, Recht, Integrationen, offene Punkte
   docker-compose.yml  db, redis, api, worker, backup, web
   .env.example        alle Konfigurationswerte mit Erklärung

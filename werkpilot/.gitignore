@@ -23,3 +23,5 @@ backups/
 .pw/
 .req-freeze.txt
 test-report.html
+landing-preview.html
+frontend/tools/preview/scene.bundle.js
