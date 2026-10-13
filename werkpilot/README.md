@@ -35,7 +35,7 @@ werkpilot/
     app/api/          REST-Endpunkte (auth, tenant, inquiries, billing, integrations, public, support, admin)
     app/workers/      Worker-Prozess: Jobwarteschlange + Zeitplan
     alembic/          Migrationen
-    scripts/          backup.sh, restore.sh, make_operator.py
+    scripts/          backup.sh, restore.sh, make_operator.py, demo_seed.py (Beispielbetrieb über die API)
     tests/            pytest-Suite (Auth, Rechte, Pipeline, Billing, Jobs, Agenten, Sicherheit, E2E, Recovery)
   frontend/           Next.js 16, TypeScript, Tailwind 4 – Website, Dashboard (/app), Betreiber (/admin)
     src/components/landing/   Filmische Startseite: Hintergrundvideo, Download-Bereich, Scrollytelling (GSAP ScrollTrigger),
@@ -47,6 +47,8 @@ werkpilot/
     tools/video/              footage.json (Szenen und Clipliste mit Quellen), photos/ (Ausgangsfotos),
                               stills-to-clips.mjs (Kamerafahrt je Foto, 4K), prepare-footage.mjs (Schnitt,
                               Varianten, Poster, Standbilder, Farbpalette), palette.py, anim.html + render.mjs
+    public/screens/           Echte Bildschirme des Dashboards für den Abschnitt "Einblick ins System"
+    tools/screens/            capture.mjs nimmt die Bildschirme auf (Konto aus scripts/demo_seed.py)
     tools/preview/            Erzeugt landing-preview.html: die Startseite als Einzeldatei zum Testen ohne Server
                               (node tools/preview/build.mjs im Frontend-Ordner)
   docs/               Marktvalidierung, Architektur, Deployment, Betrieb, Kosten, Recht, Integrationen, offene Punkte

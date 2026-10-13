@@ -10,9 +10,8 @@ const nav = [
 
 export function Logo() {
   return (
-    <Link href="/" className="flex items-center gap-2 font-semibold tracking-tight">
-      <span aria-hidden className="grid h-7 w-7 place-items-center rounded-lg bg-accent text-white text-sm">W</span>
-      Clairify <span className="text-accent">AI</span>
+    <Link href="/" className="text-lg font-semibold tracking-tight">
+      Clairify
     </Link>
   );
 }

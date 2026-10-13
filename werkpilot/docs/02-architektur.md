@@ -108,6 +108,13 @@ App Store und Google Play mit selbst gezeichneten Symbolen. Die Ziele kommen aus
 verlinkt nichts. Sobald die Store-Einträge existieren, sollten die offiziellen Badges von Apple
 und Google nach deren Markenrichtlinien eingesetzt werden.
 
+**Einblick ins System** (`Screens.tsx`): sechs echte Bildschirme des Dashboards als Reiter mit
+Vergrößerung, keine Mockups. Aufnahme reproduzierbar: API und Web starten wie im Smoke-Test,
+`python3 scripts/demo_seed.py <api-url> <api-log>` legt einen Beispielbetrieb mit sieben Anfragen,
+Terminen, Angeboten und Wochenbericht an, `node frontend/tools/screens/capture.mjs` (Playwright aus
+`.pw/`) meldet sich an und schreibt `public/screens/*.png` in 2160×1350. Nach Änderungen am Dashboard
+neu aufnehmen, damit die Website den echten Stand zeigt.
+
 **Website-Assistent** unten links (`Assistant.tsx`, `POST /api/public/assistant`): beantwortet
 Fragen zur Website und zum Unternehmen kurz und in der Sie-Form. Grundlage ist ausschließlich die
 Wissensliste `backend/app/services/assistant_wissen.json`; ohne KI-Anbieter antwortet eine

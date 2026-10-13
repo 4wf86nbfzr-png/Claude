@@ -86,7 +86,7 @@ export default function InquiryDetail({ params }: { params: Promise<{ id: string
             ))}
           </Card>
           <Card title="Angebot">
-            {d.quotes.map((q) => <div key={q.id} className="mb-2 text-sm">{q.title} · <Badge>{q.status}</Badge> {q.amount_cents != null && `· ${(q.amount_cents / 100).toFixed(2)} €`}</div>)}
+            {d.quotes.map((q) => <div key={q.id} className="mb-2 text-sm">{q.title} · <Badge>{({ open: "offen", accepted: "angenommen", declined: "abgelehnt", expired: "abgelaufen" } as Record<string, string>)[q.status] ?? q.status}</Badge> {q.amount_cents != null && `· ${(q.amount_cents / 100).toFixed(2)} €`}</div>)}
             <form className="space-y-2" onSubmit={(e) => { e.preventDefault(); const f = new FormData(e.currentTarget); run(() => api("/api/quotes", { method: "POST", json: { title: f.get("title"), inquiry_id: d.id, amount_cents: f.get("amount") ? Math.round(Number(f.get("amount")) * 100) : null } }), "Angebot eingetragen – Nachfass-Erinnerung läuft."); }}>
               <input name="title" className={inputCls} placeholder="Angebot gestellt: Titel" required />
               <input name="amount" type="number" step="0.01" className={inputCls} placeholder="Betrag in € (optional, nur für Sie)" />

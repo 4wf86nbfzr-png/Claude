@@ -19,6 +19,12 @@ const parts = {
   STILL1: b64(path.join(root, "public/video/stills/still-1.jpg"), "image/jpeg"),
   STILL2: b64(path.join(root, "public/video/stills/still-2.jpg"), "image/jpeg"),
   STILL3: b64(path.join(root, "public/video/stills/still-3.jpg"), "image/jpeg"),
+  SCREEN_ANFRAGEN: b64(path.join(root, "public/screens/anfragen.png"), "image/png"),
+  SCREEN_DETAIL: b64(path.join(root, "public/screens/anfrage-detail.png"), "image/png"),
+  SCREEN_TERMINE: b64(path.join(root, "public/screens/termine.png"), "image/png"),
+  SCREEN_ANGEBOTE: b64(path.join(root, "public/screens/angebote.png"), "image/png"),
+  SCREEN_BERICHTE: b64(path.join(root, "public/screens/berichte.png"), "image/png"),
+  SCREEN_UEBERSICHT: b64(path.join(root, "public/screens/uebersicht.png"), "image/png"),
 };
 for (const [k, v] of Object.entries(parts)) html = html.split(`/*__${k}__*/`).join(v).split(`{{${k}}}`).join(v);
 const out = path.resolve(root, "../landing-preview.html");

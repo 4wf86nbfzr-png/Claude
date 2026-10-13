@@ -40,7 +40,7 @@ export default function Overview() {
           <ul className="space-y-2 text-sm">
             <li className="flex justify-between"><span>Automatische Eingangsbestätigung</span><Badge tone={d.automation.auto_reply_enabled ? "ok" : "neutral"}>{d.automation.auto_reply_enabled ? "aktiv" : "aus"}</Badge></li>
             <li className="flex justify-between"><span>Wochenbericht</span><Badge tone={d.automation.weekly_report ? "ok" : "neutral"}>{d.automation.weekly_report ? "aktiv" : "aus"}</Badge></li>
-            {d.integrations.map((i) => <li key={i.type} className="flex justify-between"><span>{i.type}</span><Badge tone={i.status === "connected" ? "ok" : i.status === "error" ? "bad" : "neutral"}>{i.status}</Badge></li>)}
+            {d.integrations.map((i) => <li key={i.type} className="flex justify-between"><span>{({ google_calendar: "Google Kalender", contact_form: "Website Formular", email_forwarding: "Mail Weiterleitung", crm_webhook: "CRM Webhook" } as Record<string, string>)[i.type] ?? i.type}</span><Badge tone={i.status === "connected" ? "ok" : i.status === "error" ? "bad" : "neutral"}>{({ connected: "verbunden", not_configured: "nicht eingerichtet", error: "Fehler", disconnected: "getrennt" } as Record<string, string>)[i.status] ?? i.status}</Badge></li>)}
             <li className="flex justify-between"><span>Fehlgeschlagene Aufgaben</span><Badge tone={d.failed_jobs ? "bad" : "ok"}>{d.failed_jobs}</Badge></li>
             <li className="flex justify-between"><span>Offene Supportfälle</span><Badge tone={d.support_open ? "warn" : "ok"}>{d.support_open}</Badge></li>
           </ul>

@@ -7,6 +7,7 @@ import { Assistant } from "./Assistant";
 import { LandingHeader } from "./LandingHeader";
 import { Story } from "./Story";
 import { HorizontalFeatures } from "./HorizontalFeatures";
+import { Screens } from "./Screens";
 import { DemoSection, FAQ, FinalCTA, Honesty, Industries, LandingFooter, Pricing } from "./Sections";
 
 export function Landing() {
@@ -18,6 +19,7 @@ export function Landing() {
         <Downloads />
         <Story />
         <HorizontalFeatures />
+        <Screens />
         <Industries />
         <Honesty />
         <DemoSection />
