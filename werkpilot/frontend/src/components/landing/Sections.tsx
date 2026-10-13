@@ -21,7 +21,7 @@ export function Industries() {
       <div className="grid gap-12 md:grid-cols-[1.1fr_1fr] md:items-end md:gap-16">
         <Reveal>
           <p className="eyebrow mb-4">Für wen</p>
-          <h2 className="display max-w-3xl text-4xl md:text-5xl">Gebaut für Betriebe mit 2 bis 15 Leuten, die abends nicht ins Büro wollen.</h2>
+          <h2 className="display display-xl max-w-3xl text-4xl md:text-6xl">Gebaut für Betriebe mit 2 bis 15 Leuten, die abends nicht ins Büro wollen.</h2>
         </Reveal>
         <Reveal delay={120} className="still-wrap aspect-[4/3] md:aspect-[5/4]">
           <picture><source type="image/webp" srcSet="/video/stills/still-1-960.webp 960w, /video/stills/still-1-1600.webp 1600w" sizes="(min-width: 768px) 50vw, 100vw" /><img className="still" src="/video/stills/still-1.jpg" alt="Standbild aus dem Film: morgens zu Hause wird die Tasche gepackt" loading="lazy" decoding="async" /></picture>
@@ -71,7 +71,7 @@ export function DemoSection() {
       <div className="grid gap-12 lg:grid-cols-[1fr_1.3fr] lg:items-start lg:gap-16">
         <Reveal>
           <p className="eyebrow mb-4">Interaktive Demo</p>
-          <h2 className="display text-4xl md:text-5xl">Tippen Sie eine echte Anfrage ein.</h2>
+          <h2 className="display display-xl text-4xl md:text-6xl">Tippen Sie eine echte Anfrage ein.</h2>
           <p className="mt-5 text-lg text-ink-2">Sie sehen sofort Kategorie, Dringlichkeit, fehlende Angaben und den Antwortentwurf. Nichts wird gespeichert, kein Konto nötig.</p>
           <p className="mt-4 text-sm text-muted">Die Demo läuft bewusst regelbasiert, damit sie keine Kosten erzeugt. Im Produkt arbeitet ein Sprachmodell, die Entwürfe sind entsprechend individueller.</p>
         </Reveal>
@@ -90,7 +90,7 @@ export function Pricing() {
   const trialDays = cfg?.trial_days ?? 14;
   return (
     <section data-fly id="preise" className="mx-auto max-w-7xl px-5 py-28" aria-label="Preise">
-      <Reveal><p className="eyebrow mb-4">Preise</p><h2 className="display max-w-3xl text-4xl md:text-5xl">Weniger als eine Monteurstunde pro Woche.</h2><p className="mt-4 max-w-2xl text-lg text-ink-2">{PLAN_TERMS.vat} {PLAN_TERMS.cancel} {trialDays} Tage kostenlos, ohne Zahlungsdaten. {PLAN_TERMS.intro}</p></Reveal>
+      <Reveal><p className="eyebrow mb-4">Preise</p><h2 className="display display-xl max-w-3xl text-4xl md:text-6xl">Weniger als eine Monteurstunde pro Woche.</h2><p className="mt-4 max-w-2xl text-lg text-ink-2">{PLAN_TERMS.vat} {PLAN_TERMS.cancel} {trialDays} Tage kostenlos, ohne Zahlungsdaten. {PLAN_TERMS.intro}</p></Reveal>
       <div className="mt-16 grid gap-14 md:grid-cols-3 md:gap-10">
         {PLANS.map((p, i) => (
           <Reveal key={p.code} delay={i * 100} className="plan flex flex-col">
@@ -142,7 +142,7 @@ export function FAQ() {
   return (
     <section data-fly id="faq" aria-label="Häufige Fragen">
       <div className="mx-auto grid max-w-7xl gap-12 px-5 py-28 md:grid-cols-[1fr_1.6fr] md:gap-16">
-        <Reveal><p className="eyebrow mb-4">Fragen</p><h2 className="display text-4xl md:text-5xl">Kurz beantwortet.</h2><p className="mt-5 text-lg text-ink-2">Mehr im <Link href="/hilfe" className="text-accent-2 hover:text-accent">Hilfezentrum</Link> oder per <Link href="/kontakt" className="text-accent-2 hover:text-accent">Kontakt</Link>.</p></Reveal>
+        <Reveal><p className="eyebrow mb-4">Fragen</p><h2 className="display display-xl text-4xl md:text-6xl">Kurz beantwortet.</h2><p className="mt-5 text-lg text-ink-2">Mehr im <Link href="/hilfe" className="text-accent-2 hover:text-accent">Hilfezentrum</Link> oder per <Link href="/kontakt" className="text-accent-2 hover:text-accent">Kontakt</Link>.</p></Reveal>
         <div className="space-y-2">
           {FAQ_ITEMS.map(([q, a], i) => (
             <Reveal key={q} delay={i * 60} as="div"><details className="py-4"><summary className="flex items-center justify-between gap-4 text-lg font-medium"><span>{q}</span><span className="chev text-2xl" aria-hidden>+</span></summary><p className="mt-3 max-w-2xl text-ink-2">{a}</p></details></Reveal>

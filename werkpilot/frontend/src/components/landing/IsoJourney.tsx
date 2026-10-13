@@ -34,7 +34,7 @@ export function IsoJourney() {
       if (i === activeRef.current) return;
       activeRef.current = i;
       Array.from(board.current!.children).forEach((c, j) => c.classList.toggle("is-on", j === i));
-      Array.from(captions.current!.children).forEach((c, j) => c.classList.toggle("is-on", j === i));
+      Array.from(captions.current!.children).forEach((c, j) => { if (!c.classList.contains("iso-caption")) return; c.classList.toggle("is-on", j === i); c.toggleAttribute("inert", j !== i); });
       Array.from(tabs.current!.children).forEach((c, j) => { c.classList.toggle("is-active", j === i); c.setAttribute("aria-selected", String(j === i)); });
     };
     const ctx = gsap.context(() => {
@@ -49,6 +49,8 @@ export function IsoJourney() {
       Array.from(board.current!.children)[0]?.classList.add("is-on");
       Array.from(captions.current!.children)[0]?.classList.add("is-on");
     }, root);
+    // Dieser Pin entsteht nach den anderen (erst nach dem Moduswechsel): sortieren, dann neu messen, sonst rechnet z. B. der Story-Pin mit veralteten Positionen.
+    ScrollTrigger.sort();
     ScrollTrigger.refresh();
     return () => { ctx.revert(); st.current = null; };
   }, [mode]);
@@ -94,7 +96,7 @@ export function IsoJourney() {
         </div>
         <div ref={captions} className="iso-captions">
           {SCREENS.map((s, i) => (
-            <div key={s.key} className="iso-caption" aria-hidden={i !== 0}>
+            <div key={s.key} className="iso-caption" inert={i !== 0}>
               <h3 className="text-2xl font-semibold md:text-[1.7rem]">{s.title}</h3>
               <p className="mt-3 text-ink-2 md:text-[15px]">{s.text}</p>
               <div className="mt-5 flex flex-wrap gap-3">

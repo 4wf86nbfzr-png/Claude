@@ -21,6 +21,10 @@ export function ScrollMotion() {
     });
     ScrollTrigger.sort();
     const id = requestAnimationFrame(() => ScrollTrigger.refresh());
+    // Die kondensierte Display-Schrift ändert die Höhe der Headlines deutlich gegenüber der Ersatzschrift:
+    // nach dem Laden der Schriften alle Start- und Endpunkte neu messen, sonst stimmen die Pins nicht.
+    let fontsDone = false;
+    if ("fonts" in document) document.fonts.ready.then(() => { if (!fontsDone) { fontsDone = true; ScrollTrigger.refresh(); } });
     return () => { cancelAnimationFrame(id); ctx.revert(); };
   }, []);
   return null;

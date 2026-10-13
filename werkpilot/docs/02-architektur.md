@@ -155,24 +155,30 @@ Regel statt ans Modell. Dieselbe JSON-Liste speist die Einzeldatei-Vorschau.
   installiert ist): `flows.mjs` (acht Kernabläufe), `linkcheck.mjs` (interne Links + Anker + Konsolenfehler),
   `axe.mjs` (WCAG 2.1 AA, bricht bei schweren Verstößen ab; mit `DASH_EMAIL`/`DASH_PASSWORD` auch Dashboard).
 
-## Designsystem der Website (Redesign Oktober 2026)
+## Designsystem der Website (Stand Oktober 2026)
 
-Grundlage sind fünf Referenzbilder (dunkler Audio-Player mit Pillen-Reglern, Wetter-Panel über Foto, grüne
-Farbpalette, NFT-Seite mit Versal-Display-Schrift, dunkles Portfolio). Daraus abgeleitet:
+Grundlage ist eine dunkle, monochrome Referenz (Versal-Headlines, Chrom-Optik, runde Outline-Knöpfe, dunkle Karten).
+Daraus abgeleitet:
 
-- **Farben** (`frontend/src/components/landing/palette.css`, `.marketing` in `globals.css`): Grünschwarz
-  `#051F20` (Fläche), `#0B2B26` (Panel), `#163832` (Kante), `#235347` (tief), Salbei `#8EB69B` (Akzent, Labels,
-  Linien), Mint `#DAF1DE` (Licht: Primärknöpfe, aktive Elemente). Text `#EEF5EF` / `#C3D4C7`. Kontraste ≥ 4,5:1 (axe).
-  Die aus dem Film abgeleitete Palette liegt nur noch zum Vergleich in `palette.generated.css`.
-- **Schrift** (lokal in `public/fonts`, OFL): Bricolage Grotesque 700/800 für Display (Hero und Seitentitel versal,
-  Abschnittstitel gemischt), Instrument Sans für Fließtext, Space Mono nur für Zahlen und kurze Labels (Eyebrows,
-  Nummern, Zeitleiste). Keine Google-Fonts-Verbindung.
-- **Formen**: Pillen für Knöpfe, Etiketten und Download-Kacheln; 1-px-Linien statt Kästen (Tarifvergleich,
-  Funktionen, Branchen, FAQ); ein durchscheinendes Panel je Ansicht (Hero-Etikett, „Klare Grenzen", Kontakt).
-  Radien 4 bis 8 px, keine Verläufe als Dekoration, keine Leuchteffekte. Eine sehr feine Körnung (SVG-Rauschen,
-  4,5 % Deckung) liegt über der Startseite.
-- **Bewegung**: unverändert (Wort-Eintritt im Hero, Parallaxe, isometrische Reise, Story-Pin, horizontale
-  Funktionen, Fade-ins). Neu: Zeitleiste rechts im Hero zeigt Laufzeit und Position des Films; der Assistent
-  erscheint auf schmalen Bildschirmen erst nach dem Hero. `prefers-reduced-motion` schaltet alles ab.
+- **Farben** (`frontend/src/components/landing/palette.css`, `.marketing` in `globals.css`): Fläche `#050505`,
+  Panels `#0E0E10`, Kanten `#19191C`, Headlines Reinweiß `#FFFFFF`, Fließtext `#A1A1AA` (7,9:1), Linien
+  `rgba(255,255,255,.14)`, Primärknöpfe Weiß auf Schwarz. Keine Buntfarbe; die 3D-Szene nutzt metallische Graustufen.
+  Die aus dem Film abgeleitete Palette liegt nur zum Vergleich in `palette.generated.css`.
+- **Schrift** (lokal in `public/fonts`, OFL): Anton (kondensiert, versal) für Hero, Seitentitel und Abschnittstitel,
+  Inter 300 für Fließtext (klein, großzügiger Zeilenabstand), Space Mono nur für Zahlen und Labels.
+  Keine Google-Fonts-Verbindung beim Seitenaufruf; die Dateien wurden einmalig heruntergeladen.
+- **Hero**: Headline liegt über dem Video-Banner und überlappt dessen oberen Rand (`.hero-title`, negativer
+  Unterrand); im Banner links der runde Outline-Knopf (`.btn-circle`), rechts der Subtext, oben rechts der runde
+  Video-Schalter, rechts die Zeitleiste. Navigation transparent, Menüpunkte zentriert.
+- **Mittelteil**: übergroße zentrierte Typografie (`.display-giant`) mit der 3D-Szene, die in die zweite Zeile
+  ragt (`.story-scene`, negativer Oberrand); schmaler zentrierter Beschreibungstext (`.lead-narrow`).
+- **Funktionen**: zweizeilige linksbündige Headline, runder Outline-Knopf daneben, Beschreibung rechts; darunter
+  das horizontale Raster aus dunklen Karten (`.card-dark`) mit echten Dashboard-Bildschirmen (entsättigt).
+- **Formen**: Pillen für Knöpfe und Etiketten, 1-px-Linien statt Kästen (Tarifvergleich, Funktionen- und
+  Branchenseite, FAQ), Radien 4 bis 8 px, keine Verläufe als Dekoration, eine sehr feine Körnung (4,5 %).
+- **Bewegung**: alle bestehenden Effekte unverändert (Wort-Eintritt, Parallaxe, isometrische Reise, Story-Pin,
+  horizontale Funktionen, Fade-ins). Technisch wichtig: `ScrollTrigger.sort()` + `refresh()` nach dem spät
+  erzeugten Pin der isometrischen Reise und nach `document.fonts.ready`, weil die kondensierte Schrift die
+  Headline-Höhen gegenüber der Ersatzschrift deutlich verändert.
 - **Dashboard** (`/app`, `/admin`) bleibt hell mit Blau; die Website setzt die Knopffarben über
   `--color-btn` / `--color-on-btn`.

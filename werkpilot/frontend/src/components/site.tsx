@@ -18,11 +18,11 @@ export function Logo() {
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-[rgba(5,31,32,0.82)] backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-line bg-[rgba(5,5,5,0.8)] backdrop-blur">
       <a href="#inhalt" className="skip-link">Zum Inhalt springen</a>
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
+      <div className="relative mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
         <Logo />
-        <nav aria-label="Hauptnavigation" className="hidden items-center gap-6 text-sm md:flex">
+        <nav aria-label="Hauptnavigation" className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-6 text-sm md:flex">
           {nav.map((n) => <Link key={n.href} href={n.href} className="text-ink-2 hover:text-ink">{n.label}</Link>)}
         </nav>
         <div className="flex items-center gap-2">

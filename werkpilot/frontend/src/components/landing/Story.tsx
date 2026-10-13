@@ -45,25 +45,26 @@ export function Story() {
   }, []);
   return (
     <section ref={root} id="ablauf" className="relative" aria-label="So funktioniert Clairify">
-      <div className="story-pin flex min-h-[100svh] items-center">
-        <div className="mx-auto grid w-full max-w-7xl gap-12 px-5 py-20 md:grid-cols-2 md:items-center md:gap-16">
-          <div>
-            <p className="eyebrow mb-4">Eine Anfrage, einmal durch Clairify</p>
-            <h2 className="display text-4xl md:text-5xl">Vom vollen Posteingang zum bestätigten Termin.</h2>
-            <ol className="mt-10 space-y-6" aria-live="polite">
+      <div className="story-pin flex min-h-[100svh] flex-col justify-center">
+        <div className="mx-auto w-full max-w-7xl px-5 pt-20 md:pt-20">
+          <p className="eyebrow mb-5 text-center">Eine Anfrage, einmal durch Clairify</p>
+          {/* Übergroße zentrierte Typografie; die 3D-Szene darunter schiebt sich in die zweite Zeile (Referenz: Objekt überschneidet den Text) */}
+          <h2 className="story-title display display-giant mx-auto max-w-7xl">Vom vollen Posteingang<br />zum bestätigten Termin.</h2>
+          <div className="grid gap-8 md:grid-cols-[1.15fr_1fr] md:items-start md:gap-10">
+            <ol className="mt-8 grid gap-x-8 gap-y-4 sm:grid-cols-2 md:mt-12 md:gap-y-5" aria-live="polite">
               {STEPS.map((s, i) => (
                 <li key={s.t} className={`step ${reduced || active === i ? "is-active" : ""}`}>
-                  <div className="flex items-baseline gap-4"><span className="num text-sm font-semibold tabular-nums">0{i + 1}</span><h3 className="text-lg font-semibold">{s.t}</h3></div>
-                  <p className="mt-1.5 pl-9 text-sm text-ink-2 md:text-[15px]">{s.d}</p>
+                  <div className="flex items-baseline gap-3"><span className="num text-xs">0{i + 1}</span><h3 className="text-base font-medium md:text-[1.05rem]">{s.t}</h3></div>
+                  <p className="mt-1 pl-8 text-[12.5px] leading-relaxed text-ink-2">{s.d}</p>
                 </li>
               ))}
             </ol>
-          </div>
-          <div className="relative h-[46vh] md:h-[78vh]">
-            <div className="stage-frame">
-              {near ? <Scene3D progress={progress} /> : <div className="h-full w-full" />}
+            <div className="story-scene relative h-[40vh] md:h-[52vh]">
+              <div className="stage-frame">
+                {near ? <Scene3D progress={progress} /> : <div className="h-full w-full" />}
+              </div>
+              <p className="absolute -bottom-6 right-1 text-xs text-muted">Bewegen Sie die Maus oder neigen Sie das Gerät, die Szene folgt. Mit einem Gerät für VR oder AR erscheint ein Knopf zum Eintauchen.</p>
             </div>
-            <p className="absolute -bottom-7 right-1 text-xs text-muted">Bewegen Sie die Maus oder neigen Sie das Gerät, die Szene folgt. Mit einem Gerät für VR oder AR erscheint ein Knopf zum Eintauchen.</p>
           </div>
         </div>
       </div>

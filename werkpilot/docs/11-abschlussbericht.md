@@ -52,10 +52,11 @@ Aufrufen je Minute (ein Aufruf kommt aus dem bestehenden Durchlauf); der Ablauf 
 
 ## Nachtrag: Redesign nach Designreferenz (Oktober 2026)
 
-Website (Startseite, alle Marketingseiten, Einzeldatei-Vorschau) auf die Farb- und Formensprache der fünf
-Referenzbilder umgestellt: Grünschwarz mit Salbei und Mint, Bricolage Grotesque als Versal-Display-Schrift,
-Pillen-Bedienelemente, Linien statt Kästen, Foto-plus-Panel auf der Kontaktseite, nummerierte Zeilen auf
-Funktionen und Branchen. Inhalte, Links, Formulare und Funktionen unverändert (Linkprüfung 15 Seiten ok,
-acht Browserabläufe ok, axe 0 schwere Verstöße auf 13 Seiten). Lighthouse Startseite nach dem Redesign:
-Desktop 99 / Mobil 89 Performance (vorher 100 / 94); die Differenz sind die lokal ausgelieferten Schriften
-(zwei woff2, zusammen 107 KB, mit Preload und `font-display: swap`). Details in `docs/02-architektur.md`.
+Website (Startseite, alle Marketingseiten, Einzeldatei-Vorschau) auf die monochrome Referenz umgestellt:
+tiefes Schwarz, Reinweiß und helles Grau, Anton als kondensierte Versal-Display-Schrift, Inter als feine
+Grundschrift, runde Outline-Knöpfe, Headline über dem Hero-Banner, übergroße zentrierte Typografie mit der
+3D-Szene im Mittelteil, zweizeilige Sektionsheadline mit Kartenraster. Inhalte, Links, Formulare, Scroll-Effekte
+und Logik unverändert (Linkprüfung 15 Seiten ok, acht Browserabläufe ok, axe 0 schwere Verstöße auf 13 Seiten).
+Lighthouse Startseite: Desktop 100 / 100 / 100 / 100, Mobil 90 Performance (LCP 3,6 s durch Video und Schriften).
+Behobener Nebenbefund: der Story-Pin rechnete nach dem spät erzeugten Pin der isometrischen Reise mit veralteten
+Positionen; jetzt wird sortiert und neu gemessen. Details in `docs/02-architektur.md`.

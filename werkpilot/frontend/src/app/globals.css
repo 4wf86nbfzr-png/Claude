@@ -1,11 +1,11 @@
 @import "tailwindcss";
 
-/* Schriften, lokal ausgeliefert (public/fonts, OFL): Bricolage Grotesque als Display, Instrument Sans als Grundschrift,
-   Space Mono nur für Zahlen und kurze Labels. Variable Schnitte, deshalb je Subset eine Datei. */
-@font-face { font-family: "Bricolage Grotesque"; font-weight: 200 800; font-display: swap; src: url("/fonts/bricolage-grotesque-var-latin.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
-@font-face { font-family: "Bricolage Grotesque"; font-weight: 200 800; font-display: swap; src: url("/fonts/bricolage-grotesque-var-latin-ext.woff2") format("woff2"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
-@font-face { font-family: "Instrument Sans"; font-weight: 400 700; font-display: swap; src: url("/fonts/instrument-sans-var-latin.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
-@font-face { font-family: "Instrument Sans"; font-weight: 400 700; font-display: swap; src: url("/fonts/instrument-sans-var-latin-ext.woff2") format("woff2"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+/* Schriften, lokal ausgeliefert (public/fonts, OFL): Anton als kondensierte Versal-Display-Schrift, Inter (variabel 300–700)
+   als Grundschrift, Space Mono nur für Zahlen und kurze Labels. Keine Verbindung zu Google beim Seitenaufruf. */
+@font-face { font-family: "Anton"; font-weight: 400; font-display: swap; src: url("/fonts/anton-latin.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Anton"; font-weight: 400; font-display: swap; src: url("/fonts/anton-latin-ext.woff2") format("woff2"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: "Inter"; font-weight: 300 700; font-display: swap; src: url("/fonts/inter-latin.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Inter"; font-weight: 300 700; font-display: swap; src: url("/fonts/inter-latin-ext.woff2") format("woff2"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
 @font-face { font-family: "Space Mono"; font-weight: 400; font-display: swap; src: url("/fonts/space-mono-400-latin.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
 @font-face { font-family: "Space Mono"; font-weight: 700; font-display: swap; src: url("/fonts/space-mono-700-latin.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
 
@@ -27,8 +27,8 @@
   --color-warn-soft: #fdf1e0;
   --color-bad: #b91c1c;
   --color-bad-soft: #fdecec;
-  --font-sans: "Instrument Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-display: "Bricolage Grotesque", "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Anton", "Arial Narrow", Impact, "Inter", sans-serif;
   --font-mono: "Space Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --radius-card: 14px;
   /* Knöpfe: im Dashboard Blau auf Weiß, auf der Website Mint auf Grünschwarz (siehe .marketing) */
@@ -36,40 +36,40 @@
   --color-on-btn: #ffffff;
 }
 
-/* Website (Startseite und Marketingseiten): dunkle, matte Bühne in Grünschwarz, Salbei als Akzent, Mint als Licht.
-   Palette aus der Designreferenz: #051F20 · #0B2B26 · #163832 · #235347 · #8EB69B · #DAF1DE.
-   Das Dashboard bleibt hell mit Blau, damit Warnfarben dort eindeutig bleiben. */
+/* Website (Startseite und Marketingseiten): tiefes Schwarz, Reinweiß für Headlines, helles Grau für Fließtext,
+   verchromte Graustufen als einzige „Farbe". Das Dashboard bleibt hell mit Blau, damit Warnfarben dort eindeutig bleiben. */
 .marketing {
-  --color-ink: #eef5ef;
-  --color-ink-2: #c3d4c7;
-  --color-muted: #8eb69b;        /* 7,3:1 auf #051F20 */
-  --color-line: rgba(218, 241, 222, 0.14);
-  --color-paper: #0b2b26;
-  --color-sand: #051f20;
-  --color-sand-2: #163832;
-  --color-accent: #8eb69b;
-  --color-accent-2: #daf1de;
-  --color-accent-soft: rgba(142, 182, 155, 0.16);
-  --color-ok: #b9e0c4;
-  --color-ok-soft: rgba(142, 182, 155, 0.16);
-  --color-warn: #f0d9a8;
-  --color-warn-soft: rgba(240, 217, 168, 0.14);
-  --color-bad: #f2b8b5;
-  --color-bad-soft: rgba(242, 184, 181, 0.14);
-  --color-btn: #daf1de;
-  --color-on-btn: #051f20;
+  --color-ink: #ffffff;
+  --color-ink-2: #a1a1aa;        /* 7,9:1 auf #050505 */
+  --color-muted: #a1a1aa;
+  --color-line: rgba(255, 255, 255, 0.14);
+  --color-paper: #0e0e10;
+  --color-sand: #050505;
+  --color-sand-2: #19191c;
+  --color-accent: #e4e4e7;
+  --color-accent-2: #ffffff;
+  --color-accent-soft: rgba(255, 255, 255, 0.1);
+  --color-ok: #d4d4d8;
+  --color-ok-soft: rgba(255, 255, 255, 0.1);
+  --color-warn: #e7d8b0;
+  --color-warn-soft: rgba(231, 216, 176, 0.14);
+  --color-bad: #f1b4b4;
+  --color-bad-soft: rgba(241, 180, 180, 0.14);
+  --color-btn: #ffffff;
+  --color-on-btn: #050505;
   --radius-card: 8px;
   background: var(--color-sand);
   color: var(--color-ink);
 }
-body:has(.marketing) { background: #051f20; }
-.marketing h1 { font-family: var(--font-display); font-weight: 800; letter-spacing: -0.02em; line-height: 0.95; text-transform: uppercase; font-size: clamp(2.4rem, 5.4vw, 4rem); }
-.marketing h2 { font-family: var(--font-display); letter-spacing: -0.015em; }
-.marketing .prose h2, .marketing .prose h3 { font-family: var(--font-sans); }
-.marketing h1.h1-normal { text-transform: none; letter-spacing: -0.015em; }
-.marketing ::selection { background: rgba(142, 182, 155, 0.35); }
+body:has(.marketing) { background: #050505; }
+.marketing h1 { font-family: var(--font-display); font-weight: 400; letter-spacing: 0.005em; line-height: 0.92; text-transform: uppercase; font-size: clamp(2.8rem, 7vw, 5.5rem); }
+.marketing h1.h1-normal { text-transform: none; }
+.marketing h2 { font-family: var(--font-display); font-weight: 400; letter-spacing: 0.01em; text-transform: uppercase; }
+.marketing .prose h2, .marketing .prose h3 { font-family: var(--font-sans); font-weight: 600; text-transform: none; letter-spacing: -0.01em; }
+.marketing p, .marketing li, .marketing dd { font-weight: 300; }
+.marketing ::selection { background: rgba(255, 255, 255, 0.25); }
 .marketing input, .marketing select, .marketing textarea { color-scheme: dark; }
-.marketing .skip-link { background: var(--color-accent-2); color: #051f20; }
+.marketing .skip-link { background: #ffffff; color: #050505; }
 
 html { scroll-behavior: smooth; }
 body { background: var(--color-sand); color: var(--color-ink); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
