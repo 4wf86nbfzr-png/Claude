@@ -37,15 +37,17 @@ export function Hero() {
     return () => ctx.revert();
   }, []);
   useEffect(() => { if (variant && video.current) { video.current.load(); video.current.play().catch(() => undefined); } }, [variant]);
+  /** Fehlt eine Fassung (z. B. 4K im Testpaket), eine Stufe kleiner laden; am Ende bleibt das Poster. */
+  const onVideoError = () => setVariant((v) => (v === 2160 ? 1080 : v === 1080 ? 720 : v));
   const toggle = () => { const v = video.current; if (!v) return; if (v.paused) { v.play(); setPlaying(true); } else { v.pause(); setPlaying(false); } };
   const posterSize = variant === 720 ? 720 : variant === 2160 ? 2160 : 1080;
   return (
     <section ref={root} className="relative flex min-h-[100svh] items-end overflow-hidden" aria-label="Einstieg">
       <div className="hero-media absolute inset-0" aria-hidden>
         {/* Das Video läuft stumm in Endlosschleife. Bei reduzierter Bewegung bleibt nur das Standbild. */}
-        <video ref={video} className="hero-video" autoPlay muted loop playsInline preload="metadata" poster={`/video/poster-${posterSize}.jpg`}>
+        <video ref={video} className="hero-video" autoPlay muted loop playsInline preload="metadata" poster={`/video/poster-${posterSize}.jpg`} onError={onVideoError}>
           {variant && <source src={`/video/clairify-${variant}.webm`} type="video/webm" />}
-          {variant && <source src={`/video/clairify-${variant}.mp4`} type="video/mp4" />}
+          {variant && <source src={`/video/clairify-${variant}.mp4`} type="video/mp4" onError={onVideoError} />}
         </video>
         <div className="hero-shade" />
       </div>
