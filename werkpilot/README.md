@@ -1,6 +1,8 @@
-# WerkPilot AI
+# Clairify (Projektordner werkpilot)
 
-KI-gestützte Anfrage- und Terminorganisation für kleine Handwerksbetriebe in Deutschland.
+**Schnell ausprobieren:** `./start-test.sh` (Windows: `.\start-test.ps1`) startet alles lokal per Docker und legt einen Beispielbetrieb an. Details in `TESTEN.md`.
+
+Anfragen und Termine für kleine Handwerksbetriebe in Deutschland, organisiert mit KI.
 SaaS mit Testphase und drei Tarifen (Starter 79 €, Business 149 €, Pro 249 €), gebaut für
 weitgehend autonomen Betrieb: Agenten für Betrieb, Geschäftsleitung, Produkt, Support,
 Marketing, Vertrieb und Finanzen laufen im Hintergrund und legen alles Kritische zur Freigabe vor.
