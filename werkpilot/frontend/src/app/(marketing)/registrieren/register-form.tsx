@@ -38,8 +38,8 @@ export function RegisterForm() {
       <Field label="Ihr Name"><input name="full_name" className={inputCls} required autoComplete="name" /></Field>
       <Field label="Mailadresse"><input name="email" type="email" className={inputCls} required autoComplete="email" /></Field>
       <Field label="Passwort" hint="Mindestens 10 Zeichen, kein Wörterbuchwort."><input name="password" type="password" className={inputCls} required minLength={10} autoComplete="new-password" /></Field>
-      <label className="flex items-start gap-2 text-sm text-ink-2"><input type="checkbox" name="terms" required className="mt-1" /> Ich akzeptiere die <a href="/agb" className="text-accent underline">AGB</a>.</label>
-      <label className="flex items-start gap-2 text-sm text-ink-2"><input type="checkbox" name="privacy" required className="mt-1" /> Ich habe die <a href="/datenschutz" className="text-accent underline">Datenschutzerklärung</a> gelesen.</label>
+      <label className="flex items-start gap-2 text-sm text-ink-2"><input type="checkbox" name="terms" required className="mt-1" /><span>Ich akzeptiere die <a href="/agb" className="text-accent underline">AGB</a>.</span></label>
+      <label className="flex items-start gap-2 text-sm text-ink-2"><input type="checkbox" name="privacy" required className="mt-1" /><span>Ich habe die <a href="/datenschutz" className="text-accent underline">Datenschutzerklärung</a> gelesen.</span></label>
       {err && <Alert tone="bad">{err}</Alert>}
       <Button type="submit" disabled={busy} className="w-full">{busy ? "Lege Konto an …" : "Konto anlegen"}</Button>
       <p className="text-center text-sm text-muted">Schon registriert? <a href="/anmelden" className="text-accent underline">Anmelden</a></p>

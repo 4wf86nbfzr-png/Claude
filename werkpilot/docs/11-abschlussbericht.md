@@ -49,3 +49,13 @@ Startseite respektiert (Standbild statt Video, keine Kamerafahrten).
 API-Kundenreise, Worker-Lauf, Playwright-Durchlauf, Tarifdaten-Abgleich, acht Kernabläufe, Linkprüfung, axe).
 Der erste Lauf davor hatte 38/39: der neue Demo-Ablauf überschritt mit vier Gewerken das Demo-Limit von fünf
 Aufrufen je Minute (ein Aufruf kommt aus dem bestehenden Durchlauf); der Ablauf prüft jetzt drei Gewerke.
+
+## Nachtrag: Redesign nach Designreferenz (Oktober 2026)
+
+Website (Startseite, alle Marketingseiten, Einzeldatei-Vorschau) auf die Farb- und Formensprache der fünf
+Referenzbilder umgestellt: Grünschwarz mit Salbei und Mint, Bricolage Grotesque als Versal-Display-Schrift,
+Pillen-Bedienelemente, Linien statt Kästen, Foto-plus-Panel auf der Kontaktseite, nummerierte Zeilen auf
+Funktionen und Branchen. Inhalte, Links, Formulare und Funktionen unverändert (Linkprüfung 15 Seiten ok,
+acht Browserabläufe ok, axe 0 schwere Verstöße auf 13 Seiten). Lighthouse Startseite nach dem Redesign:
+Desktop 99 / Mobil 89 Performance (vorher 100 / 94); die Differenz sind die lokal ausgelieferten Schriften
+(zwei woff2, zusammen 107 KB, mit Preload und `font-display: swap`). Details in `docs/02-architektur.md`.

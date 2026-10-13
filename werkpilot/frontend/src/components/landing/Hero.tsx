@@ -6,7 +6,8 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { usePublicConfig } from "@/lib/public-config";
 
-const HEADLINE = "Draußen arbeiten. Im Büro nichts mehr verpassen.";
+const HEADLINE_LINES = ["Draußen arbeiten.", "Im Büro nichts", "mehr verpassen."];
+const fmt = (sec: number) => `${Math.floor(sec / 60)}:${String(Math.floor(sec % 60)).padStart(2, "0")}`;
 
 /** Wählt die Videogröße nach Bildschirm und Verbindung: 4K nur für große Bildschirme ohne Datensparmodus. */
 function pickVariant(): 2160 | 1080 | 720 {
@@ -22,6 +23,7 @@ export function Hero() {
   const root = useRef<HTMLElement>(null);
   const video = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(true);
+  const [time, setTime] = useState<{ t: number; d: number }>({ t: 0, d: 0 });
   const [variant, setVariant] = useState<2160 | 1080 | 720 | null>(null);
   const cfg = usePublicConfig();
   useEffect(() => {
@@ -41,23 +43,28 @@ export function Hero() {
   useEffect(() => { if (variant && video.current) { video.current.load(); video.current.play().catch(() => undefined); } }, [variant]);
   /** Fehlt eine Fassung (z. B. 4K im Testpaket), eine Stufe kleiner laden; am Ende bleibt das Poster. */
   const onVideoError = () => setVariant((v) => (v === 2160 ? 1080 : v === 1080 ? 720 : v));
+  const onTime = () => { const v = video.current; if (v && v.duration) setTime({ t: v.currentTime, d: v.duration }); };
   const toggle = () => { const v = video.current; if (!v) return; if (v.paused) { v.play(); setPlaying(true); } else { v.pause(); setPlaying(false); } };
   return (
     <section ref={root} className="relative flex min-h-[100svh] items-end overflow-hidden" aria-label="Einstieg">
       <div className="hero-media absolute inset-0" aria-hidden>
         {/* Das Video läuft stumm in Endlosschleife. Bei reduzierter Bewegung bleibt nur das Standbild. */}
-        <video ref={video} className="hero-video" autoPlay muted loop playsInline preload="metadata" poster="/video/poster-1080.webp" onError={onVideoError}>
+        <video ref={video} className="hero-video" autoPlay muted loop playsInline preload="metadata" poster="/video/poster-1080.webp" onError={onVideoError} onTimeUpdate={onTime} onLoadedMetadata={onTime}>
           {variant && <source src={`/video/clairify-${variant}.webm`} type="video/webm" />}
           {variant && <source src={`/video/clairify-${variant}.mp4`} type="video/mp4" onError={onVideoError} />}
         </video>
         <div className="hero-shade" />
       </div>
-      <div className="hero-copy relative mx-auto w-full max-w-7xl px-5 pb-20 pt-40 md:pb-28">
-        <p className="eyebrow mb-5">Für Elektro, Sanitär und Heizung, Maler, Dach, Reinigung und Gartenbau</p>
-        <h1 className="display max-w-4xl text-[2.5rem] sm:text-6xl md:text-7xl lg:text-[5rem]" style={{ perspective: "800px" }}>
-          {HEADLINE.split(" ").map((w, i) => <span key={i} className="word mr-[0.26em]">{w}</span>)}
+      <div className="hero-copy relative z-[2] mx-auto w-full max-w-7xl px-5 pb-32 pt-36 md:pb-32 md:pt-40">
+        <p className="mb-7"><span className="pill-tag">Für Elektro, Sanitär und Heizung, Maler, Dach, Reinigung und Gartenbau</span></p>
+        <h1 className="display display-xl max-w-5xl text-[2.9rem] sm:text-6xl md:text-7xl lg:text-[6.6rem]" style={{ perspective: "800px" }}>
+          {HEADLINE_LINES.map((line, li) => (
+            <span key={li} className="block">
+              {line.split(" ").map((w, i) => <span key={i} className="word mr-[0.22em]">{w}</span>)}
+            </span>
+          ))}
         </h1>
-        <p className="hero-sub mt-7 max-w-2xl text-lg text-ink-2 md:text-xl">Clairify bündelt Kundenanfragen aus Mail und Website an einem Ort, erkennt Dringendes und legt fertige Antwortentwürfe vor. Sie prüfen auf dem Handy und geben frei. Nichts geht ohne Ihre Freigabe raus.</p>
+        <p className="hero-sub mt-8 max-w-2xl text-lg text-ink-2 md:text-xl">Clairify bündelt Kundenanfragen aus Mail und Website an einem Ort, erkennt Dringendes und legt fertige Antwortentwürfe vor. Sie prüfen auf dem Handy und geben frei. Nichts geht ohne Ihre Freigabe raus.</p>
         <div className="mt-9 flex flex-wrap items-center gap-3">
           <Link href="/registrieren" className="hero-cta btn-primary rounded-full px-6 py-3 text-sm font-semibold">Kostenlos testen</Link>
           <a href="#demo" className="hero-cta btn-secondary rounded-full px-6 py-3 text-sm font-medium">Produktdemo ansehen</a>
@@ -65,8 +72,18 @@ export function Hero() {
           <span className="hero-cta text-sm text-ink-2">{cfg ? `${cfg.trial_days} Tage kostenlos` : "Kostenlos testen"}, keine Zahlungsdaten nötig{cfg?.stripe_ready ? ", monatlich kündbar" : ""}</span>
         </div>
       </div>
-      <button onClick={toggle} aria-pressed={!playing} className="absolute bottom-6 right-5 rounded-full bg-black/35 px-3 py-1.5 text-xs text-white backdrop-blur hover:bg-black/60">{playing ? "Video anhalten" : "Video abspielen"}</button>
-      <a href="#ablauf" className="scroll-cue absolute bottom-6 left-1/2 hidden -translate-x-1/2 text-xs text-ink-2 md:block" aria-label="Weiter scrollen">↓ scrollen</a>
+      {/* Zeitleiste des Films: Laufzeit und Position, nur auf größeren Bildschirmen */}
+      {time.d > 0 && (
+        <div className="hero-timeline hidden md:block" aria-hidden>
+          <span className="tl-t tl-top">{fmt(time.t)}</span>
+          <span className="tl-dot" style={{ top: `${(time.t / time.d) * 100}%` }} />
+          <span className="tl-t tl-bottom">{fmt(time.d)}</span>
+        </div>
+      )}
+      <button onClick={toggle} aria-pressed={!playing} aria-label={playing ? "Video anhalten" : "Video abspielen"} className="vid-btn absolute bottom-6 right-5 z-[2]">
+        {playing ? <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden><rect x="2" y="1" width="3.5" height="12" fill="currentColor" /><rect x="8.5" y="1" width="3.5" height="12" fill="currentColor" /></svg> : <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden><path d="M3 1.5v11l9-5.5z" fill="currentColor" /></svg>}
+      </button>
+      <a href="#ablauf" className="scroll-cue mono absolute bottom-7 left-1/2 z-[2] hidden -translate-x-1/2 text-xs text-ink-2 md:block" aria-label="Weiter scrollen">↓ scrollen</a>
     </section>
   );
 }

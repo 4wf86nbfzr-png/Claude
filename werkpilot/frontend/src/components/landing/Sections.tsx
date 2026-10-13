@@ -51,13 +51,13 @@ export function Honesty() {
             <h2 className="display text-3xl md:text-4xl">Die KI arbeitet vor. Entscheiden tun Sie.</h2>
           </div>
         </Reveal>
-        <div className="md:self-center">
+        <div className="panel -mt-4 px-6 py-8 md:mt-0 md:self-center md:px-10 md:py-12">
           <Reveal>
             <p className="max-w-xl text-lg text-ink-2">Ein Handwerksbetrieb lebt von Vertrauen. Deshalb nennt Clairify keine Preise, stellt keine Diagnosen aus der Ferne und macht keine Zusagen. Jede Nachricht, die rausgeht, haben Sie gesehen oder bewusst für saubere Fälle freigegeben.</p>
           </Reveal>
           <div className="mt-12 grid gap-10 sm:grid-cols-2">
-            <Reveal delay={100}><h3 className="font-semibold text-accent-2">Macht die KI</h3><ul className="mt-4 space-y-2.5 text-sm text-ink-2 md:text-[15px]">{DOES.map((x) => <li key={x}>{x}</li>)}</ul></Reveal>
-            <Reveal delay={200}><h3 className="font-semibold text-steel">Macht sie nicht</h3><ul className="mt-4 space-y-2.5 text-sm text-ink-2 md:text-[15px]">{DOES_NOT.map((x) => <li key={x}>{x}</li>)}</ul></Reveal>
+            <Reveal delay={100}><h3 className="eyebrow">Macht die KI</h3><ul className="mt-4 divide-y divide-[rgba(218,241,222,0.12)] text-sm text-ink-2 md:text-[15px]">{DOES.map((x) => <li key={x} className="py-2.5">{x}</li>)}</ul></Reveal>
+            <Reveal delay={200}><h3 className="eyebrow">Macht sie nicht</h3><ul className="mt-4 divide-y divide-[rgba(218,241,222,0.12)] text-sm text-ink-2 md:text-[15px]">{DOES_NOT.map((x) => <li key={x} className="py-2.5">{x}</li>)}</ul></Reveal>
           </div>
         </div>
       </div>
@@ -94,7 +94,7 @@ export function Pricing() {
       <div className="mt-16 grid gap-14 md:grid-cols-3 md:gap-10">
         {PLANS.map((p, i) => (
           <Reveal key={p.code} delay={i * 100} className="plan flex flex-col">
-            <h3 className="text-xl font-semibold">{p.name}{p.hot && <span className="ml-3 text-xs font-medium text-accent-2">Empfehlung für Betriebe mit Büro</span>}</h3>
+            <h3 className="flex flex-wrap items-center gap-3 text-xl font-semibold">{p.name}{p.hot && <span className="pill-tag !py-1 !text-xs">Empfehlung für Betriebe mit Büro</span>}</h3>
             <div className={`mt-4 text-5xl font-semibold ${p.hot ? "text-accent" : ""}`}>{p.priceEur} €<span className="text-base font-normal text-muted"> im Monat</span></div>
             <p className="mt-1 text-sm text-muted">{p.for}</p>
             <ul className="mt-6 flex-1 space-y-2.5 text-sm text-ink-2 md:text-[15px]">{p.highlights.map((it) => <li key={it}>{it}</li>)}</ul>
@@ -159,7 +159,7 @@ export function FinalCTA() {
       <picture><source type="image/webp" srcSet="/video/stills/still-3-960.webp 960w, /video/stills/still-3-1600.webp 1600w" sizes="100vw" /><img className="still absolute inset-0 h-full w-full" src="/video/stills/still-3.jpg" alt="" aria-hidden loading="lazy" decoding="async" /></picture>
       <div className="cta-shade absolute inset-0" aria-hidden />
       <div className="on-image-static relative mx-auto max-w-7xl px-5 py-36 text-center md:py-44">
-        <Reveal><h2 className="display mx-auto max-w-4xl text-4xl md:text-6xl">Der nächste Kunde schreibt heute Abend. Wer antwortet?</h2></Reveal>
+        <Reveal><h2 className="display display-xl mx-auto max-w-5xl text-4xl md:text-7xl">Der nächste Kunde schreibt heute Abend. Wer antwortet?</h2></Reveal>
         <Reveal delay={150}><p className="mx-auto mt-6 max-w-xl text-lg text-ink-2">In zehn Minuten eingerichtet: Konto anlegen, Weiterleitung setzen, erste Anfrage prüfen.</p></Reveal>
         <Reveal delay={250}><div className="mt-9 flex flex-wrap justify-center gap-3"><Link href="/registrieren" className="btn-primary rounded-full px-7 py-3.5 text-sm font-semibold">Kostenlos testen</Link><Link href="/kontakt" className="btn-secondary rounded-full px-7 py-3.5 text-sm font-medium">Rückruf anfragen</Link></div></Reveal>
       </div>
@@ -174,7 +174,7 @@ export function LandingFooter() {
     ["Rechtliches", [["/impressum", "Impressum"], ["/datenschutz", "Datenschutzerklärung"], ["/agb", "AGB"], ["/widerruf", "Widerrufsbelehrung"]]],
   ];
   return (
-    <footer className="bg-[var(--c-bg2)]">
+    <footer className="rule">
       <div className="mx-auto grid max-w-7xl gap-10 px-5 py-16 text-sm sm:grid-cols-2 md:grid-cols-4">
         <div><div className="text-lg font-semibold tracking-tight">Clairify</div><p className="mt-3 max-w-xs text-muted">Anfragen und Termine für kleine Handwerksbetriebe, organisiert mit KI. Entwickelt in Deutschland, auf Deutsch, für deutsche Betriebe.</p></div>
         {cols.map(([h, links]) => <div key={h}><h3 className="mb-3 font-semibold">{h}</h3><ul className="space-y-2 text-ink-2">{links.map(([href, l]) => <li key={href}><Link href={href} className="hover:text-ink">{l}</Link></li>)}</ul></div>)}

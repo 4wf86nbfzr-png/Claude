@@ -3,7 +3,8 @@
 //   public/video/clairify-1080.webm / .mp4            public/video/clairify-720.webm / .mp4
 //   public/video/poster-2160.jpg, poster-1080.jpg, poster-720.jpg   (Standbild als Lade- und Bewegungsfallback)
 //   public/video/stills/still-1.jpg …                 (Standbilder für Bild-Text-Abschnitte)
-//   public/video/palette.json + src/components/landing/palette.css (Farben aus dem Material)
+//   public/video/palette.json + src/components/landing/palette.generated.css (Farben aus dem Material, nur zum Vergleich;
+//   die Website nutzt die von Hand gesetzte palette.css)
 //   public/video/SOURCES.md                           (Quellen und Lizenzen aus dem Manifest)
 // Aufruf aus frontend/: node tools/video/prepare-footage.mjs   (braucht ffmpeg mit libvpx-vp9 und libx264, Python 3 mit Pillow)
 import { execFileSync } from "node:child_process";
@@ -51,7 +52,7 @@ for (const [h, w, bitrate, crf] of variants) {
 // 3. Standbilder für Bild-Text-Abschnitte (1920 breit, Qualität hoch)
 (manifest.stills_seconds ?? []).forEach((t, i) => run(["-ss", String(t), "-i", master, "-frames:v", "1", "-vf", "scale=1920:1080", "-q:v", "2", path.join(stillsDir, `still-${i + 1}.jpg`)]));
 // 4. Farben aus dem Material ableiten
-execFileSync(process.env.PYTHON ?? "python3", [path.join(here, "palette.py"), master, path.join(out, "palette.json"), path.join(root, "src/components/landing/palette.css")], { stdio: "inherit" });
+execFileSync(process.env.PYTHON ?? "python3", [path.join(here, "palette.py"), master, path.join(out, "palette.json"), path.join(root, "src/components/landing/palette.generated.css")], { stdio: "inherit" });
 // 5. Quellen dokumentieren
 const lines = ["# Quellen des Hintergrundvideos", "", "Erzeugt aus `tools/video/footage.json` durch `prepare-footage.mjs`. Reihenfolge = Schnittreihenfolge.", ""];
 for (const c of manifest.clips) lines.push(`- **${c.title}** (${c.file}, ${c.in ?? 0}–${c.out} s)`, `  Quelle: ${c.source}${c.url ? " · " + c.url : ""}`, `  Urheber: ${c.author} · Lizenz: ${c.license}`, "");

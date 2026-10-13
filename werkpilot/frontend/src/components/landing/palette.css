@@ -1,12 +1,15 @@
-/* Automatisch aus dem Videomaterial abgeleitet (tools/video/palette.py). Nicht von Hand bearbeiten. */
+/* Farbwelt der Startseite, von Hand gesetzt nach der Designreferenz (Grünschwarz, Salbei, Mint).
+   Die automatisch aus dem Film abgeleitete Palette liegt zum Vergleich in palette.generated.css. */
 .landing {
-  --c-bg: #1a1714;
-  --c-bg2: #29231e;
-  --c-ink: #f3f3f1;
-  --c-ink2: #d3d5cd;
-  --c-muted: #9c9f93;
-  --c-accent: #e18147;
-  --c-accent2: #eb9f70;
-  --c-steel: #708da9;
-  --c-sand: #a1ab7c;
+  --c-bg: #051f20;
+  --c-bg2: #0b2b26;
+  --c-bg3: #163832;
+  --c-ink: #eef5ef;
+  --c-ink2: #c3d4c7;
+  --c-muted: #8eb69b;
+  --c-accent: #8eb69b;
+  --c-accent2: #daf1de;
+  --c-light: #daf1de;
+  --c-steel: #4f7f68;
+  --c-sand: #235347;
 }

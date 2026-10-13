@@ -10,7 +10,7 @@ const nav = [
 
 export function Logo() {
   return (
-    <Link href="/" className="text-lg font-semibold tracking-tight">
+    <Link href="/" className="font-display text-lg font-bold tracking-tight">
       Clairify
     </Link>
   );
@@ -18,7 +18,7 @@ export function Logo() {
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-paper/90 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-line bg-[rgba(5,31,32,0.82)] backdrop-blur">
       <a href="#inhalt" className="skip-link">Zum Inhalt springen</a>
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
         <Logo />
@@ -27,7 +27,7 @@ export function SiteHeader() {
         </nav>
         <div className="flex items-center gap-2">
           <Link href="/anmelden" className="hidden rounded-full px-4 py-2 text-sm text-ink-2 hover:bg-sand-2 sm:inline-block">Anmelden</Link>
-          <Link href="/registrieren" className="rounded-full bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-2">Kostenlos testen</Link>
+          <Link href="/registrieren" className="rounded-full bg-[var(--color-btn)] px-4 py-2 text-sm font-semibold text-[var(--color-on-btn)] hover:opacity-90">Kostenlos testen</Link>
         </div>
       </div>
       <nav aria-label="Mobile Navigation" className="flex gap-4 overflow-x-auto border-t border-line px-4 py-2 text-sm md:hidden">
@@ -40,7 +40,7 @@ export function SiteHeader() {
 
 export function SiteFooter() {
   return (
-    <footer className="mt-20 border-t border-line bg-paper">
+    <footer className="mt-20 border-t border-line">
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 text-sm sm:grid-cols-2 md:grid-cols-4">
         <div>
           <Logo />

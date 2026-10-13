@@ -27,7 +27,7 @@ const groups = [
     ["Wochenbericht", "Freitags per Mail: neue Anfragen, Reaktionszeit, offene Angebote, Termine."],
     ["Kundenübersicht", "Endkunden mit Verlauf, Export als CSV."],
     ["Nutzer & Rollen", "Inhaber, Admin, Mitarbeiter. Jede Berechtigung wird serverseitig geprüft."],
-    ["Datenschutz", "Datenexport, Löschung, einstellbare Aufbewahrungsfrist, Protokoll aller automatischen Aktionen aller automatischen Aktionen."],
+    ["Datenschutz", "Datenexport, Löschung, einstellbare Aufbewahrungsfrist, Protokoll aller automatischen Aktionen."],
   ]},
 ];
 
@@ -36,18 +36,19 @@ export default function Funktionen() {
     <div className="mx-auto max-w-6xl px-4 py-14">
       <h1 className="text-3xl font-semibold md:text-4xl">Funktionen</h1>
       <p className="mt-3 max-w-2xl text-ink-2">Alles, was hier steht, ist eingebaut. Was noch nicht geht (WhatsApp, Telefonannahme, Microsoft Kalender), steht ehrlich im Hilfezentrum.</p>
-      <div className="mt-10 space-y-12">
-        {groups.map((g) => (
-          <section key={g.h}>
-            <h2 className="mb-4 text-xl font-semibold">{g.h}</h2>
-            <div className="grid gap-4 md:grid-cols-2">
+      {/* Zeilen mit Linien statt gleichförmiger Karten; Nummer in Mono wie auf der Startseite */}
+      <div className="mt-12 space-y-14">
+        {groups.map((g, gi) => (
+          <section key={g.h} className="md:grid md:grid-cols-[220px_1fr] md:gap-10">
+            <h2 className="mb-4 text-2xl font-semibold md:mb-0"><span className="mono mr-3 text-sm text-muted">0{gi + 1}</span>{g.h}</h2>
+            <dl className="divide-y divide-line border-t border-line">
               {g.items.map(([t, d]) => (
-                <div key={t} className="rounded-[var(--radius-card)] border border-line bg-paper p-5">
-                  <h3 className="font-semibold">{t}</h3>
-                  <p className="mt-1 text-sm text-ink-2">{d}</p>
+                <div key={t} className="grid gap-1 py-4 md:grid-cols-[260px_1fr] md:gap-8">
+                  <dt className="font-semibold">{t}</dt>
+                  <dd className="text-sm text-ink-2 md:text-[15px]">{d}</dd>
                 </div>
               ))}
-            </div>
+            </dl>
           </section>
         ))}
       </div>

@@ -16,6 +16,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="de" className="h-full">
+      <head>
+        <link rel="preload" as="font" type="font/woff2" href="/fonts/bricolage-grotesque-var-latin.woff2" crossOrigin="anonymous" />
+        <link rel="preload" as="font" type="font/woff2" href="/fonts/instrument-sans-var-latin.woff2" crossOrigin="anonymous" />
+      </head>
       <body className="min-h-full flex flex-col">
         <AuthProvider>{children}</AuthProvider>
       </body>

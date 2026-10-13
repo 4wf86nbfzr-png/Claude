@@ -14,6 +14,13 @@ export function Assistant() {
   const [msgs, setMsgs] = useState<Msg[]>([{ role: "bot", text: BEGRUESSUNG }]);
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
+  // Auf schmalen Bildschirmen erst nach dem Hero einblenden, damit der Knopf nicht über den Hero-Aktionen liegt.
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    const on = () => setShown(window.innerWidth >= 640 || window.scrollY > 360);
+    queueMicrotask(on); window.addEventListener("scroll", on, { passive: true }); window.addEventListener("resize", on);
+    return () => { window.removeEventListener("scroll", on); window.removeEventListener("resize", on); };
+  }, []);
   const input = useRef<HTMLInputElement>(null);
   const log = useRef<HTMLDivElement>(null);
   const toggleBtn = useRef<HTMLButtonElement>(null);
@@ -47,7 +54,7 @@ export function Assistant() {
   }
 
   return (
-    <div className="asst">
+    <div className={`asst ${shown || open ? "" : "asst-hidden"}`}>
       <button ref={toggleBtn} type="button" className="asst-toggle" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-controls="asst-panel" aria-label={open ? "Fragen schließen" : "Fragen an Clairify stellen"}>
         <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H9l-5 4z" /><path d="M8.5 8.5h7M8.5 12h4.5" /></svg>
         <span className="asst-toggle-text">Fragen?</span>

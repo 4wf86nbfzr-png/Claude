@@ -28,7 +28,7 @@ export function ContactForm() {
       <Field label="Betriebsgröße"><select name="size" className={inputCls}><option value="solo">Nur ich</option><option value="2-5">2–5 Mitarbeitende</option><option value="6-15">6–15</option><option value="16+">16 und mehr</option></select></Field>
       <div className="md:col-span-2"><Field label="Nachricht"><textarea name="message" className={`${inputCls} min-h-28`} maxLength={5000} /></Field></div>
       <input name="website" className="hidden" tabIndex={-1} autoComplete="off" aria-hidden />
-      <label className="flex items-start gap-2 text-sm text-ink-2 md:col-span-2"><input type="checkbox" name="consent" required className="mt-1" /> Ich bin einverstanden, dass Clairify meine Angaben zur Bearbeitung meiner Anfrage speichert und mich per Mail kontaktiert. Details in der <a href="/datenschutz" className="text-accent underline">Datenschutzerklärung</a>.</label>
+      <label className="flex items-start gap-2 text-sm text-ink-2 md:col-span-2"><input type="checkbox" name="consent" required className="mt-1" /><span>Ich bin einverstanden, dass Clairify meine Angaben zur Bearbeitung meiner Anfrage speichert und mich per Mail kontaktiert. Details in der <a href="/datenschutz" className="text-accent underline">Datenschutzerklärung</a>.</span></label>
       {err && <div className="md:col-span-2"><Alert tone="bad">{err}</Alert></div>}
       <div><Button type="submit" disabled={busy}>{busy ? "Sende …" : "Anfrage senden"}</Button></div>
     </form>

@@ -18,12 +18,13 @@ export default function Branchen() {
     <div className="mx-auto max-w-6xl px-4 py-14">
       <h1 className="text-3xl font-semibold md:text-4xl">Branchenlösungen</h1>
       <p className="mt-3 max-w-2xl text-ink-2">Die Klassifizierung kennt die typischen Anliegen Ihres Gewerks. Sie wählen es bei der Registrierung, alles andere passt sich an.</p>
-      <div className="mt-10 grid gap-4 md:grid-cols-2">
-        {trades.map((t) => (
-          <div key={t.n} className="rounded-[var(--radius-card)] border border-line bg-paper p-6">
-            <h2 className="text-lg font-semibold">{t.n}</h2>
-            <p className="mt-2 text-sm text-ink-2">{t.s}</p>
-          </div>
+      <div className="mt-12 divide-y divide-line border-t border-line">
+        {trades.map((t, i) => (
+          <section key={t.n} className="grid gap-2 py-6 md:grid-cols-[80px_300px_1fr] md:gap-8">
+            <span className="mono text-sm text-muted" aria-hidden>0{i + 1}</span>
+            <h2 className="text-xl font-semibold">{t.n}</h2>
+            <p className="text-sm text-ink-2 md:text-[15px]">{t.s}</p>
+          </section>
         ))}
       </div>
       <div className="mt-12"><Button href="/demo" variant="secondary">Mit einer eigenen Anfrage testen</Button></div>

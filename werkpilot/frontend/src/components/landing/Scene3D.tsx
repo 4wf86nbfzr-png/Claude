@@ -9,10 +9,10 @@ export type ProgressRef = { current: number };
 
 // Farben aus der Palette des Videomaterials (palette.css): Dringendes in der warmen Akzentfarbe, der Rest in Stahl- und Sandtönen.
 const LANES = [
-  { x: -2.55, color: "#e18147", label: "dringend" },
-  { x: -0.85, color: "#708da9", label: "normal" },
-  { x: 0.85, color: "#a1ab7c", label: "angebot" },
-  { x: 2.55, color: "#5a5955", label: "niedrig" },
+  { x: -2.55, color: "#daf1de", label: "dringend" },
+  { x: -0.85, color: "#8eb69b", label: "normal" },
+  { x: 0.85, color: "#4f7f68", label: "angebot" },
+  { x: 2.55, color: "#235347", label: "niedrig" },
 ];
 const COUNT = 32;
 
@@ -23,7 +23,7 @@ function makeLabelTextures(): { front: THREE.CanvasTexture; back: THREE.CanvasTe
     const c = document.createElement("canvas"); c.width = 512; c.height = 168;
     const ctx = c.getContext("2d")!;
     ctx.fillStyle = lane.color; ctx.fillRect(0, 0, c.width, c.height);
-    ctx.fillStyle = lane.label === "dringend" ? "#1b1408" : "#f3f2f1";
+    ctx.fillStyle = lane.label === "dringend" || lane.label === "normal" ? "#051f20" : "#eef5ef";
     ctx.font = "600 78px ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif";
     ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.letterSpacing = "10px";
     ctx.fillText("CLAIRIFY", c.width / 2 + 5, c.height / 2 + 4);
@@ -115,7 +115,7 @@ function Ring({ progress }: { progress: ProgressRef }) {
   return (
     <mesh ref={ref} position={[0, 0, -1.5]}>
       <torusGeometry args={[3.2, 0.03, 12, 120]} />
-      <meshStandardMaterial color="#708da9" emissive="#708da9" emissiveIntensity={0.8} transparent opacity={0.3} />
+      <meshStandardMaterial color="#8eb69b" emissive="#8eb69b" emissiveIntensity={0.8} transparent opacity={0.3} />
     </mesh>
   );
 }
@@ -153,7 +153,7 @@ export function Scene3D({ progress }: { progress: ProgressRef }) {
       <Canvas dpr={[1, 1.75]} camera={{ position: [0, 0, 10.5], fov: 40 }} gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }} onCreated={({ gl }) => { glRef.current = gl; gl.xr.enabled = true; }} aria-hidden>
         <ambientLight intensity={0.6} />
         <pointLight position={[4, 5, 6]} intensity={40} color="#ffffff" />
-        <pointLight position={[-6, -3, 4]} intensity={25} color="#708da9" />
+        <pointLight position={[-6, -3, 4]} intensity={25} color="#8eb69b" />
         <Ring progress={progress} />
         <Cards progress={progress} pointer={pointer} />
         <Rig pointer={pointer} />
