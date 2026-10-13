@@ -130,19 +130,11 @@ a.dl:hover{background:#36302a;transform:translateY(-1px)}.dl.is-soon{opacity:.6;
 .screen-text h3{font-size:1.6rem}.screen-text p{margin-top:12px;color:var(--ink2)}.screen-text .btns{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px}.screen-text .note{margin-top:24px;font-size:.75rem;color:var(--muted)}
 .lightbox{position:fixed;inset:0;z-index:80;display:none;place-items:center;padding:24px;background:rgba(10,8,6,.9);cursor:zoom-out}.lightbox.open{display:grid}.lightbox img{max-width:min(1600px,100%);max-height:100%;width:auto;height:auto;border-radius:10px;cursor:default}.lightbox-close{position:absolute;top:14px;right:18px;border:0;background:none;color:#fff;font-size:2rem;line-height:1;cursor:pointer}
 /* Scroll-Video, isometrische Reise, Fly-through */
-.film{position:relative}.film-pin{position:relative;min-height:100svh;overflow:hidden}.film-layers{position:absolute;inset:0}.film-layer{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;will-change:transform,opacity;transform-origin:50% 45%}
-.film-chapters{display:flex;flex-wrap:wrap;gap:6px 18px;margin:24px 0 0;padding:0;list-style:none}.film-chapter{display:inline-flex;align-items:center;gap:8px;border:0;background:none;padding:6px 0;font:inherit;font-size:.9rem;color:var(--ink2);cursor:pointer;text-shadow:0 1px 10px rgba(0,0,0,.5);transition:color .3s}.film-chapter:hover,.film-chapter.is-on{color:var(--ink)}.film-chapter.is-on{font-weight:600}
-.film-dot{width:8px;height:8px;border-radius:50%;background:rgba(243,243,241,.4);transition:background .3s,transform .3s}.film-chapter.is-on .film-dot{background:var(--accent);transform:scale(1.3)}
-.film-shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(26,23,20,.8) 0%,rgba(26,23,20,.45) 45%,transparent 78%),linear-gradient(180deg,var(--bg) 0%,transparent 22%,transparent 70%,var(--bg) 100%)}
-.film-copy{position:relative;display:flex;min-height:100svh;flex-direction:column;justify-content:flex-end;padding:128px 20px 80px}.film h2,.film .eyebrow{text-shadow:0 2px 24px rgba(0,0,0,.45)}
-.film-lines{position:relative;min-height:5.5rem;max-width:40rem;margin-top:20px}.film-line{position:absolute;left:0;top:0;margin:0;opacity:0;transform:translateY(14px);transition:opacity .45s,transform .45s;text-shadow:0 1px 14px rgba(0,0,0,.55)}.film-line.is-on{opacity:1;transform:none}
-.film-k{display:none;font-size:.78rem;font-weight:600;letter-spacing:.02em;color:var(--accent2)}.film-t{display:block;margin-top:6px;font-size:1.25rem;line-height:1.4;color:var(--ink)}@media(min-width:768px){.film-t{font-size:1.5rem}}
-.film.is-static .film-pin{min-height:0}.film.is-static .film-copy{min-height:0}.film.is-static .film-lines{min-height:0;display:grid;gap:18px}.film.is-static .film-line{position:static;opacity:1;transform:none}.film.is-static .film-layer:not(:first-child){display:none}.film.is-static .film-chapters{display:none}.film.is-static .film-k{display:block}
 .iso{display:none;position:relative}.iso.on{display:block}.iso-pin{position:relative;min-height:100svh;overflow:hidden}.iso-head{position:relative;z-index:10;padding-top:96px}
 .iso-stage{position:absolute;inset:0;perspective:2000px;perspective-origin:62% 40%;pointer-events:none}.iso-rot{position:absolute;left:62%;top:58%;width:0;height:0;transform-style:preserve-3d;transform:rotateX(56deg) rotateZ(-36deg)}.iso-board{position:absolute;left:0;top:0;transform-style:preserve-3d;will-change:transform}
 .iso-tile{position:absolute;display:block;padding:0;border:0;border-radius:12px;overflow:hidden;background:var(--bg2);opacity:.5;filter:saturate(.6) brightness(.8);transform:translateZ(0);transition:transform .6s cubic-bezier(.2,.7,.2,1),opacity .6s,filter .6s;box-shadow:0 40px 80px -30px rgba(0,0,0,.8);pointer-events:auto;cursor:zoom-in}.iso-tile img{display:block;width:100%;height:100%;object-fit:cover;object-position:top left}
 .iso-tile.is-on{opacity:1;filter:none;transform:translateZ(90px);box-shadow:0 70px 110px -30px rgba(0,0,0,.85)}.iso-label{position:absolute;left:16px;bottom:12px;padding:4px 10px;border-radius:999px;background:rgba(0,0,0,.55);color:#fff;font-size:.78rem;font-weight:600}
-.iso-captions{position:absolute;left:0;right:0;bottom:0;z-index:10;height:320px;margin-left:max(20px,calc((100vw - 80rem)/2 + 20px))}.iso-pin::before{content:"";position:absolute;left:0;right:0;top:0;height:260px;z-index:5;pointer-events:none;background:linear-gradient(180deg,var(--bg) 0%,rgba(26,23,20,.85) 55%,transparent 100%)}.iso-caption{position:absolute;left:20px;bottom:110px;width:min(32rem,calc(100vw - 40px));opacity:0;transform:translateY(16px);transition:opacity .5s,transform .5s;pointer-events:none}.iso-caption.is-on{opacity:1;transform:none;pointer-events:auto}
+.iso-captions{position:absolute;left:0;right:0;bottom:0;z-index:10;height:320px;margin-left:max(20px,calc((100vw - 80rem)/2 + 20px))}.iso-pin::before{content:"";position:absolute;left:0;right:0;top:0;height:260px;z-index:5;pointer-events:none;background:linear-gradient(180deg,var(--bg) 0%,rgba(26,23,20,.85) 55%,transparent 100%)}.iso-pin::after{content:"";position:absolute;left:0;bottom:0;width:60%;height:440px;z-index:6;pointer-events:none;background:linear-gradient(90deg,rgba(26,23,20,.92) 0%,rgba(26,23,20,.7) 45%,transparent 100%);mask-image:linear-gradient(180deg,transparent 0%,#000 35%);-webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 35%)}.iso-caption{position:absolute;left:20px;bottom:110px;width:min(32rem,calc(100vw - 40px));opacity:0;transform:translateY(16px);transition:opacity .5s,transform .5s;pointer-events:none}.iso-caption.is-on{opacity:1;transform:none;pointer-events:auto}
 .iso-caption h3{font-size:1.6rem}.iso-caption p{margin-top:12px;color:var(--ink2)}.iso-caption .btns{display:flex;flex-wrap:wrap;gap:12px;margin-top:20px}.iso-note{position:absolute;left:20px;bottom:72px;margin:0;font-size:.72rem;color:var(--muted);width:min(32rem,calc(100vw - 40px))}
 .preview-tag{position:fixed;right:12px;bottom:12px;z-index:60;font-size:.65rem;letter-spacing:.06em;color:var(--ink2);background:rgba(0,0,0,.55);border-radius:999px;padding:4px 10px}
 @media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none}.cue{animation:none}.word{opacity:1!important;transform:none!important}}
@@ -153,7 +145,7 @@ a.dl:hover{background:#36302a;transform:translateY(-1px)}.dl.is-soon{opacity:.6;
 <header class="hdr" id="hdr">
   <div class="wrap">
     <a href="#top" class="logo">Clairify</a>
-    <nav class="nav" aria-label="Hauptnavigation"><a href="#tag">Der Tag</a><a href="#ablauf">So funktioniert es</a><a href="#funktionen">Funktionen</a><a href="#einblick">Einblick</a><a href="#demo">Demo</a><a href="#preise">Preise</a><a href="#faq">Fragen</a></nav>
+    <nav class="nav" aria-label="Hauptnavigation"><a href="#einblick">Einblick</a><a href="#ablauf">So funktioniert es</a><a href="#funktionen">Funktionen</a><a href="#demo">Demo</a><a href="#preise">Preise</a><a href="#faq">Fragen</a></nav>
     <div class="hdr-cta"><a class="login" href="#preise">Anmelden</a><a class="btn btn-primary" href="#preise">Kostenlos testen</a><button class="burger" id="burger" aria-label="Menü" aria-expanded="false">☰</button></div>
   </div>
   <nav class="mnav" id="mnav" aria-label="Mobile Navigation"><a href="#ablauf">So funktioniert es</a><a href="#funktionen">Funktionen</a><a href="#demo">Demo</a><a href="#preise">Preise</a><a href="#faq">Fragen</a></nav>
@@ -185,24 +177,23 @@ a.dl:hover{background:#36302a;transform:translateY(-1px)}.dl.is-soon{opacity:.6;
   </ul>
 </div></section>
 
-<section class="film" id="tag" aria-label="Ein Arbeitstag mit Clairify">
-  <div class="film-pin">
-    <div class="film-layers" id="filmLayers" aria-hidden="true"><img class="film-layer" src="{{SCENE1}}" alt=""><img class="film-layer" src="{{SCENE2}}" alt=""><img class="film-layer" src="{{SCENE3}}" alt=""><img class="film-layer" src="{{SCENE4}}" alt=""><img class="film-layer" src="{{SCENE5}}" alt=""></div>
-    <div class="film-shade" aria-hidden="true"></div>
-    <div class="wrap film-copy">
-      <p class="eyebrow" style="margin-bottom:16px">Ein Arbeitstag, Schritt für Schritt</p>
-      <h2 style="max-width:48rem">Scrollen Sie durch den Tag.</h2>
-      <ul class="film-chapters" id="filmChapters" aria-label="Kapitel"></ul>
-      <div class="film-lines" id="filmLines" aria-live="polite">
-        <p class="film-line is-on"><span class="film-k">Morgens</span><span class="film-t">Die Anfragen der Nacht sind sortiert. Dringendes steht oben.</span></p>
-        <p class="film-line"><span class="film-k">Haustür</span><span class="film-t">Der Laptop bleibt zu Hause. Der Posteingang passt aufs Handy.</span></p>
-        <p class="film-line"><span class="film-k">Kurz überlegt</span><span class="film-t">Kein Abend im Büro. Die Entwürfe warten, bis Sie Zeit haben.</span></p>
-        <p class="film-line"><span class="film-k">Baustelle</span><span class="film-t">Terminvorschläge gehen raus, der Kunde bestätigt per Link.</span></p>
-        <p class="film-line"><span class="film-k">Mittagspause</span><span class="film-t">Ein Blick in die Mails, freigeben, fertig.</span></p>
-      </div>
+<section class="iso" id="einblick-iso" aria-label="Einblick ins System"><div class="iso-pin">
+  <div class="wrap iso-head"><p class="eyebrow" style="margin-bottom:12px">Einblick ins System</p><h2 style="max-width:48rem">Eine Reise durch Clairify.</h2><div class="tabs" id="isoTabs" role="tablist" aria-label="Stationen" style="margin-top:24px"></div></div>
+  <div class="iso-stage" aria-hidden="true"><div class="iso-rot"><div class="iso-board" id="isoBoard"></div></div></div>
+  <div class="iso-captions" id="isoCaptions"></div>
+</div></section>
+
+<section class="sec" id="einblick" aria-label="Einblick ins System"><div class="wrap">
+  <div class="reveal"><p class="eyebrow" style="margin-bottom:16px">Einblick ins System</p><h2 style="max-width:48rem">So sieht Clairify im Betrieb aus.</h2><p class="lead" style="max-width:42rem">Echte Bildschirme aus dem Dashboard mit Beispieldaten eines Elektrobetriebs. Unten können Sie eine Anfrage selbst eingeben, oder Sie legen ein Testkonto an und arbeiten direkt darin.</p></div>
+  <div class="reveal">
+    <div class="tabs" id="screenTabs" role="tablist" aria-label="Bereiche des Dashboards"></div>
+    <div class="screen-grid">
+      <button type="button" class="screen" id="screenBtn" aria-label="Vergrößern"><img id="screenImg" alt="" width="2160" height="1350"><span class="screen-hint" aria-hidden="true">Vergrößern</span></button>
+      <div class="screen-text"><h3 id="screenTitle"></h3><p id="screenText"></p><div class="btns"><a class="btn btn-secondary" href="#demo">Anfrage selbst eingeben</a><a class="btn btn-primary" href="#preise">Testkonto anlegen</a></div><p class="note">Aufnahme aus dem Testbetrieb ohne angebundenen KI Anbieter; die Entwürfe sind dort regelbasiert. Beispieldaten, keine echten Kunden.</p></div>
     </div>
   </div>
-</section>
+</div></section>
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Bildschirm vergrößert"><button type="button" class="lightbox-close" id="lightboxClose" aria-label="Schließen">×</button><img id="lightboxImg" alt=""></div>
 
 <section id="ablauf" aria-label="So funktioniert Clairify">
   <div class="story-pin" id="storyPin">
@@ -239,24 +230,6 @@ a.dl:hover{background:#36302a;transform:translateY(-1px)}.dl.is-soon{opacity:.6;
     </div></div>
   </div>
 </section>
-
-<section class="iso" id="einblick-iso" aria-label="Einblick ins System"><div class="iso-pin">
-  <div class="wrap iso-head"><p class="eyebrow" style="margin-bottom:12px">Einblick ins System</p><h2 style="max-width:48rem">Eine Reise durch Clairify.</h2><div class="tabs" id="isoTabs" role="tablist" aria-label="Stationen" style="margin-top:24px"></div></div>
-  <div class="iso-stage" aria-hidden="true"><div class="iso-rot"><div class="iso-board" id="isoBoard"></div></div></div>
-  <div class="iso-captions" id="isoCaptions"></div>
-</div></section>
-
-<section class="sec" id="einblick" aria-label="Einblick ins System"><div class="wrap">
-  <div class="reveal"><p class="eyebrow" style="margin-bottom:16px">Einblick ins System</p><h2 style="max-width:48rem">So sieht Clairify im Betrieb aus.</h2><p class="lead" style="max-width:42rem">Echte Bildschirme aus dem Dashboard mit Beispieldaten eines Elektrobetriebs. Unten können Sie eine Anfrage selbst eingeben, oder Sie legen ein Testkonto an und arbeiten direkt darin.</p></div>
-  <div class="reveal">
-    <div class="tabs" id="screenTabs" role="tablist" aria-label="Bereiche des Dashboards"></div>
-    <div class="screen-grid">
-      <button type="button" class="screen" id="screenBtn" aria-label="Vergrößern"><img id="screenImg" alt="" width="2160" height="1350"><span class="screen-hint" aria-hidden="true">Vergrößern</span></button>
-      <div class="screen-text"><h3 id="screenTitle"></h3><p id="screenText"></p><div class="btns"><a class="btn btn-secondary" href="#demo">Anfrage selbst eingeben</a><a class="btn btn-primary" href="#preise">Testkonto anlegen</a></div><p class="note">Aufnahme aus dem Testbetrieb ohne angebundenen KI Anbieter; die Entwürfe sind dort regelbasiert. Beispieldaten, keine echten Kunden.</p></div>
-    </div>
-  </div>
-</div></section>
-<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Bildschirm vergrößert"><button type="button" class="lightbox-close" id="lightboxClose" aria-label="Schließen">×</button><img id="lightboxImg" alt=""></div>
 
 <section data-fly class="sec" aria-label="Branchen"><div class="wrap">
   <div class="two two-end">
@@ -388,7 +361,7 @@ a.dl:hover{background:#36302a;transform:translateY(-1px)}.dl.is-soon{opacity:.6;
     { key: "uebersicht", src: "{{SCREEN_UEBERSICHT}}", label: "Übersicht", title: "Der Stand des Betriebs auf einen Blick", text: "Offene Vorgänge, Entwürfe zur Prüfung, Termine, Angebote und was die Automatik gerade tut. Was nicht eingerichtet ist, sagt die Übersicht ehrlich." }
   ];
   var steps = Array.prototype.slice.call(document.querySelectorAll("#steps .step"));
-  if (reduced) { steps.forEach(function (s) { s.classList.add("is-active"); }); document.getElementById("tag").classList.add("is-static"); }
+  if (reduced) { steps.forEach(function (s) { s.classList.add("is-active"); }); }
   if (!reduced && window.gsap && window.ScrollTrigger) {
     gsap.registerPlugin(ScrollTrigger);
     gsap.fromTo(".word", { y: 40, opacity: 0, rotateX: -35 }, { y: 0, opacity: 1, rotateX: 0, duration: 1.1, stagger: 0.05, ease: "power3.out", delay: 0.2 });
@@ -402,18 +375,6 @@ a.dl:hover{background:#36302a;transform:translateY(-1px)}.dl.is-soon{opacity:.6;
       var track = document.getElementById("track"); var dist = function () { return track.scrollWidth - window.innerWidth + 80; };
       gsap.to(track, { x: function () { return -dist(); }, ease: "none", scrollTrigger: { trigger: "#funktionen", start: "top top", end: function () { return "+=" + dist(); }, pin: true, scrub: 0.6, invalidateOnRefresh: true, anticipatePin: 1 } });
     }
-    // Der Tag in Kapiteln: Szenenbilder blenden mit leichter Kamerafahrt ineinander, kurzer Scrollweg, Nachlauf, Einrasten
-    var filmLayers = Array.prototype.slice.call(document.getElementById("filmLayers").children), filmL = document.getElementById("filmLines"), filmC = document.getElementById("filmChapters"), filmN = filmLayers.length, filmActive = 0, filmST;
-    var filmNames = ["Morgens", "Haustür", "Kurz überlegt", "Baustelle", "Mittagspause"];
-    filmNames.forEach(function (name, i) { var b = document.createElement("button"); b.type = "button"; b.className = "film-chapter" + (i === 0 ? " is-on" : ""); b.innerHTML = '<span class="film-dot" aria-hidden="true"></span>'; b.appendChild(document.createTextNode(name)); b.onclick = function () { if (filmST) window.scrollTo({ top: filmST.start + (i / (filmN - 1)) * (filmST.end - filmST.start), behavior: "smooth" }); }; var li = document.createElement("li"); li.appendChild(b); filmC.appendChild(li); });
-    if (!mobile) {
-      gsap.set(filmLayers, { opacity: function (i) { return i === 0 ? 1 : 0; }, scale: 1 });
-      var filmTl = gsap.timeline({ defaults: { ease: "none" } });
-      filmLayers.forEach(function (img, i) { filmTl.to(img, { scale: 1.08, duration: 1 }, i); if (i > 0) filmTl.to(img, { opacity: 1, duration: 0.45, ease: "power1.inOut" }, i - 0.45); });
-      filmST = ScrollTrigger.create({ trigger: "#tag", start: "top top", end: "+=" + (filmN * 55) + "%", pin: ".film-pin", scrub: 0.8, anticipatePin: 1, animation: filmTl,
-        snap: { snapTo: function (v) { return Math.round(v * (filmN - 1)) / (filmN - 1); }, duration: { min: 0.15, max: 0.45 }, ease: "power1.inOut", delay: 0.05 },
-        onUpdate: function (self) { var i = Math.min(filmN - 1, Math.round(self.progress * (filmN - 1))); if (i === filmActive) return; filmActive = i; Array.prototype.forEach.call(filmL.children, function (c, j) { c.classList.toggle("is-on", j === i); }); Array.prototype.forEach.call(filmC.querySelectorAll("button"), function (c, j) { c.classList.toggle("is-on", j === i); }); } });
-    } else { document.getElementById("tag").classList.add("is-static"); }
     // Isometrische Reise über die Bildschirme (ab 1024 px)
     if (window.matchMedia("(min-width: 1024px)").matches) {
       var TW = 560, TH = 350, GX = 120, GY = 110, isoSec = document.getElementById("einblick-iso"), isoBoard = document.getElementById("isoBoard"), isoCaps = document.getElementById("isoCaptions"), isoTabs = document.getElementById("isoTabs"), isoActive = 0, isoST;

@@ -8,7 +8,6 @@ import { LandingHeader } from "./LandingHeader";
 import { Story } from "./Story";
 import { HorizontalFeatures } from "./HorizontalFeatures";
 import { IsoJourney } from "./IsoJourney";
-import { ScrollFilm } from "./ScrollFilm";
 import { ScrollMotion } from "./ScrollMotion";
 import { DemoSection, FAQ, FinalCTA, Honesty, Industries, LandingFooter, Pricing } from "./Sections";
 
@@ -19,10 +18,9 @@ export function Landing() {
       <main id="inhalt">
         <Hero />
         <Downloads />
-        <ScrollFilm />
+        <IsoJourney />
         <Story />
         <HorizontalFeatures />
-        <IsoJourney />
         <Industries />
         <Honesty />
         <DemoSection />

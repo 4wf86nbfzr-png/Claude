@@ -48,9 +48,6 @@ for (const [h, w, bitrate, crf] of variants) {
   run(["-i", master, "-vf", scale, "-c:v", "libx264", "-preset", "slow", "-crf", String(h === 2160 ? 24 : 23), "-profile:v", "high", "-pix_fmt", "yuv420p", "-movflags", "+faststart", "-g", "60", "-an", path.join(out, `clairify-${h}.mp4`)]);
   run(["-ss", String(manifest.poster_second ?? 2), "-i", master, "-frames:v", "1", "-vf", scale, "-q:v", "3", path.join(out, `poster-${h}.jpg`)]);
 }
-// 2b. Ein scharfes Bild je Szene für den Kapitel-Abschnitt "Der Tag" (Überblendung per CSS statt Video-Scrubbing)
-mkdirSync(path.join(out, "scenes"), { recursive: true });
-(manifest.scene_seconds ?? []).forEach((t, i) => run(["-ss", String(t), "-i", master, "-frames:v", "1", "-vf", "scale=1920:1080", "-q:v", "3", path.join(out, "scenes", `scene-${i + 1}.jpg`)]));
 // 3. Standbilder für Bild-Text-Abschnitte (1920 breit, Qualität hoch)
 (manifest.stills_seconds ?? []).forEach((t, i) => run(["-ss", String(t), "-i", master, "-frames:v", "1", "-vf", "scale=1920:1080", "-q:v", "2", path.join(stillsDir, `still-${i + 1}.jpg`)]));
 // 4. Farben aus dem Material ableiten

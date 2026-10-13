@@ -110,10 +110,7 @@ und Google nach deren Markenrichtlinien eingesetzt werden.
 
 **Scroll-Effekte der Startseite** (alle nur ohne `prefers-reduced-motion`, GSAP ScrollTrigger):
 Hero-Parallaxe, gepinntes Scrollytelling mit 3D-Szene, horizontale Funktionssektion, Fade-ins, dazu
-seit Oktober 2026: `ScrollFilm.tsx` („Der Tag“: fünf scharfe Szenenbilder aus `public/video/scenes/`
-blenden gepinnt mit leichter Kamerafahrt ineinander, Scrollweg 5 × 55 %, Nachlauf `scrub: 0.8`, Einrasten je
-Kapitel, Kapitel anklickbar; bewusst keine Video-Scrubbing-Lösung, weil das Dekodieren je Scrollschritt
-ruckelt; auf Mobil und bei reduzierter Bewegung erstes Bild plus Liste), `IsoJourney.tsx` (isometrische Reise über die echten Bildschirme, Kamera fährt
+seit Oktober 2026: `IsoJourney.tsx` (direkt unter dem Film und dem Download-Bereich; (isometrische Reise über die echten Bildschirme, Kamera fährt
 beim Scrollen von Station zu Station, Reiter springen direkt an die Scrollposition; unter 1024 px und
 bei reduzierter Bewegung die Reiteransicht aus `Screens.tsx`) und `ScrollMotion.tsx` (Fly-through:
 Abschnitte mit `data-fly` kommen aus der Tiefe nach vorn, große Bilder laufen als Parallaxe). Nach dem

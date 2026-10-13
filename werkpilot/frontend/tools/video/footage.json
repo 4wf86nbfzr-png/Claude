@@ -120,12 +120,5 @@
     11.0,
     15.0
   ],
-  "target_loop_seconds": 16,
-  "scene_seconds": [
-    1.5,
-    4.6,
-    7.2,
-    10.2,
-    13.8
-  ]
+  "target_loop_seconds": 16
 }

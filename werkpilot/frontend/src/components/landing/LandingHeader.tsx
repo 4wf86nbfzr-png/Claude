@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-const nav = [["#tag", "Der Tag"], ["#ablauf", "So funktioniert es"], ["#funktionen", "Funktionen"], ["#einblick", "Einblick"], ["#demo", "Demo"], ["#preise", "Preise"], ["#faq", "Fragen"]];
+const nav = [["#einblick", "Einblick"], ["#ablauf", "So funktioniert es"], ["#funktionen", "Funktionen"], ["#demo", "Demo"], ["#preise", "Preise"], ["#faq", "Fragen"]];
 
 export function LandingHeader() {
   const [solid, setSolid] = useState(false);
