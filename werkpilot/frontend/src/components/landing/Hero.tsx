@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { usePublicConfig } from "@/lib/public-config";
@@ -26,6 +26,21 @@ export function Hero() {
   const [time, setTime] = useState<{ t: number; d: number }>({ t: 0, d: 0 });
   const [variant, setVariant] = useState<2160 | 1080 | 720 | null>(null);
   const cfg = usePublicConfig();
+  const disp = useRef<SVGFEDisplacementMapElement>(null);
+  const blur = useRef<SVGFEGaussianBlurElement>(null);
+  const banner = useRef<HTMLDivElement>(null);
+  const lastBurst = useRef(0);
+  /** Kurzer Liquify-/Bewegungsunschärfe-Impuls auf dem Banner (Referenz: High-Contrast Motion). Filter nur während des Impulses aktiv. */
+  const burst = useCallback((strength = 1) => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const now = performance.now(); if (now - lastBurst.current < 900) return; lastBurst.current = now;
+    const d = disp.current, b = blur.current, el = banner.current; if (!d || !b || !el) return;
+    el.classList.add("is-glitch");
+    const o = { s: 0, x: 0 };
+    gsap.timeline({ onUpdate: () => { d.setAttribute("scale", String(o.s)); b.setAttribute("stdDeviation", `${o.x} 0`); }, onComplete: () => { el.classList.remove("is-glitch"); d.setAttribute("scale", "0"); b.setAttribute("stdDeviation", "0 0"); } })
+      .to(o, { s: 34 * strength, x: 16 * strength, duration: 0.16, ease: "power2.out" })
+      .to(o, { s: 0, x: 0, duration: 0.55, ease: "power3.out" });
+  }, []);
   useEffect(() => {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduced) { queueMicrotask(() => setPlaying(false)); return; }
@@ -36,10 +51,11 @@ export function Hero() {
       gsap.fromTo(".hero-sub", { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.9, ease: "power2.out", delay: 0.9 });
       gsap.fromTo(".hero-cta", { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8, stagger: 0.1, ease: "power2.out", delay: 1.15 });
       gsap.fromTo(".hero-media", { yPercent: 0 }, { yPercent: 8, ease: "none", immediateRender: false, scrollTrigger: { trigger: root.current, start: "top top", end: "bottom top", scrub: true, invalidateOnRefresh: true } });
+      ScrollTrigger.create({ trigger: root.current, start: "top top", end: "bottom top", onUpdate: (self) => { if (Math.abs(self.getVelocity()) > 2200) burst(0.7); } });
       gsap.fromTo(".hero-copy", { yPercent: 0, opacity: 1 }, { yPercent: 14, opacity: 0.6, ease: "none", immediateRender: false, scrollTrigger: { trigger: root.current, start: "top top", end: "bottom top", scrub: true, invalidateOnRefresh: true } });
     }, root);
     return () => ctx.revert();
-  }, []);
+  }, [burst]);
   useEffect(() => { if (variant && video.current) { video.current.load(); video.current.play().catch(() => undefined); } }, [variant]);
   /** Fehlt eine Fassung (z. B. 4K im Testpaket), eine Stufe kleiner laden; am Ende bleibt das Poster. */
   const onVideoError = () => setVariant((v) => (v === 2160 ? 1080 : v === 1080 ? 720 : v));
@@ -58,7 +74,14 @@ export function Hero() {
         </h1>
       </div>
       <div className="relative mx-auto w-full max-w-[96rem] px-5">
-        <div className="hero-media hero-banner">
+        <svg width="0" height="0" aria-hidden style={{ position: "absolute" }}>
+          <filter id="hero-glitch" x="-5%" y="-5%" width="110%" height="110%" colorInterpolationFilters="sRGB">
+            <feTurbulence type="fractalNoise" baseFrequency="0.008 0.35" numOctaves="2" seed="3" result="n" />
+            <feDisplacementMap ref={disp} in="SourceGraphic" in2="n" scale="0" xChannelSelector="R" yChannelSelector="G" result="d" />
+            <feGaussianBlur ref={blur} in="d" stdDeviation="0 0" />
+          </filter>
+        </svg>
+        <div ref={banner} className="hero-media hero-banner" onPointerEnter={() => burst(1)}>
           {/* Das Video läuft stumm in Endlosschleife. Bei reduzierter Bewegung bleibt nur das Standbild. */}
           <video ref={video} className="hero-video" autoPlay muted loop playsInline preload="metadata" poster="/video/poster-1080.webp" onError={onVideoError} onTimeUpdate={onTime} onLoadedMetadata={onTime}>
             {variant && <source src={`/video/clairify-${variant}.webm`} type="video/webm" />}

@@ -146,6 +146,32 @@ a.dl:hover{background:#36302a;transform:translateY(-1px)}.dl.is-soon{opacity:.6;
 .compare-wrap{margin-top:72px}.compare-wrap h3{font-size:1.25rem;font-weight:600;margin-bottom:8px}
 .compare{width:100%;border-collapse:collapse;font-size:.9rem;margin-top:20px}.compare th,.compare td{padding:.65rem .5rem;border-bottom:1px solid color-mix(in srgb,var(--ink) 14%,transparent);vertical-align:top}
 .compare thead th{border-bottom-color:color-mix(in srgb,var(--ink) 40%,transparent);font-weight:600}.compare th[scope=row]{text-align:left;font-weight:400;color:var(--ink2)}.compare td{text-align:center;white-space:nowrap}
+
+.glass{background:rgba(14,14,16,.55);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-radius:18px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),0 40px 80px -30px rgba(0,0,0,.85)}
+.product{position:relative;display:flow-root;min-height:720px;outline:none;touch-action:pan-y;margin-top:40px}.product-type{position:absolute;inset:0;display:flex;justify-content:center;align-items:flex-start;pointer-events:none;overflow:hidden;z-index:0}
+.product-word{font-family:"Anton",Impact,sans-serif;font-size:clamp(6rem,26vw,24rem);line-height:.85;text-transform:uppercase;letter-spacing:.01em;color:#fff;opacity:.16;white-space:nowrap;mask-image:linear-gradient(180deg,#000 10%,transparent 90%);-webkit-mask-image:linear-gradient(180deg,#000 10%,transparent 90%);animation:wordIn .7s cubic-bezier(.2,.7,.2,1)}
+@keyframes wordIn{from{opacity:0;transform:translateY(16px) scale(.98)}to{opacity:.16;transform:none}}
+.product-stage{position:absolute;left:50%;top:40%;width:min(640px,96vw);aspect-ratio:1;transform:translate(-50%,-50%);z-index:1;pointer-events:none}.product-stage canvas{display:block}
+.product-card{position:relative;z-index:3;width:min(460px,100%);margin:300px auto 0;padding:26px 26px 22px;animation:cardIn .55s cubic-bezier(.2,.7,.2,1)}@media(min-width:768px){.product-card{padding:30px 32px 24px;margin-top:330px}}@media(max-width:639px){.product-card{margin-top:210px}.product-stage{top:30%;width:100vw}.product-word{font-size:28vw}}
+@keyframes cardIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none}}
+.product-card .eyebrow{display:inline}.product-card h3{font-family:"Anton",Impact,sans-serif;font-size:2.25rem;text-transform:uppercase;margin-top:12px;font-weight:400}.product-card .for{color:var(--ink2);font-size:.9rem;margin-top:4px}
+.product-card ul{list-style:none;margin:20px 0 0;padding:0;border-top:1px solid rgba(255,255,255,.12)}.product-card li{padding:8px 0;border-bottom:1px solid rgba(255,255,255,.12);font-size:.9rem;color:var(--ink2)}
+.product-card .pricerow{display:flex;justify-content:space-between;align-items:baseline;margin-top:24px}.product-card .pricerow b{font-size:2.25rem;font-weight:500}.product-card .pricerow b small{font-size:.85rem;font-weight:300;color:var(--ink2);margin-left:8px}
+.product-card .btn{width:100%;margin-top:20px;gap:8px}.product-card .terms{margin-top:12px;text-align:center;font-size:.75rem;color:var(--ink2)}
+.product-nav{position:relative;z-index:3;display:flex;align-items:center;justify-content:center;gap:18px;margin-top:22px}.dots{display:flex;align-items:center;gap:8px}
+.btn-round{display:inline-grid;place-items:center;width:48px;height:48px;border-radius:999px;border:0;background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1px rgba(255,255,255,.5);cursor:pointer;transition:background .2s,color .2s}.btn-round:hover{background:#fff;color:#050505}
+.dot{position:relative;width:24px;height:24px;border-radius:999px;border:0;padding:0;background:transparent;cursor:pointer}.dot::after{content:"";position:absolute;inset:8px;border-radius:999px;background:rgba(255,255,255,.3);transition:background .2s,inset .2s}.dot.is-on::after{background:#fff;inset:6px}
+.trades-stage{position:relative;padding:56px 0 48px;overflow:hidden;margin-top:48px}.trades-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 30%;filter:saturate(.1) contrast(1.1) brightness(.55)}.trades-shade{position:absolute;inset:0;background:linear-gradient(180deg,var(--bg) 0%,rgba(5,5,5,.35) 30%,rgba(5,5,5,.35) 70%,var(--bg) 100%)}
+.trades{position:relative;outline:none;touch-action:pan-y}.trades-track{position:relative;height:380px}@media(min-width:768px){.trades-track{height:400px}}
+.trade-card{position:absolute;left:50%;top:50%;width:min(340px,78vw);padding:26px 26px 30px;border-radius:18px;transform:translate(-50%,-50%);transition:transform .6s cubic-bezier(.2,.7,.2,1),opacity .5s;opacity:0;pointer-events:none}
+.trade-card h3{font-size:1.25rem;font-weight:500;margin-top:12px}.trade-card p{margin-top:12px;font-size:.9rem;line-height:1.6}.trade-card .tiny{font-size:.75rem;opacity:.7}
+.trade-card.is-prev,.trade-card.is-next{background:#f4f4f5;color:#050505;opacity:.92;pointer-events:auto}.trade-card.is-prev h3,.trade-card.is-next h3,.trade-card.is-prev span,.trade-card.is-next span{color:#050505}.trade-card.is-prev p,.trade-card.is-next p{color:#3f3f46}
+.trade-card.is-prev{transform:translate(calc(-50% - 92%),-50%) scale(.92)}.trade-card.is-next{transform:translate(calc(-50% + 92%),-50%) scale(.92)}@media(min-width:768px){.trade-card.is-prev{transform:translate(calc(-50% - 380px),-50%) scale(.94)}.trade-card.is-next{transform:translate(calc(-50% + 380px),-50%) scale(.94)}}
+.trade-card.is-active{opacity:1;pointer-events:auto;color:var(--ink);transform:translate(-50%,-50%) scale(1.06);z-index:2}.trade-card.is-active p{color:var(--ink2)}
+.tunnel{position:absolute;inset:0;z-index:1;opacity:.9}.tunnel canvas{display:block}
+.cta-shade{background:linear-gradient(180deg,var(--bg) 0%,rgba(5,5,5,.78) 30%,rgba(5,5,5,.78) 70%,var(--bg) 100%)!important}
+.hero-media.is-glitch .hero-video{filter:url(#hero-glitch) saturate(.2) contrast(1.08)}
+@media(prefers-reduced-motion:reduce){.product-word,.product-card{animation:none}.trade-card{transition:none}}
 </style>
 </head>
 <body>
@@ -165,7 +191,8 @@ a.dl:hover{background:#36302a;transform:translateY(-1px)}.dl.is-soon{opacity:.6;
     <h1 id="headline"><span class="line">Draußen arbeiten.</span><span class="line">Im Büro nichts mehr verpassen.</span></h1>
   </div>
   <div class="wrap">
-    <div class="hero-media">
+    <svg width="0" height="0" aria-hidden="true" style="position:absolute"><filter id="hero-glitch" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency="0.008 0.35" numOctaves="2" seed="3" result="n"/><feDisplacementMap id="glDisp" in="SourceGraphic" in2="n" scale="0" xChannelSelector="R" yChannelSelector="G" result="d"/><feGaussianBlur id="glBlur" in="d" stdDeviation="0 0"/></filter></svg>
+    <div class="hero-media" id="heroBanner">
       <video class="hero-video" id="video" autoplay muted loop playsinline poster="{{POSTER}}"><source src="{{VIDEO}}" type="video/webm"></video>
       <div class="hero-shade" aria-hidden="true"></div>
       <div class="hero-inner">
@@ -253,14 +280,9 @@ a.dl:hover{background:#36302a;transform:translateY(-1px)}.dl.is-soon{opacity:.6;
     <div class="reveal"><p class="eyebrow" style="margin-bottom:16px">Für wen</p><h2 style="max-width:48rem">Gebaut für Betriebe mit 2 bis 15 Leuten, die abends nicht ins Büro wollen.</h2></div>
     <div class="still-wrap r43 reveal"><img src="{{STILL1}}" alt="Standbild aus dem Film: morgens zu Hause wird die Tasche gepackt"><p class="on-image" style="font-size:.9rem;color:var(--ink2)">Während der Tag draußen läuft, sortiert Clairify den Posteingang.</p></div>
   </div>
-  <dl class="trades">
-    <div class="reveal"><dt>Elektro</dt><dd>Stromausfall und fliegende Sicherungen werden als Notfall erkannt. Die Rückfrage nach Adresse und einem Foto vom Zählerschrank ist vorbereitet.</dd></div>
-    <div class="reveal"><dt>Sanitär, Heizung, Klima</dt><dd>Heizung aus, Rohrbruch, kein Warmwasser: ganz oben. Wartungsanfragen landen entspannt im Wochenplan.</dd></div>
-    <div class="reveal"><dt>Maler</dt><dd>Angebotsanfragen mit Quadratmetern und Fotos. Nachfassen nach fünf Tagen, ohne dass jemand daran denken muss.</dd></div>
-    <div class="reveal"><dt>Dachdecker</dt><dd>Sturmschäden sofort dringend. Besichtigungstermine stecken schon im ersten Entwurf.</dd></div>
-    <div class="reveal"><dt>Gebäudereinigung</dt><dd>Regelobjekte, Sonderreinigung, Hausverwaltungen: getrennt nach Kategorie und Kunde.</dd></div>
-    <div class="reveal"><dt>Garten und Landschaftsbau</dt><dd>Saisonwellen abfangen: Die Eingangsbestätigung mit Rückfragen geht sofort raus, Besichtigungen werden gebündelt.</dd></div>
-  </dl>
+  <div class="trades-stage"><img class="trades-bg" src="{{STILL1}}" alt="Standbild aus dem Film: morgens zu Hause wird die Tasche gepackt"><div class="trades-shade" aria-hidden="true"></div>
+  <div class="wrap"><div class="trades" id="trades" role="region" aria-roledescription="Karussell" aria-label="Branchen" tabindex="0"><div class="trades-track" id="tradesTrack"><article class="trade-card" data-i="0"><span class="mono tiny">01</span><h3>Elektro</h3><p>Stromausfall und fliegende Sicherungen werden als Notfall erkannt. Die Rückfrage nach Adresse und einem Foto vom Zählerschrank ist vorbereitet.</p></article><article class="trade-card" data-i="1"><span class="mono tiny">02</span><h3>Sanitär, Heizung, Klima</h3><p>Heizung aus, Rohrbruch, kein Warmwasser: ganz oben. Wartungsanfragen landen entspannt im Wochenplan.</p></article><article class="trade-card" data-i="2"><span class="mono tiny">03</span><h3>Maler</h3><p>Angebotsanfragen mit Quadratmetern und Fotos. Nachfassen nach fünf Tagen, ohne dass jemand daran denken muss.</p></article><article class="trade-card" data-i="3"><span class="mono tiny">04</span><h3>Dachdecker</h3><p>Sturmschäden sofort dringend. Besichtigungstermine stecken schon im ersten Entwurf.</p></article><article class="trade-card" data-i="4"><span class="mono tiny">05</span><h3>Gebäudereinigung</h3><p>Regelobjekte, Sonderreinigung, Hausverwaltungen: getrennt nach Kategorie und Kunde.</p></article><article class="trade-card" data-i="5"><span class="mono tiny">06</span><h3>Garten und Landschaftsbau</h3><p>Saisonwellen abfangen: Die Eingangsbestätigung mit Rückfragen geht sofort raus, Besichtigungen werden gebündelt.</p></article></div>
+  <div class="product-nav"><button type="button" class="btn-round" id="tradesPrev" aria-label="Vorherige Branche"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="dots" id="tradesDots" role="tablist" aria-label="Branche wählen"><button type="button" class="dot" role="tab" aria-label="Elektro"></button><button type="button" class="dot" role="tab" aria-label="Sanitär, Heizung, Klima"></button><button type="button" class="dot" role="tab" aria-label="Maler"></button><button type="button" class="dot" role="tab" aria-label="Dachdecker"></button><button type="button" class="dot" role="tab" aria-label="Gebäudereinigung"></button><button type="button" class="dot" role="tab" aria-label="Garten und Landschaftsbau"></button></div><button type="button" class="btn-round" id="tradesNext" aria-label="Nächste Branche"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button></div></div></div></div>
 </div></section>
 
 <section data-fly class="sec" aria-label="Was die KI macht und was nicht"><div class="wrap two">
@@ -294,10 +316,11 @@ a.dl:hover{background:#36302a;transform:translateY(-1px)}.dl.is-soon{opacity:.6;
 
 <section data-fly class="sec" id="preise" aria-label="Preise"><div class="wrap">
   <div class="reveal"><p class="eyebrow" style="margin-bottom:16px">Preise</p><h2 style="max-width:48rem">Weniger als eine Monteurstunde pro Woche.</h2><p class="lead" style="max-width:42rem">Alle Preise zuzüglich Umsatzsteuer. Monatlich kündbar zum Ende des Abrechnungsmonats. 14 Tage kostenlos, ohne Zahlungsdaten. Einführungspreise: Was Sie heute buchen, bleibt für Ihre Laufzeit so.</p></div>
-  <div class="plans">
-    <div class="plan reveal"><h3>Starter</h3><div class="price">79 €<small> im Monat</small></div><p class="for">Einzelbetriebe und kleine Teams</p><ul><li>150 Anfragen im Monat</li><li>Antwortentwürfe der KI mit Freigabe</li><li>Kundenübersicht</li><li>Standardberichte</li><li>2 Nutzer</li></ul><a class="btn btn-secondary" href="#">Testphase starten</a></div>
-    <div class="plan hot reveal"><h3>Business<small>Empfehlung für Betriebe mit Büro</small></h3><div class="price">149 €<small> im Monat</small></div><p class="for">Betriebe mit Büro und Monteuren</p><ul><li>500 Anfragen im Monat</li><li>Automatische Eingangsbestätigung</li><li>Terminvorschläge und Kalender</li><li>Angebote nachverfolgen</li><li>Individuelle Abläufe</li><li>5 Nutzer</li></ul><a class="btn btn-primary" href="#">Testphase starten</a></div>
-    <div class="plan reveal"><h3>Pro</h3><div class="price">249 €<small> im Monat</small></div><p class="for">Wachsende Betriebe mit eigenen Systemen</p><ul><li>2.000 Anfragen im Monat</li><li>Webhooks für Ihr CRM und erweiterte Integrationen</li><li>Eigene Automatisierungsregeln</li><li>Umfangreiche Auswertungen</li><li>Priorisierter Support</li><li>15 Nutzer</li></ul><a class="btn btn-secondary" href="#">Testphase starten</a></div>
+  <div class="product" id="product" role="region" aria-roledescription="Karussell" aria-label="Tarife" tabindex="0">
+    <div class="product-type" aria-hidden="true"><span class="product-word" id="productWord">Business</span></div>
+    <div class="product-stage" id="ring"></div>
+    <div class="glass product-card" id="productCard"></div>
+    <div class="product-nav"><button type="button" class="btn-round" id="prodPrev" aria-label="Vorheriger Tarif"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="dots" id="prodDots" role="tablist" aria-label="Tarif wählen"></div><button type="button" class="btn-round" id="prodNext" aria-label="Nächster Tarif"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button></div>
   </div>
 
   <div class="reveal compare-wrap"><h3>Was ist drin, was kostet extra?</h3><p class="small" style="max-width:42rem">Keine Einrichtungsgebühr, keine Zusatzkosten für die KI. Nach der Testphase läuft kein Tarif automatisch weiter und es wird nichts abgebucht. Ohne Buchung pausiert der Zugriff auf Anfragen und KI; Anmeldung, Einstellungen, Export und Löschung bleiben möglich.</p>
@@ -317,7 +340,7 @@ a.dl:hover{background:#36302a;transform:translateY(-1px)}.dl.is-soon{opacity:.6;
 </div></section>
 
 <section class="cta" aria-label="Jetzt starten">
-  <img src="{{STILL3}}" alt="" aria-hidden="true"><div class="cta-shade" aria-hidden="true"></div>
+  <img src="{{STILL3}}" alt="" aria-hidden="true"><div class="cta-shade" aria-hidden="true"></div><div class="tunnel" id="tunnel" aria-hidden="true"></div>
   <div class="wrap">
   <h2 class="reveal">Der nächste Kunde schreibt heute Abend. Wer antwortet?</h2>
   <p class="reveal">In zehn Minuten eingerichtet: Konto anlegen, Weiterleitung setzen, erste Anfrage prüfen.</p>
@@ -518,6 +541,47 @@ a.dl:hover{background:#36302a;transform:translateY(-1px)}.dl.is-soon{opacity:.6;
   ["Was macht Clairify genau?", "Was kostet das im Monat?", "Wo liegen meine Daten?", "Wer steckt hinter Clairify?"].forEach(function (v) { var b = document.createElement("button"); b.type = "button"; b.className = "asst-chip"; b.textContent = v; b.onclick = function () { frage(v); }; asstChips.appendChild(b); });
   asstForm.addEventListener("submit", function (e) { e.preventDefault(); frage(asstInput.value); });
 })();
+
+  // Tarife als Produktbühne: Daten aus plans.ts (gespiegelt), Kugelring je Tarif, Glaskarte, Wischen/Pfeile/Tastatur
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var PLANS = [{"name": "Starter", "price": "79", "for": "Einzelbetriebe und kleine Teams", "items": ["150 Anfragen im Monat", "Antwortentwürfe der KI mit Freigabe", "Kundenübersicht", "Standardberichte", "2 Nutzer"]}, {"name": "Business", "price": "149", "for": "Betriebe mit Büro und Monteuren", "items": ["500 Anfragen im Monat", "Automatische Eingangsbestätigung", "Terminvorschläge und Kalender", "Angebote nachverfolgen", "Individuelle Abläufe", "5 Nutzer"]}, {"name": "Pro", "price": "249", "for": "Wachsende Betriebe mit eigenen Systemen", "items": ["2.000 Anfragen im Monat", "Webhooks für Ihr CRM und erweiterte Integrationen", "Eigene Automatisierungsregeln", "Umfangreiche Auswertungen", "Priorisierter Support", "15 Nutzer"]}];
+  var prodState = { variant: 1, progress: 0 }, prodI = 1, prodDir = 1;
+  var productCard = document.getElementById("productCard"), productWord = document.getElementById("productWord"), prodDots = document.getElementById("prodDots");
+  function renderProduct() {
+    var p = PLANS[prodI]; prodState.variant = prodI;
+    productWord.textContent = p.name; productWord.style.animation = "none"; void productWord.offsetWidth; productWord.style.animation = "";
+    productCard.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><span class="eyebrow">Tarif ' + (prodI + 1) + ' von ' + PLANS.length + '</span>' + (p.name === "Business" ? '<span class="pill-tag" style="padding:4px 12px;font-size:.72rem">Empfehlung für Betriebe mit Büro</span>' : '') + '</div><h3>' + p.name + '</h3><p class="for">' + p["for"] + '</p><ul>' + p.items.map(function (i) { return "<li>" + i + "</li>"; }).join("") + '</ul><div class="pricerow"><span>Preis</span><b>' + p.price + ' €<small>im Monat</small></b></div><a class="btn btn-primary" href="#"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h2l2.4 11.2a1 1 0 0 0 1 .8h8.9a1 1 0 0 0 1-.8L20 8H6.2"/><circle cx="9.5" cy="20" r="1.2"/><circle cx="17" cy="20" r="1.2"/></svg> Tarif wählen, Testphase starten</a><p class="terms">14 Tage kostenlos ohne Zahlungsdaten. Alle Preise zuzüglich Umsatzsteuer. Monatlich kündbar.</p>';
+    productCard.style.animation = "none"; void productCard.offsetWidth; productCard.style.animation = prodDir < 0 ? "cardIn .55s cubic-bezier(.2,.7,.2,1) reverse" : "";
+    prodDots.querySelectorAll(".dot").forEach(function (d, j) { d.classList.toggle("is-on", j === prodI); d.setAttribute("aria-selected", String(j === prodI)); });
+  }
+  PLANS.forEach(function (p, j) { var d = document.createElement("button"); d.type = "button"; d.className = "dot"; d.setAttribute("role", "tab"); d.setAttribute("aria-label", p.name); d.onclick = function () { prodDir = j > prodI ? 1 : -1; prodI = j; renderProduct(); }; prodDots.appendChild(d); });
+  function prodGo(d) { prodDir = d; prodI = (prodI + d + PLANS.length) % PLANS.length; renderProduct(); }
+  document.getElementById("prodPrev").onclick = function () { prodGo(-1); }; document.getElementById("prodNext").onclick = function () { prodGo(1); };
+  renderProduct();
+  var ringEl = document.getElementById("ring"), ringUnmount = null;
+  if (window.WPScene && WPScene.mountRing && !reduced) {
+    new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting && !ringUnmount) ringUnmount = WPScene.mountRing(ringEl, prodState); else if (!e.isIntersecting && ringUnmount) { ringUnmount(); ringUnmount = null; } }); }, { rootMargin: "40% 0px" }).observe(ringEl);
+    if (window.ScrollTrigger) ScrollTrigger.create({ trigger: "#product", start: "top bottom", end: "bottom top", scrub: true, onUpdate: function (self) { prodState.progress = self.progress; } });
+  }
+  // Karussell-Helfer: Wischen und Tastatur
+  function swipe(el, go) { var sx = null; el.addEventListener("pointerdown", function (e) { sx = e.clientX; }); el.addEventListener("pointerup", function (e) { if (sx == null) return; var dx = e.clientX - sx; sx = null; if (Math.abs(dx) > 40) go(dx < 0 ? 1 : -1); }); el.addEventListener("keydown", function (e) { if (e.key === "ArrowRight") { e.preventDefault(); go(1); } if (e.key === "ArrowLeft") { e.preventDefault(); go(-1); } }); }
+  swipe(document.getElementById("product"), prodGo);
+  // Branchen-Karussell
+  var tCards = Array.prototype.slice.call(document.querySelectorAll("#tradesTrack .trade-card")), tDots = document.querySelectorAll("#tradesDots .dot"), tI = 0;
+  function renderTrades() { var n = tCards.length; tCards.forEach(function (c, j) { var off = ((j - tI + n + 1) % n) - 1; c.className = "trade-card " + (off === -1 ? "is-prev" : off === 0 ? "is-active glass" : off === 1 ? "is-next" : "is-hidden"); if (off !== 0) { c.setAttribute("inert", ""); c.setAttribute("aria-hidden", "true"); } else { c.removeAttribute("inert"); c.removeAttribute("aria-hidden"); } }); tDots.forEach(function (d, j) { d.classList.toggle("is-on", j === tI); d.setAttribute("aria-selected", String(j === tI)); }); }
+  function tGo(d) { tI = (tI + d + tCards.length) % tCards.length; renderTrades(); }
+  tDots.forEach(function (d, j) { d.onclick = function () { tI = j; renderTrades(); }; });
+  document.getElementById("tradesPrev").onclick = function () { tGo(-1); }; document.getElementById("tradesNext").onclick = function () { tGo(1); };
+  swipe(document.getElementById("trades"), tGo); renderTrades();
+  // Partikeltunnel im Schlussbild (Tempo folgt der Scrollgeschwindigkeit)
+  var tunnelEl = document.getElementById("tunnel"), tunnelState = { velocity: 0 }, tunnelUnmount = null, lastY = window.scrollY, lastT = performance.now();
+  window.addEventListener("scroll", function () { var now = performance.now(), dt = Math.max(1, now - lastT); tunnelState.velocity = ((window.scrollY - lastY) / dt) * 1000; lastY = window.scrollY; lastT = now; setTimeout(function () { tunnelState.velocity *= 0.5; }, 120); }, { passive: true });
+  if (window.WPScene && WPScene.mountTunnel && !reduced) new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting && !tunnelUnmount) tunnelUnmount = WPScene.mountTunnel(tunnelEl, tunnelState); else if (!e.isIntersecting && tunnelUnmount) { tunnelUnmount(); tunnelUnmount = null; } }); }, { rootMargin: "30% 0px" }).observe(tunnelEl);
+  // Glitch/Bewegungsunschärfe am Hero: kurzer Impuls bei Hover und schnellem Scrollen
+  var glDisp = document.getElementById("glDisp"), glBlur = document.getElementById("glBlur"), heroBanner = document.getElementById("heroBanner"), lastBurst = 0;
+  function burst(strength) { if (reduced || !window.gsap) return; var now = performance.now(); if (now - lastBurst < 900) return; lastBurst = now; heroBanner.classList.add("is-glitch"); var o = { s: 0, x: 0 }; gsap.timeline({ onUpdate: function () { glDisp.setAttribute("scale", String(o.s)); glBlur.setAttribute("stdDeviation", o.x + " 0"); }, onComplete: function () { heroBanner.classList.remove("is-glitch"); glDisp.setAttribute("scale", "0"); glBlur.setAttribute("stdDeviation", "0 0"); } }).to(o, { s: 34 * strength, x: 16 * strength, duration: 0.16, ease: "power2.out" }).to(o, { s: 0, x: 0, duration: 0.55, ease: "power3.out" }); }
+  heroBanner.addEventListener("pointerenter", function () { burst(1); });
+  if (window.ScrollTrigger && !reduced) ScrollTrigger.create({ trigger: ".hero", start: "top top", end: "bottom top", onUpdate: function (self) { if (Math.abs(self.getVelocity()) > 2200) burst(0.7); } });
 </script>
 </body>
 </html>

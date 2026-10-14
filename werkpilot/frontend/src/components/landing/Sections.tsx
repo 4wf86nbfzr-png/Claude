@@ -1,12 +1,21 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
+import { useRef } from "react";
 import { Reveal } from "./Reveal";
+import { Products } from "./Products";
+import { TradesCarousel } from "./TradesCarousel";
+import { useNear, useReducedMotion } from "./fx/useNear";
+
 import { DemoForm } from "@/app/(marketing)/demo/demo-form";
 import { COMPARE_ROWS, PLANS, PLAN_TERMS } from "@/lib/plans";
+import { useScrollVelocity } from "./fx/useScrollVelocity";
+
+const ParticleTunnel = dynamic(() => import("./fx/ParticleTunnel").then((m) => m.ParticleTunnel), { ssr: false, loading: () => null });
 import { usePublicConfig } from "@/lib/public-config";
 
-const TRADES = [
+const TRADES: [string, string][] = [
   ["Elektro", "Stromausfall und fliegende Sicherungen werden als Notfall erkannt. Die Rückfrage nach Adresse und einem Foto vom Zählerschrank ist vorbereitet."],
   ["Sanitär, Heizung, Klima", "Heizung aus, Rohrbruch, kein Warmwasser: ganz oben. Wartungsanfragen landen entspannt im Wochenplan."],
   ["Maler", "Angebotsanfragen mit Quadratmetern und Fotos. Nachfassen nach fünf Tagen, ohne dass jemand daran denken muss."],
@@ -17,22 +26,22 @@ const TRADES = [
 
 export function Industries() {
   return (
-    <section data-fly className="mx-auto max-w-7xl px-5 py-28" aria-label="Branchen">
-      <div className="grid gap-12 md:grid-cols-[1.1fr_1fr] md:items-end md:gap-16">
-        <Reveal>
-          <p className="eyebrow mb-4">Für wen</p>
-          <h2 className="display display-xl max-w-3xl text-4xl md:text-6xl">Gebaut für Betriebe mit 2 bis 15 Leuten, die abends nicht ins Büro wollen.</h2>
-        </Reveal>
-        <Reveal delay={120} className="still-wrap aspect-[4/3] md:aspect-[5/4]">
-          <picture><source type="image/webp" srcSet="/video/stills/still-1-960.webp 960w, /video/stills/still-1-1600.webp 1600w" sizes="(min-width: 768px) 50vw, 100vw" /><img className="still" src="/video/stills/still-1.jpg" alt="Standbild aus dem Film: morgens zu Hause wird die Tasche gepackt" loading="lazy" decoding="async" /></picture>
-          <p className="on-image text-sm text-ink-2">Während der Tag draußen läuft, sortiert Clairify den Posteingang.</p>
-        </Reveal>
+    <section data-fly className="relative overflow-hidden py-28" aria-label="Branchen">
+      <div className="mx-auto max-w-7xl px-5">
+        <div className="grid gap-8 md:grid-cols-[1.2fr_1fr] md:items-end md:gap-16">
+          <Reveal>
+            <p className="eyebrow mb-4">Für wen</p>
+            <h2 className="display display-xl max-w-3xl text-4xl md:text-6xl">Gebaut für Betriebe mit 2 bis 15 Leuten, die abends nicht ins Büro wollen.</h2>
+          </Reveal>
+          <Reveal delay={120}><p className="max-w-sm text-sm leading-relaxed text-ink-2 md:text-right">Während der Tag draußen läuft, sortiert Clairify den Posteingang. Sechs Gewerke, je eine typische Situation: mit den Pfeilen oder per Wischen wechseln.</p></Reveal>
+        </div>
       </div>
-      <dl className="mt-16 grid gap-x-14 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
-        {TRADES.map(([t, d], i) => (
-          <Reveal key={t} delay={i * 70}><dt className="text-lg font-semibold">{t}</dt><dd className="mt-2 max-w-sm text-sm text-ink-2 md:text-[15px]">{d}</dd></Reveal>
-        ))}
-      </dl>
+      {/* Foto als dunkle Bühne hinter den Karten, wie die Skulptur in der Referenz */}
+      <div className="trades-stage relative mt-12">
+        <picture><source type="image/webp" srcSet="/video/stills/still-1-960.webp 960w, /video/stills/still-1-1600.webp 1600w" sizes="100vw" /><img className="trades-bg" src="/video/stills/still-1.jpg" alt="Standbild aus dem Film: morgens zu Hause wird die Tasche gepackt" loading="lazy" decoding="async" /></picture>
+        <div className="trades-shade" aria-hidden />
+        <div className="relative mx-auto max-w-7xl px-5"><TradesCarousel items={TRADES} /></div>
+      </div>
     </section>
   );
 }
@@ -91,17 +100,7 @@ export function Pricing() {
   return (
     <section data-fly id="preise" className="mx-auto max-w-7xl px-5 py-28" aria-label="Preise">
       <Reveal><p className="eyebrow mb-4">Preise</p><h2 className="display display-xl max-w-3xl text-4xl md:text-6xl">Weniger als eine Monteurstunde pro Woche.</h2><p className="mt-4 max-w-2xl text-lg text-ink-2">{PLAN_TERMS.vat} {PLAN_TERMS.cancel} {trialDays} Tage kostenlos, ohne Zahlungsdaten. {PLAN_TERMS.intro}</p></Reveal>
-      <div className="mt-16 grid gap-14 md:grid-cols-3 md:gap-10">
-        {PLANS.map((p, i) => (
-          <Reveal key={p.code} delay={i * 100} className="plan flex flex-col">
-            <h3 className="flex flex-wrap items-center gap-3 text-xl font-semibold">{p.name}{p.hot && <span className="pill-tag !py-1 !text-xs">Empfehlung für Betriebe mit Büro</span>}</h3>
-            <div className={`mt-4 text-5xl font-semibold ${p.hot ? "text-accent" : ""}`}>{p.priceEur} €<span className="text-base font-normal text-muted"> im Monat</span></div>
-            <p className="mt-1 text-sm text-muted">{p.for}</p>
-            <ul className="mt-6 flex-1 space-y-2.5 text-sm text-ink-2 md:text-[15px]">{p.highlights.map((it) => <li key={it}>{it}</li>)}</ul>
-            <Link href={`/registrieren?tarif=${p.code}`} className={`mt-8 self-start rounded-full px-6 py-3 text-center text-sm font-semibold ${p.hot ? "btn-primary" : "btn-secondary"}`}>Testphase starten</Link>
-          </Reveal>
-        ))}
-      </div>
+      <div className="mt-10"><Products trialDays={trialDays} /></div>
       <Reveal className="mt-20">
         <h3 className="text-xl font-semibold">Was ist drin, was kostet extra?</h3>
         <p className="mt-2 max-w-2xl text-sm text-ink-2">{PLAN_TERMS.extra} Nach der Testphase läuft kein Tarif automatisch weiter und es wird nichts abgebucht. Ohne Buchung pausiert der Zugriff auf Anfragen und KI; Anmeldung, Einstellungen, Export und Löschung bleiben möglich.</p>
@@ -154,10 +153,16 @@ export function FAQ() {
 }
 
 export function FinalCTA() {
+  const root = useRef<HTMLElement>(null);
+  const near = useNear(root, "30%");
+  const reduced = useReducedMotion();
+  const velocity = useScrollVelocity();
   return (
-    <section className="relative overflow-hidden" aria-label="Jetzt starten">
+    <section ref={root} className="relative overflow-hidden" aria-label="Jetzt starten">
       <picture><source type="image/webp" srcSet="/video/stills/still-3-960.webp 960w, /video/stills/still-3-1600.webp 1600w" sizes="100vw" /><img className="still absolute inset-0 h-full w-full" src="/video/stills/still-3.jpg" alt="" aria-hidden loading="lazy" decoding="async" /></picture>
       <div className="cta-shade absolute inset-0" aria-hidden />
+      {/* Partikeltunnel: Tempo folgt der Scrollgeschwindigkeit, Kamera der Maus; bei reduzierter Bewegung bleibt das Standbild */}
+      {near && !reduced && <ParticleTunnel velocity={velocity} className="tunnel absolute inset-0" />}
       <div className="on-image-static relative mx-auto max-w-7xl px-5 py-36 text-center md:py-44">
         <Reveal><h2 className="display display-xl mx-auto max-w-5xl text-4xl md:text-7xl">Der nächste Kunde schreibt heute Abend. Wer antwortet?</h2></Reveal>
         <Reveal delay={150}><p className="mx-auto mt-6 max-w-xl text-lg text-ink-2">In zehn Minuten eingerichtet: Konto anlegen, Weiterleitung setzen, erste Anfrage prüfen.</p></Reveal>

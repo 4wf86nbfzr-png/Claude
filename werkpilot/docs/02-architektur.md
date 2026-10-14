@@ -182,3 +182,22 @@ Daraus abgeleitet:
   Headline-Höhen gegenüber der Ersatzschrift deutlich verändert.
 - **Dashboard** (`/app`, `/admin`) bleibt hell mit Blau; die Website setzt die Knopffarben über
   `--color-btn` / `--color-on-btn`.
+
+### Interaktive 3D-Elemente und Produktbühne (Oktober 2026)
+
+- `fx/SphereRing.tsx`: Torus aus bis zu 702 instanzierten Kugeln (ein Draw Call), monochrom, Licht von oben links;
+  dreht langsam, folgt der Maus und dem Scrollfortschritt der Sektion; `variant` 0..2 ändert Dichte und Größe
+  je Tarif (weich interpoliert). Kamera z = 11,5, damit der ganze Ring sichtbar ist.
+- `fx/ParticleTunnel.tsx`: 3.200 Punkte auf einer Röhre, deterministisch verteilt (mulberry32, kein `Math.random`
+  im Render), fliegen auf die Kamera zu; Tempo folgt der Scrollgeschwindigkeit (`useScrollVelocity`), Kamera der Maus.
+- `fx/useNear.ts`: Canvas-Elemente werden nur im Viewport-Umfeld gerendert (IntersectionObserver) und sonst
+  abgebaut; `useReducedMotion` schaltet sie ab (dann Standbild bzw. Kreisumriss).
+- `Products.tsx`: Tarifauswahl als Produktbühne: riesige gedimmte Typografie (`.product-word`), Kugelring als
+  Produktbild, Glaskarte (`.glass`, `backdrop-filter`) mit Preis und Knopf; Wischen, Pfeile, Punkte (24 px
+  Zielfläche), Pfeiltasten; `display: flow-root` verhindert, dass der Kartenrand nach außen durchschlägt.
+  Die Tarifdaten kommen weiter aus `src/lib/plans.ts`, der Vergleich bleibt darunter.
+- `TradesCarousel.tsx`: Branchen als Karussell, aktive Karte dunkles Glas und größer, Nachbarn helle Karten,
+  inaktive Karten `inert`; Foto als dunkle Bühne dahinter.
+- Hero-Glitch: SVG-Filter (feDisplacementMap + horizontale feGaussianBlur), nur während eines 0,7-s-Impulses
+  aktiv (bei Hover und bei Scrollgeschwindigkeit > 2.200 px/s), sonst kein Filter auf dem Video.
+- Vorschau-Datei: dieselben Effekte in `tools/preview/scene.js` (`mountRing`, `mountTunnel`, vanilla three.js).

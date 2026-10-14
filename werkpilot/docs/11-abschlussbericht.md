@@ -60,3 +60,13 @@ und Logik unverändert (Linkprüfung 15 Seiten ok, acht Browserabläufe ok, axe 
 Lighthouse Startseite: Desktop 100 / 100 / 100 / 100, Mobil 90 Performance (LCP 3,6 s durch Video und Schriften).
 Behobener Nebenbefund: der Story-Pin rechnete nach dem spät erzeugten Pin der isometrischen Reise mit veralteten
 Positionen; jetzt wird sortiert und neu gemessen. Details in `docs/02-architektur.md`.
+
+## Nachtrag: interaktive 3D-Elemente und Produktbühne (Oktober 2026)
+
+Ergänzt: monochromer Kugelring (three.js) als Produktbild der Tarifauswahl mit riesiger Hintergrund-Typografie
+und Glaskarte (Preis, Knopf, Wischen/Pfeile/Tastatur), Branchen-Karussell mit fokussierter Glaskarte und hellen
+Nachbarkarten, Partikeltunnel im Schlussbild (Tempo folgt dem Scrollen, Kamera der Maus), Glitch-/Bewegungs-
+unschärfe-Impuls am Hero bei Hover und schnellem Scrollen. Alle bestehenden Scroll-Effekte und Logiken
+unverändert; WebGL nur im Viewport-Umfeld aktiv, bei reduzierter Bewegung abgeschaltet.
+Prüfungen: axe 0 schwere Verstöße (13 Seiten), acht Browserabläufe ok, Linkprüfung ok, Lighthouse Desktop
+100/100/100/100, Mobil 89 Performance. Vorschau-Datei mit denselben Effekten (vanilla three.js).
