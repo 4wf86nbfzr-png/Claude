@@ -81,3 +81,10 @@ Headline), neue Kopfzeile mit Ausklappmenüs und Gesamtmenü, Produktsektion mit
 Bildschirmen direkt unter dem Hero, maskierte Scroll-Einblendungen. Entfallen: Glitch-Impuls und Zeitleiste
 am Hero. Alle übrigen Abschnitte, Effekte, Formulare, Tarife, Links und Unterseiten unverändert.
 Details in `02-architektur.md`, Abschnitt „Cinematic Redesign". Prüfungen siehe unten.
+
+## Nachtrag: Grau, Schwarz, Weiß und Scroll-Prüfung (Oktober 2026)
+
+Farbwelt der gesamten Website auf Grau, Schwarz und Weiß umgestellt (Akzent = Tinte der Bühne, kein Orange mehr),
+Person im Hero fest am rechten Bildschirmrand mit weichen Rändern im Bild. Alle öffentlichen Seiten in drei Breiten
+von oben bis unten gescrollt und gemessen; behoben: Überlauf langer Versal-Titel auf schmalen Bildschirmen und
+Fußzeilen-Sprünge beim Laden auf Hilfe, Anmelden, Registrieren und Preise. Effekte, Abläufe und Auslöser unverändert.

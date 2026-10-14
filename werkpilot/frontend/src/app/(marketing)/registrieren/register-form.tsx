@@ -27,12 +27,11 @@ export function RegisterForm() {
   if (done) return <div className="mt-8"><Alert tone="ok">Fast geschafft: Wir haben Ihnen eine Mail geschickt. Bitte klicken Sie auf den Bestätigungslink, dann geht es direkt ins Dashboard.</Alert></div>;
   return (
     <form onSubmit={submit} className="mt-8 space-y-4">
-      {cfg && (
-        <Alert tone={cfg.stripe_ready ? "neutral" : "warn"}>
-          Mit dem Konto startet die kostenlose Testphase ({cfg.trial_days} Tage), ohne Zahlungsdaten.{wunsch ? ` Wunschtarif ${wunsch.name} (${wunsch.priceEur} € im Monat zzgl. USt.) wird vorgemerkt.` : ""}
-          {cfg.stripe_ready ? " Einen Tarif buchen Sie später im Dashboard unter Abonnement." : " Die Abrechnung ist noch nicht freigeschaltet: Es wird nichts berechnet und kein Vertrag geschlossen."}
-        </Alert>
-      )}
+      {/* Der Hinweis steht von Anfang an (kein Layout-Sprung); Tage und Abrechnungsstand kommen nach, sobald die Konfiguration da ist */}
+      <Alert tone={cfg && !cfg.stripe_ready ? "warn" : "neutral"}>
+        Mit dem Konto startet die kostenlose Testphase{cfg ? ` (${cfg.trial_days} Tage)` : ""}, ohne Zahlungsdaten.{wunsch ? ` Wunschtarif ${wunsch.name} (${wunsch.priceEur} € im Monat zzgl. USt.) wird vorgemerkt.` : ""}
+        {cfg ? (cfg.stripe_ready ? " Einen Tarif buchen Sie später im Dashboard unter Abonnement." : " Die Abrechnung ist noch nicht freigeschaltet: Es wird nichts berechnet und kein Vertrag geschlossen.") : " Es wird nichts berechnet und kein Vertrag geschlossen, bevor Sie selbst einen Tarif buchen."}
+      </Alert>
       <Field label="Betrieb"><input name="company" className={inputCls} required minLength={2} autoComplete="organization" /></Field>
       <Field label="Gewerk"><select name="trade" className={inputCls} defaultValue="shk"><option value="elektro">Elektro</option><option value="shk">Sanitär / Heizung / Klima</option><option value="maler">Maler</option><option value="dach">Dachdecker</option><option value="reinigung">Gebäudereinigung</option><option value="galabau">Garten- und Landschaftsbau</option><option value="bau">Bauunternehmen</option><option value="sonstiges">Sonstiges</option></select></Field>
       <Field label="Ihr Name"><input name="full_name" className={inputCls} required autoComplete="name" /></Field>

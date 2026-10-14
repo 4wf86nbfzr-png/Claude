@@ -6,9 +6,10 @@ import { usePublicConfig } from "@/lib/public-config";
 /** Ehrlicher Hinweis, solange die Abrechnung (Stripe) nicht freigeschaltet ist. */
 export function BillingNote() {
   const cfg = usePublicConfig();
-  if (!cfg) return null;
+  // Container hat immer seine Höhe, damit das Tarifraster beim Laden nicht nach unten rutscht
+  if (!cfg) return <div className="mt-5 min-h-[5.5rem] max-w-2xl" aria-hidden />;
   return (
-    <div className="mt-5 max-w-2xl">
+    <div className="mt-5 min-h-[5.5rem] max-w-2xl">
       {cfg.stripe_ready ? (
         <p className="text-sm text-muted">{PLAN_TRIAL(cfg.trial_days)}</p>
       ) : (

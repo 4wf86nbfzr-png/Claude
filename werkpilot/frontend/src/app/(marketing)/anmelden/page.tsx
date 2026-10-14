@@ -8,7 +8,8 @@ export default function Anmelden() {
   return (
     <div className="mx-auto max-w-md px-4 py-14">
       <h1 className="text-3xl font-semibold">Anmelden</h1>
-      <Suspense><LoginForm /></Suspense>
+      {/* Platzhalter in Formularhöhe, damit die Fußzeile beim Hydrieren nicht springt */}
+      <Suspense fallback={<div className="mt-8 min-h-[15rem]" aria-hidden />}><LoginForm /></Suspense>
     </div>
   );
 }

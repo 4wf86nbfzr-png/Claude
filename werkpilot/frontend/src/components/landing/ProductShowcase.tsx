@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNear, useReducedMotion } from "./fx/useNear";
 
 type Step = { key: string; title: string; text: string; shot: "anfragen" | "anfrage-detail" | "mobil-anfrage"; phone?: boolean; hl: [number, number, number, number]; k: string };
-/* Vier Funktionen, je ein echter Bildschirm aus dem Testbetrieb; die orange Markierung zeigt die Stelle, um die es geht (Prozent des Bildes). */
+/* Vier Funktionen, je ein echter Bildschirm aus dem Testbetrieb; die Markierung zeigt die Stelle, um die es geht (Prozent des Bildes). */
 const STEPS: Step[] = [
   { key: "buendeln", title: "Alle Anfragen bündeln", text: "Weiterleitung aus dem Postfach, Formular der Website, Notiz nach dem Anruf: Alles landet in einer Liste mit Kategorie, Priorität und Status. Nichts rutscht im Posteingang nach unten.", shot: "anfragen", hl: [18, 19, 80, 36], k: "Posteingang" },
   { key: "dringend", title: "Dringendes erkennen", text: "Notfall, Reparatur, Angebot, Wartung oder Spam, mit Dringlichkeit und Sicherheitswert. Ein Stromausfall steht über der Wartungsanfrage, eine Beschwerde geht immer an einen Menschen.", shot: "anfrage-detail", hl: [18, 20, 53, 20], k: "Einordnung" },

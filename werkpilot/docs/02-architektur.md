@@ -244,3 +244,19 @@ orangefarbener Knopf, Person rechts). Die Website ist jetzt **hell mit dunklen B
 - **Vorschau-Datei**: `tools/preview/template.html` spiegelt Farbwelt, Kopfzeile, Hero, Intro und
   Produktsektion mit demselben CSS (aus `landing.css` abgeleitet) und vanilla JS; `build.mjs` bettet jetzt
   zusätzlich die Person und den Mobil-Bildschirm ein.
+
+### Farbwelt Grau, Schwarz, Weiß und Scroll-Prüfung (Oktober 2026)
+
+- Der orange Akzent ist entfallen. `--c-accent` ist jetzt die Tinte der jeweiligen Bühne (Schwarz auf hell, Weiß auf
+  dunkel), `--c-on-accent` die Fläche darauf; Knöpfe, Linien, Markierungen und die Intro-Linie folgen daraus. Farbe
+  kommt nur noch aus den Fotos (die Schutzbrille der Person, der Film). `.marketing` entsprechend: Links schwarz
+  unterstrichen, Knöpfe schwarz mit weißer Schrift.
+- Die Person im Hero hängt immer am rechten Bildschirmrand (`right: 0`), unabhängig von der Lesebreite; die weichen
+  Ränder liegen im Bild selbst.
+- Scroll-Prüfung aller öffentlichen Seiten (Skript misst Layout-Verschiebungen, horizontalen Überlauf, Konsolenfehler
+  in 390, 1.440 und 2.560 px): behoben wurden der Überlauf der Versal-Titel „Datenschutzerklärung" und „Allgemeine
+  Geschäftsbedingungen" auf 390 px (`overflow-wrap: anywhere`, kleinerer Mindestgrad) und Sprünge der Fußzeile beim
+  Laden auf Hilfe (Artikel kommen aus der API), Anmelden (Formular nach dem Hydrieren), Registrieren und Preise
+  (Hinweis nach der Konfiguration): jeweils reservierter Platz oder sofort gerenderter Text. Die gemessenen
+  „Verschiebungen" innerhalb der gepinnten Abschnitte der Startseite stammen aus dem Pin-Mechanismus (Element wird
+  fixiert) und sind keine sichtbaren Sprünge; die Effekte sind unverändert.

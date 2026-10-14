@@ -8,7 +8,8 @@ type Article = { slug: string; title: string; category: string; body: string };
 export function HelpList() {
   const [items, setItems] = useState<Article[] | null>(null);
   useEffect(() => { api<Article[]>("/api/support/articles").then(setItems).catch(() => setItems([])); }, []);
-  if (items === null) return <p className="mt-8 text-sm text-muted">Lade Artikel …</p>;
+  // Platz in Höhe der späteren Liste reservieren, damit die Fußzeile beim Laden nicht springt
+  if (items === null) return <div className="mt-8 min-h-[32rem]"><p className="text-sm text-muted">Lade Artikel …</p></div>;
   if (items.length === 0) return <p className="mt-8 text-sm text-muted">Das Hilfezentrum ist gerade nicht erreichbar.</p>;
   const cats = Array.from(new Set(items.map((a) => a.category)));
   return (

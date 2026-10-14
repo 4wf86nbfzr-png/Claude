@@ -7,9 +7,9 @@
 <meta name="description" content="Kundenanfragen aus Mail und Website an einem Ort, nach Dringlichkeit sortiert, mit fertigen Antwortentwürfen, Terminvorschlägen und Nachfassen offener Angebote. Vorschau der Startseite als Einzeldatei.">
 <meta name="robots" content="noindex">
 <style>
-/* Farbwelt nach Designreferenz: helle, texturierte Fläche, schwarze Schrift, Orange als Akzent; dunkle Bühnen über .dark (palette.css). */
-:root{--bg:#e9e9e6;--bg2:#f3f3f0;--bg3:#dcdcd8;--ink:#0a0a0a;--ink2:#4a4a4f;--muted:#5f5f66;--accent:#f26a2b;--accent2:#b5400c;--light:#0a0a0a;--steel:#6e6e75;--sand:#cfcfca}
-.dark{--bg:#050505;--bg2:#0e0e10;--bg3:#19191c;--ink:#fff;--ink2:#c4c4c9;--muted:#a1a1aa;--accent:#f26a2b;--accent2:#ff8a4c;--light:#fff;--steel:#8b8b93;--sand:#3f3f46;background:var(--bg);color:var(--ink);color-scheme:dark}
+/* Farbwelt: Grau, Schwarz, Weiß; helle Fläche, dunkle Bühnen über .dark (palette.css). */
+:root{--bg:#e9e9e6;--bg2:#f3f3f0;--bg3:#dcdcd8;--ink:#0a0a0a;--ink2:#4a4a4f;--muted:#5f5f66;--accent:#0a0a0a;--on-accent:#fff;--accent2:#0a0a0a;--light:#0a0a0a;--steel:#6e6e75;--sand:#cfcfca}
+.dark{--bg:#050505;--bg2:#0e0e10;--bg3:#19191c;--ink:#fff;--ink2:#c4c4c9;--muted:#a1a1aa;--accent:#fff;--on-accent:#0a0a0a;--accent2:#fff;--light:#fff;--steel:#8b8b93;--sand:#3f3f46;background:var(--bg);color:var(--ink);color-scheme:dark}
 @font-face{font-family:"Anton";font-weight:400;font-display:swap;src:url({{FONT_DISPLAY}}) format("woff2")}
 @font-face{font-family:"Inter";font-weight:300 700;font-display:swap;src:url({{FONT_BODY}}) format("woff2")}
 @font-face{font-family:"Space Mono";font-weight:400;font-display:swap;src:url({{FONT_MONO}}) format("woff2")}
@@ -21,7 +21,7 @@ h2{font-size:clamp(2.2rem,5.2vw,4rem)}h3{font-size:1.15rem;letter-spacing:-.01em
 .wrap{max-width:80rem;margin:0 auto;padding:0 20px}
 .eyebrow{font-family:"Space Mono",ui-monospace,monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;font-weight:400;color:var(--ink2)}.pill-tag{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:999px;background:color-mix(in srgb,var(--ink) 8%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ink) 12%,transparent);color:var(--ink2);font-size:.8rem;font-weight:500;backdrop-filter:blur(8px)}@media(max-width:639px){.pill-tag{border-radius:18px;padding:7px 14px;font-size:.74rem;line-height:1.35}}.panel{background:color-mix(in srgb,var(--bg) 58%,transparent);backdrop-filter:blur(18px);border-top:1px solid color-mix(in srgb,var(--ink) 14%,transparent)}.rule{border-top:1px solid color-mix(in srgb,var(--ink) 14%,transparent)}
 .btn{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;padding:12px 24px;font-size:.9rem;font-weight:600;transition:.2s;cursor:pointer;border:0;font-family:inherit}
-.btn-primary{background:var(--accent);color:#0a0a0a}.btn-primary:hover{background:#ff7f45;color:#0a0a0a}
+.btn-primary{background:var(--accent);color:var(--on-accent)}.btn-primary:hover{background:color-mix(in srgb,var(--accent) 82%,var(--bg));color:var(--on-accent)}
 .btn-secondary{color:var(--ink);background:transparent;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ink) 35%,transparent);font-weight:500}.btn-secondary:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ink) 80%,transparent);background:color-mix(in srgb,var(--ink) 6%,transparent)}.btn-secondary:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ink) 75%,transparent)}
 .skip{position:absolute;left:-999px;top:8px;background:#000;color:#fff;padding:8px 12px;border-radius:8px;z-index:100}.skip:focus{left:8px}
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
@@ -43,7 +43,7 @@ h2{font-size:clamp(2.2rem,5.2vw,4rem)}h3{font-size:1.15rem;letter-spacing:-.01em
   linear-gradient(90deg, rgba(5, 5, 5, 0.86) 0%, rgba(5, 5, 5, 0.62) 42%, rgba(5, 5, 5, 0.2) 70%, rgba(5, 5, 5, 0.35) 100%),
   linear-gradient(180deg, rgba(5, 5, 5, 0.55) 0%, rgba(5, 5, 5, 0.05) 30%, rgba(5, 5, 5, 0.15) 70%, rgba(5, 5, 5, 0.75) 100%); }
 .hero-vignette { position: absolute; inset: 0; z-index: 2; background: radial-gradient(120% 90% at 62% 48%, transparent 45%, rgba(5, 5, 5, 0.55) 100%); }
-.hero-person { position: absolute; right: max(0px, calc((100vw - 120rem) / 2)); bottom: 0; z-index: 3; height: 100%; max-height: 100%; width: auto; pointer-events: none; will-change: transform; }
+.hero-person { position: absolute; right: 0; bottom: 0; z-index: 3; height: 100%; max-height: 100%; width: auto; pointer-events: none; will-change: transform; }
 /* Die weichen Ränder (links, rechts, unten) sind im Bild selbst angelegt, damit sie in jedem Browser gleich aussehen; kein mask-image nötig */
 .hero-person img { display: block; height: 100%; width: auto; max-width: none; filter: contrast(1.04) saturate(0.9); }
 .hero-content { position: relative; z-index: 4; width: 100%; max-width: 96rem; margin: 0 auto; padding: 0 20px; }
@@ -62,7 +62,7 @@ h2{font-size:clamp(2.2rem,5.2vw,4rem)}h3{font-size:1.15rem;letter-spacing:-.01em
 .btn-arrow:hover .arr { transform: translateX(4px); }
 .btn-play { display: inline-flex; align-items: center; gap: 12px; color: var(--ink); font-size: 0.95rem; font-weight: 500; }
 .play-circle { display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 999px; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 60%, transparent); transition: background 0.25s ease, box-shadow 0.25s ease; }
-.btn-play:hover .play-circle { background: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); color: #0a0a0a; }
+.btn-play:hover .play-circle { background: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); color: var(--on-accent); }
 .hero-trust { margin-top: 18px; font-size: 0.85rem; color: var(--ink2); }
 .hero-tags { margin-top: 26px; }
 .vid-btn { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 999px; border: 0; background: color-mix(in srgb, var(--ink) 12%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 40%, transparent); color: var(--ink); cursor: pointer; backdrop-filter: blur(8px); transition: background 0.2s ease; }
@@ -87,7 +87,7 @@ h2{font-size:clamp(2.2rem,5.2vw,4rem)}h3{font-size:1.15rem;letter-spacing:-.01em
 @media (min-width: 2200px) { .hero-person { height: min(100%, 1400px); } }
 /* Kopfzeile: transparent über dem Hero (helle Schrift), danach helle Leiste mit dunkler Schrift */
 .hdr { transition: background 0.3s ease, backdrop-filter 0.3s ease, color 0.3s ease; color: var(--ink); }
-.hdr.is-onhero { --ink: #ffffff; --ink2: #d4d4d8; --bg: #050505; --color-ink: #ffffff; --color-ink-2: #d4d4d8; }
+.hdr.is-onhero { --ink: #ffffff; --ink2: #d4d4d8; --bg: #050505; --accent: #ffffff; --on-accent: #0a0a0a; --color-ink: #ffffff; --color-ink-2: #d4d4d8; }
 .hdr.is-open { background: #e9e9e6; color: #0a0a0a; }
 .hdr.is-solid { background: color-mix(in srgb, var(--bg) 84%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
 .hdr-logo { font-family: "Anton","Arial Narrow",Impact,sans-serif; font-size: 1.35rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink); line-height: 1; }
@@ -105,7 +105,7 @@ h2{font-size:clamp(2.2rem,5.2vw,4rem)}h3{font-size:1.15rem;letter-spacing:-.01em
 .hdr-menu a small { display: block; font-size: 0.75rem; color: #5f5f66; margin-top: 1px; }
 .hdr-burger { display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 999px; border: 0; background: none; color: var(--ink); cursor: pointer; }
 .hdr-burger:hover { background: color-mix(in srgb, var(--ink) 10%, transparent); }
-.hdr-panel { position: fixed; inset: 64px 0 0; z-index: 49; overflow-y: auto; background: var(--bg); color: var(--ink); padding: 24px 20px 48px; --ink: #0a0a0a; --ink2: #4a4a4f; --bg: #e9e9e6; --color-ink: #0a0a0a; --color-ink-2: #4a4a4f; }
+.hdr-panel { position: fixed; inset: 64px 0 0; z-index: 49; overflow-y: auto; background: var(--bg); color: var(--ink); padding: 24px 20px 48px; --ink: #0a0a0a; --ink2: #4a4a4f; --bg: #e9e9e6; --accent: #0a0a0a; --on-accent: #ffffff; --color-ink: #0a0a0a; --color-ink-2: #4a4a4f; }
 .hdr-panel .grp { padding: 16px 0; border-top: 1px solid rgba(10, 10, 10, 0.12); }
 .hdr-panel .grp:first-child { border-top: 0; padding-top: 0; }
 .hdr-panel .grp h2 { font-family: "Space Mono",ui-monospace,monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: #5f5f66; margin-bottom: 8px; }
@@ -151,7 +151,7 @@ html.intro-run .intro { animation: introVeil 0.5s ease 5.2s forwards; }
 .ps-shot img { width: 100%; height: 100%; object-fit: cover; object-position: top left; display: block; }
 .ps-shot.is-phone { background: #eceef2; }
 .ps-shot.is-phone img { width: auto; height: 100%; margin: 0 auto; object-fit: contain; }
-.ps-hl { position: absolute; border-radius: 6px; box-shadow: 0 0 0 2px var(--accent), 0 0 0 6px color-mix(in srgb, var(--accent) 22%, transparent); pointer-events: none; transition: left 0.6s cubic-bezier(0.2, 0.7, 0.2, 1), top 0.6s cubic-bezier(0.2, 0.7, 0.2, 1), width 0.6s cubic-bezier(0.2, 0.7, 0.2, 1), height 0.6s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.ps-hl { position: absolute; border-radius: 6px; box-shadow: 0 0 0 2px var(--accent), 0 0 0 6px color-mix(in srgb, var(--accent) 18%, transparent), 0 12px 30px -12px rgba(0, 0, 0, 0.5); pointer-events: none; transition: left 0.6s cubic-bezier(0.2, 0.7, 0.2, 1), top 0.6s cubic-bezier(0.2, 0.7, 0.2, 1), width 0.6s cubic-bezier(0.2, 0.7, 0.2, 1), height 0.6s cubic-bezier(0.2, 0.7, 0.2, 1); }
 .ps-hl::after { content: ""; position: absolute; left: -2px; top: -2px; width: 10px; height: 10px; border-radius: 999px; background: var(--accent); }
 .ps-text h3 { font-family: "Anton","Arial Narrow",Impact,sans-serif; font-size: clamp(1.5rem, 2.4vw, 2rem); line-height: 1; text-transform: uppercase; letter-spacing: 0.01em; }
 .ps-text p { margin-top: 12px; font-size: 0.95rem; line-height: 1.7; color: var(--ink2); }
@@ -159,7 +159,7 @@ html.intro-run .intro { animation: introVeil 0.5s ease 5.2s forwards; }
 .ps-text .k { display: inline-block; margin-top: 16px; font-family: "Space Mono",ui-monospace,monospace; font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent2); }
 .ps-text > div { animation: psIn 0.5s cubic-bezier(0.2, 0.7, 0.2, 1); }
 @keyframes psIn { from { transform: translateY(10px); } to { transform: none; } } /* nur Bewegung, keine Deckkraft: Kontrast bleibt jederzeit messbar */
-/* Orange Linie + Eyebrow als Abschnittsauftakt (Referenz „So einfach funktioniert's") */
+/* Kurze Linie + Eyebrow als Abschnittsauftakt (Referenz „So einfach funktioniert's") */
 .eyebrow-rule { display: flex; align-items: center; gap: 14px; }
 .eyebrow-rule::before { content: ""; width: 36px; height: 2px; background: var(--accent); }
 /* Maskierte Einblendung beim Scrollen (ScrollMotion setzt die Endwerte) */
@@ -719,7 +719,7 @@ a.dl:hover{background:color-mix(in srgb,var(--ink) 12%,transparent);transform:tr
   var tunnelEl = document.getElementById("tunnel"), tunnelState = { velocity: 0 }, tunnelUnmount = null, lastY = window.scrollY, lastT = performance.now();
   window.addEventListener("scroll", function () { var now = performance.now(), dt = Math.max(1, now - lastT); tunnelState.velocity = ((window.scrollY - lastY) / dt) * 1000; lastY = window.scrollY; lastT = now; setTimeout(function () { tunnelState.velocity *= 0.5; }, 120); }, { passive: true });
   if (window.WPScene && WPScene.mountTunnel && !reduced) new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting && !tunnelUnmount) tunnelUnmount = WPScene.mountTunnel(tunnelEl, tunnelState); else if (!e.isIntersecting && tunnelUnmount) { tunnelUnmount(); tunnelUnmount = null; } }); }, { rootMargin: "30% 0px" }).observe(tunnelEl);
-  // Produktsektion: vier Funktionen, echte Bildschirme, orange Markierung; läuft einmal durch, sobald sie im Bild ist
+  // Produktsektion: vier Funktionen, echte Bildschirme, Markierung; läuft einmal durch, sobald sie im Bild ist
   var PS = [
     { key: "buendeln", title: "Alle Anfragen bündeln", text: "Weiterleitung aus dem Postfach, Formular der Website, Notiz nach dem Anruf: Alles landet in einer Liste mit Kategorie, Priorität und Status. Nichts rutscht im Posteingang nach unten.", src: "{{SCREEN_ANFRAGEN}}", hl: [18, 19, 80, 36], k: "Posteingang" },
     { key: "dringend", title: "Dringendes erkennen", text: "Notfall, Reparatur, Angebot, Wartung oder Spam, mit Dringlichkeit und Sicherheitswert. Ein Stromausfall steht über der Wartungsanfrage, eine Beschwerde geht immer an einen Menschen.", src: "{{SCREEN_DETAIL}}", hl: [18, 20, 53, 20], k: "Einordnung" },
