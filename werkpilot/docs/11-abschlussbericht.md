@@ -88,3 +88,14 @@ Farbwelt der gesamten Website auf Grau, Schwarz und Weiß umgestellt (Akzent = T
 Person im Hero fest am rechten Bildschirmrand mit weichen Rändern im Bild. Alle öffentlichen Seiten in drei Breiten
 von oben bis unten gescrollt und gemessen; behoben: Überlauf langer Versal-Titel auf schmalen Bildschirmen und
 Fußzeilen-Sprünge beim Laden auf Hilfe, Anmelden, Registrieren und Preise. Effekte, Abläufe und Auslöser unverändert.
+
+## Nachtrag: klickbarer Prototyp der Software (Oktober 2026)
+
+`frontend/tools/prototyp/` baut `clairify-prototyp.html`: die komplette Software als Einzeldatei ohne Server.
+Alle 13 Dashboard-Seiten und 10 Betreiber-Seiten mit denselben Texten, Feldern und Aktionen wie die echte
+Oberfläche; die Anfrage-Pipeline (Einordnung, Terminvorschläge aus Geschäftszeiten, Entwurf mit Prüfhinweisen,
+Freigabe, Versand mit Kundenlink zur Terminbestätigung, Nachfassen offener Angebote, Wochenbericht) läuft mit den
+Regeln des Mock-Anbieters im Browser. Daten liegen im localStorage, eine Prototyp-Leiste spielt Beispielanfragen
+ein, stellt die Uhr vor und setzt zurück. Mails werden als „simuliert“ protokolliert, Tarife lassen sich zum
+Ausprobieren aktivieren. Prüfung: 48 Browser-Schritte (Playwright) über alle Abläufe, Desktop und Mobil, ohne
+Konsolenfehler.

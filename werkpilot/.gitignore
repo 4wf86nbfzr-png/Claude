@@ -24,4 +24,5 @@ backups/
 .req-freeze.txt
 test-report.html
 landing-preview.html
+clairify-prototyp.html
 frontend/tools/preview/scene.bundle.js
