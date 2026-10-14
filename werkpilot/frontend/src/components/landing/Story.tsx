@@ -44,7 +44,7 @@ export function Story() {
     return () => ctx.revert();
   }, []);
   return (
-    <section ref={root} id="ablauf" className="relative" aria-label="So funktioniert Clairify">
+    <section ref={root} id="ablauf" className="relative dark" aria-label="So funktioniert Clairify">
       <div className="story-pin flex min-h-[100svh] flex-col justify-center">
         <div className="mx-auto w-full max-w-7xl px-5 pt-20 md:pt-20">
           <p className="eyebrow mb-5 text-center">Eine Anfrage, einmal durch Clairify</p>

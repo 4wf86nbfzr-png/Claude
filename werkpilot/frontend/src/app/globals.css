@@ -36,40 +36,40 @@
   --color-on-btn: #ffffff;
 }
 
-/* Website (Startseite und Marketingseiten): tiefes Schwarz, Reinweiß für Headlines, helles Grau für Fließtext,
-   verchromte Graustufen als einzige „Farbe". Das Dashboard bleibt hell mit Blau, damit Warnfarben dort eindeutig bleiben. */
+/* Website (Startseite und Marketingseiten): helle, leicht texturierte Fläche, schwarze Schrift, Orange nur als Akzent
+   (Knöpfe mit schwarzer Schrift, Linien). Das Dashboard bleibt hell mit Blau, damit Warnfarben dort eindeutig bleiben. */
 .marketing {
-  --color-ink: #ffffff;
-  --color-ink-2: #a1a1aa;        /* 7,9:1 auf #050505 */
-  --color-muted: #a1a1aa;
-  --color-line: rgba(255, 255, 255, 0.14);
-  --color-paper: #0e0e10;
-  --color-sand: #050505;
-  --color-sand-2: #19191c;
-  --color-accent: #e4e4e7;
-  --color-accent-2: #ffffff;
-  --color-accent-soft: rgba(255, 255, 255, 0.1);
-  --color-ok: #d4d4d8;
-  --color-ok-soft: rgba(255, 255, 255, 0.1);
-  --color-warn: #e7d8b0;
-  --color-warn-soft: rgba(231, 216, 176, 0.14);
-  --color-bad: #f1b4b4;
-  --color-bad-soft: rgba(241, 180, 180, 0.14);
-  --color-btn: #ffffff;
-  --color-on-btn: #050505;
+  --color-ink: #0a0a0a;
+  --color-ink-2: #4a4a4f;        /* 8,0:1 auf #e9e9e6 */
+  --color-muted: #5f5f66;        /* 5,6:1 */
+  --color-line: rgba(10, 10, 10, 0.12);
+  --color-paper: #f3f3f0;
+  --color-sand: #e9e9e6;
+  --color-sand-2: #dcdcd8;
+  --color-accent: #b5400c;       /* Orange für Text und Fokus, 4,8:1 auf der Fläche */
+  --color-accent-2: #f26a2b;
+  --color-accent-soft: rgba(242, 106, 43, 0.14);
+  --color-ok: #1f6f3a;
+  --color-ok-soft: rgba(31, 111, 58, 0.12);
+  --color-warn: #8a3f05;        /* 5,4:1 auf der Warnfläche */
+  --color-warn-soft: rgba(242, 106, 43, 0.14);
+  --color-bad: #a12626;
+  --color-bad-soft: rgba(161, 38, 38, 0.12);
+  --color-btn: #f26a2b;
+  --color-on-btn: #0a0a0a;
   --radius-card: 8px;
   background: var(--color-sand);
   color: var(--color-ink);
 }
-body:has(.marketing) { background: #050505; }
+body:has(.marketing) { background: #e9e9e6; }
 .marketing h1 { font-family: var(--font-display); font-weight: 400; letter-spacing: 0.005em; line-height: 0.92; text-transform: uppercase; font-size: clamp(2.8rem, 7vw, 5.5rem); }
 .marketing h1.h1-normal { text-transform: none; }
 .marketing h2 { font-family: var(--font-display); font-weight: 400; letter-spacing: 0.01em; text-transform: uppercase; }
 .marketing .prose h2, .marketing .prose h3 { font-family: var(--font-sans); font-weight: 600; text-transform: none; letter-spacing: -0.01em; }
 .marketing p, .marketing li, .marketing dd { font-weight: 300; }
-.marketing ::selection { background: rgba(255, 255, 255, 0.25); }
-.marketing input, .marketing select, .marketing textarea { color-scheme: dark; }
-.marketing .skip-link { background: #ffffff; color: #050505; }
+.marketing ::selection { background: rgba(242, 106, 43, 0.35); }
+.marketing input, .marketing select, .marketing textarea { color-scheme: light; }
+.marketing .skip-link { background: #0a0a0a; color: #ffffff; }
 
 html { scroll-behavior: smooth; }
 body { background: var(--color-sand); color: var(--color-ink); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }

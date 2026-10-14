@@ -38,7 +38,7 @@ export function Downloads() {
       <Reveal className="grid gap-8 md:grid-cols-[1fr_1.4fr] md:items-center md:gap-12">
         <div>
           <p className="eyebrow mb-3">Clairify auf Ihren Geräten</p>
-          <h2 className="text-2xl font-semibold md:text-3xl">Im Büro am Rechner, draußen auf dem Handy.</h2>
+          <h2 data-mask className="text-2xl font-semibold md:text-3xl">Im Büro am Rechner, draußen auf dem Handy.</h2>
           <p className="mt-3 max-w-md text-ink-2">Clairify läuft im Browser. Die Versionen für Windows, macOS, iPhone und Android erscheinen hier, sobald sie veröffentlicht sind.</p>
         </div>
         <ul className="dl-grid" role="list">

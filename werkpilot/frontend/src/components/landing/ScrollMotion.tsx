@@ -15,6 +15,10 @@ export function ScrollMotion() {
         gsap.fromTo(el, { transformPerspective: 1400, z: -340, yPercent: 7, scale: 0.94, opacity: 0.25 },
           { z: 0, yPercent: 0, scale: 1, opacity: 1, ease: "none", immediateRender: false, scrollTrigger: { trigger: el, start: "top 100%", end: "top 38%", scrub: true, invalidateOnRefresh: true } });
       });
+      // Überschriften mit data-mask kommen einmalig aus einer Maske nach oben (keine Dauerbewegung)
+      gsap.utils.toArray<HTMLElement>("[data-mask]").forEach((el) => {
+        gsap.fromTo(el, { clipPath: "inset(0 0 100% 0)", y: 36 }, { clipPath: "inset(0 0 0% 0)", y: 0, duration: 1.1, ease: "power4.out", immediateRender: false, scrollTrigger: { trigger: el, start: "top 88%", once: true } });
+      });
       gsap.utils.toArray<HTMLElement>(".still-wrap .still").forEach((img) => {
         gsap.fromTo(img, { yPercent: -9, scale: 1.2 }, { yPercent: 9, scale: 1.2, ease: "none", scrollTrigger: { trigger: img.parentElement, start: "top bottom", end: "bottom top", scrub: true, invalidateOnRefresh: true } });
       });

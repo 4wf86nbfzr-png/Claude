@@ -56,7 +56,7 @@ export function Products({ trialDays }: { trialDays: number }) {
         </div>
         <h3 className="display mt-3 text-4xl">{p.name}</h3>
         <p className="mt-1 text-sm text-ink-2">{p.for}</p>
-        <ul className="mt-5 divide-y divide-[rgba(255,255,255,0.12)] border-t border-[rgba(255,255,255,0.12)] text-sm text-ink-2">
+        <ul className="mt-5 divide-y divide-line border-t border-line text-sm text-ink-2">
           {p.highlights.map((h) => <li key={h} className="py-2">{h}</li>)}
         </ul>
         <div className="mt-6 flex items-baseline justify-between">

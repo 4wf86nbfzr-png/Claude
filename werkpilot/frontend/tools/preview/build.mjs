@@ -19,6 +19,8 @@ const parts = {
   FONT_BODY: b64(path.join(root, "public/fonts/inter-latin.woff2"), "font/woff2"),
   FONT_MONO: b64(path.join(root, "public/fonts/space-mono-400-latin.woff2"), "font/woff2"),
   POSTER: b64(path.join(root, "public/video/poster-1080.webp"), "image/webp"),
+  PERSON: b64(path.join(root, "public/img/hero-person.webp"), "image/webp"),
+  SCREEN_MOBIL: b64(path.join(root, "public/screens/mobil-anfrage-1080.webp"), "image/webp"),
   STILL1: b64(path.join(root, "public/video/stills/still-1-1600.webp"), "image/webp"),
   STILL2: b64(path.join(root, "public/video/stills/still-2-1600.webp"), "image/webp"),
   STILL3: b64(path.join(root, "public/video/stills/still-3-1600.webp"), "image/webp"),

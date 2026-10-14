@@ -201,3 +201,46 @@ Daraus abgeleitet:
 - Hero-Glitch: SVG-Filter (feDisplacementMap + horizontale feGaussianBlur), nur während eines 0,7-s-Impulses
   aktiv (bei Hover und bei Scrollgeschwindigkeit > 2.200 px/s), sonst kein Filter auf dem Video.
 - Vorschau-Datei: dieselben Effekte in `tools/preview/scene.js` (`mountRing`, `mountTunnel`, vanilla three.js).
+
+### Cinematic Redesign nach Referenzbild (Oktober 2026)
+
+Verbindliche Grundlage ist ein helles Referenzbild (texturierte Fläche, schwarze Versal-Headline, orange Linie und
+orangefarbener Knopf, Person rechts). Die Website ist jetzt **hell mit dunklen Bühnen**:
+
+- **Farben** (`palette.css`): Fläche `#E9E9E6`, Panels `#F3F3F0`, Schrift `#0A0A0A`, Sekundärtext `#4A4A4F`,
+  Orange `#F26A2B` nur für Knöpfe (schwarze Schrift, 6,7:1), Linien und Markierungen; Orange für Text ist
+  `#B5400C` (4,8:1 auf der Fläche). Dunkle Bühnen (Hero, Ablauf, Branchen-Karussell, Schlussbild) tragen die
+  Klasse `.dark`, die dieselben Tokens umdreht. Alle Linien- und Flächenwerte in `landing.css` sind relativ
+  zur Tinte formuliert (`color-mix(in srgb, var(--c-ink) N%, transparent)`), deshalb gelten dieselben Regeln in
+  beiden Bühnen. `.marketing` (Unterseiten) folgt derselben hellen Farbwelt.
+- **Hero** (`Hero.tsx`): Ebenen von hinten nach vorn: schwarze Fläche, der vorhandene Imagefilm ganzflächig
+  (`.hero-film`, entsättigt, 55 % Helligkeit, stumm, Schleife, Fassung nach Bildschirm und Verbindung),
+  Verläufe und Vignette (`.hero-overlay`, `.hero-vignette`), die freigestellte Person (`.hero-person`, linke
+  Kante und Unterkante per `mask-image` weich), dann Text (`.hero-content`), dann Bedienelemente. Der Film
+  liegt nie über dem Text. Headline in vier Zeilen, jede Zeile in einer Maske (`.line` / `.line-in`), Größe
+  über `clamp()`. Mobil eigene Komposition: Person kleiner oben rechts, Text darunter, Verlauf von unten.
+  Schwache Geräte (Datensparmodus, wenig Speicher, reduzierte Bewegung) bekommen nur das Standbild.
+  Die Person ist das Motiv aus dem Referenzbild, mit rembg freigestellt (`public/img/hero-person.*`).
+- **Intro** (`Intro.tsx`): ein Inline-Skript vor dem Hydrieren setzt `html.intro-run` (einmal je Sitzung,
+  `sessionStorage`, nicht bei reduzierter Bewegung; `#intro` in der Adresse erzwingt es) oder `intro-skip`.
+  Nur unter `intro-run` sind Kopfzeile, Film, Person und Hero-Texte per CSS vorab unsichtbar. Die
+  GSAP-Zeitleiste: Wortmarke buchstabenweise aus der Maske, orange Linie, Wortmarke fliegt an die Stelle des
+  Logos in der Kopfzeile (gemessen, FLIP), Vorhang öffnet sich, Person von unten aus der Unschärfe ins Licht,
+  Film blendet dahinter ein, Headline Zeile für Zeile, dann Vorspann, Absatz, Knöpfe; rund 3,5 s.
+  Sicherheitsnetz: nach 6 s wird abgebrochen, und eine reine CSS-Animation zeigt nach 5 s alles, falls das
+  Skript nicht läuft. Ohne JavaScript bekommt `<html>` keine Klasse, und alles ist sofort sichtbar.
+- **Kopfzeile** (`LandingHeader.tsx`): Wortmarke in Anton, zentrierte Navigation „Produkte ▾ / Lösungen ▾ /
+  Preise / Über uns" (Ausklappmenüs per Klick, Maus-Hover, Escape, Klick daneben), rechts Anmelden, orangener
+  Knopf und ein immer sichtbarer Menü-Knopf mit dem Gesamtmenü (alle bisherigen Sprungziele, Hilfe, Kontakt).
+  Über dem dunklen Hero helle Schrift (`is-onhero`), danach helle Leiste mit dunkler Schrift. Eine eigene
+  „Über uns"-Seite gibt es nicht; der Punkt führt zur Kontaktseite.
+- **Produktsektion** (`ProductShowcase.tsx`, direkt unter dem Hero, `#produkt`): links vier Schritte (Bündeln,
+  Dringendes erkennen, Antworten vorbereiten, Mobil freigeben), in der Mitte der echte Bildschirm aus dem
+  Testbetrieb mit einer wandernden orangen Markierung, rechts die Erklärung. Läuft einmal durch, sobald die
+  Sektion im Bild ist; ein Klick übernimmt. Reiter-Semantik (`role=tab/tabpanel`).
+- **Scroll**: Abschnittstitel mit `data-mask` kommen einmalig aus einer Maske (`ScrollMotion.tsx`); Film und
+  Person im Hero laufen minimal langsamer als der Text (Parallaxe). Alle bisherigen Effekte bleiben.
+- **Entfallen**: der Glitch-Impuls und die Zeitleiste am Hero-Banner (die Referenz ist ruhig und ohne Rahmen).
+- **Vorschau-Datei**: `tools/preview/template.html` spiegelt Farbwelt, Kopfzeile, Hero, Intro und
+  Produktsektion mit demselben CSS (aus `landing.css` abgeleitet) und vanilla JS; `build.mjs` bettet jetzt
+  zusätzlich die Person und den Mobil-Bildschirm ein.

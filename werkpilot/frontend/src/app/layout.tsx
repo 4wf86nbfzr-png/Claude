@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="de" className="h-full">
+    <html lang="de" className="h-full" suppressHydrationWarning>
       <head>
         <link rel="preload" as="font" type="font/woff2" href="/fonts/anton-latin.woff2" crossOrigin="anonymous" />
         <link rel="preload" as="font" type="font/woff2" href="/fonts/inter-latin.woff2" crossOrigin="anonymous" />

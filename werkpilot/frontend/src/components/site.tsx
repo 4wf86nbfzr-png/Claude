@@ -18,7 +18,7 @@ export function Logo() {
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-[rgba(5,5,5,0.8)] backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-line bg-[color-mix(in_srgb,var(--color-sand)_84%,transparent)] backdrop-blur">
       <a href="#inhalt" className="skip-link">Zum Inhalt springen</a>
       <div className="relative mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
         <Logo />

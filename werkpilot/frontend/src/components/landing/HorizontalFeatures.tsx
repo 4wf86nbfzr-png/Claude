@@ -39,7 +39,7 @@ export function HorizontalFeatures() {
         <div className="mx-auto grid w-full max-w-7xl gap-8 px-5 md:grid-cols-[2fr_auto_1fr] md:items-center md:gap-10">
           <div>
             <p className="kicker">Funktionen</p>
-            <h2 className="display display-xl mt-1 text-5xl md:whitespace-nowrap md:text-[3.8rem] lg:text-[4.6rem]">Alles, was hier steht,<br />ist eingebaut.</h2>
+            <h2 data-mask className="display display-xl mt-1 text-5xl md:whitespace-nowrap md:text-[3.8rem] lg:text-[4.6rem]">Alles, was hier steht,<br />ist eingebaut.</h2>
           </div>
           <a href="/funktionen" className="btn-circle justify-self-start md:justify-self-center">Alle<br />Funktionen</a>
           <p className="max-w-sm text-[13px] leading-relaxed text-ink-2 md:justify-self-end md:text-right md:text-sm">Was noch nicht geht, sagen wir auch: WhatsApp, Telefonannahme und der Microsoft Kalender sind in Arbeit, nicht versprochen.</p>

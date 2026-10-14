@@ -26,18 +26,18 @@ const TRADES: [string, string][] = [
 
 export function Industries() {
   return (
-    <section data-fly className="relative overflow-hidden py-28" aria-label="Branchen">
+    <section data-fly id="branchen" className="relative overflow-hidden py-28" aria-label="Branchen">
       <div className="mx-auto max-w-7xl px-5">
         <div className="grid gap-8 md:grid-cols-[1.2fr_1fr] md:items-end md:gap-16">
           <Reveal>
             <p className="eyebrow mb-4">Für wen</p>
-            <h2 className="display display-xl max-w-3xl text-4xl md:text-6xl">Gebaut für Betriebe mit 2 bis 15 Leuten, die abends nicht ins Büro wollen.</h2>
+            <h2 data-mask className="display display-xl max-w-3xl text-4xl md:text-6xl">Gebaut für Betriebe mit 2 bis 15 Leuten, die abends nicht ins Büro wollen.</h2>
           </Reveal>
           <Reveal delay={120}><p className="max-w-sm text-sm leading-relaxed text-ink-2 md:text-right">Während der Tag draußen läuft, sortiert Clairify den Posteingang. Sechs Gewerke, je eine typische Situation: mit den Pfeilen oder per Wischen wechseln.</p></Reveal>
         </div>
       </div>
       {/* Foto als dunkle Bühne hinter den Karten, wie die Skulptur in der Referenz */}
-      <div className="trades-stage relative mt-12">
+      <div className="trades-stage dark relative mt-12">
         <picture><source type="image/webp" srcSet="/video/stills/still-1-960.webp 960w, /video/stills/still-1-1600.webp 1600w" sizes="100vw" /><img className="trades-bg" src="/video/stills/still-1.jpg" alt="Standbild aus dem Film: morgens zu Hause wird die Tasche gepackt" loading="lazy" decoding="async" /></picture>
         <div className="trades-shade" aria-hidden />
         <div className="relative mx-auto max-w-7xl px-5"><TradesCarousel items={TRADES} /></div>
@@ -57,7 +57,7 @@ export function Honesty() {
           <picture><source type="image/webp" srcSet="/video/stills/still-2-960.webp 960w, /video/stills/still-2-1600.webp 1600w" sizes="(min-width: 768px) 50vw, 100vw" /><img className="still" src="/video/stills/still-2.jpg" alt="Standbild aus dem Film: Ankunft mit dem Auto auf der Baustelle" loading="lazy" decoding="async" /></picture>
           <div className="on-image">
             <p className="eyebrow mb-3">Klare Grenzen</p>
-            <h2 className="display text-3xl md:text-4xl">Die KI arbeitet vor. Entscheiden tun Sie.</h2>
+            <h2 data-mask className="display text-3xl md:text-4xl">Die KI arbeitet vor. Entscheiden tun Sie.</h2>
           </div>
         </Reveal>
         <div className="panel -mt-4 px-6 py-8 md:mt-0 md:self-center md:px-10 md:py-12">
@@ -80,7 +80,7 @@ export function DemoSection() {
       <div className="grid gap-12 lg:grid-cols-[1fr_1.3fr] lg:items-start lg:gap-16">
         <Reveal>
           <p className="eyebrow mb-4">Interaktive Demo</p>
-          <h2 className="display display-xl text-4xl md:text-6xl">Tippen Sie eine echte Anfrage ein.</h2>
+          <h2 data-mask className="display display-xl text-4xl md:text-6xl">Tippen Sie eine echte Anfrage ein.</h2>
           <p className="mt-5 text-lg text-ink-2">Sie sehen sofort Kategorie, Dringlichkeit, fehlende Angaben und den Antwortentwurf. Nichts wird gespeichert, kein Konto nötig.</p>
           <p className="mt-4 text-sm text-muted">Die Demo läuft bewusst regelbasiert, damit sie keine Kosten erzeugt. Im Produkt arbeitet ein Sprachmodell, die Entwürfe sind entsprechend individueller.</p>
         </Reveal>
@@ -99,7 +99,7 @@ export function Pricing() {
   const trialDays = cfg?.trial_days ?? 14;
   return (
     <section data-fly id="preise" className="mx-auto max-w-7xl px-5 py-28" aria-label="Preise">
-      <Reveal><p className="eyebrow mb-4">Preise</p><h2 className="display display-xl max-w-3xl text-4xl md:text-6xl">Weniger als eine Monteurstunde pro Woche.</h2><p className="mt-4 max-w-2xl text-lg text-ink-2">{PLAN_TERMS.vat} {PLAN_TERMS.cancel} {trialDays} Tage kostenlos, ohne Zahlungsdaten. {PLAN_TERMS.intro}</p></Reveal>
+      <Reveal><p className="eyebrow eyebrow-rule mb-4">Preise</p><h2 data-mask className="display display-xl max-w-3xl text-4xl md:text-6xl">Weniger als eine Monteurstunde pro Woche.</h2><p className="mt-4 max-w-2xl text-lg text-ink-2">{PLAN_TERMS.vat} {PLAN_TERMS.cancel} {trialDays} Tage kostenlos, ohne Zahlungsdaten. {PLAN_TERMS.intro}</p></Reveal>
       <div className="mt-10"><Products trialDays={trialDays} /></div>
       <Reveal className="mt-20">
         <h3 className="text-xl font-semibold">Was ist drin, was kostet extra?</h3>
@@ -141,7 +141,7 @@ export function FAQ() {
   return (
     <section data-fly id="faq" aria-label="Häufige Fragen">
       <div className="mx-auto grid max-w-7xl gap-12 px-5 py-28 md:grid-cols-[1fr_1.6fr] md:gap-16">
-        <Reveal><p className="eyebrow mb-4">Fragen</p><h2 className="display display-xl text-4xl md:text-6xl">Kurz beantwortet.</h2><p className="mt-5 text-lg text-ink-2">Mehr im <Link href="/hilfe" className="text-accent-2 hover:text-accent">Hilfezentrum</Link> oder per <Link href="/kontakt" className="text-accent-2 hover:text-accent">Kontakt</Link>.</p></Reveal>
+        <Reveal><p className="eyebrow eyebrow-rule mb-4">Fragen</p><h2 data-mask className="display display-xl text-4xl md:text-6xl">Kurz beantwortet.</h2><p className="mt-5 text-lg text-ink-2">Mehr im <Link href="/hilfe" className="text-accent-2 hover:text-accent">Hilfezentrum</Link> oder per <Link href="/kontakt" className="text-accent-2 hover:text-accent">Kontakt</Link>.</p></Reveal>
         <div className="space-y-2">
           {FAQ_ITEMS.map(([q, a], i) => (
             <Reveal key={q} delay={i * 60} as="div"><details className="py-4"><summary className="flex items-center justify-between gap-4 text-lg font-medium"><span>{q}</span><span className="chev text-2xl" aria-hidden>+</span></summary><p className="mt-3 max-w-2xl text-ink-2">{a}</p></details></Reveal>
@@ -158,13 +158,13 @@ export function FinalCTA() {
   const reduced = useReducedMotion();
   const velocity = useScrollVelocity();
   return (
-    <section ref={root} className="relative overflow-hidden" aria-label="Jetzt starten">
+    <section ref={root} className="dark relative overflow-hidden" aria-label="Jetzt starten">
       <picture><source type="image/webp" srcSet="/video/stills/still-3-960.webp 960w, /video/stills/still-3-1600.webp 1600w" sizes="100vw" /><img className="still absolute inset-0 h-full w-full" src="/video/stills/still-3.jpg" alt="" aria-hidden loading="lazy" decoding="async" /></picture>
       <div className="cta-shade absolute inset-0" aria-hidden />
       {/* Partikeltunnel: Tempo folgt der Scrollgeschwindigkeit, Kamera der Maus; bei reduzierter Bewegung bleibt das Standbild */}
       {near && !reduced && <ParticleTunnel velocity={velocity} className="tunnel absolute inset-0" />}
       <div className="on-image-static relative mx-auto max-w-7xl px-5 py-36 text-center md:py-44">
-        <Reveal><h2 className="display display-xl mx-auto max-w-5xl text-4xl md:text-7xl">Der nächste Kunde schreibt heute Abend. Wer antwortet?</h2></Reveal>
+        <Reveal><h2 data-mask className="display display-xl mx-auto max-w-5xl text-4xl md:text-7xl">Der nächste Kunde schreibt heute Abend. Wer antwortet?</h2></Reveal>
         <Reveal delay={150}><p className="mx-auto mt-6 max-w-xl text-lg text-ink-2">In zehn Minuten eingerichtet: Konto anlegen, Weiterleitung setzen, erste Anfrage prüfen.</p></Reveal>
         <Reveal delay={250}><div className="mt-9 flex flex-wrap justify-center gap-3"><Link href="/registrieren" className="btn-primary rounded-full px-7 py-3.5 text-sm font-semibold">Kostenlos testen</Link><Link href="/kontakt" className="btn-secondary rounded-full px-7 py-3.5 text-sm font-medium">Rückruf anfragen</Link></div></Reveal>
       </div>

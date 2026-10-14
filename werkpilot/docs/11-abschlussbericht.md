@@ -70,3 +70,14 @@ unschärfe-Impuls am Hero bei Hover und schnellem Scrollen. Alle bestehenden Scr
 unverändert; WebGL nur im Viewport-Umfeld aktiv, bei reduzierter Bewegung abgeschaltet.
 Prüfungen: axe 0 schwere Verstöße (13 Seiten), acht Browserabläufe ok, Linkprüfung ok, Lighthouse Desktop
 100/100/100/100, Mobil 89 Performance. Vorschau-Datei mit denselben Effekten (vanilla three.js).
+
+## Nachtrag: Cinematic Redesign nach Referenzbild (Oktober 2026)
+
+Umgesetzt: helle, texturierte Farbwelt mit schwarzer Schrift und Orange als einzigem Akzent (Startseite und
+Unterseiten), Hero nach Referenz (vorhandener Imagefilm ganzflächig und abgedunkelt, freigestellte Person rechts,
+vierzeilige Versal-Headline mit Zeilenmasken, Vorspann mit oranger Linie, orangener Knopf mit Pfeil, Play-Knopf
+zur Demo, unveränderter Absatztext), Cinematic Intro einmal je Sitzung (Wortmarke, Flug ins Logo, Person, Film,
+Headline), neue Kopfzeile mit Ausklappmenüs und Gesamtmenü, Produktsektion mit vier Funktionen und echten
+Bildschirmen direkt unter dem Hero, maskierte Scroll-Einblendungen. Entfallen: Glitch-Impuls und Zeitleiste
+am Hero. Alle übrigen Abschnitte, Effekte, Formulare, Tarife, Links und Unterseiten unverändert.
+Details in `02-architektur.md`, Abschnitt „Cinematic Redesign". Prüfungen siehe unten.
