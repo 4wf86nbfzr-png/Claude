@@ -58,14 +58,17 @@ html:has(.landing) { scroll-behavior: auto; }
 
 /* ---- Hero nach Referenz: Film ganzflächig und abgedunkelt, Person rechts davor, Text links darüber -----------------
    Ebenen (z-index): Fläche 0, Film 1, Verläufe 2, Person 3, Text 4, Bedienelemente 5. Der Film liegt nie über dem Text. */
-.landing .hero { position: relative; overflow: hidden; min-height: 100svh; display: flex; align-items: center; padding: 112px 0 72px; isolation: isolate; }
+.landing .hero { position: relative; overflow: visible; z-index: 2; min-height: 100svh; display: flex; align-items: center; padding: 112px 0 72px; isolation: isolate; }
+.landing .hero-bg { overflow: hidden; }
 .landing .hero-bg { position: absolute; inset: 0; z-index: 0; background: #050505; }
 .landing .hero-film { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; filter: saturate(0.25) contrast(1.06) brightness(0.55); z-index: 1; }
 .landing .hero-overlay { position: absolute; inset: 0; z-index: 2; background:
   linear-gradient(90deg, rgba(5, 5, 5, 0.86) 0%, rgba(5, 5, 5, 0.62) 42%, rgba(5, 5, 5, 0.2) 70%, rgba(5, 5, 5, 0.35) 100%),
   linear-gradient(180deg, rgba(5, 5, 5, 0.55) 0%, rgba(5, 5, 5, 0.05) 30%, rgba(5, 5, 5, 0.15) 70%, rgba(5, 5, 5, 0.75) 100%); }
 .landing .hero-vignette { position: absolute; inset: 0; z-index: 2; background: radial-gradient(120% 90% at 62% 48%, transparent 45%, rgba(5, 5, 5, 0.55) 100%); }
-.landing .hero-person { position: absolute; right: 0; bottom: 0; z-index: 3; height: 100%; max-height: 100%; width: auto; pointer-events: none; will-change: transform; }
+/* Die Person reicht unter die Hero-Kante (unten weich im Bild ausgeblendet) und läuft so in die helle Fläche aus;
+   beim Scrollen folgt sie dem Blick, kommt leicht nach vorn und verblasst ins Helle (Hero.tsx) */
+.landing .hero-person { position: absolute; right: 0; top: 0; z-index: 3; height: 114%; max-height: none; width: auto; pointer-events: none; will-change: transform, opacity, filter; transform-origin: 70% 30%; }
 /* Die weichen Ränder (links, rechts, unten) sind im Bild selbst angelegt, damit sie in jedem Browser gleich aussehen; kein mask-image nötig */
 .landing .hero-person img { display: block; height: 100%; width: auto; max-width: none; filter: contrast(1.04) saturate(0.9); }
 .landing .hero-content { position: relative; z-index: 4; width: 100%; max-width: 96rem; margin: 0 auto; padding: 0 20px; }
@@ -97,16 +100,16 @@ html:has(.landing) { scroll-behavior: auto; }
 /* Mobil: Person kleiner oben rechts, Text darunter, Verlauf von unten für die Lesbarkeit */
 @media (max-width: 767px) {
   .landing .hero { min-height: 100svh; padding: 330px 0 64px; align-items: flex-end; }
-  .landing .hero-person { height: 54%; right: 0; top: 52px; bottom: auto; }
+  .landing .hero-person { height: 58%; right: 0; top: 52px; }
   .landing .hero-overlay { background: linear-gradient(180deg, rgba(5, 5, 5, 0.55) 0%, rgba(5, 5, 5, 0.15) 30%, rgba(5, 5, 5, 0.7) 58%, rgba(5, 5, 5, 0.92) 100%); }
   .landing .hero-title { font-size: clamp(2.3rem, 10.6vw, 3.4rem); }
   .landing .hero-ctas { gap: 16px; }
   .landing .hero .scroll-cue { display: none; }
 }
-@media (min-width: 768px) and (max-width: 1100px) { .landing .hero-person { height: 86%; } }
+@media (min-width: 768px) and (max-width: 1100px) { .landing .hero-person { height: 98%; } }
 /* Sehr breite Bildschirme: die Person wächst nicht über 1.400 px, bleibt am rechten Rand; Kopfzeile und Text halten ihre Lesebreite */
 @media (min-width: 1280px) { .landing .hdr-nav { gap: 30px; } }
-@media (min-width: 2200px) { .landing .hero-person { height: min(100%, 1400px); } }
+@media (min-width: 2200px) { .landing .hero-person { height: min(114%, 1600px); } }
 /* Kopfzeile: transparent über dem Hero (helle Schrift), danach helle Leiste mit dunkler Schrift */
 .landing .hdr { transition: background 0.3s ease, backdrop-filter 0.3s ease, color 0.3s ease; color: var(--c-ink); }
 .landing .hdr.is-onhero { --c-ink: #ffffff; --c-ink2: #d4d4d8; --c-bg: #050505; --c-accent: #ffffff; --c-on-accent: #0a0a0a; --color-ink: #ffffff; --color-ink-2: #d4d4d8; }

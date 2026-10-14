@@ -51,7 +51,13 @@ export function Hero() {
       }
       // Dezente Parallaxe: Film und Person laufen beim Scrollen minimal langsamer als der Text
       gsap.fromTo(".hero-film", { yPercent: 0 }, { yPercent: 10, ease: "none", immediateRender: false, scrollTrigger: { trigger: root.current, start: "top top", end: "bottom top", scrub: true, invalidateOnRefresh: true } });
-      gsap.fromTo(".hero-person", { yPercent: 0 }, { yPercent: 6, ease: "none", immediateRender: false, scrollTrigger: { trigger: root.current, start: "top top", end: "bottom top", scrub: true, invalidateOnRefresh: true } });
+      // Die Person bleibt beim Scrollen länger im Bild (folgt dem Blick), kommt dabei leicht nach vorn und verblasst
+      // ins Helle, während ihr Körper unter der Hero-Kante in die nächste Fläche ausläuft. Alles nur Transform, Deckkraft, Filter.
+      const mobile = window.matchMedia("(max-width: 767px)").matches;
+      gsap.timeline({ scrollTrigger: { trigger: root.current, start: "top top", end: "bottom+=30% top", scrub: true, invalidateOnRefresh: true }, defaults: { ease: "none" } })
+        .fromTo(".hero-person", { y: 0, scale: 1 }, { y: () => (root.current?.offsetHeight ?? 800) * (mobile ? 0.3 : 0.5), scale: mobile ? 1.06 : 1.14 }, 0)
+        // ins Helle: wird früh heller und durchscheinend, damit sie den Text der nächsten Fläche nie verdeckt
+        .fromTo(".hero-person", { opacity: 1, filter: "brightness(1) contrast(1)" }, { opacity: 0, filter: "brightness(2.6) contrast(0.5)", duration: 0.5 }, 0.2);
       gsap.fromTo(".hero-copy", { yPercent: 0, opacity: 1 }, { yPercent: 12, opacity: 0.5, ease: "none", immediateRender: false, scrollTrigger: { trigger: root.current, start: "top top", end: "bottom top", scrub: true, invalidateOnRefresh: true } });
     }, root);
     return () => ctx.revert();
