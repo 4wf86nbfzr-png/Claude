@@ -10,7 +10,7 @@ export type PublicConfig = {
   llm_live: boolean;
   email_live: boolean;
   trial_days: number;
-  downloads: { windows: string | null; macos: string | null; ios: string | null; android: string | null };
+  downloads: { windows: string | null; macos: string | null; linux?: string | null; ios: string | null; android: string | null };
 };
 
 let cache: Promise<PublicConfig | null> | null = null;

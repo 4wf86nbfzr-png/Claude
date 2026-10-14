@@ -1,0 +1,72 @@
+{
+  "name": "clairify-desktop",
+  "productName": "Clairify",
+  "version": "1.0.0",
+  "description": "Clairify für Windows, macOS und Linux: der Posteingang mit KI für Handwerksbetriebe.",
+  "author": "Clairify",
+  "license": "UNLICENSED",
+  "private": true,
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "dist:linux": "electron-builder --linux",
+    "dist:win": "electron-builder --win",
+    "dist:mac": "electron-builder --mac"
+  },
+  "devDependencies": {
+    "electron": "33.4.11",
+    "electron-builder": "26.0.12"
+  },
+  "build": {
+    "appId": "de.clairify.desktop",
+    "productName": "Clairify",
+    "artifactName": "Clairify-${version}-${os}-${arch}.${ext}",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "offline.html",
+      "build/icon.png"
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "language": "1031",
+      "shortcutName": "Clairify"
+    },
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "icon": "build/icon.png",
+      "category": "public.app-category.business"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "icon": "build/icon.png",
+      "category": "Office",
+      "maintainer": "Clairify"
+    },
+    "executableName": "clairify"
+  },
+  "homepage": "https://clairify.de",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/4wf86nbfzr-png/claude.git"
+  }
+}

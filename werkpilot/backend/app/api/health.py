@@ -35,5 +35,11 @@ async def public_config():
         "llm_live": llm_is_live(),
         "email_live": email_is_live(),
         "trial_days": s.trial_days,
-        "downloads": {"windows": s.download_windows_url, "macos": s.download_macos_url, "ios": s.download_ios_url, "android": s.download_android_url},
+        "downloads": {
+            "windows": s.download_windows_url,
+            "macos": s.download_macos_url,
+            "linux": s.download_linux_url,
+            "ios": s.download_ios_url,
+            "android": s.download_android_url,
+        },
     }

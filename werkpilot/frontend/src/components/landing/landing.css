@@ -241,14 +241,21 @@ html.intro-run .landing .intro { animation: introVeil 0.5s ease 5.2s forwards; }
 .landing .still-wrap .on-image h2 { text-shadow: 0 2px 20px rgba(0, 0, 0, 0.6); }
 
 /* Download-Bereich unter dem Film */
-.landing .dl-grid { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; list-style: none; margin: 0; padding: 0; }
+.landing .dl-grid { display: grid; gap: 12px; grid-template-columns: 1fr; list-style: none; margin: 0; padding: 0; } /* eine Spalte auf schmalen Bildschirmen: die Bezeichnungen brechen nicht um */
 @media (min-width: 640px) { .landing .dl-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (min-width: 1024px) { .landing .dl-grid { grid-template-columns: repeat(4, 1fr); } }
 .landing .dl > span:last-child { min-width: 0; }
+.landing .dl-grid > li { min-width: 0; }
 .landing .dl .block { white-space: nowrap; }
 .landing .dl { display: flex; align-items: center; gap: 12px; padding: 12px 20px 12px 14px; border-radius: 999px; background: color-mix(in srgb, var(--c-ink) 6%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c-ink) 12%, transparent); color: var(--c-ink); transition: background 0.2s ease, transform 0.2s ease; min-height: 64px; }
 .landing a.dl:hover { background: color-mix(in srgb, var(--c-ink) 12%, transparent); transform: translateY(-1px); }
 .landing .dl.is-soon { opacity: 0.6; cursor: default; }
+.landing button.dl { width: 100%; border: 0; font: inherit; text-align: left; cursor: pointer; }
+.landing .dl.is-mine { box-shadow: inset 0 0 0 1.5px var(--c-ink); }
+.landing .dl-mine { font-weight: 400; color: var(--c-ink2); font-size: 0.8rem; }
+.landing .dl-how { margin: 10px 8px 4px; padding: 14px 16px; border-radius: 14px; background: color-mix(in srgb, var(--c-ink) 5%, transparent); }
+.landing .dl-open { grid-column: 1 / -1; }
+.landing .dl-open .dl { max-width: 420px; }
 .landing .dl-icon { display: grid; place-items: center; width: 40px; height: 40px; flex: 0 0 auto; border-radius: 999px; background: color-mix(in srgb, var(--c-ink) 8%, transparent); color: var(--c-light); }
 
 /* Assistent unten links */

@@ -99,3 +99,13 @@ Regeln des Mock-Anbieters im Browser. Daten liegen im localStorage, eine Prototy
 ein, stellt die Uhr vor und setzt zurück. Mails werden als „simuliert“ protokolliert, Tarife lassen sich zum
 Ausprobieren aktivieren. Prüfung: 48 Browser-Schritte (Playwright) über alle Abläufe, Desktop und Mobil, ohne
 Konsolenfehler.
+
+## Nachtrag: Downloads und Desktop-App (Oktober 2026)
+
+Clairify ist jetzt als App installierbar (Manifest, Service Worker, Offline-Seite, eigene Symbole) und die
+Startseite erklärt je System den Weg (Windows, macOS, Linux, iPhone, Android), mit Installationsknopf, wo der
+Browser ihn anbietet. Das Anmeldeformular führt Nutzer ohne Konto zur Tarifwahl auf der Website; in der
+installierten App öffnet sich die Website im Browser. Neues Desktop-Programm in `werkpilot/desktop/` (Electron)
+mit Release-Workflow für Windows, macOS und Linux; lokal gebaut und geprüft: AppImage und deb für Linux sowie ein
+Windows-Portable (unsigniert). Download-Adressen werden über `DOWNLOAD_*_URL` eingetragen und erscheinen dann auf
+der Startseite.

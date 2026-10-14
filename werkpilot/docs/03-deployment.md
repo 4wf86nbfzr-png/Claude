@@ -114,3 +114,22 @@ reversibel geschrieben). Vor jedem Update Backup ziehen (`scripts/backup.sh`).
   Wiederherstellung in docs/04.
 - **Startreihenfolge nach Ausfall**: db → redis → api (führt Migrationen aus) → worker → web. `docker compose up -d`
   hält sie über `depends_on` ein.
+
+## Downloads: installierbare App und Desktop-Programm
+
+- **Installierbare Web-App (PWA)**, sofort auf allen Systemen: `frontend/public/manifest.webmanifest`, `sw.js`,
+  `offline.html`, Symbole unter `public/icons/`. Voraussetzung ist nur HTTPS. Auf der Startseite (Abschnitt
+  „Clairify auf Ihren Geräten“) löst der Knopf die Installationsaufforderung des Browsers aus (Chrome, Edge,
+  Android) oder zeigt die Schritte für Safari (macOS, iPhone). Die App startet auf `/app`; ohne Anmeldung landet man
+  im Anmeldeformular. Dort steht „Noch kein Konto? Angebot wählen und Konto anlegen“, in der installierten App
+  öffnet der Link die Website im Browser.
+- **Desktop-Programm** (`werkpilot/desktop/`, Electron): Rahmen um die Web-App mit demselben Anmeldeformular.
+  Links auf Website-Seiten (Preise, Registrieren, Hilfe …) öffnen im Systembrowser. Adresse der App über
+  `CLAIRIFY_APP_URL` bzw. Standard in `main.js`. Installationsdateien: `npm run dist:linux` (AppImage, deb),
+  `npm run dist:win` (NSIS, braucht Windows oder Wine), `npm run dist:mac` (nur auf macOS). Der Workflow
+  `.github/workflows/desktop.yml` baut beim Tag `desktop-v*` auf allen drei Systemen und hängt die Dateien an ein
+  GitHub-Release. Danach die Adressen in `DOWNLOAD_WINDOWS_URL`, `DOWNLOAD_MACOS_URL`, `DOWNLOAD_LINUX_URL`
+  (Backend) eintragen; die Startseite zeigt dann „Programm herunterladen“ je System. Ohne Signatur warnen SmartScreen
+  und Gatekeeper; für den Vertrieb Code-Signing (Windows) und Apple-Developer-Konto mit Notarisierung (macOS).
+- **Stores** (`DOWNLOAD_IOS_URL`, `DOWNLOAD_ANDROID_URL`): erst mit Entwicklerkonten bei Apple und Google; bis dahin
+  deckt die installierte Web-App iPhone und Android ab.

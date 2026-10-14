@@ -82,6 +82,7 @@ class Settings(BaseSettings):
     download_macos_url: str | None = None
     download_ios_url: str | None = None  # App Store
     download_android_url: str | None = None  # Google Play
+    download_linux_url: str | None = None
     trial_ai_calls_max: int = 40
     autonomy_enabled: bool = True  # Agenten dürfen geplante Läufe ausführen
 

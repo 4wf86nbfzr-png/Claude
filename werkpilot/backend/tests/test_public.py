@@ -117,7 +117,7 @@ async def test_public_config_and_health(client):
     assert (await client.get("/health")).json()["db"] is True
     cfg = (await client.get("/api/public/config")).json()
     assert cfg["stripe_ready"] is True and cfg["llm_live"] is False and cfg["trial_days"] == 14
-    assert cfg["downloads"] == {"windows": None, "macos": None, "ios": None, "android": None}
+    assert cfg["downloads"] == {"windows": None, "macos": None, "linux": None, "ios": None, "android": None}
 
 
 async def test_public_content_only_published(client, db):

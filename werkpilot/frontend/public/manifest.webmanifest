@@ -1,0 +1,21 @@
+{
+  "name": "Clairify",
+  "short_name": "Clairify",
+  "description": "Kundenanfragen aus Mail und Website an einem Ort, Antwortentwürfe mit Freigabe, Termine und Angebote.",
+  "lang": "de",
+  "start_url": "/app?quelle=app",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f6f5f2",
+  "theme_color": "#0a0a0a",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icons/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Entwürfe zur Freigabe", "url": "/app/entwuerfe?quelle=app" },
+    { "name": "Anfragen", "url": "/app/anfragen?quelle=app" }
+  ]
+}

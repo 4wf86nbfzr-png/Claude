@@ -1,0 +1,39 @@
+# Baut die Desktop-App für Windows, macOS und Linux und hängt die Installationsdateien an ein GitHub-Release.
+# Auslöser: Tag "desktop-v1.2.3" pushen. Danach die Adressen in DOWNLOAD_*_URL des Backends eintragen
+# (z. B. https://github.com/<owner>/<repo>/releases/latest/download/Clairify-1.2.3-win-x64.exe).
+name: Desktop-App
+on:
+  push:
+    tags: ["desktop-v*"]
+  workflow_dispatch:
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            cmd: dist:win
+          - os: macos-latest
+            cmd: dist:mac
+          - os: ubuntu-latest
+            cmd: dist:linux
+    runs-on: ${{ matrix.os }}
+    defaults: { run: { working-directory: werkpilot/desktop } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm ci
+      - run: npm run ${{ matrix.cmd }}
+        env:
+          # macOS: Zertifikat und Notarisierung über Secrets, sonst unsignierte Dateien (Gatekeeper warnt)
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+      - uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/desktop-v')
+        with:
+          files: |
+            werkpilot/desktop/dist/*.exe
+            werkpilot/desktop/dist/*.dmg
+            werkpilot/desktop/dist/*.zip
+            werkpilot/desktop/dist/*.AppImage
+            werkpilot/desktop/dist/*.deb
