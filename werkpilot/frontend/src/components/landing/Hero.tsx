@@ -73,8 +73,8 @@ export function Hero() {
       </div>
       {/* Person aus dem Referenzbild, freigestellt; der linke Rand läuft über eine Maske weich in den Film aus */}
       <picture className="hero-person">
-        <source srcSet="/img/hero-person-640.webp 297w, /img/hero-person.webp 594w" sizes="(max-width: 767px) 60vw, 594px" type="image/webp" />
-        <img src="/img/hero-person.png" alt="" width={594} height={1295} fetchPriority="high" decoding="async" />
+        <source srcSet="/img/hero-person-640.webp 365w, /img/hero-person.webp 730w" sizes="(max-width: 767px) 60vw, 730px" type="image/webp" />
+        <img src="/img/hero-person.png" alt="" width={730} height={1295} fetchPriority="high" decoding="async" />
       </picture>
       <div className="hero-content">
         <div className="hero-copy">

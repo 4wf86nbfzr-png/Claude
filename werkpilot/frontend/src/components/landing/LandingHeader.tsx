@@ -82,7 +82,7 @@ export function LandingHeader() {
           <Link href="/kontakt">Über uns</Link>
         </nav>
         <div className="flex items-center gap-1 sm:gap-2">
-          <Link href="/anmelden" className="hidden px-3 py-2 text-sm text-ink-2 hover:text-ink md:inline-block">Anmelden</Link>
+          <Link href="/anmelden" className="hidden px-3 py-2 text-sm text-ink-2 hover:text-ink xl:inline-block">Anmelden</Link>
           <Link href="/registrieren" className="btn-primary hidden rounded-full px-4 py-2 text-sm font-semibold sm:inline-block">Kostenlos testen</Link>
           <button type="button" aria-label={open ? "Menü schließen" : "Menü öffnen"} aria-expanded={open} aria-controls="hdr-panel" onClick={() => setOpen((v) => !v)} className="hdr-burger">
             {open ? <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden><path d="M3 3l12 12M15 3L3 15" stroke="currentColor" strokeWidth="1.6" /></svg> : <svg width="20" height="14" viewBox="0 0 20 14" aria-hidden><path d="M0 1h20M0 7h20M0 13h20" stroke="currentColor" strokeWidth="1.6" /></svg>}
