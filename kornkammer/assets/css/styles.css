@@ -1728,3 +1728,105 @@ body{ background:var(--paper); color:var(--text); }
 
 /* Breites Panorama: auf dem Handy höher, damit der Hof erkennbar bleibt */
 @media (max-width:640px){ .media--pano{ --ar:4/3 !important; } }
+
+/* ============================================================
+   EINKAUFSERLEBNIS: Suche und Filter, Details-Szene, Kaufleiste,
+   Küche, Seitenübergänge, Saison
+   ============================================================ */
+/* Suche und Filter im Sortiment */
+.finder{ display:grid; gap:14px; margin-bottom:var(--gap-l); }
+.finder__search{ display:flex; align-items:center; gap:10px; border:1px solid var(--line-2); border-radius:var(--r-pill); padding:0 10px 0 16px; min-height:52px; background:var(--paper-2); }
+.finder__search:focus-within{ border-color:var(--sprout); }
+.finder__search .ico{ width:20px; height:20px; flex:none; color:var(--text-2); }
+.finder__search input{ flex:1; min-width:0; background:none; border:0; color:var(--text); font:inherit; font-size:1rem; outline:none; }
+.finder__search input::placeholder{ color:var(--muted); }
+.finder__search input::-webkit-search-cancel-button{ display:none; }
+.finder__clear{ width:36px; height:36px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; color:var(--text-2); } .finder__clear:hover{ background:rgba(241,235,223,.12); color:var(--text); }
+.finder__facets{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+.finder__label{ font-size:var(--fs-micro); letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin-right:4px; }
+.finder__label + .chip{ margin-left:0; }
+.finder__facets .finder__label:not(:first-child){ margin-left:12px; }
+.chip[aria-pressed="true"]{ background:var(--leaf-2); color:var(--leaf-ink); border-color:var(--leaf-2); }
+.finder__state{ font-size:var(--fs-small); color:var(--text-2); display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+.finder__state button{ border-bottom:1px solid currentColor; }
+.pcard.is-hidden, .cat.is-hidden{ display:none; }
+.cat.is-filtered .cat__head p{ display:none; }
+
+/* Szene 3: Details, haftendes Nahbild, Fakten erscheinen mit dem Scrollen */
+.facts3{ position:relative; height:240svh; background:#0A1F13; }
+.facts3__stage{ position:sticky; top:0; height:100svh; overflow:hidden; display:grid; align-items:end; }
+.facts3__img{ position:absolute; inset:0; aspect-ratio:auto; border-radius:0; background:#0A1F13; }
+.facts3__img > img{ object-fit:cover; transform:scale(calc(1.35 - var(--p,0) * .15)); transform-origin:55% 45%; filter:blur(16px) saturate(1.15) brightness(.8); }
+.facts3__obj{ position:absolute; left:50%; top:46%; width:min(58vw, 300px); z-index:1; transform:translate(-50%,-50%) scale(calc(.86 + var(--p,0) * .22)) rotate(calc((var(--p,0) - .5) * -4deg)); transform-origin:center; filter:drop-shadow(0 40px 60px rgba(0,0,0,.55)); will-change:transform; }
+.facts3__obj img{ width:100%; height:auto; }
+.facts3__img::after{ content:''; position:absolute; inset:0; background:linear-gradient(180deg, rgba(10,31,19,.5), rgba(10,31,19,.05) 35%, rgba(10,31,19,.25) 60%, rgba(10,31,19,.92) 100%); }
+.facts3__img.is-missing::after{ background:#102219; }
+.facts3__head{ position:absolute; left:var(--gutter); top:calc(var(--hdr-h) + 18px); z-index:3; }
+.facts3__cards{ position:relative; z-index:2; display:grid; gap:10px; padding:0 var(--gutter) clamp(40px, 8vh, 96px); max-width:min(100%, 560px); }
+.fact{ background:rgba(244,239,228,.92); color:var(--cream-ink); border-radius:var(--r-m); padding:16px 18px; display:grid; gap:4px; opacity:0; transform:translateY(26px) scale(.98); transition:opacity .55s var(--ease-out), transform .55s var(--ease-out); backdrop-filter:blur(8px); }
+.fact.is-on{ opacity:1; transform:none; }
+.fact span{ font-size:var(--fs-micro); letter-spacing:.14em; text-transform:uppercase; color:#5E6650; }
+.fact b{ font-family:var(--font-display); font-weight:500; font-size:1.2rem; letter-spacing:-.01em; line-height:1.2; }
+.fact p{ font-size:.92rem; color:#4A5248; max-width:none; }
+.facts3__bar{ position:absolute; left:var(--gutter); right:var(--gutter); top:calc(var(--hdr-h) + 8px); height:1px; background:rgba(244,239,228,.2); z-index:3; }
+.facts3__bar i{ position:absolute; inset:0; background:var(--sprout); transform:scaleX(var(--p,0)); transform-origin:left; }
+@media (min-width:900px){
+  .facts3__stage{ align-items:center; }
+  .facts3__cards{ margin-left:auto; margin-right:var(--gutter); padding-bottom:0; max-width:460px; }
+  .facts3__img > img{ transform-origin:35% 50%; }
+  .facts3__obj{ left:32%; top:50%; width:min(34vw, 460px); }
+}
+@media (prefers-reduced-motion: reduce){
+  .facts3{ height:auto; } .facts3__stage{ position:static; height:auto; padding:var(--sec-s) 0; }
+  .facts3__img{ position:relative; aspect-ratio:16/9; } .facts3__img > img{ transform:none; } .facts3__obj{ transform:translate(-50%,-50%); }
+  .fact{ opacity:1; transform:none; } .facts3__bar{ display:none; }
+}
+.kein-js .fact{ opacity:1; transform:none; }
+
+/* Kaufleiste auf kleinen Bildschirmen: Preis und Korb immer erreichbar */
+.buybar{ position:fixed; left:0; right:0; bottom:0; z-index:60; display:flex; align-items:center; justify-content:space-between; gap:14px; padding:10px var(--gutter) max(10px, env(safe-area-inset-bottom)); background:rgba(12,26,19,.9); backdrop-filter:blur(12px); border-top:1px solid var(--line); transform:translateY(110%); transition:transform .4s var(--ease-out); }
+.buybar.is-on{ transform:none; }
+.buybar[hidden]{ display:none; }
+.buybar span{ display:grid; line-height:1.15; }
+.buybar b{ font-family:var(--font-display); font-weight:600; font-size:1.2rem; }
+.buybar small{ color:var(--text-2); font-size:.8rem; }
+.buybar .btn{ min-height:46px; padding:0 22px; }
+@media (min-width:900px){ .buybar{ display:none; } }
+.btn.is-done{ background:var(--sprout) !important; color:var(--leaf-ink) !important; }
+
+/* Küche: welche Kartoffel wofür */
+.kueche{ margin-top:var(--sec-s); padding-top:var(--sec-s); border-top:1px solid var(--line); }
+.kueche__grid{ display:grid; gap:14px; grid-template-columns:1fr; }
+.kueche__card{ background:var(--cream); color:var(--cream-ink); border-radius:var(--r-m); padding:clamp(20px, 2.4vw, 30px); display:grid; gap:10px; align-content:start; }
+.kueche__card .eyebrow{ color:#5E6650; } .kueche__card .eyebrow::before{ background:var(--leaf); }
+.kueche__card h3{ font-size:1.35rem; font-weight:500; color:var(--cream-ink); }
+.kueche__card p{ color:#4A5248; font-size:.95rem; }
+.kueche__card ul{ display:flex; flex-wrap:wrap; gap:8px; margin-top:6px; }
+.kueche__card li a{ display:inline-flex; min-height:36px; align-items:center; padding:0 14px; border-radius:var(--r-pill); background:var(--leaf-deep); color:var(--cream); font-size:.88rem; font-weight:600; }
+.kueche__card li a:hover{ background:var(--leaf); }
+.kueche__card:nth-child(2){ background:var(--beige); } .kueche__card:nth-child(3){ background:var(--sprout-2); }
+@media (min-width:760px){ .kueche__grid{ grid-template-columns:repeat(3, 1fr); } }
+
+/* Seitenübergänge (Browser mit View Transitions; sonst normaler Wechsel) */
+@view-transition{ navigation:auto; }
+::view-transition-old(root){ animation:vt-out .32s var(--ease-swift) both; }
+::view-transition-new(root){ animation:vt-in .42s var(--ease-out) both; }
+@keyframes vt-out{ to{ opacity:0; transform:scale(.995); } }
+@keyframes vt-in{ from{ opacity:0; transform:translateY(8px); } }
+::view-transition-old(produkt), ::view-transition-new(produkt){ animation-duration:.55s; animation-timing-function:var(--ease-soft); mix-blend-mode:normal; }
+.pdp-page .stage3__img{ view-transition-name:produkt; }
+@media (prefers-reduced-motion: reduce){ ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*){ animation:none !important; } }
+
+/* Saison: Ton des Hero-Films und eine Zeile Text (data/saison.json, main.js saison()) */
+html[data-saison="winter"] .vhero::after{ background:radial-gradient(120% 95% at 50% 42%, rgba(20,40,60,.08) 40%, rgba(5,12,20,.6) 100%); }
+html[data-saison="fruehjahr"] .vhero__wide, html[data-saison="fruehjahr"] .vhero__tall{ filter:saturate(1.1) contrast(1.02) brightness(1.03); }
+html[data-saison="ernte"] .vhero__wide, html[data-saison="ernte"] .vhero__tall{ filter:saturate(1.08) contrast(1.03) sepia(.06); }
+
+/* Kartoffeln fallen in den Beutel (fuellen.js): Leinwand hinter dem Produkt */
+.stage3__knollen{ position:absolute; inset:0; z-index:2; pointer-events:none; }
+/* hidden gewinnt immer, auch gegen display-Regeln von Klassen */
+[hidden]{ display:none !important; }
+/* Kurzmeldung über der Kaufleiste */
+body.has-buybar .toast{ bottom:calc(76px + env(safe-area-inset-bottom)); }
+.finder{ margin-top:var(--gap-m); }
+@media (max-width:899px){ .facts3__obj{ top:26%; width:min(44vw, 210px); } }

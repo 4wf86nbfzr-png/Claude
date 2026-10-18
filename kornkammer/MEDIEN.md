@@ -137,6 +137,18 @@ img/produkte/kartoffeln-karelia.jpg ✓
 
 Kategoriebilder (Reserve, derzeit nicht eingebunden): `img/produkte/*-welt.jpg`.
 
+**Einzelne Kartoffeln (für „Kartoffeln fallen in den Beutel“):** je Sorte
+drei bis fünf Knollen einzeln fotografiert, frontal von leicht oben,
+freigestellt (WebP mit Alphakanal, etwa 400 px breit), unter
+`img/produkte/knollen/<sorte>-1.webp` usw. ablegen und in
+`data/produkte.json` beim Produkt unter `praesentation.knollen` als
+Pfadliste eintragen. Erst dann läuft die Befüll-Animation der Lichtbühne.
+
+**Detailfotos der Produkte** (zweites Bild je Produkt, Liste oben) werden
+auf der Produktseite als Hintergrund der Szene „Die Details“ genutzt,
+dort absichtlich unscharf hinter dem scharfen Produkt. Fehlt das Foto,
+bleibt eine dunkle Fläche.
+
 ## Logo
 
 Liegt nicht vor. Kopf- und Fußzeile tragen eine Wortmarke in Fraunces,

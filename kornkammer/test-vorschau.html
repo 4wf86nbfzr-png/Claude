@@ -1836,6 +1836,108 @@ body{ background:var(--paper); color:var(--text); }
 /* Breites Panorama: auf dem Handy höher, damit der Hof erkennbar bleibt */
 @media (max-width:640px){ .media--pano{ --ar:4/3 !important; } }
 
+/* ============================================================
+   EINKAUFSERLEBNIS: Suche und Filter, Details-Szene, Kaufleiste,
+   Küche, Seitenübergänge, Saison
+   ============================================================ */
+/* Suche und Filter im Sortiment */
+.finder{ display:grid; gap:14px; margin-bottom:var(--gap-l); }
+.finder__search{ display:flex; align-items:center; gap:10px; border:1px solid var(--line-2); border-radius:var(--r-pill); padding:0 10px 0 16px; min-height:52px; background:var(--paper-2); }
+.finder__search:focus-within{ border-color:var(--sprout); }
+.finder__search .ico{ width:20px; height:20px; flex:none; color:var(--text-2); }
+.finder__search input{ flex:1; min-width:0; background:none; border:0; color:var(--text); font:inherit; font-size:1rem; outline:none; }
+.finder__search input::placeholder{ color:var(--muted); }
+.finder__search input::-webkit-search-cancel-button{ display:none; }
+.finder__clear{ width:36px; height:36px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; color:var(--text-2); } .finder__clear:hover{ background:rgba(241,235,223,.12); color:var(--text); }
+.finder__facets{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+.finder__label{ font-size:var(--fs-micro); letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin-right:4px; }
+.finder__label + .chip{ margin-left:0; }
+.finder__facets .finder__label:not(:first-child){ margin-left:12px; }
+.chip[aria-pressed="true"]{ background:var(--leaf-2); color:var(--leaf-ink); border-color:var(--leaf-2); }
+.finder__state{ font-size:var(--fs-small); color:var(--text-2); display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+.finder__state button{ border-bottom:1px solid currentColor; }
+.pcard.is-hidden, .cat.is-hidden{ display:none; }
+.cat.is-filtered .cat__head p{ display:none; }
+
+/* Szene 3: Details, haftendes Nahbild, Fakten erscheinen mit dem Scrollen */
+.facts3{ position:relative; height:240svh; background:#0A1F13; }
+.facts3__stage{ position:sticky; top:0; height:100svh; overflow:hidden; display:grid; align-items:end; }
+.facts3__img{ position:absolute; inset:0; aspect-ratio:auto; border-radius:0; background:#0A1F13; }
+.facts3__img > img{ object-fit:cover; transform:scale(calc(1.35 - var(--p,0) * .15)); transform-origin:55% 45%; filter:blur(16px) saturate(1.15) brightness(.8); }
+.facts3__obj{ position:absolute; left:50%; top:46%; width:min(58vw, 300px); z-index:1; transform:translate(-50%,-50%) scale(calc(.86 + var(--p,0) * .22)) rotate(calc((var(--p,0) - .5) * -4deg)); transform-origin:center; filter:drop-shadow(0 40px 60px rgba(0,0,0,.55)); will-change:transform; }
+.facts3__obj img{ width:100%; height:auto; }
+.facts3__img::after{ content:''; position:absolute; inset:0; background:linear-gradient(180deg, rgba(10,31,19,.5), rgba(10,31,19,.05) 35%, rgba(10,31,19,.25) 60%, rgba(10,31,19,.92) 100%); }
+.facts3__img.is-missing::after{ background:#102219; }
+.facts3__head{ position:absolute; left:var(--gutter); top:calc(var(--hdr-h) + 18px); z-index:3; }
+.facts3__cards{ position:relative; z-index:2; display:grid; gap:10px; padding:0 var(--gutter) clamp(40px, 8vh, 96px); max-width:min(100%, 560px); }
+.fact{ background:rgba(244,239,228,.92); color:var(--cream-ink); border-radius:var(--r-m); padding:16px 18px; display:grid; gap:4px; opacity:0; transform:translateY(26px) scale(.98); transition:opacity .55s var(--ease-out), transform .55s var(--ease-out); backdrop-filter:blur(8px); }
+.fact.is-on{ opacity:1; transform:none; }
+.fact span{ font-size:var(--fs-micro); letter-spacing:.14em; text-transform:uppercase; color:#5E6650; }
+.fact b{ font-family:var(--font-display); font-weight:500; font-size:1.2rem; letter-spacing:-.01em; line-height:1.2; }
+.fact p{ font-size:.92rem; color:#4A5248; max-width:none; }
+.facts3__bar{ position:absolute; left:var(--gutter); right:var(--gutter); top:calc(var(--hdr-h) + 8px); height:1px; background:rgba(244,239,228,.2); z-index:3; }
+.facts3__bar i{ position:absolute; inset:0; background:var(--sprout); transform:scaleX(var(--p,0)); transform-origin:left; }
+@media (min-width:900px){
+  .facts3__stage{ align-items:center; }
+  .facts3__cards{ margin-left:auto; margin-right:var(--gutter); padding-bottom:0; max-width:460px; }
+  .facts3__img > img{ transform-origin:35% 50%; }
+  .facts3__obj{ left:32%; top:50%; width:min(34vw, 460px); }
+}
+@media (prefers-reduced-motion: reduce){
+  .facts3{ height:auto; } .facts3__stage{ position:static; height:auto; padding:var(--sec-s) 0; }
+  .facts3__img{ position:relative; aspect-ratio:16/9; } .facts3__img > img{ transform:none; } .facts3__obj{ transform:translate(-50%,-50%); }
+  .fact{ opacity:1; transform:none; } .facts3__bar{ display:none; }
+}
+.kein-js .fact{ opacity:1; transform:none; }
+
+/* Kaufleiste auf kleinen Bildschirmen: Preis und Korb immer erreichbar */
+.buybar{ position:fixed; left:0; right:0; bottom:0; z-index:60; display:flex; align-items:center; justify-content:space-between; gap:14px; padding:10px var(--gutter) max(10px, env(safe-area-inset-bottom)); background:rgba(12,26,19,.9); backdrop-filter:blur(12px); border-top:1px solid var(--line); transform:translateY(110%); transition:transform .4s var(--ease-out); }
+.buybar.is-on{ transform:none; }
+.buybar[hidden]{ display:none; }
+.buybar span{ display:grid; line-height:1.15; }
+.buybar b{ font-family:var(--font-display); font-weight:600; font-size:1.2rem; }
+.buybar small{ color:var(--text-2); font-size:.8rem; }
+.buybar .btn{ min-height:46px; padding:0 22px; }
+@media (min-width:900px){ .buybar{ display:none; } }
+.btn.is-done{ background:var(--sprout) !important; color:var(--leaf-ink) !important; }
+
+/* Küche: welche Kartoffel wofür */
+.kueche{ margin-top:var(--sec-s); padding-top:var(--sec-s); border-top:1px solid var(--line); }
+.kueche__grid{ display:grid; gap:14px; grid-template-columns:1fr; }
+.kueche__card{ background:var(--cream); color:var(--cream-ink); border-radius:var(--r-m); padding:clamp(20px, 2.4vw, 30px); display:grid; gap:10px; align-content:start; }
+.kueche__card .eyebrow{ color:#5E6650; } .kueche__card .eyebrow::before{ background:var(--leaf); }
+.kueche__card h3{ font-size:1.35rem; font-weight:500; color:var(--cream-ink); }
+.kueche__card p{ color:#4A5248; font-size:.95rem; }
+.kueche__card ul{ display:flex; flex-wrap:wrap; gap:8px; margin-top:6px; }
+.kueche__card li a{ display:inline-flex; min-height:36px; align-items:center; padding:0 14px; border-radius:var(--r-pill); background:var(--leaf-deep); color:var(--cream); font-size:.88rem; font-weight:600; }
+.kueche__card li a:hover{ background:var(--leaf); }
+.kueche__card:nth-child(2){ background:var(--beige); } .kueche__card:nth-child(3){ background:var(--sprout-2); }
+@media (min-width:760px){ .kueche__grid{ grid-template-columns:repeat(3, 1fr); } }
+
+/* Seitenübergänge (Browser mit View Transitions; sonst normaler Wechsel) */
+@view-transition{ navigation:auto; }
+::view-transition-old(root){ animation:vt-out .32s var(--ease-swift) both; }
+::view-transition-new(root){ animation:vt-in .42s var(--ease-out) both; }
+@keyframes vt-out{ to{ opacity:0; transform:scale(.995); } }
+@keyframes vt-in{ from{ opacity:0; transform:translateY(8px); } }
+::view-transition-old(produkt), ::view-transition-new(produkt){ animation-duration:.55s; animation-timing-function:var(--ease-soft); mix-blend-mode:normal; }
+.pdp-page .stage3__img{ view-transition-name:produkt; }
+@media (prefers-reduced-motion: reduce){ ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*){ animation:none !important; } }
+
+/* Saison: Ton des Hero-Films und eine Zeile Text (data/saison.json, main.js saison()) */
+html[data-saison="winter"] .vhero::after{ background:radial-gradient(120% 95% at 50% 42%, rgba(20,40,60,.08) 40%, rgba(5,12,20,.6) 100%); }
+html[data-saison="fruehjahr"] .vhero__wide, html[data-saison="fruehjahr"] .vhero__tall{ filter:saturate(1.1) contrast(1.02) brightness(1.03); }
+html[data-saison="ernte"] .vhero__wide, html[data-saison="ernte"] .vhero__tall{ filter:saturate(1.08) contrast(1.03) sepia(.06); }
+
+/* Kartoffeln fallen in den Beutel (fuellen.js): Leinwand hinter dem Produkt */
+.stage3__knollen{ position:absolute; inset:0; z-index:2; pointer-events:none; }
+/* hidden gewinnt immer, auch gegen display-Regeln von Klassen */
+[hidden]{ display:none !important; }
+/* Kurzmeldung über der Kaufleiste */
+body.has-buybar .toast{ bottom:calc(76px + env(safe-area-inset-bottom)); }
+.finder{ margin-top:var(--gap-m); }
+@media (max-width:899px){ .facts3__obj{ top:26%; width:min(44vw, 210px); } }
+
 </style>
 <script>document.documentElement.classList.remove('kein-js');</script>
 <script type="application/ld+json">
@@ -2478,7 +2580,7 @@ body{ background:var(--paper); color:var(--text); }
 
   /* ---------- Scroll-Fortschritt für klebende Abschnitte (Hero, Reveal, Grow) ---------- */
   function scrubbers() {
-    const secs = $$('.hero3, .reveal, .grow, .bridge');
+    const secs = $$('.hero3, .reveal, .grow, .bridge, .facts3');
     if (!secs.length || isReduced()) return;
     // Wörter des Reveal-Textes vorbereiten
     $$('.reveal__text').forEach((el) => {
@@ -2513,6 +2615,8 @@ body{ background:var(--paper); color:var(--text); }
           const n = Math.round(clamp((p - 0.1) / 0.75, 0, 1) * words.length);
           words.forEach((w, k) => w.classList.toggle('is-on', k < n));
         }
+        // Details-Szene der Produktseite: Fakten erscheinen nacheinander
+        if (sec.classList.contains('facts3')) $$('.fact', sec).forEach((f) => f.classList.toggle('is-on', p >= parseFloat(f.dataset.at || 0)));
       });
       ticking = false;
     };
@@ -2640,6 +2744,27 @@ body{ background:var(--paper); color:var(--text); }
     });
   }
 
+  /* ---------- Saison: Jahreszeit aus dem Monat, Zeile im Hero, Filmton ----------
+     Konfiguration in data/saison.json. Nichts wechselt während des Besuchs;
+     fehlt für eine Jahreszeit das Material, bleibt der Standardfilm. */
+  function saison() {
+    const hero = $('.hero3--film'); if (!hero) return;
+    const root = d.body.dataset.root || './';
+    fetch(root + 'data/saison.json').then((r) => r.ok ? r.json() : null).then((cfg) => {
+      if (!cfg) return;
+      const m = new Date().getMonth() + 1;
+      const z = (cfg.zeiten || []).find((x) => x.monate.includes(m)); if (!z) return;
+      d.documentElement.dataset.saison = z.id;
+      const badge = $('.vhero__badge', hero);
+      if (badge && z.zeile) { badge.innerHTML = '<i></i>' + z.zeile; }
+      const h = cfg.hero && cfg.hero[z.id];
+      if (h && h.quer && !h.fehlt) {
+        const v = $('.vhero__wide', hero);
+        if (v) { v.innerHTML = '<source src="' + root + h.quer + '.webm" type="video/webm"><source src="' + root + h.quer + '.mp4" type="video/mp4">'; if (h.poster_quer) v.poster = root + h.poster_quer; v.load(); }
+      }
+    }).catch(() => {});
+  }
+
   /* ---------- Kleinkram ---------- */
   function misc() {
     $$('[data-jahr]').forEach((el) => { el.textContent = new Date().getFullYear(); });
@@ -2654,7 +2779,7 @@ body{ background:var(--paper); color:var(--text); }
 
   d.addEventListener('DOMContentLoaded', () => {
     watchMedia(); header(); menu(); reveal(); parallax(); story(); hscroll(); heroVideo(); heroDrift(); forms(); misc();
-    marquee(); lightbox(); smoothWheel(); scrubbers(); counters(); layers(); tilt(); iso();
+    marquee(); lightbox(); smoothWheel(); scrubbers(); counters(); layers(); tilt(); iso(); saison();
   });
 })();
 /* Rezensionen: Pfeile blättern die Strecke */
@@ -2873,6 +2998,94 @@ document.addEventListener('DOMContentLoaded', () => {
     const hdr = $('.hdr'); if (hdr) hdr.classList.remove('is-hidden');   // Zähler soll sichtbar sein
     fly(btn, ds.img ? ROOT + ds.img : '');
     say('<span><strong>' + item.name + '</strong> liegt im Korb.</span><a href="#korb" data-open-cart>Ansehen</a>');
+    // Knopf bestätigt kurz, ohne den Einkauf zu unterbrechen
+    if (btn.classList.contains('btn')) {
+      const label = btn.textContent; btn.classList.add('is-done'); btn.textContent = 'Im Korb ✓';
+      clearTimeout(btn._t); btn._t = setTimeout(() => { btn.classList.remove('is-done'); btn.textContent = label; }, 1600);
+    }
+  }
+
+  /* ---------- Sortiment: Suche und Filter ----------
+     Sucht in data-such (Name, Kurztext, Text, Gebinde, Eignung), filtert nach
+     Kochtyp (Kartoffeln) und Gebinde. Zustand in der Adresse (?q=…&koch=…&g=…),
+     damit sich Treffer teilen lassen. Leere Treffer: Hinweis mit Zurücksetzen. */
+  function finder() {
+    const box = $('[data-finder]'); if (!box) return;
+    const q = $('[data-finder-q]', box), clear = $('[data-finder-clear]', box), state = $('[data-finder-state]', box);
+    const chips = $$('.chip[data-f]', box);
+    const cards = $$('.pcard[data-such]');
+    const cats = $$('.cat');
+    const norm = (s) => (s || '').toLowerCase().replace(/ß/g, 'ss').replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue');
+    const active = { koch: '', gebinde: '' };
+    const apply = (fromUrl) => {
+      const words = norm(q.value).split(/\s+/).filter(Boolean);
+      let n = 0;
+      cards.forEach((c) => {
+        const hay = norm(c.dataset.such + ' ' + (c.dataset.koch || '') + ' ' + (c.dataset.gebinde || ''));
+        let ok = words.every((w) => hay.includes(w));
+        if (ok && active.koch) ok = (c.dataset.koch || '') === active.koch;
+        if (ok && active.gebinde) ok = (c.dataset.gebinde || '').split('|').some((g) => norm(g) === norm(active.gebinde));
+        c.classList.toggle('is-hidden', !ok); if (ok) n++;
+      });
+      cats.forEach((cat) => { const any = $$('.pcard:not(.is-hidden)', cat).length > 0; cat.classList.toggle('is-hidden', !any); cat.classList.toggle('is-filtered', words.length > 0 || !!active.koch || !!active.gebinde); });
+      const filtering = words.length || active.koch || active.gebinde;
+      clear.hidden = !q.value;
+      state.hidden = !filtering;
+      if (filtering) state.innerHTML = (n ? n + (n === 1 ? ' Produkt' : ' Produkte') + ' gefunden.' : 'Nichts gefunden. Vielleicht anders schreiben, zum Beispiel „Dinkel“, „festkochend“ oder „5 kg“.') + ' <button type="button" data-finder-reset>Alles anzeigen</button>';
+      if (!fromUrl) {
+        const u = new URL(location.href);
+        q.value ? u.searchParams.set('q', q.value) : u.searchParams.delete('q');
+        active.koch ? u.searchParams.set('koch', active.koch) : u.searchParams.delete('koch');
+        active.gebinde ? u.searchParams.set('g', active.gebinde) : u.searchParams.delete('g');
+        history.replaceState(null, '', u.pathname + (u.search || '') + u.hash);
+      }
+    };
+    let t; q.addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => apply(), 120); });
+    clear.addEventListener('click', () => { q.value = ''; apply(); q.focus(); });
+    chips.forEach((c) => c.addEventListener('click', () => {
+      const f = c.dataset.f, v = c.dataset.v;
+      active[f] = active[f] === v ? '' : v;
+      chips.filter((x) => x.dataset.f === f).forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.v === active[f])));
+      apply();
+    }));
+    box.addEventListener('click', (e) => { if (e.target.closest('[data-finder-reset]')) { q.value = ''; active.koch = ''; active.gebinde = ''; chips.forEach((x) => x.setAttribute('aria-pressed', 'false')); apply(); } });
+    // Zustand aus der Adresse
+    const u = new URL(location.href);
+    q.value = u.searchParams.get('q') || '';
+    ['koch', 'gebinde'].forEach((f) => { const v = u.searchParams.get(f === 'gebinde' ? 'g' : f) || ''; if (v && chips.some((x) => x.dataset.f === f && x.dataset.v === v)) { active[f] = v; chips.filter((x) => x.dataset.f === f).forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.v === v))); } });
+    if (q.value || active.koch || active.gebinde) apply(true);
+  }
+
+  /* ---------- Produktseite: Kaufleiste auf kleinen Bildschirmen ---------- */
+  function buybar() {
+    const bar = $('[data-buybar]'); const buy = $('.pdp__info .buy'); const add = $('.pdp__info [data-add]');
+    if (!bar || !buy || !add) return;
+    bar.hidden = false;
+    const mq = window.matchMedia('(max-width:899px)');
+    let buyVisible = true, stageVisible = true;
+    const show = () => { const on = mq.matches && !buyVisible && !stageVisible; bar.classList.toggle('is-on', on); d.body.classList.toggle('has-buybar', on); };
+    new IntersectionObserver((es) => es.forEach((e) => { buyVisible = e.isIntersecting; show(); }), { threshold: 0.2 }).observe(buy);
+    const stage = $('.stage3');
+    if (stage) new IntersectionObserver((es) => es.forEach((e) => { stageVisible = e.isIntersecting; show(); }), { threshold: 0.4 }).observe(stage); else stageVisible = false;
+    $('[data-buybar-add]', bar).addEventListener('click', () => add.click());
+    // Preis und Gebinde spiegeln
+    $$('.variants input').forEach((r) => r.addEventListener('change', () => {
+      const p = parseFloat(r.dataset.price);
+      $('[data-price-bar]', bar).textContent = isNaN(p) ? 'Preis auf Anfrage' : fmt(p);
+      $('[data-variant-bar]', bar).textContent = r.value;
+      $('[data-buybar-add]', bar).disabled = isNaN(p);
+    }));
+  }
+
+  /* ---------- Übergang Karte → Produktseite: das Bild wandert mit (View Transitions) ---------- */
+  function morph() {
+    if (!('startViewTransition' in d) || reduce) return;
+    d.addEventListener('click', (e) => {
+      const a = e.target.closest('.pcard h3 a, .bcell a'); if (!a) return;
+      const img = a.closest('.pcard, .bcell') && $('.media img', a.closest('.pcard, .bcell'));
+      $$('[style*="view-transition-name"]').forEach((el) => el.style.viewTransitionName = '');
+      if (img) img.style.viewTransitionName = 'produkt';
+    });
   }
 
   /* ---------- Produktseite: Varianten und Menge ---------- */
@@ -2954,6 +3167,16 @@ document.addEventListener('DOMContentLoaded', () => {
     d.addEventListener('korb:aendert', render);
     if (form) form.addEventListener('submit', () => { if (form.hasAttribute('data-netlify') || form.dataset.endpunkt) setTimeout(() => { store.clear(); badge(); }, 800); });
     $$('[data-cart-clear]').forEach((b) => b.addEventListener('click', () => { if (confirm('Den Korb wirklich leeren?')) store.clear(); }));
+    // Lieferadresse nur bei Versand; bei Abholung Wunschfreitag
+    const weg = $('#b-weg'), adr = $('#b-adresse'), tag = $('#b-tag');
+    if (weg && adr) {
+      const sync = () => {
+        const versand = /Versand/.test(weg.value);
+        adr.closest('.field').hidden = !versand; adr.required = versand;
+        if (tag) tag.closest('.field').hidden = versand;
+      };
+      weg.addEventListener('change', sync); sync();
+    }
   }
 
   /* ---------- Start ---------- */
@@ -2965,7 +3188,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (e.target.closest('.cartbtn, [data-open-cart]')) { e.preventDefault(); openDrawer(true); }
     });
     d.addEventListener('korb:aendert', () => { badge(); renderDrawer(); });
-    pdp(); gallery(); cartPage();
+    pdp(); gallery(); cartPage(); finder(); buybar(); morph();
   });
 })();
 

@@ -19,7 +19,7 @@
 <link rel="stylesheet" href="../../assets/css/styles.css">
 <script>document.documentElement.classList.remove('kein-js');</script>
 </head>
-<body data-root="../../">
+<body data-root="../../" class="pdp-page">
 <a class="skip" href="#inhalt">Zum Inhalt springen</a>
 <header class="hdr hdr--over">
   <div class="wrap">
@@ -78,6 +78,19 @@
   </div>
   <p class="stage3__hint" aria-hidden="true">Ziehen zum Drehen</p>
 </section>
+  <section class="facts3" aria-label="Details zu Bio Dinkelnudeln, dunkel">
+    <div class="facts3__stage">
+      <figure class="media facts3__img" data-ph="Nudeln roh"><img src="../../assets/img/produkte/dinkelnudeln-dunkel-detail.jpg" alt="" loading="lazy" width="900" height="1125"></figure>
+      <div class="facts3__obj" aria-hidden="true"><img src="../../assets/img/produkte/frei/dinkelnudeln-dunkel.webp" alt="" loading="lazy" width="600" height="800" draggable="false"></div>
+      <div class="facts3__head"><p class="eyebrow">Die Details</p></div>
+      <div class="facts3__cards">
+        <div class="fact" data-at="0.08"><span>Produkt</span><b>Bio Dinkelnudeln, dunkel</b><p>Aus dem eigenen Dinkel</p></div>
+        <div class="fact" data-at="0.35"><span>Gebinde</span><b>Packung 500 g</b><p>3,79 € (7,58 €/kg)</p></div>
+        <div class="fact" data-at="0.61"><span>Herkunft</span><b>Eigene Flächen, Bioland seit 1987</b><p>Dinkel von den eigenen Flächen, gehört zum Anbau 2025/2026.</p></div>
+      </div>
+      <div class="facts3__bar" aria-hidden="true"><i></i></div>
+    </div>
+  </section>
   <div class="wrap">
     <section class="pdp pdp--nach-buehne" id="bilder">
       <div class="pdp__gallery">
@@ -110,6 +123,8 @@
           <div class="qty"><button type="button" data-q="-1" aria-label="Weniger">−</button><input type="number" value="1" min="1" max="10" aria-label="Menge"><button type="button" data-q="1" aria-label="Mehr">+</button></div>
           <button type="button" class="btn btn--solid" data-add data-id="dinkelnudeln-dunkel" data-name="Bio Dinkelnudeln, dunkel" data-variant="Packung 500 g" data-price="3.79" data-max="10" data-img="assets/img/produkte/dinkelnudeln-dunkel.jpg" data-url="shop/produkte/dinkelnudeln-dunkel.html" >In den Korb</button>
         </div>
+        <!-- Kaufleiste für kleine Bildschirme: spiegelt Preis und Korb-Knopf, sobald der Kaufblock aus dem Bild ist -->
+        <div class="buybar" data-buybar hidden><span><b data-price-bar>3,79 €</b><small data-variant-bar>Packung 500 g</small></span><button type="button" class="btn btn--solid" data-buybar-add >In den Korb</button></div>
         <p class="small" data-variant-hint hidden>Für dieses Gebinde nennen wir Ihnen den Preis auf Anfrage: <a href="../../kontakt.html">Kontakt</a>.</p>
         
         <div class="pdp__desc">
@@ -132,7 +147,7 @@
     <section class="related">
       <div class="head"><div><p class="eyebrow">Dazu passt</p><h2 class="rv">Mehr Nudeln</h2></div></div>
       <div class="pgrid">
-<article class="pcard  rv rv--d1">
+<article class="pcard  rv rv--d1" data-id="dinkelnudeln-hell" data-kat="nudeln" data-such="bio dinkelnudeln, hell aus dem eigenen dinkel helle nudeln aus dinkel-auszugsmehl vom eigenen bio-dinkel, als spiralen oder wellen.  packung 500 g" data-gebinde="500 g" data-preis="3.79">
   <figure class="media media--tone-paper" data-ph="Packung helle Dinkelnudeln"><img src="../../assets/img/produkte/dinkelnudeln-hell.jpg" alt="Bio Dinkelnudeln, hell" loading="lazy" width="800" height="1000"></figure>
   <span class="pcard__badge">Nachfragen</span><button type="button" class="pcard__add" data-add data-id="dinkelnudeln-hell" data-name="Bio Dinkelnudeln, hell" data-variant="Packung 500 g" data-price="3.79" data-max="3" data-img="assets/img/produkte/dinkelnudeln-hell.jpg" data-url="shop/produkte/dinkelnudeln-hell.html" aria-label="Bio Dinkelnudeln, hell in den Korb"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
   <div class="pcard__body">
@@ -200,5 +215,6 @@
 <script src="../../assets/js/main.js" defer></script>
 <script src="../../assets/js/shop.js" defer></script>
 <script src="../../assets/js/buehne.js" defer></script>
+<script src="../../assets/js/fuellen.js" defer></script>
 </body>
 </html>

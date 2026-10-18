@@ -107,6 +107,23 @@ Zugangsdaten oder Store-ID liegen nicht vor. Deshalb:
   Button umstellen, oder die Bestellanfrage als Bestellweg beibehalten.
   Beides ist eine Änderung in `tools/build-produkte.mjs` an einer Stelle.
 
+### Einkaufserlebnis (Stand 18.10.2026, Abend)
+
+| Baustein | Umsetzung | Abhängigkeit |
+|---|---|---|
+| Suche und Filter | `finder()` in shop.js: sucht in Name, Kurztext, Beschreibung, Gebinde und Eignung; Filter Kochtyp (Kartoffeln) und Gebinde; Zustand in der Adresse (`?q=&koch=&g=`); leere Treffer mit Zurücksetzen | keine |
+| Produktseite, Szene 1 Enthüllung | Lichtbühne (`.stage3`): Auftritt aus dem Schatten, Lichtfahrt, Partikel | keine |
+| Szene 2 Bewegung | Drehen per Ziehen/Tasten bis ±35°, Kameraschwenk beim Scrollen | **echte 360°:** 24–36 Drehteller-Ansichten je Produkt (`praesentation.serie`), liegen nicht vor |
+| Szene 3 Details | `.facts3`: haftende Szene, Produkt wächst heran, Fakten erscheinen nacheinander (nur Felder aus produkte.json) | Detailfotos (MEDIEN.md) ersetzen den unscharfen Hintergrund |
+| Szene 4 Kauf | Gebinde, Menge, Korb; auf dem Handy Kaufleiste mit Preis und Knopf, sobald der Kaufblock aus dem Bild ist | keine |
+| Szene 5 Mehr | „Dazu passt“ je Kategorie, Küche-Hinweis bei Kartoffeln | keine |
+| Korb-Bestätigung | Bild fliegt zum Korb, Zähler springt, Knopf wird kurz „Im Korb ✓“, Kurzmeldung | keine |
+| Übergang Karte → Produktseite | View Transitions: das Produktbild wandert zur Bühne, Seiten blenden weich (Chrome, Safari 18; sonst normaler Wechsel) | keine |
+| Kartoffeln fallen in den Beutel | `assets/js/fuellen.js`: 2D-Physik hinter dem Beutel (Schwerkraft, Stöße, Ausrollen), startet mit der Enthüllung | **Freisteller einzelner Kartoffeln** je Sorte (`praesentation.knollen`), liegen nicht vor; ohne sie passiert nichts |
+| Küche | „Welche Kartoffel wofür“ auf der Sortimentseite: Kochtyp → übliche Verwendung, Sorten verlinkt | Rezepte vom Hof liegen nicht vor, werden nicht erfunden |
+| Bestellweg | Korb → Bestellanfrage (Abholung mit Wunschfreitag oder Versand mit Pflicht-Lieferadresse) → Bestätigung per E-Mail; sofortige Zahlung im bestehenden Ecwid-Shop | **Zahlung auf dieser Seite:** braucht Ecwid-Zugang oder einen Zahlungsanbieter (Stripe/PayPal-Konto des Hofs); Schnittstelle: `data-endpunkt` am Formular, siehe „Formulare“. Zahlungsarten des Shops sind nicht belegt und werden deshalb nicht angezeigt |
+| Saison | `data/saison.json`: Jahreszeit aus dem Monat (`html[data-saison]`), Zeile im Hero, leichter Filmton; nichts wechselt während des Besuchs | Querformat-Clips für Frühjahr, Sommer, Winter fehlen; bis dahin läuft der Erntefilm |
+
 ## Lichtbühne: Produkte im Licht (Cinematic Product Experience)
 
 Jede Produktseite mit Foto beginnt mit einer dunklen Lichtbühne, die

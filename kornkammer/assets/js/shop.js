@@ -159,6 +159,94 @@
     const hdr = $('.hdr'); if (hdr) hdr.classList.remove('is-hidden');   // Zähler soll sichtbar sein
     fly(btn, ds.img ? ROOT + ds.img : '');
     say('<span><strong>' + item.name + '</strong> liegt im Korb.</span><a href="#korb" data-open-cart>Ansehen</a>');
+    // Knopf bestätigt kurz, ohne den Einkauf zu unterbrechen
+    if (btn.classList.contains('btn')) {
+      const label = btn.textContent; btn.classList.add('is-done'); btn.textContent = 'Im Korb ✓';
+      clearTimeout(btn._t); btn._t = setTimeout(() => { btn.classList.remove('is-done'); btn.textContent = label; }, 1600);
+    }
+  }
+
+  /* ---------- Sortiment: Suche und Filter ----------
+     Sucht in data-such (Name, Kurztext, Text, Gebinde, Eignung), filtert nach
+     Kochtyp (Kartoffeln) und Gebinde. Zustand in der Adresse (?q=…&koch=…&g=…),
+     damit sich Treffer teilen lassen. Leere Treffer: Hinweis mit Zurücksetzen. */
+  function finder() {
+    const box = $('[data-finder]'); if (!box) return;
+    const q = $('[data-finder-q]', box), clear = $('[data-finder-clear]', box), state = $('[data-finder-state]', box);
+    const chips = $$('.chip[data-f]', box);
+    const cards = $$('.pcard[data-such]');
+    const cats = $$('.cat');
+    const norm = (s) => (s || '').toLowerCase().replace(/ß/g, 'ss').replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue');
+    const active = { koch: '', gebinde: '' };
+    const apply = (fromUrl) => {
+      const words = norm(q.value).split(/\s+/).filter(Boolean);
+      let n = 0;
+      cards.forEach((c) => {
+        const hay = norm(c.dataset.such + ' ' + (c.dataset.koch || '') + ' ' + (c.dataset.gebinde || ''));
+        let ok = words.every((w) => hay.includes(w));
+        if (ok && active.koch) ok = (c.dataset.koch || '') === active.koch;
+        if (ok && active.gebinde) ok = (c.dataset.gebinde || '').split('|').some((g) => norm(g) === norm(active.gebinde));
+        c.classList.toggle('is-hidden', !ok); if (ok) n++;
+      });
+      cats.forEach((cat) => { const any = $$('.pcard:not(.is-hidden)', cat).length > 0; cat.classList.toggle('is-hidden', !any); cat.classList.toggle('is-filtered', words.length > 0 || !!active.koch || !!active.gebinde); });
+      const filtering = words.length || active.koch || active.gebinde;
+      clear.hidden = !q.value;
+      state.hidden = !filtering;
+      if (filtering) state.innerHTML = (n ? n + (n === 1 ? ' Produkt' : ' Produkte') + ' gefunden.' : 'Nichts gefunden. Vielleicht anders schreiben, zum Beispiel „Dinkel“, „festkochend“ oder „5 kg“.') + ' <button type="button" data-finder-reset>Alles anzeigen</button>';
+      if (!fromUrl) {
+        const u = new URL(location.href);
+        q.value ? u.searchParams.set('q', q.value) : u.searchParams.delete('q');
+        active.koch ? u.searchParams.set('koch', active.koch) : u.searchParams.delete('koch');
+        active.gebinde ? u.searchParams.set('g', active.gebinde) : u.searchParams.delete('g');
+        history.replaceState(null, '', u.pathname + (u.search || '') + u.hash);
+      }
+    };
+    let t; q.addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => apply(), 120); });
+    clear.addEventListener('click', () => { q.value = ''; apply(); q.focus(); });
+    chips.forEach((c) => c.addEventListener('click', () => {
+      const f = c.dataset.f, v = c.dataset.v;
+      active[f] = active[f] === v ? '' : v;
+      chips.filter((x) => x.dataset.f === f).forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.v === active[f])));
+      apply();
+    }));
+    box.addEventListener('click', (e) => { if (e.target.closest('[data-finder-reset]')) { q.value = ''; active.koch = ''; active.gebinde = ''; chips.forEach((x) => x.setAttribute('aria-pressed', 'false')); apply(); } });
+    // Zustand aus der Adresse
+    const u = new URL(location.href);
+    q.value = u.searchParams.get('q') || '';
+    ['koch', 'gebinde'].forEach((f) => { const v = u.searchParams.get(f === 'gebinde' ? 'g' : f) || ''; if (v && chips.some((x) => x.dataset.f === f && x.dataset.v === v)) { active[f] = v; chips.filter((x) => x.dataset.f === f).forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.v === v))); } });
+    if (q.value || active.koch || active.gebinde) apply(true);
+  }
+
+  /* ---------- Produktseite: Kaufleiste auf kleinen Bildschirmen ---------- */
+  function buybar() {
+    const bar = $('[data-buybar]'); const buy = $('.pdp__info .buy'); const add = $('.pdp__info [data-add]');
+    if (!bar || !buy || !add) return;
+    bar.hidden = false;
+    const mq = window.matchMedia('(max-width:899px)');
+    let buyVisible = true, stageVisible = true;
+    const show = () => { const on = mq.matches && !buyVisible && !stageVisible; bar.classList.toggle('is-on', on); d.body.classList.toggle('has-buybar', on); };
+    new IntersectionObserver((es) => es.forEach((e) => { buyVisible = e.isIntersecting; show(); }), { threshold: 0.2 }).observe(buy);
+    const stage = $('.stage3');
+    if (stage) new IntersectionObserver((es) => es.forEach((e) => { stageVisible = e.isIntersecting; show(); }), { threshold: 0.4 }).observe(stage); else stageVisible = false;
+    $('[data-buybar-add]', bar).addEventListener('click', () => add.click());
+    // Preis und Gebinde spiegeln
+    $$('.variants input').forEach((r) => r.addEventListener('change', () => {
+      const p = parseFloat(r.dataset.price);
+      $('[data-price-bar]', bar).textContent = isNaN(p) ? 'Preis auf Anfrage' : fmt(p);
+      $('[data-variant-bar]', bar).textContent = r.value;
+      $('[data-buybar-add]', bar).disabled = isNaN(p);
+    }));
+  }
+
+  /* ---------- Übergang Karte → Produktseite: das Bild wandert mit (View Transitions) ---------- */
+  function morph() {
+    if (!('startViewTransition' in d) || reduce) return;
+    d.addEventListener('click', (e) => {
+      const a = e.target.closest('.pcard h3 a, .bcell a'); if (!a) return;
+      const img = a.closest('.pcard, .bcell') && $('.media img', a.closest('.pcard, .bcell'));
+      $$('[style*="view-transition-name"]').forEach((el) => el.style.viewTransitionName = '');
+      if (img) img.style.viewTransitionName = 'produkt';
+    });
   }
 
   /* ---------- Produktseite: Varianten und Menge ---------- */
@@ -240,6 +328,16 @@
     d.addEventListener('korb:aendert', render);
     if (form) form.addEventListener('submit', () => { if (form.hasAttribute('data-netlify') || form.dataset.endpunkt) setTimeout(() => { store.clear(); badge(); }, 800); });
     $$('[data-cart-clear]').forEach((b) => b.addEventListener('click', () => { if (confirm('Den Korb wirklich leeren?')) store.clear(); }));
+    // Lieferadresse nur bei Versand; bei Abholung Wunschfreitag
+    const weg = $('#b-weg'), adr = $('#b-adresse'), tag = $('#b-tag');
+    if (weg && adr) {
+      const sync = () => {
+        const versand = /Versand/.test(weg.value);
+        adr.closest('.field').hidden = !versand; adr.required = versand;
+        if (tag) tag.closest('.field').hidden = versand;
+      };
+      weg.addEventListener('change', sync); sync();
+    }
   }
 
   /* ---------- Start ---------- */
@@ -251,6 +349,6 @@
       if (e.target.closest('.cartbtn, [data-open-cart]')) { e.preventDefault(); openDrawer(true); }
     });
     d.addEventListener('korb:aendert', () => { badge(); renderDrawer(); });
-    pdp(); gallery(); cartPage();
+    pdp(); gallery(); cartPage(); finder(); buybar(); morph();
   });
 })();

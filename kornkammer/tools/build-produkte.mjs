@@ -16,6 +16,17 @@ const base = join(here, '..');
 const data = JSON.parse(readFileSync(join(base, 'data/produkte.json'), 'utf8'));
 const SITE = 'https://www.team-kornkammer.de';   // für canonical/og; vor Live-Gang prüfen
 
+/* Kocheigenschaft der Kartoffeln aus dem Kurztext; Eignung nach der üblichen
+   Küchenregel (festkochend formstabil, mehlig zerfallend). Keine Behauptung
+   über das einzelne Produkt, sondern über den Kochtyp. */
+const KOCH = [
+  ['vorwiegend festkochend', 'Vorwiegend festkochend', 'Pommes, Gratin, Ofen- und Salzkartoffeln'],
+  ['festkochend', 'Festkochend', 'Kartoffelsalat, Pell- und Bratkartoffeln'],
+  ['mehlig', 'Mehlig', 'Püree, Klöße und Suppen']
+];
+const koch = (p) => { if (p.kat !== 'kartoffeln') return null; const k = (p.kurz || '').toLowerCase(); return KOCH.find((x) => k.includes(x[0])) || null; };
+const such = (p) => [p.name, p.kurz, ...(p.text || []), (koch(p) || [])[2] || '', p.varianten.map((v) => v.label).join(' ')].join(' ').toLowerCase().replace(/[^\p{L}\p{N} ,.-]/gu, ' ');
+
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const eur = (n) => n.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
 const ico = {
@@ -139,6 +150,7 @@ function footer(root) {
 <script src="${root}assets/js/main.js" defer></script>
 <script src="${root}assets/js/shop.js" defer></script>
 <script src="${root}assets/js/buehne.js" defer></script>
+<script src="${root}assets/js/fuellen.js" defer></script>
 </body>
 </html>`;
 }
@@ -166,9 +178,10 @@ export function stage(p, root, opts = {}) {
   const actions = opts.home
     ? `<a class="btn btn--solidlight" href="${root}shop/produkte/${p.id}.html">Produkt entdecken</a><a class="btn btn--light" href="${root}shop/">Ganzes Sortiment</a>`
     : `<a class="btn btn--solidlight" href="#kaufen">Jetzt bestellen</a><a class="btn btn--light" href="#bilder">Weitere Bilder</a>`;
-  return `<section class="stage3 stage3--${p.kat}${opts.home ? ' stage3--home' : ''}" data-stage data-partikel="${esc(pr.partikel || 'hell')}" aria-label="${esc(p.name)} im Licht">
+  const knollen = (pr.knollen || []).filter((f) => existsSync(join(base, f)));
+  return `<section class="stage3 stage3--${p.kat}${opts.home ? ' stage3--home' : ''}" data-stage data-partikel="${esc(pr.partikel || 'hell')}"${knollen.length ? ` data-knollen="${esc(knollen.map((f) => root + f).join(','))}"` : ''} aria-label="${esc(p.name)} im Licht">
   <div class="stage3__bg"></div>
-  <canvas class="stage3__fx" aria-hidden="true"></canvas>
+  <canvas class="stage3__fx" aria-hidden="true"></canvas>${knollen.length ? '\n  <canvas class="stage3__knollen" aria-hidden="true"></canvas>' : ''}
   <div class="stage3__sweep" aria-hidden="true"></div>
   <div class="stage3__floor" aria-hidden="true"></div>
   <div class="stage3__scene">
@@ -197,7 +210,8 @@ function card(p, root, i) {
   const addBtn = v0.preis != null
     ? `<button type="button" class="pcard__add" data-add data-id="${p.id}" data-name="${esc(p.name)}" data-variant="${esc(v0.label)}" data-price="${v0.preis}" data-max="${v0.max || 99}" data-img="assets/img/${p.bilder[0]}" data-url="shop/produkte/${p.id}.html" aria-label="${esc(p.name)} in den Korb">${ico.plus}</button>`
     : '';
-  return `<article class="${cls}">
+  const k = koch(p);
+  return `<article class="${cls}" data-id="${p.id}" data-kat="${p.kat}" data-such="${esc(such(p))}" data-gebinde="${esc(p.varianten.map((v) => v.label.replace(/^(Glas|Flasche|Packung|Beutel) /, '')).join('|'))}"${k ? ` data-koch="${esc(k[0])}"` : ''} data-preis="${v0.preis != null ? v0.preis : ''}">
   <figure class="media media--tone-paper" data-ph="${esc(p.ph[0])}"><img src="${root}assets/img/${p.bilder[0]}" alt="${esc(p.name)}" loading="lazy" width="800" height="1000"></figure>
   ${p.hinweis ? `<span class="pcard__badge">Nachfragen</span>` : ''}${addBtn}
   <div class="pcard__body">
@@ -242,7 +256,32 @@ ${header(root)}
 ${data.kategorien.map((k) => `        <a class="chip" href="#${k.id}">${esc(k.name)}</a>`).join('\n')}
       </nav>
       <div class="notice rv">${ico.info}<div><strong>Preise Stand Oktober 2026</strong>, inklusive 7 % Mehrwertsteuer, übernommen aus unserem Onlineshop. Wo kein Preis steht, nennen wir ihn Ihnen auf Anfrage. Im Onlineshop ist der Versand ab 50 € Bestellwert kostenfrei.</div></div>
+      <!-- Suche und Filter (shop.js, finder()): sucht in Name, Kurztext, Beschreibung, Gebinde und Eignung -->
+      <div class="finder rv rv--d1" data-finder>
+        <label class="finder__search"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input type="search" placeholder="Suchen: Dinkel, festkochend, 5 kg, Püree …" aria-label="Sortiment durchsuchen" autocomplete="off" data-finder-q><button type="button" class="finder__clear" aria-label="Suche löschen" data-finder-clear hidden>${'<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>'}</button></label>
+        <div class="finder__facets" role="group" aria-label="Filter">
+          <span class="finder__label">Kartoffeln</span>
+${KOCH.map((k) => `          <button type="button" class="chip" data-f="koch" data-v="${esc(k[0])}" aria-pressed="false">${esc(k[1])}</button>`).join('\n')}
+          <span class="finder__label">Gebinde</span>
+${['500 g', '1 kg', '2 kg', '5 kg', '25 kg'].map((g) => `          <button type="button" class="chip" data-f="gebinde" data-v="${g}" aria-pressed="false">${g}</button>`).join('\n')}
+        </div>
+        <p class="finder__state" data-finder-state aria-live="polite" hidden></p>
+      </div>
 ${cats}
+<section class="kueche sec--s" id="kueche" aria-label="Welche Kartoffel wofür">
+  <div class="cat__head">
+    <div><p class="eyebrow">Inspiration für die Küche</p><h2 class="rv">Welche Kartoffel wofür.</h2></div>
+    <p class="rv rv--d1">Drei Kochtypen, fünf Sorten vom eigenen Acker. Rezepte vom Hof ergänzen wir, sobald sie vorliegen; bis dahin die Küchenregel, nach der wir selbst sortieren.</p>
+  </div>
+  <div class="kueche__grid">
+${KOCH.map((k, i) => { const ps = data.produkte.filter((p) => koch(p) && koch(p)[0] === k[0]); return `    <article class="kueche__card rv rv--d${i + 1}">
+      <p class="eyebrow">${esc(k[1])}</p>
+      <h3>${esc(k[2])}</h3>
+      <p>${k[0] === 'mehlig' ? 'Mehlige Sorten zerfallen beim Kochen schnell, der Stärkegehalt liegt bei etwa 16,5 Prozent.' : k[0] === 'festkochend' ? 'Festkochende Sorten behalten beim Kochen ihre Form, der Stärkegehalt liegt bei etwa 14 Prozent.' : 'Vorwiegend festkochende Sorten bleiben außen fest und werden innen locker.'}</p>
+      <ul>${ps.map((p) => `<li><a href="${root}shop/produkte/${p.id}.html">${esc(p.name.replace('Kartoffeln ', ''))}</a></li>`).join('')}</ul>
+    </article>`; }).join('\n')}
+  </div>
+</section>
     </div>
   </section>
 ${stage(data.produkte.find((x) => x.id === 'dinkelmehl-630'), root, { home: true, titel: true })}
@@ -264,6 +303,37 @@ ${footer(root)}`;
   writeFileSync(join(base, 'shop/index.html'), html);
 }
 
+/* ---------- Szene 3: Details entdecken (haftendes Nahbild, Fakten erscheinen beim Scrollen) ----------
+   Nur Angaben aus data/produkte.json: Name und Kurztext, Gebinde mit Grundpreis,
+   Herkunft, Kochtyp-Eignung (Kartoffeln), EAN, Hinweis. */
+function facts3(p, root) {
+  const k = koch(p);
+  // Atmosphäre: Detailfoto unscharf im Hintergrund (sobald es vorliegt), davor das freigestellte Produkt scharf
+  const amb = p.bilder[1] || p.bilder[0];
+  const freiPfad = `assets/img/produkte/frei/${p.id}.webp`;
+  const obj = existsSync(join(base, freiPfad)) ? freiPfad : 'assets/img/' + p.bilder[0];
+  const facts = [
+    { l: p.kat === 'kartoffeln' ? 'Sorte' : 'Produkt', b: p.name, t: p.kurz },
+    { l: p.varianten.length > 1 ? 'Gebinde' : 'Gebinde', b: p.varianten.map((v) => v.label).join(' · '), t: p.varianten.filter((v) => v.preis != null).map((v) => eur(v.preis) + (v.grundpreis ? ' (' + v.grundpreis + ')' : '')).join(' · ') || 'Preis auf Anfrage' },
+    { l: 'Herkunft', b: 'Eigene Flächen, Bioland seit 1987', t: p.herkunft },
+    k ? { l: 'Eignung', b: k[2], t: k[0] === 'mehlig' ? 'Zerfällt beim Kochen, Stärkegehalt etwa 16,5 Prozent.' : k[0] === 'festkochend' ? 'Bleibt in Form, Stärkegehalt etwa 14 Prozent.' : 'Außen fest, innen locker.' } : null,
+    p.ean ? { l: 'EAN', b: p.ean, t: 'Marke Ruhrtalgold, Kornkammer Haus Holte' } : null,
+    p.hinweis ? { l: 'Hinweis', b: 'Bitte nachfragen', t: p.hinweis } : null
+  ].filter(Boolean).slice(0, 5);
+  const n = facts.length;
+  return `<section class="facts3" aria-label="Details zu ${esc(p.name)}">
+    <div class="facts3__stage">
+      <figure class="media facts3__img" data-ph="${esc(p.ph[1] || p.ph[0])}"><img src="${root}assets/img/${amb}" alt="" loading="lazy" width="900" height="1125"></figure>
+      <div class="facts3__obj" aria-hidden="true"><img src="${root}${obj}" alt="" loading="lazy" width="600" height="800" draggable="false"></div>
+      <div class="facts3__head"><p class="eyebrow">Die Details</p></div>
+      <div class="facts3__cards">
+${facts.map((f, i) => `        <div class="fact" data-at="${(0.08 + i * (0.8 / n)).toFixed(2)}"><span>${esc(f.l)}</span><b>${esc(f.b)}</b><p>${esc(f.t)}</p></div>`).join('\n')}
+      </div>
+      <div class="facts3__bar" aria-hidden="true"><i></i></div>
+    </div>
+  </section>`;
+}
+
 /* ---------- Produktseite ---------- */
 function productPage(p) {
   const root = '../../';
@@ -282,10 +352,11 @@ function productPage(p) {
   if (!jsonld.offers.length) delete jsonld.offers;
 
   const html = `${head({ root, title: `${p.name} · Team Kornkammer`, desc: `${p.kurz}. ${p.text[0]}`, canonical: `shop/produkte/${p.id}.html` })}
-<body data-root="../../">
+<body data-root="../../" class="pdp-page">
 ${header(root, true)}
 <main id="inhalt">
   ${stage(p, root)}
+  ${facts3(p, root)}
   <div class="wrap">
     <section class="pdp pdp--nach-buehne" id="bilder">
       <div class="pdp__gallery">
@@ -316,6 +387,8 @@ ${header(root, true)}
           <div class="qty"><button type="button" data-q="-1" aria-label="Weniger">−</button><input type="number" value="1" min="1" max="${v0.max || 99}" aria-label="Menge"><button type="button" data-q="1" aria-label="Mehr">+</button></div>
           <button type="button" class="btn btn--solid" data-add data-id="${p.id}" data-name="${esc(p.name)}" data-variant="${esc(v0.label)}" data-price="${v0.preis != null ? v0.preis : ''}" data-max="${v0.max || 99}" data-img="assets/img/${p.bilder[0]}" data-url="shop/produkte/${p.id}.html" ${v0.preis == null ? 'disabled' : ''}>${v0.preis != null ? 'In den Korb' : 'Preis anfragen'}</button>
         </div>
+        <!-- Kaufleiste für kleine Bildschirme: spiegelt Preis und Korb-Knopf, sobald der Kaufblock aus dem Bild ist -->
+        <div class="buybar" data-buybar hidden><span><b data-price-bar>${v0.preis != null ? eur(v0.preis) : 'Preis auf Anfrage'}</b><small data-variant-bar>${esc(v0.label)}</small></span><button type="button" class="btn btn--solid" data-buybar-add ${v0.preis == null ? 'disabled' : ''}>In den Korb</button></div>
         <p class="small" data-variant-hint ${v0.preis != null ? 'hidden' : ''}>Für dieses Gebinde nennen wir Ihnen den Preis auf Anfrage: <a href="../../kontakt.html">Kontakt</a>.</p>
         ${p.hinweis ? `<div class="notice">${ico.info}<div>${esc(p.hinweis)}</div></div>` : ''}
         <div class="pdp__desc">

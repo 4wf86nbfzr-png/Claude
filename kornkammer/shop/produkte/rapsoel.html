@@ -19,7 +19,7 @@
 <link rel="stylesheet" href="../../assets/css/styles.css">
 <script>document.documentElement.classList.remove('kein-js');</script>
 </head>
-<body data-root="../../">
+<body data-root="../../" class="pdp-page">
 <a class="skip" href="#inhalt">Zum Inhalt springen</a>
 <header class="hdr hdr--over">
   <div class="wrap">
@@ -78,6 +78,20 @@
   </div>
   <p class="stage3__hint" aria-hidden="true">Ziehen zum Drehen</p>
 </section>
+  <section class="facts3" aria-label="Details zu Bio Rapsöl nativ">
+    <div class="facts3__stage">
+      <figure class="media facts3__img" data-ph="Rapsblüte"><img src="../../assets/img/produkte/rapsoel-detail.jpg" alt="" loading="lazy" width="900" height="1125"></figure>
+      <div class="facts3__obj" aria-hidden="true"><img src="../../assets/img/produkte/frei/rapsoel.webp" alt="" loading="lazy" width="600" height="800" draggable="false"></div>
+      <div class="facts3__head"><p class="eyebrow">Die Details</p></div>
+      <div class="facts3__cards">
+        <div class="fact" data-at="0.08"><span>Produkt</span><b>Bio Rapsöl nativ</b><p>Kaltgepresst aus hofeigener Saat</p></div>
+        <div class="fact" data-at="0.28"><span>Gebinde</span><b>Flasche 500 ml</b><p>6,49 € (12,98 €/l)</p></div>
+        <div class="fact" data-at="0.48"><span>Herkunft</span><b>Eigene Flächen, Bioland seit 1987</b><p>Raps von den eigenen Flächen im Ruhrgebiet, gepresst und abgefüllt in der Ölmanufaktur auf dem Hof.</p></div>
+        <div class="fact" data-at="0.68"><span>EAN</span><b>4260690451445</b><p>Marke Ruhrtalgold, Kornkammer Haus Holte</p></div>
+      </div>
+      <div class="facts3__bar" aria-hidden="true"><i></i></div>
+    </div>
+  </section>
   <div class="wrap">
     <section class="pdp pdp--nach-buehne" id="bilder">
       <div class="pdp__gallery">
@@ -110,6 +124,8 @@
           <div class="qty"><button type="button" data-q="-1" aria-label="Weniger">−</button><input type="number" value="1" min="1" max="99" aria-label="Menge"><button type="button" data-q="1" aria-label="Mehr">+</button></div>
           <button type="button" class="btn btn--solid" data-add data-id="rapsoel" data-name="Bio Rapsöl nativ" data-variant="Flasche 500 ml" data-price="6.49" data-max="99" data-img="assets/img/produkte/rapsoel.jpg" data-url="shop/produkte/rapsoel.html" >In den Korb</button>
         </div>
+        <!-- Kaufleiste für kleine Bildschirme: spiegelt Preis und Korb-Knopf, sobald der Kaufblock aus dem Bild ist -->
+        <div class="buybar" data-buybar hidden><span><b data-price-bar>6,49 €</b><small data-variant-bar>Flasche 500 ml</small></span><button type="button" class="btn btn--solid" data-buybar-add >In den Korb</button></div>
         <p class="small" data-variant-hint hidden>Für dieses Gebinde nennen wir Ihnen den Preis auf Anfrage: <a href="../../kontakt.html">Kontakt</a>.</p>
         
         <div class="pdp__desc">
@@ -134,7 +150,7 @@
     <section class="related">
       <div class="head"><div><p class="eyebrow">Dazu passt</p><h2 class="rv">Mehr Speiseöle</h2></div></div>
       <div class="pgrid">
-<article class="pcard rv rv--d1">
+<article class="pcard rv rv--d1" data-id="leinoel" data-kat="oele" data-such="bio leinöl erste pressung, ungefiltert leinöl aus der ersten pressung bei unter 40  c. das öl bleibt ungefiltert, damit die sekundären pflanzenstoffe erhalten bleiben. innerhalb von sechs bis acht wochen nach dem kauf verbrauchen. eingefroren hält es deutlich länger, etwa ein halbes jahr.  flasche 100 ml" data-gebinde="100 ml" data-preis="5.99">
   <figure class="media media--tone-paper" data-ph="Flasche Leinöl"><img src="../../assets/img/produkte/leinoel.jpg" alt="Bio Leinöl" loading="lazy" width="800" height="1000"></figure>
   <span class="pcard__badge">Nachfragen</span><button type="button" class="pcard__add" data-add data-id="leinoel" data-name="Bio Leinöl" data-variant="Flasche 100 ml" data-price="5.99" data-max="99" data-img="assets/img/produkte/leinoel.jpg" data-url="shop/produkte/leinoel.html" aria-label="Bio Leinöl in den Korb"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
   <div class="pcard__body">
@@ -144,7 +160,7 @@
     <span class="pcard__unit">Erste Pressung, ungefiltert · 100 ml</span>
   </div>
 </article>
-<article class="pcard rv rv--d2">
+<article class="pcard rv rv--d2" data-id="mohnoel" data-kat="oele" data-such="bio mohnöl aus hofeigenem wintermohn mohnöl aus der hofeigenen sorte wintermohn. durch die native kaltpressung bleibt der typische mohngeschmack erhalten.  flasche 100 ml" data-gebinde="100 ml" data-preis="5.99">
   <figure class="media media--tone-paper" data-ph="Flasche Mohnöl"><img src="../../assets/img/produkte/mohnoel.jpg" alt="Bio Mohnöl" loading="lazy" width="800" height="1000"></figure>
   <span class="pcard__badge">Nachfragen</span><button type="button" class="pcard__add" data-add data-id="mohnoel" data-name="Bio Mohnöl" data-variant="Flasche 100 ml" data-price="5.99" data-max="99" data-img="assets/img/produkte/mohnoel.jpg" data-url="shop/produkte/mohnoel.html" aria-label="Bio Mohnöl in den Korb"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
   <div class="pcard__body">
@@ -154,7 +170,7 @@
     <span class="pcard__unit">Aus hofeigenem Wintermohn · 100 ml</span>
   </div>
 </article>
-<article class="pcard rv rv--d3">
+<article class="pcard rv rv--d3" data-id="senfoel" data-kat="oele" data-such="bio senföl kaltgepresst aus senfsaat senföl, kaltgepresst aus hofeigener senfsaat.  flasche 100 ml" data-gebinde="100 ml" data-preis="5.99">
   <figure class="media media--tone-paper" data-ph="Flasche Senföl"><img src="../../assets/img/produkte/senfoel.jpg" alt="Bio Senföl" loading="lazy" width="800" height="1000"></figure>
   <span class="pcard__badge">Nachfragen</span><button type="button" class="pcard__add" data-add data-id="senfoel" data-name="Bio Senföl" data-variant="Flasche 100 ml" data-price="5.99" data-max="99" data-img="assets/img/produkte/senfoel.jpg" data-url="shop/produkte/senfoel.html" aria-label="Bio Senföl in den Korb"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
   <div class="pcard__body">
@@ -222,5 +238,6 @@
 <script src="../../assets/js/main.js" defer></script>
 <script src="../../assets/js/shop.js" defer></script>
 <script src="../../assets/js/buehne.js" defer></script>
+<script src="../../assets/js/fuellen.js" defer></script>
 </body>
 </html>

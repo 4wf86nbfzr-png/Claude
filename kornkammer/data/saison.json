@@ -1,0 +1,16 @@
+{
+  "_hinweis": "Saisonale Anpassung der Startseite (main.js, saison()). Die Jahreszeit kommt aus dem Monat; der Zustand steht als data-saison am <html>. Nur Angaben, die zum Betrieb passen. Material, das noch fehlt, ist als 'fehlt' vermerkt und fällt auf die Standardfassung zurück. Nichts wechselt während des Besuchs.",
+  "zeiten": [
+    { "id": "fruehjahr", "monate": [3, 4, 5], "zeile": "Frühjahr · Kartoffeln legen, Saison 2026", "ton": "frisch" },
+    { "id": "sommer", "monate": [6, 7], "zeile": "Sommer · Kartoffelblüte und Getreideernte", "ton": "warm" },
+    { "id": "ernte", "monate": [8, 9, 10], "zeile": "Erntezeit · Getreide und Kartoffeln vom eigenen Acker", "ton": "warm" },
+    { "id": "winter", "monate": [11, 12, 1, 2], "zeile": "Hofverkauf auch im Winter · freitags 8 bis 17 Uhr", "ton": "kuehl" }
+  ],
+  "hero": {
+    "standard": { "quer": "assets/video/maehdrescher-quer", "hoch": "assets/video/hof-hochkant", "poster_quer": "assets/img/video/maehdrescher-quer.jpg", "poster_hoch": "assets/img/video/hof-hochkant.jpg" },
+    "fruehjahr": { "fehlt": "Querformat vom Kartoffellegen oder von den Feldern im Frühjahr" },
+    "sommer": { "fehlt": "Querformat von der Kartoffelblüte" },
+    "ernte": {},
+    "winter": { "fehlt": "Querformat aus Hofverkauf oder Halle im Winter" }
+  }
+}

@@ -345,7 +345,7 @@
 
   /* ---------- Scroll-Fortschritt für klebende Abschnitte (Hero, Reveal, Grow) ---------- */
   function scrubbers() {
-    const secs = $$('.hero3, .reveal, .grow, .bridge');
+    const secs = $$('.hero3, .reveal, .grow, .bridge, .facts3');
     if (!secs.length || isReduced()) return;
     // Wörter des Reveal-Textes vorbereiten
     $$('.reveal__text').forEach((el) => {
@@ -380,6 +380,8 @@
           const n = Math.round(clamp((p - 0.1) / 0.75, 0, 1) * words.length);
           words.forEach((w, k) => w.classList.toggle('is-on', k < n));
         }
+        // Details-Szene der Produktseite: Fakten erscheinen nacheinander
+        if (sec.classList.contains('facts3')) $$('.fact', sec).forEach((f) => f.classList.toggle('is-on', p >= parseFloat(f.dataset.at || 0)));
       });
       ticking = false;
     };
@@ -507,6 +509,27 @@
     });
   }
 
+  /* ---------- Saison: Jahreszeit aus dem Monat, Zeile im Hero, Filmton ----------
+     Konfiguration in data/saison.json. Nichts wechselt während des Besuchs;
+     fehlt für eine Jahreszeit das Material, bleibt der Standardfilm. */
+  function saison() {
+    const hero = $('.hero3--film'); if (!hero) return;
+    const root = d.body.dataset.root || './';
+    fetch(root + 'data/saison.json').then((r) => r.ok ? r.json() : null).then((cfg) => {
+      if (!cfg) return;
+      const m = new Date().getMonth() + 1;
+      const z = (cfg.zeiten || []).find((x) => x.monate.includes(m)); if (!z) return;
+      d.documentElement.dataset.saison = z.id;
+      const badge = $('.vhero__badge', hero);
+      if (badge && z.zeile) { badge.innerHTML = '<i></i>' + z.zeile; }
+      const h = cfg.hero && cfg.hero[z.id];
+      if (h && h.quer && !h.fehlt) {
+        const v = $('.vhero__wide', hero);
+        if (v) { v.innerHTML = '<source src="' + root + h.quer + '.webm" type="video/webm"><source src="' + root + h.quer + '.mp4" type="video/mp4">'; if (h.poster_quer) v.poster = root + h.poster_quer; v.load(); }
+      }
+    }).catch(() => {});
+  }
+
   /* ---------- Kleinkram ---------- */
   function misc() {
     $$('[data-jahr]').forEach((el) => { el.textContent = new Date().getFullYear(); });
@@ -521,7 +544,7 @@
 
   d.addEventListener('DOMContentLoaded', () => {
     watchMedia(); header(); menu(); reveal(); parallax(); story(); hscroll(); heroVideo(); heroDrift(); forms(); misc();
-    marquee(); lightbox(); smoothWheel(); scrubbers(); counters(); layers(); tilt(); iso();
+    marquee(); lightbox(); smoothWheel(); scrubbers(); counters(); layers(); tilt(); iso(); saison();
   });
 })();
 /* Rezensionen: Pfeile blättern die Strecke */

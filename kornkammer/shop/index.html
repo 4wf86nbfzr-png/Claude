@@ -76,13 +76,30 @@
         <a class="chip" href="#kartoffeln">Kartoffeln</a>
       </nav>
       <div class="notice rv"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg><div><strong>Preise Stand Oktober 2026</strong>, inklusive 7 % Mehrwertsteuer, übernommen aus unserem Onlineshop. Wo kein Preis steht, nennen wir ihn Ihnen auf Anfrage. Im Onlineshop ist der Versand ab 50 € Bestellwert kostenfrei.</div></div>
+      <!-- Suche und Filter (shop.js, finder()): sucht in Name, Kurztext, Beschreibung, Gebinde und Eignung -->
+      <div class="finder rv rv--d1" data-finder>
+        <label class="finder__search"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input type="search" placeholder="Suchen: Dinkel, festkochend, 5 kg, Püree …" aria-label="Sortiment durchsuchen" autocomplete="off" data-finder-q><button type="button" class="finder__clear" aria-label="Suche löschen" data-finder-clear hidden><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></label>
+        <div class="finder__facets" role="group" aria-label="Filter">
+          <span class="finder__label">Kartoffeln</span>
+          <button type="button" class="chip" data-f="koch" data-v="vorwiegend festkochend" aria-pressed="false">Vorwiegend festkochend</button>
+          <button type="button" class="chip" data-f="koch" data-v="festkochend" aria-pressed="false">Festkochend</button>
+          <button type="button" class="chip" data-f="koch" data-v="mehlig" aria-pressed="false">Mehlig</button>
+          <span class="finder__label">Gebinde</span>
+          <button type="button" class="chip" data-f="gebinde" data-v="500 g" aria-pressed="false">500 g</button>
+          <button type="button" class="chip" data-f="gebinde" data-v="1 kg" aria-pressed="false">1 kg</button>
+          <button type="button" class="chip" data-f="gebinde" data-v="2 kg" aria-pressed="false">2 kg</button>
+          <button type="button" class="chip" data-f="gebinde" data-v="5 kg" aria-pressed="false">5 kg</button>
+          <button type="button" class="chip" data-f="gebinde" data-v="25 kg" aria-pressed="false">25 kg</button>
+        </div>
+        <p class="finder__state" data-finder-state aria-live="polite" hidden></p>
+      </div>
 <section class="cat" id="senf">
   <div class="cat__head">
     <div><p class="eyebrow">Senf</p><h2 class="rv">Senfmanufaktur</h2></div>
     <p class="rv rv--d1">Delikatess-Bio-Senf aus eigener Herstellung: hundert Prozent hofeigene Saat, traditionell auf Granitsteinen vermahlen. Drei Sorten, von mittelscharf bis extra scharf.</p>
   </div>
   <div class="pgrid">
-<article class="pcard pcard--wide rv rv--d1">
+<article class="pcard pcard--wide rv rv--d1" data-id="senf-der-scharfe-bernie" data-kat="senf" data-such="der scharfe bernie scharfer bio-speisesenf scharfer bio-speisesenf aus hundert prozent hofeigener senfsaat, traditionell auf granitsteinen vermahlen. benannt nach dem gründer der kornkammer haus holte.  glas 200 g" data-gebinde="200 g" data-preis="5.99">
   <figure class="media media--tone-paper" data-ph="Glas Der scharfe Bernie"><img src="../assets/img/produkte/senf-bernie.jpg" alt="Der scharfe Bernie" loading="lazy" width="800" height="1000"></figure>
   <button type="button" class="pcard__add" data-add data-id="senf-der-scharfe-bernie" data-name="Der scharfe Bernie" data-variant="Glas 200 g" data-price="5.99" data-max="99" data-img="assets/img/produkte/senf-bernie.jpg" data-url="shop/produkte/senf-der-scharfe-bernie.html" aria-label="Der scharfe Bernie in den Korb"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
   <div class="pcard__body">
@@ -92,7 +109,7 @@
     <span class="pcard__unit">Scharfer Bio-Speisesenf · 200 g</span>
   </div>
 </article>
-<article class="pcard rv rv--d2">
+<article class="pcard rv rv--d2" data-id="senf-kochkomplize" data-kat="senf" data-such="kochkompl ze mittelscharfer bio-speisesenf mittelscharfer bio-speisesenf aus hofeigener saat, auf granitsteinen vermahlen. der geschmackvolle partner in der küche.  glas 200 g" data-gebinde="200 g" data-preis="5.99">
   <figure class="media media--tone-paper" data-ph="Glas Kochkompl!ze"><img src="../assets/img/produkte/senf-kochkomplize.jpg" alt="Kochkompl!ze" loading="lazy" width="800" height="1000"></figure>
   <button type="button" class="pcard__add" data-add data-id="senf-kochkomplize" data-name="Kochkompl!ze" data-variant="Glas 200 g" data-price="5.99" data-max="99" data-img="assets/img/produkte/senf-kochkomplize.jpg" data-url="shop/produkte/senf-kochkomplize.html" aria-label="Kochkompl!ze in den Korb"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
   <div class="pcard__body">
@@ -102,7 +119,7 @@
     <span class="pcard__unit">Mittelscharfer Bio-Speisesenf · 200 g</span>
   </div>
 </article>
-<article class="pcard rv rv--d3">
+<article class="pcard rv rv--d3" data-id="senf-schaerfemeister" data-kat="senf" data-such="schärfemeister extra scharfer bio-speisesenf extra scharfer bio-speisesenf aus hofeigener saat, auf granitsteinen vermahlen. die schärfste der drei sorten.  glas 200 g" data-gebinde="200 g" data-preis="5.99">
   <figure class="media media--tone-paper" data-ph="Glas Schärfemeister"><img src="../assets/img/produkte/senf-schaerfemeister.jpg" alt="Schärfemeister" loading="lazy" width="800" height="1000"></figure>
   <button type="button" class="pcard__add" data-add data-id="senf-schaerfemeister" data-name="Schärfemeister" data-variant="Glas 200 g" data-price="5.99" data-max="99" data-img="assets/img/produkte/senf-schaerfemeister.jpg" data-url="shop/produkte/senf-schaerfemeister.html" aria-label="Schärfemeister in den Korb"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
   <div class="pcard__body">
@@ -120,7 +137,7 @@
     <p class="rv rv--d1">Delikatess-Speiseöle, kaltgepresst aus hofeigenen Saaten. Alle Öle werden ohne Erhitzen gepresst, damit die Inhaltsstoffe erhalten bleiben.</p>
   </div>
   <div class="pgrid">
-<article class="pcard pcard--tall rv rv--d1">
+<article class="pcard pcard--tall rv rv--d1" data-id="rapsoel" data-kat="oele" data-such="bio rapsöl nativ kaltgepresst aus hofeigener saat natives rapsöl, kaltgepresst aus hundert prozent hofeigenen saaten und auf dem hof abgefüllt. unter der marke ruhrtalgold auch im naturkosthandel zu finden.  flasche 500 ml" data-gebinde="500 ml" data-preis="6.49">
   <figure class="media media--tone-paper" data-ph="Flasche Rapsöl"><img src="../assets/img/produkte/rapsoel.jpg" alt="Bio Rapsöl nativ" loading="lazy" width="800" height="1000"></figure>
   <button type="button" class="pcard__add" data-add data-id="rapsoel" data-name="Bio Rapsöl nativ" data-variant="Flasche 500 ml" data-price="6.49" data-max="99" data-img="assets/img/produkte/rapsoel.jpg" data-url="shop/produkte/rapsoel.html" aria-label="Bio Rapsöl nativ in den Korb"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
   <div class="pcard__body">
@@ -130,7 +147,7 @@
     <span class="pcard__unit">Kaltgepresst aus hofeigener Saat · 500 ml</span>
   </div>
 </article>
-<article class="pcard rv rv--d2">
+<article class="pcard rv rv--d2" data-id="leinoel" data-kat="oele" data-such="bio leinöl erste pressung, ungefiltert leinöl aus der ersten pressung bei unter 40  c. das öl bleibt ungefiltert, damit die sekundären pflanzenstoffe erhalten bleiben. innerhalb von sechs bis acht wochen nach dem kauf verbrauchen. eingefroren hält es deutlich länger, etwa ein halbes jahr.  flasche 100 ml" data-gebinde="100 ml" data-preis="5.99">
   <figure class="media media--tone-paper" data-ph="Flasche Leinöl"><img src="../assets/img/produkte/leinoel.jpg" alt="Bio Leinöl" loading="lazy" width="800" height="1000"></figure>
   <span class="pcard__badge">Nachfragen</span><button type="button" class="pcard__add" data-add data-id="leinoel" data-name="Bio Leinöl" data-variant="Flasche 100 ml" data-price="5.99" data-max="99" data-img="assets/img/produkte/leinoel.jpg" data-url="shop/produkte/leinoel.html" aria-label="Bio Leinöl in den Korb"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
   <div class="pcard__body">
@@ -140,7 +157,7 @@
     <span class="pcard__unit">Erste Pressung, ungefiltert · 100 ml</span>
   </div>
 </article>
-<article class="pcard rv rv--d3">
+<article class="pcard rv rv--d3" data-id="mohnoel" data-kat="oele" data-such="bio mohnöl aus hofeigenem wintermohn mohnöl aus der hofeigenen sorte wintermohn. durch die native kaltpressung bleibt der typische mohngeschmack erhalten.  flasche 100 ml" data-gebinde="100 ml" data-preis="5.99">
   <figure class="media media--tone-paper" data-ph="Flasche Mohnöl"><img src="../assets/img/produkte/mohnoel.jpg" alt="Bio Mohnöl" loading="lazy" width="800" height="1000"></figure>
   <span class="pcard__badge">Nachfragen</span><button type="button" class="pcard__add" data-add data-id="mohnoel" data-name="Bio Mohnöl" data-variant="Flasche 100 ml" data-price="5.99" data-max="99" data-img="assets/img/produkte/mohnoel.jpg" data-url="shop/produkte/mohnoel.html" aria-label="Bio Mohnöl in den Korb"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
   <div class="pcard__body">
@@ -150,7 +167,7 @@
     <span class="pcard__unit">Aus hofeigenem Wintermohn · 100 ml</span>
   </div>
 </article>
-<article class="pcard rv rv--d4">
+<article class="pcard rv rv--d4" data-id="senfoel" data-kat="oele" data-such="bio senföl kaltgepresst aus senfsaat senföl, kaltgepresst aus hofeigener senfsaat.  flasche 100 ml" data-gebinde="100 ml" data-preis="5.99">
   <figure class="media media--tone-paper" data-ph="Flasche Senföl"><img src="../assets/img/produkte/senfoel.jpg" alt="Bio Senföl" loading="lazy" width="800" height="1000"></figure>
   <span class="pcard__badge">Nachfragen</span><button type="button" class="pcard__add" data-add data-id="senfoel" data-name="Bio Senföl" data-variant="Flasche 100 ml" data-price="5.99" data-max="99" data-img="assets/img/produkte/senfoel.jpg" data-url="shop/produkte/senfoel.html" aria-label="Bio Senföl in den Korb"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
   <div class="pcard__body">
@@ -168,7 +185,7 @@
     <p class="rv rv--d1">Dinkelnudeln aus Vollkorn und Auszugsmehl, als Spiralen und Wellen. Alles vom eigenen Dinkel.</p>
   </div>
   <div class="pgrid">
-<article class="pcard pcard--wide rv rv--d1">
+<article class="pcard pcard--wide rv rv--d1" data-id="dinkelnudeln-hell" data-kat="nudeln" data-such="bio dinkelnudeln, hell aus dem eigenen dinkel helle nudeln aus dinkel-auszugsmehl vom eigenen bio-dinkel, als spiralen oder wellen.  packung 500 g" data-gebinde="500 g" data-preis="3.79">
   <figure class="media media--tone-paper" data-ph="Packung helle Dinkelnudeln"><img src="../assets/img/produkte/dinkelnudeln-hell.jpg" alt="Bio Dinkelnudeln, hell" loading="lazy" width="800" height="1000"></figure>
   <span class="pcard__badge">Nachfragen</span><button type="button" class="pcard__add" data-add data-id="dinkelnudeln-hell" data-name="Bio Dinkelnudeln, hell" data-variant="Packung 500 g" data-price="3.79" data-max="3" data-img="assets/img/produkte/dinkelnudeln-hell.jpg" data-url="shop/produkte/dinkelnudeln-hell.html" aria-label="Bio Dinkelnudeln, hell in den Korb"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
   <div class="pcard__body">
@@ -178,7 +195,7 @@
     <span class="pcard__unit">Aus dem eigenen Dinkel · 500 g</span>
   </div>
 </article>
-<article class="pcard rv rv--d2">
+<article class="pcard rv rv--d2" data-id="dinkelnudeln-dunkel" data-kat="nudeln" data-such="bio dinkelnudeln, dunkel aus dem eigenen dinkel dunkle nudeln aus dinkelvollkornmehl vom eigenen bio-dinkel, als spiralen oder wellen.  packung 500 g" data-gebinde="500 g" data-preis="3.79">
   <figure class="media media--tone-paper" data-ph="Packung dunkle Dinkelnudeln"><img src="../assets/img/produkte/dinkelnudeln-dunkel.jpg" alt="Bio Dinkelnudeln, dunkel" loading="lazy" width="800" height="1000"></figure>
   <button type="button" class="pcard__add" data-add data-id="dinkelnudeln-dunkel" data-name="Bio Dinkelnudeln, dunkel" data-variant="Packung 500 g" data-price="3.79" data-max="10" data-img="assets/img/produkte/dinkelnudeln-dunkel.jpg" data-url="shop/produkte/dinkelnudeln-dunkel.html" aria-label="Bio Dinkelnudeln, dunkel in den Korb"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
   <div class="pcard__body">
@@ -196,7 +213,7 @@
     <p class="rv rv--d1">Weizen Type 550, Roggen Type 1150, Dinkel Type 630 und von allen dreien das Vollkornmehl. Dieselbe Qualität, die die Bäckereien bekommen, in 1, 5 und 25 Kilogramm.</p>
   </div>
   <div class="pgrid">
-<article class="pcard pcard--tall rv rv--d1">
+<article class="pcard pcard--tall rv rv--d1" data-id="dinkelmehl-630" data-kat="mehle" data-such="bio dinkelmehl type 630 bäckerqualität dinkelmehl type 630 aus dem eigenen dinkel, in hundert prozent bäckerqualität.  1 kg 5 kg 25 kg" data-gebinde="1 kg|5 kg|25 kg" data-preis="4.79">
   <figure class="media media--tone-paper" data-ph="Tüte Dinkelmehl 630"><img src="../assets/img/produkte/dinkelmehl-630.jpg" alt="Bio Dinkelmehl Type 630" loading="lazy" width="800" height="1000"></figure>
   <button type="button" class="pcard__add" data-add data-id="dinkelmehl-630" data-name="Bio Dinkelmehl Type 630" data-variant="1 kg" data-price="4.79" data-max="99" data-img="assets/img/produkte/dinkelmehl-630.jpg" data-url="shop/produkte/dinkelmehl-630.html" aria-label="Bio Dinkelmehl Type 630 in den Korb"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
   <div class="pcard__body">
@@ -206,7 +223,7 @@
     <span class="pcard__unit">Bäckerqualität · 1 kg und weitere Gebinde</span>
   </div>
 </article>
-<article class="pcard rv rv--d2">
+<article class="pcard rv rv--d2" data-id="dinkelmehl-vollkorn" data-kat="mehle" data-such="bio dinkelvollkornmehl bäckerqualität vollkornmehl aus dem eigenen dinkel, in hundert prozent bäckerqualität.  1 kg 5 kg 25 kg" data-gebinde="1 kg|5 kg|25 kg" data-preis="4.29">
   <figure class="media media--tone-paper" data-ph="Tüte Dinkelvollkornmehl"><img src="../assets/img/produkte/dinkelmehl-vollkorn.jpg" alt="Bio Dinkelvollkornmehl" loading="lazy" width="800" height="1000"></figure>
   <button type="button" class="pcard__add" data-add data-id="dinkelmehl-vollkorn" data-name="Bio Dinkelvollkornmehl" data-variant="1 kg" data-price="4.29" data-max="99" data-img="assets/img/produkte/dinkelmehl-vollkorn.jpg" data-url="shop/produkte/dinkelmehl-vollkorn.html" aria-label="Bio Dinkelvollkornmehl in den Korb"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
   <div class="pcard__body">
@@ -216,7 +233,7 @@
     <span class="pcard__unit">Bäckerqualität · 1 kg und weitere Gebinde</span>
   </div>
 </article>
-<article class="pcard rv rv--d3">
+<article class="pcard rv rv--d3" data-id="roggenmehl-1150" data-kat="mehle" data-such="bio roggenmehl type 1150 bäckerqualität roggenmehl type 1150 aus dem eigenen roggen, in hundert prozent bäckerqualität.  1 kg 5 kg 25 kg" data-gebinde="1 kg|5 kg|25 kg" data-preis="2.69">
   <figure class="media media--tone-paper" data-ph="Tüte Roggenmehl 1150"><img src="../assets/img/produkte/roggenmehl-1150.jpg" alt="Bio Roggenmehl Type 1150" loading="lazy" width="800" height="1000"></figure>
   <button type="button" class="pcard__add" data-add data-id="roggenmehl-1150" data-name="Bio Roggenmehl Type 1150" data-variant="1 kg" data-price="2.69" data-max="99" data-img="assets/img/produkte/roggenmehl-1150.jpg" data-url="shop/produkte/roggenmehl-1150.html" aria-label="Bio Roggenmehl Type 1150 in den Korb"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
   <div class="pcard__body">
@@ -226,7 +243,7 @@
     <span class="pcard__unit">Bäckerqualität · 1 kg und weitere Gebinde</span>
   </div>
 </article>
-<article class="pcard rv rv--d4">
+<article class="pcard rv rv--d4" data-id="roggenmehl-vollkorn" data-kat="mehle" data-such="bio roggenvollkornmehl bäckerqualität vollkornmehl aus dem eigenen roggen, in hundert prozent bäckerqualität.  1 kg 5 kg 25 kg" data-gebinde="1 kg|5 kg|25 kg" data-preis="2.69">
   <figure class="media media--tone-paper" data-ph="Tüte Roggenvollkornmehl"><img src="../assets/img/produkte/roggenmehl-vollkorn.jpg" alt="Bio Roggenvollkornmehl" loading="lazy" width="800" height="1000"></figure>
   <button type="button" class="pcard__add" data-add data-id="roggenmehl-vollkorn" data-name="Bio Roggenvollkornmehl" data-variant="1 kg" data-price="2.69" data-max="99" data-img="assets/img/produkte/roggenmehl-vollkorn.jpg" data-url="shop/produkte/roggenmehl-vollkorn.html" aria-label="Bio Roggenvollkornmehl in den Korb"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
   <div class="pcard__body">
@@ -236,7 +253,7 @@
     <span class="pcard__unit">Bäckerqualität · 1 kg und weitere Gebinde</span>
   </div>
 </article>
-<article class="pcard rv rv--d1">
+<article class="pcard rv rv--d1" data-id="weizenmehl-550" data-kat="mehle" data-such="bio weizenmehl type 550 bäckerqualität weizenmehl type 550 aus dem eigenen winterweizen, in hundert prozent bäckerqualität. der größte teil des brotweizens vom hof geht an bäckereien. dieses mehl ist dieselbe ware.  1 kg 5 kg 25 kg" data-gebinde="1 kg|5 kg|25 kg" data-preis="2.69">
   <figure class="media media--tone-paper" data-ph="Tüte Weizenmehl 550"><img src="../assets/img/produkte/weizenmehl-550.jpg" alt="Bio Weizenmehl Type 550" loading="lazy" width="800" height="1000"></figure>
   <button type="button" class="pcard__add" data-add data-id="weizenmehl-550" data-name="Bio Weizenmehl Type 550" data-variant="1 kg" data-price="2.69" data-max="99" data-img="assets/img/produkte/weizenmehl-550.jpg" data-url="shop/produkte/weizenmehl-550.html" aria-label="Bio Weizenmehl Type 550 in den Korb"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
   <div class="pcard__body">
@@ -246,7 +263,7 @@
     <span class="pcard__unit">Bäckerqualität · 1 kg und weitere Gebinde</span>
   </div>
 </article>
-<article class="pcard rv rv--d2">
+<article class="pcard rv rv--d2" data-id="weizenmehl-vollkorn" data-kat="mehle" data-such="bio weizenvollkornmehl bäckerqualität vollkornmehl aus dem eigenen winterweizen, in hundert prozent bäckerqualität.  1 kg 5 kg 25 kg" data-gebinde="1 kg|5 kg|25 kg" data-preis="2.79">
   <figure class="media media--tone-paper" data-ph="Tüte Weizenvollkornmehl"><img src="../assets/img/produkte/weizenmehl-vollkorn.jpg" alt="Bio Weizenvollkornmehl" loading="lazy" width="800" height="1000"></figure>
   <button type="button" class="pcard__add" data-add data-id="weizenmehl-vollkorn" data-name="Bio Weizenvollkornmehl" data-variant="1 kg" data-price="2.79" data-max="99" data-img="assets/img/produkte/weizenmehl-vollkorn.jpg" data-url="shop/produkte/weizenmehl-vollkorn.html" aria-label="Bio Weizenvollkornmehl in den Korb"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
   <div class="pcard__body">
@@ -264,7 +281,7 @@
     <p class="rv rv--d1">Ganze Körner von Weizen, Roggen und Dinkel, dazu Haferkerne und zartblättrige Haferflocken, alles vom eigenen Acker.</p>
   </div>
   <div class="pgrid">
-<article class="pcard pcard--wide rv rv--d1">
+<article class="pcard pcard--wide rv rv--d1" data-id="weizenkoerner" data-kat="koerner" data-such="bio weizenkörner ganze körner ganze weizenkörner vom eigenen acker, zum selbermahlen, keimen oder kochen.  1 kg 5 kg 25 kg" data-gebinde="1 kg|5 kg|25 kg" data-preis="2.29">
   <figure class="media media--tone-paper" data-ph="Weizenkörner"><img src="../assets/img/produkte/weizenkoerner.jpg" alt="Bio Weizenkörner" loading="lazy" width="800" height="1000"></figure>
   <button type="button" class="pcard__add" data-add data-id="weizenkoerner" data-name="Bio Weizenkörner" data-variant="1 kg" data-price="2.29" data-max="99" data-img="assets/img/produkte/weizenkoerner.jpg" data-url="shop/produkte/weizenkoerner.html" aria-label="Bio Weizenkörner in den Korb"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
   <div class="pcard__body">
@@ -274,7 +291,7 @@
     <span class="pcard__unit">Ganze Körner · 1 kg und weitere Gebinde</span>
   </div>
 </article>
-<article class="pcard rv rv--d2">
+<article class="pcard rv rv--d2" data-id="roggenkoerner" data-kat="koerner" data-such="bio roggenkörner ganze körner ganze roggenkörner vom eigenen acker.  1 kg 5 kg 25 kg" data-gebinde="1 kg|5 kg|25 kg" data-preis="2.19">
   <figure class="media media--tone-paper" data-ph="Roggenkörner"><img src="../assets/img/produkte/roggenkoerner.jpg" alt="Bio Roggenkörner" loading="lazy" width="800" height="1000"></figure>
   <button type="button" class="pcard__add" data-add data-id="roggenkoerner" data-name="Bio Roggenkörner" data-variant="1 kg" data-price="2.19" data-max="99" data-img="assets/img/produkte/roggenkoerner.jpg" data-url="shop/produkte/roggenkoerner.html" aria-label="Bio Roggenkörner in den Korb"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
   <div class="pcard__body">
@@ -284,7 +301,7 @@
     <span class="pcard__unit">Ganze Körner · 1 kg und weitere Gebinde</span>
   </div>
 </article>
-<article class="pcard rv rv--d3">
+<article class="pcard rv rv--d3" data-id="dinkelkoerner" data-kat="koerner" data-such="bio dinkelkörner ganze körner ganze dinkelkörner vom eigenen acker.  1 kg 5 kg 25 kg" data-gebinde="1 kg|5 kg|25 kg" data-preis="">
   <figure class="media media--tone-paper" data-ph="Dinkelkörner"><img src="../assets/img/produkte/dinkelkoerner.jpg" alt="Bio Dinkelkörner" loading="lazy" width="800" height="1000"></figure>
   
   <div class="pcard__body">
@@ -294,7 +311,7 @@
     <span class="pcard__unit">Ganze Körner · 1 kg und weitere Gebinde</span>
   </div>
 </article>
-<article class="pcard rv rv--d4">
+<article class="pcard rv rv--d4" data-id="haferkerne" data-kat="koerner" data-such="bio haferkerne entspelzter hafer haferkerne vom eigenen acker.  1 kg 5 kg 25 kg" data-gebinde="1 kg|5 kg|25 kg" data-preis="">
   <figure class="media media--tone-paper" data-ph="Haferkerne"><img src="../assets/img/produkte/haferkerne.jpg" alt="Bio Haferkerne" loading="lazy" width="800" height="1000"></figure>
   
   <div class="pcard__body">
@@ -304,7 +321,7 @@
     <span class="pcard__unit">Entspelzter Hafer · 1 kg und weitere Gebinde</span>
   </div>
 </article>
-<article class="pcard pcard--tall rv rv--d1">
+<article class="pcard pcard--tall rv rv--d1" data-id="haferflocken" data-kat="koerner" data-such="bio haferflocken, zartblatt vom eigenen hafer zartblättrige haferflocken aus dem eigenen hafer.  500 g 2,5 kg 25 kg" data-gebinde="500 g|2,5 kg|25 kg" data-preis="">
   <figure class="media media--tone-paper" data-ph="Haferflocken"><img src="../assets/img/produkte/haferflocken.jpg" alt="Bio Haferflocken, zartblatt" loading="lazy" width="800" height="1000"></figure>
   
   <div class="pcard__body">
@@ -322,7 +339,7 @@
     <p class="rv rv--d1">Bio-Kartoffeln von Flächen in Witten und Dortmund, nach Sorte und Kochtyp. Nicht alle Sorten sind gleichzeitig verfügbar; was gerade da ist, sagen wir Ihnen gern.</p>
   </div>
   <div class="pgrid">
-<article class="pcard pcard--wide rv rv--d1">
+<article class="pcard pcard--wide rv rv--d1" data-id="kartoffeln-nicola" data-kat="kartoffeln" data-such="kartoffeln nicola festkochend festkochende bio-kartoffel. festkochende sorten behalten beim kochen ihre form, der stärkegehalt liegt bei etwa 14 prozent. kartoffelsalat, pell- und bratkartoffeln beutel 2 kg" data-gebinde="2 kg" data-koch="festkochend" data-preis="5.29">
   <figure class="media media--tone-paper" data-ph="Kartoffeln Nicola"><img src="../assets/img/produkte/kartoffeln-nicola.jpg" alt="Kartoffeln Nicola" loading="lazy" width="800" height="1000"></figure>
   <button type="button" class="pcard__add" data-add data-id="kartoffeln-nicola" data-name="Kartoffeln Nicola" data-variant="Beutel 2 kg" data-price="5.29" data-max="99" data-img="assets/img/produkte/kartoffeln-nicola.jpg" data-url="shop/produkte/kartoffeln-nicola.html" aria-label="Kartoffeln Nicola in den Korb"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
   <div class="pcard__body">
@@ -332,7 +349,7 @@
     <span class="pcard__unit">Festkochend · 2 kg</span>
   </div>
 </article>
-<article class="pcard rv rv--d2">
+<article class="pcard rv rv--d2" data-id="kartoffeln-glorietta" data-kat="kartoffeln" data-such="kartoffeln glorietta festkochend festkochende bio-kartoffel. festkochende sorten behalten beim kochen ihre form. kartoffelsalat, pell- und bratkartoffeln beutel 2 kg" data-gebinde="2 kg" data-koch="festkochend" data-preis="5.29">
   <figure class="media media--tone-paper" data-ph="Kartoffeln Glorietta"><img src="../assets/img/produkte/kartoffeln-glorietta.jpg" alt="Kartoffeln Glorietta" loading="lazy" width="800" height="1000"></figure>
   <button type="button" class="pcard__add" data-add data-id="kartoffeln-glorietta" data-name="Kartoffeln Glorietta" data-variant="Beutel 2 kg" data-price="5.29" data-max="99" data-img="assets/img/produkte/kartoffeln-glorietta.jpg" data-url="shop/produkte/kartoffeln-glorietta.html" aria-label="Kartoffeln Glorietta in den Korb"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
   <div class="pcard__body">
@@ -342,7 +359,7 @@
     <span class="pcard__unit">Festkochend · 2 kg</span>
   </div>
 </article>
-<article class="pcard rv rv--d3">
+<article class="pcard rv rv--d3" data-id="kartoffeln-belana" data-kat="kartoffeln" data-such="kartoffeln belana festkochend festkochende bio-kartoffel. festkochende sorten behalten beim kochen ihre form. kartoffelsalat, pell- und bratkartoffeln beutel 2 kg" data-gebinde="2 kg" data-koch="festkochend" data-preis="5.29">
   <figure class="media media--tone-paper" data-ph="Kartoffeln Belana"><img src="../assets/img/produkte/kartoffeln-belana.jpg" alt="Kartoffeln Belana" loading="lazy" width="800" height="1000"></figure>
   <button type="button" class="pcard__add" data-add data-id="kartoffeln-belana" data-name="Kartoffeln Belana" data-variant="Beutel 2 kg" data-price="5.29" data-max="99" data-img="assets/img/produkte/kartoffeln-belana.jpg" data-url="shop/produkte/kartoffeln-belana.html" aria-label="Kartoffeln Belana in den Korb"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
   <div class="pcard__body">
@@ -352,7 +369,7 @@
     <span class="pcard__unit">Festkochend · 2 kg</span>
   </div>
 </article>
-<article class="pcard pcard--tall rv rv--d4">
+<article class="pcard pcard--tall rv rv--d4" data-id="kartoffeln-laura" data-kat="kartoffeln" data-such="kartoffeln laura vorwiegend festkochend, rotschalig vorwiegend festkochende bio-kartoffel mit roter schale. pommes, gratin, ofen- und salzkartoffeln beutel 2 kg" data-gebinde="2 kg" data-koch="vorwiegend festkochend" data-preis="5.29">
   <figure class="media media--tone-paper" data-ph="Kartoffeln Laura"><img src="../assets/img/produkte/kartoffeln-laura.jpg" alt="Kartoffeln Laura" loading="lazy" width="800" height="1000"></figure>
   <button type="button" class="pcard__add" data-add data-id="kartoffeln-laura" data-name="Kartoffeln Laura" data-variant="Beutel 2 kg" data-price="5.29" data-max="99" data-img="assets/img/produkte/kartoffeln-laura.jpg" data-url="shop/produkte/kartoffeln-laura.html" aria-label="Kartoffeln Laura in den Korb"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
   <div class="pcard__body">
@@ -362,7 +379,7 @@
     <span class="pcard__unit">Vorwiegend festkochend, rotschalig · 2 kg</span>
   </div>
 </article>
-<article class="pcard rv rv--d1">
+<article class="pcard rv rv--d1" data-id="kartoffeln-karelia" data-kat="kartoffeln" data-such="kartoffeln karelia mehlig mehligkochende bio-kartoffel. mehlige sorten zerfallen beim kochen schnell, der stärkegehalt liegt bei etwa 16,5 prozent  die sorte für püree, klöße und suppen. püree, klöße und suppen beutel 2 kg" data-gebinde="2 kg" data-koch="mehlig" data-preis="5.29">
   <figure class="media media--tone-paper" data-ph="Kartoffeln Karelia"><img src="../assets/img/produkte/kartoffeln-karelia.jpg" alt="Kartoffeln Karelia" loading="lazy" width="800" height="1000"></figure>
   <button type="button" class="pcard__add" data-add data-id="kartoffeln-karelia" data-name="Kartoffeln Karelia" data-variant="Beutel 2 kg" data-price="5.29" data-max="99" data-img="assets/img/produkte/kartoffeln-karelia.jpg" data-url="shop/produkte/kartoffeln-karelia.html" aria-label="Kartoffeln Karelia in den Korb"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
   <div class="pcard__body">
@@ -372,6 +389,32 @@
     <span class="pcard__unit">Mehlig · 2 kg</span>
   </div>
 </article>
+  </div>
+</section>
+<section class="kueche sec--s" id="kueche" aria-label="Welche Kartoffel wofür">
+  <div class="cat__head">
+    <div><p class="eyebrow">Inspiration für die Küche</p><h2 class="rv">Welche Kartoffel wofür.</h2></div>
+    <p class="rv rv--d1">Drei Kochtypen, fünf Sorten vom eigenen Acker. Rezepte vom Hof ergänzen wir, sobald sie vorliegen; bis dahin die Küchenregel, nach der wir selbst sortieren.</p>
+  </div>
+  <div class="kueche__grid">
+    <article class="kueche__card rv rv--d1">
+      <p class="eyebrow">Vorwiegend festkochend</p>
+      <h3>Pommes, Gratin, Ofen- und Salzkartoffeln</h3>
+      <p>Vorwiegend festkochende Sorten bleiben außen fest und werden innen locker.</p>
+      <ul><li><a href="../shop/produkte/kartoffeln-laura.html">Laura</a></li></ul>
+    </article>
+    <article class="kueche__card rv rv--d2">
+      <p class="eyebrow">Festkochend</p>
+      <h3>Kartoffelsalat, Pell- und Bratkartoffeln</h3>
+      <p>Festkochende Sorten behalten beim Kochen ihre Form, der Stärkegehalt liegt bei etwa 14 Prozent.</p>
+      <ul><li><a href="../shop/produkte/kartoffeln-nicola.html">Nicola</a></li><li><a href="../shop/produkte/kartoffeln-glorietta.html">Glorietta</a></li><li><a href="../shop/produkte/kartoffeln-belana.html">Belana</a></li></ul>
+    </article>
+    <article class="kueche__card rv rv--d3">
+      <p class="eyebrow">Mehlig</p>
+      <h3>Püree, Klöße und Suppen</h3>
+      <p>Mehlige Sorten zerfallen beim Kochen schnell, der Stärkegehalt liegt bei etwa 16,5 Prozent.</p>
+      <ul><li><a href="../shop/produkte/kartoffeln-karelia.html">Karelia</a></li></ul>
+    </article>
   </div>
 </section>
     </div>
@@ -457,5 +500,6 @@
 <script src="../assets/js/main.js" defer></script>
 <script src="../assets/js/shop.js" defer></script>
 <script src="../assets/js/buehne.js" defer></script>
+<script src="../assets/js/fuellen.js" defer></script>
 </body>
 </html>

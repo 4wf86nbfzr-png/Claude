@@ -19,7 +19,7 @@
 <link rel="stylesheet" href="../../assets/css/styles.css">
 <script>document.documentElement.classList.remove('kein-js');</script>
 </head>
-<body data-root="../../">
+<body data-root="../../" class="pdp-page">
 <a class="skip" href="#inhalt">Zum Inhalt springen</a>
 <header class="hdr hdr--over">
   <div class="wrap">
@@ -78,6 +78,19 @@
   </div>
   <p class="stage3__hint" aria-hidden="true">Ziehen zum Drehen</p>
 </section>
+  <section class="facts3" aria-label="Details zu Der scharfe Bernie">
+    <div class="facts3__stage">
+      <figure class="media facts3__img" data-ph="Senf auf dem Löffel"><img src="../../assets/img/produkte/senf-bernie-detail.jpg" alt="" loading="lazy" width="900" height="1125"></figure>
+      <div class="facts3__obj" aria-hidden="true"><img src="../../assets/img/produkte/frei/senf-der-scharfe-bernie.webp" alt="" loading="lazy" width="600" height="800" draggable="false"></div>
+      <div class="facts3__head"><p class="eyebrow">Die Details</p></div>
+      <div class="facts3__cards">
+        <div class="fact" data-at="0.08"><span>Produkt</span><b>Der scharfe Bernie</b><p>Scharfer Bio-Speisesenf</p></div>
+        <div class="fact" data-at="0.35"><span>Gebinde</span><b>Glas 200 g</b><p>5,99 € (29,95 €/kg)</p></div>
+        <div class="fact" data-at="0.61"><span>Herkunft</span><b>Eigene Flächen, Bioland seit 1987</b><p>Die Senfsaat wächst auf den eigenen Flächen und gehört zum Anbau 2025/2026. Vermahlen wird in der Senfmanufaktur auf dem Hof.</p></div>
+      </div>
+      <div class="facts3__bar" aria-hidden="true"><i></i></div>
+    </div>
+  </section>
   <div class="wrap">
     <section class="pdp pdp--nach-buehne" id="bilder">
       <div class="pdp__gallery">
@@ -110,6 +123,8 @@
           <div class="qty"><button type="button" data-q="-1" aria-label="Weniger">−</button><input type="number" value="1" min="1" max="99" aria-label="Menge"><button type="button" data-q="1" aria-label="Mehr">+</button></div>
           <button type="button" class="btn btn--solid" data-add data-id="senf-der-scharfe-bernie" data-name="Der scharfe Bernie" data-variant="Glas 200 g" data-price="5.99" data-max="99" data-img="assets/img/produkte/senf-bernie.jpg" data-url="shop/produkte/senf-der-scharfe-bernie.html" >In den Korb</button>
         </div>
+        <!-- Kaufleiste für kleine Bildschirme: spiegelt Preis und Korb-Knopf, sobald der Kaufblock aus dem Bild ist -->
+        <div class="buybar" data-buybar hidden><span><b data-price-bar>5,99 €</b><small data-variant-bar>Glas 200 g</small></span><button type="button" class="btn btn--solid" data-buybar-add >In den Korb</button></div>
         <p class="small" data-variant-hint hidden>Für dieses Gebinde nennen wir Ihnen den Preis auf Anfrage: <a href="../../kontakt.html">Kontakt</a>.</p>
         
         <div class="pdp__desc">
@@ -133,7 +148,7 @@
     <section class="related">
       <div class="head"><div><p class="eyebrow">Dazu passt</p><h2 class="rv">Mehr Senf</h2></div></div>
       <div class="pgrid">
-<article class="pcard rv rv--d1">
+<article class="pcard rv rv--d1" data-id="senf-kochkomplize" data-kat="senf" data-such="kochkompl ze mittelscharfer bio-speisesenf mittelscharfer bio-speisesenf aus hofeigener saat, auf granitsteinen vermahlen. der geschmackvolle partner in der küche.  glas 200 g" data-gebinde="200 g" data-preis="5.99">
   <figure class="media media--tone-paper" data-ph="Glas Kochkompl!ze"><img src="../../assets/img/produkte/senf-kochkomplize.jpg" alt="Kochkompl!ze" loading="lazy" width="800" height="1000"></figure>
   <button type="button" class="pcard__add" data-add data-id="senf-kochkomplize" data-name="Kochkompl!ze" data-variant="Glas 200 g" data-price="5.99" data-max="99" data-img="assets/img/produkte/senf-kochkomplize.jpg" data-url="shop/produkte/senf-kochkomplize.html" aria-label="Kochkompl!ze in den Korb"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
   <div class="pcard__body">
@@ -143,7 +158,7 @@
     <span class="pcard__unit">Mittelscharfer Bio-Speisesenf · 200 g</span>
   </div>
 </article>
-<article class="pcard rv rv--d2">
+<article class="pcard rv rv--d2" data-id="senf-schaerfemeister" data-kat="senf" data-such="schärfemeister extra scharfer bio-speisesenf extra scharfer bio-speisesenf aus hofeigener saat, auf granitsteinen vermahlen. die schärfste der drei sorten.  glas 200 g" data-gebinde="200 g" data-preis="5.99">
   <figure class="media media--tone-paper" data-ph="Glas Schärfemeister"><img src="../../assets/img/produkte/senf-schaerfemeister.jpg" alt="Schärfemeister" loading="lazy" width="800" height="1000"></figure>
   <button type="button" class="pcard__add" data-add data-id="senf-schaerfemeister" data-name="Schärfemeister" data-variant="Glas 200 g" data-price="5.99" data-max="99" data-img="assets/img/produkte/senf-schaerfemeister.jpg" data-url="shop/produkte/senf-schaerfemeister.html" aria-label="Schärfemeister in den Korb"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
   <div class="pcard__body">
@@ -211,5 +226,6 @@
 <script src="../../assets/js/main.js" defer></script>
 <script src="../../assets/js/shop.js" defer></script>
 <script src="../../assets/js/buehne.js" defer></script>
+<script src="../../assets/js/fuellen.js" defer></script>
 </body>
 </html>
