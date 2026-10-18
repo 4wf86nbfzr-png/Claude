@@ -1066,7 +1066,7 @@ figure.media{ margin:0; }
   --font-serif:'Fraunces', Georgia, serif;
   --r-s:14px; --r-m:22px; --r-l:32px;
 }
-h1,h2,h3{ font-weight:600; letter-spacing:-.035em; line-height:.98; font-variation-settings:normal; }
+h1,h2,h3{ font-weight:600; letter-spacing:-.035em; line-height:.98; font-variation-settings:normal; overflow-wrap:anywhere; }
 .brand__name, .stage3__title, .stage3__cap h2, .stage3__cap h1, .marquee--words span, .statement, .hours, .timeline b, .stack__n, .chapter__n, .pdp__price b, .facts b, .crops b, .hpanel__k b, .pcard h3, .stage3__price{ font-family:var(--font-display); font-variation-settings:normal; }
 .brand__name{ font-weight:700; letter-spacing:-.02em; }
 .pcard h3{ font-weight:600; letter-spacing:-.01em; }
