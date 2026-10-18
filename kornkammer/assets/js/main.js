@@ -415,3 +415,13 @@
     marquee(); lightbox(); smoothWheel(); scrubbers(); counters();
   });
 })();
+/* Rezensionen: Pfeile blättern die Strecke */
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.reviews').forEach((sec) => {
+    const track = sec.querySelector('.reviews__track'); if (!track) return;
+    sec.querySelectorAll('[data-rev]').forEach((b) => b.addEventListener('click', () => {
+      const card = track.querySelector('.review'); const step = card ? card.getBoundingClientRect().width + 16 : 300;
+      track.scrollBy({ left: step * parseInt(b.dataset.rev, 10), behavior: 'smooth' });
+    }));
+  });
+});

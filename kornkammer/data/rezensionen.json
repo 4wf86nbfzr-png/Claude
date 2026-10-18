@@ -1,0 +1,59 @@
+{
+  "_hinweis": "Google-Rezensionen, abgeschrieben von Screenshots am 18.10.2026. Alle 5 von 5 Sternen. Texte mit … sind in der Vorlage abgeschnitten. Daraus erzeugt tools/build-rezensionen.mjs den Abschnitt; Quelle für weitere Rezensionen: Google-Unternehmensprofil.",
+  "rezensionen": [
+    {
+      "name": "Burkhard Füllenbach",
+      "zeit": "vor 8 Monaten",
+      "sterne": 5,
+      "text": "Die beiden Biosenf-Sorten haben ein vielschichtiges Senf-Aroma, so was Vergleichbares gibt es nicht im Supermarkt, selbst der Dijon-Senf kommt da nicht dran! Unbedingt probieren."
+    },
+    {
+      "name": "Jonas Holtkamp",
+      "zeit": "vor 10 Monaten",
+      "sterne": 5,
+      "text": "Achtung: Nur freitags geöffnet! Sehr gute Auswahl, regionale Produkte und nette Menschen."
+    },
+    {
+      "name": "Ben KV",
+      "zeit": "vor 2 Jahren",
+      "sterne": 5,
+      "text": "Wir kaufen Kartoffeln, Rapsöl, Nudeln, Mehl und Haferflocken regelmäßig von hier über den Regionalladen grüne Perle in der Wittener Innenstadt und sind sehr …"
+    },
+    {
+      "name": "Waldemar Dzidziul",
+      "zeit": "vor 2 Jahren",
+      "sterne": 5,
+      "text": "Sehr nette Leute, kommunikativ, hilfsbereit. Gerne wieder."
+    },
+    {
+      "name": "Jojojay 2k",
+      "zeit": "vor 3 Jahren",
+      "sterne": 5,
+      "text": "Die Produkte sind wirklich erstklassig und es ist alles aus einer Hand. Mehr geht nicht."
+    },
+    {
+      "name": "Thies Drexler",
+      "zeit": "vor 4 Jahren",
+      "sterne": 5,
+      "text": "Außerordentliches Einkaufserlebnis. Top geführtes familiäres Unternehmen. Super regionale Bioprodukte."
+    },
+    {
+      "name": "Katharina Rudolphi",
+      "zeit": "vor 5 Jahren",
+      "sterne": 5,
+      "text": "Hier kann man jeden Freitag Mehl, Getreide, Kartoffeln, Mohn und Öle direkt ab Hof kaufen. Die Qualität ist hervorragend und man wird immer sehr freundlich bedient."
+    },
+    {
+      "name": "Noah Benkhofer",
+      "zeit": "vor 5 Jahren",
+      "sterne": 5,
+      "text": "Klasse Team! Immer freundlich und zuvorkommend … deshalb 5 Sterne!"
+    },
+    {
+      "name": "Fabian B",
+      "zeit": "vor 7 Jahren",
+      "sterne": 5,
+      "text": "Bio-Produkte der besonderen Art. Klasse Team."
+    }
+  ]
+}
