@@ -1,0 +1,7 @@
+# TESTBETRIEB: VOR DEM LIVE-GANG ERSETZEN (2 von 3)
+# Live-Fassung:
+#   User-agent: *
+#   Allow: /
+#   Sitemap: https://www.team-kornkammer.de/sitemap.xml
+User-agent: *
+Disallow: /

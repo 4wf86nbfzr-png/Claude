@@ -1,0 +1,179 @@
+# Team Kornkammer — Website 2026
+
+Neuer Webauftritt für die **Kornkammer Haus Holte oHG** (Team Kornkammer),
+Bioland-Hof in Witten. Reines HTML/CSS/JS, kein Framework, kein Build-Step
+beim Hosting. Dieser Ordner ist ein eigenständiges Projekt und kann als
+Ganzes auf Netlify, Vercel oder jeden Webspace gelegt werden; alle Pfade
+sind relativ.
+
+Stand: 18. Oktober 2026. **Testbetrieb**, gegen Suchmaschinen gesperrt.
+
+## Was fertig ist
+
+| Bereich | Umsetzung |
+|---|---|
+| Startseite `index.html` | Hero mit Film-Slot, Faktenleiste, Hof-Einführung mit Bildmosaik, zwei Porträts, sechs Arbeitsbereiche, Scroll-Geschichte in fünf Kapiteln (haftendes Bild, Kapitel schalten), horizontale Strecke „Anbau 2025/2026“ (vertikales Scrollen steuert horizontal), Sortiment-Auswahl mit Sofort-in-den-Korb, Rückverfolgung, Klimaprojekt, Handelspartner, Schluss-Aufruf |
+| `hof.html` | Bioland seit 1987, Fruchtfolge als Prozess, belegte Chronik (1987, 2010, 2025, 2026), Klimaprojekt, Flächen |
+| `team.html` | Redaktionelles Layout, fünf Personen mit belegten Angaben, keine erfundenen Zitate |
+| `arbeit.html` | Ackerbau, Getreide, Ölmanufaktur, Senfmanufaktur, Kartoffeln, Verkauf, Rückverfolgung, mit Sprungleiste |
+| `shop/index.html` | Sortiment in sechs Kategorien, lebendiges Raster (breite, hohe, normale Karten), Preisstand-Hinweis |
+| `shop/produkte/*.html` | 23 Produktseiten: Galerie mit Wischen, Pfeilen, Vorschaubildern, Vollbild; Gebinde-Wahl; Menge; Herkunft; „Dazu passt“; Product-JSON-LD |
+| `shop/warenkorb.html` | Korb mit Mengen, Entfernen, Zwischensumme; Bestellanfrage per Formular |
+| `kontakt.html` | Hofverkauf, Adresse, Telefon, Fax, Mail, Karte als externer Link, Anfrageformular |
+| `impressum.html`, `datenschutz.html` | Entwürfe aus Bestand und Register, offene Stellen gelb markiert |
+| `404.html`, `danke.html`, `shop/danke.html` | Fehler- und Dankeseiten |
+| `netlify.toml`, `robots.txt`, `sitemap.xml` | Hosting, Testbetrieb-Sperre, saubere Adressen, 301-Weiterleitungen von den alten `.htm`-Adressen |
+
+## Projektstruktur
+
+```
+index.html, hof.html, team.html, arbeit.html, kontakt.html
+impressum.html, datenschutz.html, danke.html, 404.html
+shop/index.html            Sortiment            (ERZEUGT, nicht von Hand ändern)
+shop/produkte/<id>.html    Produktseiten        (ERZEUGT)
+shop/warenkorb.html        Korb + Bestellanfrage
+data/produkte.json         EINZIGE Produktquelle (Namen, Texte, Gebinde, Preise, Bildpfade)
+tools/build-produkte.mjs   erzeugt shop/index.html und shop/produkte/*  →  node tools/build-produkte.mjs
+assets/css/styles.css      einzige Design-Stylesheet-Datei, Tokens oben
+assets/css/fonts.css       @font-face (Fraunces, Instrument Sans), lokal
+assets/fonts/              woff2
+assets/js/main.js          Kopfzeile, Menü, Einblendungen, Parallax, Scroll-Geschichte, horizontale Strecke, Hero-Video, Formulare
+assets/js/shop.js          Warenkorb, Schublade, Galerie, Varianten, Bestellanfrage
+assets/img/                Fotos (noch leer, siehe MEDIEN.md)
+assets/video/              Hero-Film (noch leer)
+assets/logo/favicon.svg    vorläufiges Zeichen
+```
+
+## Bestandsabgleich
+
+Die bisherige Website (team-kornkammer.de, Spiegel: ruhrtalgold.de,
+ruhrtalgarten.de) war aus der Arbeitsumgebung **nicht direkt abrufbar**
+(Netzwerkrichtlinie). Grundlage ist das Dossier unter
+`../recherche/team-kornkammer/README.md`, erhoben aus Suchmaschinen-Indizes
+und Drittquellen. Daraus übernommen:
+
+| Alte Seite | Inhalt | Neu zu finden in |
+|---|---|---|
+| index.htm | Anbau 2025/26, Hofverkauf, Kontaktblock | Startseite, Kopf/Fuß aller Seiten |
+| der hof.htm | Bioland seit 1987, Arbeitsweise, Standard über EU-Bio | hof.html, Startseite |
+| das team.htm | Liedmann, B. Pawliczek, S. Pawliczek, Krol, Max | team.html, Startseite |
+| unsere produkte.htm | Rubriken Öle, Kartoffeln, Getreide, Nudeln, Senf | shop/ |
+| oelmanufaktur.htm | Leinöl, Mohnöl, Rapsöl, Verfahren | arbeit.html#oel, Produktseiten |
+| senfmanufaktur.htm | drei Sorten, Granitsteine, Namensgeber | arbeit.html#senf, Produktseiten |
+| getreideprodukte.htm | Typen, Gebinde, Flocken, Körner, Bäckerqualität | arbeit.html#getreide, Produktseiten |
+| kartoffeln.htm | Holter Knolle, Ruhrtalgold, Kochtypen, Sorten | arbeit.html#kartoffeln, Produktseiten |
+| besonderes.htm | Rückverfolgung je Fläche | arbeit.html#transparenz, Startseite |
+| klimaprojekte.htm | Netzwerk Pilotbetriebe | hof.html#klima, Startseite |
+| bio verstehen.htm | **Inhalt unbekannt** | Weiterleitung auf hof.html |
+| impressum.htm | oHG, GbR, Vertreter, USt-ID | impressum.html |
+| Onlineshop | 23 Produkte, Preise, Versandregel | data/produkte.json, shop/ |
+
+**Nicht übernommen, weil nicht vorhanden:** Fotos, Logo, Videos, Wortlaut
+von „bio verstehen“, AGB/Widerruf/Zahlungsarten des Shops (verlinkt),
+Datenschutztext der alten Seite.
+
+## Shop: wie er funktioniert, was noch fehlt
+
+Der bestehende Shop läuft auf Ecwid (`shopteamkornkammer.company.site`).
+Zugangsdaten oder Store-ID liegen nicht vor. Deshalb:
+
+- **Umgesetzt:** Katalog, Produktseiten, Varianten, Warenkorb (Local
+  Storage), Schublade, Mengen, Zwischensumme, **Bestellanfrage** per
+  Formular. Es wird kein Kauf simuliert; die Seite sagt überall, dass die
+  Bestätigung per E-Mail kommt. Daneben führt ein Link in den bestehenden
+  Shop für sofortige Zahlung.
+- **Preise** stammen aus dem Index des Onlineshops (Stand 10/2026, inkl. 7 %
+  MwSt.). Direkt gesehen: Roggenkörner 2,19; Weizenkörner 2,29; Roggenmehl
+  1150 2,69; Dinkelmehl 630 4,79; Dinkelnudeln hell/dunkel 3,79; Rapsöl 500 ml
+  6,49; Mohn-, Lein-, Senföl 100 ml 5,99; Kochkompl!ze 200 g 5,99; Nicola,
+  Glorietta, Belana 2 kg 5,29. **Abgeleitet, bitte bestätigen:** Der scharfe
+  Bernie und Schärfemeister zu 5,99 (gleiche Produktgruppe). Alle 5- und
+  25-kg-Gebinde sowie Haferflocken, Haferkerne, Dinkelkörner und die
+  Vollkorn-/550er-Mehle haben keinen Preis und werden mit „auf Anfrage“
+  geführt.
+- **Echter Checkout aktivieren:** Produkte in `data/produkte.json` um eine
+  Ecwid-Produkt-ID ergänzen und den „In den Korb“-Knopf auf den Ecwid-Buy-
+  Button umstellen, oder die Bestellanfrage als Bestellweg beibehalten.
+  Beides ist eine Änderung in `tools/build-produkte.mjs` an einer Stelle.
+
+## Formulare
+
+Drei Versandwege, gesteuert über Attribute am `<form>` (siehe `main.js`):
+`data-endpunkt` (eigener POST-Endpunkt) > `data-netlify` (Netlify Forms, per
+fetch, Rückmeldung in der Seite) > mailto (öffnet das E-Mail-Programm mit
+vorbereitetem Text). Empfänger laut Bestand: `Team-Kornkammer@gmx.de`,
+auf Netlify unter Forms → Notifications eintragen. Spam-Schutz: unsichtbares
+Feld plus weiche Zeitprüfung (bei zu schnellem Absenden wird nachgefragt).
+
+## Bewegung
+
+- Einblendungen beim Scrollen (`.rv`, `.rv--mask`, `.rv-words`) mit
+  IntersectionObserver plus Sicherheitsnetz für Ankersprünge.
+- Parallax (`data-parallax`), Hero-Fahrt, Scroll-Geschichte (`.story`),
+  horizontale Strecke (`.hscroll`; unter 900 px natives Wischen mit
+  Scroll-Snap).
+- `prefers-reduced-motion`: alles sofort sichtbar, nichts fährt, kein Video.
+- Ohne JavaScript bleibt nichts versteckt (`kein-js`).
+
+## Medien
+
+Kein einziges Foto und kein Video der Kornkammer lag vor. Jeder Bildplatz
+ist ein `<figure class="media">` mit `<img src>` auf den vorgesehenen Pfad.
+Fehlt die Datei, zeigt der Rahmen eine klar als vorläufig erkennbare Fläche
+mit der Beschriftung „Foto folgt · …“. Liegt die Datei am Pfad, erscheint
+sie ohne weitere Änderung. Liste aller Plätze mit Motiv, Format und Seite:
+**`MEDIEN.md`**. Bis die Bilder da sind, erzeugt jeder Seitenaufruf
+404-Anfragen auf die Bildpfade; das ist beabsichtigt und verschwindet mit
+den Dateien.
+
+## Lokale Vorschau und Deploy
+
+```
+cd kornkammer
+node tools/build-produkte.mjs     # nach Änderungen an data/produkte.json
+python3 -m http.server 8765       # dann http://127.0.0.1:8765/
+```
+
+Netlify: Repository verbinden, Base directory `kornkammer`, Publish `.`,
+kein Build-Befehl. `netlify.toml` liegt bei (Header, saubere Adressen,
+301-Weiterleitungen von den alten `.htm`-Adressen).
+
+## Vor dem Live-Gang
+
+1. Testbetrieb aufheben: `X-Robots-Tag` in `netlify.toml`, `robots.txt`,
+   `<meta name="robots">` in allen Seiten und im Generator (`head()`).
+2. Fotos und Film nach `MEDIEN.md` einspielen, `alt`-Texte prüfen.
+3. Logo liefern und Wortmarke in Kopf- und Fußzeile ersetzen; Favicon.
+4. Impressum: Verantwortlicher nach § 18 MStV, GbR-Block, Schlichtungs-
+   aussage bestätigen. Datenschutz: Hoster, Formulardienst,
+   Datenschutzbeauftragter. Beides anwaltlich prüfen.
+5. Preise aller Produkte und die „auf Anfrage“-Gebinde mit dem Hof
+   abgleichen; Verfügbarkeiten (Kochkompl!ze, Kartoffelsorten) prüfen.
+6. Inhalt von „bio verstehen.htm“ beschaffen und auf hof.html einbauen.
+7. Formular-Empfänger auf Netlify eintragen und einen Testversand machen.
+8. Öffnungszeiten endgültig festlegen (die Quellen nennen 8–17, 8–17:30 und
+   8–18 Uhr; die Seite verwendet 8–17 Uhr von der bisherigen Startseite).
+9. Canonical-Domain prüfen (`www.team-kornkammer.de` ist eingetragen) und die
+   Spiegel-Domains ruhrtalgold.de / ruhrtalgarten.de per 301 darauf leiten.
+
+## Durchgeführte Tests
+
+Mit Playwright/Chromium gegen einen lokalen Server:
+
+- Elf Seiten in vier Breiten (375, 820, 1440, 2200 px): kein horizontaler
+  Überlauf, keine JavaScript-Fehler in der Konsole (die 404 der noch
+  fehlenden Bilder ausgenommen).
+- Alle 31 internen Links erreichbar.
+- Interaktion: Gebinde ohne Preis schaltet auf „Preis anfragen“; Menge 2
+  plus „In den Korb“ ergibt Zähler 2; Schublade öffnet und schließt; Galerie
+  blättert; Vollbild öffnet; Warenkorbseite zeigt die Zeile und befüllt den
+  Bestelltext; mobiles Menü öffnet; Tastaturfokus erreicht die Navigation.
+- Sichtprüfung der Screenshots; danach behoben: Einblendung bei
+  Ankersprüngen, Überlappung der Foto-Beschriftung mit dem Vollbild-Knopf,
+  Standardrahmen des Gebinde-Felds, Kapitelbild über dem Text auf dem Handy,
+  abgeschnittener Kopf der horizontalen Strecke auf dem Desktop.
+
+**Nicht gemessen:** Core Web Vitals (LCP, INP, CLS). Ohne echte Bilder und
+Video wäre eine Messung nicht aussagekräftig; nach dem Einspielen mit
+Lighthouse prüfen. Die Seite lädt keine fremden Ressourcen, Schriften sind
+vorgeladen, Bilder außerhalb des ersten Bildschirms lazy.

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Vorläufiges Zeichen: Ähre in Hausfarben. Das echte Logo von Team Kornkammer liegt noch nicht vor (siehe MEDIEN.md). -->
+  <rect width="64" height="64" rx="14" fill="#1F3A2B"/>
+  <g fill="none" stroke="#D4B06A" stroke-width="3" stroke-linecap="round">
+    <path d="M32 54V18"/>
+    <path d="M32 24c-7 0-11-4-11-10 6 0 11 4 11 10zM32 24c7 0 11-4 11-10-6 0-11 4-11 10z"/>
+    <path d="M32 34c-7 0-11-4-11-10 6 0 11 4 11 10zM32 34c7 0 11-4 11-10-6 0-11 4-11 10z"/>
+    <path d="M32 44c-7 0-11-4-11-10 6 0 11 4 11 10zM32 44c7 0 11-4 11-10-6 0-11 4-11 10z"/>
+  </g>
+</svg>

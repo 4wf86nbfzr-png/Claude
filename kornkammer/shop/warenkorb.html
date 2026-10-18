@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="de" class="kein-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ihr Korb · Team Kornkammer</title>
+<meta name="description" content="Bestellanfrage an die Kornkammer Haus Holte: Abholung freitags am Hof oder Versand. Bestätigung per E-Mail.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://www.team-kornkammer.de/shop/warenkorb.html">
+<link rel="icon" href="../assets/logo/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="../assets/fonts/fraunces-latin-opsz-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../assets/fonts/instrument-sans-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/css/fonts.css">
+<link rel="stylesheet" href="../assets/css/styles.css">
+<script>document.documentElement.classList.remove('kein-js');</script>
+</head>
+<body data-root="../">
+<a class="skip" href="#inhalt">Zum Inhalt springen</a>
+<header class="hdr">
+  <div class="wrap">
+    <a class="brand" href="../index.html" aria-label="Team Kornkammer, zur Startseite">
+      <span class="brand__name">Team Kornkammer</span>
+      <span class="brand__sub">Kornkammer Haus Holte · Witten</span>
+    </a>
+    <nav class="nav" aria-label="Hauptnavigation">
+      <a href="../hof.html">Der Hof</a>
+      <a href="../team.html">Das Team</a>
+      <a href="../arbeit.html">Unsere Arbeit</a>
+      <a href="../shop/">Sortiment</a>
+      <a href="../kontakt.html">Hofverkauf &amp; Kontakt</a>
+    </nav>
+    <div class="hdr__tools">
+      <button type="button" class="iconbtn cartbtn" aria-label="Warenkorb öffnen"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.4 11.2a1 1 0 0 0 1 .8h8.9a1 1 0 0 0 1-.8L20 8H6.5"/><circle cx="9.5" cy="20" r="1.2"/><circle cx="17" cy="20" r="1.2"/></svg><span class="cartbtn__n" aria-live="polite">0</span></button>
+      <button type="button" class="iconbtn burger" aria-expanded="false" aria-controls="menu" aria-label="Menü öffnen"><span class="l"></span></button>
+    </div>
+  </div>
+</header>
+<div class="menu" id="menu">
+  <nav class="menu__list" aria-label="Mobile Navigation">
+    <a href="../index.html">Start</a>
+    <a href="../hof.html">Der Hof</a>
+    <a href="../team.html">Das Team</a>
+    <a href="../arbeit.html">Unsere Arbeit</a>
+    <a href="../shop/">Sortiment</a>
+    <a href="../kontakt.html">Hofverkauf &amp; Kontakt</a>
+  </nav>
+  <div class="menu__foot">
+    <strong>Hofverkauf jeden Freitag, 8 bis 17 Uhr</strong>
+    <span>Gederfeldweg 37, 58453 Witten</span>
+    <a href="tel:+4923022827475">02302 282 7475</a>
+  </div>
+</div>
+
+<main id="inhalt">
+  <section class="pagehead">
+    <div class="wrap">
+      <p class="crumbs"><a href="../index.html">Start</a><span>/</span><a href="./">Sortiment</a><span>/</span><span>Ihr Korb</span></p>
+      <h1 class="rv-words">Ihr Korb.</h1>
+      <p class="lead rv rv--d1">Aus dem Korb wird eine Bestellanfrage. Wir bestätigen Verfügbarkeit, Abholung oder Versand und den Gesamtbetrag per E-Mail. Erst dann ist die Bestellung verbindlich.</p>
+    </div>
+  </section>
+
+  <section class="sec--s">
+    <div class="wrap">
+      <div class="cart">
+        <div>
+          <div class="cart__list" data-cart-list></div>
+          <div class="drawer__empty" data-cart-empty hidden style="padding-top:var(--gap-m)">
+            <p>Noch nichts im Korb.</p>
+            <a class="link" href="./">Zum Sortiment <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          </div>
+          <div class="totals" style="margin-top:var(--gap-m)">
+            <div class="is-total"><span>Zwischensumme</span><b data-cart-sum>0,00 €</b></div>
+            <span class="small">Preise inkl. 7 % MwSt., Stand Oktober 2026. Versandkosten kommen bei Versand hinzu; im Onlineshop ist der Versand ab 50 € kostenfrei.</span>
+          </div>
+          <p style="margin-top:var(--gap-m)"><button type="button" class="cline__rm" data-cart-clear>Korb leeren</button></p>
+        </div>
+
+        <div class="cart__side">
+          <!--
+            Bestellanfrage: data-netlify (Netlify Forms) > mailto-Fallback.
+            Die Zeilen des Korbs werden von shop.js in das Feld "bestellung"
+            geschrieben. Empfänger: Team-Kornkammer@gmx.de.
+          -->
+          <form class="form cart__box" name="bestellanfrage" method="post" action="danke.html" data-formular data-cart-form data-netlify="true" netlify-honeypot="firma" data-empfaenger="Team-Kornkammer@gmx.de" data-betreff="Bestellanfrage über team-kornkammer.de" data-danke="Danke, Ihre Bestellanfrage ist angekommen. Wir bestätigen per E-Mail.">
+            <input type="hidden" name="form-name" value="bestellanfrage">
+            <p class="hp" aria-hidden="true"><label>Firma <input type="text" name="firma" tabindex="-1" autocomplete="off"></label></p>
+            <h3>Bestellung anfragen</h3>
+            <div class="field"><label for="b-name">Name</label><input id="b-name" name="Name" type="text" required autocomplete="name"></div>
+            <div class="field"><label for="b-mail">E-Mail</label><input id="b-mail" name="E-Mail" type="email" required autocomplete="email"></div>
+            <div class="field"><label for="b-tel">Telefon (optional)</label><input id="b-tel" name="Telefon" type="tel" autocomplete="tel"></div>
+            <div class="field"><label for="b-weg">Abholung oder Versand</label>
+              <select id="b-weg" name="Abholung oder Versand">
+                <option>Abholung freitags am Hof</option>
+                <option>Versand (Kosten werden bestätigt)</option>
+              </select>
+            </div>
+            <div class="field"><label for="b-adresse">Lieferadresse (nur bei Versand)</label><textarea id="b-adresse" name="Lieferadresse" style="min-height:80px" autocomplete="street-address"></textarea></div>
+            <div class="field"><label for="b-msg">Anmerkung (optional)</label><textarea id="b-msg" name="Anmerkung" style="min-height:80px"></textarea></div>
+            <div class="field"><label for="b-best">Positionen</label><textarea id="b-best" name="bestellung" readonly style="min-height:120px;font-size:.9rem" aria-describedby="b-best-hint"></textarea><span class="small" id="b-best-hint">Wird aus dem Korb übernommen.</span></div>
+            <div class="field field--check">
+              <input id="b-ds" type="checkbox" name="Datenschutz" value="zugestimmt" required>
+              <label for="b-ds">Ich bin einverstanden, dass meine Angaben zur Bearbeitung der Anfrage gespeichert werden. Hinweise in der <a href="../datenschutz.html" style="border-bottom:1px solid currentColor">Datenschutzerklärung</a>.</label>
+            </div>
+            <button class="btn btn--solid btn--block" type="submit">Bestellanfrage senden</button>
+            <p class="form__msg" aria-live="polite"></p>
+          </form>
+          <div class="notice"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg><div><strong>Lieber sofort bezahlen?</strong> Im bestehenden Onlineshop können Sie direkt bestellen: <a href="https://shopteamkornkammer.company.site/" rel="noopener" style="border-bottom:1px solid currentColor">shopteamkornkammer.company.site</a></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="ftr">
+  <div class="wrap">
+    <div class="ftr__grid">
+      <div class="ftr__brand">
+        <span class="brand__name">Team Kornkammer</span>
+        <p>Kornkammer Haus Holte. Bioland-Betrieb mitten im Ruhrgebiet, seit 1987. Getreide, Kartoffeln, Öle, Senf und Nudeln vom eigenen Acker.</p>
+      </div>
+      <div>
+        <h4>Hofverkauf</h4>
+        <ul>
+          <li>Jeden Freitag 8 bis 17 Uhr</li>
+          <li>Fällt ein Feiertag auf Freitag, am Donnerstag</li>
+          <li>Gederfeldweg 37, 58453 Witten</li>
+          <li><a href="tel:+4923022827475">02302 282 7475</a></li>
+          <li><a href="mailto:Team-Kornkammer@gmx.de">Team-Kornkammer@gmx.de</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Seiten</h4>
+        <ul>
+          <li><a href="../hof.html">Der Hof</a></li>
+          <li><a href="../team.html">Das Team</a></li>
+          <li><a href="../arbeit.html">Unsere Arbeit</a></li>
+          <li><a href="../shop/">Sortiment</a></li>
+          <li><a href="../kontakt.html">Hofverkauf &amp; Kontakt</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Rechtliches</h4>
+        <ul>
+          <li><a href="../impressum.html">Impressum</a></li>
+          <li><a href="../datenschutz.html">Datenschutz</a></li>
+          <li><a href="https://shopteamkornkammer.company.site/" rel="noopener">Bestehender Onlineshop</a></li>
+          <li><a href="https://www.instagram.com/teamkornkammer/" rel="noopener">Instagram</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="ftr__bottom">
+      <span>© <span data-jahr>2026</span> Kornkammer Haus Holte oHG</span>
+      <span>Bioland-Betrieb · Mitglied im Netzwerk Pilotbetriebe</span>
+    </div>
+  </div>
+</footer>
+<script src="../assets/js/main.js" defer></script>
+<script src="../assets/js/shop.js" defer></script>
+</body>
+</html>

@@ -2,6 +2,11 @@
 
 Projektregeln für Claude Code. Bitte vor jeder Änderung lesen.
 
+> **Zweites Projekt im Repo:** `kornkammer/` ist die eigenständige Website
+> für Team Kornkammer (Bioland-Hof, Witten) mit eigener `README.md`,
+> eigenem Stylesheet und eigenen Regeln. Die Abschnitte unten gelten nur
+> für die HERM-Seite in der Wurzel.
+
 ## Was das ist
 Neuer, moderner Webauftritt für die **HERM Service Team e.K.** — Personaldienstleistung
 aus Hamburg (Sicherheit, Gastro-Personal, Promotion/Hostess, Logistik, Fahrservice,

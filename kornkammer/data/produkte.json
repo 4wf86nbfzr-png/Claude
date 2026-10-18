@@ -1,0 +1,188 @@
+{
+  "_hinweis": "Einzige Produktquelle. Daraus erzeugt tools/build-produkte.mjs die Shop-Übersicht und alle Produktseiten. Preise: Stand Oktober 2026, übernommen aus dem bestehenden Onlineshop (shopteamkornkammer.company.site), inkl. 7 % MwSt. 'preis': null = Preis nicht bekannt, Produkt wird nur mit 'Anfragen' angeboten. Nichts hier ist erfunden; Quellen in README.md.",
+  "kategorien": [
+    { "id": "senf", "name": "Senf", "titel": "Senfmanufaktur", "text": "Bio-Speisesenf aus hundert Prozent hofeigener Saat, traditionell auf Granitsteinen vermahlen. Drei Sorten, von mittelscharf bis scharf.", "bild": "assets/img/produkte/senf-welt.jpg", "ph": "Senfgläser auf dem Hof" },
+    { "id": "oele", "name": "Speiseöle", "titel": "Ölmanufaktur", "text": "Delikatess-Speiseöle, kaltgepresst aus hofeigenen Saaten. Alle Öle werden ohne Erhitzen gepresst, damit die Inhaltsstoffe erhalten bleiben.", "bild": "assets/img/produkte/oel-welt.jpg", "ph": "Ölflaschen Ruhrtalgold" },
+    { "id": "nudeln", "name": "Nudeln", "titel": "Dinkelnudeln", "text": "Nudeln aus dem eigenen Dinkel, in einer hellen und einer dunklen Fassung.", "bild": "assets/img/produkte/nudeln-welt.jpg", "ph": "Dinkelnudeln" },
+    { "id": "mehle", "name": "Mehle", "titel": "Mehle in Bäckerqualität", "text": "Weizen Type 550, Roggen Type 1150, Dinkel Type 630 und von allen dreien das Vollkornmehl. Dieselbe Qualität, die die Bäckereien bekommen, in 1, 5 und 25 Kilogramm.", "bild": "assets/img/produkte/mehl-welt.jpg", "ph": "Mehltüten" },
+    { "id": "koerner", "name": "Körner & Flocken", "titel": "Körner und Flocken", "text": "Ganze Körner von Weizen, Roggen und Dinkel, dazu Haferkerne und zartblättrige Haferflocken, alles vom eigenen Acker.", "bild": "assets/img/produkte/koerner-welt.jpg", "ph": "Getreidekörner" },
+    { "id": "kartoffeln", "name": "Kartoffeln", "titel": "Holter Knolle und Ruhrtalgold", "text": "Bio-Kartoffeln von Flächen in Witten und Dortmund, nach Sorte und Kochtyp. Nicht alle Sorten sind gleichzeitig verfügbar; was gerade da ist, sagen wir Ihnen gern.", "bild": "assets/img/produkte/kartoffeln-welt.jpg", "ph": "Kartoffeln im Sack" }
+  ],
+  "produkte": [
+    {
+      "id": "senf-der-scharfe-bernie", "kat": "senf", "name": "Der scharfe Bernie", "kurz": "Scharfer Bio-Speisesenf",
+      "text": ["Scharfer Bio-Speisesenf aus hundert Prozent hofeigener Senfsaat, traditionell auf Granitsteinen vermahlen.", "Benannt nach dem Gründer der Kornkammer Haus Holte."],
+      "herkunft": "Die Senfsaat wächst auf den eigenen Flächen und gehört zum Anbau 2025/2026. Vermahlen wird in der Senfmanufaktur auf dem Hof.",
+      "varianten": [{ "label": "Glas 200 g", "preis": 5.99, "einheit": "200 g", "grundpreis": "29,95 €/kg" }],
+      "bilder": ["produkte/senf-bernie.jpg", "produkte/senf-bernie-detail.jpg"], "ph": ["Glas Der scharfe Bernie", "Senf auf dem Löffel"],
+      "layout": "wide"
+    },
+    {
+      "id": "senf-kochkomplize", "kat": "senf", "name": "Kochkompl!ze", "kurz": "Mittelscharfer Bio-Speisesenf",
+      "text": ["Mittelscharfer Bio-Speisesenf aus hofeigener Saat, auf Granitsteinen vermahlen. Der geschmackvolle Partner in der Küche."],
+      "herkunft": "Hofeigene Senfsaat, vermahlen in der Senfmanufaktur auf dem Hof.",
+      "varianten": [{ "label": "Glas 200 g", "preis": 5.99, "einheit": "200 g", "grundpreis": "29,95 €/kg" }],
+      "bilder": ["produkte/senf-kochkomplize.jpg", "produkte/senf-kochkomplize-detail.jpg"], "ph": ["Glas Kochkompl!ze", "Senf in der Küche"],
+      "hinweis": "Im Onlineshop zuletzt ausverkauft. Ob gerade etwas da ist, bestätigen wir mit der Anfrage."
+    },
+    {
+      "id": "senf-schaerfemeister", "kat": "senf", "name": "Schärfemeister", "kurz": "Scharfer Bio-Speisesenf",
+      "text": ["Scharfer Bio-Speisesenf aus hofeigener Saat, auf Granitsteinen vermahlen."],
+      "herkunft": "Hofeigene Senfsaat, vermahlen in der Senfmanufaktur auf dem Hof.",
+      "varianten": [{ "label": "Glas 200 g", "preis": 5.99, "einheit": "200 g", "grundpreis": "29,95 €/kg" }],
+      "bilder": ["produkte/senf-schaerfemeister.jpg", "produkte/senf-schaerfemeister-detail.jpg"], "ph": ["Glas Schärfemeister", "Senfsaat"]
+    },
+
+    {
+      "id": "rapsoel", "kat": "oele", "name": "Bio Rapsöl nativ", "kurz": "Kaltgepresst aus hofeigener Saat",
+      "text": ["Natives Rapsöl, kaltgepresst aus hundert Prozent hofeigenen Saaten und auf dem Hof abgefüllt.", "Unter der Marke Ruhrtalgold auch im Naturkosthandel zu finden."],
+      "herkunft": "Raps von den eigenen Flächen im Ruhrgebiet, gepresst und abgefüllt in der Ölmanufaktur auf dem Hof.",
+      "varianten": [{ "label": "Flasche 500 ml", "preis": 6.49, "einheit": "500 ml", "grundpreis": "12,98 €/l" }],
+      "bilder": ["produkte/rapsoel.jpg", "produkte/rapsoel-detail.jpg"], "ph": ["Flasche Rapsöl", "Rapsblüte"],
+      "layout": "tall"
+    },
+    {
+      "id": "leinoel", "kat": "oele", "name": "Bio Leinöl", "kurz": "Erste Pressung, ungefiltert",
+      "text": ["Leinöl aus der ersten Pressung bei unter 40 °C. Das Öl bleibt ungefiltert, damit die sekundären Pflanzenstoffe erhalten bleiben.", "Innerhalb von sechs bis acht Wochen nach dem Kauf verbrauchen. Eingefroren hält es deutlich länger, etwa ein halbes Jahr."],
+      "herkunft": "Hofeigene Leinsaat, gepresst in der Ölmanufaktur auf dem Hof.",
+      "varianten": [{ "label": "Flasche 100 ml", "preis": 5.99, "einheit": "100 ml", "grundpreis": "59,90 €/l" }],
+      "bilder": ["produkte/leinoel.jpg", "produkte/leinoel-detail.jpg"], "ph": ["Flasche Leinöl", "Leinsaat"]
+    },
+    {
+      "id": "mohnoel", "kat": "oele", "name": "Bio Mohnöl", "kurz": "Aus hofeigenem Wintermohn",
+      "text": ["Mohnöl aus der hofeigenen Sorte Wintermohn. Durch die native Kaltpressung bleibt der typische Mohngeschmack erhalten."],
+      "herkunft": "Blaumohn gehört zum Anbau 2025/2026. Gepresst wird in der Ölmanufaktur auf dem Hof.",
+      "varianten": [{ "label": "Flasche 100 ml", "preis": 5.99, "einheit": "100 ml", "grundpreis": "59,90 €/l" }],
+      "bilder": ["produkte/mohnoel.jpg", "produkte/mohnoel-detail.jpg"], "ph": ["Flasche Mohnöl", "Mohnfeld"]
+    },
+    {
+      "id": "senfoel", "kat": "oele", "name": "Bio Senföl", "kurz": "Kaltgepresst aus Senfsaat",
+      "text": ["Senföl, kaltgepresst aus hofeigener Senfsaat."],
+      "herkunft": "Dieselbe Senfsaat wie für die Senfmanufaktur, gepresst in der Ölmanufaktur auf dem Hof.",
+      "varianten": [{ "label": "Flasche 100 ml", "preis": 5.99, "einheit": "100 ml", "grundpreis": "59,90 €/l" }],
+      "bilder": ["produkte/senfoel.jpg", "produkte/senfoel-detail.jpg"], "ph": ["Flasche Senföl", "Senfblüte"]
+    },
+
+    {
+      "id": "dinkelnudeln-hell", "kat": "nudeln", "name": "Bio Dinkelnudeln, hell", "kurz": "Aus dem eigenen Dinkel",
+      "text": ["Helle Nudeln aus dem eigenen Bio-Dinkel."],
+      "herkunft": "Dinkel von den eigenen Flächen, gehört zum Anbau 2025/2026.",
+      "varianten": [{ "label": "Packung 500 g", "preis": 3.79, "einheit": "500 g", "grundpreis": "7,58 €/kg", "max": 3 }],
+      "bilder": ["produkte/dinkelnudeln-hell.jpg", "produkte/dinkelnudeln-hell-detail.jpg"], "ph": ["Packung helle Dinkelnudeln", "Nudeln gekocht"],
+      "hinweis": "Im Onlineshop sind höchstens drei Packungen je Bestellung möglich.",
+      "layout": "wide"
+    },
+    {
+      "id": "dinkelnudeln-dunkel", "kat": "nudeln", "name": "Bio Dinkelnudeln, dunkel", "kurz": "Aus dem eigenen Dinkel",
+      "text": ["Dunkle Nudeln aus dem eigenen Bio-Dinkel."],
+      "herkunft": "Dinkel von den eigenen Flächen, gehört zum Anbau 2025/2026.",
+      "varianten": [{ "label": "Packung 500 g", "preis": 3.79, "einheit": "500 g", "grundpreis": "7,58 €/kg", "max": 10 }],
+      "bilder": ["produkte/dinkelnudeln-dunkel.jpg", "produkte/dinkelnudeln-dunkel-detail.jpg"], "ph": ["Packung dunkle Dinkelnudeln", "Nudeln roh"]
+    },
+
+    {
+      "id": "dinkelmehl-630", "kat": "mehle", "name": "Bio Dinkelmehl Type 630", "kurz": "Bäckerqualität",
+      "text": ["Dinkelmehl Type 630 aus dem eigenen Dinkel, in hundert Prozent Bäckerqualität."],
+      "herkunft": "Dinkel von den eigenen Flächen. Die Getreidechargen lassen sich bis auf den Acker zurückverfolgen.",
+      "varianten": [{ "label": "1 kg", "preis": 4.79, "einheit": "1 kg", "grundpreis": "4,79 €/kg" }, { "label": "5 kg", "preis": null, "einheit": "5 kg" }, { "label": "25 kg", "preis": null, "einheit": "25 kg" }],
+      "bilder": ["produkte/dinkelmehl-630.jpg", "produkte/mehl-detail.jpg"], "ph": ["Tüte Dinkelmehl 630", "Mehl auf dem Brett"],
+      "layout": "tall"
+    },
+    {
+      "id": "dinkelmehl-vollkorn", "kat": "mehle", "name": "Bio Dinkelvollkornmehl", "kurz": "Bäckerqualität",
+      "text": ["Vollkornmehl aus dem eigenen Dinkel, in hundert Prozent Bäckerqualität."],
+      "herkunft": "Dinkel von den eigenen Flächen.",
+      "varianten": [{ "label": "1 kg", "preis": null, "einheit": "1 kg" }, { "label": "5 kg", "preis": null, "einheit": "5 kg" }, { "label": "25 kg", "preis": null, "einheit": "25 kg" }],
+      "bilder": ["produkte/dinkelmehl-vollkorn.jpg", "produkte/mehl-detail.jpg"], "ph": ["Tüte Dinkelvollkornmehl", "Mehl auf dem Brett"]
+    },
+    {
+      "id": "roggenmehl-1150", "kat": "mehle", "name": "Bio Roggenmehl Type 1150", "kurz": "Bäckerqualität",
+      "text": ["Roggenmehl Type 1150 aus dem eigenen Roggen, in hundert Prozent Bäckerqualität."],
+      "herkunft": "Roggen von den eigenen Flächen in Essen, Witten und Dortmund.",
+      "varianten": [{ "label": "1 kg", "preis": 2.69, "einheit": "1 kg", "grundpreis": "2,69 €/kg" }, { "label": "5 kg", "preis": null, "einheit": "5 kg" }, { "label": "25 kg", "preis": null, "einheit": "25 kg" }],
+      "bilder": ["produkte/roggenmehl-1150.jpg", "produkte/mehl-detail.jpg"], "ph": ["Tüte Roggenmehl 1150", "Mehl auf dem Brett"]
+    },
+    {
+      "id": "roggenmehl-vollkorn", "kat": "mehle", "name": "Bio Roggenvollkornmehl", "kurz": "Bäckerqualität",
+      "text": ["Vollkornmehl aus dem eigenen Roggen, in hundert Prozent Bäckerqualität."],
+      "herkunft": "Roggen von den eigenen Flächen.",
+      "varianten": [{ "label": "1 kg", "preis": null, "einheit": "1 kg" }, { "label": "5 kg", "preis": null, "einheit": "5 kg" }, { "label": "25 kg", "preis": null, "einheit": "25 kg" }],
+      "bilder": ["produkte/roggenmehl-vollkorn.jpg", "produkte/mehl-detail.jpg"], "ph": ["Tüte Roggenvollkornmehl", "Mehl auf dem Brett"]
+    },
+    {
+      "id": "weizenmehl-550", "kat": "mehle", "name": "Bio Weizenmehl Type 550", "kurz": "Bäckerqualität",
+      "text": ["Weizenmehl Type 550 aus dem eigenen Winterweizen, in hundert Prozent Bäckerqualität.", "Der größte Teil des Brotweizens vom Hof geht an Bäckereien. Dieses Mehl ist dieselbe Ware."],
+      "herkunft": "Winterweizen von den eigenen Flächen, gehört zum Anbau 2025/2026.",
+      "varianten": [{ "label": "1 kg", "preis": null, "einheit": "1 kg" }, { "label": "5 kg", "preis": null, "einheit": "5 kg" }, { "label": "25 kg", "preis": null, "einheit": "25 kg" }],
+      "bilder": ["produkte/weizenmehl-550.jpg", "produkte/mehl-detail.jpg"], "ph": ["Tüte Weizenmehl 550", "Mehl auf dem Brett"]
+    },
+    {
+      "id": "weizenmehl-vollkorn", "kat": "mehle", "name": "Bio Weizenvollkornmehl", "kurz": "Bäckerqualität",
+      "text": ["Vollkornmehl aus dem eigenen Winterweizen, in hundert Prozent Bäckerqualität."],
+      "herkunft": "Winterweizen von den eigenen Flächen.",
+      "varianten": [{ "label": "1 kg", "preis": null, "einheit": "1 kg" }, { "label": "5 kg", "preis": null, "einheit": "5 kg" }, { "label": "25 kg", "preis": null, "einheit": "25 kg" }],
+      "bilder": ["produkte/weizenmehl-vollkorn.jpg", "produkte/mehl-detail.jpg"], "ph": ["Tüte Weizenvollkornmehl", "Mehl auf dem Brett"]
+    },
+
+    {
+      "id": "weizenkoerner", "kat": "koerner", "name": "Bio Weizenkörner", "kurz": "Ganze Körner",
+      "text": ["Ganze Weizenkörner vom eigenen Acker, zum Selbermahlen, Keimen oder Kochen."],
+      "herkunft": "Winterweizen von den eigenen Flächen.",
+      "varianten": [{ "label": "1 kg", "preis": 2.29, "einheit": "1 kg", "grundpreis": "2,29 €/kg" }, { "label": "5 kg", "preis": null, "einheit": "5 kg" }, { "label": "25 kg", "preis": null, "einheit": "25 kg" }],
+      "bilder": ["produkte/weizenkoerner.jpg", "produkte/koerner-detail.jpg"], "ph": ["Weizenkörner", "Körner in der Hand"],
+      "layout": "wide"
+    },
+    {
+      "id": "roggenkoerner", "kat": "koerner", "name": "Bio Roggenkörner", "kurz": "Ganze Körner",
+      "text": ["Ganze Roggenkörner vom eigenen Acker."],
+      "herkunft": "Roggen von den eigenen Flächen in Essen, Witten und Dortmund.",
+      "varianten": [{ "label": "1 kg", "preis": 2.19, "einheit": "1 kg", "grundpreis": "2,19 €/kg" }, { "label": "5 kg", "preis": null, "einheit": "5 kg" }, { "label": "25 kg", "preis": null, "einheit": "25 kg" }],
+      "bilder": ["produkte/roggenkoerner.jpg", "produkte/koerner-detail.jpg"], "ph": ["Roggenkörner", "Körner in der Hand"]
+    },
+    {
+      "id": "dinkelkoerner", "kat": "koerner", "name": "Bio Dinkelkörner", "kurz": "Ganze Körner",
+      "text": ["Ganze Dinkelkörner vom eigenen Acker."],
+      "herkunft": "Dinkel von den eigenen Flächen, gehört zum Anbau 2025/2026.",
+      "varianten": [{ "label": "1 kg", "preis": null, "einheit": "1 kg" }, { "label": "5 kg", "preis": null, "einheit": "5 kg" }, { "label": "25 kg", "preis": null, "einheit": "25 kg" }],
+      "bilder": ["produkte/dinkelkoerner.jpg", "produkte/koerner-detail.jpg"], "ph": ["Dinkelkörner", "Körner in der Hand"]
+    },
+    {
+      "id": "haferkerne", "kat": "koerner", "name": "Bio Haferkerne", "kurz": "Entspelzter Hafer",
+      "text": ["Haferkerne vom eigenen Acker."],
+      "herkunft": "Hafer von den eigenen Flächen, gehört zum Anbau 2025/2026.",
+      "varianten": [{ "label": "1 kg", "preis": null, "einheit": "1 kg" }, { "label": "5 kg", "preis": null, "einheit": "5 kg" }, { "label": "25 kg", "preis": null, "einheit": "25 kg" }],
+      "bilder": ["produkte/haferkerne.jpg", "produkte/koerner-detail.jpg"], "ph": ["Haferkerne", "Haferfeld"]
+    },
+    {
+      "id": "haferflocken", "kat": "koerner", "name": "Bio Haferflocken, zartblatt", "kurz": "Vom eigenen Hafer",
+      "text": ["Zartblättrige Haferflocken aus dem eigenen Hafer."],
+      "herkunft": "Hafer von den eigenen Flächen, gehört zum Anbau 2025/2026.",
+      "varianten": [{ "label": "500 g", "preis": null, "einheit": "500 g" }, { "label": "2,5 kg", "preis": null, "einheit": "2,5 kg" }, { "label": "25 kg", "preis": null, "einheit": "25 kg" }],
+      "bilder": ["produkte/haferflocken.jpg", "produkte/haferflocken-detail.jpg"], "ph": ["Haferflocken", "Flocken in der Schale"],
+      "layout": "tall"
+    },
+
+    {
+      "id": "kartoffeln-nicola", "kat": "kartoffeln", "name": "Kartoffeln Nicola", "kurz": "Festkochend",
+      "text": ["Festkochende Bio-Kartoffel. Festkochende Sorten behalten beim Kochen ihre Form, der Stärkegehalt liegt bei etwa 14 Prozent."],
+      "herkunft": "Die Kartoffeln der Saison 2025/2026 wachsen auf Flächen in Dortmund-Barop (Am Windrad Airwin) und Dortmund-Mengede (Naturschutzgebiet Im Siesack).",
+      "varianten": [{ "label": "Beutel 2 kg", "preis": 5.29, "einheit": "2 kg", "grundpreis": "2,64 €/kg" }],
+      "bilder": ["produkte/kartoffeln-nicola.jpg", "produkte/kartoffeln-detail.jpg"], "ph": ["Kartoffeln Nicola", "Kartoffelernte"],
+      "layout": "wide"
+    },
+    {
+      "id": "kartoffeln-glorietta", "kat": "kartoffeln", "name": "Kartoffeln Glorietta", "kurz": "Festkochend",
+      "text": ["Festkochende Bio-Kartoffel. Festkochende Sorten behalten beim Kochen ihre Form."],
+      "herkunft": "Flächen der Saison 2025/2026 in Dortmund-Barop und Dortmund-Mengede.",
+      "varianten": [{ "label": "Beutel 2 kg", "preis": 5.29, "einheit": "2 kg", "grundpreis": "2,64 €/kg" }],
+      "bilder": ["produkte/kartoffeln-glorietta.jpg", "produkte/kartoffeln-detail.jpg"], "ph": ["Kartoffeln Glorietta", "Kartoffelernte"]
+    },
+    {
+      "id": "kartoffeln-belana", "kat": "kartoffeln", "name": "Kartoffeln Belana", "kurz": "Festkochend",
+      "text": ["Festkochende Bio-Kartoffel. Festkochende Sorten behalten beim Kochen ihre Form."],
+      "herkunft": "Flächen der Saison 2025/2026 in Dortmund-Barop und Dortmund-Mengede.",
+      "varianten": [{ "label": "Beutel 2 kg", "preis": 5.29, "einheit": "2 kg", "grundpreis": "2,64 €/kg" }],
+      "bilder": ["produkte/kartoffeln-belana.jpg", "produkte/kartoffeln-detail.jpg"], "ph": ["Kartoffeln Belana", "Kartoffelernte"]
+    }
+  ]
+}
