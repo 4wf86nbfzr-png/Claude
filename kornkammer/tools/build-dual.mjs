@@ -87,7 +87,7 @@ const html = `<!DOCTYPE html>
             <a class="dbtn" href="#d-hof">Mehr</a>
           </div>
           <div class="dhero__media">
-            <figure class="media" data-ph="Ein Jahr auf dem Hof" style="--ar:9/16;max-height:70svh"><video class="clip" data-autoplay muted playsinline loop preload="metadata" poster="assets/img/video/hof-hochkant.jpg"><source src="assets/video/hof-hochkant.webm" type="video/webm"><source src="assets/video/hof-hochkant.mp4" type="video/mp4"></video></figure>
+            <figure class="media" data-ph="Getreideernte" style="--ar:16/10"><video class="clip" data-autoplay muted playsinline loop preload="metadata" poster="assets/img/video/maehdrescher-quer.jpg"><source src="assets/video/maehdrescher-quer.webm" type="video/webm"><source src="assets/video/maehdrescher-quer.mp4" type="video/mp4"></video></figure>
           </div>
           <div class="dhero__foot">
             <p class="dhero__mission">Unser Anspruch: Lebensmittel aus eigener Hand, ohne chemisch-synthetische Düngung und ohne Pflanzenschutzmittel, mit Fruchtfolge statt Chemie.</p>

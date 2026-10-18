@@ -441,7 +441,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   // Scrollgesteuerte Sequenz
   document.querySelectorAll('.scrub').forEach((sec) => {
-    const v = sec.querySelector('.scrub__video'); if (!v) return;
+    const vids = Array.from(sec.querySelectorAll('.scrub__video')); if (!vids.length) return;
+    const v = vids.find((x) => x.offsetParent !== null) || vids[0];
     const bg = sec.querySelector('.scrub__bg');
     const chapters = Array.from(sec.querySelectorAll('.scrub__ch'));
     if (reduce || saveData) { v.muted = true; v.loop = true; v.playsInline = true; v.play().catch(() => {}); chapters.forEach((c) => c.classList.add('is-on')); return; }

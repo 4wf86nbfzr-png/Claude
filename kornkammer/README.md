@@ -217,26 +217,26 @@ Hofverkauf-Foto als Übergang).
 
 ## Filme (Stand 18.10.2026)
 
-Drei Clips vom Hof liegen vor (hochkant 9:16, 464×832, vom Handy): eine
-Montage durchs Jahr, der Kartoffelroder von oben, Roder und Traktor von
-oben. Aufbereitet unter `assets/video/` (stumm, H.264 + VP9, Poster unter
-`assets/img/video/`), Standbilder der Montage dienen als Fotos.
+Vier Clips vom Hof liegen vor: Mähdrescher im Getreide (quer, 848×480),
+eine Montage durchs Jahr, der Kartoffelroder von oben, Roder und Traktor
+von oben (die drei hochkant, 464×832). Aufbereitet unter `assets/video/`
+(stumm, H.264 + VP9, Poster unter `assets/img/video/`).
 
 | Einsatz | Dateien | Technik |
 |---|---|---|
-| Hero der Startseite | `hof-hochkant.*` scharf rechts, `hof-hintergrund.*` unscharf als Breitfüllung | Hochkant bleibt scharf, nichts wird hochskaliert; auf dem Handy füllt der Clip das Bild |
-| Drohnensequenz „Die Ernte · von oben“ | `ernte-drohne-scrub.*` (Keyframe alle 12 Bilder) | Film folgt dem Scrollen, drei Kapitel blenden ein; braucht einen Server mit Range-Anfragen (Netlify: ja) |
-| Scroll-Geschichte, Kapitel Ernte | `roder-oben.mp4` | Schleife, spielt nur im Sichtfeld |
-| Dual-Display, Hero | `hof-hochkant.*` | Schleife |
+| Hero der Startseite, Desktop | `maehdrescher-quer.*` (1280×720) | bildschirmfüllend quer, zoomt leicht beim Scrollen |
+| Hero, Handy | `hof-hochkant.*` | füllt das Hochformat |
+| Drohnensequenz „Die Ernte · von oben“ | `ernte-drohne-scrub.*` scharf in der Mitte, dieselbe Datei unscharf als Breitfüllung | folgt dem Scrollen, drei Kapitel; braucht Range-Anfragen (Netlify: ja) |
+| Scroll-Geschichte, Kapitel Ernte | `roder-oben.mp4` | Schleife |
+| Unsere Arbeit, Getreide | `maehdrescher-quer.*` | Schleife im Bildmosaik |
+| Dual-Display, Hero | `maehdrescher-quer.*` | Schleife 16:10 |
+| Reserve (quer aus hochkant) | `hof-quer.*`, `ernte-drohne-quer-scrub.*` | 16:9-Mittelausschnitte, 960×540; derzeit nicht eingebunden, weil der Ausschnitt Maschinen anschneidet |
 
-Alle Clips laden erst im Sichtfeld, pausieren außerhalb, bei
-Datensparmodus oder reduzierter Bewegung läuft die Sequenz als normale
-Schleife. Die Einzeldatei `test-vorschau.html` bettet Videos nicht ein;
-sie spielt sie nur, wenn die Datei im Ordner `kornkammer/` liegt.
-
-**Für mehr Wirkung:** Querformat-Aufnahmen in 1080p oder 4K (Drohne über
-Feld und Hof, Abendlicht) würden den Hero ohne unscharfen Rand füllen.
-Dateinamen bleiben, nur die Dateien tauschen.
+Alle Clips laden erst im Sichtfeld, pausieren außerhalb; bei Datensparmodus
+oder reduzierter Bewegung läuft die Sequenz als normale Schleife.
+`test-vorschau.html` bettet Videos nicht ein; sie spielt sie nur im Ordner.
+Mehr Querformat vom Hof (Drohne über Feld und Hof, Abendlicht, 1080p oder
+4K) ersetzt die Dateien unter gleichem Namen.
 
 ## Bewegung
 

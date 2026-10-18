@@ -1435,3 +1435,12 @@ body{ background:var(--paper); color:var(--text); }
 }
 .kein-js .scrub__ch{ opacity:1; transform:none; }
 .media > video.clip{ opacity:1; }
+
+/* Querformat-Film: bildschirmfüllend auf Desktop, Hochkant auf dem Handy */
+.vhero__wide, .vhero__tall{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transform:scale(calc(1.03 + var(--p,0) * .08)); transform-origin:50% 45%; will-change:transform; }
+.vhero__tall{ display:none; }
+@media (max-width:899px){ .vhero__wide{ display:none; } .vhero__tall{ display:block; } }
+.vhero__panel, .vhero__panel--left, .vhero__bg{ display:none; }
+.scrub__video--quer{ left:0; top:0; transform:none; width:100%; height:100%; aspect-ratio:auto; box-shadow:none; }
+.scrub__video--hoch{ display:none; }
+@media (max-width:899px){ .scrub__video--quer{ display:none; } .scrub__video--hoch{ display:block; } }
