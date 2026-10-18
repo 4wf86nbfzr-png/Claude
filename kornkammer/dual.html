@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="de" class="kein-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Team Kornkammer · Hof und Shop</title>
+<meta name="description" content="Team Kornkammer auf zwei Bildschirmen: oben der Bioland-Hof in Witten, unten das Sortiment mit Direktbestellung.">
+<!-- TESTBETRIEB: vor dem Live-Gang entfernen -->
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://www.team-kornkammer.de/dual.html">
+<link rel="icon" href="assets/logo/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="assets/fonts/bricolage-grotesque-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/instrument-sans-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/css/fonts.css">
+<link rel="stylesheet" href="assets/css/styles.css">
+<script>document.documentElement.classList.remove('kein-js');</script>
+</head>
+<body class="dual" data-root="./" data-mode="dual">
+
+<!-- Globale Leiste: Marke, Ansichts-Umschalter, Korb -->
+<header class="dbar">
+  <a class="dbar__brand" href="index.html">Team Kornkammer<small>Kornkammer Haus Holte · Witten</small></a>
+  <nav class="dmode" aria-label="Ansicht wählen">
+    <button type="button" data-mode-set="oben" aria-pressed="false">Der Hof</button>
+    <button type="button" data-mode-set="dual" aria-pressed="true">Beide</button>
+    <button type="button" data-mode-set="unten" aria-pressed="false">Shop</button>
+  </nav>
+  <div class="dbar__tools">
+    <button type="button" class="iconbtn cartbtn" aria-label="Warenkorb öffnen"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.4 11.2a1 1 0 0 0 1 .8h8.9a1 1 0 0 0 1-.8L20 8H6.5"/><circle cx="9.5" cy="20" r="1.2"/><circle cx="17" cy="20" r="1.2"/></svg><span class="cartbtn__n" aria-live="polite">0</span></button>
+  </div>
+</header>
+
+<main class="dstage">
+
+  <!-- ============ Oberes Display: der Hof ============ -->
+  <section class="disp disp--oben" aria-label="Der Hof">
+    <div class="disp__scroll" data-no-smooth>
+      <nav class="disp__nav" aria-label="Hof">
+        <a href="#d-start">Start</a><a href="#d-hof">Über den Hof</a><a href="#d-arbeit">Unsere Arbeit</a><a href="#d-team">Das Team</a><a href="#d-kontakt">Kontakt</a>
+        <a class="pillb" href="#" data-go="unten">Zum Shop</a>
+      </nav>
+
+      <div class="dsec" id="d-start">
+        <div class="dhero">
+          <div>
+            <h1 class="dhero__title">Natur trifft Handwerk</h1>
+            <p class="dhero__text">Bioland-Hof mitten im Ruhrgebiet, seit 1987. Wir säen, ernten und verarbeiten selbst: Mehle in Bäckerqualität, kaltgepresste Öle, Senf auf Granitsteinen vermahlen, Kartoffeln nach Sorten. Hundert Prozent hofeigene Saat, rückverfolgbar bis auf den Acker.</p>
+            <a class="dbtn" href="#d-hof">Mehr</a>
+          </div>
+          <div class="dhero__media">
+            <figure class="media" data-ph="Porträt mit Feld oder Hofansicht"><img src="assets/img/hero-dual.jpg" alt="" width="900" height="1125" fetchpriority="high"></figure>
+          </div>
+          <div class="dhero__foot">
+            <p class="dhero__mission">Unser Anspruch: Lebensmittel aus eigener Hand, ohne chemisch-synthetische Düngung und ohne Pflanzenschutzmittel, mit Fruchtfolge statt Chemie.</p>
+            <div class="dhero__stat"><b>Seit 1987</b><span>bewirtschaften Dirk Liedmann und Bernhard Pawliczek die Felder nach Bioland-Richtlinien. Flächen in Witten, Dortmund und Essen.</span><a href="#d-hof">Zur Geschichte</a></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dsec" id="d-hof">
+        <div class="dhead"><p class="eyebrow">Über den Hof</p><h2>Ein ehemaliges Rittergut, ohne Chemie bewirtschaftet</h2></div>
+        <div class="dgrid">
+          <div class="dcard"><figure class="media" data-ph="Kartoffelfeld in Blüte"><img src="assets/img/galerie/g06.jpg" alt="" loading="lazy" width="251" height="190"></figure><b>Bioland seit 1987</b><p>Als Bioland-Betrieb erfüllt der Hof einen Standard, der deutlich über den gesetzlichen Vorgaben der EU-Bio-Verordnung liegt. Der ganze Hof, nicht einzelne Flächen.</p></div>
+          <div class="dcard"><figure class="media" data-ph="Hacken auf dem Feld"><img src="assets/img/galerie/g10.jpg" alt="" loading="lazy" width="251" height="190"></figure><b>Mechanisch statt chemisch</b><p>Unkraut wird gehackt, nicht gespritzt. Eine sechsgliedrige Fruchtfolge mit Rotklee als Gründüngung hält den Boden fruchtbar.</p></div>
+          <div class="dcard"><figure class="media" data-ph="Schild am Acker"><img src="assets/img/galerie/g09.jpg" alt="" loading="lazy" width="251" height="190"></figure><b>Rückverfolgbar bis auf den Acker</b><p>Kartoffeln 2025/2026 wachsen in Dortmund-Barop und Dortmund-Mengede. Getreide kommt von Flächen in Essen, Witten und Dortmund.</p></div>
+        </div>
+      </div>
+
+      <div class="dsec" id="d-arbeit">
+        <div class="dhead"><p class="eyebrow">Unsere Arbeit</p><h2>Vom Acker ins Regal</h2></div>
+        <ol class="dsteps">
+          <li><div><b>Der Boden</b><p>Rotklee bindet Stickstoff. Der erste Schnitt geht an eine Bio-Biogasanlage, die Nährstoffe kommen als Gärsubstrat zurück; der zweite Schnitt wird Saatgut.</p></div></li>
+          <li><div><b>Die Saat</b><p>Anbau 2025/2026: Senf, Hafer, Rotklee, Winterweizen, Dinkel, Kartoffeln und Blaumohn.</p></div></li>
+          <li><div><b>Die Verarbeitung</b><p>Getreide in Bäckerqualität vermahlen, Öle kalt gepresst (Leinöl unter 40 °C, ungefiltert), Senf auf Granitsteinen. Alles aus hofeigener Saat.</p></div></li>
+          <li><div><b>Der Verkauf</b><p>Rund 98 Prozent des Brotweizens gehen an Bäckereien. Der Rest: freitags im Hofverkauf, im Onlineshop, im Naturkosthandel unter der Marke Ruhrtalgold.</p></div></li>
+        </ol>
+        <div class="dstrip" style="margin-top:var(--gap-m)"><figure class="media" data-ph=""><img src="assets/img/galerie/g01.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g06.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g13.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g09.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g14.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g17.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g04.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g27.jpg" alt="" loading="lazy" width="251" height="190"></figure></div>
+      </div>
+
+      <div class="dsec" id="d-team">
+        <div class="dhead"><p class="eyebrow">Das Team</p><h2>Fünf Leute, die wissen, woher es kommt</h2></div>
+        <div class="dgrid">
+          <div class="dcard"><b>Dirk Liedmann</b><p>Betriebsleiter seit 1987, persönlich haftender Gesellschafter. Erklärt bei Hofbesuchen die Fruchtfolge.</p></div>
+          <div class="dcard"><b>Bernhard Pawliczek</b><p>Gründer der Kornkammer Haus Holte, Partner seit 1987. Namensgeber des Senfs „Der scharfe Bernie“.</p></div>
+          <div class="dcard"><b>Stefan Pawliczek</b><p>Persönlich haftender Gesellschafter, im Handelsregister seit September 2010.</p></div>
+          <div class="dcard"><b>Sebastian Krol</b><p>IT, Kommissionierung und die Ölproduktion.</p></div>
+          <div class="dcard"><b>Max</b><p>Der Neue im Team, gelernter Landwirt, im Ackerbau.</p></div>
+        </div>
+        <div class="dgrid" style="margin-top:var(--gap-l)">
+          <div class="dreview"><span class="stars" aria-label="5 von 5 Sternen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.2 6.8.8-5 4.7 1.3 6.8L12 17.6 5.9 21l1.3-6.8-5-4.7 6.8-.8z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.2 6.8.8-5 4.7 1.3 6.8L12 17.6 5.9 21l1.3-6.8-5-4.7 6.8-.8z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.2 6.8.8-5 4.7 1.3 6.8L12 17.6 5.9 21l1.3-6.8-5-4.7 6.8-.8z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.2 6.8.8-5 4.7 1.3 6.8L12 17.6 5.9 21l1.3-6.8-5-4.7 6.8-.8z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.2 6.8.8-5 4.7 1.3 6.8L12 17.6 5.9 21l1.3-6.8-5-4.7 6.8-.8z"/></svg></span><p>„Die beiden Biosenf-Sorten haben ein vielschichtiges Senf-Aroma, so was Vergleichbares gibt es nicht im Supermarkt, selbst der Dijon-Senf kommt da nicht dran! Unbedingt probieren.“</p><small>Burkhard Füllenbach · Google · vor 8 Monaten</small></div>
+          <div class="dreview"><span class="stars" aria-label="5 von 5 Sternen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.2 6.8.8-5 4.7 1.3 6.8L12 17.6 5.9 21l1.3-6.8-5-4.7 6.8-.8z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.2 6.8.8-5 4.7 1.3 6.8L12 17.6 5.9 21l1.3-6.8-5-4.7 6.8-.8z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.2 6.8.8-5 4.7 1.3 6.8L12 17.6 5.9 21l1.3-6.8-5-4.7 6.8-.8z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.2 6.8.8-5 4.7 1.3 6.8L12 17.6 5.9 21l1.3-6.8-5-4.7 6.8-.8z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.2 6.8.8-5 4.7 1.3 6.8L12 17.6 5.9 21l1.3-6.8-5-4.7 6.8-.8z"/></svg></span><p>„Achtung: Nur freitags geöffnet! Sehr gute Auswahl, regionale Produkte und nette Menschen.“</p><small>Jonas Holtkamp · Google · vor 10 Monaten</small></div>
+          <div class="dreview"><span class="stars" aria-label="5 von 5 Sternen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.2 6.8.8-5 4.7 1.3 6.8L12 17.6 5.9 21l1.3-6.8-5-4.7 6.8-.8z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.2 6.8.8-5 4.7 1.3 6.8L12 17.6 5.9 21l1.3-6.8-5-4.7 6.8-.8z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.2 6.8.8-5 4.7 1.3 6.8L12 17.6 5.9 21l1.3-6.8-5-4.7 6.8-.8z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.2 6.8.8-5 4.7 1.3 6.8L12 17.6 5.9 21l1.3-6.8-5-4.7 6.8-.8z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.2 6.8.8-5 4.7 1.3 6.8L12 17.6 5.9 21l1.3-6.8-5-4.7 6.8-.8z"/></svg></span><p>„Wir kaufen Kartoffeln, Rapsöl, Nudeln, Mehl und Haferflocken regelmäßig von hier über den Regionalladen grüne Perle in der Wittener Innenstadt und sind sehr …“</p><small>Ben KV · Google · vor 2 Jahren</small></div>
+        </div>
+      </div>
+
+      <div class="dsec" id="d-kontakt">
+        <div class="dhead"><p class="eyebrow">Hofverkauf &amp; Kontakt</p><h2>Freitags am Gederfeldweg</h2></div>
+        <div class="dgrid">
+          <div class="dcard"><b>Hofverkauf</b><p>Jeden Freitag 8 bis 17 Uhr. Fällt ein Feiertag auf den Freitag, am Donnerstag. Telefonische Absprachen möglich.</p></div>
+          <div class="dcard"><b>Adresse</b><p>Kornkammer Haus Holte<br>Gederfeldweg 37, 58453 Witten</p></div>
+          <div class="dcard"><b>Kontakt</b><p><a href="tel:+4923022827475">02302 282 7475</a><br><a href="mailto:Team-Kornkammer@gmx.de">Team-Kornkammer@gmx.de</a></p></div>
+        </div>
+        <p style="margin-top:var(--gap-l);font-size:.82rem"><a href="impressum.html">Impressum</a> · <a href="datenschutz.html">Datenschutz</a> · <a href="index.html">Klassische Ansicht</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Unteres Display: der Shop ============ -->
+  <section class="disp disp--unten" aria-label="Shop">
+    <div class="disp__scroll" data-no-smooth>
+      <nav class="disp__nav" aria-label="Shop">
+        <a href="#d-shop">Sortiment</a><a href="shop/warenkorb.html">Korb &amp; Bestellung</a><a href="kontakt.html">Abholung freitags</a>
+        <a class="pillb" href="#" data-go="oben">Zum Hof</a>
+      </nav>
+      <div class="dsec" id="d-shop">
+        <div class="dshop__head">
+          <div class="dhead" style="margin:0"><p class="eyebrow">Ruhrtalgold</p><h2>Sortiment</h2><p style="max-width:52ch">Preise inkl. 7 % MwSt., Stand Oktober 2026. Aus dem Korb wird eine Bestellanfrage; wir bestätigen Verfügbarkeit, Abholung oder Versand per E-Mail.</p></div>
+          <div class="dchips" role="group" aria-label="Kategorie"><button type="button" data-kat="alle" aria-pressed="true">Alle</button><button type="button" data-kat="senf" aria-pressed="false">Senf</button><button type="button" data-kat="oele" aria-pressed="false">Speiseöle</button><button type="button" data-kat="nudeln" aria-pressed="false">Nudeln</button><button type="button" data-kat="mehle" aria-pressed="false">Mehle</button><button type="button" data-kat="koerner" aria-pressed="false">Körner &amp; Flocken</button><button type="button" data-kat="kartoffeln" aria-pressed="false">Kartoffeln</button></div>
+        </div>
+        <div class="dprod">
+          <article class="dp" data-kat="senf">
+            <figure class="media" data-ph="Glas Der scharfe Bernie"><img src="assets/img/produkte/frei/senf-der-scharfe-bernie.webp" alt="Der scharfe Bernie" loading="lazy" width="600" height="750"></figure>
+            <span class="dp__cat">Senf</span>
+            <h3><a href="shop/produkte/senf-der-scharfe-bernie.html">Der scharfe Bernie</a></h3>
+            <div class="dp__row"><span class="dp__price">5,99 € <small style="font-weight:400;color:var(--ink-m)">200 g</small></span><button type="button" class="dp__add" data-add data-id="senf-der-scharfe-bernie" data-name="Der scharfe Bernie" data-variant="Glas 200 g" data-price="5.99" data-max="99" data-img="assets/img/produkte/senf-bernie.jpg" data-url="shop/produkte/senf-der-scharfe-bernie.html">In den Korb</button></div>
+          </article>
+          <article class="dp" data-kat="senf">
+            <figure class="media" data-ph="Glas Kochkompl!ze"><img src="assets/img/produkte/frei/senf-kochkomplize.webp" alt="Kochkompl!ze" loading="lazy" width="600" height="750"></figure>
+            <span class="dp__cat">Senf</span>
+            <h3><a href="shop/produkte/senf-kochkomplize.html">Kochkompl!ze</a></h3>
+            <div class="dp__row"><span class="dp__price">5,99 € <small style="font-weight:400;color:var(--ink-m)">200 g</small></span><button type="button" class="dp__add" data-add data-id="senf-kochkomplize" data-name="Kochkompl!ze" data-variant="Glas 200 g" data-price="5.99" data-max="99" data-img="assets/img/produkte/senf-kochkomplize.jpg" data-url="shop/produkte/senf-kochkomplize.html">In den Korb</button></div>
+          </article>
+          <article class="dp" data-kat="senf">
+            <figure class="media" data-ph="Glas Schärfemeister"><img src="assets/img/produkte/frei/senf-schaerfemeister.webp" alt="Schärfemeister" loading="lazy" width="600" height="750"></figure>
+            <span class="dp__cat">Senf</span>
+            <h3><a href="shop/produkte/senf-schaerfemeister.html">Schärfemeister</a></h3>
+            <div class="dp__row"><span class="dp__price">5,99 € <small style="font-weight:400;color:var(--ink-m)">200 g</small></span><button type="button" class="dp__add" data-add data-id="senf-schaerfemeister" data-name="Schärfemeister" data-variant="Glas 200 g" data-price="5.99" data-max="99" data-img="assets/img/produkte/senf-schaerfemeister.jpg" data-url="shop/produkte/senf-schaerfemeister.html">In den Korb</button></div>
+          </article>
+          <article class="dp" data-kat="oele">
+            <figure class="media" data-ph="Flasche Rapsöl"><img src="assets/img/produkte/frei/rapsoel.webp" alt="Bio Rapsöl nativ" loading="lazy" width="600" height="750"></figure>
+            <span class="dp__cat">Speiseöle</span>
+            <h3><a href="shop/produkte/rapsoel.html">Bio Rapsöl nativ</a></h3>
+            <div class="dp__row"><span class="dp__price">6,49 € <small style="font-weight:400;color:var(--ink-m)">500 ml</small></span><button type="button" class="dp__add" data-add data-id="rapsoel" data-name="Bio Rapsöl nativ" data-variant="Flasche 500 ml" data-price="6.49" data-max="99" data-img="assets/img/produkte/rapsoel.jpg" data-url="shop/produkte/rapsoel.html">In den Korb</button></div>
+          </article>
+          <article class="dp" data-kat="oele">
+            <figure class="media" data-ph="Flasche Leinöl"><img src="assets/img/produkte/leinoel.jpg" alt="Bio Leinöl" loading="lazy" width="600" height="750"></figure>
+            <span class="dp__cat">Speiseöle</span>
+            <h3><a href="shop/produkte/leinoel.html">Bio Leinöl</a></h3>
+            <div class="dp__row"><span class="dp__price">5,99 € <small style="font-weight:400;color:var(--ink-m)">100 ml</small></span><button type="button" class="dp__add" data-add data-id="leinoel" data-name="Bio Leinöl" data-variant="Flasche 100 ml" data-price="5.99" data-max="99" data-img="assets/img/produkte/leinoel.jpg" data-url="shop/produkte/leinoel.html">In den Korb</button></div>
+          </article>
+          <article class="dp" data-kat="oele">
+            <figure class="media" data-ph="Flasche Mohnöl"><img src="assets/img/produkte/mohnoel.jpg" alt="Bio Mohnöl" loading="lazy" width="600" height="750"></figure>
+            <span class="dp__cat">Speiseöle</span>
+            <h3><a href="shop/produkte/mohnoel.html">Bio Mohnöl</a></h3>
+            <div class="dp__row"><span class="dp__price">5,99 € <small style="font-weight:400;color:var(--ink-m)">100 ml</small></span><button type="button" class="dp__add" data-add data-id="mohnoel" data-name="Bio Mohnöl" data-variant="Flasche 100 ml" data-price="5.99" data-max="99" data-img="assets/img/produkte/mohnoel.jpg" data-url="shop/produkte/mohnoel.html">In den Korb</button></div>
+          </article>
+          <article class="dp" data-kat="oele">
+            <figure class="media" data-ph="Flasche Senföl"><img src="assets/img/produkte/senfoel.jpg" alt="Bio Senföl" loading="lazy" width="600" height="750"></figure>
+            <span class="dp__cat">Speiseöle</span>
+            <h3><a href="shop/produkte/senfoel.html">Bio Senföl</a></h3>
+            <div class="dp__row"><span class="dp__price">5,99 € <small style="font-weight:400;color:var(--ink-m)">100 ml</small></span><button type="button" class="dp__add" data-add data-id="senfoel" data-name="Bio Senföl" data-variant="Flasche 100 ml" data-price="5.99" data-max="99" data-img="assets/img/produkte/senfoel.jpg" data-url="shop/produkte/senfoel.html">In den Korb</button></div>
+          </article>
+          <article class="dp" data-kat="nudeln">
+            <figure class="media" data-ph="Packung helle Dinkelnudeln"><img src="assets/img/produkte/frei/dinkelnudeln-hell.webp" alt="Bio Dinkelnudeln, hell" loading="lazy" width="600" height="750"></figure>
+            <span class="dp__cat">Nudeln</span>
+            <h3><a href="shop/produkte/dinkelnudeln-hell.html">Bio Dinkelnudeln, hell</a></h3>
+            <div class="dp__row"><span class="dp__price">3,79 € <small style="font-weight:400;color:var(--ink-m)">500 g</small></span><button type="button" class="dp__add" data-add data-id="dinkelnudeln-hell" data-name="Bio Dinkelnudeln, hell" data-variant="Packung 500 g" data-price="3.79" data-max="3" data-img="assets/img/produkte/dinkelnudeln-hell.jpg" data-url="shop/produkte/dinkelnudeln-hell.html">In den Korb</button></div>
+          </article>
+          <article class="dp" data-kat="nudeln">
+            <figure class="media" data-ph="Packung dunkle Dinkelnudeln"><img src="assets/img/produkte/frei/dinkelnudeln-dunkel.webp" alt="Bio Dinkelnudeln, dunkel" loading="lazy" width="600" height="750"></figure>
+            <span class="dp__cat">Nudeln</span>
+            <h3><a href="shop/produkte/dinkelnudeln-dunkel.html">Bio Dinkelnudeln, dunkel</a></h3>
+            <div class="dp__row"><span class="dp__price">3,79 € <small style="font-weight:400;color:var(--ink-m)">500 g</small></span><button type="button" class="dp__add" data-add data-id="dinkelnudeln-dunkel" data-name="Bio Dinkelnudeln, dunkel" data-variant="Packung 500 g" data-price="3.79" data-max="10" data-img="assets/img/produkte/dinkelnudeln-dunkel.jpg" data-url="shop/produkte/dinkelnudeln-dunkel.html">In den Korb</button></div>
+          </article>
+          <article class="dp" data-kat="mehle">
+            <figure class="media" data-ph="Tüte Dinkelmehl 630"><img src="assets/img/produkte/frei/dinkelmehl-630.webp" alt="Bio Dinkelmehl Type 630" loading="lazy" width="600" height="750"></figure>
+            <span class="dp__cat">Mehle</span>
+            <h3><a href="shop/produkte/dinkelmehl-630.html">Bio Dinkelmehl Type 630</a></h3>
+            <div class="dp__row"><span class="dp__price">4,79 € <small style="font-weight:400;color:var(--ink-m)">1 kg</small></span><button type="button" class="dp__add" data-add data-id="dinkelmehl-630" data-name="Bio Dinkelmehl Type 630" data-variant="1 kg" data-price="4.79" data-max="99" data-img="assets/img/produkte/dinkelmehl-630.jpg" data-url="shop/produkte/dinkelmehl-630.html">In den Korb</button></div>
+          </article>
+          <article class="dp" data-kat="mehle">
+            <figure class="media" data-ph="Tüte Dinkelvollkornmehl"><img src="assets/img/produkte/frei/dinkelmehl-vollkorn.webp" alt="Bio Dinkelvollkornmehl" loading="lazy" width="600" height="750"></figure>
+            <span class="dp__cat">Mehle</span>
+            <h3><a href="shop/produkte/dinkelmehl-vollkorn.html">Bio Dinkelvollkornmehl</a></h3>
+            <div class="dp__row"><span class="dp__price">4,29 € <small style="font-weight:400;color:var(--ink-m)">1 kg</small></span><button type="button" class="dp__add" data-add data-id="dinkelmehl-vollkorn" data-name="Bio Dinkelvollkornmehl" data-variant="1 kg" data-price="4.29" data-max="99" data-img="assets/img/produkte/dinkelmehl-vollkorn.jpg" data-url="shop/produkte/dinkelmehl-vollkorn.html">In den Korb</button></div>
+          </article>
+          <article class="dp" data-kat="mehle">
+            <figure class="media" data-ph="Tüte Roggenmehl 1150"><img src="assets/img/produkte/frei/roggenmehl-1150.webp" alt="Bio Roggenmehl Type 1150" loading="lazy" width="600" height="750"></figure>
+            <span class="dp__cat">Mehle</span>
+            <h3><a href="shop/produkte/roggenmehl-1150.html">Bio Roggenmehl Type 1150</a></h3>
+            <div class="dp__row"><span class="dp__price">2,69 € <small style="font-weight:400;color:var(--ink-m)">1 kg</small></span><button type="button" class="dp__add" data-add data-id="roggenmehl-1150" data-name="Bio Roggenmehl Type 1150" data-variant="1 kg" data-price="2.69" data-max="99" data-img="assets/img/produkte/roggenmehl-1150.jpg" data-url="shop/produkte/roggenmehl-1150.html">In den Korb</button></div>
+          </article>
+          <article class="dp" data-kat="mehle">
+            <figure class="media" data-ph="Tüte Roggenvollkornmehl"><img src="assets/img/produkte/frei/roggenmehl-vollkorn.webp" alt="Bio Roggenvollkornmehl" loading="lazy" width="600" height="750"></figure>
+            <span class="dp__cat">Mehle</span>
+            <h3><a href="shop/produkte/roggenmehl-vollkorn.html">Bio Roggenvollkornmehl</a></h3>
+            <div class="dp__row"><span class="dp__price">2,69 € <small style="font-weight:400;color:var(--ink-m)">1 kg</small></span><button type="button" class="dp__add" data-add data-id="roggenmehl-vollkorn" data-name="Bio Roggenvollkornmehl" data-variant="1 kg" data-price="2.69" data-max="99" data-img="assets/img/produkte/roggenmehl-vollkorn.jpg" data-url="shop/produkte/roggenmehl-vollkorn.html">In den Korb</button></div>
+          </article>
+          <article class="dp" data-kat="mehle">
+            <figure class="media" data-ph="Tüte Weizenmehl 550"><img src="assets/img/produkte/frei/weizenmehl-550.webp" alt="Bio Weizenmehl Type 550" loading="lazy" width="600" height="750"></figure>
+            <span class="dp__cat">Mehle</span>
+            <h3><a href="shop/produkte/weizenmehl-550.html">Bio Weizenmehl Type 550</a></h3>
+            <div class="dp__row"><span class="dp__price">2,69 € <small style="font-weight:400;color:var(--ink-m)">1 kg</small></span><button type="button" class="dp__add" data-add data-id="weizenmehl-550" data-name="Bio Weizenmehl Type 550" data-variant="1 kg" data-price="2.69" data-max="99" data-img="assets/img/produkte/weizenmehl-550.jpg" data-url="shop/produkte/weizenmehl-550.html">In den Korb</button></div>
+          </article>
+          <article class="dp" data-kat="mehle">
+            <figure class="media" data-ph="Tüte Weizenvollkornmehl"><img src="assets/img/produkte/frei/weizenmehl-vollkorn.webp" alt="Bio Weizenvollkornmehl" loading="lazy" width="600" height="750"></figure>
+            <span class="dp__cat">Mehle</span>
+            <h3><a href="shop/produkte/weizenmehl-vollkorn.html">Bio Weizenvollkornmehl</a></h3>
+            <div class="dp__row"><span class="dp__price">2,79 € <small style="font-weight:400;color:var(--ink-m)">1 kg</small></span><button type="button" class="dp__add" data-add data-id="weizenmehl-vollkorn" data-name="Bio Weizenvollkornmehl" data-variant="1 kg" data-price="2.79" data-max="99" data-img="assets/img/produkte/weizenmehl-vollkorn.jpg" data-url="shop/produkte/weizenmehl-vollkorn.html">In den Korb</button></div>
+          </article>
+          <article class="dp" data-kat="koerner">
+            <figure class="media" data-ph="Weizenkörner"><img src="assets/img/produkte/frei/weizenkoerner.webp" alt="Bio Weizenkörner" loading="lazy" width="600" height="750"></figure>
+            <span class="dp__cat">Körner &amp; Flocken</span>
+            <h3><a href="shop/produkte/weizenkoerner.html">Bio Weizenkörner</a></h3>
+            <div class="dp__row"><span class="dp__price">2,29 € <small style="font-weight:400;color:var(--ink-m)">1 kg</small></span><button type="button" class="dp__add" data-add data-id="weizenkoerner" data-name="Bio Weizenkörner" data-variant="1 kg" data-price="2.29" data-max="99" data-img="assets/img/produkte/weizenkoerner.jpg" data-url="shop/produkte/weizenkoerner.html">In den Korb</button></div>
+          </article>
+          <article class="dp" data-kat="koerner">
+            <figure class="media" data-ph="Roggenkörner"><img src="assets/img/produkte/frei/roggenkoerner.webp" alt="Bio Roggenkörner" loading="lazy" width="600" height="750"></figure>
+            <span class="dp__cat">Körner &amp; Flocken</span>
+            <h3><a href="shop/produkte/roggenkoerner.html">Bio Roggenkörner</a></h3>
+            <div class="dp__row"><span class="dp__price">2,19 € <small style="font-weight:400;color:var(--ink-m)">1 kg</small></span><button type="button" class="dp__add" data-add data-id="roggenkoerner" data-name="Bio Roggenkörner" data-variant="1 kg" data-price="2.19" data-max="99" data-img="assets/img/produkte/roggenkoerner.jpg" data-url="shop/produkte/roggenkoerner.html">In den Korb</button></div>
+          </article>
+          <article class="dp" data-kat="koerner">
+            <figure class="media" data-ph="Dinkelkörner"><img src="assets/img/produkte/dinkelkoerner.jpg" alt="Bio Dinkelkörner" loading="lazy" width="600" height="750"></figure>
+            <span class="dp__cat">Körner &amp; Flocken</span>
+            <h3><a href="shop/produkte/dinkelkoerner.html">Bio Dinkelkörner</a></h3>
+            <div class="dp__row"><span class="dp__price">auf Anfrage <small style="font-weight:400;color:var(--ink-m)">1 kg</small></span><a class="dp__add" href="kontakt.html">Anfragen</a></div>
+          </article>
+          <article class="dp" data-kat="koerner">
+            <figure class="media" data-ph="Haferkerne"><img src="assets/img/produkte/haferkerne.jpg" alt="Bio Haferkerne" loading="lazy" width="600" height="750"></figure>
+            <span class="dp__cat">Körner &amp; Flocken</span>
+            <h3><a href="shop/produkte/haferkerne.html">Bio Haferkerne</a></h3>
+            <div class="dp__row"><span class="dp__price">auf Anfrage <small style="font-weight:400;color:var(--ink-m)">1 kg</small></span><a class="dp__add" href="kontakt.html">Anfragen</a></div>
+          </article>
+          <article class="dp" data-kat="koerner">
+            <figure class="media" data-ph="Haferflocken"><img src="assets/img/produkte/haferflocken.jpg" alt="Bio Haferflocken, zartblatt" loading="lazy" width="600" height="750"></figure>
+            <span class="dp__cat">Körner &amp; Flocken</span>
+            <h3><a href="shop/produkte/haferflocken.html">Bio Haferflocken, zartblatt</a></h3>
+            <div class="dp__row"><span class="dp__price">auf Anfrage <small style="font-weight:400;color:var(--ink-m)">500 g</small></span><a class="dp__add" href="kontakt.html">Anfragen</a></div>
+          </article>
+          <article class="dp" data-kat="kartoffeln">
+            <figure class="media" data-ph="Kartoffeln Nicola"><img src="assets/img/produkte/frei/kartoffeln-nicola.webp" alt="Kartoffeln Nicola" loading="lazy" width="600" height="750"></figure>
+            <span class="dp__cat">Kartoffeln</span>
+            <h3><a href="shop/produkte/kartoffeln-nicola.html">Kartoffeln Nicola</a></h3>
+            <div class="dp__row"><span class="dp__price">5,29 € <small style="font-weight:400;color:var(--ink-m)">2 kg</small></span><button type="button" class="dp__add" data-add data-id="kartoffeln-nicola" data-name="Kartoffeln Nicola" data-variant="Beutel 2 kg" data-price="5.29" data-max="99" data-img="assets/img/produkte/kartoffeln-nicola.jpg" data-url="shop/produkte/kartoffeln-nicola.html">In den Korb</button></div>
+          </article>
+          <article class="dp" data-kat="kartoffeln">
+            <figure class="media" data-ph="Kartoffeln Glorietta"><img src="assets/img/produkte/kartoffeln-glorietta.jpg" alt="Kartoffeln Glorietta" loading="lazy" width="600" height="750"></figure>
+            <span class="dp__cat">Kartoffeln</span>
+            <h3><a href="shop/produkte/kartoffeln-glorietta.html">Kartoffeln Glorietta</a></h3>
+            <div class="dp__row"><span class="dp__price">5,29 € <small style="font-weight:400;color:var(--ink-m)">2 kg</small></span><button type="button" class="dp__add" data-add data-id="kartoffeln-glorietta" data-name="Kartoffeln Glorietta" data-variant="Beutel 2 kg" data-price="5.29" data-max="99" data-img="assets/img/produkte/kartoffeln-glorietta.jpg" data-url="shop/produkte/kartoffeln-glorietta.html">In den Korb</button></div>
+          </article>
+          <article class="dp" data-kat="kartoffeln">
+            <figure class="media" data-ph="Kartoffeln Belana"><img src="assets/img/produkte/kartoffeln-belana.jpg" alt="Kartoffeln Belana" loading="lazy" width="600" height="750"></figure>
+            <span class="dp__cat">Kartoffeln</span>
+            <h3><a href="shop/produkte/kartoffeln-belana.html">Kartoffeln Belana</a></h3>
+            <div class="dp__row"><span class="dp__price">5,29 € <small style="font-weight:400;color:var(--ink-m)">2 kg</small></span><button type="button" class="dp__add" data-add data-id="kartoffeln-belana" data-name="Kartoffeln Belana" data-variant="Beutel 2 kg" data-price="5.29" data-max="99" data-img="assets/img/produkte/kartoffeln-belana.jpg" data-url="shop/produkte/kartoffeln-belana.html">In den Korb</button></div>
+          </article>
+          <article class="dp" data-kat="kartoffeln">
+            <figure class="media" data-ph="Kartoffeln Laura"><img src="assets/img/produkte/frei/kartoffeln-laura.webp" alt="Kartoffeln Laura" loading="lazy" width="600" height="750"></figure>
+            <span class="dp__cat">Kartoffeln</span>
+            <h3><a href="shop/produkte/kartoffeln-laura.html">Kartoffeln Laura</a></h3>
+            <div class="dp__row"><span class="dp__price">5,29 € <small style="font-weight:400;color:var(--ink-m)">2 kg</small></span><button type="button" class="dp__add" data-add data-id="kartoffeln-laura" data-name="Kartoffeln Laura" data-variant="Beutel 2 kg" data-price="5.29" data-max="99" data-img="assets/img/produkte/kartoffeln-laura.jpg" data-url="shop/produkte/kartoffeln-laura.html">In den Korb</button></div>
+          </article>
+          <article class="dp" data-kat="kartoffeln">
+            <figure class="media" data-ph="Kartoffeln Karelia"><img src="assets/img/produkte/frei/kartoffeln-karelia.webp" alt="Kartoffeln Karelia" loading="lazy" width="600" height="750"></figure>
+            <span class="dp__cat">Kartoffeln</span>
+            <h3><a href="shop/produkte/kartoffeln-karelia.html">Kartoffeln Karelia</a></h3>
+            <div class="dp__row"><span class="dp__price">5,29 € <small style="font-weight:400;color:var(--ink-m)">2 kg</small></span><button type="button" class="dp__add" data-add data-id="kartoffeln-karelia" data-name="Kartoffeln Karelia" data-variant="Beutel 2 kg" data-price="5.29" data-max="99" data-img="assets/img/produkte/kartoffeln-karelia.jpg" data-url="shop/produkte/kartoffeln-karelia.html">In den Korb</button></div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script src="assets/js/main.js" defer></script>
+<script src="assets/js/shop.js" defer></script>
+<script src="assets/js/dual.js" defer></script>
+</body>
+</html>

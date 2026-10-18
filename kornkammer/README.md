@@ -195,6 +195,26 @@ Alles ohne Abhängigkeit; `scrubbers()` in main.js setzt je Abschnitt `--p`
 (0 bis 1), der Rest ist CSS. Bei reduzierter Bewegung sind die Abschnitte
 statisch und vollständig sichtbar.
 
+## Dual-Display (dual.html)
+
+Zweite Startseite nach dem Konzept „zwei Bildschirme“: dunkler Raum, oben
+das Display **Der Hof** (Philosophie, Arbeit, Team, Rezensionen, Kontakt)
+mit eigenem Scrollen, unten das Display **Shop** (alle 25 Produkte,
+Kategoriefilter, In-den-Korb). Die globale Leiste schaltet zwischen
+`dual`, `oben` und `unten` (auch Tasten 0, 1, 2); der Übergang animiert die
+Zeilenhöhen, der Zustand bleibt im Browser gespeichert. Auf dem Handy
+stehen die Displays untereinander und die Seite scrollt normal.
+
+Umgesetzt im vorhandenen Stack statt mit React: `tools/build-dual.mjs`
+erzeugt die Seite aus `data/produkte.json` und `data/rezensionen.json`,
+`assets/js/dual.js` hält den Zustand (entspricht GlobalNavbar), die beiden
+`.disp`-Abschnitte entsprechen TopDisplay und BottomDisplay. Der
+Warenkorb ist derselbe wie im übrigen Shop. Stil cremefarben mit
+schwarzer Schrift, nur auf dieser Seite (`body.dual`). Soll sie die
+Startseite werden: `dual.html` nach `index.html` kopieren.
+Großes Hero-Bild: `assets/img/hero-dual.jpg` (4:5, derzeit das
+Hofverkauf-Foto als Übergang).
+
 ## Bewegung
 
 - Einblendungen beim Scrollen (`.rv`, `.rv--mask`, `.rv-words`) mit
