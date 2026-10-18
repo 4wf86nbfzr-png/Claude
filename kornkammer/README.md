@@ -172,6 +172,28 @@ vorbereitetem Text). Empfänger laut Bestand: `Team-Kornkammer@gmx.de`,
 auf Netlify unter Forms → Notifications eintragen. Spam-Schutz: unsichtbares
 Feld plus weiche Zeitprüfung (bei zu schnellem Absenden wird nachgefragt).
 
+## Referenzstil (Stand 18.10.2026, nach den drei Bildschirmaufnahmen)
+
+Die Fläche ist jetzt tiefdunkel, die Display-Schrift Bricolage Grotesque
+(geometrisch, fett), Fraunces nur noch kursiv als Auszeichnung, Gold als
+einziger Akzent, Navigation und Knöpfe als Pillen, Produktkarten hell auf
+dunklem Grund. Der Block „REFERENZSTIL“ am Ende von `styles.css`
+überschreibt die Tokens; die hellen Werte darüber bleiben als Grundlage
+für alle Unterseiten erhalten und werden mit überschrieben.
+
+Nachgebaute Effekte aus den Aufnahmen, alle auf der Startseite:
+
+| Aufnahme | Effekt | Baustein |
+|---|---|---|
+| 1, Szene 1 | Wortmarke, Bildkarten fliegen beim Laden ein, beim Scrollen wächst die Hauptkarte zum Vollbild, Nebenkarten weichen, zweite Überschrift blendet ein | `.hero2`, `hero2()` in main.js |
+| 1, Szene 2 | Bilder fächern aus der Überschrift heraus, Text bleibt in der Mitte | `.burst`, `burst()` |
+| 1, Szene 3 | gewölbte Bildwand, dreht sich langsam | `.wall` (nur CSS) |
+| 2 | 3D-Coverflow, Wechsel mit Nebelwolke, Pfeile, Punkte, Wischen, Tastatur | `.cover`, `coverflow()` |
+| 3 | heller Rahmen mit Rundungen, Karten laufen beim Scrollen horizontal durch, erste Karte zieht sich vom Vollrahmen zusammen | `.bento` auf `.hscroll` |
+
+Alles ohne Abhängigkeit, bei `prefers-reduced-motion` stehen Karten an
+ihrem Zielplatz, die Wand dreht nicht, der Nebel entfällt.
+
 ## Bewegung
 
 - Einblendungen beim Scrollen (`.rv`, `.rv--mask`, `.rv-words`) mit
