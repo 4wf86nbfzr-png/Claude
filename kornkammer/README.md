@@ -205,6 +205,15 @@ sie ohne weitere Änderung. Liste aller Plätze mit Motiv, Format und Seite:
 404-Anfragen auf die Bildpfade; das ist beabsichtigt und verschwindet mit
 den Dateien.
 
+## Schnelltest ohne Server
+
+`test-vorschau.html` ist die Startseite als eine einzige Datei mit
+eingebetteten Schriften, Skripten und Bildern (rund 2,4 MB). Doppelklick
+genügt. Links zu Unterseiten funktionieren, solange die Datei im Ordner
+`kornkammer/` liegt. Neu erzeugen nach Änderungen:
+`node tools/buendeln.mjs` (andere Seite: `node tools/buendeln.mjs
+shop/produkte/rapsoel.html vorschau-rapsoel.html`).
+
 ## Lokale Vorschau und Deploy
 
 ```

@@ -202,7 +202,7 @@
   function heroVideo() {
     $$('video[data-src]').forEach((v) => {
       const src = v.dataset.src;
-      if (!src || isReduced()) return;
+      if (!src || isReduced() || location.protocol === 'file:') return;   // ohne Server kein HEAD-Abruf
       const c = navigator.connection;
       if (c && (c.saveData || /2g/.test(c.effectiveType || ''))) return;
       // Nur laden, wenn die Datei da ist — sonst bleibt das Poster/der Rahmen.
