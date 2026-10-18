@@ -172,27 +172,28 @@ vorbereitetem Text). Empfänger laut Bestand: `Team-Kornkammer@gmx.de`,
 auf Netlify unter Forms → Notifications eintragen. Spam-Schutz: unsichtbares
 Feld plus weiche Zeitprüfung (bei zu schnellem Absenden wird nachgefragt).
 
-## Referenzstil (Stand 18.10.2026, nach den drei Bildschirmaufnahmen)
+## Stil: dunkles Grün und Beige, ruhig und filmisch (Stand 18.10.2026)
 
-Die Fläche ist jetzt tiefdunkel, die Display-Schrift Bricolage Grotesque
-(geometrisch, fett), Fraunces nur noch kursiv als Auszeichnung, Gold als
-einziger Akzent, Navigation und Knöpfe als Pillen, Produktkarten hell auf
-dunklem Grund. Der Block „REFERENZSTIL“ am Ende von `styles.css`
-überschreibt die Tokens; die hellen Werte darüber bleiben als Grundlage
-für alle Unterseiten erhalten und werden mit überschrieben.
+Grundfläche tiefes Grün (`#0C1A13`), Beige (`#E6DCC8`) für Rahmen, Karten
+und Knöpfe, Stroh als einziger Akzent. Eine Display-Schrift (Bricolage
+Grotesque, Gewicht 500), Fraunces nur kursiv als Auszeichnung. Der Block
+„STIL“ am Ende von `styles.css` überschreibt die Tokens. Scroll-Effekte
+nach dem Vorbild großer Produktseiten, alle auf der Startseite:
 
-Nachgebaute Effekte aus den Aufnahmen, alle auf der Startseite:
+| Effekt | Baustein |
+|---|---|
+| Vollbild-Hero, Bild zoomt, Titel schrumpft und weicht, zweiter Titel erscheint; Bio-Plakette im ersten Blick | `.hero3` |
+| Satz füllt sich wortweise beim Scrollen | `.reveal` |
+| Zahlen zählen hoch | `[data-count]` |
+| Bild wächst aus einem Rahmen zum Vollbild, Bildunterschrift blendet ein | `.grow` |
+| Scroll-Geschichte mit haftendem Bild | `.story` |
+| Lichtbühne mit Produkt | `.stage3` |
+| Beiger Rahmen, Karten laufen horizontal durch | `.bento` |
+| Anbau-Strecke horizontal | `.hscroll` |
 
-| Aufnahme | Effekt | Baustein |
-|---|---|---|
-| 1, Szene 1 | Wortmarke, Bildkarten fliegen beim Laden ein, beim Scrollen wächst die Hauptkarte zum Vollbild, Nebenkarten weichen, zweite Überschrift blendet ein | `.hero2`, `hero2()` in main.js |
-| 1, Szene 2 | Bilder fächern aus der Überschrift heraus, Text bleibt in der Mitte | `.burst`, `burst()` |
-| 1, Szene 3 | gewölbte Bildwand, dreht sich langsam | `.wall` (nur CSS) |
-| 2 | 3D-Coverflow, Wechsel mit Nebelwolke, Pfeile, Punkte, Wischen, Tastatur | `.cover`, `coverflow()` |
-| 3 | heller Rahmen mit Rundungen, Karten laufen beim Scrollen horizontal durch, erste Karte zieht sich vom Vollrahmen zusammen | `.bento` auf `.hscroll` |
-
-Alles ohne Abhängigkeit, bei `prefers-reduced-motion` stehen Karten an
-ihrem Zielplatz, die Wand dreht nicht, der Nebel entfällt.
+Alles ohne Abhängigkeit; `scrubbers()` in main.js setzt je Abschnitt `--p`
+(0 bis 1), der Rest ist CSS. Bei reduzierter Bewegung sind die Abschnitte
+statisch und vollständig sichtbar.
 
 ## Bewegung
 

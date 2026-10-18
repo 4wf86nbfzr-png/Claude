@@ -336,44 +336,43 @@
     window.addEventListener('scroll', () => { if (!raf) { target = window.scrollY; current = target; } }, { passive: true });
   }
 
-  /* ---------- Hero 2: fliegende Bildkarten, Hauptkarte wächst zum Vollbild ---------- */
-  function hero2() {
-    const sec = $('.hero2'); if (!sec) return;
-    const cards = $$('.hcard', sec);
-    const main = $('.hcard--main', sec);
-    const smooth = (t) => t * t * (3 - 2 * t);
+  /* ---------- Scroll-Fortschritt für klebende Abschnitte (Hero, Reveal, Grow) ---------- */
+  function scrubbers() {
+    const secs = $$('.hero3, .reveal, .grow');
+    if (!secs.length || isReduced()) return;
+    // Wörter des Reveal-Textes vorbereiten
+    $$('.reveal__text').forEach((el) => {
+      if (el.dataset.split) return; el.dataset.split = '1';
+      const walk = (node) => Array.from(node.childNodes).forEach((n) => {
+        if (n.nodeType === 3) {
+          const frag = d.createDocumentFragment();
+          n.textContent.split(/(\s+)/).forEach((part) => {
+            if (!part) return;
+            if (/^\s+$/.test(part)) { frag.appendChild(d.createTextNode(part)); return; }
+            const w = d.createElement('span'); w.className = 'w'; w.textContent = part; frag.appendChild(w);
+          });
+          node.replaceChild(frag, n);
+        } else if (n.nodeType === 1) walk(n);
+      });
+      walk(el);
+      // Wörter innerhalb von <em> einzeln markieren: em-Elemente in Wortspannen packen
+      $$('em', el).forEach((em) => { if (!em.closest('.w')) { const w = d.createElement('span'); w.className = 'w'; em.replaceWith(w); w.appendChild(em); } });
+    });
     let ticking = false;
-    if (isReduced()) { sec.style.setProperty('--p', '0'); return; }
     const run = () => {
-      const r = sec.getBoundingClientRect();
-      const total = r.height - window.innerHeight;
-      const p = total > 0 ? clamp(-r.top / total, 0, 1) : 0;
-      sec.style.setProperty('--p', p.toFixed(3));
-      if (p > 0.02) sec.classList.add('is-scrubbing');
-      const vw = window.innerWidth, vh = window.innerHeight;
-      const grow = smooth(clamp((p - 0.12) / 0.45, 0, 1));
-      cards.forEach((c) => {
-        const cs = getComputedStyle(c);
-        const x0 = parseFloat(cs.getPropertyValue('--x')) / 100 * vw, y0 = parseFloat(cs.getPropertyValue('--y')) / 100 * vh;
-        const rot = parseFloat(cs.getPropertyValue('--rot')) || 0;
-        if (c === main) {
-          const s = Math.max(vw / c.offsetWidth, vh / c.offsetHeight) * 1.02;
-          c.style.setProperty('--dx', ((vw / 2 - x0) * grow).toFixed(1) + 'px');
-          c.style.setProperty('--dy', ((vh / 2 - y0) * grow).toFixed(1) + 'px');
-          c.style.setProperty('--s', (1 + (s - 1) * grow).toFixed(4));
-          c.style.setProperty("--full", grow.toFixed(3)); sec.style.setProperty("--full", grow.toFixed(3));
-          c.style.transform = `translate(-50%,-50%) translate3d(var(--dx),var(--dy),0) rotate(${(rot * (1 - grow)).toFixed(2)}deg) scale(var(--s))`;
-        } else {
-          // Nebenkarten gleiten mit dem Scrollen (Parallax) und weichen nach außen, wenn die Hauptkarte wächst
-          const depth = parseFloat(c.dataset.depth || '0.3');
-          const push = (x0 - vw / 2) * 1.6 * grow, lift = -p * 220 * depth;
-          c.style.setProperty('--dx', push.toFixed(1) + 'px');
-          c.style.setProperty('--dy', (lift + (y0 - vh / 2) * 0.6 * grow).toFixed(1) + 'px');
-          c.style.setProperty('--s', (1 - .35 * grow).toFixed(3));
-          c.style.setProperty('--o', (1 - grow).toFixed(3));
+      const vh = window.innerHeight;
+      secs.forEach((sec) => {
+        const r = sec.getBoundingClientRect();
+        if (r.bottom < -vh || r.top > vh * 2) return;
+        const total = r.height - vh;
+        const p = total > 0 ? clamp(-r.top / total, 0, 1) : 0;
+        sec.style.setProperty('--p', p.toFixed(3));
+        if (sec.classList.contains('reveal')) {
+          const words = $$('.reveal__text .w', sec);
+          const n = Math.round(clamp((p - 0.1) / 0.75, 0, 1) * words.length);
+          words.forEach((w, k) => w.classList.toggle('is-on', k < n));
         }
       });
-      sec.style.setProperty('--p2', smooth(clamp((p - 0.62) / 0.28, 0, 1)).toFixed(3));
       ticking = false;
     };
     window.addEventListener('scroll', () => { if (!ticking) { requestAnimationFrame(run); ticking = true; } }, { passive: true });
@@ -381,66 +380,22 @@
     run();
   }
 
-  /* ---------- Bildfächer aus der Überschrift ---------- */
-  function burst() {
-    $$('.burst').forEach((sec) => {
-      if (isReduced()) { sec.style.setProperty('--p', '1'); return; }
-      let ticking = false;
-      const run = () => {
-        const r = sec.getBoundingClientRect();
-        const total = r.height - window.innerHeight;
-        const p = total > 0 ? clamp(-r.top / total, 0, 1) : 1;
-        const e = 1 - Math.pow(1 - clamp(p / 0.75, 0, 1), 3);
-        sec.style.setProperty('--p', e.toFixed(3));
-        ticking = false;
-      };
-      window.addEventListener('scroll', () => { if (!ticking) { requestAnimationFrame(run); ticking = true; } }, { passive: true });
-      run();
-    });
-  }
-
-  /* ---------- 3D-Coverflow mit Nebelwechsel ---------- */
-  function coverflow() {
-    $$('.cover').forEach((sec) => {
-      const cards = $$('.ccard', sec);
-      const cap = { h: $('.cover__caption h3', sec), p: $('.cover__caption p', sec), a: $('.cover__caption a', sec) };
-      const dots = $('.cover__dots', sec);
-      if (!cards.length) return;
-      let i = 0, busy = false;
-      if (dots) cards.forEach((_, k) => { const b = d.createElement('button'); b.type = 'button'; b.setAttribute('aria-label', 'Bild ' + (k + 1)); b.addEventListener('click', () => go(k)); dots.appendChild(b); });
-      const layout = () => {
-        const n = cards.length;
-        cards.forEach((c, k) => {
-          let off = k - i; if (off > n / 2) off -= n; if (off < -n / 2) off += n;
-          c.style.setProperty('--k', off); c.classList.toggle('ccard--hidden', Math.abs(off) > 2);
-          c.setAttribute('aria-hidden', String(off !== 0));
-        });
-        if (dots) $$('button', dots).forEach((b, k) => b.setAttribute('aria-current', String(k === i)));
-      };
-      const setCaption = () => {
-        const c = cards[i];
-        if (cap.h) cap.h.textContent = c.dataset.titel || '';
-        if (cap.p) cap.p.textContent = c.dataset.text || '';
-        if (cap.a) { cap.a.href = c.dataset.link || '#'; cap.a.textContent = c.dataset.cta || 'Mehr'; }
-      };
-      const go = (k) => {
-        if (busy || k === i) return;
-        busy = true; i = (k + cards.length) % cards.length;
-        if (isReduced()) { layout(); setCaption(); busy = false; return; }
-        sec.classList.add('is-switching');
-        setTimeout(() => { layout(); setCaption(); }, 520);
-        setTimeout(() => { sec.classList.remove('is-switching'); busy = false; }, 1500);
-      };
-      $$('.cover__arrow--prev', sec).forEach((b) => b.addEventListener('click', () => go(i - 1)));
-      $$('.cover__arrow--next', sec).forEach((b) => b.addEventListener('click', () => go(i + 1)));
-      cards.forEach((c, k) => c.addEventListener('click', () => { if (k !== i) go(k); }));
-      sec.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight') go(i + 1); if (e.key === 'ArrowLeft') go(i - 1); });
-      let sx = null;
-      const stage = $('.cover__stage', sec);
-      stage.addEventListener('pointerdown', (e) => { sx = e.clientX; });
-      stage.addEventListener('pointerup', (e) => { if (sx === null) return; const dx = e.clientX - sx; sx = null; if (Math.abs(dx) > 40) go(dx < 0 ? i + 1 : i - 1); });
-      layout(); setCaption();
-    });
+  /* ---------- Zahlen zählen hoch, wenn sie ins Bild kommen ---------- */
+  function counters() {
+    const els = $$('[data-count]');
+    if (!els.length) return;
+    const fmt = (n, dec) => n.toLocaleString('de-DE', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+    const start = (el) => {
+      const target = parseFloat(el.dataset.count), dec = (el.dataset.count.split('.')[1] || '').length;
+      const pre = el.dataset.pre || '', post = el.dataset.post || '';
+      if (isReduced()) { el.textContent = pre + fmt(target, dec) + post; return; }
+      const t0 = performance.now(), dur = 1400;
+      const step = (now) => { const t = clamp((now - t0) / dur, 0, 1); const e = 1 - Math.pow(1 - t, 3); el.textContent = pre + fmt(target * e, dec) + post; if (t < 1) requestAnimationFrame(step); };
+      requestAnimationFrame(step);
+    };
+    if (!('IntersectionObserver' in window)) { els.forEach(start); return; }
+    const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { start(e.target); io.unobserve(e.target); } }), { threshold: 0.5 });
+    els.forEach((e) => io.observe(e));
   }
 
   /* ---------- Kleinkram ---------- */
@@ -457,6 +412,6 @@
 
   d.addEventListener('DOMContentLoaded', () => {
     watchMedia(); header(); menu(); reveal(); parallax(); story(); hscroll(); heroVideo(); heroDrift(); forms(); misc();
-    marquee(); lightbox(); smoothWheel(); hero2(); burst(); coverflow();
+    marquee(); lightbox(); smoothWheel(); scrubbers(); counters();
   });
 })();

@@ -63,91 +63,83 @@
 
 <main id="inhalt">
 
-  <!-- ============ 1 · Hero: Wortmarke, fliegende Bildkarten, Hauptkarte wächst zum Vollbild ============ -->
-  <section class="hero2" aria-label="Team Kornkammer">
-    <div class="hero2__stage">
-      <div class="hero2__word" aria-hidden="true">Korn<em>kammer</em></div>
-      <div class="hero2__cards" aria-hidden="true">
-        <div class="hcard hcard--main" style="--x:50%;--y:46%;--w:min(26vw,340px);--rot:-3deg;--i:0;--ex:0px;--ey:70vh;--ar-card:4/5"><figure class="media" data-ph="Hofverkauf"><img src="assets/img/hofladen-1.jpg" alt="" width="811" height="575"></figure></div>
-        <div class="hcard" data-depth=".5" style="--x:17%;--y:34%;--w:min(16vw,220px);--rot:-8deg;--i:1;--ex:-50vw;--ey:10vh;--ar-card:4/5"><figure class="media" data-ph="Senf"><img src="assets/img/produkte/senf-bernie.jpg" alt="" width="672" height="841"></figure></div>
-        <div class="hcard" data-depth=".25" style="--x:83%;--y:30%;--w:min(18vw,250px);--rot:7deg;--i:2;--ex:50vw;--ey:-20vh;--ar-card:4/3"><figure class="media" data-ph="Kartoffelfeld in Blüte"><img src="assets/img/galerie/g06.jpg" alt="" width="251" height="190"></figure></div>
-        <div class="hcard" data-depth=".4" style="--x:24%;--y:76%;--w:min(14vw,200px);--rot:5deg;--i:3;--ex:-40vw;--ey:40vh;--ar-card:1/1"><figure class="media" data-ph="Dinkelmehl"><img src="assets/img/produkte/dinkelmehl-630.jpg" alt="" width="672" height="840"></figure></div>
-        <div class="hcard" data-depth=".6" style="--x:78%;--y:72%;--w:min(20vw,280px);--rot:-5deg;--i:4;--ex:50vw;--ey:40vh;--ar-card:4/3"><figure class="media" data-ph="Kartoffelernte"><img src="assets/img/galerie/g13.jpg" alt="" width="251" height="190"></figure></div>
-        <div class="hcard" data-depth=".2" style="--x:62%;--y:18%;--w:min(11vw,150px);--rot:10deg;--i:5;--ex:20vw;--ey:-40vh;--ar-card:1/1"><figure class="media" data-ph="Rapsöl"><img src="assets/img/produkte/rapsoel.jpg" alt="" width="672" height="841"></figure></div>
+  <!-- ============ 1 · Hero: Vollbild, Titel schrumpft beim Scrollen, Bio-Plakette ============ -->
+  <section class="hero3" aria-label="Team Kornkammer">
+    <div class="hero3__stage">
+      <div class="hero3__media" aria-hidden="true">
+        <figure class="media" data-ph="Hofansicht oder Feld im Abendlicht">
+          <video class="hero__video" poster="assets/img/hero.jpg" data-src="assets/video/hof.mp4" muted playsinline loop preload="none"></video>
+          <img src="assets/img/hero.jpg" alt="" width="1920" height="1080" fetchpriority="high">
+        </figure>
       </div>
-      <div class="hero2__sub">
-        <p class="eyebrow">Bioland-Hof in Witten · seit 1987</p>
-        <p class="lead">Getreide, Kartoffeln, Speiseöle, Senf und Nudeln von eigenen Flächen im Ruhrgebiet. Angebaut nach Bioland-Richtlinien, verarbeitet auf dem Hof, verkauft freitags am Gederfeldweg.</p>
-        <div class="hero2__cta">
+      <div class="hero3__body">
+        <span class="bio"><i>B</i>Bioland-Betrieb seit 1987 · Witten, Ruhrgebiet</span>
+        <h1>Bio vom eigenen Acker. <em>Seit 1987.</em></h1>
+        <p class="lead">Getreide, Kartoffeln, Speiseöle, Senf und Nudeln von eigenen Flächen in Witten, Dortmund und Essen. Angebaut nach Bioland-Richtlinien, verarbeitet auf dem Hof, verkauft freitags am Gederfeldweg.</p>
+        <div class="hero3__cta">
           <a class="btn btn--solid" href="shop/">Zum Sortiment</a>
           <a class="btn btn--outline" href="hof.html">Den Hof kennenlernen</a>
         </div>
       </div>
-      <div class="hero2__meta"><strong>Hofverkauf jeden Freitag</strong>8 bis 17 Uhr · Gederfeldweg 37, 58453 Witten</div>
-      <div class="hero2__title2">
-        <h2>Vom Acker ins Regal.</h2>
-        <p>Alles, was wir verkaufen, wächst auf unseren eigenen Flächen in Witten, Dortmund und Essen und wird am Hof verarbeitet.</p>
+      <div class="hero3__after" aria-hidden="true">
+        <div><h2>Ohne Chemie. Mit Fruchtfolge.</h2><p>Keine chemisch-synthetische Düngung, keine Pflanzenschutzmittel. Stattdessen Rotklee, mechanische Hacke und Zeit.</p></div>
       </div>
-      <div class="hero2__scroll" aria-hidden="true">Scrollen</div>
+      <div class="hero3__foot"><span>Kornkammer Haus Holte · Gederfeldweg 37, 58453 Witten</span><span>Hofverkauf freitags 8 bis 17 Uhr</span></div>
     </div>
   </section>
 
-  <!-- ============ 2 · Fakten ============ -->
+  <!-- ============ 2 · Text füllt sich wortweise beim Scrollen ============ -->
+  <section class="reveal" aria-label="Unser Anspruch">
+    <div class="reveal__stage">
+      <p class="eyebrow reveal__eyebrow">Was uns ausmacht</p>
+      <p class="reveal__text">Was wir verkaufen, haben wir selbst gesät, geerntet und verarbeitet. Hundert Prozent hofeigene Saat, <em>rückverfolgbar bis auf den Acker.</em></p>
+    </div>
+  </section>
+
+  <!-- ============ 3 · Zahlen ============ -->
   <section class="sec--s">
     <div class="wrap">
       <div class="facts rv">
-        <div><b>Seit 1987</b><span>Bioland-Betrieb, ohne chemisch-synthetische Düngung und ohne Pflanzenschutzmittel</span></div>
-        <div><b>Witten · Dortmund · Essen</b><span>Flächen mitten im Ruhrgebiet, Hof am Gederfeldweg in Witten</span></div>
-        <div><b>Sieben Kulturen</b><span>Senf, Hafer, Rotklee, Winterweizen, Dinkel, Kartoffeln und Blaumohn im Anbau 2025/2026</span></div>
-        <div><b>Freitags</b><span>Hofverkauf von 8 bis 17 Uhr, telefonische Absprachen möglich</span></div>
+        <div><b data-count="1987">0</b><span>Seit diesem Jahr nach Bioland-Richtlinien, ohne chemisch-synthetische Düngung und ohne Pflanzenschutzmittel</span></div>
+        <div><b data-count="7">0</b><span>Kulturen im Anbau 2025/2026: Senf, Hafer, Rotklee, Winterweizen, Dinkel, Kartoffeln, Blaumohn</span></div>
+        <div><b data-count="98" data-post=" %">0</b><span>des Brotweizens gehen als Mehl an Bäckereien im Ruhrgebiet</span></div>
+        <div><b data-count="3">0</b><span>Städte mit eigenen Flächen: Witten, Dortmund und Essen</span></div>
       </div>
     </div>
   </section>
 
-  <!-- ============ 3 · Bildfächer aus der Überschrift ============ -->
-  <section class="burst" aria-label="Was wir machen">
-    <div class="burst__stage">
-      <div class="burst__cards" aria-hidden="true">
-        <div class="bcard" style="--tx:-34vw;--ty:-26vh;--tr:-14deg;--w:min(17vw,230px);--ar-card:4/3"><figure class="media" data-ph="Kartoffeln legen"><img src="assets/img/galerie/g01.jpg" alt="" width="251" height="190" loading="lazy"></figure></div>
-        <div class="bcard" style="--tx:34vw;--ty:-24vh;--tr:12deg;--w:min(15vw,210px);--ar-card:4/5"><figure class="media" data-ph="Senf"><img src="assets/img/produkte/senf-kochkomplize.jpg" alt="" width="667" height="834" loading="lazy"></figure></div>
-        <div class="bcard" style="--tx:-38vw;--ty:18vh;--tr:9deg;--w:min(14vw,200px);--ar-card:1/1"><figure class="media" data-ph="Kartoffeln im Boden"><img src="assets/img/galerie/g08.jpg" alt="" width="251" height="190" loading="lazy"></figure></div>
-        <div class="bcard" style="--tx:36vw;--ty:22vh;--tr:-10deg;--w:min(18vw,250px);--ar-card:4/3"><figure class="media" data-ph="Hofverkauf"><img src="assets/img/hofladen-3.jpg" alt="" width="811" height="575" loading="lazy"></figure></div>
-        <div class="bcard" style="--tx:-14vw;--ty:-36vh;--tr:6deg;--w:min(12vw,170px);--ar-card:4/5"><figure class="media" data-ph="Nudeln"><img src="assets/img/produkte/dinkelnudeln-dunkel.jpg" alt="" width="667" height="834" loading="lazy"></figure></div>
-        <div class="bcard" style="--tx:16vw;--ty:36vh;--tr:-7deg;--w:min(13vw,180px);--ar-card:4/5"><figure class="media" data-ph="Weizenkörner"><img src="assets/img/produkte/weizenkoerner.jpg" alt="" width="667" height="834" loading="lazy"></figure></div>
-        <div class="bcard" style="--tx:-22vw;--ty:34vh;--tr:-16deg;--w:min(16vw,220px);--ar-card:4/3"><figure class="media" data-ph="Kartoffelroder"><img src="assets/img/galerie/g14.jpg" alt="" width="251" height="190" loading="lazy"></figure></div>
-        <div class="bcard" style="--tx:20vw;--ty:-38vh;--tr:15deg;--w:min(16vw,220px);--ar-card:4/3"><figure class="media" data-ph="Hacken auf dem Feld"><img src="assets/img/galerie/g10.jpg" alt="" width="251" height="190" loading="lazy"></figure></div>
+  <!-- ============ 4 · Bild wächst beim Scrollen zum Vollbild ============ -->
+  <section class="grow" aria-label="Hofverkauf">
+    <div class="grow__stage">
+      <div class="grow__frame">
+        <figure class="media" data-ph="Hofverkauf"><img src="assets/img/hofladen-1.jpg" alt="Regale mit Mehl, Nudeln und Öl im Hofverkauf" width="811" height="575" loading="lazy"></figure>
       </div>
-      <div class="burst__title">
-        <h2>Anbauen. Ernten.<br><em>Verarbeiten.</em> Verkaufen.</h2>
-        <p>Der Hof gibt immer weniger Rohware ab und verarbeitet immer mehr selbst: Mehle für Bäckereien, Öle aus der eigenen Presse, Senf aus der eigenen Mühle.</p>
+      <div class="grow__cap"><h2>Freitags am Gederfeldweg.</h2><p>Hofverkauf jeden Freitag von 8 bis 17 Uhr. Mehle, Nudeln, Öle und Senf im Regal, Kartoffeln nach Sorten in den Kisten.</p></div>
+    </div>
+  </section>
+
+  <!-- ============ 5 · Der Hof ============ -->
+  <section class="sec sec--beige">
+    <div class="wrap">
+      <div class="split">
+        <div class="split__text">
+          <p class="eyebrow">Der Hof</p>
+          <h2 class="rv">Ein ehemaliges Rittergut, seit 1987 ohne Chemie bewirtschaftet.</h2>
+          <p class="rv rv--d1">Die Kornkammer Haus Holte liegt am Gederfeldweg in Witten. Dirk Liedmann und sein Partner Bernhard Pawliczek bewirtschaften die Felder seit 1987 nach den Richtlinien des Bioland-Verbandes. Unkraut wird mechanisch reguliert, die sechsgliedrige Fruchtfolge mit Rotklee hält den Boden gesund.</p>
+          <p class="rv rv--d2">Als Bioland-Betrieb erfüllt der Hof einen Standard, der deutlich über den gesetzlichen Vorgaben der EU-Bio-Verordnung liegt.</p>
+          <a class="link rv rv--d3" href="hof.html">Mehr über den Hof <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        </div>
+        <div class="split__media mosaic">
+          <figure class="media rv rv--mask" data-ph="Kartoffelfeld in Blüte"><img src="assets/img/galerie/g06.jpg" alt="Kartoffelfeld in Blüte" loading="lazy" width="251" height="190"></figure>
+          <figure class="media rv rv--mask" data-ph="Kartoffelblüte"><img src="assets/img/galerie/g05.jpg" alt="Kartoffelblüte" loading="lazy" width="251" height="190"></figure>
+          <figure class="media rv rv--mask" data-ph="Kartoffeln im Boden"><img src="assets/img/galerie/g08.jpg" alt="Kartoffeln im Boden" loading="lazy" width="251" height="190"></figure>
+          <figure class="media rv rv--mask" data-ph="Traktor beim Kartoffellegen" data-parallax="0.05"><img src="assets/img/galerie/g01.jpg" alt="Traktor beim Kartoffellegen" loading="lazy" width="251" height="190"></figure>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- ============ 4 · Coverflow: Unsere Arbeit ============ -->
-  <section class="cover" tabindex="0" aria-label="Unsere Arbeit, Karussell">
-    <div class="wrap cover__head">
-      <p class="eyebrow">Unsere Arbeit</p>
-      <h2 class="rv">Sechs Bereiche, ein Hof.</h2>
-    </div>
-    <div class="cover__stage">
-      <div class="cover__track">
-        <div class="ccard" data-titel="Ackerbau" data-text="Sechsgliedrige Fruchtfolge, Rotklee als Herzstück, mechanische Unkrautregulierung." data-link="arbeit.html#anbau" data-cta="Zum Ackerbau"><figure class="media" data-ph="Hacken auf dem Feld"><img src="assets/img/arbeit/anbau.jpg" alt="Ackerbau" width="251" height="190" loading="lazy"></figure></div>
-        <div class="ccard" data-titel="Getreide &amp; Mehl" data-text="Hundert Prozent Bäckerqualität: Weizen, Roggen, Dinkel und Hafer vom eigenen Acker." data-link="arbeit.html#getreide" data-cta="Zu Getreide und Mehl"><figure class="media media--tone-straw" data-ph="Mehl aus der Mühle"><img src="assets/img/arbeit/getreide.jpg" alt="Getreide und Mehl" width="800" height="1000" loading="lazy"></figure></div>
-        <div class="ccard" data-titel="Ölmanufaktur" data-text="Kalt gepresst aus hofeigenen Saaten: Raps, Lein, Mohn und Senf." data-link="arbeit.html#oel" data-cta="Zur Ölmanufaktur"><figure class="media media--tone-sage" data-ph="Ölpresse"><img src="assets/img/arbeit/oelmanufaktur.jpg" alt="Ölmanufaktur" width="800" height="1000" loading="lazy"></figure></div>
-        <div class="ccard" data-titel="Senfmanufaktur" data-text="Drei Sorten, auf Granitsteinen vermahlen, aus hundert Prozent eigener Saat." data-link="arbeit.html#senf" data-cta="Zur Senfmanufaktur"><figure class="media media--tone-soil" data-ph="Senfmühle"><img src="assets/img/arbeit/senfmanufaktur.jpg" alt="Senfmanufaktur" width="800" height="1000" loading="lazy"></figure></div>
-        <div class="ccard" data-titel="Kartoffeln" data-text="Holter Knolle und Ruhrtalgold, nach Sorte und Kochtyp, von Flächen in Dortmund." data-link="arbeit.html#kartoffeln" data-cta="Zu den Kartoffeln"><figure class="media" data-ph="Kartoffelernte"><img src="assets/img/arbeit/kartoffeln.jpg" alt="Kartoffeln" width="251" height="190" loading="lazy"></figure></div>
-        <div class="ccard" data-titel="Verkauf" data-text="Freitags am Hof, über Bäckereien, Naturkosthandel und den Onlineshop." data-link="arbeit.html#verkauf" data-cta="Zum Verkauf"><figure class="media" data-ph="Hofverkauf"><img src="assets/img/arbeit/verkauf.jpg" alt="Verkauf" width="811" height="575" loading="lazy"></figure></div>
-      </div>
-      <div class="cover__fog" aria-hidden="true"></div>
-      <div class="cover__caption"><h3>Ackerbau</h3><p></p><a class="btn btn--solid btn--s" href="arbeit.html">Mehr</a></div>
-      <button type="button" class="cover__arrow cover__arrow--prev" aria-label="Zurück"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
-      <button type="button" class="cover__arrow cover__arrow--next" aria-label="Weiter"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
-    </div>
-    <div class="cover__dots" role="tablist" aria-label="Bereiche"></div>
-  </section>
-
-  <!-- ============ 5 · Blick hinter die Kulissen: Geschichte beim Scrollen ============ -->
+  <!-- ============ 6 · Geschichte beim Scrollen ============ -->
   <section class="story" aria-label="Vom Acker ins Regal, Schritt für Schritt">
     <div class="story__grid">
       <div class="story__visual" aria-hidden="true">
@@ -161,42 +153,14 @@
       <div class="story__chapters">
         <article class="chapter"><p class="chapter__n">Kapitel 01</p><h3>Der Boden</h3><p>Alles beginnt mit einer sechsgliedrigen Fruchtfolge. Ihr Herzstück ist die Gründüngung mit Rotklee: Er bindet Stickstoff im Boden und ersetzt so die Düngung, die ein Bioland-Betrieb nicht kaufen darf.</p></article>
         <article class="chapter"><p class="chapter__n">Kapitel 02</p><h3>Die Saat</h3><p>Im Anbau 2025/2026 stehen Senf, Hafer, Rotklee, Winterweizen, Dinkel, Kartoffeln und Blaumohn auf den Flächen. Jede Kultur hat auf dem Hof einen Abnehmer: die Mühle, die Ölpresse, die Senfmühle oder das Regal.</p></article>
-        <article class="chapter"><p class="chapter__n">Kapitel 03</p><h3>Die Ernte</h3><p>Der erste Kleeaufwuchs geht als Säuberungsschnitt an eine Bio-Biogasanlage; die Nährstoffe kommen als Gärsubstrat auf den Hof zurück. Der zweite Aufwuchs ist so sauber, dass er als Saatgut gedroschen wird. Beim Getreide macht weniger die Trockenheit Sorgen als die große Hitze.</p></article>
+        <article class="chapter"><p class="chapter__n">Kapitel 03</p><h3>Die Ernte</h3><p>Der erste Kleeaufwuchs geht als Säuberungsschnitt an eine Bio-Biogasanlage; die Nährstoffe kommen als Gärsubstrat auf den Hof zurück. Der zweite Aufwuchs ist so sauber, dass er als Saatgut gedroschen wird.</p></article>
         <article class="chapter"><p class="chapter__n">Kapitel 04</p><h3>Die Verarbeitung</h3><p>Getreide wird in Bäckerqualität vermahlen. Öle werden kalt gepresst, Leinöl bei unter 40 °C und ungefiltert. Senf entsteht traditionell auf Granitsteinen. Alles aus hundert Prozent hofeigener Saat.</p></article>
-        <article class="chapter"><p class="chapter__n">Kapitel 05</p><h3>Das Regal</h3><p>Etwa 98 Prozent des Brotweizens gehen an Bäckereien. Der Rest steht freitags im Hofverkauf, im Onlineshop, im Naturkosthandel unter der Marke Ruhrtalgold und bei regionalen Partnern wie EDEKA Zierles in Oer-Erkenschwick.</p><a class="link" href="arbeit.html" style="margin-top:var(--gap-m)">Die ganze Arbeit im Detail <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></article>
+        <article class="chapter"><p class="chapter__n">Kapitel 05</p><h3>Das Regal</h3><p>Etwa 98 Prozent des Brotweizens gehen an Bäckereien. Der Rest steht freitags im Hofverkauf, im Onlineshop, im Naturkosthandel unter der Marke Ruhrtalgold und bei regionalen Partnern.</p><a class="link" href="arbeit.html" style="margin-top:var(--gap-m)">Die ganze Arbeit im Detail <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></article>
       </div>
     </div>
   </section>
 
-  <!-- ============ 6 · Laufband in großer Schrift ============ -->
-  <div class="marquee marquee--words" data-speed="70" aria-hidden="true">
-    <div class="marquee__track"><span>Vom Acker ins Regal</span><i></i><span>Bioland seit 1987</span><i></i><span>Hofverkauf freitags</span><i></i><span>Witten · Dortmund · Essen</span><i></i><span>Hundert Prozent hofeigene Saat</span><i></i><span>Rückverfolgbar bis auf den Acker</span><i></i></div>
-  </div>
-
-  <!-- ============ 7 · Bento-Strom: Sortiment im Rahmen ============ -->
-  <section class="hscroll bento" aria-label="Sortiment">
-    <div class="hscroll__sticky bento__sticky">
-      <div class="bento__frame">
-        <div class="bento__bar"><span class="pill">Ruhrtalgold</span><span>Sortiment · Preise inkl. 7 % MwSt., Stand Oktober 2026</span><a class="pill" href="shop/">Alle Produkte</a></div>
-        <div class="hscroll__track bento__track">
-          <div class="bcell bcell--foto bcell--zoom bcell--w2"><span class="bcell__tag">Hofverkauf · freitags 8 bis 17 Uhr</span><figure class="media" data-ph="Hofverkauf"><img src="assets/img/hofladen-1.jpg" alt="Regale im Hofverkauf" width="811" height="575" loading="lazy"></figure></div>
-          <div class="bcell bcell--gold bcell--w1"><h3>Hundert Prozent hofeigene Saat.</h3><p>Senf, Öl, Mehl, Nudeln und Kartoffeln kommen von unseren eigenen Flächen in Witten, Dortmund und Essen.</p></div>
-          <div class="bcell"><span class="bcell__tag">Mehle</span><span class="bcell__price">4,79 €</span><a href="shop/produkte/dinkelmehl-630.html" aria-label="Bio Dinkelmehl Type 630"><figure class="media" data-ph="Dinkelmehl 630"><img src="assets/img/produkte/frei/dinkelmehl-630.webp" alt="Bio Dinkelmehl Type 630" width="395" height="827" loading="lazy"></figure></a></div>
-          <div class="bcell"><span class="bcell__tag">Senf</span><span class="bcell__price">5,99 €</span><a href="shop/produkte/senf-der-scharfe-bernie.html" aria-label="Der scharfe Bernie"><figure class="media" data-ph="Der scharfe Bernie"><img src="assets/img/produkte/frei/senf-der-scharfe-bernie.webp" alt="Der scharfe Bernie" width="528" height="731" loading="lazy"></figure></a></div>
-          <div class="bcell bcell--ink bcell--w1"><p class="big">1987</p><p>Seit diesem Jahr bewirtschaften Dirk Liedmann und Bernhard Pawliczek die Felder nach Bioland-Richtlinien.</p></div>
-          <div class="bcell"><span class="bcell__tag">Speiseöle</span><span class="bcell__price">6,49 €</span><a href="shop/produkte/rapsoel.html" aria-label="Bio Rapsöl nativ"><figure class="media" data-ph="Rapsöl"><img src="assets/img/produkte/frei/rapsoel.webp" alt="Bio Rapsöl nativ" width="222" height="841" loading="lazy"></figure></a></div>
-          <div class="bcell"><span class="bcell__tag">Nudeln</span><span class="bcell__price">3,79 €</span><a href="shop/produkte/dinkelnudeln-hell.html" aria-label="Bio Dinkelnudeln, hell"><figure class="media" data-ph="Dinkelnudeln"><img src="assets/img/produkte/frei/dinkelnudeln-hell.webp" alt="Bio Dinkelnudeln, hell" width="570" height="615" loading="lazy"></figure></a></div>
-          <div class="bcell bcell--foto bcell--w2"><span class="bcell__tag">Kartoffeln nach Sorten</span><figure class="media" data-ph="Kartoffeln im Hofverkauf"><img src="assets/img/hofladen-3.jpg" alt="Kartoffeln nach Sorten in Holzkisten" width="811" height="575" loading="lazy"></figure></div>
-          <div class="bcell"><span class="bcell__tag">Kartoffeln</span><span class="bcell__price">5,29 €</span><a href="shop/produkte/kartoffeln-nicola.html" aria-label="Kartoffeln Nicola"><figure class="media" data-ph="Kartoffeln Nicola"><img src="assets/img/produkte/frei/kartoffeln-nicola.webp" alt="Kartoffeln Nicola" width="417" height="822" loading="lazy"></figure></a></div>
-          <div class="bcell"><span class="bcell__tag">Körner</span><span class="bcell__price">2,29 €</span><a href="shop/produkte/weizenkoerner.html" aria-label="Bio Weizenkörner"><figure class="media" data-ph="Weizenkörner"><img src="assets/img/produkte/frei/weizenkoerner.webp" alt="Bio Weizenkörner" width="249" height="527" loading="lazy"></figure></a></div>
-          <div class="bcell bcell--gold bcell--w1"><h3>25 Produkte, ein Acker.</h3><p>Bestellen Sie per Anfrage aus dem Korb oder holen Sie freitags am Hof ab.</p><a class="btn btn--solid" href="shop/">Zum Sortiment</a></div>
-        </div>
-        <div class="bento__foot"><strong>Kornkammer Haus Holte</strong><span>Gederfeldweg 37, 58453 Witten · 02302 282 7475</span><a class="link" href="kontakt.html">Hofverkauf <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ 8 · Produkt im Licht (Lichtbühne, buehne.js) ============ -->
+  <!-- ============ 7 · Produkt im Licht ============ -->
 <section class="stage3 stage3--mehle stage3--home" data-stage data-partikel="mehl" aria-label="Bio Dinkelmehl Type 630 im Licht">
   <div class="stage3__bg"></div>
   <canvas class="stage3__fx" aria-hidden="true"></canvas>
@@ -218,7 +182,49 @@
   <p class="stage3__hint" aria-hidden="true">Ziehen zum Drehen</p>
 </section>
 
-  <!-- ============ 9 · Rückverfolgung, Klima, Partner ============ -->
+  <!-- ============ 8 · Sortiment im beigen Rahmen ============ -->
+  <section class="hscroll bento" aria-label="Sortiment">
+    <div class="hscroll__sticky bento__sticky">
+      <div class="bento__frame">
+        <div class="bento__bar"><span class="pill">Ruhrtalgold</span><span>Sortiment · Preise inkl. 7 % MwSt., Stand Oktober 2026</span><a class="pill" href="shop/">Alle Produkte</a></div>
+        <div class="hscroll__track bento__track">
+          <div class="bcell bcell--foto bcell--zoom bcell--w2"><span class="bcell__tag">Kartoffeln nach Sorten</span><figure class="media" data-ph="Kartoffeln im Hofverkauf"><img src="assets/img/hofladen-3.jpg" alt="Kartoffeln nach Sorten in Holzkisten" width="811" height="575" loading="lazy"></figure></div>
+          <div class="bcell bcell--green bcell--w1"><h3>Hundert Prozent hofeigene Saat.</h3><p>Senf, Öl, Mehl, Nudeln und Kartoffeln kommen von unseren eigenen Flächen.</p></div>
+          <div class="bcell"><span class="bcell__tag">Mehle</span><span class="bcell__price">4,79 €</span><a href="shop/produkte/dinkelmehl-630.html" aria-label="Bio Dinkelmehl Type 630"><figure class="media" data-ph="Dinkelmehl 630"><img src="assets/img/produkte/frei/dinkelmehl-630.webp" alt="Bio Dinkelmehl Type 630" width="395" height="827" loading="lazy"></figure></a></div>
+          <div class="bcell"><span class="bcell__tag">Senf</span><span class="bcell__price">5,99 €</span><a href="shop/produkte/senf-der-scharfe-bernie.html" aria-label="Der scharfe Bernie"><figure class="media" data-ph="Der scharfe Bernie"><img src="assets/img/produkte/frei/senf-der-scharfe-bernie.webp" alt="Der scharfe Bernie" width="528" height="731" loading="lazy"></figure></a></div>
+          <div class="bcell bcell--sand bcell--w1"><p class="big">1987</p><p>Seit diesem Jahr bewirtschaften Dirk Liedmann und Bernhard Pawliczek die Felder nach Bioland-Richtlinien.</p></div>
+          <div class="bcell"><span class="bcell__tag">Speiseöle</span><span class="bcell__price">6,49 €</span><a href="shop/produkte/rapsoel.html" aria-label="Bio Rapsöl nativ"><figure class="media" data-ph="Rapsöl"><img src="assets/img/produkte/frei/rapsoel.webp" alt="Bio Rapsöl nativ" width="222" height="841" loading="lazy"></figure></a></div>
+          <div class="bcell"><span class="bcell__tag">Nudeln</span><span class="bcell__price">3,79 €</span><a href="shop/produkte/dinkelnudeln-hell.html" aria-label="Bio Dinkelnudeln, hell"><figure class="media" data-ph="Dinkelnudeln"><img src="assets/img/produkte/frei/dinkelnudeln-hell.webp" alt="Bio Dinkelnudeln, hell" width="570" height="615" loading="lazy"></figure></a></div>
+          <div class="bcell"><span class="bcell__tag">Kartoffeln</span><span class="bcell__price">5,29 €</span><a href="shop/produkte/kartoffeln-nicola.html" aria-label="Kartoffeln Nicola"><figure class="media" data-ph="Kartoffeln Nicola"><img src="assets/img/produkte/frei/kartoffeln-nicola.webp" alt="Kartoffeln Nicola" width="417" height="822" loading="lazy"></figure></a></div>
+          <div class="bcell"><span class="bcell__tag">Körner</span><span class="bcell__price">2,29 €</span><a href="shop/produkte/weizenkoerner.html" aria-label="Bio Weizenkörner"><figure class="media" data-ph="Weizenkörner"><img src="assets/img/produkte/frei/weizenkoerner.webp" alt="Bio Weizenkörner" width="249" height="527" loading="lazy"></figure></a></div>
+          <div class="bcell bcell--green bcell--w1"><h3>25 Produkte, ein Acker.</h3><p>Bestellen Sie per Anfrage aus dem Korb oder holen Sie freitags am Hof ab.</p><a class="btn btn--solid" href="shop/">Zum Sortiment</a></div>
+        </div>
+        <div class="bento__foot"><strong>Kornkammer Haus Holte</strong><span>Gederfeldweg 37, 58453 Witten · 02302 282 7475</span><a class="link" href="kontakt.html">Hofverkauf <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 9 · Anbau 2025/2026, horizontal ============ -->
+  <section class="hscroll sec--paper2" aria-label="Unser Anbau 2025/2026">
+    <div class="hscroll__sticky">
+      <div class="hscroll__head wrap">
+        <div><p class="eyebrow">Biologische Vielfalt</p><h2 class="rv">Unser Anbau 2025/2026</h2></div>
+        <p class="small rv rv--d1">Sieben Kulturen, und was aus ihnen wird.</p>
+      </div>
+      <div class="hscroll__track">
+        <article class="hpanel"><p class="hpanel__k"><b>01</b> Senf</p><figure class="media media--tone-straw" data-ph="Senffeld in Blüte"><img src="assets/img/anbau/senf.jpg" alt="Senffeld in Blüte" loading="lazy" width="800" height="1000"></figure><h3>Senf</h3><p>Wird in der Senfmanufaktur auf Granitsteinen zu drei Sorten vermahlen und in der Ölmanufaktur zu Senföl gepresst.</p><a class="link" href="shop/#senf">Zum Senf <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></article>
+        <article class="hpanel"><p class="hpanel__k"><b>02</b> Hafer</p><figure class="media media--tone-sage" data-ph="Haferfeld"><img src="assets/img/anbau/hafer.jpg" alt="Haferfeld" loading="lazy" width="800" height="1000"></figure><h3>Hafer</h3><p>Wird zu Haferkernen und zartblättrigen Haferflocken, in 500 Gramm bis 25 Kilogramm.</p><a class="link" href="shop/#koerner">Zu Körnern und Flocken <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></article>
+        <article class="hpanel"><p class="hpanel__k"><b>03</b> Rotklee</p><figure class="media" data-ph="Rotklee"><img src="assets/img/anbau/rotklee.jpg" alt="Rotklee" loading="lazy" width="800" height="1000"></figure><h3>Rotklee</h3><p>Das Herzstück der Fruchtfolge: Gründüngung, die Stickstoff bindet. Der erste Schnitt geht an eine Bio-Biogasanlage, der zweite wird Saatgut.</p><a class="link" href="hof.html">So funktioniert die Fruchtfolge <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></article>
+        <article class="hpanel"><p class="hpanel__k"><b>04</b> Winterweizen</p><figure class="media media--tone-straw" data-ph="Weizenfeld"><img src="assets/img/anbau/weizen.jpg" alt="Weizenfeld" loading="lazy" width="800" height="1000"></figure><h3>Winterweizen</h3><p>Wird zu Mehl Type 550 und Vollkornmehl in Bäckerqualität. Rund 98 Prozent des Brotweizens gehen an Bäckereien.</p><a class="link" href="shop/#mehle">Zu den Mehlen <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></article>
+        <article class="hpanel"><p class="hpanel__k"><b>05</b> Dinkel</p><figure class="media media--tone-straw" data-ph="Dinkelähren"><img src="assets/img/anbau/dinkel.jpg" alt="Dinkelähren" loading="lazy" width="800" height="1000"></figure><h3>Dinkel</h3><p>Wird zu Mehl Type 630, Vollkornmehl, ganzen Körnern und zu hellen und dunklen Dinkelnudeln.</p><a class="link" href="shop/#nudeln">Zu den Nudeln <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></article>
+        <article class="hpanel"><p class="hpanel__k"><b>06</b> Kartoffeln</p><figure class="media" data-ph="Kartoffelreihen"><img src="assets/img/anbau/kartoffeln.jpg" alt="Junge Kartoffelreihen" loading="lazy" width="251" height="190"></figure><h3>Kartoffeln</h3><p>Wachsen 2025/2026 in Dortmund-Barop und Dortmund-Mengede. Erhältlich als Holter Knolle und Ruhrtalgold, festkochend bis mehlig.</p><a class="link" href="shop/#kartoffeln">Zu den Kartoffeln <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></article>
+        <article class="hpanel"><p class="hpanel__k"><b>07</b> Blaumohn</p><figure class="media media--tone-sage" data-ph="Mohnfeld"><img src="assets/img/anbau/mohn.jpg" alt="Mohnfeld" loading="lazy" width="800" height="1000"></figure><h3>Blaumohn</h3><p>Die Sorte Wintermohn wird nativ kaltgepresst. So bleibt der typische Mohngeschmack im Öl.</p><a class="link" href="shop/produkte/mohnoel.html">Zum Mohnöl <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></article>
+      </div>
+      <div class="hscroll__bar" aria-hidden="true"><i></i></div>
+    </div>
+  </section>
+
+  <!-- ============ 10 · Rückverfolgung, Klima, Partner ============ -->
   <section class="sec">
     <div class="wrap">
       <div class="split">
@@ -248,7 +254,7 @@
           <p class="eyebrow">Wo Sie uns noch finden</p>
           <h2 class="rv">Nicht nur freitags am Hof.</h2>
           <ul class="split__list rv rv--d1">
-            <li><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span><strong>Bäckereien</strong> im Ruhrgebiet backen mit unserem Mehl. Rund 98 Prozent des Brotweizens gehen dorthin.</span></li>
+            <li><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span><strong>Bäckereien</strong> im Ruhrgebiet backen mit unserem Mehl.</span></li>
             <li><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span><strong>Naturkosthandel:</strong> unter der Marke Ruhrtalgold, etwa Mehle, Haferflocken, Körner und Rapsöl.</span></li>
             <li><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span><strong>EDEKA Zierles</strong> in Oer-Erkenschwick führt Nudeln, Senf, Öle, Mehle und Hafer von uns.</span></li>
             <li><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span><strong>Abokiste 24</strong> liefert unsere Getreideprodukte und Öle mit der Gemüsekiste.</span></li>
@@ -260,40 +266,25 @@
     </div>
   </section>
 
-  <!-- ============ 10 · Gewölbte Bildwand: Galerie ============ -->
-  <section class="wall" aria-label="Galerie">
-    <div class="wall__cyl" aria-hidden="true">
-      <div class="wall__col" style="--a:0.0deg"><figure class="media" data-ph=""><img src="assets/img/galerie/g22.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g06.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g16.jpg" alt="" loading="lazy" width="251" height="190"></figure></div>
-      <div class="wall__col" style="--a:18.0deg"><figure class="media" data-ph=""><img src="assets/img/hofladen-3.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g08.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/hofladen-2.jpg" alt="" loading="lazy" width="251" height="190"></figure></div>
-      <div class="wall__col" style="--a:36.0deg"><figure class="media" data-ph=""><img src="assets/img/galerie/g10.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g01.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g14.jpg" alt="" loading="lazy" width="251" height="190"></figure></div>
-      <div class="wall__col" style="--a:54.0deg"><figure class="media" data-ph=""><img src="assets/img/galerie/g09.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/hofladen-1.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g23.jpg" alt="" loading="lazy" width="251" height="190"></figure></div>
-      <div class="wall__col" style="--a:72.0deg"><figure class="media" data-ph=""><img src="assets/img/galerie/g27.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g15.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g24.jpg" alt="" loading="lazy" width="251" height="190"></figure></div>
-      <div class="wall__col" style="--a:90.0deg"><figure class="media" data-ph=""><img src="assets/img/galerie/g25.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g20.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g07.jpg" alt="" loading="lazy" width="251" height="190"></figure></div>
-      <div class="wall__col" style="--a:108.0deg"><figure class="media" data-ph=""><img src="assets/img/galerie/g17.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g26.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g19.jpg" alt="" loading="lazy" width="251" height="190"></figure></div>
-      <div class="wall__col" style="--a:126.0deg"><figure class="media" data-ph=""><img src="assets/img/galerie/g12.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g04.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g18.jpg" alt="" loading="lazy" width="251" height="190"></figure></div>
-      <div class="wall__col" style="--a:144.0deg"><figure class="media" data-ph=""><img src="assets/img/galerie/g03.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g02.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g21.jpg" alt="" loading="lazy" width="251" height="190"></figure></div>
-      <div class="wall__col" style="--a:162.0deg"><figure class="media" data-ph=""><img src="assets/img/galerie/g13.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g05.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g11.jpg" alt="" loading="lazy" width="251" height="190"></figure></div>
-      <div class="wall__col" style="--a:180.0deg"><figure class="media" data-ph=""><img src="assets/img/galerie/g22.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g06.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g16.jpg" alt="" loading="lazy" width="251" height="190"></figure></div>
-      <div class="wall__col" style="--a:198.0deg"><figure class="media" data-ph=""><img src="assets/img/hofladen-3.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g08.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/hofladen-2.jpg" alt="" loading="lazy" width="251" height="190"></figure></div>
-      <div class="wall__col" style="--a:216.0deg"><figure class="media" data-ph=""><img src="assets/img/galerie/g10.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g01.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g14.jpg" alt="" loading="lazy" width="251" height="190"></figure></div>
-      <div class="wall__col" style="--a:234.0deg"><figure class="media" data-ph=""><img src="assets/img/galerie/g09.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/hofladen-1.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g23.jpg" alt="" loading="lazy" width="251" height="190"></figure></div>
-      <div class="wall__col" style="--a:252.0deg"><figure class="media" data-ph=""><img src="assets/img/galerie/g27.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g15.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g24.jpg" alt="" loading="lazy" width="251" height="190"></figure></div>
-      <div class="wall__col" style="--a:270.0deg"><figure class="media" data-ph=""><img src="assets/img/galerie/g25.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g20.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g07.jpg" alt="" loading="lazy" width="251" height="190"></figure></div>
-      <div class="wall__col" style="--a:288.0deg"><figure class="media" data-ph=""><img src="assets/img/galerie/g17.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g26.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g19.jpg" alt="" loading="lazy" width="251" height="190"></figure></div>
-      <div class="wall__col" style="--a:306.0deg"><figure class="media" data-ph=""><img src="assets/img/galerie/g12.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g04.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g18.jpg" alt="" loading="lazy" width="251" height="190"></figure></div>
-      <div class="wall__col" style="--a:324.0deg"><figure class="media" data-ph=""><img src="assets/img/galerie/g03.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g02.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g21.jpg" alt="" loading="lazy" width="251" height="190"></figure></div>
-      <div class="wall__col" style="--a:342.0deg"><figure class="media" data-ph=""><img src="assets/img/galerie/g13.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g05.jpg" alt="" loading="lazy" width="251" height="190"></figure><figure class="media" data-ph=""><img src="assets/img/galerie/g11.jpg" alt="" loading="lazy" width="251" height="190"></figure></div>
+  <!-- ============ 11 · Galerie-Streifen ============ -->
+  <section class="sec--s" aria-label="Bilder vom Feld">
+    <div class="marquee marquee--photos" data-speed="28">
+      <div class="marquee__track">
+        <figure class="media" data-ph=""><img src="assets/img/galerie/g01.jpg" alt="Kartoffeln legen im Frühjahr" loading="lazy" width="251" height="190"></figure>
+        <figure class="media" data-ph=""><img src="assets/img/galerie/g06.jpg" alt="Kartoffelfeld in Blüte" loading="lazy" width="251" height="190"></figure>
+        <figure class="media" data-ph=""><img src="assets/img/galerie/g13.jpg" alt="Das Team auf dem Kartoffelroder" loading="lazy" width="251" height="190"></figure>
+        <figure class="media" data-ph=""><img src="assets/img/hofladen-2.jpg" alt="Verkaufsraum" loading="lazy" width="811" height="575"></figure>
+        <figure class="media" data-ph=""><img src="assets/img/galerie/g09.jpg" alt="Schild am Acker" loading="lazy" width="251" height="190"></figure>
+        <figure class="media" data-ph=""><img src="assets/img/galerie/g17.jpg" alt="Kartoffeln auf dem Roder" loading="lazy" width="251" height="190"></figure>
+        <figure class="media" data-ph=""><img src="assets/img/galerie/g04.jpg" alt="Dämme im Abendlicht" loading="lazy" width="251" height="190"></figure>
+        <figure class="media" data-ph=""><img src="assets/img/galerie/g27.jpg" alt="Beregnung" loading="lazy" width="251" height="190"></figure>
+        <figure class="media" data-ph=""><img src="assets/img/galerie/g24.jpg" alt="Kartoffelreihen im Sommer" loading="lazy" width="251" height="190"></figure>
+      </div>
     </div>
-    <div class="wall__shade" aria-hidden="true"></div>
-    <div class="wall__body">
-      <p class="eyebrow" style="justify-content:center">Galerie</p>
-      <h2 class="rv">Ein Jahr auf dem Acker.</h2>
-      <p class="rv rv--d1">Legen, hacken, blühen lassen, ernten, verkaufen. Bilder von den Kartoffelflächen und aus dem Hofverkauf, aufgenommen vom Team.</p>
-      <a class="btn btn--solid rv rv--d2" href="galerie.html">Alle Bilder ansehen</a>
-    </div>
+    <div class="wrap" style="margin-top:var(--gap-s)"><a class="link" href="galerie.html">Alle Bilder in der Galerie <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
   </section>
 
-  <!-- ============ 11 · Besuch, Kontakt, Einkauf ============ -->
+  <!-- ============ 12 · Besuch, Kontakt, Einkauf ============ -->
   <section class="cta sec">
     <div class="wrap">
       <div>
