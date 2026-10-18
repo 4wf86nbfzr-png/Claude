@@ -215,6 +215,29 @@ Startseite werden: `dual.html` nach `index.html` kopieren.
 Großes Hero-Bild: `assets/img/hero-dual.jpg` (4:5, derzeit das
 Hofverkauf-Foto als Übergang).
 
+## Filme (Stand 18.10.2026)
+
+Drei Clips vom Hof liegen vor (hochkant 9:16, 464×832, vom Handy): eine
+Montage durchs Jahr, der Kartoffelroder von oben, Roder und Traktor von
+oben. Aufbereitet unter `assets/video/` (stumm, H.264 + VP9, Poster unter
+`assets/img/video/`), Standbilder der Montage dienen als Fotos.
+
+| Einsatz | Dateien | Technik |
+|---|---|---|
+| Hero der Startseite | `hof-hochkant.*` scharf rechts, `hof-hintergrund.*` unscharf als Breitfüllung | Hochkant bleibt scharf, nichts wird hochskaliert; auf dem Handy füllt der Clip das Bild |
+| Drohnensequenz „Die Ernte · von oben“ | `ernte-drohne-scrub.*` (Keyframe alle 12 Bilder) | Film folgt dem Scrollen, drei Kapitel blenden ein; braucht einen Server mit Range-Anfragen (Netlify: ja) |
+| Scroll-Geschichte, Kapitel Ernte | `roder-oben.mp4` | Schleife, spielt nur im Sichtfeld |
+| Dual-Display, Hero | `hof-hochkant.*` | Schleife |
+
+Alle Clips laden erst im Sichtfeld, pausieren außerhalb, bei
+Datensparmodus oder reduzierter Bewegung läuft die Sequenz als normale
+Schleife. Die Einzeldatei `test-vorschau.html` bettet Videos nicht ein;
+sie spielt sie nur, wenn die Datei im Ordner `kornkammer/` liegt.
+
+**Für mehr Wirkung:** Querformat-Aufnahmen in 1080p oder 4K (Drohne über
+Feld und Hof, Abendlicht) würden den Hero ohne unscharfen Rand füllen.
+Dateinamen bleiben, nur die Dateien tauschen.
+
 ## Bewegung
 
 - Einblendungen beim Scrollen (`.rv`, `.rv--mask`, `.rv-words`) mit

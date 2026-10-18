@@ -64,14 +64,17 @@
 <main id="inhalt">
 
   <!-- ============ 1 · Hero: Vollbild, Titel schrumpft beim Scrollen, Bio-Plakette ============ -->
-  <section class="hero3" aria-label="Team Kornkammer">
+  <section class="hero3 hero3--film" aria-label="Team Kornkammer">
     <div class="hero3__stage">
-      <div class="hero3__media" aria-hidden="true">
-        <figure class="media" data-ph="Hofansicht oder Feld im Abendlicht">
-          <video class="hero__video" poster="assets/img/hero.jpg" data-src="assets/video/hof.mp4" muted playsinline loop preload="none"></video>
-          <img src="assets/img/hero.jpg" alt="" width="1920" height="1080" fetchpriority="high">
-        </figure>
+      <div class="hero3__media vhero" aria-hidden="true">
+        <video class="vhero__bg" data-autoplay muted playsinline loop preload="none" poster="assets/img/video/hof-hintergrund.jpg">
+          <source src="assets/video/hof-hintergrund.webm" type="video/webm"><source src="assets/video/hof-hintergrund.mp4" type="video/mp4">
+        </video>
+        <video class="vhero__panel vhero__panel--left" data-autoplay muted playsinline loop preload="metadata" poster="assets/img/video/hof-hochkant.jpg">
+          <source src="assets/video/hof-hochkant.webm" type="video/webm"><source src="assets/video/hof-hochkant.mp4" type="video/mp4">
+        </video>
       </div>
+      <div class="vhero__badge"><i></i>Ein Jahr auf dem Hof · Film</div>
       <div class="hero3__body">
         <span class="bio"><i>B</i>Bioland-Betrieb seit 1987 · Witten, Ruhrgebiet</span>
         <h1>Bio vom eigenen Acker. <em>Seit 1987.</em></h1>
@@ -104,6 +107,26 @@
         <div><b data-count="7">0</b><span>Kulturen im Anbau 2025/2026: Senf, Hafer, Rotklee, Winterweizen, Dinkel, Kartoffeln, Blaumohn</span></div>
         <div><b data-count="98" data-post=" %">0</b><span>des Brotweizens gehen als Mehl an Bäckereien im Ruhrgebiet</span></div>
         <div><b data-count="3">0</b><span>Städte mit eigenen Flächen: Witten, Dortmund und Essen</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 3b · Drohnensequenz, läuft mit dem Scrollen ============ -->
+  <section class="scrub" aria-label="Kartoffelernte aus der Luft">
+    <div class="scrub__stage">
+      <video class="scrub__bg" muted playsinline preload="none" poster="assets/img/video/ernte-drohne.jpg" aria-hidden="true">
+        <source src="assets/video/ernte-drohne-scrub.webm" type="video/webm"><source src="assets/video/ernte-drohne-scrub.mp4" type="video/mp4">
+      </video>
+      <video class="scrub__video" muted playsinline preload="none" poster="assets/img/video/ernte-drohne.jpg">
+        <source src="assets/video/ernte-drohne-scrub.webm" type="video/webm"><source src="assets/video/ernte-drohne-scrub.mp4" type="video/mp4">
+      </video>
+      <div class="scrub__shade" aria-hidden="true"></div>
+      <div class="scrub__bar" aria-hidden="true"><i></i></div>
+      <p class="scrub__label" aria-hidden="true">Die Ernte · von oben</p>
+      <div class="scrub__chapters">
+        <div class="scrub__ch is-on" data-from="0" data-to="0.33"><p class="eyebrow">Kapitel · Die Ernte</p><h2>Reihe für Reihe.</h2><p>Der Roder nimmt die Dämme auf, siebt die Erde ab und legt die Knollen in den Bunker. Was Sie hier sehen, ist unsere Fläche in Dortmund.</p></div>
+        <div class="scrub__ch" data-from="0.33" data-to="0.66"><p class="eyebrow">Sortiert nach Sorte</p><h2>Nicola, Laura, Karelia.</h2><p>Jede Sorte wird getrennt geerntet und gelagert. So wissen wir bis in den Hofverkauf, von welchem Acker eine Kiste kommt.</p></div>
+        <div class="scrub__ch" data-from="0.66" data-to="1.01"><p class="eyebrow">Ohne Chemie</p><h2>Und der Boden bleibt gesund.</h2><p>Nach den Kartoffeln kommt Rotklee. Er bindet Stickstoff und bereitet den Boden auf das Getreide vor.</p></div>
       </div>
     </div>
   </section>
@@ -144,10 +167,10 @@
     <div class="story__grid">
       <div class="story__visual" aria-hidden="true">
         <div class="story__counter"><span data-n>01</span><i></i><span>05</span></div>
-        <figure class="media" data-ph="Boden"><img src="assets/img/story/boden.jpg" alt="" loading="lazy" width="1400" height="1600"></figure>
-        <figure class="media media--tone-sage" data-ph="Kartoffeln legen"><img src="assets/img/story/saat.jpg" alt="" loading="lazy" width="1400" height="1600"></figure>
-        <figure class="media media--tone-straw" data-ph="Kartoffelernte"><img src="assets/img/story/ernte.jpg" alt="" loading="lazy" width="1400" height="1600"></figure>
-        <figure class="media media--tone-soil" data-ph="Mühle, Ölpresse, Senfmühle"><img src="assets/img/story/verarbeitung.jpg" alt="" loading="lazy" width="1400" height="1600"></figure>
+        <figure class="media" data-ph="Boden"><img src="assets/img/video/montage-13-5.jpg" alt="" loading="lazy" width="464" height="832"></figure>
+        <figure class="media media--tone-sage" data-ph="Aussaat"><img src="assets/img/video/montage-2-4.jpg" alt="" loading="lazy" width="464" height="832"></figure>
+        <figure class="media media--clipblur" data-ph="Kartoffelernte"><video class="clip clip--bg" data-autoplay muted playsinline loop preload="none" poster="assets/img/video/roder-oben.jpg"><source src="assets/video/roder-oben.mp4" type="video/mp4"></video><video class="clip" data-autoplay muted playsinline loop preload="none" poster="assets/img/video/roder-oben.jpg"><source src="assets/video/roder-oben.mp4" type="video/mp4"></video></figure>
+        <figure class="media media--tone-soil" data-ph="Halle und Verarbeitung"><img src="assets/img/video/montage-18-5.jpg" alt="" loading="lazy" width="464" height="832"></figure>
         <figure class="media" data-ph="Regal im Hofverkauf"><img src="assets/img/story/regal.jpg" alt="" loading="lazy" width="811" height="575"></figure>
       </div>
       <div class="story__chapters">

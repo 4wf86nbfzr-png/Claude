@@ -425,3 +425,43 @@ document.addEventListener('DOMContentLoaded', () => {
     }));
   });
 });
+/* ---------- Filme: spielen nur im Sichtfeld; Scrub-Sequenz folgt dem Scrollen ---------- */
+document.addEventListener('DOMContentLoaded', () => {
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const saveData = navigator.connection && (navigator.connection.saveData || /2g/.test(navigator.connection.effectiveType || ''));
+  // Autoplay-Clips
+  const clips = Array.from(document.querySelectorAll('video[data-autoplay]'));
+  if (clips.length && !saveData) {
+    const io = new IntersectionObserver((es) => es.forEach((e) => {
+      const v = e.target;
+      if (e.isIntersecting) { if (!v.dataset.loaded) { v.dataset.loaded = '1'; v.load(); } v.play().catch(() => {}); }
+      else v.pause();
+    }), { threshold: 0.1 });
+    clips.forEach((v) => { v.muted = true; v.playsInline = true; v.loop = true; io.observe(v); });
+  }
+  // Scrollgesteuerte Sequenz
+  document.querySelectorAll('.scrub').forEach((sec) => {
+    const v = sec.querySelector('.scrub__video'); if (!v) return;
+    const bg = sec.querySelector('.scrub__bg');
+    const chapters = Array.from(sec.querySelectorAll('.scrub__ch'));
+    if (reduce || saveData) { v.muted = true; v.loop = true; v.playsInline = true; v.play().catch(() => {}); chapters.forEach((c) => c.classList.add('is-on')); return; }
+    v.muted = true; v.playsInline = true; v.preload = 'auto'; v.load(); if (bg) { bg.muted = true; bg.preload = 'auto'; bg.load(); }
+    let target = 0, current = 0, raf = null, ready = false;
+    v.addEventListener('loadedmetadata', () => { ready = true; v.pause(); if (bg) bg.pause(); });
+    const step = () => {
+      raf = null;
+      current += (target - current) * 0.18;
+      if (ready && v.duration && Math.abs(v.currentTime - current) > 0.02) { try { v.currentTime = current; if (bg) bg.currentTime = current; } catch (e) {} }
+      if (Math.abs(target - current) > 0.01) raf = requestAnimationFrame(step);
+    };
+    const onScroll = () => {
+      const r = sec.getBoundingClientRect(); const total = r.height - window.innerHeight;
+      const p = total > 0 ? Math.min(1, Math.max(0, -r.top / total)) : 0;
+      sec.style.setProperty('--p', p.toFixed(3));
+      if (ready && v.duration) target = p * (v.duration - 0.05);
+      chapters.forEach((c, k) => { const a = parseFloat(c.dataset.from || 0), b = parseFloat(c.dataset.to || 1); c.classList.toggle('is-on', p >= a && p < b); });
+      if (!raf) raf = requestAnimationFrame(step);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true }); window.addEventListener('resize', onScroll); onScroll();
+  });
+});
