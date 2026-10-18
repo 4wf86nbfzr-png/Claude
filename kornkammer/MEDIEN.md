@@ -80,26 +80,31 @@ Alle Pfade relativ zu `kornkammer/assets/`.
 
 Je Produkt zwei Bilder, 4:5, 1200 px lange Kante, neutraler heller
 Hintergrund (vgl. Referenz „Aura“): Produkt frei, dann Detail oder
-Verwendung. Pfade stehen in `data/produkte.json` unter `bilder`:
+Verwendung. Pfade stehen in `data/produkte.json` unter `bilder`.
+
+**Bereits vorhanden (Übergang):** Für die mit ✓ markierten Produkte liegt
+ein Foto aus Screenshots des Onlineshops (etwa 670×840 px, hochskaliert
+unscharf). Bitte durch die Originaldateien des Fotografen unter demselben
+Namen ersetzen.
 
 ```
 img/produkte/senf-bernie.jpg            senf-bernie-detail.jpg
 img/produkte/senf-kochkomplize.jpg      senf-kochkomplize-detail.jpg
 img/produkte/senf-schaerfemeister.jpg   senf-schaerfemeister-detail.jpg
-img/produkte/rapsoel.jpg                rapsoel-detail.jpg
+img/produkte/rapsoel.jpg ✓              rapsoel-detail.jpg
 img/produkte/leinoel.jpg                leinoel-detail.jpg
 img/produkte/mohnoel.jpg                mohnoel-detail.jpg
 img/produkte/senfoel.jpg                senfoel-detail.jpg
-img/produkte/dinkelnudeln-hell.jpg      dinkelnudeln-hell-detail.jpg
-img/produkte/dinkelnudeln-dunkel.jpg    dinkelnudeln-dunkel-detail.jpg
-img/produkte/dinkelmehl-630.jpg         mehl-detail.jpg (gemeinsam für alle Mehle)
-img/produkte/dinkelmehl-vollkorn.jpg
-img/produkte/roggenmehl-1150.jpg
-img/produkte/roggenmehl-vollkorn.jpg
-img/produkte/weizenmehl-550.jpg
-img/produkte/weizenmehl-vollkorn.jpg
-img/produkte/weizenkoerner.jpg          koerner-detail.jpg (gemeinsam für Körner)
-img/produkte/roggenkoerner.jpg
+img/produkte/dinkelnudeln-hell.jpg ✓    dinkelnudeln-hell-detail.jpg
+img/produkte/dinkelnudeln-dunkel.jpg ✓  dinkelnudeln-dunkel-detail.jpg
+img/produkte/dinkelmehl-630.jpg ✓       mehl-detail.jpg (gemeinsam für alle Mehle)
+img/produkte/dinkelmehl-vollkorn.jpg ✓
+img/produkte/roggenmehl-1150.jpg ✓
+img/produkte/roggenmehl-vollkorn.jpg ✓
+img/produkte/weizenmehl-550.jpg ✓
+img/produkte/weizenmehl-vollkorn.jpg ✓
+img/produkte/weizenkoerner.jpg ✓        koerner-detail.jpg (gemeinsam für Körner)
+img/produkte/roggenkoerner.jpg ✓
 img/produkte/dinkelkoerner.jpg
 img/produkte/haferkerne.jpg
 img/produkte/haferflocken.jpg           haferflocken-detail.jpg

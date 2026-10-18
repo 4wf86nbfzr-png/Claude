@@ -82,15 +82,22 @@ Zugangsdaten oder Store-ID liegen nicht vor. Deshalb:
   Formular. Es wird kein Kauf simuliert; die Seite sagt überall, dass die
   Bestätigung per E-Mail kommt. Daneben führt ein Link in den bestehenden
   Shop für sofortige Zahlung.
-- **Preise** stammen aus dem Index des Onlineshops (Stand 10/2026, inkl. 7 %
-  MwSt.). Direkt gesehen: Roggenkörner 2,19; Weizenkörner 2,29; Roggenmehl
-  1150 2,69; Dinkelmehl 630 4,79; Dinkelnudeln hell/dunkel 3,79; Rapsöl 500 ml
-  6,49; Mohn-, Lein-, Senföl 100 ml 5,99; Kochkompl!ze 200 g 5,99; Nicola,
+- **Preise** (Stand 10/2026, inkl. 7 % MwSt.). Per Screenshot aus dem
+  Onlineshop bestätigt, jeweils 1 kg bzw. Packung: Weizenkörner 2,29;
+  Roggenkörner 2,19; Weizenmehl 550 2,69; Weizenmehl Vollkorn 2,79;
+  Roggenmehl 1150 2,69; Roggenmehl Vollkorn 2,69; Dinkelmehl 630 4,79;
+  Dinkelmehl Vollkorn 4,29; Dinkelnudeln hell/dunkel 500 g 3,79; Rapsöl 500 ml
+  6,49. Aus dem Suchindex: Mohn-, Lein-, Senföl 100 ml 5,99 (im Shop derzeit
+  nicht gelistet, als Hinweis vermerkt); Kochkompl!ze 200 g 5,99; Nicola,
   Glorietta, Belana 2 kg 5,29. **Abgeleitet, bitte bestätigen:** Der scharfe
-  Bernie und Schärfemeister zu 5,99 (gleiche Produktgruppe). Alle 5- und
-  25-kg-Gebinde sowie Haferflocken, Haferkerne, Dinkelkörner und die
-  Vollkorn-/550er-Mehle haben keinen Preis und werden mit „auf Anfrage“
-  geführt.
+  Bernie und Schärfemeister zu 5,99. Ohne Preis („auf Anfrage“): alle 5- und
+  25-kg-Gebinde, Haferflocken, Haferkerne, Dinkelkörner.
+- **EAN-Nummern** aus dem Shop stehen in `data/produkte.json` (`ean`) und auf
+  den Produktseiten; sie erleichtern später die Zuordnung zu Ecwid.
+- **Produktfotos:** Elf Produkte zeigen bereits das echte Foto, ausgeschnitten
+  aus Screenshots des Onlineshops (Mehle, Körner, Nudeln, Rapsöl). Das sind
+  Übergangsbilder in niedriger Auflösung; die Originaldateien ersetzen sie
+  unter demselben Pfad (siehe MEDIEN.md).
 - **Echter Checkout aktivieren:** Produkte in `data/produkte.json` um eine
   Ecwid-Produkt-ID ergänzen und den „In den Korb“-Knopf auf den Ecwid-Buy-
   Button umstellen, oder die Bestellanfrage als Bestellweg beibehalten.

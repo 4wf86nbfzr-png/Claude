@@ -225,7 +225,8 @@ function productPage(p) {
   const variants = p.varianten.map((v, i) => `<label><input type="radio" name="variante" value="${esc(v.label)}" data-price="${v.preis != null ? v.preis : ''}" data-unit="${esc(v.grundpreis || '')}" data-max="${v.max || 99}" ${i === p.varianten.indexOf(v0) ? 'checked' : ''}>${esc(v.label)}${v.preis != null ? ` <small>${eur(v.preis)}</small>` : ' <small>auf Anfrage</small>'}</label>`).join('\n            ');
   const jsonld = {
     '@context': 'https://schema.org', '@type': 'Product', name: p.name, description: p.text.join(' '),
-    brand: { '@type': 'Brand', name: 'Team Kornkammer' },
+    brand: { '@type': 'Brand', name: 'Ruhrtalgold' },
+    ...(p.ean ? { gtin13: p.ean } : {}),
     offers: p.varianten.filter((v) => v.preis != null).map((v) => ({ '@type': 'Offer', price: v.preis.toFixed(2), priceCurrency: 'EUR', availability: 'https://schema.org/InStock', itemCondition: 'https://schema.org/NewCondition', name: v.label }))
   };
   if (!jsonld.offers.length) delete jsonld.offers;
@@ -276,6 +277,8 @@ ${header(root)}
         </div>
         <dl class="pdp__meta">
           <div><dt>Erzeuger</dt><dd>Kornkammer Haus Holte, Witten</dd></div>
+          <div><dt>Marke</dt><dd>Ruhrtalgold</dd></div>${p.ean ? `
+          <div><dt>EAN</dt><dd>${p.ean}</dd></div>` : ''}
           <div><dt>Anbau</dt><dd>Bioland, seit 1987</dd></div>
           <div><dt>Abholung</dt><dd>Freitags 8 bis 17 Uhr am Hof</dd></div>
           <div><dt>Versand</dt><dd>Im Onlineshop ab 50 € kostenfrei, sonst zzgl. Versand</dd></div>
