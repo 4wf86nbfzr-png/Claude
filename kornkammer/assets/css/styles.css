@@ -1725,3 +1725,6 @@ body{ background:var(--paper); color:var(--text); }
 @media (min-width:900px){ .bridge__grid{ grid-template-columns:minmax(0,5fr) minmax(0,2fr) minmax(0,5fr); gap:0; } }
 .kein-js .bridge__link path{ stroke-dashoffset:0; } .kein-js .bridge__link span{ opacity:1; }
 @media (prefers-reduced-motion: reduce){ .bridge__link path{ stroke-dashoffset:0; } .bridge__link span{ opacity:1; } }
+
+/* Breites Panorama: auf dem Handy höher, damit der Hof erkennbar bleibt */
+@media (max-width:640px){ .media--pano{ --ar:4/3 !important; } }

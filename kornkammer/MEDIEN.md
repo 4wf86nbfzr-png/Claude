@@ -55,7 +55,7 @@ Galerie-Seite listet alle 27 Motive mit Dateinamen.
 
 | Pfad | Seitenverhältnis | Motiv |
 |---|---|---|
-| img/hof-panorama.jpg | 21:9 | Hofansicht breit |
+| img/hof-panorama.jpg | 21:9 (liegt vor: Drohnenaufnahme 1620×1080, Ausschnitt über `--pos`) | Hofansicht breit |
 | img/hof/feld-1.jpg ✓ | 4:3 | Feld mit Fruchtfolge |
 | img/hof/hacke.jpg ✓ | 4:5 | Mechanische Unkrautregulierung |
 | img/hof/boden.jpg ✓ | 1:1 | Boden in der Hand |

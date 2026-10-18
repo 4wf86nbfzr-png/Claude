@@ -1833,6 +1833,9 @@ body{ background:var(--paper); color:var(--text); }
 .kein-js .bridge__link path{ stroke-dashoffset:0; } .kein-js .bridge__link span{ opacity:1; }
 @media (prefers-reduced-motion: reduce){ .bridge__link path{ stroke-dashoffset:0; } .bridge__link span{ opacity:1; } }
 
+/* Breites Panorama: auf dem Handy höher, damit der Hof erkennbar bleibt */
+@media (max-width:640px){ .media--pano{ --ar:4/3 !important; } }
+
 </style>
 <script>document.documentElement.classList.remove('kein-js');</script>
 <script type="application/ld+json">
