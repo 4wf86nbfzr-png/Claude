@@ -245,7 +245,8 @@ ${data.kategorien.map((k) => `        <a class="chip" href="#${k.id}">${esc(k.na
 ${cats}
     </div>
   </section>
-  <section class="sec sec--leaf">
+${stage(data.produkte.find((x) => x.id === 'dinkelmehl-630'), root, { home: true, titel: true })}
+  <section class="sec sec--beige">
     <div class="wrap">
       <div class="split">
         <div class="split__text">

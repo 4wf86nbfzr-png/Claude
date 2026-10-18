@@ -345,7 +345,7 @@
 
   /* ---------- Scroll-Fortschritt für klebende Abschnitte (Hero, Reveal, Grow) ---------- */
   function scrubbers() {
-    const secs = $$('.hero3, .reveal, .grow');
+    const secs = $$('.hero3, .reveal, .grow, .bridge');
     if (!secs.length || isReduced()) return;
     // Wörter des Reveal-Textes vorbereiten
     $$('.reveal__text').forEach((el) => {
@@ -372,7 +372,8 @@
         const r = sec.getBoundingClientRect();
         if (r.bottom < -vh || r.top > vh * 2) return;
         const total = r.height - vh;
-        const p = total > 0 ? clamp(-r.top / total, 0, 1) : 0;
+        // Brücke klebt nicht: Fortschritt aus dem Eintritt ins Bild
+        const p = sec.classList.contains('bridge') ? clamp((vh - r.top) / (vh * 0.75), 0, 1) : (total > 0 ? clamp(-r.top / total, 0, 1) : 0);
         sec.style.setProperty('--p', p.toFixed(3));
         if (sec.classList.contains('reveal')) {
           const words = $$('.reveal__text .w', sec);
@@ -436,6 +437,57 @@
     run();
   }
 
+  /* ---------- Die Reise: isometrische Szene, Kamera und Traktor folgen dem Scrollen ----------
+     Vier Stationen (Acker, Hof, Hofverkauf, Ruhrgebiet). Die Kamera fährt
+     zwischen Haltepunkten, der Traktor rollt den Weg entlang, die Station
+     des aktuellen Kapitels wird hervorgehoben. */
+  function iso() {
+    $$('.iso').forEach((sec) => {
+      const scene = $('.iso__scene', sec);
+      const svg = $('.iso__svg', sec);
+      const road = svg && svg.querySelector('#isoRoad');
+      const tractor = svg && $('.iso__tractor', svg);
+      const chapters = $$('.iso__ch', sec);
+      const stations = svg ? $$('[data-station]', svg) : [];
+      if (!scene || !svg) return;
+      if (isReduced()) { chapters.forEach((c) => c.classList.add('is-on')); return; }
+      // Kamera-Haltepunkte je Kapitel: Verschiebung in % der Szene, Maßstab
+      const cam = [{ x: 14, y: 8, s: 1.35 }, { x: -4, y: 4, s: 1.3 }, { x: -12, y: -8, s: 1.3 }, { x: -20, y: -18, s: 1.2 }];
+      const mobile = window.matchMedia('(max-width:899px)');
+      const len = road ? road.getTotalLength() : 0;
+      let ticking = false, last = -1;
+      const run = () => {
+        const r = sec.getBoundingClientRect(), vh = window.innerHeight;
+        if (r.bottom < -vh || r.top > vh * 2) { ticking = false; return; }
+        const total = r.height - vh;
+        const p = total > 0 ? clamp(-r.top / total, 0, 1) : 0;
+        sec.style.setProperty('--p', p.toFixed(3));
+        // Kamera: zwischen den Haltepunkten gleiten
+        const seg = Math.min(cam.length - 2, Math.floor(p * (cam.length - 1)));
+        const t = clamp(p * (cam.length - 1) - seg, 0, 1), e = t * t * (3 - 2 * t);
+        const a = cam[seg], b = cam[seg + 1];
+        const m = mobile.matches ? 1.25 : 1;
+        const x = (a.x + (b.x - a.x) * e) * (mobile.matches ? 2.4 : 1), y = (a.y + (b.y - a.y) * e) * (mobile.matches ? 2.2 : 1), s = (a.s + (b.s - a.s) * e) * m;
+        scene.style.transform = 'translate3d(' + x.toFixed(2) + '%,' + y.toFixed(2) + '%,0) scale(' + s.toFixed(3) + ')';
+        // Traktor entlang des Weges
+        if (road && tractor && len) { const pt = road.getPointAtLength(len * clamp(p * 1.04 - 0.02, 0, 1)); tractor.setAttribute('transform', 'translate(' + pt.x.toFixed(1) + ' ' + (pt.y - 6).toFixed(1) + ')'); }
+        // Kapitel und Station
+        let active = -1;
+        chapters.forEach((c, k) => { const f = parseFloat(c.dataset.from || 0), g = parseFloat(c.dataset.to || 1); const on = p >= f && p < g; c.classList.toggle('is-on', on); if (on) active = k; });
+        if (active !== last) {
+          last = active;
+          const name = active >= 0 ? chapters[active].dataset.station : '';
+          stations.forEach((st) => st.classList.toggle('is-on', st.dataset.station === name));
+          sec.classList.toggle('has-focus', !!name);
+        }
+        ticking = false;
+      };
+      window.addEventListener('scroll', () => { if (!ticking) { requestAnimationFrame(run); ticking = true; } }, { passive: true });
+      window.addEventListener('resize', run);
+      run();
+    });
+  }
+
   /* ---------- 3D: Karten neigen sich zur Maus (nur Maus/Trackpad) ---------- */
   function tilt() {
     if (isReduced() || !window.matchMedia('(hover:hover) and (pointer:fine)').matches) return;
@@ -469,7 +521,7 @@
 
   d.addEventListener('DOMContentLoaded', () => {
     watchMedia(); header(); menu(); reveal(); parallax(); story(); hscroll(); heroVideo(); heroDrift(); forms(); misc();
-    marquee(); lightbox(); smoothWheel(); scrubbers(); counters(); layers(); tilt();
+    marquee(); lightbox(); smoothWheel(); scrubbers(); counters(); layers(); tilt(); iso();
   });
 })();
 /* Rezensionen: Pfeile blättern die Strecke */

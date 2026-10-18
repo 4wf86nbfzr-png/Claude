@@ -12,11 +12,12 @@ Stand: 18. Oktober 2026. **Testbetrieb**, gegen Suchmaschinen gesperrt.
 
 | Bereich | Umsetzung |
 |---|---|
-| Startseite `index.html` | Hero mit Film-Slot, Faktenleiste, Hof-Einführung mit Bildmosaik, zwei Porträts, sechs Arbeitsbereiche, Scroll-Geschichte in fünf Kapiteln (haftendes Bild, Kapitel schalten), horizontale Strecke „Anbau 2025/2026“ (vertikales Scrollen steuert horizontal), Sortiment-Auswahl mit Sofort-in-den-Korb, Rückverfolgung, Klimaprojekt, Handelspartner, Schluss-Aufruf |
-| `hof.html` | Bioland seit 1987, Fruchtfolge als Prozess, belegte Chronik (1987, 2010, 2025, 2026), Klimaprojekt, Flächen |
+| Startseite `index.html` | Bewusst kurz, keine One-Page: Hero als Slow-Motion-Imagefilm, ein Satz, der sich beim Scrollen füllt, Faktenleiste auf Beige, Drohnensequenz als interaktives Video, „Die Reise“ (isometrische Szene vom Acker ins Regal), Sortiment im Cremerahmen, „Die Brücke“ (digital anfragen, analog abholen), Google-Rezensionen. Alles Weitere liegt auf den Unterseiten. |
+| `hof.html` | Bioland seit 1987, Fruchtfolge als Stapelkarten, horizontale Strecke „Anbau 2025/2026“, belegte Chronik (1987, 2010, 2025, 2026), Klimaprojekt, Flächen |
 | `team.html` | Redaktionelles Layout, fünf Personen mit belegten Angaben, keine erfundenen Zitate |
-| `arbeit.html` | Ackerbau, Getreide, Ölmanufaktur, Senfmanufaktur, Kartoffeln, Verkauf, Rückverfolgung, mit Sprungleiste |
-| `shop/index.html` | Sortiment in sechs Kategorien, lebendiges Raster (breite, hohe, normale Karten), Preisstand-Hinweis |
+| `arbeit.html` | Scroll-Geschichte in fünf Kapiteln (haftendes Bild, Ernte-Clip), Ackerbau, Getreide, Ölmanufaktur, Senfmanufaktur, Kartoffeln, Verkauf, Rückverfolgung, mit Sprungleiste |
+| `galerie.html` | Bild wächst aus dem Rahmen zum Vollbild, Fotostreifen, Raster mit Lightbox |
+| `shop/index.html` | Sortiment in sechs Kategorien, lebendiges Raster (breite, hohe, normale Karten), Preisstand-Hinweis, Lichtbühne mit dem Dinkelmehl 630 |
 | `shop/produkte/*.html` | 23 Produktseiten: Galerie mit Wischen, Pfeilen, Vorschaubildern, Vollbild; Gebinde-Wahl; Menge; Herkunft; „Dazu passt“; Product-JSON-LD |
 | `shop/warenkorb.html` | Korb mit Mengen, Entfernen, Zwischensumme; Bestellanfrage per Formular |
 | `kontakt.html` | Hofverkauf, Adresse, Telefon, Fax, Mail, Karte als externer Link, Anfrageformular |
@@ -174,22 +175,30 @@ Feld plus weiche Zeitprüfung (bei zu schnellem Absenden wird nachgefragt).
 
 ## Stil: dunkles Grün und Beige, ruhig und filmisch (Stand 18.10.2026)
 
-Grundfläche tiefes Grün (`#0C1A13`), Beige (`#E6DCC8`) für Rahmen, Karten
-und Knöpfe, Stroh als einziger Akzent. Eine Display-Schrift (Bricolage
-Grotesque, Gewicht 500), Fraunces nur kursiv als Auszeichnung. Der Block
-„STIL“ am Ende von `styles.css` überschreibt die Tokens. Scroll-Effekte
-nach dem Vorbild großer Produktseiten, alle auf der Startseite:
+Grundfläche tiefes Waldgrün (`#0C1A13`); dazu Beige (`#E6DCC8`,
+`.sec--beige`) und Creme (`#F4EFE4`, `.sec--cream`) für helle Flächen,
+sattes Blattgrün (`#1B4D2B`, `.sec--leaf`) sparsam, Keimling-Grün für
+Zahlen und Knöpfe, Erntegold für Sterne und Preise. Die Startseite
+wechselt Grün, Beige, Creme; die Unterseiten ebenso. Eine Display-Schrift
+(Bricolage Grotesque, Gewicht 500), Fraunces nur kursiv als Auszeichnung.
+Die Blöcke „STIL“, „FARBWELT“ und „MEHR BEIGE“ am Ende von `styles.css`
+überschreiben die Tokens. Scroll-Effekte nach dem Vorbild großer
+Produktseiten:
 
-| Effekt | Baustein |
-|---|---|
-| Vollbild-Hero, Bild zoomt, Titel schrumpft und weicht, zweiter Titel erscheint; Bio-Plakette im ersten Blick | `.hero3` |
-| Satz füllt sich wortweise beim Scrollen | `.reveal` |
-| Zahlen zählen hoch | `[data-count]` |
-| Bild wächst aus einem Rahmen zum Vollbild, Bildunterschrift blendet ein | `.grow` |
-| Scroll-Geschichte mit haftendem Bild | `.story` |
-| Lichtbühne mit Produkt | `.stage3` |
-| Beiger Rahmen, Karten laufen horizontal durch | `.bento` |
-| Anbau-Strecke horizontal | `.hscroll` |
+| Effekt | Baustein | Seite |
+|---|---|---|
+| Vollbild-Hero mit Slow-Motion-Film, Vignette, Titel schrumpft und weicht, zweiter Titel erscheint | `.hero3` | Start |
+| Satz füllt sich wortweise beim Scrollen | `.reveal` | Start |
+| Zahlen zählen hoch | `[data-count]` | Start |
+| Film folgt dem Scrollen, Kapitel erscheinen (die Seite als interaktives Video) | `.scrub` | Start |
+| Die Reise: isometrische Szene, Kamera fährt von den Feldern über den Hof zum Hofverkauf ins Ruhrgebiet, Traktor rollt mit, Stationen leuchten auf | `.iso`, `tools/build-iso.mjs`, `iso()` | Start |
+| Beiger Rahmen, Karten laufen horizontal durch | `.bento` | Start |
+| Die Brücke: Korb dieser Seite links, Hofverkauf rechts, Linie zeichnet sich beim Scrollen | `.bridge` | Start |
+| Bild wächst aus einem Rahmen zum Vollbild | `.grow` | Galerie |
+| Scroll-Geschichte mit haftendem Bild | `.story` | Unsere Arbeit |
+| Lichtbühne mit Produkt | `.stage3` | Sortiment, Produktseiten |
+| Anbau-Strecke horizontal | `.hscroll` | Der Hof |
+| Ebenen, die stehen bleiben und überdeckt werden | `.layers` | derzeit nicht eingesetzt, Baustein bleibt |
 
 Alles ohne Abhängigkeit; `scrubbers()` in main.js setzt je Abschnitt `--p`
 (0 bis 1), der Rest ist CSS. Bei reduzierter Bewegung sind die Abschnitte
@@ -224,15 +233,17 @@ von oben (die drei hochkant, 464×832). Aufbereitet unter `assets/video/`
 
 | Einsatz | Dateien | Technik |
 |---|---|---|
-| Hero der Startseite, Desktop | `maehdrescher-quer.*` (1280×720, Lanczos aus 848×480) | bildschirmfüllend quer, zoomt leicht beim Scrollen |
-| Hero, Handy | `hof-hochkant.*` (464×832, 0–18 s) | füllt das Hochformat |
+| Hero der Startseite, Desktop | `maehdrescher-quer.*` (1920×1080, 18 s) | Imagefilm: halbe Geschwindigkeit mit Bewegungsinterpolation, entrauscht, Lanczos aus 848×480, leichte Farbkorrektur und Vignette; zoomt leicht beim Scrollen |
+| Hero, Handy | `hof-hochkant.*` (720×1292, 27 s, Quelle 0–18 s) | 0,67-fache Geschwindigkeit, gleiche Aufbereitung |
 | Drohnensequenz „Die Ernte · von oben“ | `ernte-drohne-scrub.*` (464×832, Keyframe alle 12 Bilder) scharf in der Mitte, dieselbe Datei unscharf als Breitfüllung | folgt dem Scrollen, drei Kapitel; braucht Range-Anfragen (Netlify: ja) |
 | Scroll-Geschichte, Kapitel Ernte | `roder-oben.*` (464×832) | Schleife |
 
 **Schärfe:** Die Clips sind so kodiert, dass gegenüber den Handy-Uploads
-nichts mehr verloren geht (H.264 CRF 17–21, VP9 CRF 26–30, leichte
-Nachschärfung). Schärfer als die Quelle wird es nicht: der Mähdrescher
-liegt als 848×480 vor, die drei Hochkantclips als 464×832. Für echte
+nichts mehr verloren geht (H.264 CRF 17–21, VP9 CRF 26–31, Entrauschen
+gegen Kompressionsklötze, leichte Nachschärfung). Schärfer als die Quelle
+wird es nicht: der Mähdrescher liegt als 848×480 vor, die drei
+Hochkantclips als 464×832; die Hochrechnung glättet, erfindet aber kein
+Detail. Für echte
 4K-Schärfe braucht es die Originaldateien aus der Kamera (nicht aus
 WhatsApp oder einem Chat exportiert) oder eine neue Aufnahme; sie
 ersetzen die Dateien unter gleichem Namen (Encode: `tools/`-Notizen in
@@ -258,12 +269,17 @@ Mehr Querformat vom Hof (Drohne über Feld und Hof, Abendlicht, 1080p oder
   Tempo über `data-speed` in Pixel je Sekunde, Pause beim Überfahren.
 - Gestapelte Sticky-Karten (`.stack`) auf hof.html, im Wechsel Creme
   und Blattgrün.
-- Ebenen (`.layers` > `.layer`, Startseite „Transparenz, Klima,
-  Partner“): jede Ebene bleibt stehen, die nächste fährt leicht gekippt
-  (3D) herein und legt sich darüber; die verdeckte Ebene schrumpft und
-  dunkelt ab, verschwindet aber erst, wenn die Gruppe zu Ende ist.
-  `layers()` in main.js setzt `--in` und `--cover`. Unter 900 px
-  normaler Fluss.
+- Ebenen (`.layers` > `.layer`): jede Ebene bleibt stehen, die nächste
+  fährt leicht gekippt (3D) herein und legt sich darüber; die verdeckte
+  Ebene schrumpft und dunkelt ab, verschwindet aber erst, wenn die Gruppe
+  zu Ende ist. `layers()` in main.js setzt `--in` und `--cover`. Unter
+  900 px normaler Fluss. Zugunsten der kurzen Startseite derzeit nicht
+  eingebaut.
+- Die Reise (`.iso`): Szene aus `tools/build-iso.mjs` (nach Änderung neu
+  ausführen, schreibt das SVG in index.html). `iso()` in main.js setzt
+  `--p`, fährt die Kamera zwischen vier Haltepunkten, bewegt den Traktor
+  entlang `#isoRoad` und hebt die Station des Kapitels hervor. Kein
+  `will-change` auf der Szene: es erzeugte Geisterbeschriftungen.
 - 3D-Neigung zur Maus (`tilt()`): Bento-Zellen, Rezensionen,
   Produktbilder, Stapelkarten, Ebenenbilder; nur mit Maus/Trackpad.
   Tafeln der horizontalen Strecke drehen leicht zur Bildmitte.

@@ -99,8 +99,8 @@
     </div>
   </section>
 
-  <!-- ============ 3 · Zahlen ============ -->
-  <section class="sec--s">
+  <!-- ============ 3 · Zahlen (Beige) ============ -->
+  <section class="sec--s sec--beige">
     <div class="wrap">
       <div class="facts rv">
         <div><b data-count="1987">0</b><span>Seit diesem Jahr nach Bioland-Richtlinien, ohne chemisch-synthetische Düngung und ohne Pflanzenschutzmittel</span></div>
@@ -111,7 +111,7 @@
     </div>
   </section>
 
-  <!-- ============ 3b · Drohnensequenz, läuft mit dem Scrollen ============ -->
+  <!-- ============ 3b · Drohnensequenz: die Seite als interaktives Video, läuft mit dem Scrollen ============ -->
   <section class="scrub" aria-label="Kartoffelernte aus der Luft">
     <div class="scrub__stage">
       <video class="scrub__bg" muted playsinline preload="none" poster="assets/img/video/ernte-drohne.jpg" aria-hidden="true">
@@ -131,81 +131,24 @@
     </div>
   </section>
 
-  <!-- ============ 4 · Bild wächst beim Scrollen zum Vollbild ============ -->
-  <section class="grow" aria-label="Hofverkauf">
-    <div class="grow__stage">
-      <div class="grow__frame">
-        <figure class="media" data-ph="Hofverkauf"><img src="assets/img/hofladen-1.jpg" alt="Regale mit Mehl, Nudeln und Öl im Hofverkauf" width="811" height="575" loading="lazy"></figure>
+  <!-- ============ 4 · Die Reise: isometrische Szene, Kamera fährt mit dem Scrollen ============
+       Gezeichnet von tools/build-iso.mjs (SVG zwischen den Markern), gesteuert
+       von iso() in main.js: Kamera, Traktor auf dem Weg, Stationen, Kapitel. -->
+  <section class="iso sec--beige" aria-label="Vom Acker ins Regal, eine Reise über den Hof">
+    <div class="iso__stage">
+      <div class="iso__scene"><!-- iso:svg --><svg class="iso__svg" viewBox="0 0 1920 1240" aria-hidden="true" focusable="false"><polygon points="760,130 1903.2,790 1037.1,1290 -106,630" fill="#E7DCC4"/><polygon points="-106,630 1037.1,1290 1037.1,1308 -106,648" fill="#D3C4A3"/><polygon points="1903.2,790 1037.1,1290 1037.1,1308 1903.2,808" fill="#beb093"/><g data-station="felder"><g class="iso__field f-senf"><polygon points="760,190 907.2,275 777.3,350 630.1,265" fill="#E8C95A"/><line x1="756.5" y1="198" x2="893.4" y2="277" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="746.1" y1="204" x2="883" y2="283" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="735.8" y1="210" x2="872.6" y2="289" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="725.4" y1="216" x2="862.2" y2="295" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="715" y1="222" x2="851.8" y2="301" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="704.6" y1="228" x2="841.4" y2="307" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="694.2" y1="234" x2="831" y2="313" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="683.8" y1="240" x2="820.6" y2="319" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="673.4" y1="246" x2="810.2" y2="325" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="663" y1="252" x2="799.8" y2="331" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="652.6" y1="258" x2="789.4" y2="337" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="642.2" y1="264" x2="779.1" y2="343" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><text x="768.7" y="275" class="iso__label">Senf</text></g><g class="iso__field f-hafer"><polygon points="924.5,285 1071.8,370 941.9,445 794.6,360" fill="#C9D18F"/><line x1="921.1" y1="293" x2="1057.9" y2="372" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="910.7" y1="299" x2="1047.5" y2="378" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="900.3" y1="305" x2="1037.1" y2="384" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="889.9" y1="311" x2="1026.7" y2="390" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="879.5" y1="317" x2="1016.3" y2="396" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="869.1" y1="323" x2="1006" y2="402" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="858.7" y1="329" x2="995.6" y2="408" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="848.3" y1="335" x2="985.2" y2="414" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="837.9" y1="341" x2="974.8" y2="420" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="827.5" y1="347" x2="964.4" y2="426" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="817.2" y1="353" x2="954" y2="432" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="806.8" y1="359" x2="943.6" y2="438" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><text x="933.2" y="370" class="iso__label">Hafer</text></g><g class="iso__field f-rotklee"><polygon points="1089.1,380 1236.3,465 1106.4,540 959.2,455" fill="#C39BB7"/><line x1="1085.6" y1="388" x2="1222.5" y2="467" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="1075.2" y1="394" x2="1212.1" y2="473" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="1064.8" y1="400" x2="1201.7" y2="479" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="1054.4" y1="406" x2="1191.3" y2="485" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="1044.1" y1="412" x2="1180.9" y2="491" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="1033.7" y1="418" x2="1170.5" y2="497" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="1023.3" y1="424" x2="1160.1" y2="503" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="1012.9" y1="430" x2="1149.7" y2="509" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="1002.5" y1="436" x2="1139.3" y2="515" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="992.1" y1="442" x2="1128.9" y2="521" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="981.7" y1="448" x2="1118.5" y2="527" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="971.3" y1="454" x2="1108.1" y2="533" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><text x="1097.7" y="465" class="iso__label">Rotklee</text></g><g class="iso__field f-weizen"><polygon points="612.8,275 760,360 630.1,435 482.9,350" fill="#DEBE70"/><line x1="609.3" y1="283" x2="746.1" y2="362" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="598.9" y1="289" x2="735.8" y2="368" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="588.5" y1="295" x2="725.4" y2="374" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="578.1" y1="301" x2="715" y2="380" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="567.7" y1="307" x2="704.6" y2="386" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="557.4" y1="313" x2="694.2" y2="392" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="547" y1="319" x2="683.8" y2="398" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="536.6" y1="325" x2="673.4" y2="404" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="526.2" y1="331" x2="663" y2="410" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="515.8" y1="337" x2="652.6" y2="416" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="505.4" y1="343" x2="642.2" y2="422" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="495" y1="349" x2="631.8" y2="428" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><text x="621.4" y="360" class="iso__label">Winterweizen</text></g><g class="iso__field f-dinkel"><polygon points="777.3,370 924.5,455 794.6,530 647.4,445" fill="#D2A95C"/><line x1="773.9" y1="378" x2="910.7" y2="457" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="763.5" y1="384" x2="900.3" y2="463" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="753.1" y1="390" x2="889.9" y2="469" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="742.7" y1="396" x2="879.5" y2="475" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="732.3" y1="402" x2="869.1" y2="481" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="721.9" y1="408" x2="858.7" y2="487" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="711.5" y1="414" x2="848.3" y2="493" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="701.1" y1="420" x2="837.9" y2="499" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="690.7" y1="426" x2="827.5" y2="505" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="680.3" y1="432" x2="817.2" y2="511" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="669.9" y1="438" x2="806.8" y2="517" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="659.5" y1="444" x2="796.4" y2="523" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><text x="786" y="455" class="iso__label">Dinkel</text></g><g class="iso__field f-kartoffeln"><polygon points="941.9,465 1089.1,550 959.2,625 812,540" fill="#7FA86A"/><line x1="938.4" y1="473" x2="1075.2" y2="552" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="928" y1="479" x2="1064.8" y2="558" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="917.6" y1="485" x2="1054.4" y2="564" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="907.2" y1="491" x2="1044.1" y2="570" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="896.8" y1="497" x2="1033.7" y2="576" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="886.4" y1="503" x2="1023.3" y2="582" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="876" y1="509" x2="1012.9" y2="588" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="865.7" y1="515" x2="1002.5" y2="594" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="855.3" y1="521" x2="992.1" y2="600" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="844.9" y1="527" x2="981.7" y2="606" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="834.5" y1="533" x2="971.3" y2="612" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="824.1" y1="539" x2="960.9" y2="618" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><text x="950.5" y="550" class="iso__label">Kartoffeln</text></g><g class="iso__field f-mohn"><polygon points="465.6,360 612.8,445 482.9,520 335.6,435" fill="#93A1D1"/><line x1="462.1" y1="368" x2="598.9" y2="447" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="451.7" y1="374" x2="588.5" y2="453" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="441.3" y1="380" x2="578.1" y2="459" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="430.9" y1="386" x2="567.7" y2="465" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="420.5" y1="392" x2="557.4" y2="471" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="410.1" y1="398" x2="547" y2="477" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="399.7" y1="404" x2="536.6" y2="483" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="389.3" y1="410" x2="526.2" y2="489" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="378.9" y1="416" x2="515.8" y2="495" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="368.6" y1="422" x2="505.4" y2="501" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="358.2" y1="428" x2="495" y2="507" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><line x1="347.8" y1="434" x2="484.6" y2="513" stroke="rgba(0,0,0,.13)" stroke-width="2.5"/><text x="474.2" y="445" class="iso__label">Blaumohn</text></g></g><path d="M534.8 580 L1019.8 860 L846.6 960 L1106.4 1110 L1080.4 1125" fill="none" stroke="#B49E76" stroke-width="40" stroke-linejoin="round" stroke-linecap="round"/><path d="M534.8 580 L1019.8 860 L846.6 960 L1106.4 1110 L1080.4 1125" fill="none" stroke="#CBB692" stroke-width="32" stroke-linejoin="round" stroke-linecap="round"/><path id="isoRoad" d="M534.8 580 L1019.8 860 L846.6 960 L1106.4 1110 L1080.4 1125" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="2" stroke-dasharray="14 18" stroke-linejoin="round"/><g class="iso__wind"><line x1="1262.3" y1="500" x2="1262.3" y2="350" stroke="#d1ccc1" stroke-width="6"/><g class="iso__rotor"><line x1="1262.3" y1="350" x2="1262.3" y2="306.0" stroke="#F6F0E3" stroke-width="5" stroke-linecap="round"/><line x1="1262.3" y1="350" x2="1300.4" y2="372.0" stroke="#F6F0E3" stroke-width="5" stroke-linecap="round"/><line x1="1262.3" y1="350" x2="1224.2" y2="372.0" stroke="#F6F0E3" stroke-width="5" stroke-linecap="round"/></g><circle cx="1262.3" cy="350" r="5" fill="#F6F0E3"/></g><g class="iso__tree"><ellipse cx="837.9" cy="625" rx="19.8" ry="9.9" fill="rgba(0,0,0,.1)"/><line x1="837.9" y1="625" x2="837.9" y2="575" stroke="#6B4E36" stroke-width="5"/><circle cx="837.9" cy="575" r="22" fill="#2F7D3F"/><circle cx="831.3" cy="568.4" r="9.9" fill="#3da352" opacity=".6"/></g><g class="iso__tree"><ellipse cx="768.7" cy="625" rx="16.2" ry="8.1" fill="rgba(0,0,0,.1)"/><line x1="768.7" y1="625" x2="768.7" y2="581" stroke="#6B4E36" stroke-width="5"/><circle cx="768.7" cy="581" r="18" fill="#4DA55B"/><circle cx="763.3000000000001" cy="575.6" r="8.1" fill="#64d776" opacity=".6"/></g><g class="iso__tree"><ellipse cx="378.9" cy="630" rx="23.400000000000002" ry="11.700000000000001" fill="rgba(0,0,0,.1)"/><line x1="378.9" y1="630" x2="378.9" y2="574" stroke="#6B4E36" stroke-width="5"/><circle cx="378.9" cy="574" r="26" fill="#2F7D3F"/><circle cx="371.09999999999997" cy="566.2" r="11.700000000000001" fill="#3da352" opacity=".6"/></g><g class="iso__tree"><ellipse cx="396.3" cy="680" rx="16.2" ry="8.1" fill="rgba(0,0,0,.1)"/><line x1="396.3" y1="680" x2="396.3" y2="636" stroke="#6B4E36" stroke-width="5"/><circle cx="396.3" cy="636" r="18" fill="#4DA55B"/><circle cx="390.90000000000003" cy="630.6" r="8.1" fill="#64d776" opacity=".6"/></g><g class="iso__tree"><ellipse cx="690.7" cy="750" rx="18" ry="9" fill="rgba(0,0,0,.1)"/><line x1="690.7" y1="750" x2="690.7" y2="702" stroke="#6B4E36" stroke-width="5"/><circle cx="690.7" cy="702" r="20" fill="#4DA55B"/><circle cx="684.7" cy="696" r="9" fill="#64d776" opacity=".6"/></g><g class="iso__tree"><ellipse cx="1348.9" cy="790" rx="21.6" ry="10.8" fill="rgba(0,0,0,.1)"/><line x1="1348.9" y1="790" x2="1348.9" y2="736" stroke="#6B4E36" stroke-width="5"/><circle cx="1348.9" cy="736" r="24" fill="#2F7D3F"/><circle cx="1341.7" cy="728.8" r="10.8" fill="#3da352" opacity=".6"/></g><g data-station="hof"><ellipse class="iso__ring" cx="1071.8" cy="800" rx="268.8" ry="147.84000000000003"/><g><polygon points="1141.1,750 1037.1,810 1037.1,748 1141.1,688" fill="#ddd8cc"/><polygon points="881.2,720 1037.1,810 1037.1,748 881.2,658" fill="#bbb6ad"/><polygon points="1141.1,688 1037.1,748 1089.1,676" fill="#ddd8cc"/><polygon points="985.2,598 1141.1,688 1089.1,676 933.2,586" fill="#d97d44"/><polygon points="881.2,658 1037.1,748 1089.1,676 933.2,586" fill="#a55f34"/></g><text x="812" y="690" class="iso__label iso__label--big">Haus Holte</text><g><polygon points="1314.3,850 1271,875 1271,835 1314.3,810" fill="#c8beab"/><polygon points="1219,845 1271,875 1271,835 1219,805" fill="#a8a090"/><polygon points="1262.3,780 1314.3,810 1271,835 1219,805" fill="#f1e5ce"/></g><text x="1266.6" y="747.5" class="iso__label iso__label--big">Mühle</text><g><polygon points="1253.6,885 1210.3,910 1210.3,870 1253.6,845" fill="#c8beab"/><polygon points="1158.4,880 1210.3,910 1210.3,870 1158.4,840" fill="#a8a090"/><polygon points="1201.7,815 1253.6,845 1210.3,870 1158.4,840" fill="#f1e5ce"/></g><text x="1206" y="782.5" class="iso__label iso__label--big">Ölpresse</text><g><polygon points="1193,920 1149.7,945 1149.7,905 1193,880" fill="#c8beab"/><polygon points="1097.7,915 1149.7,945 1149.7,905 1097.7,875" fill="#a8a090"/><polygon points="1141.1,850 1193,880 1149.7,905 1097.7,875" fill="#f1e5ce"/></g><text x="1145.4" y="817.5" class="iso__label iso__label--big">Senfmühle</text></g><g data-station="verkauf"><ellipse class="iso__ring" cx="1019.8" cy="955" rx="124.8" ry="68.64"/><g><polygon points="1097.7,965 1037.1,1000 1037.1,960 1097.7,925" fill="#ddd8cc"/><polygon points="941.9,945 1037.1,1000 1037.1,960 941.9,905" fill="#bbb6ad"/><polygon points="1097.7,925 1037.1,960 1067.4,916.5" fill="#ddd8cc"/><polygon points="1002.5,870 1097.7,925 1067.4,916.5 972.2,861.5" fill="#338744"/><polygon points="941.9,905 1037.1,960 1067.4,916.5 972.2,861.5" fill="#276734"/></g><text x="993.8" y="809" class="iso__label iso__label--big">Hofverkauf</text><text x="993.8" y="829" class="iso__label iso__label--big">Freitag 8 bis 17 Uhr</text></g><g class="iso__tree"><ellipse cx="1175.7" cy="1010" rx="19.8" ry="9.9" fill="rgba(0,0,0,.1)"/><line x1="1175.7" y1="1010" x2="1175.7" y2="960" stroke="#6B4E36" stroke-width="5"/><circle cx="1175.7" cy="960" r="22" fill="#2F7D3F"/><circle cx="1169.1000000000001" cy="953.4" r="9.9" fill="#3da352" opacity=".6"/></g><g class="iso__tree"><ellipse cx="1227.7" cy="1120" rx="18" ry="9" fill="rgba(0,0,0,.1)"/><line x1="1227.7" y1="1120" x2="1227.7" y2="1074" stroke="#6B4E36" stroke-width="5"/><circle cx="1227.7" cy="1074" r="20" fill="#4DA55B"/><circle cx="1221.7" cy="1068" r="9" fill="#64d776" opacity=".6"/></g><g data-station="stadt"><ellipse class="iso__ring" cx="1050.1" cy="1182.5" rx="148.79999999999998" ry="81.84"/><g><polygon points="1097.7,1145 1054.4,1170 1054.4,1100 1097.7,1075" fill="#beb6a6"/><polygon points="1011.1,1145 1054.4,1170 1054.4,1100 1011.1,1075" fill="#a0998c"/><polygon points="1054.4,1050 1097.7,1075 1054.4,1100 1011.1,1075" fill="#e5dbc8"/></g><g><polygon points="1167,1185 1115.1,1215 1115.1,1119 1167,1089" fill="#b8af9e"/><polygon points="1063.1,1185 1115.1,1215 1115.1,1119 1063.1,1089" fill="#9b9384"/><polygon points="1115.1,1059 1167,1089 1115.1,1119 1063.1,1089" fill="#ded3be"/></g><g><polygon points="1045.8,1185 1002.5,1210 1002.5,1154 1045.8,1129" fill="#c2baaa"/><polygon points="950.5,1180 1002.5,1210 1002.5,1154 950.5,1124" fill="#a39c8f"/><polygon points="993.8,1099 1045.8,1129 1002.5,1154 950.5,1124" fill="#e9e0cd"/></g><g><polygon points="1097.7,1225 1063.1,1245 1063.1,1201 1097.7,1181" fill="#beb6a6"/><polygon points="1019.8,1220 1063.1,1245 1063.1,1201 1019.8,1176" fill="#a0998c"/><polygon points="1054.4,1156 1097.7,1181 1063.1,1201 1019.8,1176" fill="#e5dbc8"/></g><text x="1058.8" y="1012.5" class="iso__label iso__label--big">Ruhrgebiet</text><text x="1058.8" y="1034.5" class="iso__label iso__label--big">Bäckereien · Naturkost · Abokiste</text></g><g class="iso__tractor" aria-hidden="true"><ellipse cx="0" cy="14" rx="30" ry="12" fill="rgba(0,0,0,.14)"/><ellipse cx="-1.7" cy="-22" rx="8.1" ry="9" fill="#262A24"/><ellipse cx="-22.5" cy="-10" rx="8.1" ry="9" fill="#262A24"/><ellipse cx="25.1" cy="-10.5" rx="10.8" ry="12" fill="#262A24"/><ellipse cx="2.6" cy="2.5" rx="10.8" ry="12" fill="#262A24"/><polygon points="29.4,-3 8.7,9 8.7,-5 29.4,-17" fill="#296e37"/><polygon points="-29.4,-13 8.7,9 8.7,-5 -29.4,-27" fill="#235d2f"/><polygon points="-8.7,-39 29.4,-17 8.7,-5 -29.4,-27" fill="#328543"/><polygon points="20.8,-20 3.5,-10 3.5,-26 20.8,-36" fill="#184426"/><polygon points="-12.1,-19 3.5,-10 3.5,-26 -12.1,-35" fill="#143920"/><polygon points="5.2,-45 20.8,-36 3.5,-26 -12.1,-35" fill="#1d522e"/></g></svg><!-- /iso:svg --></div>
+      <div class="iso__head" aria-hidden="true"><p class="eyebrow">Die Reise</p><p class="iso__sub">Vom Acker ins Regal</p></div>
+      <div class="iso__chapters">
+        <div class="iso__ch is-on" data-from="0" data-to="0.25" data-station="felder"><p class="eyebrow">01 · Der Acker</p><h2>Sieben Kulturen, eigene Flächen.</h2><p>Senf, Hafer, Rotklee, Winterweizen, Dinkel, Kartoffeln und Blaumohn wachsen 2025/2026 in Witten, Dortmund und Essen. Ohne chemisch-synthetische Düngung, mit Rotklee in der Fruchtfolge.</p><a class="link" href="hof.html">Der Hof und die Fruchtfolge <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+        <div class="iso__ch" data-from="0.25" data-to="0.5" data-station="hof"><p class="eyebrow">02 · Der Hof</p><h2>Verarbeitet am Gederfeldweg.</h2><p>Mühle, Ölpresse und Senfmühle stehen auf dem Hof: Mehl in Bäckerqualität, kalt gepresste Öle, Senf auf Granitsteinen. Alles aus hundert Prozent hofeigener Saat.</p><a class="link" href="arbeit.html">Unsere Arbeit <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+        <div class="iso__ch" data-from="0.5" data-to="0.75" data-station="verkauf"><p class="eyebrow">03 · Der Hofverkauf</p><h2>Freitags, 8 bis 17 Uhr.</h2><p>Mehle, Nudeln, Öle und Senf im Regal, Kartoffeln nach Sorten in den Kisten. Fällt ein Feiertag auf den Freitag, sind wir am Donnerstag da.</p><a class="link" href="kontakt.html">Anfahrt und Zeiten <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+        <div class="iso__ch" data-from="0.75" data-to="1.01" data-station="stadt"><p class="eyebrow">04 · Das Ruhrgebiet</p><h2>Und beim Bäcker um die Ecke.</h2><p>Rund 98 Prozent des Brotweizens gehen als Mehl an Bäckereien. Dazu Naturkosthandel unter der Marke Ruhrtalgold, EDEKA Zierles, Abokiste 24 und der Onlineshop.</p><a class="link" href="arbeit.html#verkauf">Alle Wege vom Hof <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
       </div>
-      <div class="grow__cap"><h2>Freitags am Gederfeldweg.</h2><p>Hofverkauf jeden Freitag von 8 bis 17 Uhr. Mehle, Nudeln, Öle und Senf im Regal, Kartoffeln nach Sorten in den Kisten.</p></div>
+      <div class="iso__bar" aria-hidden="true"><i></i></div>
     </div>
   </section>
 
-  <!-- ============ 5 · Der Hof (satte Blattgrün-Fläche) ============ -->
-  <section class="sec sec--leaf">
-    <div class="wrap">
-      <div class="split">
-        <div class="split__text">
-          <p class="eyebrow">Der Hof</p>
-          <h2 class="rv">Ein ehemaliges Rittergut, seit 1987 ohne Chemie bewirtschaftet.</h2>
-          <p class="rv rv--d1">Die Kornkammer Haus Holte liegt am Gederfeldweg in Witten. Dirk Liedmann und sein Partner Bernhard Pawliczek bewirtschaften die Felder seit 1987 nach den Richtlinien des Bioland-Verbandes. Unkraut wird mechanisch reguliert, die sechsgliedrige Fruchtfolge mit Rotklee hält den Boden gesund.</p>
-          <p class="rv rv--d2">Als Bioland-Betrieb erfüllt der Hof einen Standard, der deutlich über den gesetzlichen Vorgaben der EU-Bio-Verordnung liegt.</p>
-          <a class="link rv rv--d3" href="hof.html">Mehr über den Hof <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-        </div>
-        <div class="split__media mosaic">
-          <figure class="media rv rv--mask" data-ph="Kartoffelfeld in Blüte"><img src="assets/img/galerie/g06.jpg" alt="Kartoffelfeld in Blüte" loading="lazy" width="251" height="190"></figure>
-          <figure class="media rv rv--mask" data-ph="Kartoffelblüte"><img src="assets/img/galerie/g05.jpg" alt="Kartoffelblüte" loading="lazy" width="251" height="190"></figure>
-          <figure class="media rv rv--mask" data-ph="Kartoffeln im Boden"><img src="assets/img/galerie/g08.jpg" alt="Kartoffeln im Boden" loading="lazy" width="251" height="190"></figure>
-          <figure class="media rv rv--mask" data-ph="Traktor beim Kartoffellegen" data-parallax="0.05"><img src="assets/img/galerie/g01.jpg" alt="Traktor beim Kartoffellegen" loading="lazy" width="251" height="190"></figure>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ 6 · Geschichte beim Scrollen ============ -->
-  <section class="story" aria-label="Vom Acker ins Regal, Schritt für Schritt">
-    <div class="story__grid">
-      <div class="story__visual" aria-hidden="true">
-        <div class="story__counter"><span data-n>01</span><i></i><span>05</span></div>
-        <figure class="media" data-ph="Boden"><img src="assets/img/video/montage-13-5.jpg" alt="" loading="lazy" width="464" height="832"></figure>
-        <figure class="media media--tone-sage" data-ph="Aussaat"><img src="assets/img/video/montage-2-4.jpg" alt="" loading="lazy" width="464" height="832"></figure>
-        <figure class="media media--clipblur" data-ph="Kartoffelernte"><video class="clip clip--bg" data-autoplay muted playsinline loop preload="none" poster="assets/img/video/roder-oben.jpg"><source src="assets/video/roder-oben.webm" type="video/webm"><source src="assets/video/roder-oben.mp4" type="video/mp4"></video><video class="clip" data-autoplay muted playsinline loop preload="none" poster="assets/img/video/roder-oben.jpg"><source src="assets/video/roder-oben.webm" type="video/webm"><source src="assets/video/roder-oben.mp4" type="video/mp4"></video></figure>
-        <figure class="media media--tone-soil" data-ph="Halle und Verarbeitung"><img src="assets/img/video/montage-18-5.jpg" alt="" loading="lazy" width="464" height="832"></figure>
-        <figure class="media" data-ph="Regal im Hofverkauf"><img src="assets/img/story/regal.jpg" alt="" loading="lazy" width="811" height="575"></figure>
-      </div>
-      <div class="story__chapters">
-        <article class="chapter"><p class="chapter__n">Kapitel 01</p><h3>Der Boden</h3><p>Alles beginnt mit einer sechsgliedrigen Fruchtfolge. Ihr Herzstück ist die Gründüngung mit Rotklee: Er bindet Stickstoff im Boden und ersetzt so die Düngung, die ein Bioland-Betrieb nicht kaufen darf.</p></article>
-        <article class="chapter"><p class="chapter__n">Kapitel 02</p><h3>Die Saat</h3><p>Im Anbau 2025/2026 stehen Senf, Hafer, Rotklee, Winterweizen, Dinkel, Kartoffeln und Blaumohn auf den Flächen. Jede Kultur hat auf dem Hof einen Abnehmer: die Mühle, die Ölpresse, die Senfmühle oder das Regal.</p></article>
-        <article class="chapter"><p class="chapter__n">Kapitel 03</p><h3>Die Ernte</h3><p>Der erste Kleeaufwuchs geht als Säuberungsschnitt an eine Bio-Biogasanlage; die Nährstoffe kommen als Gärsubstrat auf den Hof zurück. Der zweite Aufwuchs ist so sauber, dass er als Saatgut gedroschen wird.</p></article>
-        <article class="chapter"><p class="chapter__n">Kapitel 04</p><h3>Die Verarbeitung</h3><p>Getreide wird in Bäckerqualität vermahlen. Öle werden kalt gepresst, Leinöl bei unter 40 °C und ungefiltert. Senf entsteht traditionell auf Granitsteinen. Alles aus hundert Prozent hofeigener Saat.</p></article>
-        <article class="chapter"><p class="chapter__n">Kapitel 05</p><h3>Das Regal</h3><p>Etwa 98 Prozent des Brotweizens gehen an Bäckereien. Der Rest steht freitags im Hofverkauf, im Onlineshop, im Naturkosthandel unter der Marke Ruhrtalgold und bei regionalen Partnern.</p><a class="link" href="arbeit.html" style="margin-top:var(--gap-m)">Die ganze Arbeit im Detail <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></article>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ 7 · Produkt im Licht ============ -->
-<section class="stage3 stage3--mehle stage3--home" data-stage data-partikel="mehl" aria-label="Bio Dinkelmehl Type 630 im Licht">
-  <div class="stage3__bg"></div>
-  <canvas class="stage3__fx" aria-hidden="true"></canvas>
-  <div class="stage3__sweep" aria-hidden="true"></div>
-  <div class="stage3__floor" aria-hidden="true"></div>
-  <div class="stage3__scene">
-    <div class="stage3__obj" tabindex="0" role="img" aria-label="Bio Dinkelmehl Type 630. Mit Pfeiltasten oder durch Ziehen drehen.">
-      <img class="stage3__img" src="assets/img/produkte/frei/dinkelmehl-630.webp" alt="" width="600" height="800" draggable="false" loading="lazy">
-      <img class="stage3__refl" src="assets/img/produkte/frei/dinkelmehl-630.webp" alt="" aria-hidden="true" width="600" height="800" draggable="false" loading="lazy">
-    </div>
-  </div>
-  <div class="stage3__cap">
-    <p class="eyebrow">Ruhrtalgold · Mehle</p>
-    <h2>Bio Dinkelmehl Type 630</h2>
-    <p>Bäckerqualität</p>
-    <p class="stage3__price">4,79 € <span class="small" style="color:var(--on-dark-m)">1 kg</span></p>
-    <div class="stage3__actions"><a class="btn btn--solidlight" href="shop/produkte/dinkelmehl-630.html">Produkt entdecken</a><a class="btn btn--light" href="shop/">Ganzes Sortiment</a></div>
-  </div>
-  <p class="stage3__hint" aria-hidden="true">Ziehen zum Drehen</p>
-</section>
-
-  <!-- ============ 8 · Sortiment im beigen Rahmen ============ -->
+  <!-- ============ 5 · Sortiment im beigen Rahmen ============ -->
   <section class="hscroll bento" aria-label="Sortiment">
     <div class="hscroll__sticky bento__sticky">
       <div class="bento__frame">
@@ -227,81 +170,38 @@
     </div>
   </section>
 
-  <!-- ============ 9 · Anbau 2025/2026, horizontal ============ -->
-  <section class="hscroll sec--paper2" aria-label="Unser Anbau 2025/2026">
-    <div class="hscroll__sticky">
-      <div class="hscroll__head wrap">
-        <div><p class="eyebrow">Biologische Vielfalt</p><h2 class="rv">Unser Anbau 2025/2026</h2></div>
-        <p class="small rv rv--d1">Sieben Kulturen, und was aus ihnen wird.</p>
+  <!-- ============ 6 · Die Brücke: digital anfragen, analog abholen ============ -->
+  <section class="bridge sec sec--cream" aria-label="Online anfragen, am Hof abholen">
+    <div class="wrap">
+      <div class="bridge__head">
+        <p class="eyebrow">Digital bestellen, analog abholen</p>
+        <h2 class="rv">Vom Korb auf dieser Seite in die Kiste am Gederfeldweg.</h2>
+        <p class="lead rv rv--d1">Sie legen zusammen, was Sie brauchen, und schicken eine Anfrage. Wir bestätigen per E-Mail. Abholen freitags am Hof, oder Versand über den Onlineshop.</p>
       </div>
-      <div class="hscroll__track">
-        <article class="hpanel"><p class="hpanel__k"><b>01</b> Senf</p><figure class="media media--tone-straw" data-ph="Senffeld in Blüte"><img src="assets/img/anbau/senf.jpg" alt="Senffeld in Blüte" loading="lazy" width="800" height="1000"></figure><h3>Senf</h3><p>Wird in der Senfmanufaktur auf Granitsteinen zu drei Sorten vermahlen und in der Ölmanufaktur zu Senföl gepresst.</p><a class="link" href="shop/#senf">Zum Senf <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></article>
-        <article class="hpanel"><p class="hpanel__k"><b>02</b> Hafer</p><figure class="media media--tone-sage" data-ph="Haferfeld"><img src="assets/img/anbau/hafer.jpg" alt="Haferfeld" loading="lazy" width="800" height="1000"></figure><h3>Hafer</h3><p>Wird zu Haferkernen und zartblättrigen Haferflocken, in 500 Gramm bis 25 Kilogramm.</p><a class="link" href="shop/#koerner">Zu Körnern und Flocken <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></article>
-        <article class="hpanel"><p class="hpanel__k"><b>03</b> Rotklee</p><figure class="media" data-ph="Rotklee"><img src="assets/img/anbau/rotklee.jpg" alt="Rotklee" loading="lazy" width="800" height="1000"></figure><h3>Rotklee</h3><p>Das Herzstück der Fruchtfolge: Gründüngung, die Stickstoff bindet. Der erste Schnitt geht an eine Bio-Biogasanlage, der zweite wird Saatgut.</p><a class="link" href="hof.html">So funktioniert die Fruchtfolge <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></article>
-        <article class="hpanel"><p class="hpanel__k"><b>04</b> Winterweizen</p><figure class="media media--tone-straw" data-ph="Weizenfeld"><img src="assets/img/anbau/weizen.jpg" alt="Weizenfeld" loading="lazy" width="800" height="1000"></figure><h3>Winterweizen</h3><p>Wird zu Mehl Type 550 und Vollkornmehl in Bäckerqualität. Rund 98 Prozent des Brotweizens gehen an Bäckereien.</p><a class="link" href="shop/#mehle">Zu den Mehlen <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></article>
-        <article class="hpanel"><p class="hpanel__k"><b>05</b> Dinkel</p><figure class="media media--tone-straw" data-ph="Dinkelähren"><img src="assets/img/anbau/dinkel.jpg" alt="Dinkelähren" loading="lazy" width="800" height="1000"></figure><h3>Dinkel</h3><p>Wird zu Mehl Type 630, Vollkornmehl, ganzen Körnern und zu hellen und dunklen Dinkelnudeln.</p><a class="link" href="shop/#nudeln">Zu den Nudeln <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></article>
-        <article class="hpanel"><p class="hpanel__k"><b>06</b> Kartoffeln</p><figure class="media" data-ph="Kartoffelreihen"><img src="assets/img/anbau/kartoffeln.jpg" alt="Junge Kartoffelreihen" loading="lazy" width="251" height="190"></figure><h3>Kartoffeln</h3><p>Wachsen 2025/2026 in Dortmund-Barop und Dortmund-Mengede. Erhältlich als Holter Knolle und Ruhrtalgold, festkochend bis mehlig.</p><a class="link" href="shop/#kartoffeln">Zu den Kartoffeln <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></article>
-        <article class="hpanel"><p class="hpanel__k"><b>07</b> Blaumohn</p><figure class="media media--tone-sage" data-ph="Mohnfeld"><img src="assets/img/anbau/mohn.jpg" alt="Mohnfeld" loading="lazy" width="800" height="1000"></figure><h3>Blaumohn</h3><p>Die Sorte Wintermohn wird nativ kaltgepresst. So bleibt der typische Mohngeschmack im Öl.</p><a class="link" href="shop/produkte/mohnoel.html">Zum Mohnöl <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></article>
+      <div class="bridge__grid">
+        <div class="bridge__card bridge__card--digital rv">
+          <p class="bridge__tag">Auf dieser Seite</p>
+          <ul class="bridge__list">
+            <li><img src="assets/img/produkte/frei/dinkelmehl-630.webp" alt="" width="395" height="827" loading="lazy"><span>Bio Dinkelmehl Type 630<small>1 kg</small></span><b>4,79 €</b></li>
+            <li><img src="assets/img/produkte/frei/rapsoel.webp" alt="" width="222" height="841" loading="lazy"><span>Bio Rapsöl nativ<small>500 ml</small></span><b>6,49 €</b></li>
+            <li><img src="assets/img/produkte/frei/kartoffeln-nicola.webp" alt="" width="417" height="822" loading="lazy"><span>Kartoffeln Nicola<small>festkochend</small></span><b>5,29 €</b></li>
+          </ul>
+          <a class="btn btn--solid" href="shop/">Sortiment und Korb</a>
+        </div>
+        <div class="bridge__link" aria-hidden="true">
+          <svg viewBox="0 0 200 80" preserveAspectRatio="none"><path pathLength="1" d="M0 40 C 60 40, 70 40, 100 40 S 140 40, 200 40"/></svg>
+          <span>Freitag, 8 bis 17 Uhr</span>
+        </div>
+        <figure class="media media--soft bridge__card bridge__card--analog rv rv--mask" data-ph="Kartoffeln nach Sorten im Hofverkauf" style="--ar:4/5"><img src="assets/img/hofladen-3.jpg" alt="Kartoffeln nach Sorten in Holzkisten, Preise auf Kreidetafeln" loading="lazy" width="811" height="575"><figcaption class="bridge__cap">Gederfeldweg 37, Witten</figcaption></figure>
       </div>
-      <div class="hscroll__bar" aria-hidden="true"><i></i></div>
+      <div class="bridge__actions rv">
+        <a class="btn btn--solid" href="kontakt.html">Anfahrt und Kontakt</a>
+        <a class="btn btn--outline" href="https://shopteamkornkammer.company.site/" rel="noopener">Onlineshop mit Versand</a>
+      </div>
     </div>
   </section>
 
-  <!-- ============ 10 · Rückverfolgung, Klima, Partner: drei Ebenen ============
-       Jede Ebene bleibt stehen, die nächste schiebt sich darüber (Creme,
-       Blattgrün, Waldgrün). Steuerung: layers() in main.js. -->
-  <div class="layers" aria-label="Transparenz, Klima, Partner">
-    <section class="layer sec--cream" aria-label="Transparenz">
-    <div class="layer__in">
-      <div class="split">
-        <div class="split__text">
-          <p class="eyebrow">100 % Transparenz</p>
-          <h2 class="rv">Jedes Produkt lässt sich bis auf den Acker zurückverfolgen.</h2>
-          <ul class="split__list rv rv--d1">
-            <li><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span><strong>Kartoffeln 2025/2026:</strong> Dortmund-Barop, Am Windrad Airwin, und Dortmund-Mengede, Naturschutzgebiet Im Siesack.</span></li>
-            <li><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span><strong>Roggen, Weizen, Dinkel, Hafer 2023/2024:</strong> Flächen in Essen, Witten und Dortmund.</span></li>
-            <li><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span><strong>Öle und Senf:</strong> aus hundert Prozent hofeigener Saat, gepresst und vermahlen am Gederfeldweg.</span></li>
-          </ul>
-          <a class="link rv rv--d2" href="arbeit.html#transparenz">Alle Flächen <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-        </div>
-        <figure class="media media--soft split__media rv rv--mask" data-ph="Acker in Dortmund-Mengede" style="--ar:4/3"><img src="assets/img/acker-mengede.jpg" alt="Schild am Acker: Hier wächst was Besonderes" loading="lazy" width="251" height="190"></figure>
-      </div>
-    </div>
-    </section>
-    <section class="layer sec--leaf" aria-label="Klimaprojekt">
-    <div class="layer__in">
-      <div class="split split--rev">
-        <div class="split__text">
-          <p class="eyebrow">Klimaprojekt</p>
-          <h2 class="rv">Wir messen, was unsere Arbeit fürs Klima bedeutet.</h2>
-          <p class="rv rv--d1">Die Kornkammer ist einer der Betriebe im Netzwerk Pilotbetriebe. Dort wird untersucht, welche Treibhausgase in Pflanzenbau und Milchviehhaltung entstehen, als Gesamtbetrachtung aus Böden, Futterbau, Tierhaltung und Düngung.</p>
-          <a class="link rv rv--d2" href="hof.html#klima">Mehr zum Projekt <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-        </div>
-        <figure class="media media--soft media--tone-sage split__media rv rv--mask" data-ph="Beregnung auf dem Feld" style="--ar:4/3"><img src="assets/img/klima.jpg" alt="Beregnung auf dem Kartoffelfeld" loading="lazy" width="251" height="190"></figure>
-      </div>
-    </div>
-    </section>
-    <section class="layer sec--paper2" aria-label="Wo Sie uns noch finden">
-    <div class="layer__in">
-      <div class="split">
-        <div class="split__text">
-          <p class="eyebrow">Wo Sie uns noch finden</p>
-          <h2 class="rv">Nicht nur freitags am Hof.</h2>
-          <ul class="split__list rv rv--d1">
-            <li><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span><strong>Bäckereien</strong> im Ruhrgebiet backen mit unserem Mehl.</span></li>
-            <li><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span><strong>Naturkosthandel:</strong> unter der Marke Ruhrtalgold, etwa Mehle, Haferflocken, Körner und Rapsöl.</span></li>
-            <li><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span><strong>EDEKA Zierles</strong> in Oer-Erkenschwick führt Nudeln, Senf, Öle, Mehle und Hafer von uns.</span></li>
-            <li><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span><strong>Abokiste 24</strong> liefert unsere Getreideprodukte und Öle mit der Gemüsekiste.</span></li>
-            <li><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span><strong>Onlineshop:</strong> <a href="https://shopteamkornkammer.company.site/" rel="noopener" style="border-bottom:1px solid currentColor">shopteamkornkammer.company.site</a>, Versand ab 50 € kostenfrei.</span></li>
-          </ul>
-        </div>
-        <figure class="media media--soft split__media rv rv--mask" data-ph="Verkaufsraum" style="--ar:4/3"><img src="assets/img/hof-gebaeude.jpg" alt="Blick in den Hofverkauf" loading="lazy" width="811" height="575"></figure>
-      </div>
-    </div>
-    </section>
-  </div>
-
-  <!-- ============ 10b · Google-Rezensionen (data/rezensionen.json) ============ -->
+  <!-- ============ 7 · Google-Rezensionen (data/rezensionen.json) ============ -->
   <section class="reviews" aria-label="Rezensionen">
     <div class="wrap">
       <div class="reviews__head">
@@ -359,40 +259,6 @@
         </article>
       </div>
       <p class="reviews__note">Rezensionen aus dem Google-Unternehmensprofil der Kornkammer Haus Holte, Stand Oktober 2026. <a href="https://www.google.com/search?q=rezensionen+f%C3%BCr+team-kornkammer" rel="noopener">Alle Rezensionen bei Google</a></p>
-    </div>
-  </section>
-
-  <!-- ============ 11 · Galerie-Streifen ============ -->
-  <section class="sec--s" aria-label="Bilder vom Feld">
-    <div class="marquee marquee--photos" data-speed="28">
-      <div class="marquee__track">
-        <figure class="media" data-ph=""><img src="assets/img/galerie/g01.jpg" alt="Kartoffeln legen im Frühjahr" loading="lazy" width="251" height="190"></figure>
-        <figure class="media" data-ph=""><img src="assets/img/galerie/g06.jpg" alt="Kartoffelfeld in Blüte" loading="lazy" width="251" height="190"></figure>
-        <figure class="media" data-ph=""><img src="assets/img/galerie/g13.jpg" alt="Das Team auf dem Kartoffelroder" loading="lazy" width="251" height="190"></figure>
-        <figure class="media" data-ph=""><img src="assets/img/hofladen-2.jpg" alt="Verkaufsraum" loading="lazy" width="811" height="575"></figure>
-        <figure class="media" data-ph=""><img src="assets/img/galerie/g09.jpg" alt="Schild am Acker" loading="lazy" width="251" height="190"></figure>
-        <figure class="media" data-ph=""><img src="assets/img/galerie/g17.jpg" alt="Kartoffeln auf dem Roder" loading="lazy" width="251" height="190"></figure>
-        <figure class="media" data-ph=""><img src="assets/img/galerie/g04.jpg" alt="Dämme im Abendlicht" loading="lazy" width="251" height="190"></figure>
-        <figure class="media" data-ph=""><img src="assets/img/galerie/g27.jpg" alt="Beregnung" loading="lazy" width="251" height="190"></figure>
-        <figure class="media" data-ph=""><img src="assets/img/galerie/g24.jpg" alt="Kartoffelreihen im Sommer" loading="lazy" width="251" height="190"></figure>
-      </div>
-    </div>
-    <div class="wrap" style="margin-top:var(--gap-s)"><a class="link" href="galerie.html">Alle Bilder in der Galerie <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
-  </section>
-
-  <!-- ============ 12 · Besuch, Kontakt, Einkauf ============ -->
-  <section class="cta sec">
-    <div class="wrap">
-      <div>
-        <p class="eyebrow">Kommen Sie vorbei</p>
-        <h2 class="rv">Freitags am Gederfeldweg.</h2>
-        <p class="lead rv rv--d1" style="margin-top:var(--gap-m)">Hofverkauf jeden Freitag von 8 bis 17 Uhr. Fällt ein Feiertag auf den Freitag, sind wir am Donnerstag da. Wer vorher anrufen möchte: 02302 282 7475.</p>
-        <div class="cta__actions rv rv--d2" style="margin-top:var(--gap-m)">
-          <a class="btn btn--solid" href="kontakt.html">Anfahrt und Kontakt</a>
-          <a class="btn btn--outline" href="shop/">Sortiment ansehen</a>
-        </div>
-      </div>
-      <figure class="media media--soft rv rv--mask" data-ph="Hofverkauf" data-parallax="0.05"><img src="assets/img/hofeinfahrt.jpg" alt="Kartoffeln nach Sorten im Hofverkauf" loading="lazy" width="811" height="575"></figure>
     </div>
   </section>
 
