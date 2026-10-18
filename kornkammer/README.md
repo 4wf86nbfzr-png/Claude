@@ -65,6 +65,8 @@ und Drittquellen. Daraus übernommen:
 | besonderes.htm | Rückverfolgung je Fläche | arbeit.html#transparenz, Startseite |
 | klimaprojekte.htm | Netzwerk Pilotbetriebe | hof.html#klima, Startseite |
 | bio verstehen.htm | **Inhalt unbekannt** | Weiterleitung auf hof.html |
+| Galerie | 27 Feldfotos (Kartoffeln vom Legen bis zur Ernte) und drei Fotos aus dem Hofverkauf, per Screenshot | galerie.html, Laufband auf der Startseite, Bildplätze auf allen Seiten |
+| Qualität | **Inhalt unbekannt** (Menüpunkt der alten Seite) | Weiterleitung auf hof.html, Text nachliefern |
 | impressum.htm | oHG, GbR, Vertreter, USt-ID | impressum.html |
 | Onlineshop | 23 Produkte, Preise, Versandregel | data/produkte.json, shop/ |
 
@@ -117,15 +119,27 @@ Feld plus weiche Zeitprüfung (bei zu schnellem Absenden wird nachgefragt).
 
 - Einblendungen beim Scrollen (`.rv`, `.rv--mask`, `.rv-words`) mit
   IntersectionObserver plus Sicherheitsnetz für Ankersprünge.
-- Parallax (`data-parallax`), Hero-Fahrt, Scroll-Geschichte (`.story`),
-  horizontale Strecke (`.hscroll`; unter 900 px natives Wischen mit
-  Scroll-Snap).
-- `prefers-reduced-motion`: alles sofort sichtbar, nichts fährt, kein Video.
+- Parallax (`data-parallax`), Hero-Fahrt, Scroll-Geschichte mit haftendem
+  Bild (`.story`), horizontale Strecke (`.hscroll`; unter 900 px natives
+  Wischen mit Scroll-Snap).
+- Laufbänder (`.marquee`): Fotostreifen und große Worte, nahtlose Schleife,
+  Tempo über `data-speed` in Pixel je Sekunde, Pause beim Überfahren.
+- Gestapelte Sticky-Karten (`.stack`) auf hof.html.
+- Sanftes Scrollen mit dem Mausrad (`smoothWheel` in main.js): nur bei
+  Maus/Trackpad, nie auf Touch, nie bei reduzierter Bewegung; der native
+  Scroll bleibt erhalten, deshalb funktionieren Anker, Tastatur und sticky.
+- `prefers-reduced-motion`: alles sofort sichtbar, nichts fährt, Laufbänder
+  stehen still und sind wischbar, Karten stapeln nicht, kein Video.
 - Ohne JavaScript bleibt nichts versteckt (`kein-js`).
 
 ## Medien
 
-Kein einziges Foto und kein Video der Kornkammer lag vor. Jeder Bildplatz
+Vorhanden sind bisher nur Bilder aus Screenshots: 17 Produktfotos aus dem
+Onlineshop, 27 Feldfotos aus der alten Galerie (etwa 250 px breit) und drei
+Fotos aus dem Hofverkauf (etwa 800 px). Sie sitzen in den passenden
+Plätzen und werden durch die Originale unter demselben Dateinamen ersetzt.
+Große Flächen (Hero, Panoramen, Teamporträts, Verarbeitung) sind weiter
+Platzhalter. Jeder Bildplatz
 ist ein `<figure class="media">` mit `<img src>` auf den vorgesehenen Pfad.
 Fehlt die Datei, zeigt der Rahmen eine klar als vorläufig erkennbare Fläche
 mit der Beschriftung „Foto folgt · …“. Liegt die Datei am Pfad, erscheint

@@ -63,6 +63,7 @@ function header(root, over = false) {
       <a href="${root}hof.html">Der Hof</a>
       <a href="${root}team.html">Das Team</a>
       <a href="${root}arbeit.html">Unsere Arbeit</a>
+      <a href="${root}galerie.html">Galerie</a>
       <a href="${root}shop/">Sortiment</a>
       <a href="${root}kontakt.html">Hofverkauf &amp; Kontakt</a>
     </nav>
@@ -78,6 +79,7 @@ function header(root, over = false) {
     <a href="${root}hof.html">Der Hof</a>
     <a href="${root}team.html">Das Team</a>
     <a href="${root}arbeit.html">Unsere Arbeit</a>
+    <a href="${root}galerie.html">Galerie</a>
     <a href="${root}shop/">Sortiment</a>
     <a href="${root}kontakt.html">Hofverkauf &amp; Kontakt</a>
   </nav>
@@ -113,6 +115,7 @@ function footer(root) {
           <li><a href="${root}hof.html">Der Hof</a></li>
           <li><a href="${root}team.html">Das Team</a></li>
           <li><a href="${root}arbeit.html">Unsere Arbeit</a></li>
+          <li><a href="${root}galerie.html">Galerie</a></li>
           <li><a href="${root}shop/">Sortiment</a></li>
           <li><a href="${root}kontakt.html">Hofverkauf &amp; Kontakt</a></li>
         </ul>

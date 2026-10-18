@@ -31,6 +31,7 @@
       <a href="hof.html">Der Hof</a>
       <a href="team.html">Das Team</a>
       <a href="arbeit.html">Unsere Arbeit</a>
+      <a href="galerie.html">Galerie</a>
       <a href="shop/">Sortiment</a>
       <a href="kontakt.html">Hofverkauf &amp; Kontakt</a>
     </nav>
@@ -46,6 +47,7 @@
     <a href="hof.html">Der Hof</a>
     <a href="team.html">Das Team</a>
     <a href="arbeit.html">Unsere Arbeit</a>
+    <a href="galerie.html">Galerie</a>
     <a href="shop/">Sortiment</a>
     <a href="kontakt.html">Hofverkauf &amp; Kontakt</a>
   </nav>
@@ -81,10 +83,10 @@
           <p class="rv rv--d2">Als Bioland-Betrieb erfüllen wir einen Standard, der weit über den gesetzlichen Vorgaben der EU-Bio-Verordnung liegt. Bei Bioland gilt der ganze Hof, nicht nur einzelne Flächen.</p>
         </div>
         <div class="split__media mosaic">
-          <figure class="media rv rv--mask" data-ph="Feld mit Fruchtfolge"><img src="assets/img/hof/feld-1.jpg" alt="" loading="lazy" width="1200" height="900"></figure>
-          <figure class="media media--tone-sage rv rv--mask" data-ph="Mechanische Unkrautregulierung"><img src="assets/img/hof/hacke.jpg" alt="" loading="lazy" width="800" height="1000"></figure>
-          <figure class="media media--tone-soil rv rv--mask" data-ph="Boden in der Hand"><img src="assets/img/hof/boden.jpg" alt="" loading="lazy" width="800" height="800"></figure>
-          <figure class="media media--tone-straw rv rv--mask" data-ph="Rotklee in Blüte"><img src="assets/img/hof/rotklee.jpg" alt="" loading="lazy" width="1600" height="900"></figure>
+          <figure class="media rv rv--mask" data-ph="Kartoffelreihen"><img src="assets/img/hof/feld-1.jpg" alt="Kartoffelreihen im Sommer" loading="lazy" width="251" height="190"></figure>
+          <figure class="media media--tone-sage rv rv--mask" data-ph="Mechanische Unkrautregulierung"><img src="assets/img/hof/hacke.jpg" alt="Blick vom Traktor auf die Hacke" loading="lazy" width="251" height="190"></figure>
+          <figure class="media media--tone-soil rv rv--mask" data-ph="Kartoffeln im Boden"><img src="assets/img/hof/boden.jpg" alt="Kartoffeln im Boden" loading="lazy" width="251" height="190"></figure>
+          <figure class="media media--tone-straw rv rv--mask" data-ph="Kartoffelblüte"><img src="assets/img/hof/rotklee.jpg" alt="Weiße Kartoffelblüten" loading="lazy" width="251" height="190"></figure>
         </div>
       </div>
     </div>
@@ -96,12 +98,25 @@
         <div><p class="eyebrow">Fruchtfolge</p><h2 class="rv">Sechs Glieder, ein Herzstück.</h2></div>
         <p class="lead rv rv--d1">Die Kornkammer arbeitet mit einer sechsgliedrigen Fruchtfolge. Ihr Kern ist die Gründüngung mit Rotklee.</p>
       </div>
-      <ol class="steps rv">
-        <li><div><h3>Rotklee bindet Stickstoff</h3><p>Der Klee holt Stickstoff aus der Luft in den Boden. Das ersetzt die Düngung, die ein Bioland-Betrieb nicht zukaufen darf.</p></div></li>
-        <li><div><h3>Der erste Schnitt geht in die Biogasanlage</h3><p>Den ersten Aufwuchs liefern wir als Säuberungsschnitt an eine Bio-Biogasanlage. Die Nährstoffe bekommen wir als Gärsubstrat zurück auf die Flächen.</p></div></li>
-        <li><div><h3>Der zweite Schnitt wird Saatgut</h3><p>Weil der Bestand vor der Samenreife geerntet wird, ist der zweite Aufwuchs so sauber, dass er ohne Probleme als Saatgutvermehrung gedroschen werden kann.</p></div></li>
-        <li><div><h3>Dann kommen Getreide, Kartoffeln, Ölsaaten</h3><p>Im Anbau 2025/2026: Senf, Hafer, Rotklee, Winterweizen, Dinkel, Kartoffeln und Blaumohn.</p></div></li>
-      </ol>
+      <!-- Gestapelte Karten: jede bleibt oben kleben, die nächste schiebt sich darüber -->
+      <div class="stack">
+        <article class="stack__card" style="--i:0">
+          <div><p class="stack__n">01</p><h3>Rotklee bindet Stickstoff</h3><p style="margin-top:var(--gap-s)">Der Klee holt Stickstoff aus der Luft in den Boden. Das ersetzt die Düngung, die ein Bioland-Betrieb nicht zukaufen darf.</p></div>
+          <figure class="media media--soft" data-ph="Rotklee"><img src="assets/img/hof/stack-klee.jpg" alt="" loading="lazy" width="1200" height="900"></figure>
+        </article>
+        <article class="stack__card" style="--i:1">
+          <div><p class="stack__n">02</p><h3>Der erste Schnitt geht in die Biogasanlage</h3><p style="margin-top:var(--gap-s)">Den ersten Aufwuchs liefern wir als Säuberungsschnitt an eine Bio-Biogasanlage. Die Nährstoffe bekommen wir als Gärsubstrat zurück auf die Flächen.</p></div>
+          <figure class="media media--soft media--tone-sage" data-ph="Kleeschnitt"><img src="assets/img/hof/stack-schnitt.jpg" alt="" loading="lazy" width="1200" height="900"></figure>
+        </article>
+        <article class="stack__card" style="--i:2">
+          <div><p class="stack__n">03</p><h3>Der zweite Schnitt wird Saatgut</h3><p style="margin-top:var(--gap-s)">Weil der Bestand vor der Samenreife geerntet wird, ist der zweite Aufwuchs so sauber, dass er ohne Probleme als Saatgutvermehrung gedroschen werden kann.</p></div>
+          <figure class="media media--soft media--tone-straw" data-ph="Kleesamen"><img src="assets/img/hof/stack-saatgut.jpg" alt="" loading="lazy" width="1200" height="900"></figure>
+        </article>
+        <article class="stack__card" style="--i:3">
+          <div><p class="stack__n">04</p><h3>Dann kommen Getreide, Kartoffeln, Ölsaaten</h3><p style="margin-top:var(--gap-s)">Im Anbau 2025/2026: Senf, Hafer, Rotklee, Winterweizen, Dinkel, Kartoffeln und Blaumohn.</p></div>
+          <figure class="media media--soft" data-ph="Kartoffelreihen"><img src="assets/img/anbau/kartoffeln.jpg" alt="Junge Kartoffelreihen" loading="lazy" width="251" height="190"></figure>
+        </article>
+      </div>
     </div>
   </section>
 
@@ -130,7 +145,7 @@
           <p class="rv rv--d2">Genau das untersucht das Netzwerk Pilotbetriebe, an dem die Kornkammer teilnimmt: die Treibhausgase CO₂, Methan und Lachgas am Beispiel von Pflanzenbau und Milchviehhaltung. Aus den Ergebnissen sollen neue Beratungsinstrumente zum Klimaschutz entstehen.</p>
           <p class="small rv rv--d3">Das Netzwerk wird vom Thünen-Institut geführt und seit 2008 von der Bundesanstalt für Landwirtschaft und Ernährung im Bundesprogramm Ökologischer Landbau gefördert. Es umfasst ursprünglich 80 ökologische und konventionelle Ackerbau- und Milchviehbetriebe in Deutschland.</p>
         </div>
-        <figure class="media media--soft media--tone-sage split__media rv rv--mask" data-ph="Feldmessung" style="--ar:4/5"><img src="assets/img/hof/klima.jpg" alt="" loading="lazy" width="1000" height="1250"></figure>
+        <figure class="media media--soft media--tone-sage split__media rv rv--mask" data-ph="Feld unter Wolken" data-parallax="0.06" style="--ar:4/5"><img src="assets/img/hof/klima.jpg" alt="Kartoffelfeld unter Wolken" loading="lazy" width="251" height="190"></figure>
       </div>
     </div>
   </section>
@@ -188,6 +203,7 @@
           <li><a href="hof.html">Der Hof</a></li>
           <li><a href="team.html">Das Team</a></li>
           <li><a href="arbeit.html">Unsere Arbeit</a></li>
+          <li><a href="galerie.html">Galerie</a></li>
           <li><a href="shop/">Sortiment</a></li>
           <li><a href="kontakt.html">Hofverkauf &amp; Kontakt</a></li>
         </ul>

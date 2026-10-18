@@ -65,6 +65,10 @@
   to = "/kontakt.html"
   status = 200
 [[redirects]]
+  from = "/galerie"
+  to = "/galerie.html"
+  status = 200
+[[redirects]]
   from = "/impressum"
   to = "/impressum.html"
   status = 200
@@ -143,6 +147,20 @@
 [[redirects]]
   from = "/impressum.htm"
   to = "/impressum.html"
+  status = 301
+# Dateinamen der alten Seiten „Galerie“ und „Qualität“ sind nicht belegt;
+# die wahrscheinlichen Schreibweisen:
+[[redirects]]
+  from = "/galerie.htm"
+  to = "/galerie.html"
+  status = 301
+[[redirects]]
+  from = "/qualitaet.htm"
+  to = "/hof.html"
+  status = 301
+[[redirects]]
+  from = "/qualität.htm"
+  to = "/hof.html"
   status = 301
 
 [[redirects]]

@@ -7,6 +7,15 @@ nötig. Bildausschnitt steuert `object-position` im Markup (`--pos`).
 
 Alle Pfade relativ zu `kornkammer/assets/`.
 
+## Bereits belegt (Übergang)
+
+Aus Screenshots der alten Galerie und des Shops liegen vor: `img/galerie/
+g01.jpg` bis `g27.jpg` (Feldfotos, etwa 250 px), `img/hofladen-1/2/3.jpg`
+(Hofverkauf, etwa 800 px) und 17 Produktfotos. Kopien davon sitzen in den
+Plätzen, die unten mit ✓ markiert sind. **Alle Kopien sind zu klein für
+große Flächen** und sollten durch die Originale ersetzt werden; die
+Galerie-Seite listet alle 27 Motive mit Dateinamen.
+
 ## Film
 
 | Pfad | Format | Motiv |
@@ -18,40 +27,40 @@ Alle Pfade relativ zu `kornkammer/assets/`.
 
 | Pfad | Seitenverhältnis | Motiv |
 |---|---|---|
-| img/hof-gebaeude.jpg | 4:3 | Gebäude Haus Holte |
-| img/feld-rotklee.jpg | 4:5 | Rotklee auf dem Feld |
-| img/feld-getreide.jpg | 1:1 | Getreidefeld vor der Ernte |
-| img/traktor.jpg | 16:9 | Traktor bei der Bodenbearbeitung |
+| img/hof-gebaeude.jpg ✓ | 4:3 | Gebäude Haus Holte |
+| img/feld-rotklee.jpg ✓ | 4:5 | Rotklee auf dem Feld |
+| img/feld-getreide.jpg ✓ | 1:1 | Getreidefeld vor der Ernte |
+| img/traktor.jpg ✓ | 16:9 | Traktor bei der Bodenbearbeitung |
 | img/team/dirk-liedmann.jpg | 4:5 | Porträt Dirk Liedmann (auch team.html) |
 | img/team/bernhard-pawliczek.jpg | 4:5 | Porträt Bernhard Pawliczek (auch team.html) |
-| img/arbeit/anbau.jpg | 4:5 | Aussaat |
+| img/arbeit/anbau.jpg ✓ | 4:5 | Aussaat |
 | img/arbeit/getreide.jpg | 4:5 | Mehl aus der Mühle |
 | img/arbeit/oelmanufaktur.jpg | 4:5 | Ölpresse |
 | img/arbeit/senfmanufaktur.jpg | 4:5 | Senfmühle |
-| img/arbeit/kartoffeln.jpg | 4:5 | Kartoffelernte |
-| img/arbeit/verkauf.jpg | 4:5 | Hofverkauf |
+| img/arbeit/kartoffeln.jpg ✓ | 4:5 | Kartoffelernte |
+| img/arbeit/verkauf.jpg ✓ | 4:5 | Hofverkauf |
 | img/story/boden.jpg | 7:8 (hochformatig, wird beschnitten) | Boden mit Rotklee |
 | img/story/saat.jpg | 7:8 | Aussaat im Frühjahr |
 | img/story/ernte.jpg | 7:8 | Mähdrescher |
 | img/story/verarbeitung.jpg | 7:8 | Mühle, Ölpresse oder Senfmühle |
-| img/story/regal.jpg | 7:8 | Regal im Hofverkauf (auch arbeit.html) |
-| img/anbau/senf.jpg, hafer.jpg, rotklee.jpg, weizen.jpg, dinkel.jpg, kartoffeln.jpg, mohn.jpg | 4:5 | je eine Kultur im Feld |
-| img/acker-mengede.jpg | 4:3 | Kartoffelacker Im Siesack |
-| img/klima.jpg | 4:3 | Feld, gern mit Messtechnik |
+| img/story/regal.jpg ✓ | 7:8 | Regal im Hofverkauf (auch arbeit.html) |
+| img/anbau/senf.jpg, hafer.jpg, rotklee.jpg, weizen.jpg, dinkel.jpg, kartoffeln.jpg ✓, mohn.jpg | 4:5 | je eine Kultur im Feld |
+| img/acker-mengede.jpg ✓ | 4:3 | Kartoffelacker Im Siesack |
+| img/klima.jpg ✓ | 4:3 | Feld, gern mit Messtechnik |
 | img/brot.jpg | 4:3 | Brot aus Kornkammer-Mehl (auch arbeit.html) |
-| img/hofeinfahrt.jpg | 16:10 | Hofeinfahrt (auch kontakt.html) |
-| img/hofverkauf.jpg | 4:3 | Verkaufsraum (shop/) |
+| img/hofeinfahrt.jpg ✓ | 16:10 | Hofeinfahrt (auch kontakt.html) |
+| img/hofverkauf.jpg ✓ | 4:3 | Verkaufsraum (shop/) |
 
 ## Der Hof
 
 | Pfad | Seitenverhältnis | Motiv |
 |---|---|---|
 | img/hof-panorama.jpg | 21:9 | Hofansicht breit |
-| img/hof/feld-1.jpg | 4:3 | Feld mit Fruchtfolge |
-| img/hof/hacke.jpg | 4:5 | Mechanische Unkrautregulierung |
-| img/hof/boden.jpg | 1:1 | Boden in der Hand |
-| img/hof/rotklee.jpg | 16:9 | Rotklee in Blüte |
-| img/hof/klima.jpg | 4:5 | Feldmessung |
+| img/hof/feld-1.jpg ✓ | 4:3 | Feld mit Fruchtfolge |
+| img/hof/hacke.jpg ✓ | 4:5 | Mechanische Unkrautregulierung |
+| img/hof/boden.jpg ✓ | 1:1 | Boden in der Hand |
+| img/hof/rotklee.jpg ✓ | 16:9 | Rotklee in Blüte |
+| img/hof/klima.jpg ✓ | 4:5 | Feldmessung |
 | img/team/team.jpg | 21:9 | Gruppenbild (auch team.html) |
 
 ## Team
@@ -61,19 +70,19 @@ Alle Pfade relativ zu `kornkammer/assets/`.
 | img/team/stefan-pawliczek.jpg | 4:5 | Porträt |
 | img/team/sebastian-krol.jpg | 4:5 | Porträt, gern an der Ölpresse |
 | img/team/max.jpg | 4:5 | Porträt, gern auf dem Feld |
-| img/arbeit/feldarbeit.jpg | 16:10 | Arbeit auf dem Feld |
+| img/arbeit/feldarbeit.jpg ✓ | 16:10 | Arbeit auf dem Feld |
 
 ## Unsere Arbeit
 
 | Pfad | Seitenverhältnis | Motiv |
 |---|---|---|
-| img/arbeit/anbau-gross.jpg | 4:3 | Traktor auf dem Acker |
+| img/arbeit/anbau-gross.jpg ✓ | 4:3 | Traktor auf dem Acker |
 | img/arbeit/muehle.jpg | 4:3 | Getreide in der Mühle |
 | img/arbeit/mehl.jpg | 4:5 | Mehl |
 | img/arbeit/flocken.jpg | 1:1 | Haferflocken |
 | img/arbeit/oelpresse.jpg | 4:5 | Ölpresse |
 | img/arbeit/senfmuehle.jpg | 4:3 | Senfmühle |
-| img/arbeit/kartoffelernte.jpg | 4:3 | Kartoffelernte |
+| img/arbeit/kartoffelernte.jpg ✓ | 4:3 | Kartoffelernte |
 | img/acker-luft.jpg | 21:9 | Flächen aus der Luft |
 
 ## Shop

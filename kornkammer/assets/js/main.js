@@ -269,6 +269,71 @@
     });
   }
 
+  /* ---------- Laufband: Inhalt verdoppeln, Tempo aus der Breite ---------- */
+  function marquee() {
+    $$('.marquee').forEach((m) => {
+      const track = $('.marquee__track', m);
+      if (!track || isReduced()) return;
+      const items = Array.from(track.children);
+      // Erst so oft wiederholen, bis ein Satz breiter als der Rahmen ist …
+      let setWidth = track.scrollWidth;
+      let guard = 0;
+      while (setWidth < m.clientWidth && guard++ < 6) { items.forEach((n) => track.appendChild(n.cloneNode(true))); setWidth = track.scrollWidth; }
+      // … dann den ganzen Satz einmal kopieren: -50 % ergibt die nahtlose Schleife.
+      Array.from(track.children).forEach((n) => { const c = n.cloneNode(true); c.setAttribute('aria-hidden', 'true'); track.appendChild(c); });
+      const speed = parseFloat(m.dataset.speed) || 40;   // Pixel pro Sekunde
+      m.style.setProperty('--dur', (setWidth / speed).toFixed(1) + 's');
+      watchMedia();
+    });
+  }
+
+  /* ---------- Lightbox für Galerien ([data-lightbox]) ---------- */
+  function lightbox() {
+    const items = $$('[data-lightbox]');
+    const lb = $('.lightbox[data-gallery]');
+    if (!items.length || !lb || typeof lb.showModal !== 'function') return;
+    const fig = $('.lightbox__inner .media', lb);
+    const cap = $('.lightbox__cap', lb);
+    let i = 0;
+    const show = (n) => {
+      i = (n + items.length) % items.length;
+      const src = items[i].dataset.lightbox;
+      fig.innerHTML = '<img src="' + src + '" alt="' + (items[i].dataset.alt || '') + '">';
+      if (cap) cap.textContent = (items[i].dataset.alt || '') + ' · ' + (i + 1) + ' / ' + items.length;
+    };
+    items.forEach((el, k) => el.addEventListener('click', (e) => { e.preventDefault(); show(k); lb.showModal(); }));
+    lb.addEventListener('click', (e) => {
+      if (e.target.closest('[data-dir]')) show(i + parseInt(e.target.closest('[data-dir]').dataset.dir, 10));
+      else if (e.target === lb || e.target.closest('.lightbox__close')) lb.close();
+    });
+    lb.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight') show(i + 1); if (e.key === 'ArrowLeft') show(i - 1); });
+  }
+
+  /* ---------- Sanftes Scrollen mit dem Mausrad ----------
+     Nur mit Maus/Trackpad, nicht bei reduzierter Bewegung, nie auf Touch.
+     Der native Scroll bleibt erhalten (sticky, Anker, Tastatur funktionieren),
+     das Rad wird nur weich nachgezogen. */
+  function smoothWheel() {
+    if (isReduced() || !window.matchMedia('(hover:hover) and (pointer:fine)').matches) return;
+    let target = window.scrollY, current = target, raf = null;
+    const max = () => d.documentElement.scrollHeight - window.innerHeight;
+    const loop = () => {
+      current += (target - current) * 0.14;
+      if (Math.abs(target - current) < 0.6) { current = target; window.scrollTo({ top: current, behavior: 'instant' }); raf = null; return; }
+      window.scrollTo({ top: current, behavior: 'instant' });
+      raf = requestAnimationFrame(loop);
+    };
+    window.addEventListener('wheel', (e) => {
+      if (e.ctrlKey || e.deltaMode !== 0 || d.body.classList.contains('is-locked')) return;
+      if (e.target.closest('.hscroll__track, .gal__slides, .drawer, .marquee, textarea, select, [data-no-smooth]')) return;
+      e.preventDefault();
+      if (!raf) { target = window.scrollY; current = target; }
+      target = clamp(target + e.deltaY, 0, max());
+      if (!raf) raf = requestAnimationFrame(loop);
+    }, { passive: false });
+    window.addEventListener('scroll', () => { if (!raf) { target = window.scrollY; current = target; } }, { passive: true });
+  }
+
   /* ---------- Kleinkram ---------- */
   function misc() {
     $$('[data-jahr]').forEach((el) => { el.textContent = new Date().getFullYear(); });
@@ -283,5 +348,6 @@
 
   d.addEventListener('DOMContentLoaded', () => {
     watchMedia(); header(); menu(); reveal(); parallax(); story(); hscroll(); heroVideo(); heroDrift(); forms(); misc();
+    marquee(); lightbox(); smoothWheel();
   });
 })();
