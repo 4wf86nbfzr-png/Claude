@@ -1444,3 +1444,167 @@ body{ background:var(--paper); color:var(--text); }
 .scrub__video--quer{ left:0; top:0; transform:none; width:100%; height:100%; aspect-ratio:auto; box-shadow:none; }
 .scrub__video--hoch{ display:none; }
 @media (max-width:899px){ .scrub__video--quer{ display:none; } .scrub__video--hoch{ display:block; } }
+
+/* ============================================================
+   FARBWELT: MODERNER BIO-HOF
+   ------------------------------------------------------------
+   Nicht nur Beige und Schwarz: tiefes Waldgrün als Grund, sattes
+   Blattgrün als zweite Fläche, Creme für helle Abschnitte, ein frisches
+   Keimling-Grün für Zahlen, Linien und Knöpfe, Erntegold für Sterne und
+   Preise. Rezensionen bleiben beige mit schwarzer Schrift (Vorgabe).
+   ============================================================ */
+:root{
+  --leaf:#2E7A40; --leaf-2:#4DA55B; --leaf-deep:#1B4D2B; --leaf-ink:#06130A;
+  --sprout:#B9DC6A; --sprout-2:#DCEBB0;
+  --cream:#F4EFE4; --cream-2:#EAE3D3; --cream-ink:#13231A; --cream-ink-2:#4A5248;
+  --gold:#E3AC3C; --clay:#C9743F;
+  --sage:#8FB58F;
+}
+.eyebrow::before{ background:var(--sprout); }
+.facts b, .timeline b, .stack__n, .chapter__n, .hpanel__k b, .statement em, .reveal__text .w.is-on em{ color:var(--sprout); }
+.story__counter i::after, .hscroll__bar i, .scrub__bar i{ background:var(--sprout); }
+.marquee--words span:nth-of-type(even){ color:var(--sprout); }
+.stars{ color:var(--gold); }
+.notice .ico, .split__list .ico{ color:var(--sprout); }
+.btn--solid{ background:var(--leaf-2); color:var(--leaf-ink); }
+.btn--solid:hover{ background:var(--sprout); color:var(--leaf-ink); }
+.btn--solidlight{ background:var(--cream); color:var(--leaf-ink); } .btn--solidlight:hover{ background:#fff; }
+.btn--outline:hover, .btn--light:hover{ background:var(--leaf-2); color:var(--leaf-ink); border-color:var(--leaf-2); }
+.btn--straw{ background:var(--gold); color:#1A1206; }
+.chip.is-on, .chip[aria-current="true"]{ background:var(--leaf-2); color:var(--leaf-ink); border-color:var(--leaf-2); }
+.cartbtn__n{ background:var(--sprout); color:var(--leaf-ink); }
+.toast{ background:var(--leaf-2); color:var(--leaf-ink); }
+.pcard__badge, .pcard__add{ background:var(--leaf-2); color:var(--leaf-ink); } .pcard__add:hover{ background:var(--sprout); }
+.gal__nav button, .gal__full{ background:var(--cream); color:var(--leaf-ink); }
+.variants__list label:has(input:checked){ background:var(--leaf-2); color:var(--leaf-ink); border-color:var(--leaf-2); }
+.menu{ background:var(--leaf-deep); }
+.skip{ background:var(--sprout); color:var(--leaf-ink); }
+::selection{ background:var(--sprout); color:var(--leaf-ink); }
+:focus-visible{ outline-color:var(--sprout); }
+.ftr{ background:#06110A; } .ftr h4{ color:var(--sprout); }
+.bio{ background:rgba(77,165,91,.2); border-color:rgba(185,220,106,.35); }
+.bio i{ background:var(--sprout); color:var(--leaf-ink); }
+.vhero__badge i{ background:var(--sprout); box-shadow:0 0 12px var(--sprout); }
+.hero3__after h2 em{ color:var(--sprout); }
+.stage3{ --s-bg:#0E2A1A; --s-bg2:#2C7A44; --s-floor:#07160D; --s-light:rgba(185,220,106,.4); }
+.stage3--mehl, .stage3--koerner, .stage3--nudeln, .stage3--oele, .stage3--senf, .stage3--kartoffeln, .stage3--mehle{ --s-bg:#0E2A1A; --s-bg2:#2C7A44; --s-light:rgba(185,220,106,.4); }
+
+/* Helle Fläche (Creme) */
+.sec--cream{ background:var(--cream); color:var(--cream-ink); }
+.sec--cream .eyebrow{ color:#5E6650; } .sec--cream .eyebrow::before{ background:var(--leaf); }
+.sec--cream h1, .sec--cream h2, .sec--cream h3, .sec--cream .facts b, .sec--cream .stack__n, .sec--cream .timeline b{ color:var(--cream-ink); }
+.sec--cream p, .sec--cream .facts span, .sec--cream .lead, .sec--cream .split__list li, .sec--cream .timeline p, .sec--cream .steps p{ color:var(--cream-ink-2); }
+.sec--cream .btn--solid{ background:var(--leaf-deep); color:var(--cream); } .sec--cream .btn--solid:hover{ background:var(--leaf); }
+.sec--cream .btn--outline{ border-color:rgba(19,35,26,.3); color:var(--cream-ink); }
+.sec--cream .link, .sec--cream .crumbs a:hover{ color:var(--cream-ink); }
+.sec--cream .steps, .sec--cream .steps li, .sec--cream .timeline, .sec--cream .timeline li, .sec--cream .facts, .sec--cream .facts > div, .sec--cream .split + .split, .sec--cream .person + .person, .sec--cream .person__meta li{ border-color:rgba(19,35,26,.16); }
+.sec--cream .steps li::before, .sec--cream .timeline b, .sec--cream .stack__n, .sec--cream .hpanel__k b{ color:var(--leaf); }
+.sec--cream .split__list .ico, .sec--cream .notice .ico{ color:var(--leaf); }
+.sec--cream .media{ background:var(--cream-2); }
+.sec--cream .media.is-missing::after{ color:#3E3B32; border-color:rgba(19,35,26,.3); }
+.sec--cream .chip{ border-color:rgba(19,35,26,.3); color:var(--cream-ink); }
+.sec--cream .notice{ background:var(--cream-2); color:var(--cream-ink-2); border-color:rgba(19,35,26,.16); } .sec--cream .notice strong{ color:var(--cream-ink); }
+.sec--cream .small, .sec--cream .muted{ color:#6A7064; }
+
+/* Satte Fläche (Blattgrün) */
+.sec--leaf{ background:var(--leaf-deep); color:var(--cream); }
+.sec--leaf .eyebrow{ color:#BFD4B8; } .sec--leaf .eyebrow::before{ background:var(--sprout); }
+.sec--leaf h1, .sec--leaf h2, .sec--leaf h3, .sec--leaf .facts b, .sec--leaf .statement{ color:var(--cream); }
+.sec--leaf p, .sec--leaf .lead, .sec--leaf .facts span, .sec--leaf .split__list li, .sec--leaf .timeline p, .sec--leaf .steps p{ color:#D6E3D0; }
+.sec--leaf .btn--solid{ background:var(--sprout); color:var(--leaf-ink); } .sec--leaf .btn--solid:hover{ background:#fff; }
+.sec--leaf .btn--outline{ border-color:rgba(244,239,228,.4); color:var(--cream); } .sec--leaf .btn--outline:hover{ background:var(--cream); color:var(--leaf-ink); border-color:var(--cream); }
+.sec--leaf .link{ color:var(--cream); }
+.sec--leaf .split + .split, .sec--leaf .steps, .sec--leaf .steps li, .sec--leaf .timeline, .sec--leaf .timeline li, .sec--leaf .facts, .sec--leaf .facts > div, .sec--leaf .person + .person, .sec--leaf .person__meta li{ border-color:rgba(244,239,228,.18); }
+.sec--leaf .split__list .ico, .sec--leaf .steps li::before, .sec--leaf .timeline b, .sec--leaf .stack__n, .sec--leaf .statement em{ color:var(--sprout); }
+.sec--leaf .media{ background:#245F37; }
+.sec--leaf .media.is-missing::after{ color:var(--cream); border-color:rgba(244,239,228,.4); }
+.sec--leaf .small{ color:#A9BFA5; }
+.sec--leaf .marquee--words{ border-color:rgba(244,239,228,.18); }
+
+/* Vorhandene Flächen in die neue Welt heben */
+.sec--beige{ background:var(--cream); }
+.sec--beige .eyebrow::before{ background:var(--leaf); }
+.cta{ background:var(--leaf-deep); }
+.cta .eyebrow{ color:#BFD4B8; } .cta .eyebrow::before{ background:var(--sprout); }
+.cta h2{ color:var(--cream); } .cta .lead, .cta p{ color:#D6E3D0; }
+.cta .btn--solid{ background:var(--sprout); color:var(--leaf-ink); } .cta .btn--solid:hover{ background:#fff; }
+.cta .btn--outline{ border-color:rgba(244,239,228,.4); color:var(--cream); } .cta .btn--outline:hover{ background:var(--cream); color:var(--leaf-ink); border-color:var(--cream); }
+.cta .media{ background:#245F37; }
+.story{ background:#0A1F13; } .story__chapters{ background:#0A1F13; }
+.scrub{ background:#07160D; }
+/* Gestapelte Karten: Creme und Blattgrün im Wechsel */
+.stack__card{ border:0; box-shadow:0 -20px 60px rgba(0,0,0,.35); }
+.stack__card:nth-child(odd){ background:var(--cream); color:var(--cream-ink); }
+.stack__card:nth-child(odd) h3{ color:var(--cream-ink); } .stack__card:nth-child(odd) p{ color:var(--cream-ink-2); } .stack__card:nth-child(odd) .stack__n{ color:var(--leaf); }
+.stack__card:nth-child(odd) .media{ background:var(--cream-2); }
+.stack__card:nth-child(even){ background:var(--leaf-deep); color:var(--cream); }
+.stack__card:nth-child(even) h3{ color:var(--cream); } .stack__card:nth-child(even) p{ color:#D6E3D0; } .stack__card:nth-child(even) .stack__n{ color:var(--sprout); }
+.stack__card:nth-child(even) .media{ background:#245F37; }
+/* Bento: Cremerahmen, Blattgrün und Keimling als Zellen, Gold für Preise */
+.bento__frame{ background:var(--cream); color:var(--cream-ink); }
+.bento__bar, .bento__foot{ color:#5E6650; }
+.bento__bar .pill, .bcell__tag{ background:var(--leaf-deep); color:var(--cream); }
+.bento__foot strong, .bento__foot .link{ color:var(--cream-ink); }
+.bcell, .bcell .media{ background:#FBF8F1; }
+.bcell--green{ background:var(--leaf-deep); color:var(--cream); } .bcell--green p{ color:#D6E3D0; }
+.bcell--green .btn--solid{ background:var(--sprout); color:var(--leaf-ink); }
+.bcell--sand{ background:var(--sprout); color:#0F2415; } .bcell--sand p{ color:#2A4530; }
+.bcell__price{ background:var(--gold); color:#1A1206; }
+/* Seitenkopf der Unterseiten: Tiefe durch ein weiches Blattgrün hinter dem Titel */
+.pagehead{ position:relative; isolation:isolate; overflow:hidden; }
+.pagehead::before{ content:''; position:absolute; inset:0; z-index:-1; pointer-events:none;
+  background:radial-gradient(70% 90% at 18% 20%, rgba(46,122,64,.55), transparent 70%), radial-gradient(40% 50% at 90% 90%, rgba(185,220,106,.12), transparent 70%); }
+.pagehead h1{ font-size:clamp(2.6rem, 6vw, 5.6rem); }
+.pagehead .crumbs{ color:#A9BFA5; }
+
+/* ============================================================
+   LAYERS: Abschnitte bleiben stehen, der nächste schiebt sich darüber
+   ------------------------------------------------------------
+   Jede .layer klebt oben (sticky). Der folgende Abschnitt fährt als
+   leicht gekippte Fläche herein (3D), legt sich darüber; die verdeckte
+   Fläche schrumpft und dunkelt ab, bleibt aber, bis die Gruppe zu Ende
+   ist. JS (layers() in main.js) setzt --in (Einfahrt 0…1) und --cover
+   (Verdeckung 0…1). Unter 900 px und bei reduzierter Bewegung: normaler
+   Fluss.
+   ============================================================ */
+.layers{ position:relative; }
+.layer{ position:relative; --in:1; --cover:0; min-height:auto; padding-block:var(--sec-s); overflow:hidden; }
+.layer__in{ width:min(100% - 2*var(--gutter), var(--maxw)); margin-inline:auto; position:relative; z-index:1; }
+.layer .split__media{ --ar:4/3; }
+.layer::after{ content:''; position:absolute; inset:0; background:#03090500; pointer-events:none; z-index:2; }
+@media (min-width:900px){
+  .layer{ position:sticky; top:0; min-height:100svh; display:grid; align-items:center; padding-block:0;
+    border-radius:calc(var(--r-l) * 1.4 * (1 - var(--in))) calc(var(--r-l) * 1.4 * (1 - var(--in))) 0 0; }
+  .layer__in{ padding-block:calc(var(--hdr-h) + 20px) var(--sec-s);
+    transform:perspective(1400px) rotateX(calc((1 - var(--in)) * 8deg)) translateY(calc((1 - var(--in)) * 60px - var(--cover) * 50px)) scale(calc(1 - var(--cover) * .08));
+    transform-origin:50% 100%; opacity:calc(.25 + var(--in) * .75 - var(--cover) * .35); will-change:transform, opacity; }
+  .layer::after{ background:#030905; opacity:calc(var(--cover) * .6); }
+  .layer .split__media{ max-height:68svh; }
+  .layer .split__media > img{ transform:translateY(calc(var(--cover) * -24px)) scale(calc(1 + var(--cover) * .06)); }
+  .layer .split__text{ transform:translateY(calc((1 - var(--in)) * 30px)); }
+}
+@media (prefers-reduced-motion: reduce){
+  .layer{ position:relative; min-height:auto; padding-block:var(--sec-s); border-radius:0; }
+  .layer__in{ transform:none; opacity:1; padding-block:0; } .layer::after{ display:none; }
+  .layer .split__media > img, .layer .split__text{ transform:none; }
+}
+.kein-js .layer__in{ transform:none; opacity:1; }
+
+/* ============================================================
+   3D: Karten neigen sich zur Maus, Tafeln der Strecke drehen mit
+   ------------------------------------------------------------
+   tilt() in main.js setzt --rx/--ry (Grad) und --mx/--my (Lichtpunkt)
+   nur mit Maus/Trackpad. hscroll() setzt --ry je Tafel aus der Lage
+   zur Bildmitte. Alles sanft, nichts fliegt.
+   ============================================================ */
+.tilt{ transform:perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); transition:transform .6s var(--ease-out); will-change:transform; }
+.tilt:hover{ transition-duration:.15s; }
+.bcell.tilt, .review.tilt{ position:relative; }
+.bcell.tilt::after, .review.tilt::after{ content:''; position:absolute; inset:0; z-index:4; pointer-events:none; border-radius:inherit;
+  background:radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,.22), transparent 55%); opacity:0; transition:opacity .4s var(--ease-out); }
+.bcell.tilt:hover::after, .review.tilt:hover::after{ opacity:1; }
+.stack__card .media.tilt, .pcard .media.tilt, .layer .split__media.tilt{ box-shadow:0 30px 60px rgba(0,0,0,.25); }
+@media (min-width:900px){
+  .hpanel .media{ transform:perspective(1400px) rotateY(var(--ry, 0deg)); transform-origin:center; will-change:transform; }
+}
+@media (prefers-reduced-motion: reduce){ .tilt, .hpanel .media{ transform:none !important; } }

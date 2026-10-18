@@ -141,8 +141,8 @@
     </div>
   </section>
 
-  <!-- ============ 5 · Der Hof ============ -->
-  <section class="sec sec--beige">
+  <!-- ============ 5 · Der Hof (satte Blattgrün-Fläche) ============ -->
+  <section class="sec sec--leaf">
     <div class="wrap">
       <div class="split">
         <div class="split__text">
@@ -169,7 +169,7 @@
         <div class="story__counter"><span data-n>01</span><i></i><span>05</span></div>
         <figure class="media" data-ph="Boden"><img src="assets/img/video/montage-13-5.jpg" alt="" loading="lazy" width="464" height="832"></figure>
         <figure class="media media--tone-sage" data-ph="Aussaat"><img src="assets/img/video/montage-2-4.jpg" alt="" loading="lazy" width="464" height="832"></figure>
-        <figure class="media media--clipblur" data-ph="Kartoffelernte"><video class="clip clip--bg" data-autoplay muted playsinline loop preload="none" poster="assets/img/video/roder-oben.jpg"><source src="assets/video/roder-oben.mp4" type="video/mp4"></video><video class="clip" data-autoplay muted playsinline loop preload="none" poster="assets/img/video/roder-oben.jpg"><source src="assets/video/roder-oben.mp4" type="video/mp4"></video></figure>
+        <figure class="media media--clipblur" data-ph="Kartoffelernte"><video class="clip clip--bg" data-autoplay muted playsinline loop preload="none" poster="assets/img/video/roder-oben.jpg"><source src="assets/video/roder-oben.webm" type="video/webm"><source src="assets/video/roder-oben.mp4" type="video/mp4"></video><video class="clip" data-autoplay muted playsinline loop preload="none" poster="assets/img/video/roder-oben.jpg"><source src="assets/video/roder-oben.webm" type="video/webm"><source src="assets/video/roder-oben.mp4" type="video/mp4"></video></figure>
         <figure class="media media--tone-soil" data-ph="Halle und Verarbeitung"><img src="assets/img/video/montage-18-5.jpg" alt="" loading="lazy" width="464" height="832"></figure>
         <figure class="media" data-ph="Regal im Hofverkauf"><img src="assets/img/story/regal.jpg" alt="" loading="lazy" width="811" height="575"></figure>
       </div>
@@ -247,9 +247,12 @@
     </div>
   </section>
 
-  <!-- ============ 10 · Rückverfolgung, Klima, Partner ============ -->
-  <section class="sec">
-    <div class="wrap">
+  <!-- ============ 10 · Rückverfolgung, Klima, Partner: drei Ebenen ============
+       Jede Ebene bleibt stehen, die nächste schiebt sich darüber (Creme,
+       Blattgrün, Waldgrün). Steuerung: layers() in main.js. -->
+  <div class="layers" aria-label="Transparenz, Klima, Partner">
+    <section class="layer sec--cream" aria-label="Transparenz">
+    <div class="layer__in">
       <div class="split">
         <div class="split__text">
           <p class="eyebrow">100 % Transparenz</p>
@@ -261,8 +264,12 @@
           </ul>
           <a class="link rv rv--d2" href="arbeit.html#transparenz">Alle Flächen <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
         </div>
-        <figure class="media media--soft split__media rv rv--mask" data-ph="Acker in Dortmund-Mengede" data-parallax="0.08" style="--ar:4/3"><img src="assets/img/acker-mengede.jpg" alt="Schild am Acker: Hier wächst was Besonderes" loading="lazy" width="251" height="190"></figure>
+        <figure class="media media--soft split__media rv rv--mask" data-ph="Acker in Dortmund-Mengede" style="--ar:4/3"><img src="assets/img/acker-mengede.jpg" alt="Schild am Acker: Hier wächst was Besonderes" loading="lazy" width="251" height="190"></figure>
       </div>
+    </div>
+    </section>
+    <section class="layer sec--leaf" aria-label="Klimaprojekt">
+    <div class="layer__in">
       <div class="split split--rev">
         <div class="split__text">
           <p class="eyebrow">Klimaprojekt</p>
@@ -270,8 +277,12 @@
           <p class="rv rv--d1">Die Kornkammer ist einer der Betriebe im Netzwerk Pilotbetriebe. Dort wird untersucht, welche Treibhausgase in Pflanzenbau und Milchviehhaltung entstehen, als Gesamtbetrachtung aus Böden, Futterbau, Tierhaltung und Düngung.</p>
           <a class="link rv rv--d2" href="hof.html#klima">Mehr zum Projekt <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
         </div>
-        <figure class="media media--soft media--tone-sage split__media rv rv--mask" data-ph="Beregnung auf dem Feld" data-parallax="0.06" style="--ar:4/3"><img src="assets/img/klima.jpg" alt="Beregnung auf dem Kartoffelfeld" loading="lazy" width="251" height="190"></figure>
+        <figure class="media media--soft media--tone-sage split__media rv rv--mask" data-ph="Beregnung auf dem Feld" style="--ar:4/3"><img src="assets/img/klima.jpg" alt="Beregnung auf dem Kartoffelfeld" loading="lazy" width="251" height="190"></figure>
       </div>
+    </div>
+    </section>
+    <section class="layer sec--paper2" aria-label="Wo Sie uns noch finden">
+    <div class="layer__in">
       <div class="split">
         <div class="split__text">
           <p class="eyebrow">Wo Sie uns noch finden</p>
@@ -287,7 +298,8 @@
         <figure class="media media--soft split__media rv rv--mask" data-ph="Verkaufsraum" style="--ar:4/3"><img src="assets/img/hof-gebaeude.jpg" alt="Blick in den Hofverkauf" loading="lazy" width="811" height="575"></figure>
       </div>
     </div>
-  </section>
+    </section>
+  </div>
 
   <!-- ============ 10b · Google-Rezensionen (data/rezensionen.json) ============ -->
   <section class="reviews" aria-label="Rezensionen">

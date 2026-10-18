@@ -224,10 +224,19 @@ von oben (die drei hochkant, 464×832). Aufbereitet unter `assets/video/`
 
 | Einsatz | Dateien | Technik |
 |---|---|---|
-| Hero der Startseite, Desktop | `maehdrescher-quer.*` (1280×720) | bildschirmfüllend quer, zoomt leicht beim Scrollen |
-| Hero, Handy | `hof-hochkant.*` | füllt das Hochformat |
-| Drohnensequenz „Die Ernte · von oben“ | `ernte-drohne-scrub.*` scharf in der Mitte, dieselbe Datei unscharf als Breitfüllung | folgt dem Scrollen, drei Kapitel; braucht Range-Anfragen (Netlify: ja) |
-| Scroll-Geschichte, Kapitel Ernte | `roder-oben.mp4` | Schleife |
+| Hero der Startseite, Desktop | `maehdrescher-quer.*` (1280×720, Lanczos aus 848×480) | bildschirmfüllend quer, zoomt leicht beim Scrollen |
+| Hero, Handy | `hof-hochkant.*` (464×832, 0–18 s) | füllt das Hochformat |
+| Drohnensequenz „Die Ernte · von oben“ | `ernte-drohne-scrub.*` (464×832, Keyframe alle 12 Bilder) scharf in der Mitte, dieselbe Datei unscharf als Breitfüllung | folgt dem Scrollen, drei Kapitel; braucht Range-Anfragen (Netlify: ja) |
+| Scroll-Geschichte, Kapitel Ernte | `roder-oben.*` (464×832) | Schleife |
+
+**Schärfe:** Die Clips sind so kodiert, dass gegenüber den Handy-Uploads
+nichts mehr verloren geht (H.264 CRF 17–21, VP9 CRF 26–30, leichte
+Nachschärfung). Schärfer als die Quelle wird es nicht: der Mähdrescher
+liegt als 848×480 vor, die drei Hochkantclips als 464×832. Für echte
+4K-Schärfe braucht es die Originaldateien aus der Kamera (nicht aus
+WhatsApp oder einem Chat exportiert) oder eine neue Aufnahme; sie
+ersetzen die Dateien unter gleichem Namen (Encode: `tools/`-Notizen in
+`docs/filmbrief.md`).
 | Unsere Arbeit, Getreide | `maehdrescher-quer.*` | Schleife im Bildmosaik |
 | Dual-Display, Hero | `maehdrescher-quer.*` | Schleife 16:10 |
 | Reserve (quer aus hochkant) | `hof-quer.*`, `ernte-drohne-quer-scrub.*` | 16:9-Mittelausschnitte, 960×540; derzeit nicht eingebunden, weil der Ausschnitt Maschinen anschneidet |
@@ -247,7 +256,17 @@ Mehr Querformat vom Hof (Drohne über Feld und Hof, Abendlicht, 1080p oder
   Wischen mit Scroll-Snap).
 - Laufbänder (`.marquee`): Fotostreifen und große Worte, nahtlose Schleife,
   Tempo über `data-speed` in Pixel je Sekunde, Pause beim Überfahren.
-- Gestapelte Sticky-Karten (`.stack`) auf hof.html.
+- Gestapelte Sticky-Karten (`.stack`) auf hof.html, im Wechsel Creme
+  und Blattgrün.
+- Ebenen (`.layers` > `.layer`, Startseite „Transparenz, Klima,
+  Partner“): jede Ebene bleibt stehen, die nächste fährt leicht gekippt
+  (3D) herein und legt sich darüber; die verdeckte Ebene schrumpft und
+  dunkelt ab, verschwindet aber erst, wenn die Gruppe zu Ende ist.
+  `layers()` in main.js setzt `--in` und `--cover`. Unter 900 px
+  normaler Fluss.
+- 3D-Neigung zur Maus (`tilt()`): Bento-Zellen, Rezensionen,
+  Produktbilder, Stapelkarten, Ebenenbilder; nur mit Maus/Trackpad.
+  Tafeln der horizontalen Strecke drehen leicht zur Bildmitte.
 - Sanftes Scrollen mit dem Mausrad (`smoothWheel` in main.js): nur bei
   Maus/Trackpad, nie auf Touch, nie bei reduzierter Bewegung; der native
   Scroll bleibt erhalten, deshalb funktionieren Anker, Tastatur und sticky.
@@ -291,6 +310,13 @@ python3 -m http.server 8765       # dann http://127.0.0.1:8765/
 Netlify: Repository verbinden, Base directory `kornkammer`, Publish `.`,
 kein Build-Befehl. `netlify.toml` liegt bei (Header, saubere Adressen,
 301-Weiterleitungen von den alten `.htm`-Adressen).
+
+Ohne Repository, zum schnellen Testen: `node tools/build-zip.mjs` baut
+`kornkammer-netlify.zip` (Inhalt des Ordners als Wurzel, ohne Werkzeuge
+und Testdateien, `netlify.toml` ohne `base`, dazu `_headers` und
+`_redirects`). Die ZIP bei app.netlify.com → „Add new site“ → „Deploy
+manually“ ablegen. Die Filme brauchen Range-Anfragen; Netlify liefert sie.
+Auch der Testdeploy trägt `X-Robots-Tag: noindex`.
 
 ## Vor dem Live-Gang
 

@@ -245,7 +245,7 @@ ${data.kategorien.map((k) => `        <a class="chip" href="#${k.id}">${esc(k.na
 ${cats}
     </div>
   </section>
-  <section class="sec sec--dark">
+  <section class="sec sec--leaf">
     <div class="wrap">
       <div class="split">
         <div class="split__text">

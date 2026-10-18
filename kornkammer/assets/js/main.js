@@ -190,6 +190,13 @@
         if (bar) bar.style.setProperty('--p', p.toFixed(3));
         // Bento-Strom: erste Zelle zieht sich beim Eintritt vom Vollrahmen zusammen
         if (sec.classList.contains('bento')) sec.style.setProperty('--z', clamp(p / 0.12, 0, 1).toFixed(3));
+        // Tafeln drehen leicht zur Bildmitte (3D), je weiter außen, desto mehr
+        const vw = window.innerWidth;
+        $$('.hpanel .media', track).forEach((m) => {
+          const b = m.getBoundingClientRect();
+          const off = clamp((b.left + b.width / 2 - vw / 2) / vw, -1, 1);
+          m.style.setProperty('--ry', (-off * 9).toFixed(2) + 'deg');
+        });
       });
       ticking = false;
     };
@@ -398,6 +405,56 @@
     els.forEach((e) => io.observe(e));
   }
 
+  /* ---------- Layers: Abschnitt bleibt stehen, der nächste schiebt sich darüber ----------
+     --in   wie weit der Abschnitt selbst hereingefahren ist (0…1)
+     --cover wie weit der nächste ihn schon verdeckt (0…1)
+     Die verdeckte Fläche bleibt (sticky), bis die Gruppe endet. */
+  function layers() {
+    const groups = $$('.layers');
+    if (!groups.length || isReduced()) return;
+    const mq = window.matchMedia('(min-width:900px)');
+    let ticking = false;
+    const run = () => {
+      const vh = window.innerHeight;
+      groups.forEach((g) => {
+        const ls = Array.from(g.children).filter((c) => c.classList.contains('layer'));
+        ls.forEach((l, i) => {
+          if (!mq.matches) { l.style.removeProperty('--in'); l.style.removeProperty('--cover'); return; }
+          const top = l.getBoundingClientRect().top;
+          const next = ls[i + 1];
+          const inn = clamp(1 - top / vh, 0, 1);
+          const cover = next ? clamp(1 - next.getBoundingClientRect().top / vh, 0, 1) : 0;
+          l.style.setProperty('--in', inn.toFixed(3));
+          l.style.setProperty('--cover', cover.toFixed(3));
+        });
+      });
+      ticking = false;
+    };
+    window.addEventListener('scroll', () => { if (!ticking) { requestAnimationFrame(run); ticking = true; } }, { passive: true });
+    window.addEventListener('resize', run);
+    mq.addEventListener('change', run);
+    run();
+  }
+
+  /* ---------- 3D: Karten neigen sich zur Maus (nur Maus/Trackpad) ---------- */
+  function tilt() {
+    if (isReduced() || !window.matchMedia('(hover:hover) and (pointer:fine)').matches) return;
+    const els = $$('.bcell:not(.bcell--zoom), .review, .pcard .media, .stack__card .media, .layer .split__media, .person__media');
+    els.forEach((el) => {
+      el.classList.add('tilt');
+      const max = parseFloat(el.dataset.tilt) || 7;
+      el.addEventListener('pointermove', (e) => {
+        const r = el.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5;
+        el.style.setProperty('--ry', (x * max).toFixed(2) + 'deg');
+        el.style.setProperty('--rx', (-y * max).toFixed(2) + 'deg');
+        el.style.setProperty('--mx', ((x + 0.5) * 100).toFixed(1) + '%');
+        el.style.setProperty('--my', ((y + 0.5) * 100).toFixed(1) + '%');
+      });
+      el.addEventListener('pointerleave', () => { el.style.setProperty('--rx', '0deg'); el.style.setProperty('--ry', '0deg'); });
+    });
+  }
+
   /* ---------- Kleinkram ---------- */
   function misc() {
     $$('[data-jahr]').forEach((el) => { el.textContent = new Date().getFullYear(); });
@@ -412,7 +469,7 @@
 
   d.addEventListener('DOMContentLoaded', () => {
     watchMedia(); header(); menu(); reveal(); parallax(); story(); hscroll(); heroVideo(); heroDrift(); forms(); misc();
-    marquee(); lightbox(); smoothWheel(); scrubbers(); counters();
+    marquee(); lightbox(); smoothWheel(); scrubbers(); counters(); layers(); tilt();
   });
 })();
 /* Rezensionen: Pfeile blättern die Strecke */
