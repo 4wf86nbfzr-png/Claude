@@ -1,7 +1,7 @@
 {
   "_hinweis": "Einzige Produktquelle. Daraus erzeugt tools/build-produkte.mjs die Shop-Übersicht und alle Produktseiten. Preise: Stand Oktober 2026, übernommen aus dem bestehenden Onlineshop (shopteamkornkammer.company.site), inkl. 7 % MwSt. 'preis': null = Preis nicht bekannt, Produkt wird nur mit 'Anfragen' angeboten. Nichts hier ist erfunden; Quellen in README.md.",
   "kategorien": [
-    { "id": "senf", "name": "Senf", "titel": "Senfmanufaktur", "text": "Bio-Speisesenf aus hundert Prozent hofeigener Saat, traditionell auf Granitsteinen vermahlen. Drei Sorten, von mittelscharf bis scharf.", "bild": "assets/img/produkte/senf-welt.jpg", "ph": "Senfgläser auf dem Hof" },
+    { "id": "senf", "name": "Senf", "titel": "Senfmanufaktur", "text": "Delikatess-Bio-Senf aus eigener Herstellung: hundert Prozent hofeigene Saat, traditionell auf Granitsteinen vermahlen. Drei Sorten, von mittelscharf bis extra scharf.", "bild": "assets/img/produkte/senf-welt.jpg", "ph": "Senfgläser auf dem Hof" },
     { "id": "oele", "name": "Speiseöle", "titel": "Ölmanufaktur", "text": "Delikatess-Speiseöle, kaltgepresst aus hofeigenen Saaten. Alle Öle werden ohne Erhitzen gepresst, damit die Inhaltsstoffe erhalten bleiben.", "bild": "assets/img/produkte/oel-welt.jpg", "ph": "Ölflaschen Ruhrtalgold" },
     { "id": "nudeln", "name": "Nudeln", "titel": "Dinkelnudeln", "text": "Dinkelnudeln aus Vollkorn und Auszugsmehl, als Spiralen und Wellen. Alles vom eigenen Dinkel.", "bild": "assets/img/produkte/nudeln-welt.jpg", "ph": "Dinkelnudeln" },
     { "id": "mehle", "name": "Mehle", "titel": "Mehle in Bäckerqualität", "text": "Weizen Type 550, Roggen Type 1150, Dinkel Type 630 und von allen dreien das Vollkornmehl. Dieselbe Qualität, die die Bäckereien bekommen, in 1, 5 und 25 Kilogramm.", "bild": "assets/img/produkte/mehl-welt.jpg", "ph": "Mehltüten" },
@@ -22,12 +22,11 @@
       "text": ["Mittelscharfer Bio-Speisesenf aus hofeigener Saat, auf Granitsteinen vermahlen. Der geschmackvolle Partner in der Küche."],
       "herkunft": "Hofeigene Senfsaat, vermahlen in der Senfmanufaktur auf dem Hof.",
       "varianten": [{ "label": "Glas 200 g", "preis": 5.99, "einheit": "200 g", "grundpreis": "29,95 €/kg" }],
-      "bilder": ["produkte/senf-kochkomplize.jpg", "produkte/senf-kochkomplize-detail.jpg"], "ph": ["Glas Kochkompl!ze", "Senf in der Küche"],
-      "hinweis": "Im Onlineshop zuletzt ausverkauft. Ob gerade etwas da ist, bestätigen wir mit der Anfrage."
+      "bilder": ["produkte/senf-kochkomplize.jpg", "produkte/senf-kochkomplize-detail.jpg"], "ph": ["Glas Kochkompl!ze", "Senf in der Küche"]
     },
     {
-      "id": "senf-schaerfemeister", "kat": "senf", "name": "Schärfemeister", "kurz": "Scharfer Bio-Speisesenf",
-      "text": ["Scharfer Bio-Speisesenf aus hofeigener Saat, auf Granitsteinen vermahlen."],
+      "id": "senf-schaerfemeister", "kat": "senf", "name": "Schärfemeister", "kurz": "Extra scharfer Bio-Speisesenf",
+      "text": ["Extra scharfer Bio-Speisesenf aus hofeigener Saat, auf Granitsteinen vermahlen. Die schärfste der drei Sorten."],
       "herkunft": "Hofeigene Senfsaat, vermahlen in der Senfmanufaktur auf dem Hof.",
       "varianten": [{ "label": "Glas 200 g", "preis": 5.99, "einheit": "200 g", "grundpreis": "29,95 €/kg" }],
       "bilder": ["produkte/senf-schaerfemeister.jpg", "produkte/senf-schaerfemeister-detail.jpg"], "ph": ["Glas Schärfemeister", "Senfsaat"]
@@ -120,6 +119,7 @@
       "id": "weizenmehl-550", "kat": "mehle", "name": "Bio Weizenmehl Type 550", "kurz": "Bäckerqualität",
       "text": ["Weizenmehl Type 550 aus dem eigenen Winterweizen, in hundert Prozent Bäckerqualität.", "Der größte Teil des Brotweizens vom Hof geht an Bäckereien. Dieses Mehl ist dieselbe Ware."],
       "herkunft": "Winterweizen von den eigenen Flächen, gehört zum Anbau 2025/2026.",
+      "ean": "4260690451179",
       "varianten": [{ "label": "1 kg", "preis": 2.69, "einheit": "1 kg", "grundpreis": "2,69 €/kg" }, { "label": "5 kg", "preis": null, "einheit": "5 kg" }, { "label": "25 kg", "preis": null, "einheit": "25 kg" }],
       "bilder": ["produkte/weizenmehl-550.jpg", "produkte/mehl-detail.jpg"], "ph": ["Tüte Weizenmehl 550", "Mehl auf dem Brett"]
     },
@@ -176,6 +176,7 @@
       "id": "kartoffeln-nicola", "kat": "kartoffeln", "name": "Kartoffeln Nicola", "kurz": "Festkochend",
       "text": ["Festkochende Bio-Kartoffel. Festkochende Sorten behalten beim Kochen ihre Form, der Stärkegehalt liegt bei etwa 14 Prozent."],
       "herkunft": "Die Kartoffeln der Saison 2025/2026 wachsen auf Flächen in Dortmund-Barop (Am Windrad Airwin) und Dortmund-Mengede (Naturschutzgebiet Im Siesack).",
+      "ean": "4260690450073",
       "varianten": [{ "label": "Beutel 2 kg", "preis": 5.29, "einheit": "2 kg", "grundpreis": "2,64 €/kg" }],
       "bilder": ["produkte/kartoffeln-nicola.jpg", "produkte/kartoffeln-detail.jpg"], "ph": ["Kartoffeln Nicola", "Kartoffelernte"],
       "layout": "wide"
@@ -193,6 +194,22 @@
       "herkunft": "Flächen der Saison 2025/2026 in Dortmund-Barop und Dortmund-Mengede.",
       "varianten": [{ "label": "Beutel 2 kg", "preis": 5.29, "einheit": "2 kg", "grundpreis": "2,64 €/kg" }],
       "bilder": ["produkte/kartoffeln-belana.jpg", "produkte/kartoffeln-detail.jpg"], "ph": ["Kartoffeln Belana", "Kartoffelernte"]
+    },
+    {
+      "id": "kartoffeln-laura", "kat": "kartoffeln", "name": "Kartoffeln Laura", "kurz": "Vorwiegend festkochend, rotschalig",
+      "text": ["Vorwiegend festkochende Bio-Kartoffel mit roter Schale."],
+      "herkunft": "Flächen der Saison 2025/2026 in Dortmund-Barop und Dortmund-Mengede.",
+      "varianten": [{ "label": "Beutel 2 kg", "preis": 5.29, "einheit": "2 kg", "grundpreis": "2,64 €/kg" }],
+      "bilder": ["produkte/kartoffeln-laura.jpg", "produkte/kartoffeln-detail.jpg"], "ph": ["Kartoffeln Laura", "Kartoffelernte"],
+      "layout": "tall"
+    },
+    {
+      "id": "kartoffeln-karelia", "kat": "kartoffeln", "name": "Kartoffeln Karelia", "kurz": "Mehlig",
+      "text": ["Mehligkochende Bio-Kartoffel. Mehlige Sorten zerfallen beim Kochen schnell, der Stärkegehalt liegt bei etwa 16,5 Prozent: die Sorte für Püree, Klöße und Suppen."],
+      "herkunft": "Flächen der Saison 2025/2026 in Dortmund-Barop und Dortmund-Mengede.",
+      "ean": "4260690450042",
+      "varianten": [{ "label": "Beutel 2 kg", "preis": 5.29, "einheit": "2 kg", "grundpreis": "2,64 €/kg" }],
+      "bilder": ["produkte/kartoffeln-karelia.jpg", "produkte/kartoffeln-detail.jpg"], "ph": ["Kartoffeln Karelia", "Kartoffelernte"]
     }
   ]
 }

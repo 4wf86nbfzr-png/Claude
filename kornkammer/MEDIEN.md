@@ -88,9 +88,9 @@ unscharf). Bitte durch die Originaldateien des Fotografen unter demselben
 Namen ersetzen.
 
 ```
-img/produkte/senf-bernie.jpg            senf-bernie-detail.jpg
-img/produkte/senf-kochkomplize.jpg      senf-kochkomplize-detail.jpg
-img/produkte/senf-schaerfemeister.jpg   senf-schaerfemeister-detail.jpg
+img/produkte/senf-bernie.jpg ✓          senf-bernie-detail.jpg
+img/produkte/senf-kochkomplize.jpg ✓    senf-kochkomplize-detail.jpg
+img/produkte/senf-schaerfemeister.jpg ✓ senf-schaerfemeister-detail.jpg
 img/produkte/rapsoel.jpg ✓              rapsoel-detail.jpg
 img/produkte/leinoel.jpg                leinoel-detail.jpg
 img/produkte/mohnoel.jpg                mohnoel-detail.jpg
@@ -108,9 +108,11 @@ img/produkte/roggenkoerner.jpg ✓
 img/produkte/dinkelkoerner.jpg
 img/produkte/haferkerne.jpg
 img/produkte/haferflocken.jpg           haferflocken-detail.jpg
-img/produkte/kartoffeln-nicola.jpg      kartoffeln-detail.jpg (gemeinsam)
+img/produkte/kartoffeln-nicola.jpg ✓    kartoffeln-detail.jpg (gemeinsam)
 img/produkte/kartoffeln-glorietta.jpg
 img/produkte/kartoffeln-belana.jpg
+img/produkte/kartoffeln-laura.jpg ✓
+img/produkte/kartoffeln-karelia.jpg ✓
 ```
 
 Kategoriebilder (Reserve, derzeit nicht eingebunden): `img/produkte/*-welt.jpg`.

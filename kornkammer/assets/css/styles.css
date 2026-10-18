@@ -641,8 +641,8 @@ figure.media{ margin:0; }
 .pcard__add:hover{ background:var(--forest); color:var(--on-dark); }
 .pcard__add .ico{ width:20px; height:20px; }
 .pcard--wide{ grid-column:span 2; }
-.pcard--wide .media{ --ar:16/10; background:#F3F3F5; }
-.pcard--wide .media > img{ object-fit:contain; }   /* hochformatige Produktfotos nicht beschneiden */
+/* Große Karte über zwei Spalten, bleibt 4:5: Produktfotos werden nie beschnitten */
+.pcard--wide .media{ --ar:4/5; }
 .pcard--tall .media{ --ar:3/4; }
 .pcard--soldout .media{ opacity:.78; }
 .pcard__badge{

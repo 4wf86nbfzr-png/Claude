@@ -87,15 +87,16 @@ Zugangsdaten oder Store-ID liegen nicht vor. Deshalb:
   Roggenkörner 2,19; Weizenmehl 550 2,69; Weizenmehl Vollkorn 2,79;
   Roggenmehl 1150 2,69; Roggenmehl Vollkorn 2,69; Dinkelmehl 630 4,79;
   Dinkelmehl Vollkorn 4,29; Dinkelnudeln hell/dunkel 500 g 3,79; Rapsöl 500 ml
-  6,49. Aus dem Suchindex: Mohn-, Lein-, Senföl 100 ml 5,99 (im Shop derzeit
-  nicht gelistet, als Hinweis vermerkt); Kochkompl!ze 200 g 5,99; Nicola,
-  Glorietta, Belana 2 kg 5,29. **Abgeleitet, bitte bestätigen:** Der scharfe
-  Bernie und Schärfemeister zu 5,99. Ohne Preis („auf Anfrage“): alle 5- und
-  25-kg-Gebinde, Haferflocken, Haferkerne, Dinkelkörner.
+  6,49; alle drei Senfsorten 200 g 5,99; Kartoffeln Nicola, Karelia, Laura
+  2 kg 5,29. Aus dem Suchindex: Mohn-, Lein-, Senföl 100 ml 5,99 (im Shop
+  derzeit nicht gelistet, als Hinweis vermerkt); Kartoffeln Glorietta und
+  Belana 2 kg 5,29. Ohne Preis („auf Anfrage“): alle 5- und 25-kg-Gebinde,
+  Haferflocken, Haferkerne, Dinkelkörner.
 - **EAN-Nummern** aus dem Shop stehen in `data/produkte.json` (`ean`) und auf
   den Produktseiten; sie erleichtern später die Zuordnung zu Ecwid.
-- **Produktfotos:** Elf Produkte zeigen bereits das echte Foto, ausgeschnitten
-  aus Screenshots des Onlineshops (Mehle, Körner, Nudeln, Rapsöl). Das sind
+- **Produktfotos:** 17 Produkte zeigen bereits das echte Foto, ausgeschnitten
+  aus Screenshots des Onlineshops (Mehle, Körner, Nudeln, Rapsöl, Senf,
+  Kartoffeln Nicola, Karelia, Laura). Das sind
   Übergangsbilder in niedriger Auflösung; die Originaldateien ersetzen sie
   unter demselben Pfad (siehe MEDIEN.md).
 - **Echter Checkout aktivieren:** Produkte in `data/produkte.json` um eine
