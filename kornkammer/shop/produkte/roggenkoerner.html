@@ -21,7 +21,7 @@
 </head>
 <body data-root="../../">
 <a class="skip" href="#inhalt">Zum Inhalt springen</a>
-<header class="hdr">
+<header class="hdr hdr--over">
   <div class="wrap">
     <a class="brand" href="../../index.html" aria-label="Team Kornkammer, zur Startseite">
       <span class="brand__name">Team Kornkammer</span>
@@ -58,8 +58,28 @@
   </div>
 </div>
 <main id="inhalt">
+  <section class="stage3 stage3--koerner" data-stage data-partikel="korn" aria-label="Bio Roggenkörner im Licht">
+  <div class="stage3__bg"></div>
+  <canvas class="stage3__fx" aria-hidden="true"></canvas>
+  <div class="stage3__sweep" aria-hidden="true"></div>
+  <div class="stage3__floor" aria-hidden="true"></div>
+  <div class="stage3__scene">
+    <div class="stage3__obj" tabindex="0" role="img" aria-label="Bio Roggenkörner. Mit Pfeiltasten oder durch Ziehen drehen.">
+      <img class="stage3__img" src="../../assets/img/produkte/frei/roggenkoerner.webp" alt="" width="600" height="800" draggable="false" fetchpriority="high">
+      <img class="stage3__refl" src="../../assets/img/produkte/frei/roggenkoerner.webp" alt="" aria-hidden="true" width="600" height="800" draggable="false" loading="lazy">
+    </div>
+  </div>
+  <div class="stage3__cap">
+    <p class="eyebrow">Ruhrtalgold · Körner &amp; Flocken</p>
+    <p class="stage3__title">Bio Roggenkörner</p>
+    <p>Ganze Körner</p>
+    <p class="stage3__price">2,19 € <span class="small" style="color:var(--on-dark-m)">1 kg</span></p>
+    <div class="stage3__actions"><a class="btn btn--solidlight" href="#kaufen">Jetzt bestellen</a><a class="btn btn--light" href="#bilder">Weitere Bilder</a></div>
+  </div>
+  <p class="stage3__hint" aria-hidden="true">Ziehen zum Drehen</p>
+</section>
   <div class="wrap">
-    <section class="pdp">
+    <section class="pdp pdp--nach-buehne" id="bilder">
       <div class="pdp__gallery">
         <p class="crumbs"><a href="../../index.html">Start</a><span>/</span><a href="../">Sortiment</a><span>/</span><a href="../#koerner">Körner &amp; Flocken</a></p>
         <div class="gal" tabindex="0" aria-label="Produktbilder, mit Pfeiltasten wechseln">
@@ -75,7 +95,7 @@
           <button type="button" class="" aria-label="Bild 2"><figure class="media" data-ph=""><img src="../../assets/img/produkte/koerner-detail.jpg" alt="" loading="lazy" width="200" height="200"></figure></button>
         </div>
       </div>
-      <div class="pdp__info">
+      <div class="pdp__info" id="kaufen">
         <p class="eyebrow">Körner &amp; Flocken</p>
         <h1>Bio Roggenkörner</h1>
         <p class="lead">Ganze Körner</p>
@@ -212,5 +232,6 @@
 </footer>
 <script src="../../assets/js/main.js" defer></script>
 <script src="../../assets/js/shop.js" defer></script>
+<script src="../../assets/js/buehne.js" defer></script>
 </body>
 </html>

@@ -156,6 +156,7 @@
     };
     store.add(item);
     badge(true);
+    const hdr = $('.hdr'); if (hdr) hdr.classList.remove('is-hidden');   // Zähler soll sichtbar sein
     fly(btn, ds.img ? ROOT + ds.img : '');
     say('<span><strong>' + item.name + '</strong> liegt im Korb.</span><a href="#korb" data-open-cart>Ansehen</a>');
   }

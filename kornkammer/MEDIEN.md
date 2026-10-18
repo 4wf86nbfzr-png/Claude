@@ -85,6 +85,17 @@ Galerie-Seite listet alle 27 Motive mit Dateinamen.
 | img/arbeit/kartoffelernte.jpg ✓ | 4:3 | Kartoffelernte |
 | img/acker-luft.jpg | 21:9 | Flächen aus der Luft |
 
+## Lichtbühne (freigestellte Produkte)
+
+`img/produkte/frei/<id>.webp` entsteht aus dem ersten Produktfoto mit
+`python3 tools/freistellen.py`. Liegt vom Fotografen eine saubere
+Freistellung vor (PNG oder WebP mit Alphakanal, 1500 bis 2000 px hoch,
+Produkt frontal, unten gerade abschließend), unter genau diesem Namen
+ablegen; das Skript überschreibt sie dann nicht mehr, wenn man es mit
+`--nur-fehlende` aufruft. Für eine spätere 360-Grad-Ansicht: 24 bis 36
+Ansichten auf dem Drehteller, Pfade im Feld `praesentation.serie` des
+Produkts eintragen.
+
 ## Shop
 
 Je Produkt zwei Bilder, 4:5, 1200 px lange Kante, neutraler heller

@@ -1,5 +1,16 @@
 {
   "_hinweis": "Einzige Produktquelle. Daraus erzeugt tools/build-produkte.mjs die Shop-Übersicht und alle Produktseiten. Preise: Stand Oktober 2026, übernommen aus dem bestehenden Onlineshop (shopteamkornkammer.company.site), inkl. 7 % MwSt. 'preis': null = Preis nicht bekannt, Produkt wird nur mit 'Anfragen' angeboten. Nichts hier ist erfunden; Quellen in README.md.",
+  "praesentation": {
+    "_hinweis": "Lichtbühne (assets/js/buehne.js). 'vorgaben' gilt je Kategorie; ein Produkt kann einzelne Felder unter 'praesentation' überschreiben. Felder: aktiv (true/false), partikel (mehl|korn|gold|erde|hell), freigestellt (true: assets/img/produkte/frei/<id>.webp verwenden, sonst erstes Foto), serie (Pfadliste für eine 360-Grad-Bildserie, noch nicht vorhanden), modell (GLB-Pfad, noch nicht vorhanden), video (Pfad, noch nicht vorhanden). Freistellen: python3 tools/freistellen.py",
+    "vorgaben": {
+      "mehle":      { "aktiv": true, "partikel": "mehl",  "freigestellt": true },
+      "koerner":    { "aktiv": true, "partikel": "korn",  "freigestellt": true },
+      "nudeln":     { "aktiv": true, "partikel": "mehl",  "freigestellt": true },
+      "oele":       { "aktiv": true, "partikel": "gold",  "freigestellt": true },
+      "senf":       { "aktiv": true, "partikel": "gold",  "freigestellt": true },
+      "kartoffeln": { "aktiv": true, "partikel": "erde",  "freigestellt": true }
+    }
+  },
   "kategorien": [
     { "id": "senf", "name": "Senf", "titel": "Senfmanufaktur", "text": "Delikatess-Bio-Senf aus eigener Herstellung: hundert Prozent hofeigene Saat, traditionell auf Granitsteinen vermahlen. Drei Sorten, von mittelscharf bis extra scharf.", "bild": "assets/img/produkte/senf-welt.jpg", "ph": "Senfgläser auf dem Hof" },
     { "id": "oele", "name": "Speiseöle", "titel": "Ölmanufaktur", "text": "Delikatess-Speiseöle, kaltgepresst aus hofeigenen Saaten. Alle Öle werden ohne Erhitzen gepresst, damit die Inhaltsstoffe erhalten bleiben.", "bild": "assets/img/produkte/oel-welt.jpg", "ph": "Ölflaschen Ruhrtalgold" },

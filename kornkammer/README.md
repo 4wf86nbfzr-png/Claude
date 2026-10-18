@@ -106,6 +106,56 @@ Zugangsdaten oder Store-ID liegen nicht vor. Deshalb:
   Button umstellen, oder die Bestellanfrage als Bestellweg beibehalten.
   Beides ist eine Änderung in `tools/build-produkte.mjs` an einer Stelle.
 
+## Lichtbühne: Produkte im Licht (Cinematic Product Experience)
+
+Jede Produktseite mit Foto beginnt mit einer dunklen Lichtbühne, die
+Startseite zeigt eine für das Dinkelmehl 630. Umgesetzt ist **Stufe 1 und
+ein Teil von Stufe 2** des abgestuften Systems:
+
+| Stufe | Inhalt | Stand |
+|---|---|---|
+| 1 | Freigestelltes Produktfoto in dunkler, reflektierender Szene: Auftritt aus dem Schatten, Lichtfahrt, Partikel je Produktwelt, Spiegelung, scrollgesteuerter Kameraschwenk | **fertig**, 17 Produkte |
+| 2 | Drehen per Maus, Touch und Pfeiltasten bis ±35 Grad; Produktkarten neigen sich zum Zeiger | **fertig**; eine echte 360-Grad-Drehung braucht Bildserien oder Modelle (fehlen) |
+| 3 | 3D-Szenen mit Modellen (GLB), WebGL | nicht begonnen, keine Modelle vorhanden |
+| 4 | Produktspezifische Werbefilme (fallende Kartoffeln, fließendes Öl) | nicht begonnen, erfordert 3D-Animation oder Dreh |
+
+**Warum kein Three.js:** Es gibt nur je eine Frontansicht pro Produkt.
+Ein Foto auf eine 3D-Fläche zu legen ergäbe eine erfundene Rückseite.
+Die Bühne arbeitet deshalb mit CSS-3D und Canvas, läuft ohne WebGL und
+ohne Abhängigkeit (`assets/js/buehne.js`, rund 200 Zeilen), pausiert
+außerhalb des Sichtfelds, begrenzt die Pixeldichte auf Mobilgeräten und
+steht bei `prefers-reduced-motion` still. Ohne JavaScript ist das Produkt
+sichtbar, nichts bewegt sich.
+
+**Konfiguration (der „Produkt-Editor“)** liegt in `data/produkte.json`:
+`praesentation.vorgaben` je Kategorie, pro Produkt überschreibbar mit
+`"praesentation": { … }`. Felder: `aktiv`, `partikel` (mehl, korn, gold,
+erde, hell), `freigestellt`, und vorbereitet für spätere Stufen `serie`
+(Bildserie), `modell` (GLB), `video`. Neues Produkt anlegen = Eintrag im
+JSON, Foto ablegen, `python3 tools/freistellen.py`, `node
+tools/build-produkte.mjs`. Kein Quellcode muss angefasst werden.
+
+**Freistellen** (`tools/freistellen.py`, nur Pillow): Flutfüllung vom
+Bildrand über hintergrundähnliche Pixel, Kante leicht geglättet, Ausgabe
+als WebP mit Alphakanal unter `assets/img/produkte/frei/`. Doppelaufnahmen
+werden vorher auf die linke Tüte beschnitten. Die Ergebnisse taugen für die
+Bühne; die Kanten der Klarsichtbeutel (Nudeln) und die hellen Kopfetiketten
+der Körnertüten bleiben verbesserungswürdig. Mit Originalfotos auf
+neutralem Grund (oder sauber freigestellten PNGs vom Fotografen) wird es
+besser, ohne dass am Code etwas zu ändern ist.
+
+**Noch nötige Assets für die vollständige Umsetzung**
+- Produktfotos in Originalauflösung, idealerweise freigestellt (PNG/WebP
+  mit Alpha), 2000 px lange Kante.
+- Für 360 Grad: je Produkt 24 bis 36 Ansichten auf einem Drehteller
+  (gleicher Abstand, gleiches Licht) als Bildserie, oder ein GLB-Modell mit
+  den originalen Aufdrucken als Textur.
+- Für Stufe 4: gerenderte oder gedrehte Clips (WebM/MP4, 1080p oder 4K),
+  stumm, 6 bis 12 Sekunden.
+- Fehlen weiterhin Fotos für: Leinöl, Mohnöl, Senföl, Dinkelkörner,
+  Haferkerne, Haferflocken, Glorietta, Belana (diese acht Seiten haben
+  keine Bühne, sondern den gewohnten Aufbau).
+
 ## Formulare
 
 Drei Versandwege, gesteuert über Attribute am `<form>` (siehe `main.js`):
@@ -194,6 +244,11 @@ Mit Playwright/Chromium gegen einen lokalen Server:
   Ankersprüngen, Überlappung der Foto-Beschriftung mit dem Vollbild-Knopf,
   Standardrahmen des Gebinde-Felds, Kapitelbild über dem Text auf dem Handy,
   abgeschnittener Kopf der horizontalen Strecke auf dem Desktop.
+
+- Lichtbühne: je ein Produkt aus Mehl, Öl, Kartoffeln und Senf in 1440 und
+  390 px Breite ohne Skriptfehler; Ziehen dreht das Produkt (36 Grad bei
+  140 px Zug), Pfeiltasten drehen, Partikel pausieren außerhalb des
+  Sichtfelds; Warenkorb, Varianten, Menge und Galerie darunter unverändert.
 
 **Nicht gemessen:** Core Web Vitals (LCP, INP, CLS). Ohne echte Bilder und
 Video wäre eine Messung nicht aussagekräftig; nach dem Einspielen mit

@@ -7,7 +7,7 @@
    Kopfzeile, Menü und Fußzeile stehen hier einmal und müssen mit den
    handgeschriebenen Seiten übereinstimmen (siehe README.md).
    ============================================================ */
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -138,8 +138,49 @@ function footer(root) {
 </footer>
 <script src="${root}assets/js/main.js" defer></script>
 <script src="${root}assets/js/shop.js" defer></script>
+<script src="${root}assets/js/buehne.js" defer></script>
 </body>
 </html>`;
+}
+
+/* ---------- Lichtbühne (Stufe 1/2, siehe assets/js/buehne.js) ----------
+   Konfiguration: data.praesentation.vorgaben[kategorie] + produkt.praesentation.
+   Freigestelltes Bild, wenn vorhanden; sonst das erste Foto als Karte. */
+export function stage(p, root, opts = {}) {
+  const cat = data.kategorien.find((k) => k.id === p.kat);
+  const pr = Object.assign({}, (data.praesentation && data.praesentation.vorgaben[p.kat]) || {}, p.praesentation || {});
+  if (pr.aktiv === false) return '';
+  const freiPfad = `assets/img/produkte/frei/${p.id}.webp`;
+  const frei = pr.freigestellt !== false && existsSync(join(base, freiPfad));
+  const foto = existsSync(join(base, 'assets/img', p.bilder[0]));
+  if (!frei && !foto) return '';
+  const src = frei ? root + freiPfad : root + 'assets/img/' + p.bilder[0];
+  const v0 = p.varianten.find((v) => v.preis != null) || p.varianten[0];
+  const price = v0.preis != null ? eur(v0.preis) + ' <span class="small" style="color:var(--on-dark-m)">' + esc(v0.label) + '</span>' : 'Preis auf Anfrage';
+  const title = opts.titel ? `<h2>${esc(p.name)}</h2>` : `<p class="stage3__title">${esc(p.name)}</p>`;
+  const actions = opts.home
+    ? `<a class="btn btn--solidlight" href="${root}shop/produkte/${p.id}.html">Produkt entdecken</a><a class="btn btn--light" href="${root}shop/">Ganzes Sortiment</a>`
+    : `<a class="btn btn--solidlight" href="#kaufen">Jetzt bestellen</a><a class="btn btn--light" href="#bilder">Weitere Bilder</a>`;
+  return `<section class="stage3 stage3--${p.kat}${opts.home ? ' stage3--home' : ''}" data-stage data-partikel="${esc(pr.partikel || 'hell')}" aria-label="${esc(p.name)} im Licht">
+  <div class="stage3__bg"></div>
+  <canvas class="stage3__fx" aria-hidden="true"></canvas>
+  <div class="stage3__sweep" aria-hidden="true"></div>
+  <div class="stage3__floor" aria-hidden="true"></div>
+  <div class="stage3__scene">
+    <div class="stage3__obj${frei ? '' : ' stage3__obj--foto'}" tabindex="0" role="img" aria-label="${esc(p.name)}. Mit Pfeiltasten oder durch Ziehen drehen.">
+      <img class="stage3__img" src="${src}" alt="" width="600" height="800" draggable="false" ${opts.home ? 'loading="lazy"' : 'fetchpriority="high"'}>
+      <img class="stage3__refl" src="${src}" alt="" aria-hidden="true" width="600" height="800" draggable="false" loading="lazy">
+    </div>
+  </div>
+  <div class="stage3__cap">
+    <p class="eyebrow">Ruhrtalgold · ${esc(cat.name)}</p>
+    ${title}
+    <p>${esc(p.kurz)}</p>
+    <p class="stage3__price">${price}</p>
+    <div class="stage3__actions">${actions}</div>
+  </div>
+  <p class="stage3__hint" aria-hidden="true">Ziehen zum Drehen</p>
+</section>`;
 }
 
 /* ---------- Produktkarte ---------- */
@@ -236,10 +277,11 @@ function productPage(p) {
 
   const html = `${head({ root, title: `${p.name} · Team Kornkammer`, desc: `${p.kurz}. ${p.text[0]}`, canonical: `shop/produkte/${p.id}.html` })}
 <body data-root="../../">
-${header(root)}
+${header(root, true)}
 <main id="inhalt">
+  ${stage(p, root)}
   <div class="wrap">
-    <section class="pdp">
+    <section class="pdp pdp--nach-buehne" id="bilder">
       <div class="pdp__gallery">
         <p class="crumbs"><a href="../../index.html">Start</a><span>/</span><a href="../">Sortiment</a><span>/</span><a href="../#${cat.id}">${esc(cat.name)}</a></p>
         <div class="gal" tabindex="0" aria-label="Produktbilder, mit Pfeiltasten wechseln">
@@ -253,7 +295,7 @@ ${header(root)}
           ${thumbs}
         </div>
       </div>
-      <div class="pdp__info">
+      <div class="pdp__info" id="kaufen">
         <p class="eyebrow">${esc(cat.name)}</p>
         <h1>${esc(p.name)}</h1>
         <p class="lead">${esc(p.kurz)}</p>
@@ -310,4 +352,11 @@ ${footer(root)}`;
 mkdirSync(join(base, 'shop/produkte'), { recursive: true });
 shopIndex();
 data.produkte.forEach(productPage);
-console.log('Sortiment und ' + data.produkte.length + ' Produktseiten geschrieben.');
+const mitBuehne = data.produkte.filter((p) => stage(p, '')).length;
+const frei = data.produkte.filter((p) => existsSync(join(base, `assets/img/produkte/frei/${p.id}.webp`))).length;
+console.log('Sortiment und ' + data.produkte.length + ' Produktseiten geschrieben; Lichtbühne auf ' + mitBuehne + ' Seiten, davon ' + frei + ' freigestellt.');
+// Startseiten-Bühne für den Generator anderer Seiten verfügbar machen
+if (process.argv.includes('--home')) {
+  const p = data.produkte.find((x) => x.id === (process.argv[process.argv.indexOf('--home') + 1] || 'dinkelmehl-630'));
+  process.stdout.write(stage(p, '', { home: true, titel: true }) + '\n');
+}
