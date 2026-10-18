@@ -155,6 +155,11 @@ export function stage(p, root, opts = {}) {
   const foto = existsSync(join(base, 'assets/img', p.bilder[0]));
   if (!frei && !foto) return '';
   const src = frei ? root + freiPfad : root + 'assets/img/' + p.bilder[0];
+  // Stufe 4: liegt ein Produktfilm vor (praesentation.video), ersetzt er das Standbild
+  const video = pr.video && existsSync(join(base, pr.video)) ? root + pr.video : '';
+  const objekt = video
+    ? `<video class="stage3__img stage3__video" src="${video}" poster="${src}" muted playsinline loop preload="metadata" width="600" height="800" draggable="false"></video>`
+    : `<img class="stage3__img" src="${src}" alt="" width="600" height="800" draggable="false" ${opts.home ? 'loading="lazy"' : 'fetchpriority="high"'}>`;
   const v0 = p.varianten.find((v) => v.preis != null) || p.varianten[0];
   const price = v0.preis != null ? eur(v0.preis) + ' <span class="small" style="color:var(--on-dark-m)">' + esc(v0.label) + '</span>' : 'Preis auf Anfrage';
   const title = opts.titel ? `<h2>${esc(p.name)}</h2>` : `<p class="stage3__title">${esc(p.name)}</p>`;
@@ -168,7 +173,7 @@ export function stage(p, root, opts = {}) {
   <div class="stage3__floor" aria-hidden="true"></div>
   <div class="stage3__scene">
     <div class="stage3__obj${frei ? '' : ' stage3__obj--foto'}" tabindex="0" role="img" aria-label="${esc(p.name)}. Mit Pfeiltasten oder durch Ziehen drehen.">
-      <img class="stage3__img" src="${src}" alt="" width="600" height="800" draggable="false" ${opts.home ? 'loading="lazy"' : 'fetchpriority="high"'}>
+      ${objekt}
       <img class="stage3__refl" src="${src}" alt="" aria-hidden="true" width="600" height="800" draggable="false" loading="lazy">
     </div>
   </div>

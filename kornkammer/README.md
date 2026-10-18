@@ -144,6 +144,13 @@ der Körnertüten bleiben verbesserungswürdig. Mit Originalfotos auf
 neutralem Grund (oder sauber freigestellten PNGs vom Fotografen) wird es
 besser, ohne dass am Code etwas zu ändern ist.
 
+**Produktfilme (Stufe 4) sind vorbereitet:** Steht im Produkt
+`praesentation.video` und liegt die Datei, zeigt die Bühne statt des
+Standbilds ein stummes Video in Schleife (Poster = freigestelltes Foto),
+das nur spielt, solange die Bühne sichtbar ist. Briefing für die
+Produktion oder einen Generator mit Shotliste, Dateinamen und einem auf
+die echten Verpackungen angepassten Prompt: `docs/filmbrief.md`.
+
 **Noch nötige Assets für die vollständige Umsetzung**
 - Produktfotos in Originalauflösung, idealerweise freigestellt (PNG/WebP
   mit Alpha), 2000 px lange Kante.

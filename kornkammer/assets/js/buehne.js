@@ -52,10 +52,13 @@
       const el = this.el;
       if (reduce.matches) { el.classList.add('is-static', 'is-in'); this.bindDrag(); return; }
       // Auftritt erst, wenn die Bühne sichtbar wird; Partikel nur solange sie sichtbar ist
+      const video = el.querySelector('.stage3__video');
       const io = new IntersectionObserver((es) => es.forEach((e) => {
         this.visible = e.isIntersecting;
         if (e.isIntersecting && !this.started) { this.started = true; el.classList.add('is-in'); }
         if (this.visible) this.loop(); else this.stop();
+        // Produktfilm nur abspielen, solange die Bühne im Bild ist
+        if (video) { if (this.visible) video.play().catch(() => {}); else video.pause(); }
       }), { threshold: 0.15 });
       io.observe(el);
       this.resize();
