@@ -10,7 +10,8 @@
    Scrollsteuerung: iso() in assets/js/main.js (Kamera, Traktor,
    Stationen).
    ============================================================ */
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, rmSync, existsSync, statSync } from 'node:fs';
+import { execSync } from 'node:child_process';
 import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -62,10 +63,12 @@ function label(u, v, z, text, dy = 0) {
   const [x, y] = P(u, v, z);
   return `<text x="${x}" y="${y + dy}" class="iso__label iso__label--big">${text}</text>`;
 }
-function ring(u0, v0, u1, v1) {
+const rings = [];
+function ring(u0, v0, u1, v1, station) {
   const [cx, cy] = P((u0 + u1) / 2, (v0 + v1) / 2);
   const rx = ((u1 - u0) + (v1 - v0)) * 0.48, ry = rx * 0.55;
-  return `<ellipse class="iso__ring" cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}"/>`;
+  rings.push(`<g data-station="${station}"><ellipse class="iso__ring" cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}"/></g>`);
+  return '';
 }
 function windmill(u, v) {
   const [bx, by] = P(u, v), [tx, ty] = P(u, v, 150);
@@ -106,7 +109,8 @@ const road = [[300, 560], [860, 560], [860, 760], [1160, 760], [1160, 790]];
 const d = road.map((p, i) => (i ? 'L' : 'M') + P(...p).join(' ')).join(' ');
 s += `<path d="${d}" fill="none" stroke="${ROAD_EDGE}" stroke-width="40" stroke-linejoin="round" stroke-linecap="round"/>`;
 s += `<path d="${d}" fill="none" stroke="${ROAD}" stroke-width="32" stroke-linejoin="round" stroke-linecap="round"/>`;
-s += `<path id="isoRoad" d="${d}" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="2" stroke-dasharray="14 18" stroke-linejoin="round"/>`;
+s += `<path d="${d}" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="2" stroke-dasharray="14 18" stroke-linejoin="round"/>`;
+const roadPath = `<path id="isoRoad" d="${d}" fill="none" stroke="none"/>`;
 
 // Objekte in Tiefenreihenfolge (hinten → vorn)
 const objs = [];
@@ -121,24 +125,46 @@ add(1240, 700, tree(1240, 700, 20, 46, LEAF2));
 add(260, 700, tree(260, 700, 26, 56));
 add(320, 740, tree(320, 740, 18, 44, LEAF2));
 // Hof: Haus Holte mit Mühle, Ölpresse, Senfmühle
-add(820, 500, `<g data-station="hof">` + ring(640, 380, 1020, 560) + house(640, 380, 820, 500, 62, 42, WALL, ROOF) + label(600, 540, 30, 'Haus Holte') +
+add(820, 500, `<g data-station="hof">` + ring(640, 380, 1020, 560, 'hof') + house(640, 380, 820, 500, 62, 42, WALL, ROOF) + label(600, 540, 30, 'Haus Holte') +
   box(960, 380, 1020, 430, 40, '#E3D8C2') + label(990, 405, 100, 'Mühle') +
   box(960, 450, 1020, 500, 40, '#E3D8C2') + label(990, 475, 100, 'Ölpresse') +
   box(960, 520, 1020, 570, 40, '#E3D8C2') + label(990, 545, 100, 'Senfmühle') + `</g>`);
 // Hofverkauf
-add(1010, 690, `<g data-station="verkauf">` + ring(880, 600, 1030, 710) + house(900, 620, 1010, 690, 40, 26, WALL, LEAF) + label(930, 660, 136, 'Hofverkauf') + label(930, 660, 116, 'Freitag 8 bis 17 Uhr', 0) + `</g>`);
+add(1010, 690, `<g data-station="verkauf">` + ring(880, 600, 1030, 710, 'verkauf') + house(900, 620, 1010, 690, 40, 26, WALL, LEAF) + label(930, 660, 136, 'Hofverkauf') + label(930, 660, 116, 'Freitag 8 bis 17 Uhr', 0) + `</g>`);
 // Ruhrgebiet: Bäckereien, Naturkost, EDEKA, Abokiste
-add(1270, 930, `<g data-station="stadt">` + ring(1120, 790, 1280, 940) +
+add(1270, 930, `<g data-station="stadt">` + ring(1120, 790, 1280, 940, 'stadt') +
   box(1140, 800, 1190, 850, 70, '#D8CFBD') + box(1210, 800, 1270, 860, 96, '#D1C7B3') + box(1140, 870, 1200, 920, 56, '#DCD3C1') + box(1220, 880, 1270, 920, 44, '#D8CFBD') +
   label(1205, 860, 170, 'Ruhrgebiet') + label(1205, 860, 148, 'Bäckereien · Naturkost · Abokiste') + `</g>`);
 objs.sort((a, b) => a.k - b.k).forEach((o) => { s += o.svg; });
-s += tractor();
 
-const svg = `<svg class="iso__svg" viewBox="0 0 1920 1240" aria-hidden="true" focusable="false">${s}</svg>`;
+/* ---- Leistung: die unbewegte Szene wird zu einem Bild gerastert (WebP, 2x),
+   nur Weg (unsichtbar, für den Traktor), Ringe und Traktor bleiben als
+   Vektor-Overlay. Ein Bild skaliert die Grafikkarte, ein großes SVG müsste
+   der Browser bei jedem Scrollbild neu zeichnen. Rasterung: Chromium über
+   Playwright (lokal unter /opt/node-tools), Umwandlung nach WebP mit Pillow. */
+const W = 1920, H = 1240;
+const labelCss = `.iso__label{font-family:'Instrument Sans',system-ui,sans-serif;font-size:17px;font-weight:600;letter-spacing:.04em;text-anchor:middle;fill:#3F4A3B}.iso__label--big{font-size:20px;fill:#13231A;font-family:'Bricolage Grotesque','Instrument Sans',sans-serif;font-weight:500;letter-spacing:0}`;
+const fontsCss = readFileSync(join(base, 'assets/css/fonts.css'), 'utf8').replace(/url\((['"]?)\.\.\/fonts\//g, (m, q) => `url(${q}file://${join(base, 'assets/fonts')}/`);
+const staticSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${s}</svg>`;
+const rasterHtml = `<!doctype html><meta charset="utf-8"><style>${fontsCss}${labelCss}html,body{margin:0;background:transparent}svg{display:block}</style>${staticSvg}`;
+const tmpHtml = join(base, 'assets/img/iso/.raster.html');
+mkdirSync(join(base, 'assets/img/iso'), { recursive: true });
+writeFileSync(tmpHtml, rasterHtml);
+const { chromium } = await import(existsSync('/opt/node-tools/node_modules/playwright/index.mjs') ? '/opt/node-tools/node_modules/playwright/index.mjs' : 'playwright');
+const browser = await chromium.launch();
+const page = await browser.newPage({ viewport: { width: W, height: H }, deviceScaleFactor: 2 });
+await page.goto('file://' + tmpHtml); await page.evaluate(() => document.fonts.ready); await page.waitForTimeout(200);
+const png = join(base, 'assets/img/iso/reise.png');
+await page.screenshot({ path: png, omitBackground: true });
+await browser.close();
+rmSync(tmpHtml);
+execSync(`python3 -c "from PIL import Image; im=Image.open('${png}'); im.save('${join(base, 'assets/img/iso/reise.webp')}', quality=82, method=6)"`);
+rmSync(png);
 
+const overlay = `<div class="iso__frame"><img src="assets/img/iso/reise.webp" alt="" width="${W}" height="${H}" decoding="async" loading="lazy"><svg class="iso__svg" viewBox="0 0 ${W} ${H}" aria-hidden="true" focusable="false">${roadPath}${rings.join('')}${tractor()}</svg></div>`;
 const file = join(base, 'index.html');
 const html = readFileSync(file, 'utf8');
 const re = /<!-- iso:svg -->[\s\S]*?<!-- \/iso:svg -->/;
 if (!re.test(html)) { console.error('Marker <!-- iso:svg --> … <!-- /iso:svg --> fehlt in index.html'); process.exit(1); }
-writeFileSync(file, html.replace(re, `<!-- iso:svg -->${svg}<!-- /iso:svg -->`));
-console.log(`Isometrische Szene eingesetzt: ${(svg.length / 1024).toFixed(1)} KB SVG.`);
+writeFileSync(file, html.replace(re, `<!-- iso:svg -->${overlay}<!-- /iso:svg -->`));
+console.log(`Isometrische Szene: Bild assets/img/iso/reise.webp (${(statSync(join(base, 'assets/img/iso/reise.webp')).size / 1024).toFixed(0)} KB), Overlay ${(overlay.length / 1024).toFixed(1)} KB.`);

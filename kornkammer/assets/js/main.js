@@ -543,7 +543,7 @@
 
   d.addEventListener('DOMContentLoaded', () => {
     watchMedia(); header(); menu(); reveal(); parallax(); story(); hscroll(); heroVideo(); heroDrift(); forms(); misc();
-    marquee(); lightbox(); smoothWheel(); scrubbers(); counters(); layers(); tilt(); iso(); saison();
+    marquee(); lightbox(); /* smoothWheel() bewusst aus: natives Scrollen ist glatter als ein nachgezogenes Rad */ scrubbers(); counters(); layers(); tilt(); iso(); saison();
   });
 })();
 /* Rezensionen: Pfeile blättern die Strecke */
@@ -577,13 +577,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const bg = sec.querySelector('.scrub__bg');
     const chapters = Array.from(sec.querySelectorAll('.scrub__ch'));
     if (reduce || saveData) { v.muted = true; v.loop = true; v.playsInline = true; v.play().catch(() => {}); chapters.forEach((c) => c.classList.add('is-on')); return; }
-    v.muted = true; v.playsInline = true; v.preload = 'auto'; v.load(); if (bg) { bg.muted = true; bg.preload = 'auto'; bg.load(); }
+    v.muted = true; v.playsInline = true; v.preload = 'auto'; v.load(); if (bg && bg.tagName === 'VIDEO') { bg.muted = true; bg.preload = 'auto'; bg.load(); }
     let target = 0, current = 0, raf = null, ready = false;
-    v.addEventListener('loadedmetadata', () => { ready = true; v.pause(); if (bg) bg.pause(); });
+    v.addEventListener('loadedmetadata', () => { ready = true; v.pause(); if (bg && bg.tagName === 'VIDEO') bg.pause(); });
     const step = () => {
       raf = null;
       current += (target - current) * 0.18;
-      if (ready && v.duration && Math.abs(v.currentTime - current) > 0.02) { try { v.currentTime = current; if (bg) bg.currentTime = current; } catch (e) {} }
+      if (ready && v.duration && Math.abs(v.currentTime - current) > 0.02) { try { v.currentTime = current; if (bg && bg.tagName === 'VIDEO') bg.currentTime = current; } catch (e) {} }
       if (Math.abs(target - current) > 0.01) raf = requestAnimationFrame(step);
     };
     const onScroll = () => {

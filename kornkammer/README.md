@@ -309,9 +309,18 @@ Mehr Querformat vom Hof (Drohne über Feld und Hof, Abendlicht, 1080p oder
 - 3D-Neigung zur Maus (`tilt()`): Bento-Zellen, Rezensionen,
   Produktbilder, Stapelkarten, Ebenenbilder; nur mit Maus/Trackpad.
   Tafeln der horizontalen Strecke drehen leicht zur Bildmitte.
-- Sanftes Scrollen mit dem Mausrad (`smoothWheel` in main.js): nur bei
-  Maus/Trackpad, nie auf Touch, nie bei reduzierter Bewegung; der native
-  Scroll bleibt erhalten, deshalb funktionieren Anker, Tastatur und sticky.
+- `smoothWheel` (nachgezogenes Mausrad) ist vorhanden, aber abgeschaltet:
+  natives Scrollen ist glatter, sobald Videos im Bild sind.
+- Leistung beim Scrollen (Stand 19.10.2026, gemessen mit
+  `scratch/jank.mjs`-Methode, zwei Frames je Scrollschritt): keine Filter
+  auf laufenden Videos (Farbkorrektur steckt im Encode), die Breitfüllung
+  der Drohnensequenz ist ein vorab weichgezeichnetes Standbild statt eines
+  zweiten Videos, die Hintergründe der Details-Szene sind vorab
+  weichgezeichnet (`*-blur.jpg`), die isometrische Szene wird von
+  `tools/build-iso.mjs` zu `assets/img/iso/reise.webp` gerastert (nur Weg,
+  Ringe und Traktor bleiben Vektor), keine `backdrop-filter` auf Flächen
+  über bewegtem Inhalt, Wegweiser-Clip in 960×540. Ergebnis: Drohnensequenz
+  83 → 33 ms je Bild, Reise 42 → 33 ms, Hero 44 → 35 ms (Headless ohne GPU).
 - `prefers-reduced-motion`: alles sofort sichtbar, nichts fährt, Laufbänder
   stehen still und sind wischbar, Karten stapeln nicht, kein Video.
 - Ohne JavaScript bleibt nichts versteckt (`kein-js`).

@@ -303,7 +303,11 @@ ${footer(root)}`;
 function facts3(p, root) {
   const k = koch(p);
   // Atmosphäre: Detailfoto unscharf im Hintergrund (sobald es vorliegt), davor das freigestellte Produkt scharf
-  const amb = p.bilder[1] || p.bilder[0];
+  const amb0 = p.bilder[1] || p.bilder[0];
+  // Vorab weichgezeichnete Fassung (<name>-blur.jpg) bevorzugen: kein Echtzeit-Blur im Browser
+  const ambBlur = amb0.replace(/\.jpg$/, '-blur.jpg');
+  const pre = existsSync(join(base, 'assets/img', ambBlur));
+  const amb = pre ? ambBlur : amb0;
   const freiPfad = `assets/img/produkte/frei/${p.id}.webp`;
   const obj = existsSync(join(base, freiPfad)) ? freiPfad : 'assets/img/' + p.bilder[0];
   const facts = [
@@ -317,7 +321,7 @@ function facts3(p, root) {
   const n = facts.length;
   return `<section class="facts3" aria-label="Details zu ${esc(p.name)}">
     <div class="facts3__stage">
-      <figure class="media facts3__img" data-ph="${esc(p.ph[1] || p.ph[0])}"><img src="${root}assets/img/${amb}" alt="" loading="lazy" width="900" height="1125"></figure>
+      <figure class="media facts3__img${pre ? ' facts3__img--pre' : ''}" data-ph="${esc(p.ph[1] || p.ph[0])}"><img src="${root}assets/img/${amb}" alt="" loading="lazy" width="900" height="1125"></figure>
       <div class="facts3__obj" aria-hidden="true"><img src="${root}${obj}" alt="" loading="lazy" width="600" height="800" draggable="false"></div>
       <div class="facts3__head"><p class="eyebrow">Die Details</p></div>
       <div class="facts3__cards">
