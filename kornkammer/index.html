@@ -31,28 +31,22 @@
       <span class="brand__sub">Kornkammer Haus Holte · Witten</span>
     </a>
     <nav class="nav" aria-label="Hauptnavigation">
-      <a href="hof.html">Der Hof</a>
-      <a href="team.html">Das Team</a>
-      <a href="arbeit.html">Unsere Arbeit</a>
-      <a href="galerie.html">Galerie</a>
-      <a href="shop/">Sortiment</a>
-      <a href="kontakt.html">Hofverkauf &amp; Kontakt</a>
+      <a href="hof.html">Wer wir sind</a>
+      <a href="arbeit.html">Was wir machen</a>
+      <a href="shop/">Was wir verkaufen</a>
     </nav>
     <div class="hdr__tools">
       <button type="button" class="iconbtn cartbtn" aria-label="Warenkorb öffnen"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.4 11.2a1 1 0 0 0 1 .8h8.9a1 1 0 0 0 1-.8L20 8H6.5"/><circle cx="9.5" cy="20" r="1.2"/><circle cx="17" cy="20" r="1.2"/></svg><span class="cartbtn__n" aria-live="polite">0</span></button>
-      <button type="button" class="iconbtn burger" aria-expanded="false" aria-controls="menu" aria-label="Menü öffnen"><span class="l"></span></button>
+      <button type="button" class="iconbtn burger menubtn" aria-expanded="false" aria-controls="menu" aria-label="Menü öffnen"><span class="menubtn__t">Menü</span><span class="l"></span></button>
     </div>
   </div>
 </header>
 <div class="menu" id="menu">
-  <nav class="menu__list" aria-label="Mobile Navigation">
-    <a href="index.html">Start</a>
-    <a href="hof.html">Der Hof</a>
-    <a href="team.html">Das Team</a>
-    <a href="arbeit.html">Unsere Arbeit</a>
-    <a href="galerie.html">Galerie</a>
-    <a href="shop/">Sortiment</a>
-    <a href="kontakt.html">Hofverkauf &amp; Kontakt</a>
+  <nav class="menu__list" aria-label="Alle Seiten">
+    <div class="menu__grp"><p class="eyebrow">Wer wir sind</p><a href="hof.html">Der Hof</a><a href="team.html">Das Team</a><a href="galerie.html">Galerie</a></div>
+    <div class="menu__grp"><p class="eyebrow">Was wir machen</p><a href="arbeit.html">Unsere Arbeit</a><a href="arbeit.html#transparenz">Rückverfolgung</a><a href="hof.html#klima">Klimaprojekt</a></div>
+    <div class="menu__grp"><p class="eyebrow">Was wir verkaufen</p><a href="shop/">Sortiment</a><a href="shop/warenkorb.html">Ihr Korb</a><a href="kontakt.html">Hofverkauf &amp; Kontakt</a></div>
+    <div class="menu__grp menu__grp--klein"><a href="index.html">Start</a><a href="impressum.html">Impressum</a><a href="datenschutz.html">Datenschutz</a></div>
   </nav>
   <div class="menu__foot">
     <strong>Hofverkauf jeden Freitag, 8 bis 17 Uhr</strong>
@@ -67,27 +61,49 @@
   <section class="hero3 hero3--film" aria-label="Team Kornkammer">
     <div class="hero3__stage">
       <div class="hero3__media vhero" aria-hidden="true">
-        <video class="vhero__wide" data-autoplay muted playsinline loop preload="metadata" poster="assets/img/video/maehdrescher-quer.jpg">
-          <source src="assets/video/maehdrescher-quer.webm" type="video/webm"><source src="assets/video/maehdrescher-quer.mp4" type="video/mp4">
+        <!-- Kameraflug über Haus Holte aus dem Luftbild (assets/img/hof-luft.jpg); ein echter Drohnen-Rundflug ersetzt die Dateien unter gleichem Namen -->
+        <video class="vhero__wide" data-autoplay muted playsinline loop preload="metadata" poster="assets/img/video/hof-drohne-quer.jpg">
+          <source src="assets/video/hof-drohne-quer.webm" type="video/webm"><source src="assets/video/hof-drohne-quer.mp4" type="video/mp4">
         </video>
-        <video class="vhero__tall" data-autoplay muted playsinline loop preload="metadata" poster="assets/img/video/hof-hochkant.jpg">
-          <source src="assets/video/hof-hochkant.webm" type="video/webm"><source src="assets/video/hof-hochkant.mp4" type="video/mp4">
+        <video class="vhero__tall" data-autoplay muted playsinline loop preload="metadata" poster="assets/img/video/hof-drohne-hoch.jpg">
+          <source src="assets/video/hof-drohne-hoch.webm" type="video/webm"><source src="assets/video/hof-drohne-hoch.mp4" type="video/mp4">
         </video>
       </div>
-      <div class="vhero__badge"><i></i>Getreideernte · Film vom Hof</div>
+      <div class="vhero__badge"><i></i>Haus Holte aus der Luft · Witten</div>
       <div class="hero3__body">
         <span class="bio"><i>B</i>Bioland-Betrieb seit 1987 · Witten, Ruhrgebiet</span>
-        <h1>Bio vom eigenen Acker. <em>Seit 1987.</em></h1>
-        <p class="lead">Getreide, Kartoffeln, Speiseöle, Senf und Nudeln von eigenen Flächen in Witten, Dortmund und Essen. Angebaut nach Bioland-Richtlinien, verarbeitet auf dem Hof, verkauft freitags am Gederfeldweg.</p>
+        <h1>Bio vom eigenen Acker.</h1>
+        <p class="lead">Was wir verkaufen, haben wir selbst gesät, geerntet und verarbeitet. Mitten im Ruhrgebiet.</p>
         <div class="hero3__cta">
-          <a class="btn btn--solid" href="shop/">Zum Sortiment</a>
-          <a class="btn btn--outline" href="hof.html">Den Hof kennenlernen</a>
+          <a class="btn btn--solid" href="shop/">Was wir verkaufen</a>
+          <a class="btn btn--outline" href="hof.html">Wer wir sind</a>
         </div>
       </div>
+      <div class="hero3__contact">Lieber schnell Kontakt?<a href="mailto:Team-Kornkammer@gmx.de" aria-label="E-Mail an Team Kornkammer"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></a><a href="tel:+4923022827475" aria-label="Anrufen: 02302 282 7475"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg></a></div>
       <div class="hero3__after" aria-hidden="true">
         <div><h2>Ohne Chemie. Mit Fruchtfolge.</h2><p>Keine chemisch-synthetische Düngung, keine Pflanzenschutzmittel. Stattdessen Rotklee, mechanische Hacke und Zeit.</p></div>
       </div>
       <div class="hero3__foot"><span>Kornkammer Haus Holte · Gederfeldweg 37, 58453 Witten</span><span>Hofverkauf freitags 8 bis 17 Uhr</span></div>
+    </div>
+  </section>
+
+  <!-- ============ 1b · Wegweiser: Wer wir sind, was wir machen, was wir verkaufen ============ -->
+  <section class="wege sec--s" aria-label="Wegweiser">
+    <div class="wrap">
+      <div class="wege__grid">
+        <a class="wege__card rv" href="hof.html">
+          <figure class="media" data-ph="Haus Holte aus der Luft"><img src="assets/img/hof-luft.jpg" alt="Die Kornkammer Haus Holte aus der Luft: Halle, Silos, Wohnhäuser, Felder und Wald" loading="lazy" width="1600" height="900" style="object-position:55% 70%"></figure>
+          <div class="wege__body"><p class="eyebrow">01 · Wer wir sind</p><h2>Ein Bioland-Hof in Witten, seit 1987.</h2><p>Dirk Liedmann, Bernhard Pawliczek und das Team auf dem ehemaligen Rittergut Haus Holte. Fruchtfolge mit Rotklee, Klimaprojekt, Flächen in Witten, Dortmund und Essen.</p><span class="link">Der Hof und das Team <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+        </a>
+        <a class="wege__card rv rv--d1" href="arbeit.html">
+          <figure class="media media--clip" data-ph="Getreideernte"><video class="clip" data-autoplay muted playsinline loop preload="none" poster="assets/img/video/maehdrescher-quer.jpg"><source src="assets/video/maehdrescher-quer.webm" type="video/webm"><source src="assets/video/maehdrescher-quer.mp4" type="video/mp4"></video></figure>
+          <div class="wege__body"><p class="eyebrow">02 · Was wir machen</p><h2>Anbauen, ernten, verarbeiten.</h2><p>Sieben Kulturen auf eigenen Flächen. Mühle, Ölpresse und Senfmühle auf dem Hof: Mehl in Bäckerqualität, kalt gepresste Öle, Senf auf Granitsteinen, Nudeln.</p><span class="link">Unsere Arbeit <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+        </a>
+        <a class="wege__card rv rv--d2" href="shop/">
+          <figure class="media" data-ph="Hofverkauf"><img src="assets/img/hofladen-1.jpg" alt="Regale mit Mehl, Nudeln und Öl im Hofverkauf" loading="lazy" width="811" height="575"></figure>
+          <div class="wege__body"><p class="eyebrow">03 · Was wir verkaufen</p><h2>25 Produkte, ein Acker.</h2><p>Mehle, Körner und Flocken, Nudeln, Speiseöle, Senf und Kartoffeln nach Sorten. Freitags am Gederfeldweg, per Anfrage aus dem Korb oder im Onlineshop.</p><span class="link">Zum Sortiment <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+        </a>
+      </div>
     </div>
   </section>
 

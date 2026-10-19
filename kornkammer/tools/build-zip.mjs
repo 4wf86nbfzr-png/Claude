@@ -25,7 +25,7 @@ mkdirSync(tmp);
 // 1. Alles kopieren außer Werkzeuge, Doku, Testfassungen, Build-Reste
 const skip = new Set(['tools', 'docs', '.zip-build', 'test-vorschau.html', 'test-dual.html', 'MEDIEN.md', 'README.md', 'node_modules', '.DS_Store']);
 // Reserve-Clips (Querausschnitte aus Hochkant) sind nirgends eingebunden
-const skipFile = /^assets\/video\/(hof-quer|ernte-drohne-quer-scrub)\./;
+const skipFile = /^assets\/video\/(hof-quer|ernte-drohne-quer-scrub|hof-hochkant)\./;
 cpSync(base, tmp, { recursive: true, filter: (src) => { const rel = src.slice(base.length + 1); return !rel || (!skip.has(rel.split('/')[0]) && !skipFile.test(rel)); } });
 
 // 2. netlify.toml ohne base-Zeile

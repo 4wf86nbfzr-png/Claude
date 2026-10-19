@@ -67,7 +67,6 @@
     btn.addEventListener('click', () => set(btn.getAttribute('aria-expanded') !== 'true'));
     panel.addEventListener('click', (e) => { if (e.target.closest('a')) set(false); });
     d.addEventListener('keydown', (e) => { if (e.key === 'Escape' && panel.classList.contains('is-open')) set(false); });
-    window.matchMedia('(min-width:1000px)').addEventListener('change', (e) => { if (e.matches) set(false); });
   }
 
   /* ---------- Einblendungen beim Scrollen ---------- */
@@ -493,7 +492,7 @@
   /* ---------- 3D: Karten neigen sich zur Maus (nur Maus/Trackpad) ---------- */
   function tilt() {
     if (isReduced() || !window.matchMedia('(hover:hover) and (pointer:fine)').matches) return;
-    const els = $$('.bcell:not(.bcell--zoom), .review, .pcard .media, .stack__card .media, .layer .split__media, .person__media');
+    const els = $$('.bcell:not(.bcell--zoom), .review, .pcard .media, .stack__card .media, .layer .split__media, .person__media, .wege__card .media');
     els.forEach((el) => {
       el.classList.add('tilt');
       const max = parseFloat(el.dataset.tilt) || 7;

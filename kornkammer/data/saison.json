@@ -7,7 +7,7 @@
     { "id": "winter", "monate": [11, 12, 1, 2], "zeile": "Hofverkauf auch im Winter · freitags 8 bis 17 Uhr", "ton": "kuehl" }
   ],
   "hero": {
-    "standard": { "quer": "assets/video/maehdrescher-quer", "hoch": "assets/video/hof-hochkant", "poster_quer": "assets/img/video/maehdrescher-quer.jpg", "poster_hoch": "assets/img/video/hof-hochkant.jpg" },
+    "standard": { "quer": "assets/video/hof-drohne-quer", "hoch": "assets/video/hof-drohne-hoch", "poster_quer": "assets/img/video/hof-drohne-quer.jpg", "poster_hoch": "assets/img/video/hof-drohne-hoch.jpg", "_hinweis": "Kameraflug aus dem Luftbild (tools-Notizen im README). Ein echter Rundflug der Drohne ersetzt die Dateien unter gleichem Namen." },
     "fruehjahr": { "fehlt": "Querformat vom Kartoffellegen oder von den Feldern im Frühjahr" },
     "sommer": { "fehlt": "Querformat von der Kartoffelblüte" },
     "ernte": {},

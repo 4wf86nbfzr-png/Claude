@@ -12,7 +12,8 @@ Stand: 18. Oktober 2026. **Testbetrieb**, gegen Suchmaschinen gesperrt.
 
 | Bereich | Umsetzung |
 |---|---|
-| Startseite `index.html` | Bewusst kurz, keine One-Page: Hero als Slow-Motion-Imagefilm, ein Satz, der sich beim Scrollen füllt, Faktenleiste auf Beige, Drohnensequenz als interaktives Video, „Die Reise“ (isometrische Szene vom Acker ins Regal), Sortiment im Cremerahmen, „Die Brücke“ (digital anfragen, analog abholen), Google-Rezensionen. Alles Weitere liegt auf den Unterseiten. |
+| Startseite `index.html` | Bewusst kurz, keine One-Page: Hero mit Kameraflug über Haus Holte (Titel unten links, Kontakt-Pille unten rechts), Wegweiser „Wer wir sind · Was wir machen · Was wir verkaufen“, ein Satz, der sich beim Scrollen füllt, Faktenleiste auf Beige, Drohnensequenz als interaktives Video, „Die Reise“ (isometrische Szene vom Acker ins Regal), Sortiment im Cremerahmen, „Die Brücke“ (digital anfragen, analog abholen), Google-Rezensionen. Alles Weitere liegt auf den Unterseiten. |
+| Kopfzeile, alle Seiten | Drei Wege als Hauptnavigation (Wer wir sind → Der Hof, Was wir machen → Unsere Arbeit, Was wir verkaufen → Sortiment), Korb, Menü-Knopf auf allen Größen. Das Menü ist ein Vollbild mit drei Gruppen und allen Seiten; Markup steht in jeder Seite und in `tools/build-produkte.mjs` (`header()`), bitte synchron halten |
 | `hof.html` | Bioland seit 1987, Fruchtfolge als Stapelkarten, horizontale Strecke „Anbau 2025/2026“, belegte Chronik (1987, 2010, 2025, 2026), Klimaprojekt, Flächen |
 | `team.html` | Redaktionelles Layout, fünf Personen mit belegten Angaben, keine erfundenen Zitate |
 | `arbeit.html` | Scroll-Geschichte in fünf Kapiteln (haftendes Bild, Ernte-Clip), Ackerbau, Getreide, Ölmanufaktur, Senfmanufaktur, Kartoffeln, Verkauf, Rückverfolgung, mit Sprungleiste |
@@ -250,8 +251,16 @@ von oben (die drei hochkant, 464×832). Aufbereitet unter `assets/video/`
 
 | Einsatz | Dateien | Technik |
 |---|---|---|
-| Hero der Startseite, Desktop | `maehdrescher-quer.*` (1920×1080, 18 s) | Imagefilm: halbe Geschwindigkeit mit Bewegungsinterpolation, entrauscht, Lanczos aus 848×480, leichte Farbkorrektur und Vignette; zoomt leicht beim Scrollen |
-| Hero, Handy | `hof-hochkant.*` (720×1292, 27 s, Quelle 0–18 s) | 0,67-fache Geschwindigkeit, gleiche Aufbereitung |
+| Hero der Startseite, Desktop | `hof-drohne-quer.*` (1920×1080, 20 s) | Kameraflug aus dem Luftbild `assets/img/hof-luft.jpg`: weicher Zoom auf den Hof entlang eines Bogens, leichte Drehung, Farbkorrektur und Vignette (Skript-Notiz unten). **Kein echter Rundflug:** ein 360°-Orbit braucht eine Drohnenaufnahme; sie ersetzt die Dateien unter gleichem Namen |
+| Hero, Handy | `hof-drohne-hoch.*` (720×1280, 20 s) | 9:16-Ausschnitt um den Hof, Zoom von oben auf die Gebäude |
+| Wegweiser „Was wir machen“, Unsere Arbeit, Dual | `maehdrescher-quer.*` (1920×1080, 18 s) | Imagefilm in halber Geschwindigkeit mit Bewegungsinterpolation, entrauscht, Lanczos aus 848×480 |
+| Reserve | `hof-hochkant.*` (720×1292, 27 s) | Montage durchs Jahr, 0,67-fache Geschwindigkeit; derzeit nicht eingebunden |
+
+Kameraflug neu rechnen (ffmpeg): `zoompan` auf dem auf 3840 px
+hochgerechneten Luftbild, Zoom 1,0 → 1,55 mit Cosinus-Ease, Bildmitte
+wandert von der Bildmitte auf den Hof (56 %, 70 %) mit seitlichem Bogen,
+`rotate` ±1,1°, dann `eq`, `colorbalance`, `vignette`, `unsharp`. 600
+Bilder bei 30 fps.
 | Drohnensequenz „Die Ernte · von oben“ | `ernte-drohne-scrub.*` (464×832, Keyframe alle 12 Bilder) scharf in der Mitte, dieselbe Datei unscharf als Breitfüllung | folgt dem Scrollen, drei Kapitel; braucht Range-Anfragen (Netlify: ja) |
 | Scroll-Geschichte, Kapitel Ernte | `roder-oben.*` (464×832) | Schleife |
 

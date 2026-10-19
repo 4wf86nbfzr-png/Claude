@@ -71,28 +71,22 @@ function header(root, over = false) {
       <span class="brand__sub">Kornkammer Haus Holte · Witten</span>
     </a>
     <nav class="nav" aria-label="Hauptnavigation">
-      <a href="${root}hof.html">Der Hof</a>
-      <a href="${root}team.html">Das Team</a>
-      <a href="${root}arbeit.html">Unsere Arbeit</a>
-      <a href="${root}galerie.html">Galerie</a>
-      <a href="${root}shop/">Sortiment</a>
-      <a href="${root}kontakt.html">Hofverkauf &amp; Kontakt</a>
+      <a href="${root}hof.html">Wer wir sind</a>
+      <a href="${root}arbeit.html">Was wir machen</a>
+      <a href="${root}shop/">Was wir verkaufen</a>
     </nav>
     <div class="hdr__tools">
       <button type="button" class="iconbtn cartbtn" aria-label="Warenkorb öffnen">${ico.cart}<span class="cartbtn__n" aria-live="polite">0</span></button>
-      <button type="button" class="iconbtn burger" aria-expanded="false" aria-controls="menu" aria-label="Menü öffnen"><span class="l"></span></button>
+      <button type="button" class="iconbtn burger menubtn" aria-expanded="false" aria-controls="menu" aria-label="Menü öffnen"><span class="menubtn__t">Menü</span><span class="l"></span></button>
     </div>
   </div>
 </header>
 <div class="menu" id="menu">
-  <nav class="menu__list" aria-label="Mobile Navigation">
-    <a href="${root}index.html">Start</a>
-    <a href="${root}hof.html">Der Hof</a>
-    <a href="${root}team.html">Das Team</a>
-    <a href="${root}arbeit.html">Unsere Arbeit</a>
-    <a href="${root}galerie.html">Galerie</a>
-    <a href="${root}shop/">Sortiment</a>
-    <a href="${root}kontakt.html">Hofverkauf &amp; Kontakt</a>
+  <nav class="menu__list" aria-label="Alle Seiten">
+    <div class="menu__grp"><p class="eyebrow">Wer wir sind</p><a href="${root}hof.html">Der Hof</a><a href="${root}team.html">Das Team</a><a href="${root}galerie.html">Galerie</a></div>
+    <div class="menu__grp"><p class="eyebrow">Was wir machen</p><a href="${root}arbeit.html">Unsere Arbeit</a><a href="${root}arbeit.html#transparenz">Rückverfolgung</a><a href="${root}hof.html#klima">Klimaprojekt</a></div>
+    <div class="menu__grp"><p class="eyebrow">Was wir verkaufen</p><a href="${root}shop/">Sortiment</a><a href="${root}shop/warenkorb.html">Ihr Korb</a><a href="${root}kontakt.html">Hofverkauf &amp; Kontakt</a></div>
+    <div class="menu__grp menu__grp--klein"><a href="${root}index.html">Start</a><a href="${root}impressum.html">Impressum</a><a href="${root}datenschutz.html">Datenschutz</a></div>
   </nav>
   <div class="menu__foot">
     <strong>Hofverkauf jeden Freitag, 8 bis 17 Uhr</strong>

@@ -1830,3 +1830,58 @@ html[data-saison="ernte"] .vhero__wide, html[data-saison="ernte"] .vhero__tall{ 
 body.has-buybar .toast{ bottom:calc(76px + env(safe-area-inset-bottom)); }
 .finder{ margin-top:var(--gap-m); }
 @media (max-width:899px){ .facts3__obj{ top:26%; width:min(44vw, 210px); } }
+
+/* ============================================================
+   KOPFZEILE UND MENÜ: drei Wege (Wer wir sind · Was wir machen ·
+   Was wir verkaufen) plus Menü-Knopf auf allen Größen; das Menü ist
+   ein Vollbild mit drei Gruppen (Vorbild: klare B2B-Markenseiten).
+   ============================================================ */
+.burger{ display:inline-flex !important; }
+.menubtn{ width:auto; height:42px; padding:0 14px 0 16px; gap:12px; border-radius:var(--r-s); background:var(--leaf-deep); color:var(--cream); border:0; }
+.menubtn:hover{ background:var(--leaf); border-color:transparent; }
+.menubtn__t{ font-weight:600; font-size:.9rem; letter-spacing:.01em; }
+.menubtn .l{ width:18px; }
+.hdr.is-solid .menubtn{ background:var(--leaf-deep); color:var(--cream); }
+.nav{ gap:clamp(14px, 2vw, 28px); }
+.nav a{ font-size:.95rem; font-weight:600; }
+@media (max-width:999px){ .menubtn__t{ display:none; } .menubtn{ padding:0 12px; } }
+.menu{ background:var(--forest-3); overflow:auto; }
+.menu__list{ display:grid; gap:clamp(20px, 3vw, 44px); grid-template-columns:1fr; }
+.menu__grp{ display:grid; gap:0; align-content:start; }
+.menu__grp .eyebrow{ color:var(--sprout); margin-bottom:10px; }
+.menu__grp .eyebrow::before{ background:var(--sprout); }
+.menu__list a{ font-size:clamp(1.6rem, 4vw, 2.6rem); padding:10px 0; border-bottom:1px solid var(--line-dark); }
+.menu__grp--klein a{ font-family:var(--font-body); font-size:1rem; padding:8px 0; border-bottom:0; color:var(--on-dark-2); }
+.menu.is-open .menu__grp:nth-child(1) a{ transition-delay:.12s } .menu.is-open .menu__grp:nth-child(2) a{ transition-delay:.2s } .menu.is-open .menu__grp:nth-child(3) a{ transition-delay:.28s } .menu.is-open .menu__grp:nth-child(4) a{ transition-delay:.36s }
+@media (min-width:900px){ .menu__list{ grid-template-columns:repeat(3, 1fr); } .menu__grp--klein{ grid-column:1 / -1; display:flex; gap:24px; } }
+
+/* ============================================================
+   HERO WIE EINE MARKENSEITE: Film vom Hof aus der Luft, Titel unten
+   links, Claim darunter, Kontakt-Pille unten rechts
+   ============================================================ */
+.hero3--film .hero3__body{ max-width:min(92vw, 720px); align-content:end; }
+.hero3--film .hero3__body h1{ font-size:clamp(2.8rem, 7vw, 6.6rem); letter-spacing:-.04em; line-height:.96; max-width:12ch; }
+.hero3--film .hero3__body .lead{ font-size:clamp(1rem, 1.3vw, 1.2rem); max-width:38ch; margin-top:var(--gap-s); }
+.hero3__contact{ position:absolute; right:var(--gutter); bottom:clamp(44px, 9vh, 110px); z-index:3; display:none; align-items:center; gap:8px; padding:6px 6px 6px 16px; border-radius:var(--r-pill); background:rgba(244,239,228,.92); color:var(--cream-ink); font-size:.85rem; font-weight:600; backdrop-filter:blur(8px); opacity:calc(1 - var(--p,0) * 2.2); }
+.hero3__contact a{ width:38px; height:38px; border-radius:50%; background:var(--leaf-deep); color:var(--cream); display:inline-grid; place-items:center; transition:background var(--t-fast); }
+.hero3__contact a:hover{ background:var(--leaf); }
+.hero3__contact .ico{ width:18px; height:18px; }
+@media (min-width:900px){ .hero3__contact{ display:inline-flex; } }
+.hero3--film .vhero::after{ background:radial-gradient(120% 95% at 50% 42%, transparent 55%, rgba(5,12,8,.5) 100%), linear-gradient(180deg, rgba(5,12,8,.35), transparent 30%); }
+
+/* Wegweiser: drei Karten, die Struktur der Seite auf einen Blick */
+.wege{ background:var(--paper); }
+.wege__grid{ display:grid; gap:14px; grid-template-columns:1fr; }
+.wege__card{ display:grid; gap:0; border-radius:var(--r-m); overflow:hidden; background:var(--paper-2); color:var(--text); position:relative; isolation:isolate; }
+.wege__card .media{ --ar:4/3; border-radius:0; }
+.wege__card .media > img, .wege__card .media > video{ transition:transform 1.2s var(--ease-soft); }
+.wege__card:hover .media > img, .wege__card:hover .media > video{ transform:scale(1.05); }
+.wege__body{ padding:clamp(18px, 2.2vw, 28px); display:grid; gap:8px; align-content:start; }
+.wege__body h2{ font-size:clamp(1.4rem, 2vw, 1.9rem); }
+.wege__body p{ color:var(--text-2); font-size:.95rem; }
+.wege__body .link{ margin-top:6px; }
+.wege__card:nth-child(1){ background:var(--cream); color:var(--cream-ink); } .wege__card:nth-child(1) p{ color:var(--cream-ink-2); } .wege__card:nth-child(1) .eyebrow{ color:#5E6650; } .wege__card:nth-child(1) .eyebrow::before{ background:var(--leaf); } .wege__card:nth-child(1) .link{ color:var(--cream-ink); }
+.wege__card:nth-child(2){ background:var(--leaf-deep); color:var(--cream); } .wege__card:nth-child(2) p{ color:#D6E3D0; } .wege__card:nth-child(2) .eyebrow{ color:#BFD4B8; }
+.wege__card:nth-child(3){ background:var(--beige); color:var(--cream-ink); } .wege__card:nth-child(3) p{ color:#4E4B40; } .wege__card:nth-child(3) .eyebrow{ color:#5E5A4C; } .wege__card:nth-child(3) .eyebrow::before{ background:var(--leaf); } .wege__card:nth-child(3) .link{ color:var(--cream-ink); }
+.wege__card .media--clip{ background:#0B1A12; }
+@media (min-width:900px){ .wege__grid{ grid-template-columns:repeat(3, 1fr); gap:18px; } }
