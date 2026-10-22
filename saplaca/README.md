@@ -7,7 +7,7 @@ Statische Seite, kein Build-Schritt. Vorschau: im Ordner `saplaca/`
 ## Aufbau
 
 ```
-index.html                 Seite (Kopf, Hero, Einleitung, Film, Abschluss)
+index.html                 Seite: Hero mit Film (oberster Abschnitt), danach Einleitung, Horario, Fotos, Cartas, Reservas
 assets/img/                Hero-Bild (zurzeit PLATZHALTER aus dem Screenshot)
 assets/fonts/              Source Serif 4, Inter (lokal, keine Google-Anfrage)
 assets/film/wide|tall/     Film als Einzelbilder 0001–0280.webp mit Transparenz (1280×720 / 720×1280)
@@ -26,10 +26,11 @@ Nachbarbildern weich über — dadurch läuft der Film beim Scrollen flüssig
 vorwärts und rückwärts. Hochformat (Handy, Tablet hoch) und Querformat haben
 eigene Renderings mit eigener Bildaufteilung.
 
-Szenen (Anteil am Scrollweg):
+Szenen (Anteil am Filmverlauf):
 
 | Abschnitt | Inhalt |
 |---|---|
+| vorab (erste 9 % des Scrollwegs) | Hero-Bild mit „Lunch · Cena · Drinks“ zoomt leicht und blendet aus, dahinter beginnt der Film |
 | 0–0,15 | Weinrot: Nest auf der Gabel, dreht sich; „Pasta, hecha al momento.“ |
 | 0,12–0,3 | Cremefläche schiebt sich mit einer Welle hoch, Gabel zieht heraus, Nest wickelt sich zur Spirale auf |
 | 0,38–0,5 | Kamera fährt an der Spirale nach unten („Sin prisa.“) |

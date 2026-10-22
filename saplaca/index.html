@@ -76,8 +76,10 @@ a{color:inherit}
 .intro p{margin:0 auto;max-width:34em;font-size:clamp(18px,1.9vw,22px);line-height:1.55}
 
 /* ---------- Film ---------- */
-.film{position:relative;height:620vh}
-@media (orientation:portrait){.film{height:560vh}}
+.film{position:relative;height:680vh}
+@media (orientation:portrait){.film{height:620vh}}
+/* Hero der Seite liegt als oberste Ebene auf dem Film und blendet beim ersten Scrollen aus */
+.hero-layer{inset:0;z-index:8;background:var(--bg);overflow:hidden;transform-origin:50% 28%;will-change:opacity,transform}
 .film__view{position:sticky;top:0;height:100vh;overflow:hidden;background:var(--bg)}
 .film__view>*{position:absolute}
 #film{inset:0;width:100%;height:100%}
@@ -163,37 +165,7 @@ main>.film+.photo{padding-top:clamp(40px,6vw,80px)}
 </header>
 
 <main>
-  <section class="hero" aria-label="SA PLAÇA">
-    <picture>
-      <source srcset="assets/img/hero-platzhalter.webp" type="image/webp">
-      <img src="assets/img/hero-platzhalter.jpg" width="1290" height="712" alt="La terraza de SA PLAÇA en la plaza de S'Alqueria Blanca, con sombrillas y mesas bajo los árboles" fetchpriority="high">
-    </picture>
-  </section>
-
-  <section class="cta">
-    <p>Lunch · Cena · Drinks</p>
-    <div class="row">
-      <a class="b b--olive" href="#reservas">Reservar</a>
-      <a class="b b--line" href="#cartas">Cartas</a>
-    </div>
-  </section>
-
-  <section class="intro">
-    <p class="eyebrow reveal">S'Alqueria Blanca · Mallorca</p>
-    <h2 class="reveal">Un lugar para quedarse.</h2>
-    <p class="reveal">SA PLAÇA combina el ambiente relajado de Mallorca con una cocina mediterránea contemporánea. Desde las 13:00 servimos un pequeño almuerzo con platos que cambian regularmente; a partir de las 18:00 empieza nuestra cena.</p>
-  </section>
-
-  <section class="horario" aria-label="Horario">
-    <dl>
-      <div class="reveal"><dt>Horario</dt><dd>Mar–Dom · 13:00–00:00</dd></div>
-      <div class="reveal"><dt>Almuerzo</dt><dd>Desde las 13:00</dd></div>
-      <div class="reveal"><dt>Cena</dt><dd>Desde las 18:00</dd></div>
-      <div class="reveal"><dt>Lunes</dt><dd>Cerrado</dd></div>
-    </dl>
-  </section>
-
-  <section class="film" id="pasta" aria-label="Nuestra pasta">
+  <section class="film" id="pasta" aria-label="SA PLAÇA">
     <div class="film__view" id="view">
       <canvas id="film" aria-hidden="true"></canvas>
       <noscript><img src="assets/film/pasta-wide-poster.jpg" alt="Espaguetis con salsa de tomate, gambas, mejillones, tomate y albahaca"></noscript>
@@ -218,12 +190,44 @@ main>.film+.photo{padding-top:clamp(40px,6vw,80px)}
         <p><a class="b b--olive" href="https://wa.me/34601886342" target="_blank" rel="noopener">Reservar mesa</a></p>
       </div>
 
+      <div class="hero-layer" id="heroLayer">
+        <div class="hero">
+          <picture>
+            <source srcset="assets/img/hero-platzhalter.webp" type="image/webp">
+            <img src="assets/img/hero-platzhalter.jpg" width="1290" height="712" alt="La terraza de SA PLAÇA en la plaza de S'Alqueria Blanca, con sombrillas y mesas bajo los árboles" fetchpriority="high">
+          </picture>
+        </div>
+        <div class="cta">
+          <p>Lunch · Cena · Drinks</p>
+          <div class="row">
+            <a class="b b--olive" href="#reservas">Reservar</a>
+            <a class="b b--line" href="#cartas">Cartas</a>
+          </div>
+        </div>
+      </div>
+
       <svg class="leaders" id="leaders" aria-hidden="true"></svg>
       <div class="tags" id="tags" aria-hidden="true"></div>
       <div class="load" id="load" aria-hidden="true"><i></i></div>
       <p class="sr">Espaguetis con salsa de tomate, gambas, mejillones, tomate fresco y albahaca.</p>
     </div>
   </section>
+
+  <section class="intro">
+    <p class="eyebrow reveal">S'Alqueria Blanca · Mallorca</p>
+    <h2 class="reveal">Un lugar para quedarse.</h2>
+    <p class="reveal">SA PLAÇA combina el ambiente relajado de Mallorca con una cocina mediterránea contemporánea. Desde las 13:00 servimos un pequeño almuerzo con platos que cambian regularmente; a partir de las 18:00 empieza nuestra cena.</p>
+  </section>
+
+  <section class="horario" aria-label="Horario">
+    <dl>
+      <div class="reveal"><dt>Horario</dt><dd>Mar–Dom · 13:00–00:00</dd></div>
+      <div class="reveal"><dt>Almuerzo</dt><dd>Desde las 13:00</dd></div>
+      <div class="reveal"><dt>Cena</dt><dd>Desde las 18:00</dd></div>
+      <div class="reveal"><dt>Lunes</dt><dd>Cerrado</dd></div>
+    </dl>
+  </section>
+
 
   <figure class="photo reveal">
     <picture>
@@ -315,6 +319,8 @@ document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
 /* ------------------------------------------------------------------ */
 const FRAMES = 280;
 const PLATE_AT = .82; // ab hier: Teller-Finale (vorher Gabel, Spirale, Zutaten)
+const HERO_END = .09; // bis hier: Hero-Bild blendet aus, danach beginnt der Film
+const heroLayer = document.getElementById('heroLayer');
 const SRC = { wide: { w: 1280, h: 720 }, tall: { w: 720, h: 1280 } };
 const section = $('#pasta'), view = $('#view'), cv = $('#film'), ctx = cv.getContext('2d');
 const caps = [$('#cap1'), $('#cap2'), $('#cap3'), $('#cap4')];
@@ -462,7 +468,13 @@ function frame() {
   if (Math.abs(pT - pS) < .00015) pS = pT;
   if (!needs && pS === prev) return;
   needs = pS !== pT;
-  const P = pS, p = Math.min(1, P / PLATE_AT);
+  // Hero: zoomt leicht und blendet aus, dahinter beginnt der Film
+  const hk = io(seg(pS, .015, HERO_END));
+  heroLayer.style.opacity = 1 - hk;
+  heroLayer.style.transform = `scale(${(1 + hk * .08).toFixed(4)})`;
+  heroLayer.style.visibility = hk >= 1 ? 'hidden' : 'visible';
+  heroLayer.style.pointerEvents = hk > .3 ? 'none' : 'auto';
+  const P = seg(pS, HERO_END * .7, 1), p = Math.min(1, P / PLATE_AT);
   const f = P * (FRAMES - 1);
   drawFrame(f);
 
