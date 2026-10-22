@@ -1,0 +1,311 @@
+@@HEAD@@<title>Pasta-Film Test</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="robots" content="noindex, nofollow">
+<style>
+/* Layout: der Film füllt den Bildschirm (sticky), unten eine schmale Bedienleiste */
+@font-face{font-family:"Source Serif 4";font-weight:200 900;font-display:swap;src:url(@@FONTS@@source-serif-4-latin-wght-normal.woff2) format("woff2")}
+@font-face{font-family:"Inter";font-weight:100 900;font-display:swap;src:url(@@FONTS@@inter-latin-wght-normal.woff2) format("woff2")}
+:root{
+  --bg:#F3EFE6; --ink:#1D1D1A; --ink-soft:#4A4A43; --olive:#747450; --olive-d:#5F5F40;
+  --bar:#1D1D1A; --bar-fg:#F3EFE6; --bar-soft:#A9A99A; --bar-line:rgba(243,239,230,.18);
+  --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  --pad:max(16px,env(safe-area-inset-left,0px));
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+canvas,svg{display:block}
+:focus-visible{outline:2px solid var(--olive);outline-offset:3px}
+
+.intro{min-height:60vh;display:grid;place-content:center;gap:14px;text-align:center;
+  padding-block:48px 72px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.intro h1{margin:0;font:400 clamp(36px,7vw,64px)/1.05 var(--serif);text-wrap:balance}
+.intro p{margin:0 auto;max-width:34em;color:var(--ink-soft)}
+.intro .hint{font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--olive)}
+
+.film{position:relative;height:620vh}
+@media (orientation:portrait){.film{height:560vh}}
+.view{position:sticky;top:0;height:100vh;overflow:hidden;background:var(--bg)}
+.view>*{position:absolute}
+#film{inset:0;width:100%;height:100%}
+.eyebrow{margin:0 0 14px;font:500 clamp(12px,1.2vw,15px)/1.4 var(--sans);letter-spacing:.24em;text-transform:uppercase;color:var(--olive)}
+.cap{z-index:3;left:var(--pad);top:50%;transform:translateY(-50%);max-width:min(30vw,420px);opacity:0}
+.cap h3{margin:0;font:400 clamp(32px,4.4vw,64px)/1.05 var(--serif);text-wrap:balance}
+.cap p:not(.eyebrow){margin:16px 0 0;color:var(--ink-soft);max-width:26ch}
+.cap--light{color:#F3EFE6}.cap--light .eyebrow{color:rgba(243,239,230,.8)}.cap--light p:not(.eyebrow){color:rgba(243,239,230,.85)}
+.cap--top{top:auto;bottom:clamp(110px,14vh,140px);transform:none}
+.cap--end{left:0;right:0;top:clamp(48px,9vh,100px);transform:none;max-width:none;text-align:center;visibility:hidden}
+.cap--end h3{font-size:clamp(38px,5.6vw,80px)}
+.btn{display:inline-block;margin-top:20px;padding:16px 30px;background:var(--olive);color:#fff;text-decoration:none;font:400 14px/1 var(--sans);letter-spacing:.16em;text-transform:uppercase}
+.btn:hover{background:var(--olive-d)}
+.view.is-tall .cap,.view.is-tall .cap--top,.view.is-tall .cap--end{left:var(--pad);right:var(--pad);top:calc(env(safe-area-inset-top,0px) + 40px);bottom:auto;transform:none;max-width:none;text-align:center}
+.view.is-tall .cap h3{font-size:clamp(28px,8.4vw,52px)}
+.leaders{inset:0;width:100%;height:100%;z-index:4;pointer-events:none;overflow:visible}
+.leaders path{fill:none;stroke:var(--ink);stroke-width:1;stroke-opacity:.75;stroke-linecap:round}
+.leaders circle{fill:var(--ink)}
+.tags{inset:0;z-index:5;pointer-events:none}
+.tag{position:absolute;left:0;top:0;white-space:nowrap;padding-bottom:7px;font:italic 400 clamp(15px,1.45vw,22px)/1 var(--serif);color:var(--ink);opacity:0}
+
+.outro{min-height:50vh;display:grid;place-content:center;gap:16px;text-align:center;padding-block:64px 160px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.outro p{margin:0;color:var(--ink-soft)}
+
+/* Bedienleiste */
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--bar);color:var(--bar-fg);
+  display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px 16px;
+  padding-block:12px calc(12px + env(safe-area-inset-bottom,0px));
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.bar button{font:500 13px/1 var(--sans);color:var(--bar-fg);background:transparent;border:1px solid var(--bar-line);padding:10px 14px;cursor:pointer;min-height:40px}
+.bar button[aria-pressed="true"]{background:var(--bar-fg);color:var(--bar)}
+.bar button:hover{border-color:var(--bar-fg)}
+#play{min-width:96px}
+.track{display:grid;gap:6px;min-width:0}
+.track input{width:100%;accent-color:var(--olive);margin:0}
+.read{display:flex;justify-content:space-between;gap:12px;font:400 12px/1.2 var(--sans);color:var(--bar-soft);font-variant-numeric:tabular-nums;min-width:0}
+.read b{color:var(--bar-fg);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.modes{display:flex;gap:6px}
+@media (max-width:640px){
+  .bar{grid-template-columns:auto 1fr;grid-template-areas:"play modes" "track track"}
+  #play{grid-area:play}.modes{grid-area:modes;justify-content:flex-end}.track{grid-area:track}
+  .modes button{padding:10px 10px}
+}
+@media (prefers-reduced-motion:reduce){.btn{transition:none}}
+</style>
+@@MID@@
+<section class="intro">
+  <p class="hint">Testseite · SA PLAÇA</p>
+  <h1>Pasta-Film</h1>
+  <p>Nach unten scrollen spielt den Film ab, nach oben läuft er rückwärts. Unten kannst du ihn mit dem Regler spulen, automatisch abspielen und zwischen Quer- und Hochformat wechseln.</p>
+</section>
+
+<section class="film" id="pasta" aria-label="Pasta-Film">
+  <div class="view" id="view">
+    <canvas id="film" aria-hidden="true"></canvas>
+    <div class="cap cap--light" id="cap1">
+      <p class="eyebrow">Nuestra cocina</p>
+      <h3>Pasta, hecha al momento.</h3>
+      <p>Al dente, con salsa de tomate cocinada a fuego lento.</p>
+    </div>
+    <div class="cap" id="cap2"><p class="eyebrow">Vuelta a vuelta</p><h3>Sin prisa.</h3></div>
+    <div class="cap cap--top" id="cap3"><p class="eyebrow">Ingredientes</p><h3>Lo que lleva.</h3></div>
+    <div class="cap cap--end" id="cap4">
+      <p class="eyebrow">Reservas</p>
+      <h3>Os esperamos.</h3>
+      <a class="btn" href="https://wa.me/34601886342" target="_blank" rel="noopener">Reservar mesa</a>
+    </div>
+    <svg class="leaders" id="leaders" aria-hidden="true"></svg>
+    <div class="tags" id="tags" aria-hidden="true"></div>
+  </div>
+</section>
+
+<section class="outro">
+  <p>Ende des Films. Hier geht die Website mit den Fotos weiter.</p>
+  <p><button type="button" id="again" class="btn" style="border:0;cursor:pointer">Nochmal von vorn</button></p>
+</section>
+
+<div class="bar" role="group" aria-label="Filmsteuerung">
+  <button type="button" id="play" aria-pressed="false">▶ Abspielen</button>
+  <div class="track">
+    <input type="range" id="seek" min="0" max="1000" value="0" aria-label="Position im Film">
+    <div class="read"><b id="scene">Gabel · Weinrot</b><span id="count">Bild 1 / @@FRAMES@@ · 0 %</span></div>
+  </div>
+  <div class="modes" role="group" aria-label="Format">
+    <button type="button" data-mode="auto" aria-pressed="true">Auto</button>
+    <button type="button" data-mode="wide" aria-pressed="false">Quer</button>
+    <button type="button" data-mode="tall" aria-pressed="false">Hoch</button>
+  </div>
+</div>
+
+<script>
+(() => {
+'use strict';
+const ANCHORS = @@ANCHORS@@;
+const FRAMES = @@FRAMES@@;
+const PLATE_AT = .82;
+const SRC = { wide: { w: 1280, h: 720 }, tall: { w: 720, h: 1280 } };
+const $ = s => document.querySelector(s);
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const seg = (p, a, b) => clamp((p - a) / (b - a));
+const io = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const eo = t => 1 - Math.pow(1 - t, 3);
+const pad4 = n => String(n).padStart(4, '0');
+const rm = matchMedia('(prefers-reduced-motion: reduce)');
+
+const section = $('#pasta'), view = $('#view'), cv = $('#film'), ctx = cv.getContext('2d');
+const caps = [$('#cap1'), $('#cap2'), $('#cap3'), $('#cap4')];
+const leaders = $('#leaders'), tags = $('#tags');
+const seek = $('#seek'), playBtn = $('#play'), sceneEl = $('#scene'), countEl = $('#count');
+
+let force = 'auto', mode = null, imgs = [], anchors = null;
+let W = 0, H = 0, DPR = 1, fit = { s: 1, x: 0, y: 0 };
+let pT = 0, pS = 0, needs = true, playing = false;
+
+const LABELS = [
+  { key: 'tomato',  text: 'Tomate',          st: .69,  r: .05, w: { x: -.07, y: -.13, a: 'l' }, t: { x: .1,  y: -.1,  a: 'r' } },
+  { key: 'mussel1', text: 'Mejillón',        st: .725, r: .05, w: { x: -.08, y: -.06, a: 'l' }, t: { x: .1,  y: -.06, a: 'r' } },
+  { key: 'tomhalf', text: 'Tomate maduro',   st: .76,  r: .05, w: { x: .07,  y: -.08, a: 'r' }, t: { x: -.08, y: -.07, a: 'l' } },
+  { key: 'prawn1',  text: 'Gamba',           st: .795, r: .05, w: { x: .07,  y: -.12, a: 'r' }, t: { x: -.06, y: -.1, a: 'l' } },
+  { key: 'basil',   text: 'Albahaca',        st: .83,  r: .02, w: { x: .09,  y: -.03, a: 'r' }, t: { x: .1,  y: -.05, a: 'r' } },
+  { key: 'sauce',   text: 'Salsa de tomate', st: .855, r: 0,   w: { x: .1,   y: .08,  a: 'r' }, t: { x: .08, y: .07,  a: 'r' } },
+  { key: 'pasta',   text: 'Espaguetis',      st: .88,  r: 0,   w: { x: -.1,  y: .06,  a: 'l' }, t: { x: -.08, y: .07, a: 'l' } },
+];
+const NS = 'http://www.w3.org/2000/svg';
+LABELS.forEach(L => {
+  L.el = document.createElement('div'); L.el.className = 'tag'; L.el.textContent = L.text; tags.appendChild(L.el);
+  L.path = document.createElementNS(NS, 'path'); L.dot = document.createElementNS(NS, 'circle'); leaders.append(L.path, L.dot);
+});
+
+function load(m) {
+  mode = m; imgs = new Array(FRAMES); anchors = ANCHORS[m];
+  view.classList.toggle('is-tall', m === 'tall');
+  const order = [], seen = new Set();
+  for (const step of [16, 8, 4, 2, 1]) for (let i = 0; i < FRAMES; i += step) if (!seen.has(i)) { seen.add(i); order.push(i); }
+  if (!seen.has(FRAMES - 1)) order.splice(1, 0, FRAMES - 1);
+  let next = 0, active = 0;
+  const pump = () => {
+    while (active < 6 && next < order.length) {
+      const i = order[next++], im = new Image(); active++;
+      im.decoding = 'async';
+      im.onload = () => { if (mode !== m) return; imgs[i] = im; active--; needs = true; pump(); };
+      im.onerror = () => { active--; pump(); };
+      im.src = `@@FRAMEPATH@@`;
+    }
+  };
+  pump();
+}
+function nearest(i) {
+  if (imgs[i]) return i;
+  for (let d = 1; d < FRAMES; d++) { if (imgs[i - d]) return i - d; if (imgs[i + d]) return i + d; }
+  return -1;
+}
+
+function resize() {
+  W = view.clientWidth; H = view.clientHeight;
+  DPR = Math.min(devicePixelRatio || 1, 2);
+  cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
+  const m = force === 'auto' ? (H > W ? 'tall' : 'wide') : force;
+  if (m !== mode) load(m);
+  const S = SRC[mode], s = Math.min(W / S.w, H / S.h);
+  fit = { s, x: (W - S.w * s) / 2, y: (H - S.h * s) / 2 };
+  LABELS.forEach(L => { L.tw = L.el.offsetWidth; L.th = L.el.offsetHeight; });
+  measure(); onScroll(); needs = true;
+}
+let secTop = 0, secLen = 1;
+function measure() { secTop = section.getBoundingClientRect().top + scrollY; secLen = Math.max(1, section.offsetHeight - innerHeight); }
+function onScroll() { pT = clamp((scrollY - secTop) / secLen); needs = true; }
+
+function drawBg(q) {
+  const k = io(seg(q, .14, .36));
+  if (k < 1) {
+    const g = ctx.createRadialGradient(W * .66, H * .4, 0, W * .66, H * .4, Math.max(W, H) * .9);
+    g.addColorStop(0, '#6b2219'); g.addColorStop(.45, '#521812'); g.addColorStop(1, '#320c08');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  }
+  const y = H * 1.06 - H * 1.22 * k, a = H * .09 * Math.sin(Math.PI * k);
+  ctx.fillStyle = '#F3EFE6';
+  ctx.beginPath(); ctx.moveTo(0, y + a);
+  ctx.bezierCurveTo(W * .3, y - a * 1.2, W * .66, y + a * .7, W, y - a);
+  ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath(); ctx.fill();
+}
+function drawFrame(f) {
+  const S = SRC[mode], i = Math.floor(f), t = f - i, a = nearest(i);
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  drawBg(Math.min(1, f / (FRAMES - 1) / PLATE_AT));
+  if (a < 0) return;
+  ctx.drawImage(imgs[a], fit.x, fit.y, S.w * fit.s, S.h * fit.s);
+  if (t > .02 && a === i && imgs[i + 1]) {
+    ctx.globalAlpha = t; ctx.drawImage(imgs[i + 1], fit.x, fit.y, S.w * fit.s, S.h * fit.s); ctx.globalAlpha = 1;
+  }
+}
+function anchorAt(f, key) {
+  const i = Math.floor(f), t = f - i, a = anchors[Math.min(i, FRAMES - 1)][key], b = anchors[Math.min(i + 1, FRAMES - 1)][key];
+  if (!a) return null;
+  const S = SRC[mode];
+  return [fit.x + (a[0] + (b[0] - a[0]) * t) * S.w * fit.s, fit.y + (a[1] + (b[1] - a[1]) * t) * S.h * fit.s];
+}
+function placeLabel(L, A, k, op) {
+  if (!A || k <= 0 || op <= 0) { L.el.style.opacity = 0; L.path.setAttribute('d', ''); L.dot.setAttribute('r', 0); return; }
+  const spec = mode === 'tall' ? L.t : L.w, left = spec.a === 'l';
+  let ax = A[0] + spec.x * W, ay = A[1] + spec.y * H;
+  if (left && ax - L.tw < 14) ax = 14 + L.tw;
+  if (!left && ax + L.tw > W - 14) ax = W - 14 - L.tw;
+  ay = clamp(ay, L.th + 12, H - 20);
+  const far = left ? ax - L.tw : ax + L.tw;
+  const dx = ax - A[0], dy = ay - A[1], dl = Math.hypot(dx, dy) || 1, rad = L.r * H * .45;
+  const px = A[0] + dx / dl * rad, py = A[1] + dy / dl * rad;
+  const total = L.tw + Math.hypot(px - ax, py - ay);
+  L.path.setAttribute('d', `M${far.toFixed(1)} ${ay.toFixed(1)}L${ax.toFixed(1)} ${ay.toFixed(1)}L${px.toFixed(1)} ${py.toFixed(1)}`);
+  L.path.style.strokeDasharray = total;
+  L.path.style.strokeDashoffset = total * (1 - eo(clamp(k / .8)));
+  L.path.style.opacity = op;
+  L.dot.setAttribute('cx', px.toFixed(1)); L.dot.setAttribute('cy', py.toFixed(1));
+  L.dot.setAttribute('r', k > .78 ? (3 * eo(seg(k, .78, 1))).toFixed(2) : 0);
+  L.dot.style.opacity = op;
+  const ta = eo(seg(k, .25, 1));
+  L.el.style.opacity = ta * op;
+  L.el.style.transform = `translate3d(${(left ? far : ax).toFixed(1)}px,${(ay - L.th + (1 - ta) * 8).toFixed(1)}px,0)`;
+}
+const SCENES = [[.15, 'Gabel · Weinrot'], [.38, 'Aufdrehen · Welle'], [.5, 'Spirale abwärts'], [.8, 'Zutaten'], [1.01, 'Teller · Reservierung']];
+
+function frame() {
+  requestAnimationFrame(frame);
+  if (playing) {
+    const y = Math.min(secTop + secLen, scrollY + secLen / (14 * 60));
+    scrollTo(0, y);
+    if (y >= secTop + secLen - 1) setPlay(false);
+  }
+  const prev = pS;
+  pS = rm.matches ? pT : pS + (pT - pS) * .14;
+  if (Math.abs(pT - pS) < .00015) pS = pT;
+  if (!needs && pS === prev) return;
+  needs = pS !== pT;
+  const P = pS, p = Math.min(1, P / PLATE_AT), f = P * (FRAMES - 1), tallM = mode === 'tall';
+  drawFrame(f);
+  caps[0].style.opacity = 1 - io(seg(p, .1, .17));
+  const c2 = io(seg(p, .33, .39)) * (1 - io(seg(p, .52, .58)));
+  caps[1].style.opacity = c2;
+  const c3 = io(seg(p, .62, .68)) * (1 - io(seg(P, .77, .81)));
+  caps[2].style.opacity = tallM ? c3 * (1 - io(seg(p, .7, .74))) : c3;
+  const c4 = io(seg(P, .9, .96));
+  caps[3].style.opacity = c4; caps[3].style.visibility = c4 > 0 ? 'visible' : 'hidden';
+  LABELS.forEach(L => {
+    let k, op;
+    if (tallM) { k = seg(p, L.st, L.st + .03); op = 1 - seg(p, L.st + .075, L.st + .095); if (L === LABELS[LABELS.length - 1]) op = 1; }
+    else { k = seg(p, L.st, L.st + .045); op = 1; }
+    op *= 1 - seg(P, .77, .81);
+    placeLabel(L, anchorAt(f, L.key), k, op);
+  });
+  // Anzeige
+  if (document.activeElement !== seek) seek.value = Math.round(pT * 1000);
+  sceneEl.textContent = SCENES.find(s => P < s[0])[1];
+  countEl.textContent = `Bild ${Math.round(f) + 1} / ${FRAMES} · ${Math.round(P * 100)} %`;
+}
+
+function setPlay(on) {
+  playing = on;
+  playBtn.setAttribute('aria-pressed', on);
+  playBtn.textContent = on ? '❚❚ Pause' : '▶ Abspielen';
+}
+playBtn.addEventListener('click', () => {
+  if (!playing && pT >= .999) scrollTo(0, secTop);
+  else if (!playing && scrollY < secTop) scrollTo(0, secTop);
+  setPlay(!playing);
+});
+seek.addEventListener('input', () => { setPlay(false); scrollTo(0, secTop + secLen * seek.value / 1000); });
+document.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => {
+  force = b.dataset.mode;
+  document.querySelectorAll('[data-mode]').forEach(x => x.setAttribute('aria-pressed', x === b));
+  mode = null; resize();
+}));
+$('#again').addEventListener('click', () => { scrollTo(0, secTop); setPlay(true); });
+addEventListener('wheel', () => playing && setPlay(false), { passive: true });
+addEventListener('touchstart', e => { if (playing && !e.target.closest('.bar')) setPlay(false); }, { passive: true });
+addEventListener('scroll', onScroll, { passive: true });
+let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(resize, 100); });
+if (document.fonts?.ready) document.fonts.ready.then(resize);
+resize();
+requestAnimationFrame(frame);
+})();
+</script>
+@@TAIL@@
