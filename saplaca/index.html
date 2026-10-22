@@ -70,7 +70,7 @@ a{color:inherit}
 .b--line{border:2px solid var(--ink);color:var(--ink)}
 .b--line:hover{background:var(--ink);color:var(--bg)}
 
-.intro{text-align:center;padding:clamp(96px,14vw,170px) var(--pad) clamp(80px,10vw,140px);max-width:900px;margin:0 auto}
+.intro{text-align:center;padding:clamp(96px,14vw,170px) var(--pad) clamp(56px,7vw,90px);max-width:900px;margin:0 auto}
 .eyebrow{margin:0 0 16px;font:500 clamp(13px,1.3vw,16px)/1.4 var(--sans);letter-spacing:.24em;text-transform:uppercase;color:var(--olive)}
 .intro h2{margin:0 0 30px;font:400 clamp(46px,8vw,92px)/1.05 var(--serif);letter-spacing:-.005em}
 .intro p{margin:0 auto;max-width:34em;font-size:clamp(18px,1.9vw,22px);line-height:1.55}
@@ -103,7 +103,14 @@ a{color:inherit}
 /* ---------- Folgeabschnitte (nach saplaca.es) ---------- */
 .photo{margin:0 auto;padding:0 var(--pad);max-width:1100px}
 .photo img{width:100%;height:auto;border:1px solid rgba(116,115,79,.45)}
-main>.photo{padding-top:clamp(40px,6vw,80px)}
+main>.photo{padding-top:clamp(28px,3vw,40px)}
+main>.film+.photo{padding-top:clamp(40px,6vw,80px)}
+.horario{max-width:1100px;margin:0 auto;padding:0 var(--pad) clamp(90px,11vw,140px)}
+.horario dl{margin:0;text-align:center}
+.horario div{padding:clamp(28px,3vw,36px) 0;border-bottom:1px solid #D9D3C6}
+.horario div:last-child{border-bottom:0}
+.horario dt{font:600 clamp(18px,1.9vw,22px)/1.3 var(--sans);letter-spacing:.04em;text-transform:uppercase;margin:0 0 10px}
+.horario dd{margin:0;font-size:clamp(18px,1.9vw,21px)}
 .cartas{background:var(--olive);color:#fff;text-align:center;padding:clamp(80px,11vw,140px) var(--pad);margin-top:-1px}
 .cartas .eyebrow{color:rgba(255,255,255,.9)}
 .cartas h2,.reservas h2,.private h2{font:400 clamp(44px,7vw,84px)/1.05 var(--serif);margin:0 0 24px;letter-spacing:.005em}
@@ -168,8 +175,16 @@ main>.photo{padding-top:clamp(40px,6vw,80px)}
   <section class="intro">
     <p class="eyebrow reveal">S'Alqueria Blanca · Mallorca</p>
     <h2 class="reveal">Un lugar para quedarse.</h2>
-    <!-- Satzende im Screenshot verdeckt: bitte mit dem Originaltext ergänzen -->
-    <p class="reveal">SA PLAÇA combina el ambiente relajado de Mallorca con una cocina mediterránea contemporánea. Desde las 13:00 servimos un pequeño almuerzo con platos que cambian regularmente; a partir de las 18:00 empieza nuestra […]</p>
+    <p class="reveal">SA PLAÇA combina el ambiente relajado de Mallorca con una cocina mediterránea contemporánea. Desde las 13:00 servimos un pequeño almuerzo con platos que cambian regularmente; a partir de las 18:00 empieza nuestra cena.</p>
+  </section>
+
+  <section class="horario" aria-label="Horario">
+    <dl>
+      <div class="reveal"><dt>Horario</dt><dd>Mar–Dom · 13:00–00:00</dd></div>
+      <div class="reveal"><dt>Almuerzo</dt><dd>Desde las 13:00</dd></div>
+      <div class="reveal"><dt>Cena</dt><dd>Desde las 18:00</dd></div>
+      <div class="reveal"><dt>Lunes</dt><dd>Cerrado</dd></div>
+    </dl>
   </section>
 
   <section class="film" id="pasta" aria-label="Nuestra pasta">
@@ -198,6 +213,18 @@ main>.photo{padding-top:clamp(40px,6vw,80px)}
     </div>
   </section>
 
+  <figure class="photo reveal">
+    <picture>
+      <source srcset="assets/img/terraza.webp" type="image/webp">
+      <img src="assets/img/terraza.jpg" width="1187" height="1184" loading="lazy" alt="La terraza de SA PLAÇA vista desde arriba, de noche, con sombrillas y mesas ocupadas">
+    </picture>
+  </figure>
+  <figure class="photo reveal">
+    <picture>
+      <source srcset="assets/img/patatas.webp" type="image/webp">
+      <img src="assets/img/patatas.jpg" width="1187" height="1186" loading="lazy" alt="Patatas con salsa, alioli, pimentón y brotes en una fuente negra">
+    </picture>
+  </figure>
   <figure class="photo reveal">
     <picture>
       <source srcset="assets/img/pasta-teller.webp" type="image/webp">
