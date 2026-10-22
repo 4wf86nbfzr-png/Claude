@@ -85,8 +85,14 @@ a{color:inherit}
 .cap h3{margin:0;font:400 clamp(34px,4.4vw,64px)/1.05 var(--serif)}
 .cap p:not(.eyebrow){margin:18px 0 0;color:var(--ink-soft);max-width:26ch}
 .cap--top{top:clamp(80px,13vh,120px);transform:none}
+.cap--light{color:#F3EFE6}
+.cap--light .eyebrow{color:rgba(243,239,230,.8)}
+.cap--light p:not(.eyebrow){color:rgba(243,239,230,.85)}
+.cap--end{left:0;right:0;top:clamp(96px,14vh,140px);transform:none;max-width:none;text-align:center;visibility:hidden}
+.cap--end h3{font-size:clamp(40px,5.6vw,80px)}
+.cap--end p:not(.eyebrow){max-width:none;margin-top:22px}
 @media (orientation:portrait){
-  .cap,.cap--top{left:var(--pad);right:var(--pad);top:calc(env(safe-area-inset-top) + 32px);transform:none;max-width:none;text-align:center}
+  .cap,.cap--top,.cap--end{left:var(--pad);right:var(--pad);top:calc(env(safe-area-inset-top) + 96px);transform:none;max-width:none;text-align:center}
   .cap h3{font-size:clamp(30px,8.4vw,52px)}
   .cap p:not(.eyebrow){margin:10px auto 0;font-size:15px}
 }
@@ -190,7 +196,7 @@ main>.film+.photo{padding-top:clamp(40px,6vw,80px)}
   <section class="film" id="pasta" aria-label="Nuestra pasta">
     <div class="film__view" id="view">
       <canvas id="film" aria-hidden="true"></canvas>
-      <noscript><img src="assets/film/wide/0240.webp" alt="Espaguetis con salsa de tomate, gambas, mejillones, tomate y albahaca"></noscript>
+      <noscript><img src="assets/film/pasta-wide-poster.jpg" alt="Espaguetis con salsa de tomate, gambas, mejillones, tomate y albahaca"></noscript>
 
       <div class="cap" id="cap1" aria-hidden="true">
         <p class="eyebrow">Nuestra cocina</p>
@@ -204,6 +210,12 @@ main>.film+.photo{padding-top:clamp(40px,6vw,80px)}
       <div class="cap cap--top" id="cap3" aria-hidden="true">
         <p class="eyebrow">Ingredientes</p>
         <h3>Lo que lleva.</h3>
+      </div>
+
+      <div class="cap cap--end" id="cap4">
+        <p class="eyebrow">Reservas</p>
+        <h3>Os esperamos.</h3>
+        <p><a class="b b--olive" href="https://wa.me/34601886342" target="_blank" rel="noopener">Reservar mesa</a></p>
       </div>
 
       <svg class="leaders" id="leaders" aria-hidden="true"></svg>
@@ -301,10 +313,11 @@ document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
 /* ------------------------------------------------------------------ */
 /* Film: Einzelbilder, scrollgesteuert                                 */
 /* ------------------------------------------------------------------ */
-const FRAMES = 240;
+const FRAMES = 280;
+const PLATE_AT = .82; // ab hier: Teller-Finale (vorher Gabel, Spirale, Zutaten)
 const SRC = { wide: { w: 1280, h: 720 }, tall: { w: 720, h: 1280 } };
 const section = $('#pasta'), view = $('#view'), cv = $('#film'), ctx = cv.getContext('2d');
-const caps = [$('#cap1'), $('#cap2'), $('#cap3')];
+const caps = [$('#cap1'), $('#cap2'), $('#cap3'), $('#cap4')];
 const leaders = $('#leaders'), tags = $('#tags'), load = $('#load');
 
 let mode = null, imgs = [], loaded = 0, anchors = null;
@@ -371,7 +384,7 @@ let secTop = 0, secLen = 1;
 function measure() { secTop = section.getBoundingClientRect().top + scrollY; secLen = Math.max(1, section.offsetHeight - innerHeight); }
 function onScroll() {
   let p = clamp((scrollY - secTop) / secLen);
-  if (rm.matches) p = p < .45 ? 0 : 1;
+  if (rm.matches) p = p < .45 ? 0 : 1; // ruhige Fassung: Anfang und fertiger Teller
   pT = p; needs = true;
 }
 
@@ -408,13 +421,28 @@ function placeLabel(L, A, k, op) {
   L.el.style.transform = `translate3d(${(left ? far : ax).toFixed(1)}px,${(ay - L.th + (1 - ta) * 8).toFixed(1)}px,0)`;
 }
 
+// Weinrot im ersten Bild, dann schiebt sich die Cremefläche mit einer Welle nach oben
+function drawBg(q) {
+  const k = io(seg(q, .14, .36));
+  if (k < 1) {
+    const g = ctx.createRadialGradient(W * .66, H * .4, 0, W * .66, H * .4, Math.max(W, H) * .9);
+    g.addColorStop(0, '#6b2219'); g.addColorStop(.45, '#521812'); g.addColorStop(1, '#320c08');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  }
+  const y = H * 1.06 - H * 1.22 * k, a = H * .09 * Math.sin(Math.PI * k);
+  ctx.fillStyle = '#F3EFE6';
+  ctx.beginPath(); ctx.moveTo(0, y + a);
+  ctx.bezierCurveTo(W * .3, y - a * 1.2, W * .66, y + a * .7, W, y - a);
+  ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath(); ctx.fill();
+  return y - Math.abs(a);
+}
 function drawFrame(f) {
   const S = SRC[mode];
   const i = Math.floor(f), t = f - i;
   const a = nearest(i);
   if (a < 0) return;
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-  ctx.fillStyle = '#F3EFE6'; ctx.fillRect(0, 0, W, H);
+  drawBg(Math.min(1, f / (FRAMES - 1) / PLATE_AT));
   ctx.globalAlpha = 1;
   ctx.drawImage(imgs[a], fit.x, fit.y, S.w * fit.s, S.h * fit.s);
   // Zwischenbild: weich zum nächsten Frame überblenden
@@ -433,8 +461,8 @@ function frame() {
   if (Math.abs(pT - pS) < .00015) pS = pT;
   if (!needs && pS === prev) return;
   needs = pS !== pT;
-  const p = pS;
-  const f = p * (FRAMES - 1);
+  const P = pS, p = Math.min(1, P / PLATE_AT);
+  const f = P * (FRAMES - 1);
   drawFrame(f);
 
   // Szenentexte
@@ -443,15 +471,21 @@ function frame() {
   caps[0].style.opacity = c1; caps[0].style.translate = `0 ${(-seg(p, .08, .2) * 40).toFixed(1)}px`;
   const c2 = io(seg(p, .33, .39)) * (1 - io(seg(p, .52, .58)));
   caps[1].style.opacity = c2; caps[1].style.translate = `0 ${((1 - io(seg(p, .33, .39))) * 30 - io(seg(p, .52, .58)) * 30).toFixed(1)}px`;
-  const c3 = io(seg(p, .62, .68)) * (1 - io(seg(p, .95, .99)));
+  const c3 = io(seg(p, .62, .68)) * (1 - io(seg(P, .77, .81)));
   caps[2].style.opacity = tallM ? c3 * (1 - io(seg(p, .7, .74))) : c3;
+  const c4 = io(seg(P, .9, .96));
+  caps[3].style.opacity = c4; caps[3].style.translate = `0 ${((1 - c4) * 24).toFixed(1)}px`;
+  caps[3].style.visibility = c4 > 0 ? 'visible' : 'hidden';
+  // erste Szene liegt auf Weinrot: helle Schrift
+  caps[0].classList.toggle('cap--light', true);
 
   // Beschriftungen
   LABELS.forEach(L => {
     let k, op;
-    if (rm.matches) { k = p >= 1 ? 1 : 0; op = 1; }
+    if (rm.matches) { k = 0; op = 0; }
     else if (tallM) { k = seg(p, L.st, L.st + .03); op = 1 - seg(p, L.st + .075, L.st + .095); if (L === LABELS[LABELS.length - 1]) op = 1 - seg(p, .955, .985); }
-    else { k = seg(p, L.st, L.st + .045); op = 1 - seg(p, .95, .985); }
+    else { k = seg(p, L.st, L.st + .045); op = 1; }
+    op *= 1 - seg(P, .77, .81);
     placeLabel(L, anchorAt(f, L.key), k, op);
   });
 }

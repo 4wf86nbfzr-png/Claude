@@ -109,7 +109,8 @@ function sauceAt(s, u) {
 }
 
 // Zustand der Pasta (Nest-Lage, Spiral-Lage, Morph)
-const PS = { m: 0, tw: 0, spin: 0, nestPos: V(), nestQ: new THREE.Quaternion(), spirPos: V(), drop: 0 };
+const PS = { m: 0, tw: 0, spin: 0, nestPos: V(), nestQ: new THREE.Quaternion(), spirPos: V(), drop: 0, k: 0, platePos: V(0, -.45, 0) };
+const _mo = V();
 const _v = V(), _w = V(), _ax = V();
 function strandPoint(s, u, out) {
   const m = PS.m;
@@ -135,13 +136,29 @@ function strandPoint(s, u, out) {
   const rs = .29 + .15 * Math.sin(Math.PI * u) + s.sdr + .02 * Math.sin(u * 13 + s.seed);
   _w.set(Math.cos(ts) * rs, ys, Math.sin(ts) * rs).add(PS.spirPos);
   out.lerpVectors(_v, _w, m);
+  // Finale: die Spirale legt sich als gedrehtes Nest auf den Teller
+  if (PS.k > 0) {
+    const uu2 = s.hang ? Math.min(u, .6) : u;
+    const th2 = s.phase + uu2 * TAU * 3.2 + PS.spin * .3;
+    const y2 = .28 - uu2 * .5 + s.dy * .7;
+    const r2 = .5 * Math.sqrt(Math.max(.14, 1 - ((y2 - .03) / .29) ** 2)) + s.dr;
+    _mo.set(Math.cos(th2) * r2, y2 * .72, Math.sin(th2) * r2);
+    _ax.set(Math.cos(s.tax), 0, Math.sin(s.tax));
+    _mo.applyAxisAngle(_ax, s.tilt * .12);
+    if (s.hang && u > .6) {
+      const k = (u - .6) / .4, a = th2 + k * 2.6, rr = .45 + k * .32;
+      _mo.set(Math.cos(a) * rr, -.15 + Math.sin(k * 7 + s.seed) * .02, Math.sin(a) * rr);
+    }
+    _mo.add(PS.platePos).add(V(0, .2, 0));
+    out.lerp(_mo, PS.k);
+  }
   return out;
 }
 
 /* ------------------------------------------------------------------ */
 /* Aufbau                                                              */
 /* ------------------------------------------------------------------ */
-let pasta, blobs, drips, fork, ING = {}, basil;
+let pasta, blobs, drips, fork, ING = {}, basil, plate, puddle, ground;
 const blobSpec = [];
 const pts = new Float32Array(NP * 3);
 const _p = V();
@@ -409,6 +426,15 @@ window.setup = async (w, h, ssf = 1.5) => {
   ING.mussel1 = buildMussel(); ING.mussel2 = buildMussel();
   basil = buildBasil();
   Object.values(ING).forEach(g => scene.add(g)); scene.add(basil);
+  const prof = [[0, 0], [.6, 0], [.66, .03], [.95, .05], [1.24, .12], [1.3, .145], [1.28, .16], [1.2, .14], [.95, .078], [.62, .062], [0, .062]].map(q => new THREE.Vector2(q[0], q[1]));
+  plate = new THREE.Mesh(new THREE.LatheGeometry(prof, 128), new THREE.MeshPhysicalMaterial({ color: '#f3f0ea', roughness: .26, clearcoat: .6, clearcoatRoughness: .15 }));
+  plate.castShadow = plate.receiveShadow = true; scene.add(plate);
+  const pg = new THREE.CircleGeometry(1, 96); const pp2 = pg.attributes.position;
+  for (let i = 1; i < pp2.count; i++) { const x = pp2.getX(i), y = pp2.getY(i), a = Math.atan2(y, x), r = 1 + .08 * Math.sin(a * 5) + .05 * Math.sin(a * 11 + 1); pp2.setXY(i, x * r, y * r); }
+  puddle = new THREE.Mesh(pg, new THREE.MeshPhysicalMaterial({ color: '#9a1d0b', roughness: .14, specularIntensity: .8, envMapIntensity: .45 }));
+  puddle.rotation.x = -Math.PI / 2; puddle.receiveShadow = true; scene.add(puddle);
+  ground = new THREE.Mesh(new THREE.PlaneGeometry(12, 12), new THREE.ShadowMaterial({ opacity: .22, transparent: true }));
+  ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
   composer = new EffectComposer(renderer);
   composer.setPixelRatio(ssf); composer.setSize(w, h);
   composer.addPass(new RenderPass(scene, camera));
@@ -460,7 +486,17 @@ function cameraAt(p) {
 
 function project(v) { const q = v.clone().project(camera); return [+((q.x + 1) / 2).toFixed(4), +((1 - q.y) / 2).toFixed(4), q.z < 1 ? 1 : 0]; }
 
-window.renderFrame = (p) => {
+// Lage der Zutaten auf dem Teller (relativ zur Tellermitte) und ihre Drehung
+const PLATE = {
+  tomato: [[-.78, .22, .38], [.2, .6, .1], .85], tomhalf: [[.74, .14, .46], [-1.45, 0, .3], .85],
+  prawn1: [[.12, .55, .12], [-1.0, .4, .2], .95], prawn2: [[-.32, .42, .34], [-1.1, 2.4, -.2], .9],
+  mussel1: [[.62, .17, -.36], [.1, .8, 0], .85], mussel2: [[-.6, .16, -.32], [.1, -2.2, 0], .85],
+  basil: [[.06, .64, .02], [-1.35, .2, .4], 1.0],
+};
+window.renderFrame = (P) => {
+  const p = Math.min(1, P / .82);
+  PS.k = io(seg(P, .84, .97));
+  const plateIn = io(seg(P, .8, .92));
   // Pastazustand
   PS.m = io(seg(p, .2, .46));
   PS.tw = io(seg(p, 0, .22)) * Math.PI * .9;
@@ -468,7 +504,18 @@ window.renderFrame = (p) => {
   PS.nestPos.set(0, .15, 0);
   PS.nestQ.setFromEuler(_e.set(.12, 0, -.42));
   PS.spirPos.set(0, 0, 0);
+  PS.platePos.set(0, lerp(-4.2, -.45, plateIn), 0);
   cameraAt(p);
+  if (PS.k > 0 || plateIn > 0) {
+    const K = io(seg(P, .82, .98));
+    const t2 = PS.platePos.clone().add(V(0, tall ? .75 : .5, 0)), d2 = tall ? 8.4 : 4.9, az2 = 1.3, el2 = .6;
+    const c2 = t2.clone().add(V(Math.sin(az2) * Math.cos(el2) * d2, Math.sin(el2) * d2, Math.cos(az2) * Math.cos(el2) * d2));
+    camT.lerp(t2, K); camP.lerp(c2, K);
+    camera.position.copy(camP); camera.lookAt(camT); camera.updateMatrixWorld();
+  }
+  plate.visible = plateIn > 0; plate.position.copy(PS.platePos);
+  puddle.visible = PS.k > .05; puddle.position.copy(PS.platePos).add(V(0, .064, 0)); puddle.scale.setScalar(.66 * eo(seg(P, .88, .99)) + .001);
+  ground.visible = plateIn > .5; ground.position.copy(PS.platePos).add(V(0, -.002, 0)); ground.material.opacity = .2 * seg(P, .9, .97);
 
   // Stränge
   const hangEnds = [];
@@ -541,6 +588,7 @@ window.renderFrame = (p) => {
     }, (i, a, out) => { const c = dc.clone().lerp(dc2, i / 39 * .6); out[0] = c.r; out[1] = c.g; out[2] = c.b; });
   }
   drips.done();
+  drips.mesh.visible = PS.k < .15;
 
   // Gabel: steckt im Nest, zieht in Szene 2 nach oben heraus
   const out = io(seg(p, .14, .3));
@@ -569,6 +617,14 @@ window.renderFrame = (p) => {
     g.rotateX(br[0] + (1 - a) * 1.4 + (p - .85) * .5); g.rotateY(br[1] + (1 - a) * 2.2 * from[0] + (p - .85) * .9); g.rotateZ(br[2] + Math.sin(p * 9 + st * 20) * .08);
     g.position.copy(pos);
     g.scale.setScalar(lerp(.6, 1, a) * (key === 'basil' ? 1.25 : tall ? 1.2 : 1.35));
+    if (PS.k > 0) {
+      const [o, r, sc] = PLATE[key];
+      const kk = io(seg(P, .84 + ENTER[key][0] * .02 - .012, .97));
+      _q.setFromEuler(_e.set(r[0], r[1], r[2]));
+      g.position.lerp(PS.platePos.clone().add(V(o[0], o[1], o[2])), kk);
+      g.quaternion.slerp(_q, kk);
+      g.scale.setScalar(lerp(g.scale.x, sc, kk));
+    }
     g.visible = a > 0;
     if (key === 'basil' && a <= 0) {
       // Hero: Basilikum liegt oben auf dem Nest, fliegt beim Aufdrehen davon
