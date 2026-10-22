@@ -1,0 +1,16 @@
+# Netlify: statische Seite, kein Build-Schritt. Veröffentlicht wird dieser Ordner.
+[build]
+  publish = "."
+
+# Bilder, Schriften und Filmbilder einen Tag zwischenspeichern
+# (nicht "immutable", weil Platzhalterbilder unter gleichem Namen ersetzt werden)
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
