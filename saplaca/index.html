@@ -84,7 +84,7 @@ a{color:inherit}
 .cap{z-index:3;left:var(--pad);top:50%;transform:translateY(-50%);max-width:min(30vw,420px);opacity:0;will-change:opacity,transform}
 .cap h3{margin:0;font:400 clamp(34px,4.4vw,64px)/1.05 var(--serif)}
 .cap p:not(.eyebrow){margin:18px 0 0;color:var(--ink-soft);max-width:26ch}
-.cap--top{top:clamp(80px,13vh,120px);transform:none}
+.cap--top{top:auto;bottom:clamp(40px,8vh,80px);transform:none}
 .cap--light{color:#F3EFE6}
 .cap--light .eyebrow{color:rgba(243,239,230,.8)}
 .cap--light p:not(.eyebrow){color:rgba(243,239,230,.85)}
@@ -92,7 +92,7 @@ a{color:inherit}
 .cap--end h3{font-size:clamp(40px,5.6vw,80px)}
 .cap--end p:not(.eyebrow){max-width:none;margin-top:22px}
 @media (orientation:portrait){
-  .cap,.cap--top,.cap--end{left:var(--pad);right:var(--pad);top:calc(env(safe-area-inset-top) + 96px);transform:none;max-width:none;text-align:center}
+  .cap,.cap--top,.cap--end{left:var(--pad);right:var(--pad);top:calc(env(safe-area-inset-top) + 96px);bottom:auto;transform:none;max-width:none;text-align:center}
   .cap h3{font-size:clamp(30px,8.4vw,52px)}
   .cap p:not(.eyebrow){margin:10px auto 0;font-size:15px}
 }
@@ -375,7 +375,8 @@ function resize() {
   cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
   startLoading();
   const S = SRC[mode];
-  const s = Math.max(W / S.w, H / S.h);
+  // ganz einpassen: Ränder sind transparent, den Hintergrund malt die Seite
+  const s = Math.min(W / S.w, H / S.h);
   fit = { s, x: (W - S.w * s) / 2, y: (H - S.h * s) / 2 };
   LABELS.forEach(L => { L.tw = L.el.offsetWidth; L.th = L.el.offsetHeight; });
   onScroll(); needs = true;
