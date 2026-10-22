@@ -1,0 +1,899 @@
+<!doctype html>
+<!--
+  Sa Plaça — Pasta-Scroll-Szene (eigenständige Seite, eine Datei, keine externen Abhängigkeiten)
+
+  Aufbau
+  - .stage            langer Scroll-Container (~650vh), darin ein sticky Viewport
+  - canvas#pasta      die Pasta, prozedural in 3D gerechnet und pro Frame gezeichnet.
+                      Der Scroll-Fortschritt p (0→1) ist die "Zeitachse" dieses Films.
+  - .ing              Zutaten als SVG (Sprite unten), vor bzw. hinter der Pasta
+  - svg.leaders/.tags Beschriftungen; Linien werden jeden Frame aus der echten
+                      Position der Zutat bzw. der Pasta-Silhouette berechnet
+
+  PLATZHALTER: Alles in [eckigen Klammern] und die Texte von "La casa" müssen
+  durch die Originalinhalte von saplaca.es ersetzt werden (Seite war beim Bau
+  nicht erreichbar). Zutaten bitte mit dem echten Rezept abgleichen.
+-->
+<html lang="es" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sa Plaça — Un giro de mar</title>
+<meta name="description" content="Sa Plaça: espaguetis con gambas, mejillones y tomate fresco, hechos al momento.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#521812">
+<script>document.documentElement.classList.replace('no-js','js')</script>
+<style>
+:root{
+  --wine:#521812; --wine-2:#3a0e0a; --wine-3:#6b2219;
+  --cream:#F3ECDC; --cream-2:#E9DFC8;
+  --ink:#2B1511; --ink-soft:#6E5A50; --line:rgba(43,21,17,.22);
+  --serif:"Didot","Bodoni 72","Bodoni MT","Bodoni Moda","Playfair Display","Libre Caslon Display","Noto Serif Display",Georgia,"Times New Roman",serif;
+  --sans:"Inter","Helvetica Neue",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  --pad:clamp(20px,5vw,72px);
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--cream);color:var(--ink);font:400 16px/1.6 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img,svg,canvas{display:block}
+a{color:inherit}
+:focus-visible{outline:2px solid currentColor;outline-offset:4px;border-radius:2px}
+.sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.sprite{position:absolute;width:0;height:0;overflow:hidden}
+
+/* ---------- Kopfzeile ---------- */
+.hdr{position:fixed;inset:0 0 auto;z-index:50;display:flex;align-items:center;gap:24px;
+  padding:calc(14px + env(safe-area-inset-top)) var(--pad) 14px;color:var(--cream);transition:color .4s var(--ease)}
+.hdr[data-tone="light"]{color:var(--wine)}
+.hdr.solid{background:rgba(243,236,220,.94);border-bottom:1px solid var(--line);padding-top:calc(10px + env(safe-area-inset-top));padding-bottom:10px}
+.brand{text-decoration:none;line-height:1;display:flex;flex-direction:column;gap:4px}
+.brand b{font:400 clamp(24px,2.4vw,34px)/1 var(--serif);letter-spacing:.02em}
+.brand small{font-size:10px;letter-spacing:.28em;text-transform:uppercase;opacity:.75}
+.nav{margin-left:auto;display:flex;gap:clamp(18px,2.4vw,40px)}
+.nav a{font-size:12px;letter-spacing:.2em;text-transform:uppercase;text-decoration:none;padding:6px 0;position:relative}
+.nav a::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .35s var(--ease)}
+.nav a:hover::after,.nav a[aria-current]::after{transform:scaleX(1)}
+.btn{display:inline-flex;align-items:center;gap:.6em;border:1px solid currentColor;border-radius:999px;padding:12px 22px;
+  font:500 12px/1 var(--sans);letter-spacing:.18em;text-transform:uppercase;text-decoration:none;transition:background .3s,color .3s}
+.btn:hover{background:currentColor}
+.btn:hover span{color:var(--wine)}
+.hdr[data-tone="light"] .btn:hover span{color:var(--cream)}
+.btn--solid{background:var(--cream);color:var(--wine);border-color:var(--cream)}
+.btn--solid:hover{background:transparent;color:var(--cream)}
+.btn--wine{background:var(--wine);color:var(--cream);border-color:var(--wine)}
+.btn--wine:hover{background:transparent;color:var(--wine)}
+.menu-btn{display:none;margin-left:auto;background:none;border:0;color:inherit;font:500 12px/1 var(--sans);letter-spacing:.2em;text-transform:uppercase;padding:10px 0;cursor:pointer}
+@media (max-width:820px){
+  .nav,.hdr .btn{display:none}
+  .menu-btn{display:block}
+  .hdr.open{color:var(--cream)}
+  .hdr.open .nav{display:flex;position:fixed;inset:0;z-index:-1;flex-direction:column;justify-content:center;align-items:flex-start;
+    gap:18px;padding:var(--pad);background:var(--wine-2)}
+  .hdr.open .nav a{font:400 40px/1.1 var(--serif);letter-spacing:0;text-transform:none}
+}
+
+/* ---------- Bühne ---------- */
+.stage{position:relative;height:650vh;background:var(--cream)}
+@media (orientation:portrait){.stage{height:600vh}}
+.stage__view{position:sticky;top:0;height:100vh;overflow:hidden;
+  background:radial-gradient(120% 90% at 66% 40%,var(--wine-3) 0%,var(--wine) 45%,var(--wine-2) 100%)}
+.stage__view>*{position:absolute}
+.wave{inset:0;width:100%;height:100%;z-index:1}
+.layer{inset:0;pointer-events:none}
+.layer--back{z-index:3}
+#pasta{inset:0;width:100%;height:100%;z-index:4;pointer-events:none}
+.layer--front{z-index:5}
+.leaders{inset:0;width:100%;height:100%;z-index:6;pointer-events:none;overflow:visible}
+.tags{inset:0;z-index:7;pointer-events:none}
+
+.hero{z-index:2;left:var(--pad);top:50%;transform:translateY(-50%);max-width:min(560px,44vw);color:var(--cream)}
+.eyebrow{font-size:11px;letter-spacing:.32em;text-transform:uppercase;margin:0 0 22px;opacity:.8}
+.hero h1{font:400 clamp(56px,9.2vw,148px)/.9 var(--serif);letter-spacing:-.01em;margin:0 0 28px;text-transform:uppercase}
+.hero p.lead{font-size:clamp(16px,1.35vw,19px);line-height:1.5;max-width:30ch;margin:0 0 36px;opacity:.9}
+.hero .btn{padding:16px 28px}
+.side{z-index:2;left:calc(var(--pad) * .38);top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:14px;color:var(--cream)}
+.side span{writing-mode:vertical-rl;transform:rotate(180deg);font-size:10px;letter-spacing:.3em;text-transform:uppercase;opacity:.75}
+.side i{width:1px;height:70px;background:currentColor;opacity:.4}
+.t2{z-index:2;left:var(--pad);top:clamp(96px,16vh,170px);max-width:min(520px,40vw);opacity:0}
+.t2 h2{font:400 clamp(40px,5.6vw,88px)/.95 var(--serif);text-transform:uppercase;margin:0 0 18px}
+.t2 p{margin:0;color:var(--ink-soft);max-width:28ch}
+.t3{z-index:2;left:var(--pad);top:clamp(96px,14vh,140px);margin:0;color:var(--ink);opacity:0}
+.hint{z-index:2;left:50%;bottom:22px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:10px;
+  font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--cream);opacity:.7}
+.hint i{width:1px;height:36px;background:currentColor}
+
+.ing{position:absolute;left:0;top:0;opacity:0;will-change:transform,opacity}
+.ing svg{width:100%;height:100%;overflow:visible;filter:drop-shadow(0 14px 18px rgba(43,21,17,.18))}
+.fork{position:absolute;left:0;top:0;transform-origin:50% 100%;will-change:transform,opacity}
+.fork svg{width:100%;height:100%;filter:drop-shadow(-6px 10px 14px rgba(0,0,0,.3))}
+
+.leaders path{fill:none;stroke:var(--ink);stroke-width:1;stroke-opacity:.7;stroke-linecap:round}
+.leaders circle{fill:var(--ink)}
+.tag{position:absolute;left:0;top:0;white-space:nowrap;font:italic 400 clamp(15px,1.35vw,21px)/1 var(--serif);color:var(--ink);opacity:0;padding-bottom:7px;will-change:transform,opacity}
+
+@media (orientation:portrait){
+  .hero{top:calc(env(safe-area-inset-top) + clamp(92px,13vh,140px));transform:none;max-width:none;right:var(--pad)}
+  .hero h1{font-size:clamp(50px,15vw,110px)}
+  .hero p.lead{font-size:16px;margin-bottom:26px;max-width:24ch}
+  .side,.hint{display:none}
+  .t2{max-width:none;right:var(--pad);top:calc(env(safe-area-inset-top) + 92px)}
+  .t2 h2{font-size:clamp(38px,11vw,72px)}
+  .t3{top:calc(env(safe-area-inset-top) + 76px)}
+  .tag{font-size:15px}
+}
+@media (orientation:landscape) and (max-height:520px){
+  .hero h1{font-size:clamp(40px,7vw,64px);margin-bottom:14px}
+  .hero p.lead{margin-bottom:18px}
+  .eyebrow{margin-bottom:12px}
+  .hint,.t3{display:none}
+}
+
+/* Einblenden beim Laden */
+.js .hero>*{opacity:0;transform:translateY(24px);animation:rise 1.1s var(--ease) forwards}
+.js .hero>*:nth-child(2){animation-delay:.12s}
+.js .hero>*:nth-child(3){animation-delay:.26s}
+.js .hero>*:nth-child(4){animation-delay:.4s}
+@keyframes rise{to{opacity:1;transform:none}}
+
+/* ---------- Folgeabschnitte ---------- */
+.sec{position:relative;padding:clamp(80px,14vh,160px) var(--pad);overflow:hidden}
+.kicker{font-size:11px;letter-spacing:.32em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 20px}
+.sec h2{font:400 clamp(40px,6vw,92px)/.95 var(--serif);text-transform:uppercase;margin:0 0 28px;max-width:14ch}
+.sec p{max-width:56ch;color:var(--ink-soft)}
+.casa{display:grid;grid-template-columns:1fr;gap:40px}
+@media (min-width:900px){.casa{grid-template-columns:1.1fr 1fr;align-items:end}}
+.sec .big{max-width:none;font:400 clamp(90px,20vw,320px)/.8 var(--serif);white-space:nowrap;color:transparent;-webkit-text-stroke:1px var(--line);
+  margin:clamp(40px,8vh,90px) 0 0;pointer-events:none;user-select:none}
+.carta{background:var(--wine);color:var(--cream)}
+.carta .kicker,.carta p{color:rgba(243,236,220,.75)}
+.dish{display:grid;gap:40px;align-items:center;position:relative;z-index:1}
+@media (min-width:900px){.dish{grid-template-columns:1fr 1fr}}
+.dish dl{margin:0;border-top:1px solid rgba(243,236,220,.25)}
+.dish dl div{display:flex;justify-content:space-between;gap:20px;padding:18px 0;border-bottom:1px solid rgba(243,236,220,.25)}
+.dish dt{font:italic 400 22px/1.2 var(--serif)}
+.dish dd{margin:0;font-size:14px;opacity:.8;text-align:right}
+.float{position:absolute;pointer-events:none;will-change:transform}
+.float svg{width:100%;height:100%;overflow:visible;filter:drop-shadow(0 18px 20px rgba(0,0,0,.25))}
+.contact{display:grid;gap:40px}
+@media (min-width:900px){.contact{grid-template-columns:1.2fr 1fr 1fr}}
+.contact h3{font-size:11px;letter-spacing:.32em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 10px;font-weight:500}
+.contact address,.contact p{font:400 22px/1.4 var(--serif);font-style:normal;color:var(--ink);margin:0}
+.foot{border-top:1px solid var(--line);padding:28px var(--pad) calc(28px + env(safe-area-inset-bottom));display:flex;flex-wrap:wrap;gap:16px 32px;justify-content:space-between;font-size:13px;color:var(--ink-soft)}
+.foot a{text-decoration:none}
+.js .reveal{opacity:0;transform:translateY(40px);transition:opacity 1s var(--ease),transform 1s var(--ease)}
+.js .reveal.in{opacity:1;transform:none}
+
+@media (prefers-reduced-motion:reduce){
+  .js .hero>*{animation:none;opacity:1;transform:none}
+  .js .reveal{opacity:1;transform:none;transition:none}
+  .stage{height:240vh}
+}
+</style>
+</head>
+<body>
+
+<!-- Zutaten als Symbole; Garnele und Muschel werden unten per Skript ergänzt -->
+<svg class="sprite" aria-hidden="true" focusable="false">
+  <defs>
+    <radialGradient id="g-tom" cx="36%" cy="34%" r="72%"><stop offset="0" stop-color="#ff7a5c"/><stop offset=".42" stop-color="#e2281a"/><stop offset=".82" stop-color="#a3130b"/><stop offset="1" stop-color="#6e0905"/></radialGradient>
+    <radialGradient id="g-flesh" cx="50%" cy="50%" r="55%"><stop offset="0" stop-color="#ff9a78"/><stop offset=".7" stop-color="#ef4b2c"/><stop offset="1" stop-color="#c8220f"/></radialGradient>
+    <radialGradient id="g-gel" cx="40%" cy="40%" r="70%"><stop offset="0" stop-color="#ffd27a"/><stop offset="1" stop-color="#f08a3a"/></radialGradient>
+    <linearGradient id="g-basil" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#2c6a1c"/><stop offset=".55" stop-color="#4f9b33"/><stop offset="1" stop-color="#7cc256"/></linearGradient>
+    <linearGradient id="g-basil2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3f8a2a"/><stop offset="1" stop-color="#25591a"/></linearGradient>
+    <radialGradient id="g-prawn" gradientUnits="userSpaceOnUse" cx="100" cy="104" r="78"><stop offset=".3" stop-color="#fff2e8"/><stop offset=".48" stop-color="#ffd6bf"/><stop offset=".66" stop-color="#ffa47c"/><stop offset=".84" stop-color="#ef6a3a"/><stop offset="1" stop-color="#c03d19"/></radialGradient>
+    <linearGradient id="g-tail" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f28457"/><stop offset=".7" stop-color="#d9431f"/><stop offset="1" stop-color="#8f2410"/></linearGradient>
+    <linearGradient id="g-shell" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3b4a66"/><stop offset=".35" stop-color="#1a2232"/><stop offset=".7" stop-color="#0d1119"/><stop offset="1" stop-color="#232c3f"/></linearGradient>
+    <linearGradient id="g-pearl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e7e2da"/><stop offset=".5" stop-color="#b9bcc8"/><stop offset="1" stop-color="#7f879b"/></linearGradient>
+    <radialGradient id="g-meat" cx="45%" cy="40%" r="65%"><stop offset="0" stop-color="#ffbe72"/><stop offset=".6" stop-color="#ec8a3c"/><stop offset="1" stop-color="#b9561c"/></radialGradient>
+    <linearGradient id="g-fork" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5b5d62"/><stop offset=".28" stop-color="#e9eaee"/><stop offset=".5" stop-color="#9c9ea4"/><stop offset=".72" stop-color="#f7f7f9"/><stop offset="1" stop-color="#6a6c71"/></linearGradient>
+  </defs>
+
+  <symbol id="s-tomato" viewBox="0 0 200 200">
+    <path d="M100 42C152 40 182 76 182 116C182 160 146 186 100 186C54 186 18 160 18 116C18 76 48 44 100 42Z" fill="url(#g-tom)"/>
+    <path d="M100 48C82 72 72 112 80 156M100 48C122 74 130 112 122 156M100 48C66 66 44 98 46 132M100 48C136 66 156 98 154 132" fill="none" stroke="#7a0b06" stroke-opacity=".18" stroke-width="3"/>
+    <ellipse cx="66" cy="84" rx="26" ry="12" fill="#fff" opacity=".28" transform="rotate(-32 66 84)"/>
+    <ellipse cx="60" cy="80" rx="8" ry="4" fill="#fff" opacity=".75" transform="rotate(-32 60 80)"/>
+    <g fill="#3d7d28">
+      <ellipse cx="121" cy="46" rx="22" ry="5.5" transform="rotate(8 100 46)"/>
+      <ellipse cx="121" cy="46" rx="21" ry="5.5" transform="rotate(80 100 46)"/>
+      <ellipse cx="121" cy="46" rx="22" ry="5.5" transform="rotate(152 100 46)"/>
+      <ellipse cx="121" cy="46" rx="20" ry="5.5" transform="rotate(224 100 46)"/>
+      <ellipse cx="121" cy="46" rx="22" ry="5.5" transform="rotate(296 100 46)"/>
+    </g>
+    <path d="M100 46C100 30 105 18 116 10" fill="none" stroke="#4b8a31" stroke-width="7" stroke-linecap="round"/>
+  </symbol>
+
+  <symbol id="s-tomhalf" viewBox="0 0 200 200">
+    <circle cx="100" cy="100" r="84" fill="url(#g-tom)"/>
+    <circle cx="100" cy="100" r="74" fill="url(#g-flesh)"/>
+    <g fill="url(#g-gel)">
+      <path d="M100 92C88 60 60 52 46 72C38 90 50 108 76 106C88 104 96 100 100 92Z"/>
+      <path d="M108 92C116 60 142 54 154 72C162 92 150 108 126 106C114 104 108 100 108 92Z"/>
+      <path d="M100 112C82 118 64 132 74 152C88 166 112 166 124 152C134 132 118 118 100 112Z"/>
+    </g>
+    <g fill="#f6e6b4" opacity=".95">
+      <ellipse cx="64" cy="84" rx="4" ry="6.5" transform="rotate(30 64 84)"/><ellipse cx="78" cy="92" rx="4" ry="6.5" transform="rotate(60 78 92)"/><ellipse cx="62" cy="98" rx="4" ry="6.5" transform="rotate(80 62 98)"/>
+      <ellipse cx="136" cy="84" rx="4" ry="6.5" transform="rotate(-30 136 84)"/><ellipse cx="124" cy="94" rx="4" ry="6.5" transform="rotate(-60 124 94)"/><ellipse cx="142" cy="98" rx="4" ry="6.5" transform="rotate(-80 142 98)"/>
+      <ellipse cx="92" cy="138" rx="4" ry="6.5"/><ellipse cx="108" cy="140" rx="4" ry="6.5"/><ellipse cx="100" cy="152" rx="4" ry="6.5" transform="rotate(90 100 152)"/>
+    </g>
+    <circle cx="102" cy="104" r="9" fill="#ffb092" opacity=".9"/>
+    <circle cx="100" cy="100" r="84" fill="none" stroke="#7a0b06" stroke-opacity=".35" stroke-width="2"/>
+    <ellipse cx="62" cy="52" rx="26" ry="9" fill="#fff" opacity=".35" transform="rotate(-38 62 52)"/>
+  </symbol>
+
+  <symbol id="s-basil" viewBox="0 0 200 200">
+    <path d="M24 176C30 104 88 40 180 22C172 104 116 170 24 176Z" fill="url(#g-basil)"/>
+    <path d="M24 176C76 128 128 76 180 22" fill="none" stroke="#b9e394" stroke-opacity=".55" stroke-width="3"/>
+    <path d="M58 142C52 120 56 104 64 92M84 116C80 96 86 80 96 70M112 90C110 74 116 60 126 52M70 130C90 132 108 128 124 120M98 104C116 106 134 100 148 92M124 78C140 78 152 72 162 64" fill="none" stroke="#b9e394" stroke-opacity=".3" stroke-width="2"/>
+    <path d="M58 150C76 108 120 70 168 40" fill="none" stroke="#fff" stroke-opacity=".2" stroke-width="6" stroke-linecap="round"/>
+    <path d="M20 182C10 150 18 128 40 116C46 140 40 164 20 182Z" fill="url(#g-basil2)"/>
+  </symbol>
+
+  <symbol id="s-fork" viewBox="0 0 100 600">
+    <path d="M38 0Q50-6 62 0L66 230Q60 300 54 330Q76 360 80 400L80 590Q80 600 75 600Q70 600 70 590L70 430L64 430L64 595Q64 600 59.5 600Q55 600 55 595L55 430L45 430L45 595Q45 600 40.5 600Q36 600 36 595L36 430L30 430L30 590Q30 600 25 600Q20 600 20 590L20 400Q24 360 46 330Q40 300 34 230Z" fill="url(#g-fork)"/>
+    <path d="M50 10L50 300" stroke="#fff" stroke-opacity=".55" stroke-width="3"/>
+  </symbol>
+</svg>
+
+<header class="hdr" data-tone="dark" id="hdr">
+  <a class="brand" href="#inicio" aria-label="Sa Plaça — inicio"><b>Sa Plaça</b><small>Restaurante</small></a>
+  <nav class="nav" id="nav" aria-label="Principal">
+    <a href="#inicio" aria-current="page">Inicio</a>
+    <a href="#casa">La casa</a>
+    <a href="#carta">Carta</a>
+    <a href="#contacto">Contacto</a>
+  </nav>
+  <a class="btn" href="#contacto"><span>Reservar</span></a>
+  <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="nav">Menú</button>
+</header>
+
+<main>
+  <section class="stage" id="inicio" aria-label="Espaguetis del mar">
+    <div class="stage__view" id="view">
+      <svg class="wave" id="wave" preserveAspectRatio="none" aria-hidden="true">
+        <defs><linearGradient id="g-cream" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F6F0E2"/><stop offset="1" stop-color="#EDE3CD"/></linearGradient></defs>
+        <path id="wavePath" fill="url(#g-cream)"/>
+      </svg>
+
+      <div class="side" aria-hidden="true"><i></i><span id="sideTxt">Sección 01</span><i></i></div>
+
+      <div class="hero" id="hero">
+        <p class="eyebrow">Cocina mediterránea</p>
+        <h1>Un giro<br>de mar.</h1>
+        <p class="lead">Espaguetis con gambas, mejillones y tomate fresco. Hechos al momento.</p>
+        <a class="btn btn--solid" href="#carta">Ver la carta <span aria-hidden="true">→</span></a>
+      </div>
+
+      <div class="t2" id="t2" aria-hidden="true">
+        <h2>Todo lo que lleva.</h2>
+        <p>Pasta, tomate y mar. Ni más, ni menos.</p>
+      </div>
+      <p class="t3 eyebrow" id="t3" aria-hidden="true">Ingredientes en escena</p>
+
+      <div class="layer layer--back" id="back" aria-hidden="true">
+        <div class="fork" id="fork"><svg viewBox="0 0 100 600"><use href="#s-fork"/></svg></div>
+      </div>
+      <canvas id="pasta" aria-hidden="true"></canvas>
+      <div class="layer layer--front" id="front" aria-hidden="true"></div>
+      <svg class="leaders" id="leaders" aria-hidden="true"></svg>
+      <div class="tags" id="tags" aria-hidden="true"></div>
+
+      <div class="hint" id="hint" aria-hidden="true">Desliza<i></i></div>
+
+      <p class="sr">Plato principal: espaguetis con salsa de tomate, gambas, mejillones, tomate fresco y albahaca.</p>
+    </div>
+  </section>
+
+  <section class="sec" id="casa">
+    <div class="casa">
+      <div class="reveal">
+        <p class="kicker">La casa</p>
+        <h2>Cocina de plaza, sin prisa.</h2>
+      </div>
+      <div class="reveal">
+        <!-- PLATZHALTER: Text von saplaca.es übernehmen -->
+        <p>Producto del día, recetas de siempre y una mesa a la que apetece volver. Cocinamos lo que el mercado trae y lo servimos tal cual: sin adornos que no hacen falta.</p>
+        <p>[Texto de presentación de Sa Plaça]</p>
+      </div>
+    </div>
+    <p class="big" data-x="-.25" aria-hidden="true">Sa Plaça · Sa Plaça</p>
+  </section>
+
+  <section class="sec carta" id="carta">
+    <div class="float" data-speed=".35" style="width:clamp(90px,12vw,180px);height:clamp(90px,12vw,180px);right:6%;top:6%" aria-hidden="true"><svg viewBox="0 0 200 200"><use href="#s-tomato"/></svg></div>
+    <div class="float" data-speed="-.25" style="width:clamp(80px,10vw,150px);height:clamp(80px,10vw,150px);left:-2%;bottom:10%" aria-hidden="true"><svg viewBox="0 0 200 200"><use href="#s-mussel"/></svg></div>
+    <div class="float" data-speed=".55" style="width:clamp(70px,8vw,120px);height:clamp(70px,8vw,120px);right:38%;bottom:-2%" aria-hidden="true"><svg viewBox="0 0 200 200"><use href="#s-basil"/></svg></div>
+    <div class="dish">
+      <div class="reveal">
+        <p class="kicker">La carta</p>
+        <h2>Espaguetis del mar</h2>
+        <p>El plato de la casa: pasta al dente, salsa de tomate lenta, gambas y mejillones abiertos al momento. Un poco de albahaca al final.</p>
+        <p><a class="btn btn--solid" href="#contacto">Carta completa <span aria-hidden="true">→</span></a></p>
+      </div>
+      <dl class="reveal">
+        <div><dt>Espaguetis</dt><dd>al dente</dd></div>
+        <div><dt>Salsa de tomate</dt><dd>cocinada a fuego lento</dd></div>
+        <div><dt>Gambas y mejillones</dt><dd>del día</dd></div>
+        <div><dt>Tomate y albahaca</dt><dd>frescos</dd></div>
+        <div><dt>Precio</dt><dd>[precio]</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="sec" id="contacto">
+    <p class="kicker reveal">Contacto y reservas</p>
+    <h2 class="reveal">Le guardamos mesa.</h2>
+    <div class="contact reveal">
+      <div><h3>Dirección</h3><address>[Dirección]<br>[Código postal, localidad]</address></div>
+      <div><h3>Teléfono</h3><p>[Teléfono]</p></div>
+      <div><h3>Horario</h3><p>[Horario]</p></div>
+    </div>
+    <p style="margin-top:48px" class="reveal"><a class="btn btn--wine" href="#contacto">Reservar mesa <span aria-hidden="true">→</span></a></p>
+  </section>
+</main>
+
+<footer class="foot">
+  <span>© Sa Plaça</span>
+  <span><a href="#">Aviso legal</a> · <a href="#">Privacidad</a></span>
+</footer>
+
+<script>
+(() => {
+'use strict';
+const $ = s => document.querySelector(s);
+const TAU = Math.PI * 2;
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const seg = (p, a, b) => clamp((p - a) / (b - a));
+const io = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const eo = t => 1 - Math.pow(1 - t, 3);
+const rm = matchMedia('(prefers-reduced-motion: reduce)');
+
+/* ---------------- Garnele & Muschel: Formen erzeugen ---------------- */
+(function buildSymbols() {
+  const sprite = $('.sprite');
+  const NS = 'http://www.w3.org/2000/svg';
+  const f = n => n.toFixed(1);
+  // Garnele: C-förmiger Körper aus Segmenten
+  const C = [100, 104], R = 50, a0 = -100, a1 = 150;
+  const P = (a, r) => [C[0] + Math.cos(a * Math.PI / 180) * r, C[1] + Math.sin(a * Math.PI / 180) * r];
+  const th = s => lerp(44, 16, s);
+  let body = '';
+  const n = 7;
+  for (let k = n - 1; k >= 0; k--) {
+    const s0 = k / n, s1 = (k + 1) / n + .02;
+    const out = [], inn = [];
+    for (let i = 0; i <= 6; i++) {
+      const s = lerp(s0, s1, i / 6), a = lerp(a0, a1, s);
+      out.push(P(a, R + th(s) / 2)); inn.unshift(P(a, R - th(s) / 2));
+    }
+    const d = 'M' + out.concat(inn).map(p => f(p[0]) + ' ' + f(p[1])).join('L') + 'Z';
+    body += `<path d="${d}" fill="url(#g-prawn)" stroke="#c4482a" stroke-opacity=".5" stroke-width="1.6" stroke-linejoin="round"/>`;
+  }
+  let legs = '';
+  for (let s = .12; s < .62; s += .07) {
+    const a = lerp(a0, a1, s), p1 = P(a, R - th(s) / 2 + 2), p2 = P(a + 6, R - th(s) / 2 - 13);
+    legs += `<path d="M${f(p1[0])} ${f(p1[1])}L${f(p2[0])} ${f(p2[1])}"/>`;
+  }
+  const hl = [];
+  for (let i = 0; i <= 20; i++) { const s = lerp(.05, .7, i / 20); hl.push(P(lerp(a0, a1, s), R + th(s) / 2 - 6)); }
+  const end = P(a1, R), ta = (a1 + 90) * Math.PI / 180, tx = Math.cos(ta), ty = Math.sin(ta);
+  const tailAng = Math.atan2(ty, tx) * 180 / Math.PI;
+  const tc = [end[0] + tx * 14, end[1] + ty * 14];
+  const head = P(a0 - 16, R + 2);
+  const prawn = `
+    <g fill="none" stroke="#e98a60" stroke-width="3" stroke-linecap="round">${legs}</g>
+    <g transform="translate(${f(tc[0])} ${f(tc[1])}) rotate(${f(tailAng)})" fill="url(#g-tail)">
+      <ellipse cx="16" cy="-8" rx="20" ry="8" transform="rotate(-24)"/><ellipse cx="16" cy="8" rx="20" ry="8" transform="rotate(24)"/><ellipse cx="18" cy="0" rx="22" ry="8"/>
+    </g>
+    ${body}
+    <ellipse cx="${f(head[0])}" cy="${f(head[1])}" rx="30" ry="25" transform="rotate(-10 ${f(head[0])} ${f(head[1])})" fill="url(#g-prawn)" stroke="#c4482a" stroke-opacity=".5" stroke-width="1.6"/>
+    <path d="M${f(head[0] - 22)} ${f(head[1] - 10)}L${f(head[0] - 50)} ${f(head[1] - 24)}L${f(head[0] - 20)} ${f(head[1] - 2)}Z" fill="#e2562c"/>
+    <path d="M${f(head[0] - 14)} ${f(head[1] - 16)}C${f(head[0] - 10)} -10 120 -30 196 -18M${f(head[0] - 8)} ${f(head[1] - 18)}C${f(head[0] + 10)} -4 150 -6 200 12" fill="none" stroke="#d0603a" stroke-width="1.6"/>
+    <circle cx="${f(head[0] - 12)}" cy="${f(head[1] - 6)}" r="4.5" fill="#2b1408"/>
+    <path d="M${hl.map(p => f(p[0]) + ' ' + f(p[1])).join('L')}" fill="none" stroke="#fff" stroke-opacity=".38" stroke-width="3.5" stroke-linecap="round"/>`;
+  // Muschel: zwei Schalen, unten mit Fleisch
+  const shell = (l, w) => `M0 0C${l * .2} ${-w * .95} ${l * .78} ${-w * 1.05} ${l} ${-w * .3}C${l * 1.06} ${w * .15} ${l * .82} ${w * .55} ${l * .5} ${w * .52}C${l * .26} ${w * .5} ${l * .07} ${w * .28} 0 0Z`;
+  let rings = '';
+  for (const k of [.45, .62, .78, .9]) rings += `<path d="${shell(150 * k, 46 * k)}" transform="translate(${f(150 * (1 - k) * .25)} 0)" fill="none" stroke="#fff" stroke-opacity=".07" stroke-width="2"/>`;
+  const mussel = `
+    <g transform="translate(26 128) rotate(-12)">
+      <path d="${shell(158, 48)}" fill="url(#g-shell)"/>
+      <path d="${shell(146, 42)}" transform="translate(6 2)" fill="url(#g-pearl)"/>
+      <path d="${shell(124, 34)}" transform="translate(16 3)" fill="url(#g-meat)" stroke="#9c4316" stroke-width="2" stroke-dasharray="5 3"/>
+      <path d="M30 -2C60 -14 100 -16 128 -6" fill="none" stroke="#ffe0b0" stroke-opacity=".6" stroke-width="3" stroke-linecap="round"/>
+    </g>
+    <g transform="translate(26 124) rotate(-46)">
+      <path d="${shell(156, 46)}" fill="url(#g-shell)"/>
+      ${rings}
+      <path d="M22 -18C60 -40 110 -42 146 -18" fill="none" stroke="#9fb4d8" stroke-opacity=".38" stroke-width="5" stroke-linecap="round"/>
+    </g>`;
+  const add = (id, html) => {
+    const s = document.createElementNS(NS, 'symbol');
+    s.setAttribute('id', id); s.setAttribute('viewBox', '0 0 200 200');
+    s.innerHTML = html; sprite.appendChild(s);
+  };
+  add('s-prawn', prawn);
+  add('s-mussel', mussel);
+})();
+
+/* ---------------- Kopfzeile / Menü ---------------- */
+const hdr = $('#hdr'), menuBtn = $('#menuBtn');
+menuBtn.addEventListener('click', () => {
+  const o = hdr.classList.toggle('open');
+  menuBtn.setAttribute('aria-expanded', o); menuBtn.textContent = o ? 'Cerrar' : 'Menú';
+});
+$('#nav').addEventListener('click', e => { if (e.target.closest('a')) { hdr.classList.remove('open'); menuBtn.setAttribute('aria-expanded', 'false'); menuBtn.textContent = 'Menú'; } });
+
+/* ---------------- Bühne ---------------- */
+const stage = $('#inicio'), view = $('#view'), cv = $('#pasta'), ctx = cv.getContext('2d');
+const wavePath = $('#wavePath'), wave = $('#wave'), hero = $('#hero'), t2 = $('#t2'), t3 = $('#t3');
+const fork = $('#fork'), hint = $('#hint'), sideTxt = $('#sideTxt');
+const back = $('#back'), front = $('#front'), leaders = $('#leaders'), tags = $('#tags');
+
+/* Zutaten. Positionen in Anteilen der Bühne (x von W, y von H), Größe s:
+   breit = Anteil von H, hoch = Anteil von W. lab: Ankerpunkt der Beschriftung relativ zur Zutat. */
+const ING = [
+  { sym: 's-tomato', layer: 'front', st: .52, from: [-1, .25], r: -10,
+    w: { x: .27, y: .50, s: .15 }, t: { x: .19, y: .43, s: .27 },
+    tag: 'Tomate fresco', wl: { x: -.07, y: -.14, a: 'l' }, tl: { x: .14, y: -.10, a: 'r' } },
+  { sym: 's-mussel', layer: 'back', st: .56, from: [-1, -.6], r: 8,
+    w: { x: .34, y: .25, s: .16 }, t: { x: .22, y: .25, s: .30 },
+    tag: 'Mejillón', wl: { x: -.08, y: -.07, a: 'l' }, tl: { x: .02, y: -.08, a: 'r' } },
+  { sym: 's-tomhalf', layer: 'back', st: .60, from: [1, -.5], r: 0,
+    w: { x: .67, y: .22, s: .13 }, t: { x: .80, y: .27, s: .24 },
+    tag: 'Tomate maduro', wl: { x: .07, y: -.08, a: 'r' }, tl: { x: -.02, y: -.08, a: 'l' } },
+  { sym: 's-prawn', layer: 'front', st: .64, from: [1, .1], r: 12,
+    w: { x: .74, y: .52, s: .17 }, t: { x: .81, y: .55, s: .30 },
+    tag: 'Gamba', wl: { x: .08, y: -.12, a: 'r' }, tl: { x: -.04, y: -.11, a: 'l' } },
+  { sym: 's-basil', layer: 'front', st: .68, from: [.4, -1], r: -20, basil: true,
+    w: { x: .57, y: .40, s: .10 }, t: { x: .64, y: .40, s: .19 },
+    tag: 'Albahaca', wl: { x: .06, y: -.035, a: 'r' }, tl: { x: .06, y: -.035, a: 'r' } },
+  { sym: 's-prawn', layer: 'back', st: .71, from: [-1, .6], r: 200,
+    w: { x: .31, y: .81, s: .15 }, t: { x: .22, y: .74, s: .26 } },
+  { sym: 's-mussel', layer: 'front', st: .74, from: [1, .7], r: 190,
+    w: { x: .68, y: .84, s: .15 }, t: { x: .78, y: .80, s: .28 } },
+];
+/* Beschriftungen, die an der Pasta selbst hängen (Silhouette). side: -1 links, 1 rechts; yU: Höhe in Modelleinheiten */
+const PTAGS = [
+  { tag: 'Salsa de tomate', st: .78, side: 1, yU: .3, wl: { x: .12, y: .05, a: 'r' }, tl: { x: .06, y: .09, a: 'r' } },
+  { tag: 'Espaguetis', st: .82, side: -1, yU: .55, wl: { x: -.1, y: -.03, a: 'l' }, tl: { x: -.04, y: -.075, a: 'l' } },
+];
+
+const NS = 'http://www.w3.org/2000/svg';
+const labels = [];
+function makeLabel(text) {
+  const el = document.createElement('div'); el.className = 'tag'; el.textContent = text; tags.appendChild(el);
+  const path = document.createElementNS(NS, 'path'); const dot = document.createElementNS(NS, 'circle');
+  leaders.append(path, dot);
+  const L = { el, path, dot, w: 0, h: 0 }; labels.push(L); return L;
+}
+ING.forEach((g, i) => {
+  const el = document.createElement('div'); el.className = 'ing';
+  el.innerHTML = `<svg viewBox="0 0 200 200"><use href="#${g.sym}"/></svg>`;
+  (g.layer === 'front' ? front : back).appendChild(el);
+  g.el = el; g.k = i;
+  if (g.tag) g.L = makeLabel(g.tag);
+});
+PTAGS.forEach(g => g.L = makeLabel(g.tag));
+
+/* ---------------- Pasta-Modell ---------------- */
+function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+let W = 0, H = 0, DPR = 1, wide = true, N = 0, SM = 0, strands = [], P, ORD, ZK, globs = [];
+const LIGHT = (() => { const v = [-.45, -.7, -.6], l = Math.hypot(...v); return v.map(x => x / l); })();
+const HV = (() => { const v = [LIGHT[0], LIGHT[1], LIGHT[2] - 1], l = Math.hypot(...v); return v.map(x => x / l); })();
+
+function buildStrands() {
+  const r = rng(7);
+  N = wide ? 44 : 32; SM = wide ? 100 : 80;
+  strands = [];
+  for (let i = 0; i < N; i++) {
+    strands.push({
+      phase: (i / N) * TAU + (r() - .5) * .5,
+      bundle: (r() - .5) * 1.1,
+      dr: (r() - .5) * .13, dy: (r() - .5) * .09,
+      tilt: (r() - .5) * 1.2, tilt2: (r() - .5) * .8,
+      w: .85 + r() * .3, seed: r() * 60,
+      loose: i % 8 === 3, len: .9 + r() * .1,
+    });
+  }
+  // Punktpuffer: x,y,z(view),nx,ny,nz,sauce,w
+  P = new Float32Array(N * SM * 8);
+  ORD = new Uint32Array(N * (SM - 1));
+  ZK = new Float32Array(N * (SM - 1));
+  const g = rng(19); globs = [];
+  for (let i = 0; i < 22; i++) globs.push({ s: Math.floor(g() * N), t: .08 + g() * .84, r: .7 + g() * .6 });
+}
+
+// Saucenmenge entlang eines Strangs (0..1)
+function sauceAt(s, t) {
+  const v = .5 + .5 * Math.sin(t * 9 + s.seed) * Math.sin(t * 3.7 + s.seed * 1.9);
+  return clamp((v - .32) / .4);
+}
+
+// Modellpunkt (vor Kamera). m: 0 = Nest auf der Gabel, 1 = Spirale
+const _o = new Float32Array(6);
+function model(s, t, m) {
+  const T = 3.1;
+  // Nest
+  const tt = s.loose ? Math.min(t, .7) : t;
+  const thN = s.phase + tt * TAU * T;
+  let yn = -.4 + tt * .8 + s.dy;
+  let rn = .5 * Math.sqrt(Math.max(.06, 1 - (yn / .44) ** 2)) + s.dr;
+  let xn = Math.cos(thN) * rn, zn = Math.sin(thN) * rn;
+  let c = Math.cos(s.tilt), si = Math.sin(s.tilt);
+  let y2 = yn * c - zn * si, z2 = yn * si + zn * c;
+  c = Math.cos(s.tilt2); si = Math.sin(s.tilt2);
+  let x3 = xn * c - y2 * si, y3 = xn * si + y2 * c;
+  let nnx = x3, nny = y3, nnz = z2;
+  if (s.loose && t > .7) {
+    const k = (t - .7) / .3;
+    y3 += k * 1.05; x3 += Math.sin(k * 2.4 + s.seed) * .1 * k; z2 += Math.cos(k * 2 + s.seed) * .06 * k;
+    nnx = 0; nny = 0; nnz = -1;
+  }
+  // Spirale
+  const ph = lerp(s.phase, s.bundle, m);
+  const thS = ph + t * TAU * T;
+  const ys = -1.32 + t * 2.64 + s.dy * .7;
+  const rs = .27 + .14 * Math.sin(Math.PI * t) + s.dr * .75 + .03 * Math.sin(t * 11 + s.seed);
+  const xs = Math.cos(thS) * rs, zs = Math.sin(thS) * rs;
+  const e = m;
+  _o[0] = lerp(x3, xs, e); _o[1] = lerp(y3, ys, e); _o[2] = lerp(z2, zs, e);
+  let nx = lerp(nnx, Math.cos(thS), e), ny = lerp(nny, 0, e), nz = lerp(nnz, Math.sin(thS), e);
+  const nl = Math.hypot(nx, ny, nz) || 1;
+  _o[3] = nx / nl; _o[4] = ny / nl; _o[5] = nz / nl;
+}
+
+/* ---------------- Layout je Ausrichtung ---------------- */
+function lay() {
+  if (wide) {
+    const S0 = Math.min(H * .5, W * .31);
+    return {
+      hero: { x: W * .68, y: H * .44, S: S0 },
+      mid: { x: W * .5, y: H * .53, S: Math.min(H * .35, W * .3) },
+      fin: { x: W * .5, y: H * .52, S: Math.min(H * .31, W * .27) },
+    };
+  }
+  const S0 = Math.min(W * .62, H * .3);
+  return {
+    hero: { x: W * .6, y: H * .72, S: S0 },
+    mid: { x: W * .5, y: H * .62, S: Math.min(H * .24, W * .6) },
+    fin: { x: W * .5, y: H * .56, S: Math.min(H * .235, W * .56) },
+  };
+}
+
+/* ---------------- Zustand aus Fortschritt ---------------- */
+let pT = 0, pS = 0, t0 = performance.now(), visible = true, needs = true, lastNow = 0;
+
+function pastaState(p, time) {
+  const Lo = lay();
+  const m = io(seg(p, .12, .46));
+  const mv = io(seg(p, .1, .42));
+  let x = lerp(Lo.hero.x, Lo.mid.x, mv), y = lerp(Lo.hero.y, Lo.mid.y, mv), S = lerp(Lo.hero.S, Lo.mid.S, io(seg(p, .12, .46)));
+  // "windet sich nach unten": die Spirale sinkt in die Bühne
+  const dn = seg(p, .28, .56);
+  y += lerp((wide ? -.14 : -.05) * H, 0, io(dn)) * seg(p, .2, .3);
+  // Ballett: etwas Platz machen; Abschluss: in finale Lage
+  const fb = io(seg(p, .5, .62));
+  x = lerp(x, Lo.fin.x, fb); y = lerp(y, Lo.fin.y, fb); S = lerp(S, Lo.fin.S, fb);
+  const ex = io(seg(p, .9, 1));
+  S *= lerp(1, .92, ex); y -= ex * H * .03;
+  const intro = rm.matches ? 1 : eo(clamp((time - 150) / 1500));
+  S *= lerp(.86, 1, intro);
+  const idle = rm.matches ? 0 : time * .00012;
+  const rot = .5 + p * TAU * 1.05 + io(seg(p, .28, .62)) * TAU * .6 + idle * TAU * .25;
+  const tilt = lerp(.42, .14, m);
+  const bob = rm.matches ? 0 : Math.sin(time * .0009) * S * .012;
+  return { m, x, y: y + bob, S, rot, tilt, alpha: intro, sauce: lerp(1, .82, m) };
+}
+
+/* ---------------- Pasta zeichnen ---------------- */
+let anchors = {};
+function drawPasta(st) {
+  const { m, x: cx, y: cy, S, rot, tilt } = st;
+  const cR = Math.cos(rot), sR = Math.sin(rot), cT = Math.cos(tilt), sT = Math.sin(tilt);
+  const F = 4.2;
+  let segN = 0;
+  let lowX = cx, lowY = -1e9;
+  for (let i = 0; i < N; i++) {
+    const s = strands[i];
+    for (let j = 0; j < SM; j++) {
+      const t = (j / (SM - 1)) * s.len;
+      model(s, t, m);
+      // Drehung um Y, dann Neigung um X
+      const x1 = _o[0] * cR + _o[2] * sR, z1 = -_o[0] * sR + _o[2] * cR;
+      const y2 = _o[1] * cT - z1 * sT, z2 = _o[1] * sT + z1 * cT;
+      const n1 = _o[3] * cR + _o[5] * sR, nz1 = -_o[3] * sR + _o[5] * cR;
+      const n2y = _o[4] * cT - nz1 * sT, n2z = _o[4] * sT + nz1 * cT;
+      const k = F / (F + z2);
+      const o = (i * SM + j) * 8;
+      const px = cx + x1 * S * k, py = cy + y2 * S * k;
+      P[o] = px; P[o + 1] = py; P[o + 2] = z2;
+      P[o + 3] = n1; P[o + 4] = n2y; P[o + 5] = n2z;
+      P[o + 6] = sauceAt(s, t) * st.sauce;
+      P[o + 7] = S * .026 * s.w * k * (1 - .35 * Math.max(0, t - .9) * 10);
+      if (j > 0) { ORD[segN] = segN; ZK[segN] = z2; segN++; }
+      if (z2 < .1 && py > lowY && j > SM * .6) { lowY = py; lowX = px; }
+    }
+  }
+  const order = Array.from(ORD.subarray(0, segN)).sort((a, b) => ZK[b] - ZK[a]);
+
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+  ctx.globalAlpha = st.alpha;
+  ctx.lineCap = 'round';
+
+  // weicher Schatten auf der Fläche (nur Andeutung von Tiefe)
+  const sh = ctx.createRadialGradient(cx + S * .12, cy + S * .25, 0, cx + S * .12, cy + S * .25, S * 1.1);
+  sh.addColorStop(0, 'rgba(30,8,4,.16)'); sh.addColorStop(1, 'rgba(30,8,4,0)');
+  ctx.fillStyle = sh; ctx.fillRect(cx - S * 1.2, cy - S * 1.2, S * 2.6, S * 2.8);
+
+  const SMm = SM - 1;
+  const drawGlobAfter = new Map();
+  globs.forEach(g => {
+    const j = Math.max(1, Math.round(g.t * SMm));
+    drawGlobAfter.set(g.s * SMm + j - 1, g);
+  });
+
+  for (let q = 0; q < order.length; q++) {
+    const sg = order[q];
+    const i = (sg / SMm) | 0, j = sg % SMm + 1;
+    const a = (i * SM + j - 1) * 8, b = (i * SM + j) * 8;
+    const nx = (P[a + 3] + P[b + 3]) * .5, ny = (P[a + 4] + P[b + 4]) * .5, nz = (P[a + 5] + P[b + 5]) * .5;
+    const sa = (P[a + 6] + P[b + 6]) * .5, z = (P[a + 2] + P[b + 2]) * .5;
+    const dif = Math.max(0, -(nx * LIGHT[0] + ny * LIGHT[1] + nz * LIGHT[2]));
+    // warmes Licht: zwischen Schatten- und Lichtfarbe mischen statt abdunkeln
+    let li = clamp(.18 + .95 * dif) * clamp(1.02 - z * .3, .7, 1.1);
+    const rim = Math.pow(1 - Math.abs(nz), 3) * .35; // Kanten leicht dunkler, trennt die Stränge
+    li = clamp(li - rim);
+    const spec = Math.pow(Math.max(0, -(nx * HV[0] + ny * HV[1] + nz * HV[2])), 22) * (.6 + sa * .5);
+    const r = lerp(lerp(150, 112, sa), lerp(250, 214, sa), li);
+    const gg = lerp(lerp(88, 16, sa), lerp(216, 52, sa), li);
+    const bb = lerp(lerp(38, 10, sa), lerp(146, 30, sa), li);
+    const w = (P[a + 7] + P[b + 7]) * .5;
+    ctx.beginPath(); ctx.moveTo(P[a], P[a + 1]); ctx.lineTo(P[b], P[b + 1]);
+    ctx.strokeStyle = `rgb(${r | 0},${gg | 0},${bb | 0})`;
+    ctx.lineWidth = w; ctx.stroke();
+    if (spec > .1) {
+      ctx.strokeStyle = `rgba(255,248,236,${Math.min(.8, spec).toFixed(2)})`;
+      ctx.lineWidth = Math.max(1, w * .3); ctx.stroke();
+    }
+    const lum = .55 + .5 * li;
+    const g = drawGlobAfter.get(sg);
+    if (g && nz < .15) {
+      const rr = S * .03 * g.r * (1 - m * .25);
+      const ang = Math.atan2(P[b + 1] - P[a + 1], P[b] - P[a]);
+      ctx.save(); ctx.translate(P[b], P[b + 1]); ctx.rotate(ang);
+      ctx.fillStyle = `rgb(${(190 * lum) | 0},${(34 * lum) | 0},${(18 * lum) | 0})`;
+      ctx.beginPath(); ctx.ellipse(0, 0, rr * 1.7, rr, 0, 0, TAU); ctx.fill();
+      ctx.fillStyle = 'rgba(255,225,210,.55)';
+      ctx.beginPath(); ctx.ellipse(-rr * .5, -rr * .35, rr * .45, rr * .22, 0, 0, TAU); ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  // Tropfen: hängt vom tiefsten sichtbaren Punkt
+  const len = S * lerp(.32, .22, m) * (1 + (rm.matches ? 0 : .06 * Math.sin(performance.now() * .0011)));
+  const dw = S * .022;
+  const gr = ctx.createLinearGradient(0, lowY, 0, lowY + len);
+  gr.addColorStop(0, '#9e1e10'); gr.addColorStop(1, '#7a1209');
+  ctx.fillStyle = gr;
+  ctx.beginPath();
+  ctx.moveTo(lowX - dw, lowY - dw);
+  ctx.quadraticCurveTo(lowX - dw * .25, lowY + len * .55, lowX - dw * .18, lowY + len);
+  ctx.arc(lowX, lowY + len + dw * .7, dw * 1.05, -Math.PI * .62, Math.PI * 1.62, false);
+  ctx.quadraticCurveTo(lowX + dw * .25, lowY + len * .55, lowX + dw, lowY - dw);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = 'rgba(255,220,200,.5)';
+  ctx.beginPath(); ctx.ellipse(lowX - dw * .4, lowY + len + dw * .3, dw * .3, dw * .5, 0, 0, TAU); ctx.fill();
+  ctx.globalAlpha = 1;
+
+  // Anker für Beschriftungen an der Silhouette
+  anchors.silhouette = (side, yU) => {
+    const t = clamp((yU + 1.32) / 2.64);
+    const rr = .27 + .14 * Math.sin(Math.PI * t) + .04;
+    const k = F / F;
+    return [cx + side * rr * S * k * .92, cy + yU * S * Math.cos(tilt)];
+  };
+}
+
+/* ---------------- Hintergrundwelle ---------------- */
+function drawWave(p) {
+  const k = io(seg(p, .14, .38));
+  const y = lerp(H * 1.06, -H * .16, k);
+  const a = H * .09 * Math.sin(Math.PI * k);
+  wavePath.setAttribute('d', `M0 ${y + a}C${W * .3} ${y - a * 1.2} ${W * .66} ${y + a * .7} ${W} ${y - a}L${W} ${H + 10}L0 ${H + 10}Z`);
+  return y - Math.abs(a);
+}
+
+/* ---------------- Beschriftung setzen ---------------- */
+function placeLabel(L, cx, cy, rad, spec, k, opacity) {
+  if (k <= 0 || opacity <= 0) {
+    L.el.style.opacity = 0; L.path.setAttribute('d', ''); L.dot.setAttribute('r', 0); return;
+  }
+  let ax = cx + spec.x * W, ay = cy + spec.y * H;
+  const left = spec.a === 'l';
+  // im Bild halten
+  const m = 14;
+  if (left && ax - L.w < m) ax = m + L.w;
+  if (!left && ax + L.w > W - m) ax = W - m - L.w;
+  ay = clamp(ay, Math.min(110, H * .22) + L.h, H - 30);
+  const far = left ? ax - L.w : ax + L.w;
+  let dx = ax - cx, dy = ay - cy; const dl = Math.hypot(dx, dy) || 1;
+  const px = cx + dx / dl * rad * .3, py = cy + dy / dl * rad * .3;
+  const d = `M${far.toFixed(1)} ${ay.toFixed(1)}L${ax.toFixed(1)} ${ay.toFixed(1)}L${px.toFixed(1)} ${py.toFixed(1)}`;
+  const total = L.w + Math.hypot(px - ax, py - ay);
+  L.path.setAttribute('d', d);
+  L.path.style.strokeDasharray = total;
+  L.path.style.strokeDashoffset = total * (1 - eo(clamp(k / .8)));
+  L.path.style.opacity = opacity;
+  L.dot.setAttribute('cx', px); L.dot.setAttribute('cy', py);
+  L.dot.setAttribute('r', k > .78 ? 3 * eo(seg(k, .78, 1)) : 0);
+  L.dot.style.opacity = opacity;
+  const ta = eo(seg(k, .25, 1));
+  L.el.style.opacity = ta * opacity;
+  L.el.style.transform = `translate3d(${(left ? far : ax).toFixed(1)}px,${(ay - L.h + (1 - ta) * 8).toFixed(1)}px,0)`;
+}
+
+function labelK(st, p) {
+  if (wide) return [seg(p, st + .035, st + .085), 1 - seg(p, .9, .945)];
+  const a = st + .03; // mobil nacheinander
+  return [seg(p, a, a + .035), 1 - seg(p, a + .085, a + .105)];
+}
+
+/* ---------------- Frame ---------------- */
+function frame(now) {
+  requestAnimationFrame(frame);
+  if (!visible && !needs) return;
+  const time = now - t0;
+  const prev = pS;
+  pS = rm.matches ? pT : pS + (pT - pS) * .16;
+  if (Math.abs(pT - pS) < .0002) pS = pT;
+  const moving = Math.abs(pS - prev) > 1e-5;
+  const animating = !rm.matches; // leichte Schwebe der Zutaten
+  if (!needs && !moving && !animating) return;
+  if (!needs && !moving && now - lastNow < 30) return; // Ruhe: ~30 fps genügen
+  lastNow = now; needs = false;
+  const p = pS;
+
+  const st = pastaState(p, time);
+  drawPasta(st);
+  const edge = drawWave(p);
+
+  // Texte
+  const ho = 1 - seg(p, .05, .19);
+  hero.style.opacity = ho;
+  hero.style.visibility = ho <= 0 ? 'hidden' : '';
+  hero.style.translate = `0 ${(-seg(p, .03, .22) * H * .16).toFixed(1)}px`;
+  hint.style.opacity = .7 * (1 - seg(p, .01, .06));
+  const i2 = io(seg(p, .27, .35)), o2 = io(seg(p, .47, .55));
+  t2.style.opacity = i2 * (1 - o2);
+  t2.style.transform = `translate3d(0,${((1 - i2) * 40 - o2 * 60).toFixed(1)}px,0)`;
+  const i3 = io(seg(p, .5, .56)), o3 = io(seg(p, .93, .99));
+  t3.style.opacity = i3 * (1 - o3) * .8;
+  sideTxt.textContent = p < .2 ? 'Sección 01' : p < .5 ? 'Sección 02' : 'Sección 03';
+  sideTxt.parentNode.style.color = edge < H * .5 ? 'var(--ink)' : 'var(--cream)';
+
+  // Gabel (nur im Hero)
+  const Lo = lay();
+  const fa = 1 - io(seg(p, .05, .2));
+  const fl = Lo.hero.S * 2.1, fw = fl / 6;
+  const tipX = st.x + Lo.hero.S * .06, tipY = st.y - Lo.hero.S * .02;
+  const lift = io(seg(p, .04, .22));
+  fork.style.width = fw + 'px'; fork.style.height = fl + 'px';
+  fork.style.opacity = fa * st.alpha;
+  fork.style.transform = `translate3d(${(tipX - fw / 2 + lift * W * .2).toFixed(1)}px,${(tipY - fl - lift * H * .45).toFixed(1)}px,0) rotate(${(58 + lift * 8).toFixed(2)}deg)`;
+
+  // Zutaten
+  const gather = io(seg(p, .9, 1));
+  const tsec = rm.matches ? 0 : time * .001;
+  ING.forEach(g => {
+    const pos = wide ? g.w : g.t;
+    const size = wide ? pos.s * H : pos.s * W;
+    let x = pos.x * W, y = pos.y * H, r = g.r, sc = 1, op;
+    const a = eo(seg(p, g.st, g.st + .075));
+    if (g.basil) {
+      // Albahaca liegt im Hero oben auf dem Nest, hebt ab, kommt im Ballett zurück
+      const hx = st.x - Lo.hero.S * .05, hy = st.y - Lo.hero.S * .5;
+      const off = io(seg(p, .08, .22));
+      const hs = Lo.hero.S * .55 / size;
+      if (a > 0) {
+        x += g.from[0] * (1 - a) * W * .4; y += g.from[1] * (1 - a) * H * .5;
+        r += (1 - a) * 90; sc = lerp(.7, 1, a); op = clamp(a * 1.6);
+      } else {
+        x = hx + off * W * .12; y = hy - off * H * .5; r = -24 + off * 80; sc = hs; op = (1 - off) * st.alpha;
+      }
+    } else {
+      x += g.from[0] * (1 - a) * W * .45; y += g.from[1] * (1 - a) * H * .4;
+      r += (1 - a) * g.from[0] * 70; sc = lerp(.7, 1, a); op = clamp(a * 1.6);
+    }
+    // Parallaxe nach Ebene + leichtes Schweben
+    const depth = g.layer === 'front' ? 1 : .5;
+    y += (p - .78) * -H * .22 * depth;
+    y += Math.sin(tsec * .9 + g.k * 1.7) * size * .03;
+    r += Math.sin(tsec * .6 + g.k) * 3;
+    x = lerp(x, st.x, gather * .14); y = lerp(y, st.y, gather * .14);
+    g.cx = x; g.cy = y; g.size = size * sc;
+    g.el.style.width = g.el.style.height = size + 'px';
+    g.el.style.opacity = op;
+    g.el.style.transform = `translate3d(${(x - size / 2).toFixed(1)}px,${(y - size / 2).toFixed(1)}px,0) rotate(${r.toFixed(2)}deg) scale(${sc.toFixed(3)})`;
+    if (g.L) {
+      const [k, o] = labelK(g.st, p);
+      placeLabel(g.L, x, y, size * sc, wide ? g.wl : g.tl, k, o * op);
+    }
+  });
+  PTAGS.forEach(g => {
+    const [k, o] = labelK(g.st, p);
+    const [ax, ay] = anchors.silhouette(g.side, g.yU);
+    placeLabel(g.L, ax, ay, 0, wide ? g.wl : g.tl, k, o);
+  });
+
+  // Kopfzeile: Tonwert nach Untergrund
+  const past = stage.getBoundingClientRect().bottom < 60;
+  hdr.dataset.tone = (edge < 64 || past) ? 'light' : 'dark';
+}
+
+/* ---------------- Scroll & Größe ---------------- */
+let stTop = 0, stLen = 1;
+function measure() {
+  const r = stage.getBoundingClientRect();
+  stTop = r.top + scrollY; stLen = Math.max(1, stage.offsetHeight - innerHeight);
+}
+function onScroll() {
+  let p = clamp((scrollY - stTop) / stLen);
+  if (rm.matches) p = p < .4 ? 0 : .87; // ruhige Fassung: zwei Standbilder
+  pT = p; needs = true;
+  const past = stage.getBoundingClientRect().bottom < 60;
+  hdr.classList.toggle('solid', past);
+  if (past) hdr.dataset.tone = 'light';
+  parallax();
+}
+function resize() {
+  const w = view.clientWidth, h = view.clientHeight;
+  const wasWide = wide;
+  wide = w >= h;
+  if (w !== W || Math.abs(h - H) > 60 || wasWide !== wide || !P) {
+    W = w; H = h;
+    DPR = Math.min(devicePixelRatio || 1, wide ? 2 : 1.75);
+    cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
+    wave.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    if (!P || wasWide !== wide) buildStrands();
+  }
+  labels.forEach(L => { L.w = L.el.offsetWidth; L.h = L.el.offsetHeight; });
+  measure(); measureParallax(); onScroll(); needs = true;
+}
+
+/* Parallaxe in den Folgeabschnitten */
+let floats = [];
+function measureParallax() {
+  floats = [...document.querySelectorAll('[data-speed],[data-x]')].map(el => {
+    el.style.transform = '';
+    const r = el.getBoundingClientRect();
+    return { el, c: r.top + scrollY + r.height / 2, sp: parseFloat(el.dataset.speed || 0), sx: parseFloat(el.dataset.x || 0) };
+  });
+}
+function parallax() {
+  if (rm.matches) return;
+  const vc = scrollY + innerHeight / 2;
+  floats.forEach(f => {
+    const d = f.c - vc;
+    if (Math.abs(d) > innerHeight * 1.6) return;
+    f.el.style.transform = f.sx ? `translate3d(${(d * f.sx).toFixed(1)}px,0,0)` : `translate3d(0,${(d * f.sp).toFixed(1)}px,0) rotate(${(d * f.sp * .04).toFixed(2)}deg)`;
+  });
+}
+
+new IntersectionObserver(es => { visible = es[0].isIntersecting; needs = true; }).observe(stage);
+const ro = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); ro.unobserve(e.target); } }), { rootMargin: '0px 0px -10% 0px' });
+document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
+
+addEventListener('scroll', onScroll, { passive: true });
+let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(resize, 80); });
+rm.addEventListener?.('change', () => { resize(); });
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => resize());
+resize();
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
