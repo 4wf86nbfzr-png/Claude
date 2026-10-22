@@ -49,11 +49,13 @@ python3 build-frames.py out ../../assets/film
 
 ## Offen
 
-- **Inhalte von saplaca.es**: Die Seite war aus der Arbeitsumgebung nicht
-  erreichbar. Kopf, Hero, „Lunch · Cena · Drinks“ und die Einleitung sind nach
-  dem Screenshot nachgebaut; der Schluss des Einleitungssatzes, die übrigen
-  Abschnitte, die Links für Reservar/Cartas sowie die DE/EN-Fassung fehlen.
-- **Hero-Bild**: `hero-platzhalter.*` ist aus dem Screenshot geschnitten
-  (1290 px breit). Bitte die Originaldatei einsetzen.
+- **Bilder**: Hero, Terrasse, Patatas, Pasta-Teller und Planta superior sind aus
+  Screenshots von saplaca.es geschnitten (saplaca.es war aus der Arbeitsumgebung
+  nicht erreichbar). Bitte die Originaldateien in `assets/img/` einsetzen
+  (jeweils .jpg und .webp).
+- **Fehlende Inhalte**: das Nahfoto unter „Horario“, die Links hinter
+  „Abrir carta“ (Carta, Bebidas) und die DE/EN-Fassung.
 - **Schriften**: Source Serif 4 und Inter sind eine Annäherung; sobald die
   Originalschriften bekannt sind, in `assets/fonts/` tauschen.
+- **Zutaten im Film**: Garnelen, Muscheln, Tomate, Basilikum (nach der
+  Referenz). Das Pasta-Foto auf der Seite zeigt ein anderes Gericht.
